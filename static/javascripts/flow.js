@@ -105,6 +105,10 @@ setupFunctions["t1-create-signin"] = function() {
           payload.keyFetchToken = client.keyFetchToken;
           payload.unwrapBKey = client.unwrapBKey;
           console.log('sendToBrowser maor native payload: ', payload);
+          sendToBrowser('login', payload);
+          switchTo("t2-signed-in-page");
+          leaveError();
+          makeNotBusy();
           return;
         }
         else {
@@ -118,17 +122,15 @@ setupFunctions["t1-create-signin"] = function() {
                 payload.kB = client.kB;
                 payload.kA = client.kA;
                 console.log('sendToBrowser payload: ', payload);
-                return;
+                sendToBrowser('login', payload);
+                switchTo("t2-signed-in-page");
+                leaveError();
+                makeNotBusy();
               });
           });
         }
       })
-      .done(function() {
-        sendToBrowser('login', payload);
-        switchTo("t2-signed-in-page");
-        leaveError();
-        makeNotBusy();
-      }, function (err) {
+      .done(null, function (err) {
         console.error('Error?', err);
         enterError('.login-panel', err.errno);
         makeNotBusy();
