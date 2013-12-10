@@ -1,0 +1,80 @@
+/* Border box all the things */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  color: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+}
+
+p.center {
+  text-align: center;
+}
+
+#stage {
+  background: #fff;
+  margin: 20px auto;
+  max-width: 400px;
+  padding: 20px;
+  width: 100%;
+}
+
+#stage h1 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.placeholder {
+  border: 1px dashed #ccc;
+  color: #bbb;
+  font-weight: bold;
+  padding: 50px 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.placeholder.email-placeholder {
+  padding: 10px 0;
+  float: left;
+  margin-right: 10px;
+  width: 75px;
+}
+
+a.button, button {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  color: #333;
+  border-radius: 5px;
+  display: block;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+}
+
+a.button:hover, button:hover {
+  background: #eee;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.error:empty {
+  display: none;
+}
+
+.form-row {
+  margin-bottom: 10px;
+}
+
+.form-row input {
+  padding: 5px;
+  width: 100%;
+}
