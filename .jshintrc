@@ -24,6 +24,7 @@
     "console": true,
     "define": true,
     "router": true,
-    "translator": true
+    "translator": true,
+    "gherkin": true
   }
 }

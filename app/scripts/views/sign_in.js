@@ -7,11 +7,10 @@
 define([
   'views/base',
   'hgn!templates/sign_in',
-  'gherkin',
   'lib/session',
   'processed/constants'
 ],
-function(BaseView, SignInTemplate, gherkin, Session, Constants) {
+function(BaseView, SignInTemplate, Session, Constants) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
