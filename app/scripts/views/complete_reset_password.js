@@ -44,10 +44,12 @@ function (_, BaseView, Template, FxaClient, Session, Url) {
 
       var password = this._getPassword();
 
-      var client = new FxaClient();
-      client.completePasswordReset(password, this.uid, this.code)
-            .done(_.bind(this._onResetCompleteSuccess, this),
-                  _.bind(this._onResetCompleteFailure, this));
+      FxaClient.getAsync()
+        .then(function (client) {
+          client.completePasswordReset(password, this.uid, this.code)
+                .done(_.bind(this._onResetCompleteSuccess, this),
+                      _.bind(this._onResetCompleteFailure, this));
+        });
     },
 
     _onResetCompleteSuccess: function () {
