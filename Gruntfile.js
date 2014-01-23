@@ -82,7 +82,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'useminPrepare',
     'selectconfig:dist',
-    'requirejs',
     'concurrent:dist',
     'autoprefixer',
     'concat',
@@ -90,6 +89,7 @@ module.exports = function (grunt) {
     'uglify',
     'modernizr',
     'copy:dist',
+    'requirejs',
     'rev',
     'usemin'
   ]);
