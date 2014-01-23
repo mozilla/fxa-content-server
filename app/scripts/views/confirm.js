@@ -7,19 +7,37 @@
 define([
   'views/base',
   'stache!templates/confirm',
-  'lib/session'
+  'lib/session',
+  'lib/fxa-client'
 ],
-function (BaseView, ConfirmTemplate, Session) {
-  var ConfirmView = BaseView.extend({
-    template: ConfirmTemplate,
+function (BaseView, Template, Session, FxaClient) {
+  var View = BaseView.extend({
+    template: Template,
     className: 'confirm',
 
     context: function () {
       return {
         email: Session.email
       };
+    },
+
+    events: {
+      'click': BaseView.preventDefaultThen('resend')
+    },
+
+    resend: function () {
+      var self = this;
+      var client = new FxaClient();
+      client.signUpResend()
+            .then(function () {
+              self.$('.success').show();
+              self.trigger('resent');
+            }, function (err) {
+              self.displayError(err.message);
+            });
     }
+
   });
 
-  return ConfirmView;
+  return View;
 });

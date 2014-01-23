@@ -77,6 +77,12 @@ function (FxaClient, $, p, Session) {
               });
     },
 
+    signUpResend: function () {
+      return this._getClientAsync().then(function (client) {
+                return client.recoveryEmailResendCode(Session.sessionToken);
+              });
+    },
+
     signOut: function () {
       return this._getClientAsync()
               .then(function (client) {
@@ -95,14 +101,22 @@ function (FxaClient, $, p, Session) {
               });
     },
 
-    requestPasswordReset: function (email) {
+    passwordReset: function (email) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordForgotSendCode(email);
               })
-              .then(function () {
+              .then(function (result) {
                 Session.clear();
                 Session.set('email', email);
+                Session.set('passwordForgotToken', result.passwordForgotToken);
+              });
+    },
+
+    passwordResetResend: function () {
+      return this._getClientAsync().then(function (client) {
+                return client.passwordForgotResendCode(
+                            Session.email, Session.passwordForgotToken);
               });
     },
 
@@ -138,12 +152,6 @@ function (FxaClient, $, p, Session) {
               })
               .then(function () {
                 Session.clear();
-              });
-    },
-
-    recoveryEmailResendCode: function (sessionToken) {
-      return this._getClientAsync().then(function (client) {
-                return client.recoveryEmailResendCode(sessionToken);
               });
     }
 
