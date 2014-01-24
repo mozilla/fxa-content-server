@@ -14,7 +14,7 @@ define([
   'lib/fxa-client'
 ],
 function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
-  /*global beforeEach, describe, it*/
+  /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
   var password = 'password';
@@ -36,11 +36,14 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       channelMock = null;
     });
 
-    describe('signUp', function () {
+    describe('signUp/signUpResend', function () {
       it('signs up a user with email/password', function (done) {
         client.signUp(email, password)
           .then(function () {
             assert.equal(channelMock.message, 'login');
+            return client.signUpResend();
+          })
+          .then(function () {
             done();
           }, function (err) {
             assert.fail(err);
@@ -65,17 +68,17 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       });
     });
 
-    describe('verifyCode', function () {
-    });
-
-    describe('requestPasswordReset', function () {
+    describe('passwordReset/passwordResetResend', function () {
       it('requests a password reset', function (done) {
         client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password);
           })
           .then(function () {
-            return client.requestPasswordReset(email);
+            return client.passwordReset(email);
+          })
+          .then(function () {
+            return client.passwordResetResend();
           })
           .then(function () {
             // positive test to ensure success case has an assertion
@@ -144,14 +147,13 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
           .then(function () {
             assert.fail('should not be able to signin after account deletion');
             done();
-          }, function (err) {
+          }, function () {
             // positive test to ensure sign in failure case has an assertion
             assert.isTrue(true);
             done();
           });
       });
     });
-
   });
 });
 
