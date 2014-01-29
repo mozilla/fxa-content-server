@@ -9,18 +9,19 @@ module.exports = function (grunt) {
     dist: {
       // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
       options: {
-        // `name` and `out` are set by grunt-usemin
+        almond: true,
+        replaceRequireScript: [{
+          files: ['<%= yeoman.dist %>/index.html'],
+          module: 'main'
+        }],
+        modules: [{name: 'main'}],
+        mainConfigFile: '<%= yeoman.app %>/scripts/main.js',
+        dir: '<%= yeoman.dist %>/scripts',
         baseUrl: '<%= yeoman.app %>/scripts',
-        optimize: 'none',
-        // TODO: Figure out how to make sourcemaps work with grunt-usemin
-        // https://github.com/yeoman/grunt-usemin/issues/30
-        //generateSourceMaps: true,
-        // required to support SourceMaps
-        // http://requirejs.org/docs/errors.html#sourcemapcomments
-        preserveLicenseComments: false,
         useStrict: true,
-        wrap: true,
-        stubModules: ['text', 'stache']
+        stubModules: ['text', 'stache'],
+        optimize: 'none',
+        wrap: true
       }
     }
   });
