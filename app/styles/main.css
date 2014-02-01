@@ -35,7 +35,7 @@ noscript {
 .fox-logo {
   width:96px;
   height:102px;
-  background:url(../images/fireFox.png);
+  background:url(../images/firefox.png);
   background-size:96px 102px;
   position: relative;
   margin: 0 auto -50px auto;
@@ -576,7 +576,7 @@ we may need to add js for IE8*/
   .fox-logo {
     width:64px;
     height:68px;
-    background:url(../images/fireFox.png);
+    background:url(../images/firefox.png);
     background-size:64px 68px;
     position: relative;
     z-index: 999;
@@ -610,7 +610,7 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
   .fox-logo {
-    background-image: url(../images/fireFox@2x.png);
+    background-image: url(../images/firefox@2x.png);
   }
 
   .graphic-checkbox {
