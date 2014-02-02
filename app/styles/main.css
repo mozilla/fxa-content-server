@@ -147,7 +147,8 @@ strong.email {
   display: block;
 }
 
-.error {
+.error,
+.success {
   background: #D63920;
   color: #fff;
   margin-bottom: 5px;
@@ -155,6 +156,11 @@ strong.email {
 }
 
 .error:empty {
+  display: none;
+}
+
+.success {
+  background: #5FAD47;
   display: none;
 }
 
@@ -558,12 +564,6 @@ we may need to add js for IE8*/
   display: none;
 }
 
-.success {
-  display: none;
-  margin-bottom: 40px;
-  color: green;
-  font-size: 18px;
-}
 
 /* Responsiveness */
 
