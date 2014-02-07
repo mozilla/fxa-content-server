@@ -51,7 +51,8 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       'submit form': 'onSubmit',
       'keyup form': 'enableButtonWhenValid',
       'change form': 'enableButtonWhenValid',
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'focus select': 'hidePlaceholderOption'
     },
 
     context: function () {
@@ -131,6 +132,14 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
         _.bind(function (err) {
           this.displayError(err.errno || err.message);
         }, this));
+    },
+
+    hidePlaceholderOption: function () {
+      /**
+       * The first option is only for display until the user opens
+       * the menu. As soon as the menu is opened, get rid of it.
+       */
+      this.$('#fxa-none').remove();
     }
 
   });
