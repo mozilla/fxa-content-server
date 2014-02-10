@@ -1,35 +1,47 @@
+$default-font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$header-font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+
+$error-background-color: #d63920;
+$html-background-color: #f2f2f2;
+$input-placeholder-color: #8a9ba8;
+$link-color: #0095dd;
+$show-password-label-color: #8a9ba8;
+$stage-background-color: #fff;
+$success-background-color: #5fad47;
+$text-color: #424f59;
+
+
 /* Border box all the things by default */
 *,
 *:before,
 *:after {
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
-  background-color: #f2f2f2;
+  background-color: $html-background-color;
   height: 100%;
 }
 
 body {
-  color: #424F59;
-  font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: $text-color;
+  font-family: $default-font-family;
   font-size: 14px;
   padding-bottom: 20px;
 }
 
 a {
-  color: #0095dd;
+  color: $link-color;
   cursor: pointer; /* Use the correct cursor for anchors without an href */
+
+  &:active {
+    outline: none;
+  }
 }
 
-a:active {
-  outline: none;
-}
 
 noscript {
-  color: #d63920;
+  color: $error-background-color;
   display: block;
   margin: 160px 0 0 0;
 }
@@ -46,20 +58,14 @@ noscript {
 }
 
 #fxa-signup-header.fox-logo {
-  -webkit-animation: movein 0.5s;
-     -moz-animation: movein 0.5s;
-          animation: movein 0.5s;
+  animation: movein 0.5s;
 }
 
 #stage {
-  -webkit-animation: fadein 0.5s;
-     -moz-animation: fadein 0.5s;
-          animation: fadein 0.5s;
-  background: #fff;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
-  -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  animation: fadein 0.5s;
+  background: $stage-background-color;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: 100px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
@@ -67,44 +73,13 @@ noscript {
   width: 420px;
 }
 
-@-webkit-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@-moz-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@-webkit-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-@-moz-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-@keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-
 .js #stage {
   display: none;
 }
 
 header h1,
 header h2 {
-  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+  font-family: $header-font-family;
   line-height: 1em;
   margin: 0;
 }
@@ -112,12 +87,13 @@ header h2 {
 header h1 {
   font-size: 24px;
   font-weight: normal;
+
+  span {
+    left: -9999px;
+    position: relative;
+  }
 }
 
-header h1 span {
-  position: relative;
-  left: -9999px;
-}
 
 header h2 {
   font-size: 24px;
@@ -125,27 +101,25 @@ header h2 {
   margin: 20px 0 32px 0;
 }
 
+section p {
+  font-size: 18px;
+}
+
 #legal-header h2 {
   margin: 0 0 30px 0;
   padding: 0;
 }
 
-#legal-copy ul,
-#legal-copy ol {
-  padding-left: 20px;
-  margin-left: 0;
-}
-
-section p {
-  font-size: 18px;
-}
-
 #legal-copy {
   text-align: left;
-}
-
-#legal-copy p {
-  font-size: 14px;
+  p {
+    font-size: 14px;
+  }
+  ol,
+  ul {
+    margin-left: 0;
+    padding-left: 20px;
+  }
 }
 
 strong.email {
@@ -154,8 +128,8 @@ strong.email {
 
 .error,
 .success {
-  background: #D63920;
-  color: #fff;
+  background: $error-background-color;
+  color: $stage-background-color;
   margin-bottom: 5px;
   padding: 5px;
 }
@@ -165,7 +139,7 @@ strong.email {
 }
 
 .success {
-  background: #5FAD47;
+  background: $success-background-color;
   display: none;
 }
 
@@ -201,15 +175,14 @@ strong.email {
 /* tooltip caret */
 .tooltip[title]:before,
 .tooltip[title]::before {
-  background: #D63920;
+  background: $error-background-color;
   content: '.';
   height: 16px;
   left: 12px;
   position: absolute;
   text-indent: -999px;
   top: -12px;
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+  transform: rotate(45deg);
   white-space: nowrap;
   width: 16px;
   z-index: 4;
@@ -217,18 +190,16 @@ strong.email {
 
 .tooltip-below[title]:before,
 .tooltip-below[title]::before {
-  top: -webkit-calc(100% - 4px);
-  top:    -moz-calc(100% - 4px);
   top:         calc(100% - 4px);
 }
 
 /* tooltip */
 .tooltip[title]:after,
 .tooltip[title]::after {
-  background: #D63920;
+  background: $error-background-color;
   border-radius: 1px;
   content: attr(title);
-  color: #fff;
+  color: $stage-background-color;
   left: 3px;
   padding: 5px 12px;
   position: absolute;
@@ -239,8 +210,6 @@ strong.email {
 
 .tooltip-below[title]:after,
 .tooltip-below[title]::after {
-  top: -webkit-calc(102% + 2px);
-  top:    -moz-calc(102% + 2px);
   top:         calc(102% + 2px);
 }
 
@@ -249,49 +218,41 @@ strong.email {
 .input-row input[type='email'],
 .input-row input[type='password'],
 .input-row select {
-  border: 1px solid #8A9BA8;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
-  -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
-          box-shadow: inset 0 1px 1px #f2f2f2;
-  color: #424f59;
+  border: 1px solid $input-placeholder-color;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 1px $html-background-color;
+  color: $text-color;
   font-size: 18px;
   height: 45px;
   outline: none;
   padding: 0 20px;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
+  transition-duration: 150ms;
+  transition-property: border-color;
   width: 100%;
 }
 
 
 .input-row input::-webkit-input-placeholder {
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input:-moz-placeholder { /* Firefox 18- */
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input::-moz-placeholder {  /* Firefox 19+ */
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input:-ms-input-placeholder {
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row select {
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   background: transparent url(/images/ddarrow_inactive.png) no-repeat right 14px top 50%;
   background-size: 10px 17px;
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   height: auto;
   outline: none;
   padding: 10px 20px;
@@ -303,18 +264,14 @@ strong.email {
 }
 
 .input-row:hover input {
-  border-color: #424f59;
+  border-color: $text-color;
 }
 
 .input-row input:focus,
 .input-row select:focus {
-  border-color: #0095DD;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
+  border-color: $link-color;
+  transition-duration: 150ms;
+  transition-property: border-color;
 }
 
 
@@ -323,17 +280,13 @@ strong.email {
 .input-row select:hover:active,
 .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
-  background-color: #f2f2f2;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: all;
-     -moz-transition-property: all;
-          transition-property: all;
+  background-color: $html-background-color;
+  transition-duration: 150ms;
+  transition-property: all;
 }
 
 .input-row option {
-  background-color: #fff;
+  background-color: $stage-background-color;
 }
 
 
@@ -342,7 +295,7 @@ strong.email {
 .input-row select:hover,
 .input-row:hover input:hover,
 .input-row:hover select:hover {
-  border-color: #424f59;
+  border-color: $text-color;
   outline: none;
 }
 
@@ -352,8 +305,8 @@ strong.email {
 .input-row:hover input:focus,
 .input-row:hover select:focus,
 .input-row:focus input {
-  border-color: #0095DD;
-  color: #424f59;
+  border-color: $link-color;
+  color: $text-color;
   outline: none;
 }
 
@@ -363,7 +316,7 @@ strong.email {
 .input-row input[type='text'].invalid ~ .show-password-label,
 .input-row input[type='password'].invalid ~ .show-password-label,
 .input-row select.invalid {
-  border-color: #D63920;
+  border-color: $error-background-color;
 }
 
 /**
@@ -374,7 +327,7 @@ strong.email {
  */
 .input-row select:-moz-focusring {
   color: transparent !important; /* !important must be added or else the browser ignores the request */
-  text-shadow: 0 0 0 #424F59 !important;
+  text-shadow: 0 0 0 $text-color !important;
 }
 
 
@@ -383,18 +336,14 @@ strong.email {
 }
 
 .input-row .input-help {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-top: 2px;
 }
 
 .input-row .input-help-focused {
   opacity: 0;
-  -webkit-transition-duration: 750ms;
-     -moz-transition-duration: 750ms;
-          transition-duration: 750ms;
-  -webkit-transition-property: opacity;
-     -moz-transition-property: opacity;
-          transition-property: opacity;
+  transition-duration: 750ms;
+  transition-property: opacity;
 }
 
 input:focus ~ .input-help-focused {
@@ -408,20 +357,15 @@ input:focus ~ .input-help-focused {
 
 .button-row button,
 .button-row a.button {
-  background: #0095dd;
+  background: $link-color;
   border: none;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
-  color: #fff;
+  border-radius: 5px;
+  color: $stage-background-color;
   cursor: pointer;
   font-size: 24px;
   padding: 15px 0;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: background-color;
-     -moz-transition-property: background-color;
-          transition-property: background-color;
+  transition-duration: 150ms;
+  transition-property: background-color;
   width: 100%;
 }
 
@@ -441,7 +385,7 @@ input:focus ~ .input-help-focused {
 
 .button-row button:disabled,
 .button-row button.disabled {
-  background: #8A9BA8;
+  background: $input-placeholder-color;
   cursor: auto;
 }
 
@@ -488,11 +432,9 @@ ul.links li {
 
 .privacy-links,
 .privacy-links a {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-top: 35px;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
 }
 
 .privacy-links + .button-row {
@@ -503,7 +445,7 @@ ul.links li {
 .privacy-links a:active,
 .privacy-links a:hover,
 .privacy-links a:focus {
-  color: #0095dd;
+  color: $link-color;
 }
 
 .verification-email-message {
@@ -533,9 +475,10 @@ ul.links li {
  */
 
 .password-row .show-password-label {
-  border-left: 1px solid #8A9BA8;
+  background-color: $stage-background-color;
+  border-left: 1px solid $input-placeholder-color;
   border-radius: 0 4px 4px 0;
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   cursor: pointer;
   font-size: 16px;
   height: 43px;
@@ -544,22 +487,16 @@ ul.links li {
   right: 1px;
   top: 1px;
   /* it is very easy to accidentally select the text when clicking */
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-   -khtml-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  user-select: none;
   width: 55px;
-  background-color: #fff;
 }
 
 .password-row > .password:hover {
-  border-color: #424f59;
+  border-color: $text-color;
 }
 
 .show-password-label {
-  border-color: #424f59;
+  border-color: $text-color;
 }
 
 /**
@@ -571,8 +508,8 @@ ul.links li {
  * label.
  */
 .show-password {
-  position: absolute;
   opacity: 0;
+  position: absolute;
 }
 
 .show-password-label:hover,
@@ -581,21 +518,21 @@ ul.links li {
 .show-password:focus + .show-password-label,
 .show-password:active + .show-password-label,
 .show-password:focus + .show-password-label {
-  background: #f2f2f2;
-  color: #424f59;
+  background: $html-background-color;
+  color: $text-color;
   outline: none;
 }
 
-/*this one is impossible to do w/o sibling selector
-we may need to add js for IE8*/
+/* this one is impossible to do w/o sibling selector
+we may need to add js for IE8 */
 
 .password:focus ~ .show-password-label{
-  border-left-color: #0095DD;
+  border-left-color: $link-color;
 }
 
 input[type="text"] ~ .show-password-label {
-  background: #8A9BA8;
-  color: #fff;
+  background: $input-placeholder-color;
+  color: $stage-background-color;
 }
 
 /**
@@ -607,13 +544,13 @@ input[type="text"] ~ .show-password:focus + .show-password-label,
 input[type="text"] ~ .show-password-label:focus,
 input[type="text"] ~ .show-password-label:active,
 input[type="text"] ~ .show-password-label:hover {
-  /*background: #f2f2f2;*/
-  background: #9AABB8;
-  color: #fff;
+  /*background: $html-background-color;*/
+  background: $show-password-label-color;
+  color: $stage-background-color;
 }
 
 .customize-sync-row {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-bottom: 20px !important;
 }
 
@@ -626,9 +563,7 @@ input[type="text"] ~ .show-password-label:hover {
 }
 
 .spinner {
-  -webkit-animation: 0.9s spin infinite linear;
-     -moz-animation: 0.9s spin infinite linear;
-          animation: 0.9s spin infinite linear;
+  animation: 0.9s spin infinite linear;
   background-image: url(/images/spinnerlight.png);
   background-size: 30px 30px;
   display: block;
@@ -640,24 +575,6 @@ input[type="text"] ~ .show-password-label:hover {
   width: 30px;
 }
 
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(365deg);
-  }
-}
-
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(365deg);
-  }
-}
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -665,6 +582,16 @@ input[type="text"] ~ .show-password-label:hover {
   to {
     transform: rotate(365deg);
   }
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes movein {
+  0%   {left: 0; top: -70px;}
+  100%   {left: 0; top: -50px;}
 }
 
 /* TODO: These need further consideration */
@@ -678,7 +605,7 @@ input[type="text"] ~ .show-password-label:hover {
 /* TODO: Confirm breakpoint sizes */
 @media only screen and (max-width: 500px) {
   html {
-    background: #fff;
+    background: $stage-background-color;
   }
 
   .fox-logo {
@@ -693,8 +620,7 @@ input[type="text"] ~ .show-password-label:hover {
   }
 
   #stage {
-    -webkit-box-shadow: none;
-            box-shadow: none;
+    box-shadow: none;
     margin: 100px auto 0 auto;
     min-height: none;
     min-width: 300px;
