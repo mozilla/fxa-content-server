@@ -12,9 +12,9 @@ module.exports = function (grunt) {
     dist: {
       files: [{
         expand: true,
-        cwd: '.tmp/styles/',
+        cwd: '<%= yeoman.temp %>/styles/',
         src: '{,*/}*.css',
-        dest: '.tmp/styles/'
+        dest: '<%= yeoman.temp %>/styles/'
       }]
     }
   });

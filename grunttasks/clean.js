@@ -10,12 +10,12 @@ module.exports = function (grunt) {
       files: [{
         dot: true,
         src: [
-          '.tmp',
+          '<%= yeoman.temp %>',
           '<%= yeoman.dist %>/*',
           '!<%= yeoman.dist %>/.git*'
         ]
       }]
     },
-    server: '.tmp'
+    server: '<%= yeoman.temp %>'
   });
 };

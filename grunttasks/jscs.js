@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.config('jscs', {
     src: [
       '**/*.js',
-      '!dist/**',
+      '!<%= yeoman.dist %>/**',
       '!node_modules/**',
       '!fxa-auth-server/**',
       '!**/bower_components/**',
