@@ -17,10 +17,15 @@ function (_, BaseView, Template, Session, Xss) {
     className: 'reset_password_complete',
 
     context: function () {
+      var redirectTo = Session.redirectTo;
+      if (redirectTo && Session.email) {
+        redirectTo += ('?email=' + encodeURIComponent(Session.email));
+      }
+
       return {
         email: Session.email,
         service: Session.service,
-        redirectTo: Xss.href(Session.redirectTo)
+        redirectTo: Xss.href(redirectTo)
       };
     }
   });

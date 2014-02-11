@@ -65,7 +65,16 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
       client.signIn(email, password)
             .then(function (accountData) {
               if (accountData.verified) {
-                self.navigate('settings');
+                if (Session.redirectTo) {
+                  var url = Session.redirectTo;
+                  if (Session.email) {
+                    url = url + '?email=' + encodeURIComponent(Session.email);
+                  }
+
+                  document.location.href = url;
+                } else {
+                  self.navigate('settings');
+                }
               } else {
                 return client.signUpResend()
                   .then(function () {

@@ -21,10 +21,15 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
     className: 'complete_sign_up',
 
     context: function () {
+      var redirectTo = Session.redirectTo;
+      if (redirectTo && Session.email) {
+        redirectTo += ('?email=' + encodeURIComponent(Session.email));
+      }
+
       return {
         email: Session.email,
         service: Session.service,
-        redirectTo: Xss.href(Session.redirectTo)
+        redirectTo: Xss.href(redirectTo)
       };
     },
 
@@ -42,7 +47,7 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
 
       var self = this;
       var client = new FxaClient();
-      client.verifyCode(uid, code)
+      client.completeSignUp(uid, code)
             .then(function () {
               // TODO - we could go to a "sign_up_complete" screen here.
               self.$('#fxa-complete-sign-up-success').show();

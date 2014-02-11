@@ -43,6 +43,7 @@ function (FxaClient, $, p, Session) {
     },
 
     signIn: function (email, password, customizeSync) {
+      var redirectTo = Session.redirectTo;
       return this._getClientAsync()
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
@@ -57,7 +58,8 @@ function (FxaClient, $, p, Session) {
                   unwrapBKey: accountData.unwrapBKey,
                   keyFetchToken: accountData.keyFetchToken,
                   sessionToken: accountData.sessionToken,
-                  customizeSync: customizeSync
+                  customizeSync: customizeSync,
+                  redirectTo: redirectTo
                 };
 
                 Session.set(updatedSessionData);
@@ -112,6 +114,13 @@ function (FxaClient, $, p, Session) {
               });
     },
 
+    completeSignUp: function (uid, code) {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.verifyCode(uid, code);
+              });
+    },
+
     signOut: function () {
       return this._getClientAsync()
               .then(function (client) {
@@ -120,13 +129,6 @@ function (FxaClient, $, p, Session) {
               .then(function () {
                 // user's session is gone
                 Session.clear();
-              });
-    },
-
-    verifyCode: function (uid, code) {
-      return this._getClientAsync()
-              .then(function (client) {
-                return client.verifyCode(uid, code);
               });
     },
 
@@ -149,10 +151,12 @@ function (FxaClient, $, p, Session) {
                 // The user may resend the password reset email, in which case
                 // we have to keep around some state so the email can be
                 // resent.
-                Session.set('service', service);
-                Session.set('redirectTo', redirectTo);
-                Session.set('email', email);
-                Session.set('passwordForgotToken', result.passwordForgotToken);
+                Session.set({
+                  service: service,
+                  redirectTo: redirectTo,
+                  email: email,
+                  passwordForgotToken: result.passwordForgotToken
+                });
               });
     },
 
