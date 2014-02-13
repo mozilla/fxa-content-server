@@ -122,6 +122,19 @@ function (mocha, chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('completeSignUp', function () {
+      it('completes sign up', function (done) {
+        client.completeSignUp('fakeuid', 'fakecode')
+              .then(null, function () {
+                // the errorback is used because the
+                // uid and code are invalid
+                assert.isTrue(
+                    realClient.verifyCode.calledWith('fakeuid', 'fakecode'));
+                done();
+              });
+      });
+    });
+
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function (done) {
         client.signIn('unknown@unknown.com', 'password')
