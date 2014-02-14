@@ -1,0 +1,30 @@
+/* Keyframes */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(365deg);
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes movein {
+  0% {
+    left: 0;
+    top: -70px;
+  }
+  100% {
+    left: 0;
+    top: -50px;
+  }
+}
