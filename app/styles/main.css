@@ -134,6 +134,8 @@ header h2 {
 
 #legal-header h3 {
     font-size: 12px;
+    padding:10px 0;
+    font-weight: normal;
 }
 
 #legal-copy ul,
