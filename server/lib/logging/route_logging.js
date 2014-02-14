@@ -4,9 +4,9 @@
 
 // Middleware to log the requests
 
-const logger = require('intel').getLogger('server.requests');
-const expressLogger = require('express').logger;
-const config = require('../configuration');
+var logger = require('intel').getLogger('server.requests');
+var expressLogger = require('express').logger;
+var config = require('../configuration');
 
 /**
  * Enhances connect logger middleware - custom formats.
@@ -19,6 +19,8 @@ expressLogger.format('dev_fxa', ':method :url :status :response-time');
 
 
 module.exports = function () {
+  'use strict';
+
   return expressLogger({
     format: config.get('route_log_format'),
     stream: {

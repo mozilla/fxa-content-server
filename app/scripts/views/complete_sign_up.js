@@ -11,9 +11,10 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/url',
-  'lib/xss'
+  'lib/xss',
+  'lib/strings'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
+function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Strings) {
   var t = BaseView.t;
 
   var CompleteSignUpView = BaseView.extend({
@@ -21,38 +22,46 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
     className: 'complete_sign_up',
 
     context: function () {
+      var service = Session.service;
+
+      if (Session.redirectTo) {
+        service = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(Session.redirectTo), Session.service
+        ]);
+      }
+
       return {
-        email: Session.email,
-        service: Url.searchParam('service'),
-        redirectTo: Xss.href(Url.searchParam('redirectTo'))
+        service: service
       };
     },
 
     afterRender: function () {
-      var uid = Url.searchParam('uid');
+      var searchParams = this.window.location.search;
+      var uid = Url.searchParam('uid', searchParams);
       if (! uid) {
         return this.displayError(t('no uid specified'));
       }
 
-      var code = Url.searchParam('code');
+      var code = Url.searchParam('code', searchParams);
       if (! code) {
         return this.displayError(t('no code specified'));
       }
 
+      var self = this;
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
               // TODO - we could go to a "sign_up_complete" screen here.
-              this.$('#fxa-complete-sign-up-success').show();
+              self.$('#fxa-complete-sign-up-success').show();
 
-              this.$('h2.success').show();
-              this.$('h2.failure').hide();
-            }.bind(this), function (err) {
-              this.displayError(err.errno || err.message);
+              self.$('.complete').show();
+              self.trigger('verify_code_complete');
+            })
+            .then(null, function (err) {
+              self.displayError(err.errno || err.message);
 
-              this.$('h2.success').hide();
-              this.$('h2.failure').show();
-            }.bind(this));
+              self.trigger('verify_code_complete');
+            });
     }
 
   });

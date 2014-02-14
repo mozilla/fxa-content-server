@@ -10,19 +10,24 @@ define([
   'stache!templates/reset_password_complete',
   'lib/session',
   'lib/xss',
-  'lib/url'
+  'lib/strings'
 ],
-function (_, BaseView, Template, Session, Xss, Url) {
+function (_, BaseView, Template, Session, Xss, Strings) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
 
     context: function () {
+      var service = Session.service;
+
+      if (Session.redirectTo) {
+        service = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(Session.redirectTo), Session.service
+        ]);
+      }
+
       return {
-        email: Session.email,
-        service: Url.searchParam('service'),
-        isSync: Url.searchParam('service') === 'sync',
-        redirectTo: Xss.href(Session.redirectTo)
+        service: service
       };
     }
   });
