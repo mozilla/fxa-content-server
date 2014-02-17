@@ -169,40 +169,13 @@ strong.email {
 .input-row {
   margin-bottom: 15px;
   width: 100%;
-}
-
-.tooltip {
   position: relative;
 }
 
-/* tooltip caret */
-.tooltip[title]:before,
-.tooltip[title]::before {
-  background: $error-background-color;
-  content: '.';
-  height: 16px;
-  left: 12px;
-  position: absolute;
-  text-indent: -999px;
-  top: -12px;
-  transform: rotate(45deg);
-  white-space: nowrap;
-  width: 16px;
-  z-index: 4;
-}
-
-.tooltip-below[title]:before,
-.tooltip-below[title]::before {
-  top: calc(100% - 4px);
-}
-
-/* tooltip */
-.tooltip[title]:after,
-.tooltip[title]::after {
+.tooltip {
   background: $error-background-color;
   border-radius: 1px;
-  color: $message-text-color;
-  content: attr(title);
+  color: #fff;
   left: 3px;
   padding: 5px 12px;
   position: absolute;
@@ -211,9 +184,33 @@ strong.email {
   z-index: 5;
 }
 
-.tooltip-below[title]:after,
-.tooltip-below[title]::after {
-  top: calc(102% + 2px);
+/* tooltip caret */
+.tooltip:before,
+.tooltip::before {
+  background: $error-background-color;
+  content: '.';
+  height: 16px;
+  left: 12px;
+  position: absolute;
+  text-indent: -999px;
+  top: 21px;
+  transform: rotate(45deg);
+  white-space: nowrap;
+  width: 16px;
+  /**
+   * The z-index must be -1 or else the caret is
+   * displayed on top of the tooltip text
+   */
+  z-index: -1;
+}
+
+/**
+ * these are caret's attached to tooltips that hang below the
+ * input element. The tooltip's top is set via JS.
+ */
+.tooltip-below:before,
+.tooltip-below::before {
+  top: -7px;
 }
 
 .input-row input[type='text'],
