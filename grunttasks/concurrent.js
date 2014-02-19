@@ -7,13 +7,13 @@ module.exports = function (grunt) {
 
   grunt.config('concurrent', {
     server: [
-      'sass'
+      'css'
     ],
     test: [
-      'sass'
+      'css'
     ],
     dist: [
-      'sass',
+      'css',
       'imagemin',
       'svgmin',
       'htmlmin'

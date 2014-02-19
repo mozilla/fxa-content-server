@@ -13,7 +13,7 @@ module.exports = function (grunt) {
     'l10n-create-json',
     'requirejs',
     'concurrent:dist',
-    'autoprefixer',
+    'css',
     'concat',
     'cssmin',
     'copy:dist',
