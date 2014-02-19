@@ -2,21 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// meta grunt task to convert and auto-prefix Sass.
+
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('concurrent', {
-    server: [
-      'sass'
-    ],
-    test: [
-      'sass'
-    ],
-    dist: [
-      'sass',
-      'imagemin',
-      'svgmin',
-      'htmlmin'
-    ]
-  });
+  grunt.registerTask('css', [
+    'sass',
+    'autoprefixer'
+  ]);
 };
