@@ -1,6 +1,6 @@
 /* Responsiveness */
 
-/* TODO: Confirm breakpoint sizes */
+/* TODO: (Issue #559) Confirm breakpoint sizes */
 @media only screen and (max-width: 500px) {
   html {
     background: $stage-background-color;
@@ -41,13 +41,13 @@
 /* Retina */
 
 @media
-only screen and (-webkit-min-device-pixel-ratio: 2),
-only screen and (   min--moz-device-pixel-ratio: 2),
-only screen and (   -moz-min-device-pixel-ratio: 2),
-only screen and (     -o-min-device-pixel-ratio: 2/1),
-only screen and (        min-device-pixel-ratio: 2),
-only screen and (                min-resolution: 192dpi),
-only screen and (                min-resolution: 2dppx) {
+    only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (   min--moz-device-pixel-ratio: 2),
+    only screen and (   -moz-min-device-pixel-ratio: 2),
+    only screen and (     -o-min-device-pixel-ratio: 2/1),
+    only screen and (        min-device-pixel-ratio: 2),
+    only screen and (                min-resolution: 192dpi),
+    only screen and (                min-resolution: 2dppx) {
   .fox-logo {
     background-image: url(/images/firefox@2x.png);
   }

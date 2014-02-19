@@ -103,9 +103,11 @@ header h2 {
 
 #legal-copy {
   text-align: left;
+
   p {
     font-size: 14px;
   }
+
   ol,
   ul {
     margin-left: 0;
@@ -130,6 +132,10 @@ strong.email {
   color: $message-text-color;
   margin-bottom: 5px;
   padding: 5px;
+
+  a {
+    color: $message-text-color;
+  }
 }
 
 .error:empty {
@@ -173,10 +179,19 @@ strong.email {
 .input-row {
   margin-bottom: 15px;
   width: 100%;
+  position: relative;
 }
 
 .tooltip {
-  position: relative;
+  background: $error-background-color;
+  border-radius: 1px;
+  color: $message-text-color;
+  left: 3px;
+  padding: 5px 12px;
+  position: absolute;
+  top: -32px;
+  white-space: nowrap;
+  z-index: 5;
 }
 
 /* tooltip caret */
@@ -188,36 +203,25 @@ strong.email {
   left: 12px;
   position: absolute;
   text-indent: -999px;
-  top: -12px;
-  transform: rotate(45deg);
+  top: 21px;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
   white-space: nowrap;
   width: 16px;
-  z-index: 4;
+  /**
+   * The z-index must be -1 or else the caret is
+   * displayed on top of the tooltip text
+   */
+  z-index: -1;
 }
 
-.tooltip-below[title]:before,
-.tooltip-below[title]::before {
-  top: calc(100% - 4px);
-}
-
-/* tooltip */
-.tooltip[title]:after,
-.tooltip[title]::after {
-  background: $error-background-color;
-  border-radius: 1px;
-  color: $message-text-color;
-  content: attr(title);
-  left: 3px;
-  padding: 5px 12px;
-  position: absolute;
-  top: -32px;
-  white-space: nowrap;
-  z-index: 5;
-}
-
-.tooltip-below[title]:after,
-.tooltip-below[title]::after {
-  top: calc(102% + 2px);
+/**
+ * these are caret's attached to tooltips that hang below the
+ * input element. The tooltip's top is set via JS.
+ */
+.tooltip-below:before,
+.tooltip-below::before {
+  top: -7px;
 }
 
 .input-row input[type='text'],
@@ -236,7 +240,6 @@ strong.email {
   transition-property: border-color;
   width: 100%;
 }
-
 
 .input-row input::-webkit-input-placeholder {
    color: $input-placeholder-color;
@@ -417,21 +420,23 @@ ul.links li {
   padding: 0;
 }
 
-.links a {
-  text-decoration: none;
+.links {
+  a {
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .left {
+    float: left;
+  }
+
+  .right {
+    float: right;
+  }
 }
 
-.links a:hover {
-  text-decoration: underline;
-}
-
-.links .left {
-  float: left;
-}
-
-.links .right {
-  float: right;
-}
 
 .privacy-links,
 .privacy-links a {
@@ -545,7 +550,6 @@ input[type="text"] ~ .show-password:focus + .show-password-label,
 input[type="text"] ~ .show-password-label:focus,
 input[type="text"] ~ .show-password-label:active,
 input[type="text"] ~ .show-password-label:hover {
-  /* background: $html-background-color; */
   background: $show-password-background-color;
   color: $message-text-color;
 }
@@ -577,11 +581,8 @@ input[type="text"] ~ .show-password-label:hover {
 }
 
 
-/* TODO: These need further consideration */
+// TODO: (Issue #558) These need further consideration
 
 .hidden {
   display: none;
 }
-
-@import "keyframes";
-@import "media_queries";

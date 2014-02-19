@@ -120,12 +120,20 @@ function (_, Backbone, jQuery, Session, authErrors) {
       }
 
       this.destroySubviews();
+      this.trigger('destroyed');
     },
 
     trackSubview: function (view) {
       if (!_.contains(this.subviews, view)) {
         this.subviews.push(view);
+        view.on('destroyed', _.bind(this.untrackSubview, this, view));
       }
+
+      return view;
+    },
+
+    untrackSubview: function (view) {
+      this.subviews = _.without(this.subviews, view);
 
       return view;
     },
@@ -134,6 +142,10 @@ function (_, Backbone, jQuery, Session, authErrors) {
       _.invoke(this.subviews, 'destroy');
 
       this.subviews = [];
+    },
+
+    isSubviewTracked: function (view) {
+      return _.indexOf(this.subviews, view) > -1;
     },
 
     /**
@@ -158,25 +170,44 @@ function (_, Backbone, jQuery, Session, authErrors) {
     },
 
     /**
-     * Display an error message
+     * Display an error message.
      * @method displayError
      * If msg is not given, the contents of the .error element's text
      * will not be updated.
      */
-    displayError: function (msg) {
+    displayError: function (err) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
-      if (typeof msg === 'number') {
-        msg = authErrors[msg];
-      }
+      var msg = authErrors.toMessage(err);
+      var context = authErrors.toContext(err);
 
       if (msg) {
-        this.$('.error').text(this.translator.get(msg));
+        this.$('.error').text(this.translator.get(msg, context));
       }
 
       this.$('.error').show();
       this.trigger('error', msg);
+    },
+
+    /**
+     * Display an error message that may contain HTML. Marked unsafe
+     * because msg could contain XSS. Use with caution and never
+     * with unsanitized user generated content.
+     *
+     * @method displayErrorUnsafe
+     * If msg is not given, the contents of the .error element's text
+     * will not be updated.
+     */
+    displayErrorUnsafe: function (err) {
+      this.displayError(err);
+
+      var msg = authErrors.toMessage(err);
+      var context = authErrors.toContext(err);
+
+      if (msg) {
+        this.$('.error').html(this.translator.get(msg, context));
+      }
     },
 
     hideError: function () {
