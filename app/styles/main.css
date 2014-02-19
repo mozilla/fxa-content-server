@@ -1,195 +1,155 @@
-/* Border box all the things by default */
-*,
-*:before,
-*:after {
+*, *:before, *:after {
   -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-}
+  -moz-box-sizing: border-box;
+  box-sizing: border-box; }
 
 html {
   background-color: #f2f2f2;
-  height: 100%;
-}
+  height: 100%; }
 
 body {
-  color: #424F59;
+  color: #424f59;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  padding-bottom: 20px;
-}
+  padding-bottom: 20px; }
 
 a {
   color: #0095dd;
-  cursor: pointer; /* Use the correct cursor for anchors without an href */
-}
+  cursor: pointer;
+  /* Use the correct cursor for anchors without an href */ }
 
 a:active {
-  outline: none;
-}
+  outline: none; }
 
 a.no-underline {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
 noscript {
   color: #d63920;
   display: block;
-  margin: 160px 0 0 0;
-}
+  margin: 160px 0 0 0; }
 
 .fox-logo {
   background: url(/images/firefox.png);
+  -webkit-background-size: 96px 102px;
   background-size: 96px 102px;
   height: 102px;
   margin: 0 auto -50px auto;
   position: relative;
   top: -50px;
   width: 96px;
-  z-index: 999;
-}
+  z-index: 999; }
 
 #fxa-signup-header.fox-logo {
   -webkit-animation: movein 0.5s;
-     -moz-animation: movein 0.5s;
-          animation: movein 0.5s;
-}
+  animation: movein 0.5s; }
 
 #stage {
   -webkit-animation: fadein 0.5s;
-     -moz-animation: fadein 0.5s;
-          animation: fadein 0.5s;
+  animation: fadein 0.5s;
   background: #fff;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
+  border-radius: 5px;
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: 100px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
   text-align: center;
-  width: 420px;
-}
+  width: 420px; }
 
 .js #stage {
-  display: none;
-}
+  display: none; }
 
-header h1,
-header h2,
-header h3 {
+header h1, header h2, header h3 {
   font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   line-height: 1em;
-  margin: 0;
-}
+  margin: 0; }
 
 header h1 {
   font-size: 24px;
-  font-weight: normal;
-}
+  font-weight: normal; }
 
 header h1 span {
-  position: relative;
   left: -9999px;
-}
+  position: relative; }
 
 header h2 {
   font-size: 24px;
   font-weight: 200;
-  margin: 20px 0 32px 0;
-}
+  margin: 20px 0 32px 0; }
 
 #legal-header h2 {
   margin: 0 0 30px 0;
-  padding: 0;
-}
+  padding: 0; }
 
 #legal-header h3 {
-    font-size: 12px;
-}
+  font-size: 12px; }
 
-#legal-copy ul,
-#legal-copy ol {
-  padding-left: 20px;
+#legal-copy ul, #legal-copy ol {
   margin-left: 0;
-}
+  padding-left: 20px; }
 
 section p {
-  font-size: 18px;
-}
+  font-size: 18px; }
 
 #legal-copy {
-  text-align: left;
-}
+  text-align: left; }
 
 #legal-copy p {
-  font-size: 14px;
-}
+  font-size: 14px; }
 
 strong.email {
-  display: block;
-}
+  display: block; }
 
 .allcaps {
-  text-transform: uppercase;
-}
+  text-transform: uppercase; }
 
-.error,
-.success {
-  background: #D63920;
+.error, .success {
   color: #fff;
   margin-bottom: 5px;
-  padding: 5px;
-}
+  padding: 5px; }
+
+.error {
+  background: #d63920; }
 
 .error:empty {
-  display: none;
-}
+  display: none; }
 
 .error a {
-  color: #fff;
-}
+  color: #fff; }
 
 .success {
-  background: #5FAD47;
-  display: none;
-}
+  background: #5fad47;
+  display: none; }
 
-/**
- * complete is like success, but without the associated styles.
- */
 .complete {
-  display: none;
-}
+  display: none; }
 
 .graphic {
   background-repeat: none;
+  -webkit-background-size: 150px 130px;
   background-size: 150px 130px;
   height: 130px;
   margin: 0 auto;
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
-  width: 150px;
-}
+  width: 150px; }
 
 .graphic-checkbox {
-  background-image: url(/images/graphic_checkbox.png);
-}
+  background-image: url(/images/graphic_checkbox.png); }
 
 .graphic-mail {
   background-image: url(/images/graphic_mail.png);
-  padding-bottom: 10px;
-}
+  padding-bottom: 10px; }
 
 .input-row {
   margin-bottom: 15px;
   width: 100%;
-  position: relative;
-}
+  position: relative; }
 
 .tooltip {
-  background: #D63920;
+  background: #d63920;
   border-radius: 1px;
   color: #fff;
   left: 3px;
@@ -197,13 +157,11 @@ strong.email {
   position: absolute;
   top: -32px;
   white-space: nowrap;
-  z-index: 5;
-}
+  z-index: 5; }
 
 /* tooltip caret */
-.tooltip:before,
-.tooltip::before {
-  background: #D63920;
+.tooltip:before, .tooltip::before {
+  background: #d63920;
   content: '.';
   height: 16px;
   left: 12px;
@@ -211,146 +169,101 @@ strong.email {
   text-indent: -999px;
   top: 21px;
   -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
   white-space: nowrap;
   width: 16px;
   /**
    * The z-index must be -1 or else the caret is
    * displayed on top of the tooltip text
    */
-  z-index: -1;
-}
+  z-index: -1; }
 
 /**
  * these are caret's attached to tooltips that hang below the
  * input element. The tooltip's top is set via JS.
  */
-.tooltip-below:before,
-.tooltip-below::before {
-  top: -7px;
-}
+.tooltip-below:before, .tooltip-below::before {
+  top: -7px; }
 
-
-.input-row input[type='text'],
-.input-row input[type='email'],
-.input-row input[type='password'],
-.input-row select {
-  border: 1px solid #8A9BA8;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
+.input-row input[type='text'], .input-row input[type='email'], .input-row input[type='password'], .input-row select {
+  border: 1px solid #8a9ba8;
+  border-radius: 5px;
   -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
-          box-shadow: inset 0 1px 1px #f2f2f2;
+  box-shadow: inset 0 1px 1px #f2f2f2;
   color: #424f59;
   font-size: 18px;
   height: 45px;
   outline: none;
   padding: 0 20px;
   -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
   -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
-  width: 100%;
-}
-
+  transition-property: border-color;
+  width: 100%; }
 
 .input-row input::-webkit-input-placeholder {
-   color: #8A9BA8;
-}
+  color: #8a9ba8; }
 
-.input-row input:-moz-placeholder { /* Firefox 18- */
-   color: #8A9BA8;
-}
+.input-row input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #8a9ba8; }
 
-.input-row input::-moz-placeholder {  /* Firefox 19+ */
-   color: #8A9BA8;
-}
+.input-row input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #8a9ba8; }
 
 .input-row input:-ms-input-placeholder {
-   color: #8A9BA8;
-}
+  color: #8a9ba8; }
 
 .input-row select {
   -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   background: transparent url(/images/ddarrow_inactive.png) no-repeat right 14px top 50%;
+  -webkit-background-size: 10px 17px;
   background-size: 10px 17px;
-  color: #8A9BA8;
+  color: #8a9ba8;
   height: auto;
   outline: none;
   padding: 10px 20px;
-  /* Some hackery for Firefox since moz-appearance: none doesn't remove the arrow */
   text-indent: 0.01px;
   text-overflow: "";
   -moz-user-select: none;
-  width: 100%;
-}
+  width: 100%; }
 
 .input-row:hover input {
-  border-color: #424f59;
-}
+  border-color: #424f59; }
 
-.input-row input:focus,
-.input-row select:focus {
-  border-color: #0095DD;
+.input-row input:focus, .input-row select:focus {
+  border-color: #0095dd;
   -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
   -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
-}
+  transition-property: border-color; }
 
-
-
-.input-row select:hover,
-.input-row select:hover:active,
-.input-row select:focus {
+.input-row select:hover, .input-row select:hover:active, .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
   background-color: #f2f2f2;
   -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
   -webkit-transition-property: all;
-     -moz-transition-property: all;
-          transition-property: all;
-}
+  transition-property: all; }
 
 .input-row option {
-  background-color: #fff;
-}
+  background-color: #fff; }
 
-
-
-.input-row input:hover,
-.input-row select:hover,
-.input-row:hover input:hover,
-.input-row:hover select:hover {
+.input-row input:hover, .input-row select:hover, .input-row:hover input:hover, .input-row:hover select:hover {
   border-color: #424f59;
-  outline: none;
-}
+  outline: none; }
 
-
-.input-row input:focus,
-.input-row select:focus,
-.input-row:hover input:focus,
-.input-row:hover select:focus,
-.input-row:focus input {
-  border-color: #0095DD;
+.input-row input:focus, .input-row select:focus, .input-row:hover input:focus, .input-row:hover select:focus, .input-row:focus input {
+  border-color: #0095dd;
   color: #424f59;
-  outline: none;
-}
+  outline: none; }
 
-.input-row input[type='text'].invalid,
-.input-row input[type='email'].invalid,
-.input-row input[type='password'].invalid,
-.input-row input[type='text'].invalid ~ .show-password-label,
-.input-row input[type='password'].invalid ~ .show-password-label,
-.input-row select.invalid {
-  border-color: #D63920;
-}
+.input-row input[type='text'].invalid, .input-row input[type='email'].invalid, .input-row input[type='password'].invalid, .input-row input[type='text'].invalid ~ .show-password-label, .input-row input[type='password'].invalid ~ .show-password-label, .input-row select.invalid {
+  border-color: #d63920; }
 
 /**
  * Firefox show a focus ring around the selected text.
@@ -359,161 +272,116 @@ strong.email {
  * http://stackoverflow.com/questions/19468372/how-to-remove-dashed-border-of-select-box-in-firefox#answer-19468615
  */
 .input-row select:-moz-focusring {
-  color: transparent !important; /* !important must be added or else the browser ignores the request */
-  text-shadow: 0 0 0 #424F59 !important;
-}
-
+  color: transparent !important;
+  /* !important must be added or else the browser ignores the request */
+  text-shadow: 0 0 0 #424f59 !important; }
 
 .input-row:last-child {
-  margin-bottom: 0;
-}
+  margin-bottom: 0; }
 
 .input-row .input-help {
-  color: #8A9BA8;
-  margin-top: 2px;
-}
+  color: #8a9ba8;
+  margin-top: 2px; }
 
 .input-row .input-help-focused {
   opacity: 0;
   -webkit-transition-duration: 750ms;
-     -moz-transition-duration: 750ms;
-          transition-duration: 750ms;
+  transition-duration: 750ms;
   -webkit-transition-property: opacity;
-     -moz-transition-property: opacity;
-          transition-property: opacity;
-}
+  transition-property: opacity; }
 
 /**
  * The label:active and :focus selectors are added
  * to eliminate flicker when the user holds the mouse
  * key down over top of teh "show/hide" password button.
  */
-input:focus ~ .input-help-focused,
-label:active ~ .input-help-focused,
-label:focus ~ .input-help-focused {
-  opacity: 1;
-}
+input:focus ~ .input-help-focused, label:active ~ .input-help-focused, label:focus ~ .input-help-focused {
+  opacity: 1; }
 
 .button-row {
   margin-bottom: 20px;
-  margin-top: 45px;
-}
+  margin-top: 45px; }
 
-.button-row button,
-.button-row a.button {
+.button-row button, .button-row a.button {
   background: #0095dd;
   border: none;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
+  border-radius: 5px;
   color: #fff;
   cursor: pointer;
   font-size: 24px;
   padding: 15px 0;
   -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
   -webkit-transition-property: background-color;
-     -moz-transition-property: background-color;
-          transition-property: background-color;
-  width: 100%;
-}
+  transition-property: background-color;
+  width: 100%; }
 
 .button-row a.button {
   display: inline-block;
-  text-decoration: none;
-}
+  text-decoration: none; }
 
-.button-row a.button:active,
-.button-row a.button:hover,
-.button-row a.button:focus,
-.button-row button:active,
-.button-row button:hover,
-.button-row button:focus {
-  background: #0088CC;
-}
+.button-row a.button:active, .button-row a.button:hover, .button-row a.button:focus, .button-row button:active, .button-row button:hover, .button-row button:focus {
+  background: #08c; }
 
-.button-row button:disabled,
-.button-row button.disabled {
-  background: #8A9BA8;
-  cursor: auto;
-}
+.button-row button:disabled, .button-row button.disabled {
+  background: #8a9ba8;
+  cursor: auto; }
 
 /* Custom rows */
 .input-row-month-day select {
-  width: 45%;
-}
-
+  width: 45%; }
 
 .description {
-  font-size: 18px;
-}
+  font-size: 18px; }
 
 .links {
   margin-bottom: 20px;
-  overflow: auto;
-}
+  overflow: auto; }
 
 ul.links {
   list-style: none;
-  padding: 0;
-}
+  padding: 0; }
 
 ul.links li {
   margin: 12px 0;
-  padding: 0;
-}
+  padding: 0; }
 
 .links a {
-  text-decoration: none;
-}
+  text-decoration: none; }
 
 .links a:hover {
-  text-decoration: underline;
-}
+  text-decoration: underline; }
 
 .links .left {
-  float: left;
-}
+  float: left; }
 
 .links .right {
-  float: right;
-}
+  float: right; }
 
-.privacy-links,
-.privacy-links a {
-  color: #8A9BA8;
+.privacy-links, .privacy-links a {
+  color: #8a9ba8;
   margin-top: 35px;
   -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-}
+  transition-duration: 150ms; }
 
 .privacy-links + .button-row {
-  margin-top: 20px;
-}
+  margin-top: 20px; }
 
-
-.privacy-links a:active,
-.privacy-links a:hover,
-.privacy-links a:focus {
-  color: #0095dd;
-}
+.privacy-links a:active, .privacy-links a:hover, .privacy-links a:focus {
+  color: #0095dd; }
 
 .verification-email-message {
-  word-wrap: break-word;
-}
+  word-wrap: break-word; }
 
 .password-row {
-  position: relative;
-}
+  position: relative; }
 
 /*
  * The password class is used instead of type because the field's type can
  * change from password to text.
  */
 .password-row input[type='password'] {
-  padding-right: 75px;
-}
+  padding-right: 75px; }
 
 /**
  * The addition of right, top, border-radius, and background-color are
@@ -524,11 +392,11 @@ ul.links li {
  *
  * See https://bugzilla.mozilla.org/show_bug.cgi?id=965237
  */
-
 .password-row .show-password-label {
-  border-left: 1px solid #8A9BA8;
+  background-color: #fff;
+  border-left: 1px solid #8a9ba8;
   border-radius: 0 4px 4px 0;
-  color: #8A9BA8;
+  color: #8a9ba8;
   cursor: pointer;
   font-size: 16px;
   height: 43px;
@@ -536,24 +404,19 @@ ul.links li {
   position: absolute;
   right: 1px;
   top: 1px;
-  /* it is very easy to accidentally select the text when clicking */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
-   -khtml-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-  width: 55px;
-  background-color: #fff;
-}
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: 55px; }
 
 .password-row > .password:hover {
-  border-color: #424f59;
-}
+  border-color: #424f59; }
 
 .show-password-label {
-  border-color: #424f59;
-}
+  border-color: #424f59; }
 
 /**
  * The checkboxes are keyboard accessible, the label is placed as a sibling
@@ -564,65 +427,45 @@ ul.links li {
  * label.
  */
 .show-password {
-  position: absolute;
   opacity: 0;
-}
+  position: absolute; }
 
-.show-password-label:hover,
-.show-password-label:active,
-.show-password-label:focus,
-.show-password:focus + .show-password-label,
-.show-password:active + .show-password-label,
-.show-password:focus + .show-password-label {
+.show-password-label:hover, .show-password-label:active, .show-password-label:focus, .show-password:focus + .show-password-label, .show-password:active + .show-password-label, .show-password:focus + .show-password-label {
   background: #f2f2f2;
   color: #424f59;
-  outline: none;
-}
+  outline: none; }
 
-/*this one is impossible to do w/o sibling selector
+/* this one is impossible to do w/o sibling selector
 we may need to add js for IE8*/
-
-.password:focus ~ .show-password-label{
-  border-left-color: #0095DD;
-}
+.password:focus ~ .show-password-label {
+  border-left-color: #0095dd; }
 
 input[type="text"] ~ .show-password-label {
-  background: #8A9BA8;
-  color: #fff;
-}
+  background: #8a9ba8;
+  color: #fff; }
 
 /**
  * Hover over the show password label in its dark state
  */
-input[type="text"] ~ .show-password:focus + .show-password-label,
-input[type="text"] ~ .show-password:focus + .show-password-label,
-input[type="text"] ~ .show-password:focus + .show-password-label,
-input[type="text"] ~ .show-password-label:focus,
-input[type="text"] ~ .show-password-label:active,
-input[type="text"] ~ .show-password-label:hover {
-  /*background: #f2f2f2;*/
-  background: #9AABB8;
-  color: #fff;
-}
+input[type="text"] ~ .show-password:focus + .show-password-label, input[type="text"] ~ .show-password:active + .show-password-label, input[type="text"] ~ .show-password:hover + .show-password-label, input[type="text"] ~ .show-password-label:focus, input[type="text"] ~ .show-password-label:active, input[type="text"] ~ .show-password-label:hover {
+  background: #9aabb8;
+  color: #fff; }
 
 .customize-sync-row {
-  color: #8A9BA8;
-  margin-bottom: 20px !important;
-}
+  color: #8a9ba8;
+  margin-bottom: 20px !important; }
 
 .links + .privacy-links {
-  margin: 20px 0 15px 0;
-}
+  margin: 20px 0 15px 0; }
 
 .cannot-create-account-content {
-  margin-top: 105px;
-}
+  margin-top: 105px; }
 
 .spinner {
   -webkit-animation: 0.9s spin infinite linear;
-     -moz-animation: 0.9s spin infinite linear;
-          animation: 0.9s spin infinite linear;
+  animation: 0.9s spin infinite linear;
   background-image: url(/images/spinnerlight.png);
+  -webkit-background-size: 30px 30px;
   background-size: 30px 30px;
   display: block;
   height: 30px;
@@ -630,151 +473,116 @@ input[type="text"] ~ .show-password-label:hover {
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
-  width: 30px;
-}
+  width: 30px; }
 
+/* TODO: (Issue #558) These need further consideration */
+.hidden {
+  display: none; }
 
 /* Keyframes */
-
 @-webkit-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+  from {
+    opacity: 0; }
 
-@-moz-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+  to {
+    opacity: 1; } }
 
 @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
+  from {
+    opacity: 0; }
+
+  to {
+    opacity: 1; } }
 
 @-webkit-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
+  0% {
+    left: 0;
+    top: -70px; }
 
-@-moz-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
+  100% {
+    left: 0;
+    top: -50px; } }
 
 @keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
+  0% {
+    left: 0;
+    top: -70px; }
+
+  100% {
+    left: 0;
+    top: -50px; } }
 
 @-webkit-keyframes spin {
   from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(365deg);
-  }
-}
+    -webkit-transform: rotate(0deg); }
 
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
   to {
-    -moz-transform: rotate(365deg);
-  }
-}
+    -webkit-transform: rotate(365deg); } }
 
 @keyframes spin {
   from {
-    transform: rotate(0deg);
-  }
+    -webkit-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg); }
+
   to {
-    transform: rotate(365deg);
-  }
-}
-
-/* TODO: (Issue #558) These need further consideration */
-
-.hidden {
-  display: none;
-}
+    -webkit-transform: rotate(365deg);
+    -ms-transform: rotate(365deg);
+    transform: rotate(365deg); } }
 
 /* Responsiveness */
-
 /* TODO: (Issue #559) Confirm breakpoint sizes */
 @media only screen and (max-width: 500px) {
-  html {
-    background: #fff;
-  }
+  @-webkit-keyframes movein {
+    0% {
+      left: 0;
+      top: -20px; }
 
+    100% {
+      left: 0;
+      top: 0; } }
+
+  @keyframes movein {
+    0% {
+      left: 0;
+      top: -20px; }
+
+    100% {
+      left: 0;
+      top: 0; } }
+
+  html {
+    background: #fff; }
   .fox-logo {
     background: url(/images/firefox.png);
+    -webkit-background-size: 64px 68px;
     background-size: 64px 68px;
     height: 68px;
     margin: 0 auto;
     position: relative;
-    top:0;
+    top: 0;
     width: 64px;
-    z-index: 999;
-  }
-
+    z-index: 999; }
   #stage {
     -webkit-box-shadow: none;
-            box-shadow: none;
+    box-shadow: none;
     margin: 10px auto;
     min-height: none;
     min-width: 300px;
     padding: 0 10px 40px 10px;
-    width: 100%;
-  }
-
-  @-webkit-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-
-  @-moz-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-
-  @keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-}
+    width: 100%; } }
 
 /* Retina */
-
-@media
-only screen and (-webkit-min-device-pixel-ratio: 2),
-only screen and (   min--moz-device-pixel-ratio: 2),
-only screen and (   -moz-min-device-pixel-ratio: 2),
-only screen and (     -o-min-device-pixel-ratio: 2/1),
-only screen and (        min-device-pixel-ratio: 2),
-only screen and (                min-resolution: 192dpi),
-only screen and (                min-resolution: 2dppx) {
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-moz-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-device-pixel-ratio: 2), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
   .fox-logo {
-    background-image: url(/images/firefox@2x.png);
-  }
-
+    background-image: url(/images/firefox@2x.png); }
   .graphic-checkbox {
-    background-image: url(/images/graphic_checkbox@2x.png);
-  }
-
+    background-image: url(/images/graphic_checkbox@2x.png); }
   .graphic-mail {
-    background-image: url(/images/graphic_mail@2x.png);
-  }
-
+    background-image: url(/images/graphic_mail@2x.png); }
   .spinner {
-    background-image: url(/images/spinnerlight@2x.png);
-  }
-
+    background-image: url(/images/spinnerlight@2x.png); }
   .input-row select {
-    background-image: url(/images/ddarrow_inactive@2x.png)
-  }
-
+    background-image: url(/images/ddarrow_inactive@2x.png); }
   .input-row select:focus {
-    background-image: url(/images/ddarrow_active@2x.png);
-  }
-}
+    background-image: url(/images/ddarrow_active@2x.png); } }
