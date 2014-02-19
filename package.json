@@ -65,7 +65,8 @@
     "jwcrypto": "0.4.3",
     "load-grunt-tasks": "~0.3.0",
     "mkdirp": "~0.3.5",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "grunt-todo": "~0.1.2"
   },
   "devDependencies": {
     "awsbox": "0.6.2",

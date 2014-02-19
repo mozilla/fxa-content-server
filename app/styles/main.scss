@@ -140,6 +140,10 @@ strong.email {
   background: $error-background-color;
 }
 
+.error a {
+  color: $error-text-color;
+}
+
 .success {
   background: $success-background-color;
   display: none;
@@ -573,8 +577,6 @@ input[type="text"] ~ .show-password-label:hover {
   width: 30px;
 }
 
-
-/* TODO: These need further consideration */
 
 .hidden {
   display: none;

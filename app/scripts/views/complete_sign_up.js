@@ -51,14 +51,14 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Str
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
-              // TODO - we could go to a "sign_up_complete" screen here.
+              // TODO - (Issue #557) we could go to a "sign_up_complete" screen here.
               self.$('#fxa-complete-sign-up-success').show();
 
               self.$('.complete').show();
               self.trigger('verify_code_complete');
             })
             .then(null, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
 
               self.trigger('verify_code_complete');
             });
