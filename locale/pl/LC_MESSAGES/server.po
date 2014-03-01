@@ -13,7 +13,7 @@ msgstr ""
 #: server/templates/email/reset.txt:1 server/templates/email/verify.html:1
 #: server/templates/email/verify.html:2 server/templates/email/verify.txt:1
 msgid "Firefox Accounts"
-msgstr "Firefox Accounts"
+msgstr "Konto Firefox"
 
 #: server/templates/email/reset.html:3 server/templates/email/reset.txt:2
 msgid "A request to reset the password for %(email)s has been made."
@@ -26,7 +26,7 @@ msgstr "Zmiana hasła"
 #: server/templates/email/reset.html:5 server/templates/email/reset.txt:4
 #: server/templates/email/verify.html:5 server/templates/email/verify.txt:4
 msgid "If you received this email in error, no action is required."
-msgstr "Jeżeli otrzymałeś tego e-maila w wyniku pomyłki, nic nie musisz robić."
+msgstr "Jeżeli otrzymałeś tego e-maila przez pomyłkę, nic nie musisz robić."
 
 #: server/templates/email/reset.txt:3
 msgid "Reset password:"
@@ -37,8 +37,8 @@ msgid ""
 "Congratulations! %(email)s, you are seconds away from verifying your Firefox "
 "Account."
 msgstr ""
-"Gratulacje! %(email)s, tylko chwila dzieli Cię od zweryfikowania Twojego konta Firefox "
-"Account."
+"Gratulacje! %(email)s, tylko chwila dzieli Cię od zweryfikowania Twojego Konta "
+"Firefox."
 
 #: server/templates/email/verify.html:4
 msgid "Verify"
