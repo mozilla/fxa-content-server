@@ -8,28 +8,47 @@
 'use strict';
 
 define([
-  'underscore'
-], function (_) {
+  'underscore',
+  'lib/url'
+], function (_, Url) {
+  /*global localStorage*/
   var NAMESPACE = '__fxa_session';
 
   // channel is initialized on app startup
   // and should not be saved to localStorage
-  var DO_NOT_PERSIST = ['channel', 'password', 'error'];
+  var DO_NOT_PERSIST = ['channel', 'password', 'error', 'useStorage'];
 
   // channel should not be cleared from memory or else fxa-client.js
   // will blow up when sending the login message.
-  var DO_NOT_CLEAR = ['channel'];
+  var DO_NOT_CLEAR = ['channel', 'useStorage'];
 
-  function Session() {
+  function Session(options) {
+    options = options || {};
+
+    if ('useStorage' in options) {
+      this.useStorage = options.useStorage;
+    }
+
     this.load();
   }
 
   Session.prototype = {
+    constructor: Session,
+
+    /**
+     * By default, store data in localStorage
+     */
+    useStorage: true,
+
     /**
      * Load info from localStorage
      * @method load
      */
     load: function () {
+      if (! this.useStorage) {
+        return;
+      }
+
       var values = {};
       try {
         values = JSON.parse(localStorage.getItem(NAMESPACE));
@@ -60,11 +79,16 @@ define([
     },
 
     /**
-     * Persist data to localStorage
+     * Persist data to localStorage if `useStorage: false` is
+     * not passed to constructor.
      * @method persist
      * Note: items in DO_NOT_PERSIST are not saved to localStorage
      */
     persist: function () {
+      if (! this.useStorage) {
+        return;
+      }
+
       // items on the blacklist do not get saved to localStorage.
       var toSave = {};
       _.each(this, function (value, key) {
@@ -117,11 +141,41 @@ define([
         this[key] = null;
         delete this[key];
       }
+    },
+
+    /**
+     * Add an item to memory and localStorage. Used to test
+     * the `useStorage` option.
+     * @method testSetLocalStorage
+     * @private
+     */
+    testSetLocalStorage: function (key, value) {
+      var data = {};
+      data[key] = value;
+      localStorage.setItem(NAMESPACE, JSON.stringify(data));
+    },
+
+    /**
+     * Get backing localStorage.
+     * @method testGetLocalStorage
+     * @private
+     */
+    testGetLocalStorage: function () {
+      return localStorage.getItem(NAMESPACE);
     }
     // END TEST API
   };
 
+  function isNativeFireox() {
+    return Url.searchParam('context') === 'fx_desktop_v1';
+  }
+
 
   // session is a singleton
-  return new Session();
+  return new Session({
+    // do not load or store to localStorage if the content
+    // server is viewed from `about:accounts` in Firefox.
+    useStorage: !isNativeFireox()
+  });
+
 });
