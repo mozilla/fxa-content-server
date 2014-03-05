@@ -42,7 +42,7 @@ function (chai, Session) {
         assert.equal(Session.key3, 'value3');
       });
 
-      it('will not overwrite items in Session.prototype', function() {
+      it('will not overwrite items in Session.prototype', function () {
         Session.set('set', 1);
         assert.notEqual(Session.set, 1);
       });
@@ -69,12 +69,12 @@ function (chai, Session) {
         assert.isUndefined(Session.key6);
       });
 
-      it('will not clear items in Session.prototype', function() {
+      it('will not clear items in Session.prototype', function () {
         Session.clear('set');
         assert.isFunction(Session.set);
       });
 
-      it('will not clear items in DO_NOT_CLEAR', function() {
+      it('will not clear items in DO_NOT_CLEAR', function () {
         var channel = {};
         Session.set('channel', channel);
         Session.clear('channel');
@@ -100,13 +100,58 @@ function (chai, Session) {
         assert.equal(Session.key8, 'value8');
       });
 
-      it('does not load up items in DO_NOT_PERSIST', function() {
+      it('does not load up items in DO_NOT_PERSIST', function () {
         var channel = {};
         Session.set('channel', channel);
         Session.persist();
         Session.clear();
         Session.load();
         assert.strictEqual(Session.channel, channel);
+      });
+    });
+
+    describe('Session without localStorage support', function () {
+      var session;
+
+      beforeEach(function () {
+        localStorage.clear();
+        session = new Session.constructor({ useStorage: false });
+      });
+
+      describe('load', function () {
+        it('does not load anything from localStorage', function () {
+          session.testSetLocalStorage('item', 'value');
+
+          // `useStorage: false` prevents load from reading localStorage
+          session.load();
+
+          var value = session.get('item');
+          assert.isUndefined(value);
+        });
+      });
+
+      describe('set', function () {
+        it('does not update localStorage', function () {
+          session.set('item', 'value');
+
+          // `useStorage: false` prevents set from saving to localStorage
+          assert.isNull(session.testGetLocalStorage());
+
+          // Session information is still saved locally.
+          assert.equal(session.get('item'), 'value');
+        });
+      });
+
+      describe('persist', function () {
+        it('does not persist to localStorage', function () {
+          session.set('item', 'value');
+
+          // `useStorage: false` prevents persist from saving to localStorage
+          session.persist();
+
+          assert.isNull(session.testGetLocalStorage());
+          assert.equal(session.get('item'), 'value');
+        });
       });
     });
   });
