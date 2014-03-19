@@ -8,6 +8,8 @@ module.exports = function (grunt) {
   grunt.registerTask('server', 'Start the server after performing necessary build.', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'serverproc:dist']);
+    } else if (target === 'travis') {
+      return grunt.task.run(['build:travis', 'serverproc:dist']);
     }
 
     grunt.task.run([

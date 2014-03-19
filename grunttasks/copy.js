@@ -30,6 +30,20 @@ module.exports = function (grunt) {
         ]
       }]
     },
+    tests: {
+      files: [
+        {
+          // test resources.
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          src: [
+            'tests/{,*/}{,*/}*.*'
+          ]
+        }
+      ]
+    },
     dist: {
       files: [
         {

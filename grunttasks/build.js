@@ -5,26 +5,35 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('build', [
-    'lint',
-    'clean:dist',
-    'useminPrepare',
-    'selectconfig:dist',
-    'l10n-create-json',
-    // server templates are needed for requirejs to replace the require script
-    'copy:server_templates',
-    'requirejs',
-    'css',
-    'concurrent:dist',
-    'concat',
-    'cssmin',
-    'copy:dist',
-    // modernizer must come after copy or else the custom
-    // modernizr is overwritten with the dev version.
-    'modernizr',
-    // uglify overwrites the files in the dist directory.
-    'uglify',
-    'rev',
-    'usemin'
-  ]);
+  grunt.registerTask('build', function (target) {
+    var tasks = [
+      'lint',
+      'clean:dist',
+      'useminPrepare',
+      'selectconfig:dist',
+      'l10n-create-json',
+      // server templates are needed for requirejs to replace the require script
+      'copy:server_templates',
+      'requirejs',
+      'css',
+      'concurrent:dist',
+      'concat',
+      'cssmin',
+      'copy:dist',
+      // modernizer must come after copy or else the custom
+      // modernizr is overwritten with the dev version.
+      'modernizr',
+      // uglify overwrites the files in the dist directory.
+      'uglify',
+      'rev',
+      'usemin'
+    ];
+
+    // copy tests if the build target is travis
+    if (target === 'travis') {
+      tasks.splice(tasks.indexOf('copy:dist'), 0, 'copy:tests');
+    }
+
+    grunt.task.run(tasks);
+  });
 };
