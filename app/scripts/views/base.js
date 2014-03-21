@@ -178,12 +178,12 @@ function (_, Backbone, jQuery, Session, authErrors) {
         this.$('.success').text(this.translator.get(msg));
       }
 
-      this.$('.success').show();
+      this.$('.success').slideDown(150);
       this.trigger('success', msg);
     },
 
     hideSuccess: function () {
-      this.$('.success').hide();
+      this.$('.success').stop().hide();
     },
 
     /**
@@ -198,13 +198,70 @@ function (_, Backbone, jQuery, Session, authErrors) {
 
       var msg = authErrors.toMessage(err);
       var context = authErrors.toContext(err);
+      var localMsg = '';
+      var submitCheck = false;
 
-      if (msg) {
-        this.$('.error').text(this.translator.get(msg, context));
+      //this is added in order to pass tests
+      if (typeof(this.isValid) === "function") {
+        submitCheck = this.isValid();
+      } else {
+        submitCheck = false;
       }
 
-      this.$('.error').show();
-      this.trigger('error', msg);
+      if (msg) {
+        localMsg = this.translator.get(msg, context);
+      }
+
+      if (err.errno || submitCheck === false) {
+        this.hideSubmitSpinner();
+        $('.error').text(localMsg).slideDown(150);
+        this.trigger('error', localMsg);
+      
+      } else {
+        var self = this;
+        setTimeout(function() {
+          self.hideSubmitSpinner();
+          $('.error').text(localMsg).slideDown(150);
+          self.trigger('error', localMsg);
+        },1000);
+      }
+    },
+
+    displaySubmitSpinner: function() {
+
+      var submitButton = this.$('button[type="submit"]');
+      var buttonText = submitButton.children('span');
+
+      var submitCheck = false;
+
+      if (typeof(this.isValid) === "function") {
+        submitCheck = this.isValid();
+      } else {
+        submitCheck = false;
+      }
+
+      if (!submitButton.has('div').length  && submitCheck) {
+        submitButton.addClass('disabled');
+        submitButton.append('<div class="white-spinner"></div>');
+        buttonText.addClass('hidden');
+      }
+    },
+
+    hideSubmitSpinner: function() {
+
+      var submitButton = this.$('button[type="submit"]');
+      var buttonText = submitButton.children('span');
+  
+      if (typeof(this.enableSubmitIfValid) === "function") {
+        this.enableSubmitIfValid();
+      } else {
+        return false;
+      }
+
+      if (submitButton.has('div').length) {
+        submitButton.children('div').remove();
+        buttonText.removeClass('hidden');
+      }
     },
 
     /**
@@ -217,18 +274,42 @@ function (_, Backbone, jQuery, Session, authErrors) {
      * will not be updated.
      */
     displayErrorUnsafe: function (err) {
-      this.displayError(err);
+      this.hideSuccess();
+      this.$('.spinner').hide();
 
       var msg = authErrors.toMessage(err);
       var context = authErrors.toContext(err);
+      var localMsg = '';
+      var submitCheck = false;
+
+      //this is added in order to pass te
+      if (typeof(this.isValid) === "function") {
+        submitCheck = this.isValid();
+      } else {
+        submitCheck = false;
+      }
 
       if (msg) {
-        this.$('.error').html(this.translator.get(msg, context));
+        localMsg = this.translator.get(msg, context);
+      }
+
+      if (err.errno || submitCheck === false) {
+        this.hideSubmitSpinner();
+        $('.error').html(localMsg).slideDown(150);
+        this.trigger('error', localMsg);
+      
+      } else {
+        var self = this;
+        setTimeout(function() {
+          self.hideSubmitSpinner();
+          $('.error').html(localMsg).slideDown(150);
+          self.trigger('error', localMsg);
+        },1000);
       }
     },
 
     hideError: function () {
-      this.$('.error').hide();
+      this.$('.error').slideUp(150);
     },
 
     back: function (event) {

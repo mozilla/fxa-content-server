@@ -68,11 +68,15 @@ function (_, BaseView, FormView, SignInTemplate, Constants, Session, FxaClient, 
     },
 
     submit: function () {
+      this.hideError();
+      this.displaySubmitSpinner();
+
       var email = Session.forceAuth ? Session.forceEmail : this.$('.email').val();
       var password = this.$('.password').val();
-
+      
       var client = new FxaClient();
       var self = this;
+
       client.signIn(email, password)
             .then(function (accountData) {
               if (accountData.verified) {

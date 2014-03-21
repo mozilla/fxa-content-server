@@ -34,6 +34,9 @@ function (_, FormView, Template, Session, FxaClient, PasswordMixin) {
     },
 
     submit: function () {
+      this.hideError();
+      this.displaySubmitSpinner();
+      
       var email = this.context().email;
       var password = this.$('.password').val();
       var client = new FxaClient();
