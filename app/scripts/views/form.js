@@ -128,6 +128,7 @@ function (_, $, BaseView, Tooltip) {
      * or showValidationErrorsEnd to display view specific messages.
      */
     showValidationErrors: function () {
+      
       this.hideError();
 
       if (this.showValidationErrorsStart()) {

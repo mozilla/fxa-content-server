@@ -55,8 +55,10 @@ function (_, FormView, Template, FxaClient, Session, Url) {
     },
 
     submit: function () {
+      this.hideError();
+      this.displaySubmitSpinner();
+      
       var email = this.$('.email').val();
-
       var client = new FxaClient();
       var self = this;
       client.passwordReset(email)

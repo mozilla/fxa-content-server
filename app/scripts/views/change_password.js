@@ -36,6 +36,9 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
     },
 
     submit: function () {
+      this.hideError();
+      this.displaySubmitSpinner();
+
       var email = Session.email;
       var oldPassword = this.$('#old_password').val();
       var newPassword = this.$('#new_password').val();
@@ -44,8 +47,6 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
         return this.displayError(
                     t('old and new passwords must be different'));
       }
-
-      this.hideError();
 
       var self = this;
       var client = new FxaClient();

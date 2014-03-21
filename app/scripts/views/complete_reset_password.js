@@ -63,8 +63,10 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     },
 
     submit: function () {
-      var password = this._getPassword();
+      this.hideError();
+      this.displaySubmitSpinner();
 
+      var password = this._getPassword();
       var client = new FxaClient();
       client.completePasswordReset(this.email, password, this.token, this.code)
             .done(_.bind(this._onResetCompleteSuccess, this),
@@ -76,7 +78,7 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     },
 
     _onResetCompleteFailure: function (err) {
-      this.displayError(err);
+      this.displayError(err,true);
     },
 
     _getPassword: function () {

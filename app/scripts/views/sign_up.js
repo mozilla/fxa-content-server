@@ -84,6 +84,9 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
         return this._cannotCreateAccount();
       }
 
+      this.hideError();
+      this.displaySubmitSpinner();
+
       this._createAccount();
     },
 
@@ -117,7 +120,7 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
       var email = this.$('.email').val();
       var password = this.$('.password').val();
       var customizeSync = this.$('.customize-sync').is(':checked');
-
+      
       var self = this;
       var client = new FxaClient();
       client.signUp(email, password, { customizeSync: customizeSync })
