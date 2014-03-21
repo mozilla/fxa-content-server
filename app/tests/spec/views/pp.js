@@ -43,6 +43,15 @@ function (chai, View, Session) {
 
       assert.equal($('#fxa-pp-back').length, 0);
     });
+
+    it('fetches translated text from the backend', function (done) {
+      Session.set('language', 'en-US');
+      view.on('ready', function() {
+        assert.ok(view.$('#mozilla-privacy-policy').length);
+        done();
+      });
+      view.render();
+    });
   });
 });
 
