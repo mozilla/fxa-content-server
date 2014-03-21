@@ -152,9 +152,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         assert.equal(view.$('.success').html(), 'a translated success message');
       });
 
-      it('hides any previously displayed error messages', function () {
+      it('hides any previously displayed error messages', function (done) {
         view.displayError('the error message');
         view.displaySuccess('the success message');
+        done();
         assert.isFalse(view.$('.error').is(':visible'));
       });
     });

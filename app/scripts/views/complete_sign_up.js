@@ -43,9 +43,9 @@ function (_, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
-              self.navigate('signup_complete');
-
               self.trigger('verify_code_complete');
+              
+              self.navigate('signup_complete');
             })
             .then(null, function (err) {
               
