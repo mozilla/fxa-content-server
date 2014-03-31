@@ -80,7 +80,8 @@ function (
 
       this.window = options.window || window;
 
-      this.$stage = $('#stage');
+      this.$contents = $('#contents');
+      this.$spinner = $('.spinner-container');
 
       this.watchAnchors();
     },
@@ -125,17 +126,17 @@ function (
       // automatically redirected.
       if (this.currentView.render()) {
         // Render the new view
-        this.$stage.html(this.currentView.el);
+        this.$contents.html(this.currentView.el);
 
         // explicitly set the display: block using .css. When embedded
         // in about:accounts, the content is not yet visible and show will
         // not display the element.
-        this.$stage.css('display', 'block');
         this.currentView.afterVisible();
 
         // The user may be scrolled part way down the page
         // on screen transition. Force them to the top of the page.
         this.window.scrollTo(0, 0);
+        this.$spinner.hide();
       }
     },
 
