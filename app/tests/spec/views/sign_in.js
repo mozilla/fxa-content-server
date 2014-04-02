@@ -108,7 +108,7 @@ function (chai, $, View, Session, FxaClient,
                 return view.submit();
               })
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.ok(err.message.indexOf('Incorrect') > -1);
               });
@@ -278,7 +278,7 @@ function (chai, $, View, Session, FxaClient,
       view.submitting = true;
       return view.resetPasswordNow(event)
             .then(function () {
-              assert.fail('unexpected success');
+              assert(false, 'unexpected success');
             }, function (err) {
               assert.equal(err.message, 'submitting already in progress');
             });
