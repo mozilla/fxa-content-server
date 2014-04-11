@@ -1,0 +1,172 @@
+[
+    {
+        "request": {
+            "method": "GET",
+            "path": "/mail/signin0.16304475883953273"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "3241",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:35:16 GMT",
+                "connection": "close"
+            },
+            "body": [
+                {
+                    "html": "<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.<br>Verify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Welcome.\n\nFirefox Accounts\n\nCongratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.\nVerify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af\n\nIf you received this email in error, no action is required.",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:35:13 GMT",
+                        "message-id": "<712a5d7cafb6bab33d206688825883@core3>",
+                        "x-uid": "e3ec9c1e1f744af9b50208e1bcef1ae3",
+                        "x-verify-code": "fbc62486b6d3badb5e534c5fbf41e1af",
+                        "x-link": "http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.16304475883953273@restmail.net",
+                        "subject": "Confirm Your Account",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884513927\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Confirm Your Account",
+                    "messageId": "712a5d7cafb6bab33d206688825883@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.16304475883953273@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:35:13.000Z"
+                },
+                {
+                    "html": "<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.<br>Verify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Welcome.\n\nFirefox Accounts\n\nCongratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.\nVerify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af\n\nIf you received this email in error, no action is required.",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:35:15 GMT",
+                        "message-id": "<f9d78d90d985f409376539decaa191@core3>",
+                        "x-uid": "e3ec9c1e1f744af9b50208e1bcef1ae3",
+                        "x-verify-code": "fbc62486b6d3badb5e534c5fbf41e1af",
+                        "x-link": "http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.16304475883953273@restmail.net",
+                        "subject": "Confirm Your Account",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884515915\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Confirm Your Account",
+                    "messageId": "f9d78d90d985f409376539decaa191@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.16304475883953273@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:35:15.000Z"
+                }
+            ]
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/mail/signin0.16304475883953273"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "3241",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:35:19 GMT",
+                "connection": "close"
+            },
+            "body": [
+                {
+                    "html": "<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.<br>Verify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Welcome.\n\nFirefox Accounts\n\nCongratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.\nVerify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af\n\nIf you received this email in error, no action is required.",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:35:13 GMT",
+                        "message-id": "<712a5d7cafb6bab33d206688825883@core3>",
+                        "x-uid": "e3ec9c1e1f744af9b50208e1bcef1ae3",
+                        "x-verify-code": "fbc62486b6d3badb5e534c5fbf41e1af",
+                        "x-link": "http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.16304475883953273@restmail.net",
+                        "subject": "Confirm Your Account",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884513927\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Confirm Your Account",
+                    "messageId": "712a5d7cafb6bab33d206688825883@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.16304475883953273@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:35:13.000Z"
+                },
+                {
+                    "html": "<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.<br>Verify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Welcome.\n\nFirefox Accounts\n\nCongratulations! signin0.16304475883953273@restmail.net, you are seconds away from verifying your Firefox Account.\nVerify: http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af\n\nIf you received this email in error, no action is required.",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:35:15 GMT",
+                        "message-id": "<f9d78d90d985f409376539decaa191@core3>",
+                        "x-uid": "e3ec9c1e1f744af9b50208e1bcef1ae3",
+                        "x-verify-code": "fbc62486b6d3badb5e534c5fbf41e1af",
+                        "x-link": "http://127.0.0.1:3030/v1/verify_email?uid=e3ec9c1e1f744af9b50208e1bcef1ae3&code=fbc62486b6d3badb5e534c5fbf41e1af",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.16304475883953273@restmail.net",
+                        "subject": "Confirm Your Account",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884515915\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Confirm Your Account",
+                    "messageId": "f9d78d90d985f409376539decaa191@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.16304475883953273@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:35:15.000Z"
+                }
+            ]
+        }
+    }
+]

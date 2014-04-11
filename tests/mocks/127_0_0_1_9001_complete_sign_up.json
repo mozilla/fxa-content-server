@@ -1,0 +1,53 @@
+[
+    {
+        "request": {
+            "method": "GET",
+            "path": "/mail/signin0.563921817112714"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "1613",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:35:38 GMT",
+                "connection": "close"
+            },
+            "body": [
+                {
+                    "html": "<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! signin0.563921817112714@restmail.net, you are seconds away from verifying your Firefox Account.<br>Verify: http://127.0.0.1:3030/v1/verify_email?uid=54f1f1d2872949ba9ccbd760492408da&code=a1ef101aa869db9efaf8595f986f829f<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Welcome.\n\nFirefox Accounts\n\nCongratulations! signin0.563921817112714@restmail.net, you are seconds away from verifying your Firefox Account.\nVerify: http://127.0.0.1:3030/v1/verify_email?uid=54f1f1d2872949ba9ccbd760492408da&code=a1ef101aa869db9efaf8595f986f829f\n\nIf you received this email in error, no action is required.",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:35:38 GMT",
+                        "message-id": "<38523873adfc6892921414b1740e28@core3>",
+                        "x-uid": "54f1f1d2872949ba9ccbd760492408da",
+                        "x-verify-code": "a1ef101aa869db9efaf8595f986f829f",
+                        "x-link": "http://127.0.0.1:3030/v1/verify_email?uid=54f1f1d2872949ba9ccbd760492408da&code=a1ef101aa869db9efaf8595f986f829f",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.563921817112714@restmail.net",
+                        "subject": "Confirm Your Account",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884538367\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Confirm Your Account",
+                    "messageId": "38523873adfc6892921414b1740e28@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.563921817112714@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:35:38.000Z"
+                }
+            ]
+        }
+    }
+]

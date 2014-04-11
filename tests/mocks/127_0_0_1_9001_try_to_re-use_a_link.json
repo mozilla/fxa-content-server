@@ -1,0 +1,52 @@
+[
+    {
+        "request": {
+            "method": "GET",
+            "path": "/mail/signin0.355077387066558"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "content-length": "1788",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:36:02 GMT",
+                "connection": "close"
+            },
+            "body": [
+                {
+                    "html": "<p>Firefox Accounts<br><br>A request to reset the password for signin0.355077387066558@restmail.net has been made.\nReset password: http://127.0.0.1:3030/v1/complete_reset_password?token=b1bdab76f15cee75613f87853d34369412dfef3990678631f0460686648dabf8&code=8ad9565d59bd5937673fe6d46df56508&email=signin0.355077387066558%40restmail.net<br><br>If you received this email in error, no action is required.</p>",
+                    "text": "Firefox Accounts\n\nA request to reset the password for signin0.355077387066558@restmail.net has been made.\nReset password: http://127.0.0.1:3030/v1/complete_reset_password?token=b1bdab76f15cee75613f87853d34369412dfef3990678631f0460686648dabf8&code=8ad9565d59bd5937673fe6d46df56508&email=signin0.355077387066558%40restmail.net\n\nIf you received this email in error, no action is required.\n",
+                    "headers": {
+                        "x-mailer": "Nodemailer (0.6.1; +http://github.com/andris9/nodemailer; smtp/0.3.22)",
+                        "date": "Fri, 23 May 2014 22:36:01 GMT",
+                        "message-id": "<1360b1ddf438c12e225834fbf38e10@core3>",
+                        "x-recovery-code": "8ad9565d59bd5937673fe6d46df56508",
+                        "x-link": "http://127.0.0.1:3030/v1/complete_reset_password?token=b1bdab76f15cee75613f87853d34369412dfef3990678631f0460686648dabf8&code=8ad9565d59bd5937673fe6d46df56508&email=signin0.355077387066558%40restmail.net",
+                        "content-language": "en-us",
+                        "from": "no-reply@example.com",
+                        "to": "signin0.355077387066558@restmail.net",
+                        "subject": "Reset Password Request",
+                        "content-type": "multipart/alternative; boundary=\"----Nodemailer-0.6.1-?=_1-1400884561543\"",
+                        "mime-version": "1.0"
+                    },
+                    "subject": "Reset Password Request",
+                    "messageId": "1360b1ddf438c12e225834fbf38e10@core3",
+                    "priority": "normal",
+                    "from": [
+                        {
+                            "address": "no-reply@example.com",
+                            "name": ""
+                        }
+                    ],
+                    "to": [
+                        {
+                            "address": "signin0.355077387066558@restmail.net",
+                            "name": ""
+                        }
+                    ],
+                    "date": "2014-05-23T22:36:01.000Z"
+                }
+            ]
+        }
+    }
+]

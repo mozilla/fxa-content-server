@@ -1,0 +1,272 @@
+[
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884528",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:28 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "faff888acfbf4d7bb468b52ae6e6002b",
+                "sessionToken": "579f26c73f1e9f6ef74610a45aaa81b7d065d8e5f11c8148173ccfe7b5517a5a",
+                "keyFetchToken": "b9a2ae3040ccd1cb4cb4c099d85a278f3e76d7e33ebb2feeeb6fa7f496206914",
+                "authAt": 1400884528
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884528",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:28 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "faff888acfbf4d7bb468b52ae6e6002b",
+                "sessionToken": "d76d1fe0e628451a48bb38b2006af9616c89b2cb571da6dc3e32031cadef9f17",
+                "keyFetchToken": "4805fc0057b5af3958e2a036f5af67dd7b7429252c00cdf6c0049a46bfb1f98d",
+                "verified": false,
+                "authAt": 1400884528
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884531",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:31 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "d109236610454b3f94e5451a48c52d28",
+                "sessionToken": "cd68e6948ab4327edd2f5b88e11e37d11c4bdcda8bb78087c761978b19115344",
+                "keyFetchToken": "c41b83f109e3111f31760c6d4c0b7dd6b32128b279a8cdd70866c55232f2c169",
+                "authAt": 1400884531
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884532",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:32 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "d109236610454b3f94e5451a48c52d28",
+                "sessionToken": "34cce3ffed25170576586e5152789c725e4197c56e6442d9ca4b2156486e7e19",
+                "keyFetchToken": "c84ead5cf9715cdcdf2087872a0ee5e4f78309943eea434813d2c12dc42814fe",
+                "verified": false,
+                "authAt": 1400884532
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884533",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:35:33 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "108cd61a9b224237b003f60bed99dd0e",
+                "sessionToken": "d1230182eee1a86d86f4674165df1c1ffd87a91bed3a0f3bec35c4834b90bd68",
+                "authAt": 1400884533
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884534",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:34 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "code": 400,
+                "errno": 101,
+                "error": "Bad Request",
+                "message": "Account already exists",
+                "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
+                "email": "signin0.4996381914243102@restmail.net",
+                "log": []
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884535",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:35:35 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "1f0603a3932341d8b642e62c666822bb",
+                "sessionToken": "95b6c246d705f0d86f572d7554024fdd386753c260faf9d9db2fc8c7e0861dd2",
+                "authAt": 1400884535
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884536",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:36 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "5a39b1faf3864ba7a54e07d7957ce844",
+                "sessionToken": "b8519e28e1a711db2792589b2a41e3418d275b487685b39658f84bd9a086c98e",
+                "keyFetchToken": "cdf7c949b71abdce92183df5fdb921bc3b9e19860309e33ff445cdad33960e15",
+                "authAt": 1400884536
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400884537",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:35:37 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "5a39b1faf3864ba7a54e07d7957ce844",
+                "sessionToken": "8c354710798c3cd93582f4756602ae690008dbaef165bb002e529f5662a84172",
+                "keyFetchToken": "f91f5e4179578e754e7ae433f188f584dab362c377a0898337b814c354107c09",
+                "verified": false,
+                "authAt": 1400884537
+            }
+        }
+    }
+]

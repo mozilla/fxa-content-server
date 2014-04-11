@@ -5,7 +5,7 @@
   "scripts": {
     "start": "grunt server",
     "postinstall": "bower install --config.interactive=false -s; node scripts/post_install.js",
-    "test": "intern-runner config=tests/intern",
+    "test": "intern-runner config=tests/intern mockUse=true",
     "test-remote": "intern-runner config=tests/intern_sauce",
     "test-server": "intern-client config=tests/intern_server",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
@@ -74,7 +74,8 @@
     "grunt-todo": "0.2.3",
     "intern-geezer": "1.7.0",
     "jshint": "2.5.0",
-    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
+    "fxa-content-mocks": "git://github.com/vladikoff/fxa-content-mocks"
   },
   "engines": {
     "node": ">=0.10.0"

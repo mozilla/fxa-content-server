@@ -1,0 +1,437 @@
+[
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883108",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:11:48 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "f9448da64cf8486299f412ad8139c934",
+                "sessionToken": "90b5b4719965d547fa1fe3b764eaf76d403a2a26856cdcf8ee3fd35b5d57a05c",
+                "authAt": 1400883108
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883109",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:11:49 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "f9448da64cf8486299f412ad8139c934",
+                "sessionToken": "74489700095752edc3cff82ca13dbbb790ae6a1889b40bcecc7c39d8aa27556f",
+                "keyFetchToken": "cc45d99e9c42ee36cd324406875f99b827bf21057cc60f52f4479afa60f35f04",
+                "verified": true,
+                "authAt": 1400883109
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/v1/session/status"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883110",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:11:50 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/session/destroy"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883110",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:11:50 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883111",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:11:51 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "123effbb38aa48a8966cd5354fb00377",
+                "sessionToken": "5cd491c5d3c30f2b7a5e4f63b14d51f280b2cb3938858df92cc987d1b51e1b34",
+                "authAt": 1400883111
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883113",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:11:53 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "123effbb38aa48a8966cd5354fb00377",
+                "sessionToken": "1e3912bbc6c0bbd27251903cc5b5a553c14d49e42d19796360822ba6763de7d8",
+                "keyFetchToken": "68b73e67db822b7727059bd6784a726b564e05fc4abc2de9d8464c64df72b9b2",
+                "verified": true,
+                "authAt": 1400883113
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/v1/session/status"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883116",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:11:56 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883117",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:11:57 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "6fb0065d01c34d539856a2d2943d0082",
+                "sessionToken": "58298351e1c48e37a7d2dca313a1ff91334f1dfd3210b8b8a52faebc8bccf95e",
+                "authAt": 1400883117
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/password/change/start"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883118",
+                "content-length": "189",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:11:58 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "keyFetchToken": "99dc11ea7f3c179870562e988fcd4fd11d50e510dd1676601ea4da171e4d7f4e",
+                "passwordChangeToken": "aa6563c7c974647a7a09811da0721156da7acafe88bbebf6d2f1afc3ee0d7acf",
+                "verified": true
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/v1/account/keys"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883119",
+                "content-length": "205",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "date": "Fri, 23 May 2014 22:11:59 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "bundle": "f17ddf23909c24366f3d03c98ae1154eff121235e8492f39340752102dfa0912f429dee6e9370350c1586070f5e5762f14a709844652db18b3874f66ee7136373e309775fe7a86c818619ecb8cf396ad0199b130393c874d0f0c4ee65838dece"
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/password/change/finish"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883119",
+                "content-length": "2",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "date": "Fri, 23 May 2014 22:11:59 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/create"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883120",
+                "content-length": "144",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "date": "Fri, 23 May 2014 22:12:00 GMT",
+                "connection": "close"
+            },
+            "body": {
+                "uid": "26fa787e9f2744e486b0150bf3d24b15",
+                "sessionToken": "95a14f041052ad01b6cd695e34ade112b0001f503c7ba11cd0d84eb7532ba555",
+                "authAt": 1400883120
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/login?keys=true"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883121",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:12:01 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {
+                "uid": "26fa787e9f2744e486b0150bf3d24b15",
+                "sessionToken": "873821ec45fe23739ebfaeb507ad376109a367e0afd295a91d24f30358a6849a",
+                "keyFetchToken": "31e2c094ee085eaa7b64ee40d41bff0fa811d62920c5aa96afc96f77a6841a18",
+                "verified": true,
+                "authAt": 1400883121
+            }
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/v1/session/status"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883122",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:12:02 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "GET",
+            "path": "/v1/session/status"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883123",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "trailer": "server-authorization",
+                "transfer-encoding": "chunked",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:12:03 GMT",
+                "connection": "close"
+            },
+            "body": {}
+        }
+    },
+    {
+        "request": {
+            "method": "POST",
+            "path": "/v1/account/destroy"
+        },
+        "response": {
+            "headers": {
+                "content-type": "application/json; charset=utf-8",
+                "strict-transport-security": "max-age=10886400",
+                "timestamp": "1400883123",
+                "access-control-allow-origin": "*",
+                "access-control-max-age": "86400",
+                "access-control-allow-methods": "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-headers": "Authorization, Content-Type, If-None-Match",
+                "access-control-expose-headers": "WWW-Authenticate, Server-Authorization, Timestamp, Accept-Language",
+                "cache-control": "no-cache",
+                "content-encoding": "gzip",
+                "vary": "accept-encoding",
+                "date": "Fri, 23 May 2014 22:12:03 GMT",
+                "connection": "close",
+                "transfer-encoding": "chunked"
+            },
+            "body": {}
+        }
+    }
+]
