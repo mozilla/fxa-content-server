@@ -23,11 +23,12 @@ define([
   'underscore',
   'jquery',
   'p-promise',
+  'lib/progress',
   'lib/validate',
   'views/base',
   'views/tooltip'
 ],
-function (_, $, p, Validate, BaseView, Tooltip) {
+function (_, $, p, progress, Validate, BaseView, Tooltip) {
   var t = BaseView.t;
 
   /**
@@ -184,11 +185,14 @@ function (_, $, p, Validate, BaseView, Tooltip) {
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
+          progress.start();
           return submitForm();
         })
         .then(function () {
+          progress.done();
           self._isSubmitting = false;
         }, function (err) {
+          progress.done();
           self._isSubmitting = false;
 
           throw err;

@@ -17,7 +17,8 @@ require.config({
     modernizr: '/bower_components/modernizr/modernizr',
     chai: '/bower_components/chai/chai',
     'p-promise': '/bower_components/p/p',
-    sinon: '/bower_components/sinon/index'
+    sinon: '/bower_components/sinon/index',
+    nprogress: '/bower_components/nprogress/nprogress'
   },
   shim: {
     underscore: {
@@ -56,6 +57,7 @@ require([
   '../tests/spec/lib/auth-errors',
   '../tests/spec/lib/app-start',
   '../tests/spec/lib/validate',
+  '../tests/spec/lib/progress',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',
