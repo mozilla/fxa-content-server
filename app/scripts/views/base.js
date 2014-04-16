@@ -387,7 +387,19 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
    */
   BaseView.preventDefaultThen = function (handler) {
     return function (event) {
-      event.preventDefault();
+      if (event) {
+        event.preventDefault();
+      }
+      return this.invokeHandler(handler, event);
+    };
+  };
+
+  BaseView.cancelEventThen = function (handler) {
+    return function (event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       return this.invokeHandler(handler, event);
     };
   };

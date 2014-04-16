@@ -14,9 +14,10 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/validate'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, Validate) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -28,51 +29,66 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
 
       // reset any force auth status.
       Session.set('forceAuth', false);
-
-      if (options.forceAuth) {
-        // forceAuth means a user must sign in as a specific user.
-
-        // kill the user's local session, set forceAuth flag
-        Session.clear();
-        Session.set('forceAuth', true);
-
-        var email = Url.searchParam('email', this.window.location.search);
-        if (email) {
-          // email indicates the signed in email. Use forceEmail to avoid
-          // collisions across sessions.
-          Session.set('forceEmail', email);
-        }
-      }
     },
 
     context: function () {
-      var error = '';
-      if (Session.forceAuth && !Session.forceEmail) {
-        error = t('/force_auth requires an email');
-      }
-
-      var email = (Session.forceAuth && Session.forceEmail) ||
-                   Session.prefillEmail;
-
       return {
-        email: email,
-        forceAuth: Session.forceAuth,
-        error: error,
+        email: Session.prefillEmail,
         isSync: Session.service === 'sync'
       };
     },
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'click a[href="/confirm_reset_password"]': 'resetPasswordNow'
+      'click a[href="/reset_password"]': 'resetPasswordIfEmail'
     },
 
     submit: function () {
-      var email = Session.forceAuth ? Session.forceEmail : this.$('.email').val();
+      var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      var self = this;
+      return this._requestPasswordReset(email, password);
+    },
 
+    resetPasswordIfEmail: BaseView.cancelEventThen(function () {
+      var self = this;
+      return p().then(function () {
+        var email = self.$('.email').val();
+        if (Validate.isEmailValid(email)) {
+          return self._resetPasswordForEmail(email);
+        } else {
+          Session.set('prefillEmail', email);
+          self.navigate('reset_password');
+        }
+      });
+    }),
+
+    _resetPasswordForEmail: function (email) {
+      var self = this;
+      // If the user is already making a request, ban submission.
+      if (self.isSubmitting()) {
+        throw new Error('submit already in progress');
+      }
+
+      self._isSubmitting = true;
+      return self.fxaClient.passwordReset(email)
+              .then(function () {
+                self._isSubmitting = false;
+                self.navigate('confirm_reset_password');
+              }, function (err) {
+                self._isSubmitting = false;
+                if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+                  Session.set('prefillEmail', email);
+                  var msg = t('Unknown account. <a href="/signup">Sign up</a>');
+                  return self.displayErrorUnsafe(msg);
+                }
+
+                self.displayError(err);
+              });
+    },
+
+    _requestPasswordReset: function (email, password) {
+      var self = this;
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
@@ -102,43 +118,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           // re-throw error, it will be handled at a lower level.
           throw err;
         }, this));
-    },
-
-    resetPasswordNow: function (event) {
-      var self = this;
-      return p().then(function () {
-        if (event) {
-          // prevent the default anchor hanlder (router.js->watchAnchors)
-          // from sending the user to the confirm_reset_password page.
-          // The redirection for this action is taken care of after
-          // the request is submitted.
-          event.preventDefault();
-          event.stopPropagation();
-        }
-
-        // Only force auth has the ability to submit a password reset
-        // request from here. See issue #549
-        if (! Session.forceAuth) {
-          console.error('resetPasswordNow can only be called from /force_auth');
-          return;
-        }
-
-        // If the user is already making a request, ban submission.
-        if (self.isSubmitting()) {
-          throw new Error('submit already in progress');
-        }
-
-        var email = Session.forceEmail;
-        self._isSubmitting = true;
-        return self.fxaClient.passwordReset(email)
-                .then(function () {
-                  self._isSubmitting = false;
-                  self.navigate('confirm_reset_password');
-                }, function (err) {
-                  self._isSubmitting = false;
-                  self.displayError(err);
-                });
-      });
     }
   });
 
