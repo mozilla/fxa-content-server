@@ -14,7 +14,8 @@ require.config({
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
     modernizr: '../bower_components/modernizr/modernizr',
-    'p-promise': '../bower_components/p/p'
+    'p-promise': '../bower_components/p/p',
+    nprogress: '../bower_components/nprogress/nprogress'
   },
   shim: {
     underscore: {

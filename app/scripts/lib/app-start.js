@@ -22,6 +22,7 @@ define([
   'backbone',
   'p-promise',
   'router',
+  'lib/progress',
   'lib/constants',
   'lib/translator',
   'lib/session',
@@ -35,6 +36,7 @@ function (
   Backbone,
   p,
   Router,
+  progress,
   Constants,
   Translator,
   Session,
@@ -86,6 +88,9 @@ function (
 
   Start.prototype = {
     startApp: function () {
+      // show the progress bar as soon as possible.
+      progress.start();
+
       initSessionFromUrl();
 
       // fetch both config and translations in parallel to speed up load.
@@ -134,6 +139,8 @@ function (
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
           }
+
+          progress.done();
         });
     }
   };

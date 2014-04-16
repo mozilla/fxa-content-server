@@ -9,13 +9,14 @@ define([
   'backbone',
   'jquery',
   'p-promise',
+  'lib/progress',
   'lib/session',
   'lib/auth-errors',
   'lib/fxa-client',
   'lib/url',
   'lib/strings'
 ],
-function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) {
+function (_, Backbone, jQuery, p, progress, Session, authErrors, FxaClient, Url, Strings) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
 
@@ -46,6 +47,7 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
      */
     render: function () {
       var self = this;
+      progress.start();
       return p()
         .then(function () {
           return self.isUserAuthorized();
@@ -76,6 +78,10 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
 
             return true;
           });
+        })
+        .then(function (value) {
+          progress.done();
+          return value;
         });
     },
 
