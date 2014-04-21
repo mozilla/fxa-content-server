@@ -81,8 +81,7 @@ define([
           .click()
         .end()
 
-        // brittle, but some processing time.
-        .wait(2000)
+        .waitForVisibleByClassName('success')
 
         // Success is showing the success message
         .elementByCssSelector('.success').isDisplayed()
@@ -97,6 +96,8 @@ define([
         .elementById('resend')
           .click()
         .end()
+
+        .waitForVisibleByClassName('error')
 
         // Success is showing the .error screen
         .elementByCssSelector('.error').isDisplayed()
