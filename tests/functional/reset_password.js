@@ -97,7 +97,7 @@ define([
           .click()
         .end()
 
-        .waitForVisibleByClassName('error')
+        .waitForVisibleByClassName('error', 20000)
 
         // Success is showing the .error screen
         .elementByCssSelector('.error').isDisplayed()
