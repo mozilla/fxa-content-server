@@ -24,10 +24,11 @@ define([
   'jquery',
   'p-promise',
   'lib/validate',
+  'lib/silent-error',
   'views/base',
   'views/tooltip'
 ],
-function (_, $, p, Validate, BaseView, Tooltip) {
+function (_, $, p, Validate, SilentError, BaseView, Tooltip) {
   var t = BaseView.t;
 
   /**
@@ -47,6 +48,41 @@ function (_, $, p, Validate, BaseView, Tooltip) {
     };
   }
 
+  /**
+   * Handle form-submit like operations. Only one submission is allowed
+   * at a time. If a submit is already in progress, abort, throwing a silent
+   * error. Otherwise, invoke the handler. If the handler throws any errors,
+   * display the error.
+   */
+  function submitter(handler) {
+    return BaseView.preventDefaultThen(function() {
+      var self = this;
+      var args = [].slice.call(arguments, 0);
+      args.unshift(handler);
+
+      if (self.isSubmitting()) {
+        return p()
+          .then(function () {
+            // already submitting, get outta here.
+            throw new SilentError('submit already in progress');
+          });
+      }
+
+      self._isSubmitting = true;
+      return p()
+        .then(function () {
+          return self.invokeHandler.apply(self, args);
+        })
+        .then(function () {
+          self._isSubmitting = false;
+        }, function (err) {
+          self._isSubmitting = false;
+
+          throw self.displayError(err);
+        });
+    });
+  }
+
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
@@ -56,9 +92,9 @@ function (_, $, p, Validate, BaseView, Tooltip) {
     },
 
     events: {
-      'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
-      'keyup form': ifFormValuesChanged('enableSubmitIfValid'),
-      'change form': ifFormValuesChanged('enableSubmitIfValid')
+      'submit form': 'validateAndSubmit',
+      'keyup form': 'enableSubmitIfValid',
+      'change form': 'enableSubmitIfValid'
     },
 
     /**
@@ -84,7 +120,7 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       return values;
     },
 
-    //when a user begins typing in an input, grab the placeholder, 
+    //when a user begins typing in an input, grab the placeholder,
     // put it in a label and then unbind the event
     // this is done to prevent user confustion about multiple password inputs
     togglePlaceholderPattern: function() {
@@ -98,7 +134,7 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       });
     },
 
-    enableSubmitIfValid: function () {
+    enableSubmitIfValid: ifFormValuesChanged(function () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
@@ -113,7 +149,7 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       } else {
         this.disableForm();
       }
-    },
+    }),
 
     disableForm: function () {
       this.$('button[type=submit]').addClass('disabled');
@@ -151,38 +187,14 @@ function (_, $, p, Validate, BaseView, Tooltip) {
      * @method validateAndSubmit
      * @return {promise}
      */
-    validateAndSubmit: function () {
+    validateAndSubmit: submitter(function () {
       var self = this;
 
-      function submitForm() {
-        return p().then(_.bind(self.beforeSubmit, self))
-                .then(function (shouldSubmit) {
-                  // submission is opt out, not opt in.
-                  if (shouldSubmit !== false) {
-                    return self.submit();
-                  }
-                })
-                .then(null, function (err) {
-                  // surface returned message for testing.
-                  throw self.displayError(err);
-                })
-                .then(_.bind(self.afterSubmit, self));
-      }
-
-      if (self.isSubmitting()) {
-        return p()
-          .then(function () {
-            // already submitting, get outta here.
-            throw new Error('submit already in progress');
-          });
-      }
-
-      self._isSubmitting = true;
       return p()
         .then(function () {
           if (! self.isValid()) {
             // Validation error is surfaced for testing.
-            throw self.showValidationErrors();
+            throw new SilentError(self.showValidationErrors());
           }
         })
         .then(function () {
@@ -190,24 +202,19 @@ function (_, $, p, Validate, BaseView, Tooltip) {
           // so that the form's `submit` handler is triggered and validation
           // error tooltips are displayed, even if the form is disabled.
           if (! self.isFormEnabled()) {
-            return p()
-              .then(function () {
-                // form is disabled, get outta here.
-                throw new Error('form is disabled');
-              });
+            throw new SilentError('form is disabled');
           }
-
-          // all good, do the beforeSubmit, submit, and afterSubmit chain.
-          return submitForm();
         })
-        .then(function () {
-          self._isSubmitting = false;
-        }, function (err) {
-          self._isSubmitting = false;
-
-          throw err;
-        });
-    },
+        // all good, do the beforeSubmit, submit, and afterSubmit chain.
+        .then(_.bind(self.beforeSubmit, self))
+        .then(function (shouldSubmit) {
+          // submission is opt out, not opt in.
+          if (shouldSubmit !== false) {
+            return self.submit();
+          }
+        })
+        .then(_.bind(self.afterSubmit, self));
+    }),
 
     /**
      * Checks whether the form is valid. Checks the validitity of each
@@ -434,7 +441,7 @@ function (_, $, p, Validate, BaseView, Tooltip) {
      *   an asynchronous operation.
      */
     afterSubmit: function () {
-      // some views may display an error without throwing an exception.
+      // A view can display an error without throwing an exception.
       // Check if the form is valid and no errors are visible before
       // re-enabling the form. The user must modify the form for it to
       // be re-enabled.
@@ -453,6 +460,10 @@ function (_, $, p, Validate, BaseView, Tooltip) {
     }
   });
 
+  /**
+   * Surface submitter to other classes
+   */
+  FormView.submitter = submitter;
 
   return FormView;
 });

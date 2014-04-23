@@ -95,7 +95,7 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
       it('forgot password request redirects directly to confirm_reset_password', function () {
         var password = 'password';
         var event = $.Event('click');
-        return view.fxaClient.signUp(email, password)
+        return view.fxaClient.signUp(email, password, { preVerified: true })
               .then(function () {
                 // the call to client.signUp clears Session.
                 // These fields are reset to complete the test.

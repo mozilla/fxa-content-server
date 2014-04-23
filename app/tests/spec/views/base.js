@@ -10,14 +10,15 @@ define([
   'jquery',
   'views/base',
   'lib/translator',
+  'lib/silent-error',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
-          RouterMock, WindowMock, TestHelpers) {
+function (chai, jQuery, BaseView, Translator, SilentError, Template,
+          DOMEventMock, RouterMock, WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -152,6 +153,11 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         view.displayError('an error message<div>with html</div>');
         assert.equal(view.$('.error').html(), 'an error message&lt;div&gt;with html&lt;/div&gt;');
       });
+
+      it('does not display silent error messages', function () {
+        view.displayError(new SilentError('silent error'));
+        assert.isFalse(view.isErrorVisible());
+      });
     });
 
     describe('displayErrorUnsafe', function () {
@@ -163,6 +169,11 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
 
         assert.isTrue(view.isErrorVisible());
         view.hideError();
+        assert.isFalse(view.isErrorVisible());
+      });
+
+      it('does not display silent error messages', function () {
+        view.displayErrorUnsafe(new SilentError('silent error'));
         assert.isFalse(view.isErrorVisible());
       });
     });

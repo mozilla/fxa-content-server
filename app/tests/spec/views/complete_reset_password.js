@@ -245,7 +245,7 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
         };
 
         return view.resendResetEmail()
-            .then(function () {
+            .then(null, function () {
               assert.equal(view.$('.error').text(), 'server error');
             });
       });

@@ -7,12 +7,13 @@
 define([
   'p-promise',
   'views/base',
+  'views/form',
   'views/sign_in',
   'stache!templates/force_auth',
   'lib/session',
   'lib/url'
 ],
-function (p, BaseView, SignInView, Template, Session, Url) {
+function (p, BaseView, FormView, SignInView, Template, Session, Url) {
   var t = BaseView.t;
 
   var View = SignInView.extend({
@@ -62,26 +63,13 @@ function (p, BaseView, SignInView, Template, Session, Url) {
       return this.signIn(email, password);
     },
 
-    resetPasswordNow: BaseView.cancelEventThen(function () {
+    resetPasswordNow: BaseView.cancelEventThen(FormView.submitter(function () {
       var self = this;
-      return p().then(function () {
-        // If the user is already making a request, ban submission.
-        if (self.isSubmitting()) {
-          throw new Error('submit already in progress');
-        }
-
-        var email = Session.forceEmail;
-        self._isSubmitting = true;
-        return self.fxaClient.passwordReset(email)
-                .then(function () {
-                  self._isSubmitting = false;
-                  self.navigate('confirm_reset_password');
-                }, function (err) {
-                  self._isSubmitting = false;
-                  self.displayError(err);
-                });
-      });
-    })
+      return self.fxaClient.passwordReset(Session.forceEmail)
+              .then(function () {
+                self.navigate('confirm_reset_password');
+              });
+    }))
   });
 
   return View;
