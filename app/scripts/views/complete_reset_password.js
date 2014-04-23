@@ -23,7 +23,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'click #resend': BaseView.preventDefaultThen('resendResetEmail')
+      'click #resend': 'resendResetEmail'
     },
 
     // beforeRender is asynchronous and returns a promise. Only render
@@ -113,15 +113,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
       return this.$('#vpassword').val();
     },
 
-    resendResetEmail: function () {
+    resendResetEmail: BaseView.cancelEventThen(FormView.submitter(function () {
       var self = this;
       return this.fxaClient.passwordReset(this.email)
-              .then(function () {
-                self.navigate('confirm_reset_password');
-              }, function (err) {
-                self.displayError(err);
-              });
-    }
+          .then(function () {
+            self.navigate('confirm_reset_password');
+          });
+    }))
   });
 
   _.extend(View.prototype, PasswordMixin);

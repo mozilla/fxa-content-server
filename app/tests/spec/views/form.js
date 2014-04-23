@@ -57,7 +57,7 @@ function (chai, $, p, FormView, Template, TestHelpers) {
             // success callback should not be called on failure.
             assert(false, 'unexpected success');
           }, function (err) {
-            assert.equal(err, expectedMessage);
+            assert.equal(err.message, expectedMessage);
           });
     }
 
@@ -196,16 +196,17 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         return testFormSubmitted();
       });
 
-      it('override afterSubmit to prevent form from being re-enabled - afterSubmit errors are not displayed', function () {
+      it('override afterSubmit to prevent form from being re-enabled', function () {
         view.formIsValid = true;
         view.afterSubmit = function () {
           // do not re-enable form.
-          throw new Error('error that is not displayed');
+          throw new Error('error from afterSubmit');
         };
 
         return view.validateAndSubmit()
                   .then(null, function(err) {
-                    assert.equal(err.message, 'error that is not displayed');
+                    assert.equal(err, 'error from afterSubmit');
+                    assert.isTrue(view.isErrorVisible());
                     assert.isFalse(view.isFormEnabled());
                   });
       });

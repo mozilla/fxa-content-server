@@ -29,7 +29,7 @@ function (_, FormView, BaseView, Template, Session, Constants) {
 
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #signout': BaseView.preventDefaultThen('validateAndSubmit')
+      'click #signout': 'validateAndSubmit'
     },
 
     submit: function () {

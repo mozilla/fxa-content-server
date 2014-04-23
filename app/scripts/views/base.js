@@ -13,9 +13,10 @@ define([
   'lib/auth-errors',
   'lib/fxa-client',
   'lib/url',
-  'lib/strings'
+  'lib/strings',
+  'lib/silent-error'
 ],
-function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) {
+function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings, SilentError) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
 
@@ -245,6 +246,9 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
 
     /**
      * Display an error message.
+     *
+     * Note: SilentError instances are neither displayed nor translated.
+     *
      * @method displayError
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
@@ -255,6 +259,11 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
     displayError: function (err) {
       this.hideSuccess();
       this.$('.spinner').hide();
+
+      // This is an error that should not be displayed.
+      if (err instanceof SilentError) {
+        return err;
+      }
 
       var translated = this.translateError(err);
 
@@ -275,6 +284,8 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
      * because msg could contain XSS. Use with caution and never
      * with unsanitized user generated content.
      *
+     * Note: SilentError instances are neither displayed nor translated.
+     *
      * @method displayErrorUnsafe
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
@@ -285,6 +296,10 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
     displayErrorUnsafe: function (err) {
       this.hideSuccess();
       this.$('.spinner').hide();
+
+      if (err instanceof SilentError) {
+        return err;
+      }
 
       var translated = this.translateError(err);
 
