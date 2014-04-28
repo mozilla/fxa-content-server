@@ -33,7 +33,11 @@ function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
 
     context: function () {
       var service = Session.service;
-      var serviceName = new ServiceName(this.translator).get(service);
+      var serviceName = '';
+
+      if (service) {
+        serviceName = new ServiceName(this.translator).get(service);
+      }
 
       if (Session.redirectTo) {
         serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
@@ -42,8 +46,7 @@ function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
       }
 
       return {
-        service: service,
-        serviceName: serviceName,
+        service: serviceName,
         signIn: this.is('sign_in'),
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')
