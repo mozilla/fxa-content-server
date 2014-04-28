@@ -1,3 +1,13 @@
+<a name="0.11.1"></a>
+### 0.11.1 (2014-04-28)
+
+
+#### Bug Fixes
+
+* **client:** Gracefully handle server errors when fetching translations. ([768b5926](https://github.com/mozilla/fxa-content-server/commit/768b5926c99246216317a83a01efdd59c9757841))
+* **l10n:** revert untranslated strings ([faf5651e](https://github.com/mozilla/fxa-content-server/commit/faf5651ee78956bc540a3856285b4e2cdc393b3e))
+
+
 <a name="0.11.0"></a>
 ## 0.11.0 (2014-04-21)
 
