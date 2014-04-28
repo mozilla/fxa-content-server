@@ -57,9 +57,9 @@ function () {
     109: t('Invalid request signature'),
     112: t('Missing content-length header'),
     113: t('Request body too large'),
-    114: t('Attempt limit exceeded. Try again later.'),
-    998: t('System unavailable, try again soon'),
-    201: t('Server busy, try again soon'),
+    114: t('Attempt limit exceeded.'),
+    998: t('Service unavailable'),
+    201: t('Service unavailable'),
     116: t('This endpoint is no longer supported')
   };
 
