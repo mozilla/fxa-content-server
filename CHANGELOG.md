@@ -1,3 +1,12 @@
+<a name="0.11.2"></a>
+### 0.11.2 (2014-04-29)
+
+
+#### Bug Fixes
+
+* **email:** Pass {{link}} url into outlook-specific markup in email templates. ([ec231c25](https://github.com/mozilla/fxa-content-server/commit/ec231c2527944b6dbaea9d1370a3e72e2ed7cf8d))
+
+
 <a name="0.11.1"></a>
 ### 0.11.1 (2014-04-28)
 
