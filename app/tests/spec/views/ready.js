@@ -11,7 +11,6 @@ define([
   'lib/session'
 ],
 function (chai, View, Session) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/ready', function () {
