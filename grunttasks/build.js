@@ -16,6 +16,7 @@ module.exports = function (grunt) {
     'copy:server_templates',
     'requirejs',
     'css',
+    'connect_fonts',
     'concurrent:dist',
     'concat',
     'cssmin',
