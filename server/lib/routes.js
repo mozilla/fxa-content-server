@@ -91,7 +91,9 @@ module.exports = function (config, templates, i18n) {
     });
 
     app.get('/', function(req, res) {
-      res.render('index');
+      res.render('index', {
+        language: req.lang
+      });
     });
 
     routes.forEach(function (route) {
