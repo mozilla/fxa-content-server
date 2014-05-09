@@ -14,8 +14,8 @@ module.exports = function (grunt) {
   // create one entry per supported in the destination files.
   // The destination file will be called <locale_name>.css.
   supportedLanguages.forEach(function (language) {
-    destFiles['<%= yeoman.app %>/styles/' + language + '.css'] = [
-      '<%= yeoman.tmp %>/css/' + language + '.css',
+    destFiles['<%= yeoman.app %>/styles/localized/' + language + '.css'] = [
+      '<%= yeoman.tmp %>/styles/' + language + '.css',
       '<%= yeoman.app %>/bower_components/normalize-css/normalize.css',
       '<%= yeoman.app %>/styles/main.css'
     ];

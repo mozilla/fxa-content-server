@@ -30,7 +30,8 @@ module.exports = function (grunt) {
       files: [{
         dot: true,
         src: [
-          '<%= yeoman.tmp %>/*'
+          '<%= yeoman.tmp %>/*',
+          '<%= yeoman.app %>/styles/localized'
         ]
       }]
     }

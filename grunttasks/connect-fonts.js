@@ -24,7 +24,7 @@ module.exports = function (grunt) {
           'firasans-light'
         ],
         languages: config.get('i18n.supportedLanguages'),
-        dest: '<%= yeoman.tmp %>/css'
+        dest: '<%= yeoman.tmp %>/styles'
       }
     }
   });
