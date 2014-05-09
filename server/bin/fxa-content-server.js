@@ -26,6 +26,7 @@ var logger = require('intel').getLogger('server.main');
 var helmet = require('helmet');
 var express = require('express');
 var consolidate = require('consolidate');
+var cachify = require('connect-cachify');
 
 var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
@@ -37,6 +38,7 @@ var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
+var stylesheets = require('../lib/stylesheet');
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -55,9 +57,15 @@ function makeApp() {
   app.set('view engine', 'html');
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
 
+  app.use(cachify.setup({}, {
+    root: STATIC_DIRECTORY,
+    production: STATIC_DIRECTORY === 'dist'
+  }));
+
   // i18n adds metadata to a request to help
   // with translating templates on the server.
   app.use(i18n);
+  app.use(stylesheets);
 
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());

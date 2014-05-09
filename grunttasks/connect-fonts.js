@@ -33,7 +33,7 @@ module.exports = function (grunt) {
     dist: {
       options: {
         fontPacks: fontPacks,
-        dest: '<%= yeoman.tmp %>/fonts'
+        dest: '<%= yeoman.app %>/fonts'
       }
     }
   });

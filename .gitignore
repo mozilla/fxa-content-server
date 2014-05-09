@@ -62,5 +62,8 @@ app/i18n
 ### Localized CSS ###
 app/styles/localized
 
+### Fonts copied from connect-fonts packages ###
+app/fonts
+
 ### Strings
 locale/*/*/*.po

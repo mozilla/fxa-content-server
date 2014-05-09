@@ -10,7 +10,11 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <link rel="stylesheet" href="/styles/localized/{{ language }}.css">
+        {{{ stylesheet }}}
+
+        <!-- build:js /bower_components/modernizr/modernizr.js -->
+        <script src="/bower_components/modernizr/modernizr.js"></script>
+        <!-- endbuild -->
     </head>
     <body>
         <div id="fox-logo" class="static"></div>

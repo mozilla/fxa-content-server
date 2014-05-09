@@ -7,10 +7,8 @@ module.exports = function () {
   route.method = 'get';
   route.path = '/';
 
-  route.processs = function(req, res) {
-    res.render('index', {
-      language: req.lang
-    });
+  route.process = function(req, res) {
+    res.render('index');
   };
 
   return route;
