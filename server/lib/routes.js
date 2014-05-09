@@ -25,6 +25,7 @@ function isValidRoute(route) {
 module.exports = function (config, templates, i18n) {
 
   var routes = [
+    require('./routes/get-index'),
     require('./routes/get-ver.json'),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
@@ -87,12 +88,6 @@ module.exports = function (config, templates, i18n) {
         // index.html for either dev or prod mode.
         req.url = '/';
         next();
-      });
-    });
-
-    app.get('/', function(req, res) {
-      res.render('index', {
-        language: req.lang
       });
     });
 

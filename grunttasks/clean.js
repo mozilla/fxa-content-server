@@ -31,7 +31,8 @@ module.exports = function (grunt) {
         dot: true,
         src: [
           '<%= yeoman.tmp %>/*',
-          '<%= yeoman.app %>/styles/localized'
+          // css files are regenerated on every server run.
+          '<%= yeoman.app %>/styles/**/*.css'
         ]
       }]
     }
