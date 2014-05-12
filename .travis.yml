@@ -14,12 +14,13 @@ before_install:
 
 install:
 # install everything for full dev in the fxa-content-server.
-  - npm install --silent
+# NPM install uses a custom mirror via https://github.com/jbuck/npm-readonly-mirror
+  - npm install --silent --registry https://dccmzgc64kzf2.cloudfront.net/
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - grunt l10n-create-json
 # install the resources necessary for the auth server.
-  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
+  - npm install --silent git://github.com/mozilla/fxa-auth-server.git --registry https://dccmzgc64kzf2.cloudfront.net/
   - cd node_modules/fxa-auth-server
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
