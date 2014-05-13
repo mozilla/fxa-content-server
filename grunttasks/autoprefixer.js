@@ -13,7 +13,15 @@ module.exports = function (grunt) {
       files: [{
         expand: true,
         cwd: '<%= yeoman.app %>/styles/',
-        src: '{,*/}*.css',
+        src: [
+          '{,*/}*.css',
+          // localized CSS files are generated after autoprefixing has
+          // completed and do not need to be re-auto-prefixed. Localized CSS
+          // files are normally cleaned as part of the `clean` task. Ignore
+          // them anyways if the `autoprefixer` or `css` tasks are run
+          // standalone.
+          '!localized/*.css'
+        ],
         dest: '<%= yeoman.app %>/styles/'
       }]
     }

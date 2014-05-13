@@ -14,6 +14,7 @@ module.exports = function (grunt) {
     ],
     dist: [
       'copy:styles',
+      'connect_fonts_copy',
       'imagemin',
       'htmlmin'
     ],
