@@ -9,21 +9,28 @@ env:
     - SAUCE_ACCESS_KEY: ee5354a4-3d5e-47a0-84b0-0b7aaa12a720
     - DISABLE_ROUTE_LOGGING: true
 
+addons:
+  firefox: "29.0"
+
 before_install:
   - sudo apt-get install libgmp3-dev
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 
 install:
 # install everything for full dev in the fxa-content-server.
-  - npm install --silent
+  - travis_retry npm install --silent
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - grunt l10n-create-json
 # install the resources necessary for the auth server.
-  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
-  - cd node_modules/fxa-auth-server
-  - node ./scripts/gen_keys.js
-  - LOG_LEVEL=error npm start &
-  - cd ../..
-  - npm start &
+  - wget http://selenium-release.storage.googleapis.com/2.41/selenium-server-standalone-2.41.0.jar
+  - java -jar selenium-server-standalone-2.41.0.jar &> /dev/null &
+  - firefox --version
+  - FXA_URL=https://api-accounts-latest.dev.lcip.org/v1 npm start &
 # now run the tests!
-script: grunt validate-shrinkwrap && grunt lint && npm run-script test-server && npm run-script test-remote
+script:
+  - grunt validate-shrinkwrap &
+  - grunt lint &
+  - npm run test-server &
+  - node_modules/.bin/intern-runner config=tests/intern_browser fxaAuthRoot=https://api-accounts-latest.dev.lcip.org/v1 fxaEmailRoot=http://restmail.net

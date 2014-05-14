@@ -7,9 +7,16 @@ define([
 ], function (intern) {
   'use strict';
 
+  intern.proxyPort = 8090;
+  intern.proxyUrl = 'http://127.0.0.1:8090/';
+  intern.useSauceConnect = false;
+  intern.webdriver.port = 4444;
+
   intern.environments = [
     { browserName: 'firefox' }
   ];
+
+  intern.functionalSuites = [ 'tests/functional/mocha' ];
 
   return intern;
 });

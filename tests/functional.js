@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/mocha',
   './functional/sign_in',
   './functional/sign_up',
   './functional/complete_sign_up',
@@ -18,8 +19,7 @@ define([
   './functional/404',
   './functional/pages',
   './functional/back_button_after_start',
-  './functional/cookies_disabled',
-  './functional/mocha'
+  './functional/cookies_disabled'
 ], function () {
   'use strict';
 });
