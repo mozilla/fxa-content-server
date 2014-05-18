@@ -44,8 +44,6 @@ module.exports = function (grunt) {
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif}',
-            'styles/fonts/{,*/}*.*',
-            'bower_components/**/*.{woff,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*'
           ]
         }

@@ -8,13 +8,13 @@
 }
 
 html {
+  font: message-box;
   background-color: $html-background-color;
   height: 100%;
 }
 
 body {
   color: $text-color;
-  font-family: $default-font-family;
   font-size: 14px;
   padding-bottom: 20px;
 }
@@ -101,7 +101,6 @@ noscript {
 header h1,
 header h2,
 header h3 {
-  font-family: $header-font-family;
   line-height: 1em;
   margin: 0;
 }
@@ -214,12 +213,6 @@ strong.email {
   margin-bottom: 15px;
   position: relative;
   width: 100%;
-
-  button,
-  input,
-  select {
-    font-family: $default-font-family;
-  }
 }
 
 .tooltip {
@@ -416,7 +409,6 @@ label:focus ~ .input-help-focused {
   border-radius: 5px;
   color: $message-text-color;
   cursor: pointer;
-  font-family: $default-font-family;
   font-size: 24px;
   padding: 15px 0;
   transition-duration: 150ms;
