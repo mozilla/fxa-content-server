@@ -8,6 +8,7 @@
     "test": "intern-runner config=tests/intern",
     "test-browser": "intern-runner config=tests/intern_browser",
     "test-remote": "intern-runner config=tests/intern_sauce",
+    "test-local-mocha": "intern-runner config=tests/intern_mocha",
     "test-server": "intern-client config=tests/intern_server",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },
