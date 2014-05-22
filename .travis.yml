@@ -11,6 +11,7 @@ env:
 
 before_install:
   - sudo apt-get install libgmp3-dev
+  - npm install -g freight && freight -u http://freight.vf.io && npm rebuild
 
 install:
 # install everything for full dev in the fxa-content-server.
