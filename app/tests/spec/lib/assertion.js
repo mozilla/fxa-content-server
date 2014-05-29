@@ -105,7 +105,7 @@ function (chai, $, P,
               }
             })
             .fail(function() {
-              defer.reject(new Error('failed to feth .well-known/browserid'));
+              defer.reject(new Error('failed to fetch .well-known/browserid'));
             });
 
             return defer.promise;

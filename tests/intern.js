@@ -5,12 +5,47 @@
 // Learn more about configuring this file at <https://github.com/theintern/intern/wiki/Configuring-Intern>.
 // These default settings work OK for most people. The options that *must* be changed below are the
 // packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
-define(['intern/lib/args'], function (args) {
+define([
+  'intern/lib/args',
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic',
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!fxa-content-mocks'
+], function (args, topic, FxaMocks) {
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot ? args.fxaAuthRoot : 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot ? args.fxaContentRoot : 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot ? args.fxaEmailRoot : 'http://127.0.0.1:9001';
+
+  if (FxaMocks && args.mockUse) {
+    var responder = new FxaMocks.Responder([
+        {
+          host: 'http://127.0.0.1:9000'
+        },
+        {
+          host: 'http://127.0.0.1:9001'
+        }
+      ],
+      {
+        directory: 'tests/mocks'
+      });
+
+    topic.subscribe('/suite/start', function (suite) {
+      responder.respond(suite);
+    });
+
+    topic.subscribe('/suite/error', function (error) {
+      throw error;
+    });
+
+    topic.subscribe('/error', function (error) {
+      throw error;
+    });
+
+    topic.subscribe('/runner/end', function () {
+      responder.close();
+    });
+
+  }
 
   return {
     // The port on which the instrumenting proxy will listen
