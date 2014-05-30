@@ -33,6 +33,7 @@ define([
         .end()
 
         .elementById('fxa-tos-back')
+          .wait(250)
           .click()
         .end()
 
@@ -46,6 +47,7 @@ define([
         .end()
 
         .elementById('fxa-pp-back')
+          .wait(250)
           .click()
         .end()
 
