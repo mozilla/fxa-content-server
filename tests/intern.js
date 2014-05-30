@@ -11,6 +11,7 @@ define(['intern/lib/args'], function (args) {
   var fxaAuthRoot = args.fxaAuthRoot ? args.fxaAuthRoot : 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot ? args.fxaContentRoot : 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot ? args.fxaEmailRoot : 'http://127.0.0.1:9001';
+  var env = args.env ? args.env : 'dev';
 
   return {
     // The port on which the instrumenting proxy will listen
@@ -21,6 +22,7 @@ define(['intern/lib/args'], function (args) {
     fxaAuthRoot: fxaAuthRoot,
     fxaContentRoot: fxaContentRoot,
     fxaEmailRoot: fxaEmailRoot,
+    env: env,
 
     // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
     // specified browser environments in the `environments` array below as well. See

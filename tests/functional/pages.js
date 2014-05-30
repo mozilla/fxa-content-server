@@ -44,10 +44,13 @@ define([
     'force_auth',
     'delete_account',
     'non_existent',
-    '500.html',
-    '503.html',
     'boom'
   ];
+
+  if ('dev' === intern.config.env) {
+    // workaround for https://github.com/mozilla/fxa-content-server/issues/1139
+    pages.concat([ '500.html', '503.html' ]);
+  }
 
   var suite = {
     name: 'pages'

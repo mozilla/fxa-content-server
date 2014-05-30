@@ -12,6 +12,7 @@ define([
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
+  var env = intern.config.env || 'dev';
   var bodyText;
 
   registerSuite({
@@ -20,6 +21,11 @@ define([
     'run the mocha tests': function () {
       // timeout after 200 seconds
       this.timeout = 200000;
+
+      if (env !== 'dev') {
+        assert.ok(true, 'mocha tests do not run in stage or production');
+        return;
+      }
 
       return this.get('remote')
         .get(require.toUrl(url))

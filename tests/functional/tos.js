@@ -30,6 +30,7 @@ define([
         .end()
 
         .elementById('fxa-tos-back')
+          .wait(250)
           .click()
         .end()
 
