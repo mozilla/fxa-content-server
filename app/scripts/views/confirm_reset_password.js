@@ -11,9 +11,10 @@ define([
   'stache!templates/confirm_reset_password',
   'lib/session',
   'lib/constants',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/oauth-mixin'
 ],
-function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
+function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OAuthMixin) {
   var t = BaseView.t;
 
   var View = ConfirmView.extend({
@@ -22,7 +23,8 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
 
     events: {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
-      'click a[href="/signin"]': 'savePrefillEmailForSignin'
+      'click a[href="/signin"]': 'savePrefillEmailForSignin',
+      'click a[href="/oauth/signin"]': 'savePrefillEmailForSignin'
     },
 
     beforeDestroy: function () {
@@ -51,7 +53,13 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
     afterRender: function () {
       var bounceGraphic = this.$el.find('.graphic');
       bounceGraphic.addClass('pulse');
+      var signInRoute = 'signin';
       var self = this;
+
+      if (this.isOAuthSameBrowser()) {
+        signInRoute = 'oauth/signin';
+        this.setupOAuthLinks();
+      }
 
       return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
         .then(function (isComplete) {
@@ -59,7 +67,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
             var email = Session.email;
             Session.clear();
             Session.set('prefillEmail', email);
-            self.navigate('signin', {
+            self.navigate(signInRoute, {
               success: t('Password reset. Sign in to continue.')
             });
           } else {
@@ -98,6 +106,8 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
       Session.set('prefillEmail', Session.email);
     }
   });
+
+  _.extend(View.prototype, OAuthMixin);
 
   return View;
 });
