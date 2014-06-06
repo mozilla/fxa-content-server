@@ -65,11 +65,16 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OA
         .then(function (isComplete) {
           if (isComplete) {
             var email = Session.email;
-            Session.clear();
-            Session.set('prefillEmail', email);
-            self.navigate(signInRoute, {
-              success: t('Password reset. Sign in to continue.')
-            });
+            Session.load();
+            if (self.isOAuthSameBrowser() && Session.sessionToken) {
+              self.navigate('reset_password_complete');
+            } else {
+              Session.clear();
+              Session.set('prefillEmail', email);
+              self.navigate(signInRoute, {
+                success: t('Password reset. Sign in to continue.')
+              });
+            }
           } else {
             var retryCB = _.bind(self.afterRender, self);
             self._timeout = self.window.setTimeout(retryCB,
