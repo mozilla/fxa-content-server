@@ -21,5 +21,8 @@
     "tos-pp": "https://github.com/mozilla/legal-docs.git",
     "underscore": "1.5.2"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "p": "c6a451ef6080f10f9c31489c127ca3b291d0bc5a"
+  }
 }
