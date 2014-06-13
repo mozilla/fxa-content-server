@@ -6,24 +6,74 @@
 
 
 define([
-  'chai',
-  'lib/channels/web'
-],
-function (chai, WebChannel) {
-  var channel;
+    'underscore',
+    'chai',
+    'router',
+    'views/sign_in',
+    'lib/channels/web',
+    '/tests/mocks/window.js',
+    'lib/session'
+  ],
+  function (_, chai, Router, View, WebChannel, WindowMock, Session) {
+    /*global describe, beforeEach, it*/
+    var assert = chai.assert;
+    var channel;
+    var windowMock;
 
-  describe('lib/channel/web', function () {
-    beforeEach(function() {
-      channel = new WebChannel();
-      channel.init();
-    });
+    describe('lib/channel/web', function () {
 
-    describe('send', function () {
-      it('is a standin that does nothing', function() {
-        channel.send('heya');
+      beforeEach(function () {
+        windowMock = new WindowMock();
+        channel = new WebChannel();
+        channel.init({
+          window: windowMock
+        });
+      });
+
+      describe('send', function () {
+        it('sends an event with a callback', function () {
+          channel.send('after_render', {}, _.bind(function (err, response) {
+              assert.notOk(err);
+            }, this)
+          );
+          assert.isTrue(windowMock.dispatchedEvents['after_render']);
+        });
+
+        it('sends an event', function () {
+          try {
+            channel.send('after_render');
+          } catch (e) {
+            assert.notOk(e);
+          }
+          assert.isTrue(windowMock.dispatchedEvents['after_render']);
+        });
+      });
+
+      describe('after_render event', function () {
+        it('works with dispatchedEvents', function () {
+          channel.send('after_render');
+          assert.isTrue(windowMock.dispatchedEvents['after_render']);
+        });
+
+        it('works with a view', function (done) {
+          var router = new Router({
+            window: windowMock,
+            channel: channel
+          });
+
+          var signInView = new View({
+            window: windowMock
+          });
+
+          router.showView(signInView).then(function() {
+            assert.isTrue(windowMock.dispatchedEvents['after_render']);
+            done();
+          });
+
+        });
+
       });
     });
   });
-});
 
 
