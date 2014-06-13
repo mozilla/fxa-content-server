@@ -6,23 +6,38 @@
 
 // A shell of a web channel. Doesn't do anything yet, but is a useful standin.
 
-define(function () {
+define([
+    'underscore',
+    'backbone',
+    'lib/channels/helpers'
+],
+function (_, Backbone, ChannelHelpers) {
+
   function WebChannel() {
     // nothing to do.
   }
 
-  WebChannel.prototype = {
-    init: function () {
-    },
-    teardown: function () {
+  _.extend(WebChannel.prototype, Backbone.Events, {
+    init: function init(options) {
+      options = options || {};
+
+      this.window = options.window || window;
+
     },
     send: function (command, data, done) {
-      if (done) {
-        done();
+      done = done || ChannelHelpers.noOp;
+
+      try {
+        // Browsers can blow up dispatching the event.
+        // Ignore the blowups and return without retrying.
+        var event = ChannelHelpers.createEvent.call(this, command, data);
+        this.window.dispatchEvent(event);
+      } catch (e) {
+        return done(e);
       }
+      done();
     }
-  };
+  });
 
   return WebChannel;
 });
-

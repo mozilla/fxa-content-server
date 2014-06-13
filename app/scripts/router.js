@@ -102,6 +102,7 @@ function (
       options = options || {};
 
       this.window = options.window || window;
+      this.channel = options.channel || null;
 
       this.metrics = options.metrics;
 
@@ -170,6 +171,12 @@ function (
           }
 
           self.$logo.css('opacity', 1);
+
+          if (Session.channel || self.channel) {
+            var channel = Session.channel || self.channel;
+            // page has rendered, send an event
+            channel.send('after_render');
+          }
         });
     },
 
