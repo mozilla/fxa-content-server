@@ -25,7 +25,7 @@ install:
   - cp server/config/local.json-dist server/config/local.json
   - grunt l10n-create-json
 # install the resources necessary for the auth server.
-  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
+  - npm install git://github.com/mozilla/fxa-auth-server.git
   - cd node_modules/fxa-auth-server
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
