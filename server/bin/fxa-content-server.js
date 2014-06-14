@@ -68,12 +68,29 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
+  if (config.get('csp')) {
+    var CSP1 = {'default-src': ["'self'"],
+                reportOnly: config.get('csp_mode') === 'report-only',
+                'report-uri': config.get('csp_violation_url')
+               };
+    app.use(helmet.csp(CSP1));
+  }
+  // for the future: if config[use_csp2]==true, add CSP2 for even-more-strict
+  // constraints, always in report-only mode, with config[csp2_violation_url]
   app.disable('x-powered-by');
 
   app.use(routeLogging());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
 
+  if (config.get('csp') &&
+      config.get('csp_violation_url') === '/_/csp-violation') {
+    // used in dev mode
+    app.post('/_/csp-violation', function(req, res) {
+      console.log("Content-Security-Policy Violation Report:");
+      console.log(req.body);
+    });
+  }
 
   routes(app);
 

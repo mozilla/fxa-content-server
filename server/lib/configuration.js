@@ -111,6 +111,20 @@ var conf = module.exports = convict({
     format: Number,
     default: 180 * 24 * 60 * 60            // 180 days
   },
+  csp: {
+    doc: 'use Content Security Policy header',
+    format: [false, true],
+    default: false
+  },
+  csp_mode: {
+    doc: 'CSP mode: "report-only" or "enforce"',
+    format: ['report-only', 'enforce'],
+    default: 'report-only'
+  },
+  csp_violation_url: {
+    doc: 'The url of the server that collects CSP Violation reports. Set to "/_/csp-violation" to use a built-in reporting endpoint that dumps to console.log',
+    default: '/_/csp-violation'
+  },
   template_path: {
     doc: 'The location of server-rendered templates',
     default: path.resolve(__dirname, '..', 'templates')

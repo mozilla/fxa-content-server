@@ -1,5 +1,8 @@
 {
   "env": "production",
+  "csp": false,
+  "csp_mode": "report-only",
+  "csp_violation_url": "http://fxa-csp-violations.prod.mozaws.net/_/csp-violation",
   "static_directory": "dist",
   "page_template_subdirectory": "dist"
 }

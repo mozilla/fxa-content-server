@@ -93,6 +93,13 @@ define([
     } else {
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
+    if (config.get('csp')) {
+      if (config.get('csp_mode') === 'report-only') {
+        assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+      } else {
+        assert.ok(headers.hasOwnProperty('content-security-policy'));
+      }
+    }
   }
 
 });
