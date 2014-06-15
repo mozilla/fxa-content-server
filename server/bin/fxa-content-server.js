@@ -89,6 +89,7 @@ function makeApp() {
     app.post('/_/csp-violation', function(req, res) {
       console.log('Content-Security-Policy Violation Report:');
       console.log(req.body);
+      res.json({result: 'ok'});
     });
   }
 
