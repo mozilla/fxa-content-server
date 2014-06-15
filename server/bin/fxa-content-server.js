@@ -69,7 +69,7 @@ function makeApp() {
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
   if (config.get('csp')) {
-    var CSP1 = {'default-src': ["'self'"],
+    var CSP1 = {'default-src': ['\'self\''],
                 reportOnly: config.get('csp_mode') === 'report-only',
                 'report-uri': config.get('csp_violation_url')
                };
@@ -87,7 +87,7 @@ function makeApp() {
       config.get('csp_violation_url') === '/_/csp-violation') {
     // used in dev mode
     app.post('/_/csp-violation', function(req, res) {
-      console.log("Content-Security-Policy Violation Report:");
+      console.log('Content-Security-Policy Violation Report:');
       console.log(req.body);
     });
   }
