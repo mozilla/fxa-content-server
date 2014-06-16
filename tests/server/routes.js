@@ -93,6 +93,14 @@ define([
     } else {
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
+    if (config.get('csp')) {
+      if (config.get('csp_mode') === 'report-only') {
+        assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+      }
+      // else look for 'content-security-policy', but the test framework has
+      // no way to trigger this yet (it would require restarting the server
+      // with a non-'report-only' config)
+    }
   }
 
 });
