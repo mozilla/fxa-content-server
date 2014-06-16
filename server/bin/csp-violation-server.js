@@ -42,7 +42,7 @@ function listen(theApp) {
 
   port = 80;
   app.listen(port, '0.0.0.0');
-  logger.info('Firefox Account Content server listening on port', port);
+  logger.info('Firefox Account CSP Violation server listening on port', port);
   return true;
 }
 
