@@ -108,8 +108,8 @@ module.exports = function (config, templates, i18n) {
         config.get('csp_violation_url') === '/_/csp-violation') {
       // used in dev mode
       app.post('/_/csp-violation', function(req, res) {
-        console.log('Content-Security-Policy Violation Report:');
-        console.log(req.body);
+        logger.warn('Content-Security-Policy Violation Report:');
+        logger.warn(req.body);
         res.json({result: 'ok'});
       });
     }

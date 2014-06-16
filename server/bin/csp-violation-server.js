@@ -20,14 +20,14 @@ function makeApp() {
   var app = express();
   app.use(express.bodyParser());
   app.post('/_/csp-violation', function(req, res) {
-    console.log('VIOLATION REPORT');
+    logger.warn('VIOLATION REPORT');
     var data = {
       when: (new Date()).getTime() / 1000,
       ua: req.get('user-agent'),
       report: req.body
     };
     violations.write(JSON.stringify(data) + '\n');
-    console.log(data);
+    logger.warn(data);
     res.json({result: 'ok'});
   });
 
