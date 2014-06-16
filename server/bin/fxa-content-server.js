@@ -83,16 +83,6 @@ function makeApp() {
   app.use(express.cookieParser());
   app.use(express.bodyParser());
 
-  if (config.get('csp') &&
-      config.get('csp_violation_url') === '/_/csp-violation') {
-    // used in dev mode
-    app.post('/_/csp-violation', function(req, res) {
-      console.log('Content-Security-Policy Violation Report:');
-      console.log(req.body);
-      res.json({result: 'ok'});
-    });
-  }
-
   routes(app);
 
   // workaround for reserved word bug:

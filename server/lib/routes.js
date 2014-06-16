@@ -104,6 +104,16 @@ module.exports = function (config, templates, i18n) {
       app[route.method](route.path, route.process);
     });
 
+    if (config.get('csp') &&
+        config.get('csp_violation_url') === '/_/csp-violation') {
+      // used in dev mode
+      app.post('/_/csp-violation', function(req, res) {
+        console.log('Content-Security-Policy Violation Report:');
+        console.log(req.body);
+        res.json({result: 'ok'});
+      });
+    }
+
     // Add a route in dev mode to test 500 errors
     if (config.get('env') === 'development') {
       app.get('/boom', function(req, res, next) {
