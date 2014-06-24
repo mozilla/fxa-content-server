@@ -19,9 +19,10 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'views/mixins/oauth-mixin'
+  'views/mixins/oauth-mixin',
+  'lib/url'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, Url) {
 
   var SURVEY_PERCENTAGE = 10;
 
@@ -33,6 +34,12 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       options = options || {};
 
       this.type = options.type;
+
+      // check if 'auto_continue' param is present,
+      // that means we want to redirect the user right away after a short pause
+      if (Url.searchParam('auto_continue', this.window.location.search)) {
+        this.autoContinue = true;
+      }
 
       this._surveyPercentage = 'surveyPercentage' in options ? options.surveyPercentage : SURVEY_PERCENTAGE;
     },
@@ -53,9 +60,13 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(this.serviceRedirectURI), serviceName
-        ]);
+        if (this.autoContinue) {
+          serviceName = Strings.interpolate('%s', [ serviceName ]);
+        } else {
+          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+            Xss.href(this.serviceRedirectURI), serviceName
+          ]);
+        }
       }
 
       var shouldShowSurvey = this._shouldShowSurvey(this._surveyPercentage);
@@ -108,6 +119,10 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+
+      if (this.autoContinue) {
+        this.window.setTimeout(_.bind(this.submit, this), 2000);
+      }
     },
 
     submit: function () {
