@@ -8,7 +8,7 @@
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",
     "test-sauce": "intern-runner config=tests/intern_sauce",
-    "test-travis": "intern-runner config=tests/intern_travis",
+    "test-travis": "intern-runner config=tests/intern_travis fxaAuthRoot=https://nightly.dev.lcip.org/auth/v1 fxaEmailRoot=http://restmail.net",
     "test-server": "intern-client config=tests/intern_server",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },
