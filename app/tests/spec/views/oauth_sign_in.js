@@ -83,7 +83,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
               })
               .then(function () {
                 assert.ok(Session.oauth, 'oauth params are set');
-                assert.equal(router.page, 'confirm_reset_password');
+                assert.equal(router.page, 'reset_password');
               });
       });
 
