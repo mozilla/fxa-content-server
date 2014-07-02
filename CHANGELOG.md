@@ -2,6 +2,11 @@
 ### 0.16.1 (2014-07-02)
 
 
+#### Bug Fixes
+* **deploy:**
+  * bower 1.3.3 -> 1.3.6, and new npm-shrinkwrap.json ([1ea04da0](https://github.com/mozilla/fxa-content-server/commit/1ea04da0926c52e5b6d5d855d4df5acc1e6718cc))
+
+
 <a name="0.16.0"></a>
 ## 0.16.0 (2014-06-30)
 
