@@ -70,11 +70,11 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
-  app.use(helmet.contentTypeOptions());
+  //app.use(helmet.contentTypeOptions());
 
   // only send CSP headers in development mode
   if (config.get('env') === 'development') {
-    app.use(csp);
+    //app.use(csp);
   }
 
   app.disable('x-powered-by');

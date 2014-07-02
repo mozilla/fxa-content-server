@@ -168,6 +168,7 @@ function (
       this.setSessionValueFromUrl('service');
       this.setSessionValueFromUrl('redirectTo');
       this.setSessionValueFromUrl('context');
+      this.setSessionValueFromUrl('native_channel');
       this.initOAuthService();
     },
 
