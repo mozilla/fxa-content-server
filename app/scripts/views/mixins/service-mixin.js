@@ -79,8 +79,35 @@ define([
       })
       .then(function(result) {
         Session.clear('oauth');
-        // Redirect to the returned URL
-        self.window.location.href = result.redirect;
+        if (Url.searchParam('native_channel', self.window.location.search) || Session.get('native_channel')) {
+          var redirectParams = result.redirect.split('?')[1];
+          var channel = Session.channel || self.channel;
+          var channelId = 'oauth_' +  self.service;
+          channel.send(channelId, {
+            type: 'oauth_complete',
+            data: {
+              state: Url.searchParam('state', redirectParams),
+              code: Url.searchParam('code', redirectParams)
+            }
+          });
+
+          // if sign in then show progress state
+          if (self.$('button[type=submit]').length > 0) {
+            // send an event that the window can be closed now
+            channel.send(channelId, { type: 'oauth_close' });
+            self._buttonProgressIndicator.start(self.$('button[type=submit]'));
+            // the browser should close the tab now
+            // if the tab stays for more than 10 seconds then show an error
+            setTimeout(function() {
+              // TODO: real errors here
+              self.displayError('Something went wrong. Please close this tab and try again.', OAuthErrors);
+            }, 10000);
+          }
+          Session.clear('native_channel');
+        } else {
+          // Redirect to the returned URL
+          self.window.location.href = result.redirect;
+        }
         return { pageNavigation: true };
       })
       .fail(function(xhr) {
