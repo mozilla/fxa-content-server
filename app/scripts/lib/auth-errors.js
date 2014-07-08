@@ -209,6 +209,10 @@ function (_, Errors) {
     DAMAGED_VERIFICATION_LINK: {
       errno: 1026,
       message: t('Verification link damaged')
+    },
+    ERROR_NEWSLETTER_SIGNUP: {
+      errno: 1027,
+      message: t('Could not sign up for newsletter')
     }
   };
 

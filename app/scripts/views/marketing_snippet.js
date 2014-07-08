@@ -5,27 +5,27 @@
 /**
  * Handles the marketing snippet on the 'ready' page.
  *
- * Shows `Get Sync on Firefox for Android` for users that complete
- * signup for sync in Firefox Desktop.
+ * Shows `Get Sync on Firefox for Android` for users that complete signup for sync in Firefox Desktop.
+ * Newsletter optin
  */
 
 'use strict';
 
 define([
   'views/base',
-  'lib/constants',
-  'stache!templates/marketing_snippet'
-], function (BaseView, Constants, Template) {
+  'views/snippets/newsletter_optin',
+  'views/snippets/sync_android'
+], function (BaseView, NewsletterOptinSnippet, SyncAndroidSnippet) {
+  var NEWSLETTER_OPTIN_PERCENTAGE = 50;
 
   var View = BaseView.extend({
-    template: Template,
-
     initialize: function (options) {
       options = options || {};
 
       this._type = options.type;
       this._service = options.service;
       this._language = options.language;
+      this._newsletterOptinPercentage = 'newsletterOptinPercentage' in options ? options.newsletterOptinPercentage : NEWSLETTER_OPTIN_PERCENTAGE;
     },
 
     context: function () {
@@ -41,21 +41,51 @@ define([
     },
 
     afterRender: function () {
-      var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
-      var marketingLink = this.$('.marketing-link').attr('href');
+      var Snippet = this._chooseSnippet();
 
+      if (Snippet) {
+        var snippet = new Snippet({
+          el: this.el,
+          metrics: this.metrics,
+          window: this.window,
+          fxaClient: this.fxaClient
+        });
 
-      this.metrics.logMarketingImpression(marketingType, marketingLink);
+        this.trackSubview(snippet);
+        return snippet.render();
+      }
+    },
+
+    _chooseSnippet: function () {
+      var Snippet;
+
+      if (this._shouldShowNewsletterOptin()) {
+        Snippet = NewsletterOptinSnippet;
+      } else if (this._shouldShowSignUpMarketing()) {
+        Snippet = SyncAndroidSnippet;
+      }
+
+      return Snippet;
+    },
+
+    _shouldShowNewsletterOptin: function () {
+      // If the user cannot see the signup marketing, they should always
+      // see the newsletter optin. If the user can see the signup
+      // marketing, decide between newsletter and the signup marketing.
+      return this.is('sign_up') && (
+              ! this._shouldShowSignUpMarketing() ||
+                this._isSelectedForNewsletterOptin());
+    },
+
+    _isSelectedForNewsletterOptin: function () {
+      return Math.random() <= (this._newsletterOptinPercentage / 100);
     },
 
     _shouldShowSignUpMarketing: function () {
-      var isSignUp = this._type === 'sign_up';
-      var isSync = this._service === Constants.FX_DESKTOP_SYNC;
+      var isSignUp = this.is('sign_up');
+      var isSync = this._service === 'sync';
       var isFirefoxMobile = this._isFirefoxMobile();
 
-      // user can only be randomly selected for survey if
-      // they speak english. If the user is completing a signup for sync and
-      // does not speak english, ALWAYS show the marketing snippet.
       return isSignUp && isSync && ! isFirefoxMobile;
     },
 
@@ -72,8 +102,8 @@ define([
       return isMobileFirefox || isTabletFirefox;
     },
 
-    _logMarketingClick: function () {
-      this.metrics.logMarketingClick();
+    is: function (type) {
+      return this._type === type;
     }
   });
 
