@@ -18,10 +18,17 @@
 'use strict';
 
 define([
+  'lib/auth-errors',
+  'lib/newsletter',
+  'lib/session',
   'views/base',
   'stache!templates/marketing_snippet'
-], function (BaseView, Template) {
+], function (AuthErrors, Newsletter, Session, BaseView, Template) {
   var SURVEY_PERCENTAGE = 0;
+  var NEWSLETTER_ANIMATION_DURATION_MS = 400;
+  var NEWSLETTER_SUCCESS_MESSAGE_MS = 5000;
+
+  var t = BaseView.t;
 
   var View = BaseView.extend({
     template: Template,
@@ -37,17 +44,20 @@ define([
     },
 
     context: function () {
-      var shouldShowMarketing = this._shouldShowSignUpMarketing();
-      var shouldShowSurvey = this._shouldShowSurvey(shouldShowMarketing);
+      var shouldShowMarketing = false;//this._shouldShowSignUpMarketing();
+      var shouldShowNewsletterOptin = true;//this._shouldShowNewsletter(shouldShowMarketing);
+      var shouldShowSurvey = false;//this._shouldShowSurvey(shouldShowMarketing);
 
       return {
         showSignUpSurvey: shouldShowSurvey,
-        showSignUpMarketing: shouldShowMarketing
+        showSignUpMarketing: shouldShowMarketing,
+        showNewsletterOptin: shouldShowNewsletterOptin
       };
     },
 
     events: {
-      'click .marketing-link': '_logMarketingClick'
+      'click .marketing-link': '_logMarketingClick',
+      'click #newsletter-optin': '_signUpForNewsletter'
     },
 
     afterRender: function () {
@@ -105,6 +115,29 @@ define([
 
     _logMarketingClick: function () {
       this.metrics.logMarketingClick();
+    },
+
+    _signUpForNewsletter: function () {
+      var self = this;
+
+      function displaySuccess() {
+        self.$('.marketing').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS, function() {
+          self.displaySuccess(t('Preference saved. Thanks!'));
+          self.setTimeout(function () {
+            self.$('.success').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS);
+          }, NEWSLETTER_SUCCESS_MESSAGE_MS);
+        });
+      }
+
+      function displayError(errorMessage) {
+        var err = AuthErrors.toError('ERROR_NEWSLETTER_SIGNUP', errorMessage);
+        self.$('.marketing').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS, function() {
+          self.displayError(err);
+        });
+      }
+
+      return Newsletter.signUp(Session.email)
+          .then(displaySuccess, displayError);
     }
   });
 

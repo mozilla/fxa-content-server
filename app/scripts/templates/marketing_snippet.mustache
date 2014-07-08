@@ -15,3 +15,15 @@
   </aside>
 {{/showSignUpSurvey}}
 
+{{#showNewsletterOptin}}
+  <aside class="marketing text-snippet newsletter-optin" data-marketing-type="newsletter">
+    <input type="checkbox" id="newsletter-optin" name="newsletter-optin" />
+    <label for="newsletter-optin">{{#t}}Subscribe to Firefox news &amp; tips{{/t}}</label>
+    <p class="light">{{#t}}I'm okay with Mozilla handling my info as explained in <a href="http://www.mozilla.org/en-US/privacy/" target="_blank">this Privacy Policy</a>.{{/t}}
+  </aside>
+
+  <div class="error"></div>
+  <div class="success"></div>
+{{/showNewsletterOptin}}
+
+
