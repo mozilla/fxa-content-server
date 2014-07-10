@@ -79,7 +79,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       var marketingSnippet = new MarketingSnippet({
         type: this.type,
         service: Session.service,
-        language: Session.language,
         el: this.$('.marketing-area'),
         metrics: this.metrics
       });

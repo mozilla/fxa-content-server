@@ -37,115 +37,50 @@ function (chai, View, Metrics, WindowMock) {
     });
 
     describe('render', function () {
-      it('normally shows sign up marketing material to desktop sync users', function () {
+      it('shows sign up marketing material to desktop sync users', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         createView({
           type: 'sign_up',
           service: 'sync',
-          language: 'en',
-          surveyPercentage: 0
+          newsletterOptinPercentage: 0
         });
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing.survey').length, 0);
               assert.equal(view.$('.marketing.default').length, 1);
+              assert.equal(view.$('.marketing.newsletter-optin').length, 0);
             });
       });
 
-      it('shows survey to english speaking non-sync users', function () {
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
-
-        createView({
-          type: 'sign_up',
-          language: 'en',
-          surveyPercentage: 0
-        });
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.survey').length, 1);
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
-      });
-
-      it('shows survey to english speaking users on Firefox for Android', function () {
+      it('shows newsletter optin to users on Firefox for Android', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
 
         createView({
           type: 'sign_up',
           service: 'sync',
-          language: 'en',
-          surveyPercentage: 0
+          newsletterOptinPercentage: 0
         });
 
         return view.render()
             .then(function () {
               assert.equal(view.$('.marketing.default').length, 0);
-              assert.equal(view.$('.marketing.survey').length, 1);
+              assert.equal(view.$('.marketing.newsletter-optin').length, 1);
             });
       });
 
-      it('shows survey to english speaking users on B2G', function () {
+      it('shows newsletter optin to users on B2G', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
         createView({
           type: 'sign_up',
           service: 'sync',
-          language: 'en',
-          surveyPercentage: 0
+          newsletterOptinPercentage: 0
         });
 
         return view.render()
             .then(function () {
               assert.equal(view.$('.marketing.default').length, 0);
-              assert.equal(view.$('.marketing.survey').length, 1);
-            });
-      });
-
-      it('shows nothing to non-english speaking, non-sync users', function () {
-        createView({
-          type: 'sign_up',
-          language: 'ru',
-          surveyPercentage: 0
-        });
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-              assert.equal(view.$('.marketing.survey').length, 0);
-            });
-      });
-    });
-
-    describe('render/show survey', function () {
-      it('shows survey to english users', function () {
-        createView({
-          type: 'sign_up',
-          service: 'sync',
-          language: 'en_GB',
-          surveyPercentage: 100
-        });
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-              assert.equal(view.$('.marketing.survey').length, 1);
-            });
-      });
-
-      it('still shows default marketing to non-english desktop sync users', function () {
-        createView({
-          type: 'sign_up',
-          service: 'sync',
-          language: 'de',
-          surveyPercentage: 100
-        });
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 1);
-              assert.equal(view.$('.marketing.survey').length, 0);
+              assert.equal(view.$('.marketing.newsletter-optin').length, 1);
             });
       });
 
@@ -153,8 +88,7 @@ function (chai, View, Metrics, WindowMock) {
         createView({
           type: 'sign_up',
           service: 'sync',
-          language: 'de',
-          surveyPercentage: 100
+          newsletterOptinPercentage: 0
         });
 
         return view.render()
@@ -165,6 +99,22 @@ function (chai, View, Metrics, WindowMock) {
               assert.isFalse(filteredData.marketingClicked);
             });
       });
+    });
+
+    describe('render/show newsletter-optin', function () {
+      it('shows newsletter-optin', function () {
+        createView({
+          type: 'sign_up',
+          service: 'sync',
+          newsletterOptinPercentage: 100
+        });
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing.default').length, 0);
+              assert.equal(view.$('.marketing.newsletter-optin').length, 1);
+            });
+      });
 
     });
 
@@ -173,8 +123,7 @@ function (chai, View, Metrics, WindowMock) {
         createView({
           type: 'sign_up',
           service: 'sync',
-          language: 'de',
-          surveyPercentage: 100
+          newsletterOptinPercentage: 0
         });
 
         return view.render()
