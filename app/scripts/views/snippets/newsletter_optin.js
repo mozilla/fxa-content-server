@@ -5,50 +5,49 @@
 // Allow the user to sign up for the newsletter.
 
 define([
+  'underscore',
   'views/base',
   'views/snippets/snippet',
   'lib/session',
   'lib/auth-errors',
   'lib/newsletter',
   'stache!templates/snippets/newsletter_optin'
-], function (BaseView, SnippetView, Session, AuthErrors, Newsletter, Template) {
+], function (_, BaseView, SnippetView, Session, AuthErrors, Newsletter, Template) {
   'use strict';
 
-  var NEWSLETTER_ANIMATION_DURATION_MS = 400;
-  var NEWSLETTER_SUCCESS_MESSAGE_MS = 5000;
+  var SUCCESS_MESSAGE_MS = 5000;
 
   var t = BaseView.t;
 
   var View = SnippetView.extend({
     template: Template,
+
+    initialize: function (options) {
+      options = options || {};
+      this.successMessageMS = options.successMessageMS || SUCCESS_MESSAGE_MS;
+    },
+
     events: {
       'click #newsletter-optin': '_signUpForNewsletter'
     },
 
     _signUpForNewsletter: function () {
-      var self = this;
+      this.$('.marketing').hide();
+      this.$('.spinner').show();
 
       return Newsletter.signUp(Session.email)
-          .then(_.bind(self._displaySuccess, self),
-                _.bind(self._displayError, self));
+          .then(_.bind(this._displaySuccess, this),
+                _.bind(this._displayError, this));
     },
 
-    _displaySuccess: function displaySuccess() {
-      var self = this;
-      self.$('.marketing').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS, function() {
-        self.displaySuccess(t('Preference saved. Thanks!'));
-        self.setTimeout(function () {
-          self.$('.success').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS);
-        }, NEWSLETTER_SUCCESS_MESSAGE_MS);
-      });
+    _displaySuccess: function () {
+      this.displaySuccess(t('Preference saved. Thanks!'));
+      this.setTimeout(_.bind(this.hideSuccess, this), this.successMessageMS);
     },
 
-    _displayError: function displayError(errorMessage) {
-      var self = this;
-      var err = AuthErrors.toError('ERROR_NEWSLETTER_SIGNUP', errorMessage);
-      self.$('.marketing').fadeOut(NEWSLETTER_ANIMATION_DURATION_MS, function() {
-        self.displayError(err);
-      });
+    _displayError: function (errorMessage) {
+      var err = AuthErrors.toError('ERROR_SIGNUP', errorMessage);
+      this.displayError(err);
     }
   });
 

@@ -256,6 +256,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     displaySuccess: function (msg) {
       this.hideError();
+      this.$('.spinner').hide();
 
       if (msg) {
         this.$('.success').text(this.translator.get(msg));
