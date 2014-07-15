@@ -9,25 +9,11 @@
 define([
   'underscore',
   'backbone',
-  'lib/session'
+  'lib/session',
+  'lib/channels/helpers'
 ],
-function (_, Backbone, Session) {
+function (_, Backbone, Session, ChannelHelpers) {
   var SEND_TIMEOUT_LENGTH_MS = 1000;
-
-  function noOp() {
-    // Nothing to do here.
-  }
-
-  function createEvent(command, data) {
-    /*jshint validthis: true*/
-    return new this.window.CustomEvent('FirefoxAccountsCommand', {
-      detail: {
-        command: command,
-        data: data,
-        bubbles: true
-      }
-    });
-  }
 
   function errorIfNoResponse(outstandingRequest) {
     /*jshint validthis: true*/
@@ -115,7 +101,7 @@ function (_, Backbone, Session) {
     },
 
     send: function (command, data, done) {
-      done = done || noOp;
+      done = done || ChannelHelpers.noOp;
 
       var outstanding = this.outstandingRequests[command];
       if (! outstanding) {
@@ -131,7 +117,7 @@ function (_, Backbone, Session) {
       try {
         // Browsers can blow up dispatching the event.
         // Ignore the blowups and return without retrying.
-        var event = createEvent.call(this, command, data);
+        var event = ChannelHelpers.createEvent.call(this, command, data);
         this.window.dispatchEvent(event);
       } catch (e) {
         // something went wrong sending the message and we are not going to
