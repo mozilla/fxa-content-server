@@ -16,9 +16,10 @@ define([
   'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
-  'views/mixins/timer-mixin'
+  'views/mixins/timer-mixin',
+  'stache!templates/unexpected_error'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
+function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics, TimerMixin, unexpectedErrorTemplate) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -94,11 +95,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         })
         .then(function (isUserAuthorized) {
           if (! isUserAuthorized) {
-            // user is not authorized, make them sign in.
-            var err = AuthErrors.toError('SESSION_EXPIRED');
-            self.navigate('signin', {
-              error: err
-            });
+            self._handleExpiredSession();
             return false;
           }
 
@@ -110,19 +107,50 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
             return false;
           }
 
-          return p().then(function () {
-            self.destroySubviews();
-
-            self.$el.html(self.template(self.getContext()));
-          })
-          .then(_.bind(self.afterRender, self))
-          .then(function () {
-            self.showEphemeralMessages();
-            self.setTitleFromView();
-
-            return true;
-          });
+          return self._completeScreenRender();
+        })
+        .fail(_.bind(self._displayRenderingError, self))
+        .then(function (isRendered) {
+          // isRendered is true by default, false is the override state.
+          return isRendered !== false;
         });
+    },
+
+    _handleExpiredSession: function () {
+      // user is not authorized, make them sign in.
+      var err = AuthErrors.toError('SESSION_EXPIRED');
+      this.navigate('signin', {
+        error: err
+      });
+    },
+
+    _completeScreenRender: function () {
+      var self = this;
+      self._insertTemplate(self.template);
+      return p().then(_.bind(self.afterRender, self))
+        .then(function () {
+          self.showEphemeralMessages();
+          self.setTitleFromView();
+        });
+    },
+
+    _displayRenderingError: function (err) {
+      // uncaught error during rendering. Print an unexpected
+      // error message with some error information. Hope this
+      // successfully completes or else the user will be
+      // staring at a blank screen.
+      //
+      // UnexpectedError rendering is taken care of by base.js instead of
+      // its own view in case there is a problem in the base.js rendering code.
+      this._insertTemplate(unexpectedErrorTemplate, err);
+      this.displayError(err);
+    },
+
+    _insertTemplate: function (template, context) {
+      this.destroySubviews();
+
+      var html = template.call(this, this.getContext(context));
+      this.$el.html(html);
     },
 
     showEphemeralMessages: function () {
@@ -164,8 +192,8 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.window.document.title = title;
     },
 
-    getContext: function () {
-      var ctx = this.context() || {};
+    getContext: function (context) {
+      var ctx = context || this.context() || {};
 
       ctx.t = _.bind(this.translate, this);
 

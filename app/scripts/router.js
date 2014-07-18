@@ -147,8 +147,8 @@ function (
       // automatically redirected.
       var self = this;
       return viewToShow.render()
-        .then(function (isShown) {
-          if (! isShown) {
+        .then(function (isRendered) {
+          if (! isRendered) {
             return;
           }
 
