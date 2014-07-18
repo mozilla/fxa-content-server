@@ -4,90 +4,74 @@
 
 /**
  * Handles the marketing snippet on the 'ready' page.
- *
- * Shows `Get Sync on Firefox for Android` for most users that complete
- * signup for sync in Firefox Desktop.
- *
- * 10% of english speaking users from the above group are diverted to
- * take a survey.
- *
- * For sign in and reset password, the survey is always shown to english
- * speaking users, and nothing is displayed to non-english speakers.
  */
 
 'use strict';
 
 define([
   'views/base',
-  'stache!templates/marketing_snippet'
-], function (BaseView, Template) {
-  var SURVEY_PERCENTAGE = 0;
+  'views/snippets/newsletter_optin',
+  'views/snippets/sync_android'
+], function (BaseView, NewsletterOptinSnippet, SyncAndroidSnippet) {
+  var NEWSLETTER_OPTIN_PERCENTAGE = 50;
 
   var View = BaseView.extend({
-    template: Template,
-
     initialize: function (options) {
       options = options || {};
 
       this._type = options.type;
       this._service = options.service;
-      this._language = options.language;
 
-      this._surveyPercentage = 'surveyPercentage' in options ? options.surveyPercentage : SURVEY_PERCENTAGE;
-    },
-
-    context: function () {
-      var shouldShowMarketing = this._shouldShowSignUpMarketing();
-      var shouldShowSurvey = this._shouldShowSurvey(shouldShowMarketing);
-
-      return {
-        showSignUpSurvey: shouldShowSurvey,
-        showSignUpMarketing: shouldShowMarketing
-      };
-    },
-
-    events: {
-      'click .marketing-link': '_logMarketingClick'
+      this._newsletterOptinPercentage = 'newsletterOptinPercentage' in options ? options.newsletterOptinPercentage : NEWSLETTER_OPTIN_PERCENTAGE;
     },
 
     afterRender: function () {
-      var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
-      var marketingLink = this.$('.marketing-link').attr('href');
+      var Snippet = this._chooseSnippet();
 
+      if (Snippet) {
+        var snippet = new Snippet({
+          el: this.el,
+          metrics: this.metrics,
+          window: this.window,
+          fxaClient: this.fxaClient
+        });
 
-      this.metrics.logMarketingImpression(marketingType, marketingLink);
+        this.trackSubview(snippet);
+        return snippet.render();
+      }
+    },
+
+    _chooseSnippet: function () {
+      var Snippet;
+
+      if (this._shouldShowNewsletterOptin()) {
+        Snippet = NewsletterOptinSnippet;
+      } else if (this._shouldShowSignUpMarketing()) {
+        Snippet = SyncAndroidSnippet;
+      }
+
+      return Snippet;
+    },
+
+    _shouldShowNewsletterOptin: function () {
+      // If the user cannot see the signup marketing, we should always
+      // show them the newsletter optin. If the user can see the signup
+      // marketing, then decide between this and the signup marketing.
+      return this.is('sign_up') && (
+              ! this._shouldShowSignUpMarketing() ||
+                this._isSelectedForNewsletterOptin());
+    },
+
+    _isSelectedForNewsletterOptin: function () {
+      return Math.random() <= (this._newsletterOptinPercentage / 100);
     },
 
     _shouldShowSignUpMarketing: function () {
-      var isSignUp = this._type === 'sign_up';
+      var isSignUp = this.is('sign_up');
       var isSync = this._service === 'sync';
       var isFirefoxMobile = this._isFirefoxMobile();
-      var isSelectedForSurvey = this._isSelectedForSurvey();
 
-      // user can only be randomly selected for survey if
-      // they speak english. If the user is completing a signup for sync and
-      // does not speak english, ALWAYS show the marketing snippet.
-      return isSignUp && isSync && ! isFirefoxMobile && ! isSelectedForSurvey;
-    },
-
-    _isSelectedForSurvey: function () {
-      // user can only be randomly selected for survey if
-      // they are elgible to see the survey.
-      return Math.random() <= (this._surveyPercentage / 100) &&
-                  this._canShowSurvey();
-    },
-
-    // user can only be see survey if they speak english.
-    _canShowSurvey: function () {
-      return /^en/.test(this._language);
-    },
-
-    _shouldShowSurvey: function (isMarketingVisible) {
-      if (isMarketingVisible) {
-        return false;
-      }
-
-      return this._canShowSurvey();
+      return isSignUp && isSync && ! isFirefoxMobile;
     },
 
     _isFirefoxMobile: function () {
@@ -103,8 +87,8 @@ define([
       return isMobileFirefox || isTabletFirefox;
     },
 
-    _logMarketingClick: function () {
-      this.metrics.logMarketingClick();
+    is: function(type) {
+      return this._type === type;
     }
   });
 

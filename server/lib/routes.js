@@ -25,7 +25,8 @@ module.exports = function (config, templates, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
-    require('./routes/post-metrics')()
+    require('./routes/post-metrics')(),
+    require('./routes/post-newsletter')()
   ];
 
   if (config.get('fxaccount_proxy.enabled')) {

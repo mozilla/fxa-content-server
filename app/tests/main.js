@@ -64,6 +64,7 @@ function (Translator, Session) {
     '../tests/spec/lib/service-name',
     '../tests/spec/lib/metrics',
     '../tests/spec/lib/null-metrics',
+    '../tests/spec/lib/newsletter',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',
@@ -89,7 +90,8 @@ function (Translator, Session) {
     '../tests/spec/views/button_progress_indicator',
     '../tests/spec/views/marketing_snippet',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
-    '../tests/spec/views/mixins/timer-mixin'
+    '../tests/spec/views/mixins/timer-mixin',
+    '../tests/spec/views/snippets/newsletter_optin'
   ];
 
   /*global mocha */

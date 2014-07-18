@@ -113,7 +113,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
           return p().then(function () {
             self.destroySubviews();
 
-            self.$el.html(self.template(self.getContext()));
+            if (self.template) {
+              self.$el.html(self.template(self.getContext()));
+            }
           })
           .then(_.bind(self.afterRender, self))
           .then(function () {
@@ -278,6 +280,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     displaySuccess: function (msg) {
       this.hideError();
+      this.$('.spinner').hide();
 
       if (msg) {
         this.$('.success').text(this.translator.get(msg));
