@@ -10,30 +10,34 @@ define([
     'chai',
     'router',
     'views/sign_in',
-    'lib/channels/web',
+    'lib/channels/fx_web',
     '/tests/mocks/window.js'
   ],
-  function (_, chai, Router, View, WebChannel, WindowMock) {
+  function (_, chai, Router, View, FxWebChannel, WindowMock) {
     /*global describe, beforeEach, it*/
     var assert = chai.assert;
     var channel;
     var windowMock;
 
-    describe('lib/channel/web', function () {
+    describe('lib/channel/fx_web', function () {
 
       beforeEach(function () {
         windowMock = new WindowMock();
-        channel = new WebChannel('MyChannel', windowMock);
+        channel = new FxWebChannel();
+
+        channel.init({
+          webChannelId: 'MyChannel',
+          window: windowMock
+        });
       });
 
       describe('send', function () {
         it('sends an event with a callback', function (done) {
           channel.send('after_render', {}, function (err, response) {
-              assert.notOk(err);
-              done();
-            }
-          );
-          assert.isTrue(windowMock.dispatchedEvents['after_render']);
+            assert.notOk(err);
+            assert.isTrue(windowMock.isEventDispatched('after_render'));
+            done();
+          });
         });
       });
     });

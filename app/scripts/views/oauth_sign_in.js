@@ -36,7 +36,7 @@ function (_, p, SignInView, Session, ServiceMixin) {
 
     onSignInSuccess: function() {
       return this.finishOAuthFlow({
-        source: "signin"
+        source: 'signin'
       });
     },
 

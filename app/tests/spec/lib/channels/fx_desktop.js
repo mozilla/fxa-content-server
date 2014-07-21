@@ -10,7 +10,7 @@ define([
   '/tests/mocks/window.js',
   '/tests/mocks/router.js',
   'lib/session',
-  'lib/channels/fx-desktop',
+  'lib/channels/fx_desktop',
   '/tests/lib/helpers.js'
 ],
 function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) {
@@ -19,7 +19,7 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
   var channel;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  describe('lib/channel/fx-desktop', function () {
+  describe('lib/channel/fx_desktop', function () {
     var windowMock;
     var routerMock;
 

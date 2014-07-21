@@ -16,8 +16,8 @@ define([
   'lib/config-loader',
   'lib/session',
   'lib/service-name',
-  'lib/channels/web'
-], function (p, BaseView, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName, WebChannel) {
+  'lib/channels/factory'
+], function (p, BaseView, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName, channelFactory) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than they started with, we
@@ -47,6 +47,8 @@ define([
       // to the 'client_id'.
       this.service = params.client_id || Session.service;
       Session.set('service', this.service);
+
+      this._channel = this._createChannel();
     },
 
     setServiceInfo: function () {
@@ -85,13 +87,11 @@ define([
       })
       .then(function(result) {
         Session.clear('oauth');
-        if (self._oAuthParams.webChannelId) {
-          self.useWebChannel(result, options.source);
-        } else {
-          // Redirect to the returned URL
-          self.window.location.href = result.redirect;
+
+        if (self._channel.completeOAuth) {
+          self.completeWithChannel(result, options.source);
+          return { pageNavigation: true };
         }
-        return { pageNavigation: true };
       })
       .fail(function(err) {
         Session.clear('oauth');
@@ -99,34 +99,44 @@ define([
       });
     },
 
-    useWebChannel: function (result, source) {
-      var self = this;
-      var redirectParams = result.redirect.split('?')[1];
-      var channel = new WebChannel('oauth_' + self.service);
-      channel.send({
-        command: 'oauth_complete',
-        state: Url.searchParam('state', redirectParams),
-        code: Url.searchParam('code', redirectParams),
-        closeWindow: source === 'signin'
+    _createChannel: function () {
+      return channelFactory.create({
+        webChannelId: this._oAuthParams.webChannelId
       });
-      var receivedError = false;
+    },
 
-      channel.on('message', function (webChannelId, message) {
-        if (message.error) {
-          receivedError = true;
-          self.displayError(message.error, OAuthErrors);
-          self._buttonProgressIndicator.done();
-        }
+    completeWithChannel: function (result, source) {
+      var self = this;
+
+      var promise = self._channel.completeOAuth(result, source);
+
+      if (!(promise && promise.then)) {
+        // a synchronous completion, nothing more to do.
+        return;
+      }
+
+      var receivedError = false;
+      promise.then(function () {
+        // done, now what?
+        self._buttonProgressIndicator.done();
+      })
+      .fail(function(err) {
+        receivedError = true;
+        self.displayError(err, OAuthErrors);
+        self._buttonProgressIndicator.done();
       });
 
       // if sign in then show progress state
+      // Assume the receiver of the channel's notification will shut
+      // the FxA window. If it doesn't, and no other error was received,
+      // assume there is an error.
       if (self.$('button[type=submit]').length > 0) {
         self._buttonProgressIndicator.start(self.$('button[type=submit]'));
-        setTimeout(function() {
+        self.setTimeout(function() {
           // if something goes wrong during the WebChannel process
           // but does not send back the error message,
           // then we show a generic error to the user.
-          if (!receivedError) {
+          if (! receivedError) {
             // TODO: real errors here
             self.displayError('Something went wrong. Please close this tab and try again.', OAuthErrors);
           }

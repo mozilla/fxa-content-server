@@ -26,7 +26,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
 
   var View = BaseView.extend({
     template: Template,
-    className: 'reset_password_complete',
+    className: 'ready',
 
     initialize: function (options) {
       options = options || {};
@@ -48,22 +48,9 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
     },
 
     context: function () {
-      var serviceName = this.serviceName;
-
-      if (this.serviceRedirectURI) {
-        if (Session.oauth && Session.oauth.webChannelId) {
-          serviceName = Strings.interpolate('%s', [serviceName]);
-          this.submit();
-        } else {
-          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-            Xss.href(this.serviceRedirectURI), serviceName
-          ]);
-        }
-      }
-
       return {
         service: this.service,
-        serviceName: serviceName,
+        serviceName: this._getServiceName(),
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')
       };
@@ -73,11 +60,32 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
+    _getServiceName: function () {
+      var serviceName = this.serviceName;
+
+      if (this.serviceRedirectURI && ! this._shouldSubmitWithoutInteraction()) {
+        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(this.serviceRedirectURI), serviceName
+        ]);
+      }
+
+      return serviceName;
+    },
+
+    _shouldSubmitWithoutInteraction: function () {
+      var channel = this._channel;
+      return channel && channel.completeOAuthNoInteraction;
+    },
+
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      return this._createMarketingSnippet();
+      if (this._shouldSubmitWithoutInteraction()) {
+        return this.submit();
+      } else {
+        return this._createMarketingSnippet();
+      }
     },
 
     _createMarketingSnippet: function () {
@@ -95,7 +103,9 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
 
     submit: function () {
       if (this.isOAuthSameBrowser()) {
-        return this.finishOAuthFlow();
+        return this.finishOAuthFlow({
+          source: this.type
+        });
       } else if (this.hasService()) {
         return this.oAuthRedirectWithError();
       }
