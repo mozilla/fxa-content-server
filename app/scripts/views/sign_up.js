@@ -96,7 +96,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         isSync: Session.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
-        shouldFocusYear: autofocusEl === 'year'
+        shouldFocusYear: autofocusEl === 'year',
+        error: this.error
       };
     },
 
