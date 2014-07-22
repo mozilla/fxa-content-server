@@ -58,7 +58,8 @@ define([
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       return Url.searchParams(this.window.location.search,
-                ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
+                ['client_id', 'redirect_uri', 'state', 'scope', 'action',
+                'webChannelId']);
     },
 
     _getChannel: function () {
@@ -70,6 +71,7 @@ define([
           webChannelId: this._oAuthParams.webChannelId
         });
       } else {
+        // By default, all OAuth communication happens via the URL.
         channel = new UrlChannel();
         channel.init({
           window: this.window
