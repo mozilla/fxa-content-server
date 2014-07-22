@@ -10,14 +10,14 @@ define([
 ], function (_, Backbone) {
   'use strict';
 
-  function WebChannel() {
+  function UrlChannel() {
   }
 
-  _.extend(WebChannel.prototype, Backbone.Events, {
+  _.extend(UrlChannel.prototype, Backbone.Events, {
     init: function (options) {
       options = options || {};
 
-      this._window = options.window;
+      this._window = options.window || window;
     },
 
     teardown: function () {
@@ -29,10 +29,15 @@ define([
       }
     },
 
-    completeOAuth: function (result) {
+    completeOAuth: function (result, source) {
       this._window.location.href = result.redirect;
+    },
+
+    completeOAuthError: function (result) {
+      this._window.location.href = result.redirect +
+                                  '?error=' + encodeURIComponent(result.error);
     }
   });
 
-  return WebChannel;
+  return UrlChannel;
 });

@@ -18,7 +18,6 @@ define([
   }
 
   _.extend(FirefoxWebChannel.prototype, Backbone.Events, {
-    handlesCompletion: true,
     completeOAuthNoInteraction: true,
 
     init: function (options) {
@@ -140,6 +139,10 @@ define([
       });
 
       return defer.promise;
+    },
+
+    completeOAuthError: function (result) {
+      // TODO - what do we do here?
     }
   });
 

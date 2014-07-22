@@ -7,8 +7,9 @@
 'use strict';
 
 define([
-  'p-promise',
+  'lib/promise',
   'views/base',
+  'views/form',
   'lib/url',
   'lib/oauth-client',
   'lib/assertion',
@@ -16,31 +17,29 @@ define([
   'lib/config-loader',
   'lib/session',
   'lib/service-name',
-  'lib/channels/factory'
-], function (p, BaseView, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName, channelFactory) {
+  'lib/channels/fx_web',
+  'lib/channels/url'
+], function (p, BaseView, FormView, Url, OAuthClient, Assertion, OAuthErrors,
+    ConfigLoader, Session, ServiceName, FxWebChannel, UrlChannel) {
   /* jshint camelcase: false */
 
-  // If the user completes an OAuth flow using a different browser than they started with, we
-  // redirect them back to the RP with this code in the `error_code` query param.
+  // If the user completes an OAuth flow using a different browser than
+  // they started with, we redirect them back to the RP with this code
+  // in the `error_code` query param.
   var RP_DIFFERENT_BROWSER_ERROR_CODE = 3005;
 
   var SYNC_SERVICE = 'sync';
 
+  var WAIT_FOR_ERROR_TIMEOUT = 10000;
+
   return {
     setupOAuth: function (params) {
-      if (!this._configLoader) {
+      if (! this._configLoader) {
         this._configLoader = new ConfigLoader();
       }
 
       this._oAuthClient = new OAuthClient();
-
-      if (! params) {
-        // params listed in:
-        // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
-        params = Url.searchParams(this.window.location.search,
-                  ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
-      }
-      this._oAuthParams = params;
+      this._oAuthParams = params = this._getOAuthParams(params);
 
       // FxA auth server API expects a 'service' parameter to include in
       // verification emails. Oauth uses 'client_id', so we set 'service'
@@ -48,7 +47,36 @@ define([
       this.service = params.client_id || Session.service;
       Session.set('service', this.service);
 
-      this._channel = this._createChannel();
+      this._channel = this._getChannel();
+    },
+
+    _getOAuthParams: function (params) {
+      if (params) {
+        return params;
+      }
+
+      // params listed in:
+      // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
+      return Url.searchParams(this.window.location.search,
+                ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
+    },
+
+    _getChannel: function () {
+      var channel;
+
+      if (this._oAuthParams.webChannelId) {
+        channel = new FxWebChannel();
+        channel.init({
+          webChannelId: this._oAuthParams.webChannelId
+        });
+      } else {
+        channel = new UrlChannel();
+        channel.init({
+          window: this.window
+        });
+      }
+
+      return channel;
     },
 
     setServiceInfo: function () {
@@ -69,12 +97,18 @@ define([
         });
     },
 
-    oAuthRedirectWithError: function () {
-      this.window.location.href = this.serviceRedirectURI +
-                                  '?error=' + RP_DIFFERENT_BROWSER_ERROR_CODE;
+    shouldAutoFinishOAuthFlow: function () {
+      return !! (this._channel && this._channel.completeOAuthNoInteraction);
     },
 
-    finishOAuthFlow: function (options) {
+    finishOAuthFlowDifferentBrowser: function () {
+      this._channel.completeOAuthError({
+        redirect: this.serviceRedirectURI,
+        error: RP_DIFFERENT_BROWSER_ERROR_CODE
+      });
+    },
+
+    finishOAuthFlow: FormView.showButtonProgressIndicator(function (options) {
       options = options || {};
       var self = this;
 
@@ -89,59 +123,46 @@ define([
         Session.clear('oauth');
 
         if (self._channel.completeOAuth) {
-          self.completeWithChannel(result, options.source);
-          return { pageNavigation: true };
+          return self._completeWithChannel(result, options.source);
         }
+        // TODO should we do something if the channel does not have
+        // a completeOAuth, or should we add the function to all channels?
+      }).then(function() {
+        return { pageNavigation: true };
       })
       .fail(function(err) {
         Session.clear('oauth');
         self.displayError(err, OAuthErrors);
       });
-    },
+    }),
 
-    _createChannel: function () {
-      return channelFactory.create({
-        webChannelId: this._oAuthParams.webChannelId
-      });
-    },
-
-    completeWithChannel: function (result, source) {
+    _completeWithChannel: function (result, source) {
       var self = this;
+      // TODO - does this belong here, or should this be in the channel?
+      // it seems a bit too specific to be here.
 
-      var promise = self._channel.completeOAuth(result, source);
-
-      if (!(promise && promise.then)) {
-        // a synchronous completion, nothing more to do.
-        return;
-      }
-
-      var receivedError = false;
-      promise.then(function () {
-        // done, now what?
-        self._buttonProgressIndicator.done();
-      })
-      .fail(function(err) {
-        receivedError = true;
-        self.displayError(err, OAuthErrors);
-        self._buttonProgressIndicator.done();
-      });
-
-      // if sign in then show progress state
       // Assume the receiver of the channel's notification will shut
       // the FxA window. If it doesn't, and no other error was received,
       // assume there is an error.
-      if (self.$('button[type=submit]').length > 0) {
-        self._buttonProgressIndicator.start(self.$('button[type=submit]'));
-        self.setTimeout(function() {
-          // if something goes wrong during the WebChannel process
-          // but does not send back the error message,
-          // then we show a generic error to the user.
-          if (! receivedError) {
-            // TODO: real errors here
-            self.displayError('Something went wrong. Please close this tab and try again.', OAuthErrors);
-          }
-        }, 10000);
-      }
+      self._waitForErrorTimeout = self.setTimeout(function() {
+        // if something goes wrong during the WebChannel process
+        // but does not send back the error message,
+        // then we show a generic error to the user.
+        self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
+      }, WAIT_FOR_ERROR_TIMEOUT);
+
+      return p()
+          .then(function () {
+            return self._channel.completeOAuth(result, source);
+          })
+          .then(function () {
+            self.clearTimeout(self._waitForErrorTimeout);
+          })
+          .fail(function (err) {
+            self.clearTimeout(self._waitForErrorTimeout);
+            throw err;
+          });
+
     },
 
     hasService: function () {
@@ -165,12 +186,19 @@ define([
 
     // override this method so we can fix signup/signin links in errors
     displayErrorUnsafe: function (err, errors) {
-      var result = BaseView.prototype.displayErrorUnsafe.call(this, err, errors);
-      var hasServiceView = this.className.match('oauth');
-      if (hasServiceView || this.isOAuthSameBrowser()) {
+      var result =
+              BaseView.prototype.displayErrorUnsafe.call(this, err, errors);
+
+      if (this._shouldSetupOAuthLinks()) {
         this.setupOAuthLinks();
       }
+
       return result;
+    },
+
+    _shouldSetupOAuthLinks: function () {
+      var hasServiceView = this.className.match('oauth');
+      return hasServiceView || this.isOAuthSameBrowser();
     },
 
     isSync: function () {

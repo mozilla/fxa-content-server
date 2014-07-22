@@ -22,7 +22,8 @@ define([
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Url, Strings,
+              ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -60,32 +61,31 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
-    _getServiceName: function () {
-      var serviceName = this.serviceName;
-
-      if (this.serviceRedirectURI && ! this._shouldSubmitWithoutInteraction()) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(this.serviceRedirectURI), serviceName
-        ]);
-      }
-
-      return serviceName;
-    },
-
-    _shouldSubmitWithoutInteraction: function () {
-      var channel = this._channel;
-      return channel && channel.completeOAuthNoInteraction;
+    submit: function () {
+      this._finishOAuthFlow();
     },
 
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      if (this._shouldSubmitWithoutInteraction()) {
-        return this.submit();
+      if (this.shouldAutoFinishOAuthFlow()) {
+        return this._finishOAuthFlow();
       } else {
         return this._createMarketingSnippet();
       }
+    },
+
+    _getServiceName: function () {
+      var serviceName = this.serviceName;
+
+      if (this.serviceRedirectURI && ! this.shouldAutoFinishOAuthFlow()) {
+        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(this.serviceRedirectURI), serviceName
+        ]);
+      }
+
+      return serviceName;
     },
 
     _createMarketingSnippet: function () {
@@ -101,14 +101,15 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
       return marketingSnippet.render();
     },
 
-    submit: function () {
+    _finishOAuthFlow: function () {
       if (this.isOAuthSameBrowser()) {
         return this.finishOAuthFlow({
           source: this.type
         });
       } else if (this.hasService()) {
-        return this.oAuthRedirectWithError();
+        return this.finishOAuthFlowDifferentBrowser();
       }
+      // what happens if neither of those match?
     },
 
     is: function (type) {
