@@ -1,3 +1,12 @@
+<a name="0.16.2"></a>
+### 0.16.2 (2014-07-22)
+
+
+#### Bug Fixes
+
+* **l10n:** add hsb and dsb to default supported languag list for asset generation ([b36948d0](https://github.com/mozilla/fxa-content-server/commit/b36948d0c2c18214e0dd28e8df26c704296d0b60))
+
+
 <a name="0.16.1"></a>
 ### 0.16.1 (2014-07-02)
 
