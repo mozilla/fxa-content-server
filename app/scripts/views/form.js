@@ -161,7 +161,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
     afterRender: function () {
       this.enableSubmitIfValid();
 
-      BaseView.prototype.afterRender.call(this);
+      return BaseView.prototype.afterRender.call(this);
     },
 
     /**
