@@ -50,7 +50,9 @@ function () {
     EMAIL_REQUIRED: 1011,
     YEAR_OF_BIRTH_REQUIRED: 1012,
     UNUSABLE_IMAGE: 1013,
-    NO_CAMERA: 1014
+    NO_CAMERA: 1014,
+    COOKIES_DISABLED: 1015,
+    ILLEGAL_IFRAME_PARENT: 1016
   };
 
   var CODE_TO_MESSAGES = {
@@ -89,7 +91,9 @@ function () {
     1011: t('Valid email required'),
     1012: t('Year of birth required'),
     1013: t('A usable image was not found'),
-    1014: t('Could not initialize camera')
+    1014: t('Could not initialize camera'),
+    1015: t('Cookies disabled'),
+    1016: t('Illegal iframe')
   };
 
   return {

@@ -5,6 +5,8 @@
 module.exports = function (grunt) {
   'use strict';
 
+  var config = require('../server/lib/configuration');
+
   grunt.config('replace', {
     tos_pp: {
       src: [
@@ -18,6 +20,16 @@ module.exports = function (grunt) {
       }, {
         from: /^#\s.*?\n$/m,
         to: ''
+      }]
+    },
+    'include.js': {
+      src: [
+        '<%= yeoman.app %>/include.js.template'
+      ],
+      dest: '<%= yeoman.app %>/include.js',
+      replacements: [{
+        from: '{{fxa_host}}',
+        to: config.get('public_url')
       }]
     }
   });

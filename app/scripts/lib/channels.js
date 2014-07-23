@@ -10,8 +10,9 @@ define([
   'lib/promise',
   'lib/channels/null',
   'lib/channels/fx-desktop',
-  'lib/channels/redirect'
-], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel) {
+  'lib/channels/redirect',
+  'lib/channels/iframe'
+], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, IFrameChannel) {
   'use strict';
 
   return {
@@ -24,6 +25,7 @@ define([
      */
     get: function (options) {
       options = options || {};
+      var _window = options.window || window;
 
       if (options.channel) {
         return options.channel;
@@ -33,7 +35,9 @@ define([
 
       if (Session.isDesktopContext()) {
         channel = new FxDesktopChannel();
-      } else if (Session.isOAuth()) {
+      } else if (_window.parent && _window.parent !== _window) {
+        channel = new IFrameChannel();
+      } else if (Session.isOAuth()) { //jshint ignore:line
         // By default, all OAuth communication happens via redirects.
         channel = new RedirectChannel();
       } else {
@@ -41,7 +45,7 @@ define([
       }
 
       channel.init({
-        window: options.window || window
+        window: _window
       });
 
       return channel;

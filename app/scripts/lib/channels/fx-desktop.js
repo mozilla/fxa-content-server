@@ -8,18 +8,18 @@
 
 define([
   'underscore',
-  'lib/channels/base'
+  'lib/channels/postmessage_receiver'
 ],
-function (_, BaseChannel) {
-  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 1000;
-
-  function noOp() {
-    // Nothing to do here.
-  }
+function (_, PostMessageReceiverChannel) {
+  var SENDABLE_COMMANDS = [
+    'session_status',
+    'can_link_account',
+    'login'
+  ];
 
   function createEvent(command, data) {
     /*jshint validthis: true*/
-    return new this.window.CustomEvent('FirefoxAccountsCommand', {
+    return new this._window.CustomEvent('FirefoxAccountsCommand', {
       detail: {
         command: command,
         data: data,
@@ -28,92 +28,39 @@ function (_, BaseChannel) {
     });
   }
 
-  function errorIfNoResponse(outstandingRequest) {
-    /*jshint validthis: true*/
-    outstandingRequest.timeout = setTimeout(function () {
-      // only called if the request has not been responded to.
-      console.error('no response from browser');
-      outstandingRequest.done(new Error('Unexpected error'));
-    }, this.sendTimeoutLength);
-  }
-
-  function receiveMessage(event) {
-    /*jshint validthis: true*/
-    var result = event.data.content;
-    if (! result) {
-      return;
-    }
-
-    var type = event.data.type;
-    var command = result.status;
-
-    if (type === 'message') {
-      var outstandingRequest = this.outstandingRequests[command];
-      if (outstandingRequest) {
-        clearTimeout(outstandingRequest.timeout);
-        delete this.outstandingRequests[command];
-
-        outstandingRequest.done(null, result);
-      }
-
-      this.trigger(command, result);
-    }
-  }
-
   function Channel() {
     // nothing to do here.
   }
 
-  _.extend(Channel.prototype, new BaseChannel(), {
-    init: function init(options) {
-      options = options || {};
-
-      this.outstandingRequests = {};
-
-      this.window = options.window || window;
-
-      this._boundReceiveMessage = _.bind(receiveMessage, this);
-      this.window.addEventListener('message', this._boundReceiveMessage, false);
-
-      this.sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
+  var _super = new PostMessageReceiverChannel();
+  _.extend(Channel.prototype, _super, {
+    shouldAcceptMessage: function (event) {
+      // all messages are trusted in this context.
+      return true;
     },
 
-    teardown: function () {
-      for (var key in this.outstandingRequests) {
-        var item = this.outstandingRequests[key];
-        clearTimeout(item.timeout);
+    parseMessage: function (message) {
+      /*jshint validthis: true*/
+      var type = message.type;
+      var result = message.content;
+
+      if (! (type === 'message' && result)) {
+        return;
       }
 
-      this.window.removeEventListener('message', this._boundReceiveMessage, false);
+      return {
+        command: result.status,
+        data: result
+      };
     },
 
-    send: function (command, data, done) {
-      done = done || noOp;
+    isCommandSendable: function (command) {
+      return _.indexOf(SENDABLE_COMMANDS, command) > -1;
+    },
 
-      var outstanding = this.outstandingRequests[command];
-      if (! outstanding) {
-        // if this is a resend, retriesCompleted has already been updated
-        // and none of the other data needs to be updated.
-        outstanding = this.outstandingRequests[command] = {
-          done: done,
-          command: command,
-          data: data
-        };
-      }
-
-      try {
-        // Browsers can blow up dispatching the event.
-        // Ignore the blowups and return without retrying.
-        var event = createEvent.call(this, command, data);
-        this.window.dispatchEvent(event);
-      } catch (e) {
-        // something went wrong sending the message and we are not going to
-        // retry, no need to keep track of it any longer.
-        delete this.outstandingRequests[command];
-        return done && done(e);
-      }
-
-      errorIfNoResponse.call(this, outstanding);
+    dispatchCommand: function (command, data) {
+      var event = createEvent.call(this, command, data);
+      this._window.dispatchEvent(event);
     }
   });
 

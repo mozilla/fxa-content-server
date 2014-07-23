@@ -108,6 +108,11 @@ var conf = module.exports = convict({
       default: false
     }
   },
+  iframe_allowed_origins: {
+    doc: 'Origins that are allowed to embed the FxA within an IFRAME',
+    format: Array,
+    default: []
+  },
   static_directory: {
     doc: 'Directory that static files are served from.',
     format: String,

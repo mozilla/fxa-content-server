@@ -42,7 +42,8 @@ module.exports = function (grunt) {
             'images/{,*/}*.{webp,gif,svg}',
             'styles/fonts/{,*/}*.*',
             'fonts/**/*.{woff,eot,ttf,svg,ofl}',
-            'i18n/{,*/}{,*/}*.*'
+            'i18n/{,*/}{,*/}*.*',
+            'include.js'
           ]
         },
         {

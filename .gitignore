@@ -69,3 +69,6 @@ app/fonts/latin
 
 ### Strings
 locale/*/*/*.po
+
+### RP IFramed OAuth API - auto-generated from include.js.template
+app/include.js
