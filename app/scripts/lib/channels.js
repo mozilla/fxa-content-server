@@ -12,8 +12,9 @@ define([
   'lib/channels/fx-desktop',
   'lib/channels/redirect',
   'lib/channels/web',
+  'lib/channels/iframe',
   'lib/url'
-], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel, Url) {
+], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel, IFrameChannel, Url) {
   'use strict';
 
   return {
@@ -41,7 +42,9 @@ define([
       } else if (webChannelId) {
         // use WebChannel if "webChannelId" is set
         channel = new WebChannel(webChannelId);
-      } else if (Session.isOAuth()) {
+      } else if (context.parent && context.parent !== context) {
+        channel = new IFrameChannel();
+      } else if (Session.isOAuth()) { //jshint ignore:line
         // By default, all OAuth communication happens via redirects.
         channel = new RedirectChannel();
       } else {

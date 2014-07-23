@@ -25,7 +25,8 @@ module.exports = function (config, templates, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
-    require('./routes/post-metrics')()
+    require('./routes/post-metrics')(),
+    require('./routes/get-iframe-allowed')()
   ];
 
   if (config.get('api_proxy.enabled')) {
@@ -101,6 +102,10 @@ module.exports = function (config, templates, i18n) {
 
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
+        if (req.path === '/oauth/signin' || req.path === '/oauth/signup') {
+          res.removeHeader('x-frame-options');
+        }
+
         // setting the url to / will use the correct
         // index.html for either dev or prod mode.
         req.url = '/';

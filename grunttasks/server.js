@@ -15,6 +15,7 @@ module.exports = function (grunt) {
       'selectconfig:app',
       'l10n-create-json',
       'l10n-generate-tos-pp:app',
+      'replace:include.js',
       'css',
       'concurrent:server',
       'serverproc:app'

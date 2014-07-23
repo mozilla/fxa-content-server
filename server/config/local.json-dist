@@ -5,6 +5,12 @@
   },
   "oauth_url": "http://127.0.0.1:9010",
   "profile_url": "http://127.0.0.1:1111",
+  "oauth_proxy": {
+    "enabled": true
+  },
+  "iframe_allowed_origins": [
+    "http://127.0.0.1:8080"
+  ],
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
