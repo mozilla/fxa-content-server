@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 // Firefox for desktop native=>FxA glue code.
 
 define([
   'underscore',
   'backbone',
   'lib/session'
-],
-function (_, Backbone, Session) {
+], function (_, Backbone, Session) {
+  'use strict';
+
   var SEND_TIMEOUT_LENGTH_MS = 1000;
 
   function noOp() {

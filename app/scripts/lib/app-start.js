@@ -26,8 +26,7 @@ define([
   'lib/translator',
   'lib/session',
   'lib/url',
-  'lib/channels/web',
-  'lib/channels/fx-desktop',
+  'lib/channels/factory',
   'lib/config-loader',
   'lib/metrics',
   'lib/null-metrics'
@@ -41,8 +40,7 @@ function (
   Translator,
   Session,
   Url,
-  WebChannel,
-  FxDesktopChannel,
+  channelFactory,
   ConfigLoader,
   Metrics,
   NullMetrics
@@ -142,18 +140,7 @@ function (
 
     getChannel: function () {
       var context = this._searchParam('context');
-      var channel;
-
-      if (context === Constants.FX_DESKTOP_CONTEXT) {
-        // Firefox for desktop native=>FxA glue code.
-        channel = new FxDesktopChannel();
-      } else {
-        // default to the web channel that doesn't do anything yet.
-        channel = new WebChannel();
-      }
-
-      channel.init();
-      return channel;
+      return channelFactory.create({ context: context });
     },
 
     setSessionValueFromUrl: function (paramName, sessionName) {

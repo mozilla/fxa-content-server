@@ -599,6 +599,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
   });
 
   FormView.allowOnlyOneSubmit = allowOnlyOneSubmit;
+  FormView.showButtonProgressIndicator = showButtonProgressIndicator;
 
   return FormView;
 });

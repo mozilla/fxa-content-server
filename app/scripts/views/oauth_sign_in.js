@@ -35,11 +35,14 @@ function (_, p, SignInView, Session, ServiceMixin) {
     },
 
     onSignInSuccess: function() {
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow({
+        source: 'signin'
+      });
     },
 
     onSignInUnverified: function() {
-      // set the oauth parameters in the session so they are available in the email confirmation
+      // set the oauth parameters in the session so they are available
+      // in the email confirmation
       Session.set('oauth', this._oAuthParams);
       return SignInView.prototype.onSignInUnverified.call(this);
     },

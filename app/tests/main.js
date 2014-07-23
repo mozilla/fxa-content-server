@@ -46,8 +46,9 @@ function (Translator, Session) {
   'use strict';
 
   var tests = [
-    '../tests/spec/lib/channels/web',
-    '../tests/spec/lib/channels/fx-desktop',
+    '../tests/spec/lib/channels/fx_web',
+    '../tests/spec/lib/channels/null',
+    '../tests/spec/lib/channels/fx_desktop',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
     '../tests/spec/lib/session',
@@ -70,9 +71,8 @@ function (Translator, Session) {
     '../tests/spec/views/sign_up',
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/sign_in',
-    // TODO Renable these (issue #1141)
-    //'../tests/spec/views/oauth_sign_in',
-    //'../tests/spec/views/oauth_sign_up',
+    '../tests/spec/views/oauth_sign_in',
+    '../tests/spec/views/oauth_sign_up',
     '../tests/spec/views/force_auth',
     '../tests/spec/views/settings',
     '../tests/spec/views/change_password',
