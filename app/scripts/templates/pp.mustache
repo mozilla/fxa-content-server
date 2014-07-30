@@ -11,7 +11,13 @@
     </article>
 
     <div class="button-row">
+      {{#canGoBack}}
       <button id="fxa-pp-back" class="back">{{#t}}Back{{/t}}</button>
+      {{/canGoBack}}
+
+      {{^canGoBack}}
+      <a href="/" id="fxa-pp-home" class="button">{{#t}}Home{{/t}}</a>
+      {{/canGoBack}}
     </div>
   </section>
 </div>
