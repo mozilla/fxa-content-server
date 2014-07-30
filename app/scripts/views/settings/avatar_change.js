@@ -69,11 +69,9 @@ function ($, _, FormView, Template, Session, AuthErrors) {
           var img = new Image();
           img.src = src;
           img.onload = function () {
-
-            require(['../bower_components/jquery-ui/ui/draggable'], function (ui) {
-              Session.set('cropImgWidth', img.width);
-              Session.set('cropImgHeight', img.height);
-
+            Session.set('cropImgWidth', img.width);
+            Session.set('cropImgHeight', img.height);
+            require(['../bower_components/jquery-ui/ui/draggable'], function () {
               self.navigate('settings/avatar/crop');
             });
           };
