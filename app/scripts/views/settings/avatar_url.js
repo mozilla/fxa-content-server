@@ -12,6 +12,7 @@ define([
   'lib/auth-errors'
 ],
 function (_, FormView, Template, Session, AuthErrors) {
+  var PROXY_PATH = '/remote-image/';
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -29,13 +30,16 @@ function (_, FormView, Template, Session, AuthErrors) {
     // Load the remote image into a canvas and prepare it for cropping
     submit: function () {
       var self = this;
-      var src = this.$('.url').val();
+      var src = PROXY_PATH + encodeURIComponent(this.$('.url').val());
       var img = new Image();
       img.src = src;
+
       img.onload = function () {
         Session.set('cropImgWidth', img.width);
         Session.set('cropImgHeight', img.height);
-        self.navigate('settings/avatar/crop');
+        require(['../bower_components/jquery-ui/ui/draggable'], function () {
+          self.navigate('settings/avatar/crop');
+        });
       };
       img.onerror = function () {
         self.navigate('settings/avatar', {
