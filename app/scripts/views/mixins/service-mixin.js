@@ -102,8 +102,8 @@ define([
     useWebChannel: function (result, source) {
       var self = this;
       var redirectParams = result.redirect.split('?')[1];
-      var channel = new WebChannel('oauth_' + self.service);
-      channel.send({
+      var webChannel = new WebChannel('oauth_' + self.service);
+      webChannel.send({
         command: 'oauth_complete',
         data: {
           state: Url.searchParam('state', redirectParams),
@@ -113,7 +113,7 @@ define([
       });
       var receivedError = false;
 
-      channel.on('message', function (webChannelId, message) {
+      webChannel.on('message', function (id, message) {
         if (message.error) {
           receivedError = true;
           self.displayError(message.error, OAuthErrors);

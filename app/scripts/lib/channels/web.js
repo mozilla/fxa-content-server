@@ -11,8 +11,8 @@ define([
     'backbone'
   ],
   function (_, Backbone) {
-    function WebChannel(webChannelId, context) {
-      this.webChannelId = webChannelId || 'message';
+    function WebChannel(id, context) {
+      this.id = id || 'message';
       this.window = context || window;
       this._messageCallbacks = [];
       this._messageListenerAttached = false;
@@ -76,7 +76,7 @@ define([
       event: function (message) {
         return new this.window.CustomEvent('WebChannelMessageToChrome', {
           detail: {
-            webChannelId: this.webChannelId,
+            id: this.id,
             message: message ? message : {}
           }
         });
@@ -90,9 +90,9 @@ define([
       _messageListener: function (e) {
         var data = e.detail;
 
-        if (data.webChannelId === this.webChannelId && data.message) {
+        if (data.id === this.id && data.message) {
           this._messageCallbacks.forEach(function(callback) {
-            callback(data.webChannelId, data.message);
+            callback(data.id, data.message);
           });
         }
       }
