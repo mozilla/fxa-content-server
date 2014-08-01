@@ -5,10 +5,8 @@
 'use strict';
 
 require([
-  './require_config',
   './lib/app-start'
 ],
-function (RequireConfig, AppStart) {
-  var appStart = new AppStart();
-  appStart.startApp();
+function (AppStart) {
+  new AppStart().startApp();
 });

@@ -48,6 +48,10 @@ test/temp
 
 
 ### Pre-processed files that become part of the build ###
+app/scripts/*.app.js
+app/scripts/app.js
+app/scripts/app.js.map
+app/scripts/*.app.js.map
 app/scripts/processed
 
 ### Pre-processed error pages
