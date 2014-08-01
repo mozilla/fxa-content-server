@@ -38,7 +38,7 @@ define([
         // params listed in:
         // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
         params = Url.searchParams(this.window.location.search,
-                  ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
+                  ['client_id', 'redirect_uri', 'state', 'scope', 'action', 'webChannelId']);
       }
       this._oAuthParams = params;
 
