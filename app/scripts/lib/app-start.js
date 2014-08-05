@@ -120,6 +120,7 @@ function (
           // route displayed in the URL because the user is immediately
           // redirected to cookies_disabled
           var shouldRenderFirstView = ! areCookiesEnabled;
+          Backbone.$ = require("jquery");
           self._history.start({ pushState: true, silent: shouldRenderFirstView });
 
           if (! areCookiesEnabled) {
