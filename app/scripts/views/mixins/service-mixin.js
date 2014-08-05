@@ -18,9 +18,10 @@ define([
   'lib/config-loader',
   'lib/session',
   'lib/service-name',
-  'lib/channels'
+  'lib/channels/redirect',
+  'lib/channels/null'
 ], function (p, BaseView, buttonProgressIndicator, Url, OAuthClient, Assertion, OAuthErrors,
-    ConfigLoader, Session, ServiceName, Channels) {
+    ConfigLoader, Session, ServiceName, RedirectChannel, NullChannel) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than
@@ -38,28 +39,25 @@ define([
     return hasServiceView || this.isOAuthSameBrowser();
   }
 
-  function notifyChannel(message, data) {
-    /*jshint validthis: true*/
-    var self = this;
+  /**
+   * Chooses the channel (based on environment factors),
+   * communicates OAuth completion and other actions
+   * @param [options]
+   *        Options
+   *        @param {Object} [options.window]
+   *        Window object
+   * @returns {*}
+   *          The channel that has been chosen
+   */
+  function attachOAuthChannel(options) {
+    options = options || {};
 
-    // Assume the receiver of the channel's notification will either
-    // respond or shut the FxA window.
-    // If it doesn't, assume there was an error and show a generic
-    // error to the user
-    self._expectResponseTimeout = self.setTimeout(function() {
-      self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
-    }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
+    var channel = new RedirectChannel();
+    channel.init({
+      window: options.window || window
+    });
 
-    return Channels.sendExpectResponse(message, data, {
-        window: self.window,
-        channel: self.channel
-      }).then(function (response) {
-        self.clearTimeout(self._expectResponseTimeout);
-        return response;
-      }, function (err) {
-        self.clearTimeout(self._expectResponseTimeout);
-        throw err;
-      });
+    return channel;
   }
 
   return {
@@ -69,6 +67,9 @@ define([
       }
 
       this._oAuthClient = new OAuthClient();
+      this._oAuthChannel = attachOAuthChannel({
+        window: this.window
+      });
 
       if (! params) {
         // params listed in:
@@ -109,10 +110,12 @@ define([
     },
 
     finishOAuthFlowDifferentBrowser: function () {
-      return notifyChannel.call(this, 'oauth_complete', {
-            redirect: this.serviceRedirectURI,
-            error: RP_DIFFERENT_BROWSER_ERROR_CODE
-          });
+      var result = {
+        redirect: this.serviceRedirectURI,
+        error: RP_DIFFERENT_BROWSER_ERROR_CODE
+      };
+
+      return this._sendOAuthComplete(result);
     },
 
     finishOAuthFlow: buttonProgressIndicator(function (options) {
@@ -124,11 +127,13 @@ define([
       })
       .then(function(assertion) {
         self._oAuthParams.assertion = assertion;
+
         return self._oAuthClient.getCode(self._oAuthParams);
       })
       .then(function(result) {
         result.source = options.source;
-        return notifyChannel.call(self, 'oauth_complete', result);
+
+        return self._sendOAuthComplete(result);
       }).then(function() {
         Session.clear('oauth');
         // on success, keep the button progress indicator going until the
@@ -143,6 +148,38 @@ define([
 
     hasService: function () {
       return !!Session.service;
+    },
+
+    /**
+     * Send 'oauth_complete' message on the current _oAuthChannel
+     *
+     * @param {Object} data
+     *        Data object
+     */
+    _sendOAuthComplete: function (data) {
+      var self = this;
+      var defer = p.defer();
+      // Assume the receiver of the channel's notification will either
+      // respond or shut the FxA window.
+      // If it doesn't, assume there was an error and show a generic
+      // error to the user
+      var responseTimeout = this.setTimeout(function() {
+        this.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
+      }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
+
+      this._oAuthChannel.send('oauth_complete', data, function (err, response) {
+        self.clearTimeout(responseTimeout);
+        // don't need this channel after sending "oauth_complete"
+        self._oAuthChannel.teardown();
+
+        if (err) {
+          return defer.reject(err);
+        }
+
+        defer.resolve(response);
+      });
+
+      return defer.promise;
     },
 
     /**

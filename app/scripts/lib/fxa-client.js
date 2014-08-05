@@ -16,9 +16,10 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/constants',
-  'lib/channels'
+  'lib/channels/null',
+  'lib/channels/fx-desktop'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
+function (_, FxaClient, $, p, Session, AuthErrors, Constants, NullChannel, FxDesktopChannel) {
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -30,7 +31,11 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
-    this._channel = options.channel;
+    if (Session.isDesktopContext()) {
+      this._channel = new FxDesktopChannel();
+    } else {
+      this._channel = new NullChannel();
+    }
   }
 
   FxaClientWrapper.prototype = {
@@ -39,21 +44,25 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
     // checks and dialogs. It throws an error with message='USER_CANCELED_LOGIN' and
     // errno=1001 if that's the case.
     _checkForDesktopSyncRelinkWarning: function (email) {
-      return Channels.sendExpectResponse('can_link_account', { email: email }, {
-        // A testing channel that was passed in on client creation. If no
-        // channel is sent, the appropriate one will be created.
-        channel: this._channel
-      }).then(function (response) {
-        if (response && response.data && ! response.data.ok) {
-          throw AuthErrors.toError('USER_CANCELED_LOGIN');
+      var defer = p.defer();
+
+      this._channel.send('can_link_account', { email: email }, function (err, response) {
+        if (err) {
+          console.error('_checkForDesktopSyncRelinkWarning failed with', err);
+          // If the browser doesn't implement this command, then it will handle
+          // prompting the relink warning after sign in completes. This can likely
+          // be changed to 'reject' after Fx31 hits nightly, because all browsers
+          // will likely support 'can_link_account'
+        } else {
+          if (response && response.data && ! response.data.ok) {
+            throw AuthErrors.toError('USER_CANCELED_LOGIN');
+          }
         }
-      }, function (err) {
-        console.error('_checkForDesktopSyncRelinkWarning failed with', err);
-        // If the browser doesn't implement this command, then it will handle
-        // prompting the relink warning after sign in completes. This can likely
-        // be changed to 'reject' after Fx31 hits nightly, because all browsers
-        // will likely support 'can_link_account'
+
+        defer.resolve();
       });
+
+      return defer.promise;
     },
 
     _getClientAsync: function () {
@@ -145,11 +154,12 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
                 // done during a sign up flow.
                 updatedSessionData.verifiedCanLinkAccount = true;
 
-                return Channels.sendExpectResponse('login', updatedSessionData, {
-                  channel: self._channel
-                }).then(function () {
-                  return accountData;
+                var defer = p.defer();
+                self._channel.send('login', updatedSessionData, function() {
+                  defer.resolve(accountData);
                 });
+
+                return defer.promise;
               });
 
     },
