@@ -30,6 +30,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/lib/service-name',
     '../tests/spec/lib/metrics',
     '../tests/spec/lib/null-metrics',
+    '../tests/spec/lib/cropper',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',
