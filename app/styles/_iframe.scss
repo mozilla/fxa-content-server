@@ -1,0 +1,20 @@
+html.iframe,
+.iframe body {
+  background-color: transparent;
+}
+
+.iframe #main-content {
+  box-shadow: 0 0 20px $iframe-box-shadow;
+}
+
+.iframe #close {
+  background: url(/images/close.png);
+  cursor: pointer;
+  display: block;
+  height: 22px;
+  left: 25px;
+  position: absolute;
+  top: 40px;
+  width: 23px;
+  z-index: 1000; /* must be one higher than fox-logo */
+}
