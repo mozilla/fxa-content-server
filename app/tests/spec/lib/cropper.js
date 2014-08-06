@@ -9,10 +9,11 @@ define([
   'chai',
   'jquery',
   '../../mocks/router',
+  '../../mocks/canvas',
   'lib/cropper',
   'views/settings/avatar_crop'
 ],
-function (chai, jquery, RouterMock, Cropper, View) {
+function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -52,26 +53,6 @@ function (chai, jquery, RouterMock, Cropper, View) {
     describe('with a cropper', function () {
       var cropper;
 
-      function canvasMock () {
-        return {
-          getContext: function () {
-            this._context = {
-              translate: function () { },
-              rotate: function () { },
-              drawImage: function () {
-                this._args = arguments;
-              }
-            };
-
-            return this._context;
-          },
-          toDataURL: function () {
-            this._args = arguments;
-            return '';
-          }
-        };
-      }
-
       beforeEach(function () {
         return view.render()
           .then(function () {
@@ -86,7 +67,7 @@ function (chai, jquery, RouterMock, Cropper, View) {
             cropper._wrapperHeight = 240;
             cropper._wrapperWidth = 320;
 
-            cropper.canvas = canvasMock();
+            cropper.canvas = new CanvasMock();
           });
       });
 

@@ -46,6 +46,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/settings/avatar_crop',
     '../tests/spec/views/settings/avatar_gravatar',
     '../tests/spec/views/settings/avatar_url',
+    '../tests/spec/views/settings/avatar_camera',
     '../tests/spec/views/change_password',
     '../tests/spec/views/delete_account',
     '../tests/spec/views/confirm',
