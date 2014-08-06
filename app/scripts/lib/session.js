@@ -146,7 +146,7 @@ define([
     // a circular dependency that causes the FxaClientWrapper to not
     // load.
     isOAuth: function () {
-      return !! this.get('client_id');
+      return !! (this.get('client_id') || this.get('oauth'));
     },
 
     // BEGIN TEST API

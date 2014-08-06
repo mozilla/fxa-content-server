@@ -41,7 +41,8 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, Se
         this.setupOAuth(Session.oauth);
         return this.setServiceInfo();
       } else if (this.hasService()) {
-        // We're continuing an OAuth flow in a different browser
+        // This is the original tab or we're continuing an OAuth
+        // flow in a different browser
         this.setupOAuth();
         return this.setServiceInfo();
       }

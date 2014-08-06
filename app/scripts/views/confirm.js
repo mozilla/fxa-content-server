@@ -11,12 +11,31 @@ define([
   'stache!templates/confirm',
   'lib/session',
   'lib/auth-errors',
-  'views/mixins/resend-mixin'
+  'lib/channels',
+  'lib/promise',
+  'views/mixins/resend-mixin',
+  'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
+function (_, FormView, BaseView, Template, Session, AuthErrors,
+      Channels, p, ResendMixin, ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
+  // Some environments, like the IFRAME'd FxA, require the OAuth
+  // credentials be sent back to the RP without user interaction.
+  function shouldFinishOAuthFlow() {
+    /*jshint validthis: true*/
+    return Channels.sendExpectResponse(
+        'should_original_tab_finish_oauth_flow_on_verification', null,
+        { window: this.window, channel: this._channel });
+  }
+
   var View = FormView.extend({
+    initialize: function (options) {
+      options = options || {};
+
+      this._channel = options.channel;
+    },
+
     template: Template,
     className: 'confirm',
 
@@ -48,13 +67,24 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
 
       // If we're in an OAuth flow, start polling the user's verification
       // status and transistion to the signup complete screen to complete the flow
-      if (Session.oauth) {
+      if (this.isOAuth()) {
         var self = this;
         var pollFn = function () {
           self.fxaClient.recoveryEmailStatus(Session.sessionToken)
             .then(function (result) {
               if (result.verified) {
-                self.navigate('signup_complete');
+                shouldFinishOAuthFlow.call(self)
+                  .then(function (shouldFinishOAuthFlow) {
+                    if (shouldFinishOAuthFlow) {
+                      self.setupOAuth();
+                      self.finishOAuthFlow({
+                        source: 'sign_up'
+                      });
+                    } else {
+                      self.navigate('signup_complete');
+                    }
+                  })
+                  .fail(_.bind(self.displayError, self));
               } else {
                 self.setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
               }
@@ -86,6 +116,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
   });
 
   _.extend(View.prototype, ResendMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

@@ -104,6 +104,9 @@ define([
 
               done(null);
             }, done);
+      } else if (command ===
+              'should_original_tab_finish_oauth_flow_on_verification') {
+        return done(null, true);
       }
 
       return _super.send.call(this, command, data, done);
