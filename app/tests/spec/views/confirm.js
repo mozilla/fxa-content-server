@@ -11,15 +11,16 @@ define([
   'lib/fxa-client',
   'views/confirm',
   '../../mocks/router',
+  '../../mocks/channel',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, ChannelMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view, routerMock, metrics, fxaClient;
+    var view, routerMock, metrics, fxaClient, channelMock;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
@@ -27,11 +28,13 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
       routerMock = new RouterMock();
       metrics = new Metrics();
       fxaClient = new FxaClient();
+      channelMock = new ChannelMock();
 
       view = new View({
         router: routerMock,
         metrics: metrics,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        channel: channelMock
       });
 
       return view.render()
@@ -164,7 +167,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
     });
 
     describe('oauth', function () {
-      it('redirects to signup_complete after account is verified', function () {
+      it('defaults action is to redirects to signup_complete after account is verified', function () {
         /* jshint camelcase: false */
         var email = TestHelpers.createEmail();
 
@@ -188,11 +191,39 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
               } catch (e) {
                 defer.reject(e);
               }
-            }, view.VERIFICATION_POLL_IN_MS + 1000);
+            }, view.VERIFICATION_POLL_IN_MS + 100);
 
             return defer.promise;
           });
+      });
 
+      it('some channels can complete the oauth flow with no user interaction', function (done) {
+        /* jshint camelcase: false */
+
+
+        // Set up the channel mock to auto respond.
+        channelMock.send = function (command, data, complete) {
+          if (command === 'should_original_tab_finish_oauth_flow_on_verification') {
+            complete(null, true);
+          }
+        };
+
+        view.finishOAuthFlow = function(options) {
+          // test completion is when finishOAuthFlow is called.
+          done();
+        };
+
+        var email = TestHelpers.createEmail();
+        Session.set('service', 'sync');
+        view.VERIFICATION_POLL_IN_MS = 100;
+
+        view.fxaClient.signUp(email, 'password', { preVerified: true })
+          .then(function () {
+            Session.set('oauth', {
+              client_id: 'sync'
+            });
+            view.render();
+          });
       });
     });
 
