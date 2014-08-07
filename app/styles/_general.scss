@@ -10,10 +10,6 @@ html {
   height: 100%;
 }
 
-html.iframe, .iframe body {
-  background-color: transparent;
-}
-
 body {
   color: $text-color;
   @include font();
@@ -46,18 +42,6 @@ noscript {
 
 #close {
   display: none;
-}
-
-.iframe #close {
-  background: url(/images/close.png);
-  cursor: pointer;
-  display: block;
-  height: 22px;
-  left: 25px;
-  position: absolute;
-  top: 40px;
-  width: 23px;
-  z-index: 1000; /* must be one higher than fox-logo */
 }
 
 #about-mozilla {
@@ -908,5 +892,6 @@ div + .success, div + .error {
 }
 
 @import "avatars";
+@import "iframe"
 @import "keyframes";
 @import "media_queries";
