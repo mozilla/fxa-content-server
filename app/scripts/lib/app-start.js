@@ -25,7 +25,8 @@ define([
   'lib/translator',
   'lib/session',
   'lib/url',
-  'lib/channels',
+  'lib/channels/null',
+  'lib/channels/fx-desktop',
   'lib/config-loader',
   'lib/metrics',
   'lib/null-metrics'
@@ -38,7 +39,8 @@ function (
   Translator,
   Session,
   Url,
-  Channels,
+  NullChannel,
+  FxDesktopChannel,
   ConfigLoader,
   Metrics,
   NullMetrics
@@ -138,22 +140,33 @@ function (
     _selectFxDesktopStartPage: function () {
       // Firefox for desktop native=>FxA glue code.
       var self = this;
-      return Channels.sendExpectResponse('session_status', {}, { window: this._window })
-          .then(function (response) {
-            // Don't perform any redirection if a pathname is present
-            var canRedirect = self._window.location.pathname === '/';
-            if (response && response.data) {
-              Session.set('email', response.data.email);
-              if (! Session.forceAuth && canRedirect) {
-                self._router.navigate('settings', { trigger: true });
-              }
-            } else {
-              Session.clear();
-              if (canRedirect) {
-                self._router.navigate('signup', { trigger: true });
-              }
-            }
-          });
+      var defer = p.defer();
+      var channel;
+      if (Session.isDesktopContext()) {
+        channel = new FxDesktopChannel();
+      } else {
+        channel = new NullChannel();
+      }
+
+      channel.send('session_status', {}, function (err, response) {
+        // Don't perform any redirection if a pathname is present
+        var canRedirect = self._window.location.pathname === '/';
+        if (response && response.data) {
+          Session.set('email', response.data.email);
+          if (! Session.forceAuth && canRedirect) {
+            self._router.navigate('settings', { trigger: true });
+          }
+        } else {
+          Session.clear();
+          if (canRedirect) {
+            self._router.navigate('signup', { trigger: true });
+          }
+        }
+
+        defer.resolve();
+      });
+
+      return defer.promise;
     },
 
     setSessionValueFromUrl: function (paramName, sessionName) {
