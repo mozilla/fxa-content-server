@@ -8,7 +8,7 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/fxa-client',
@@ -35,6 +35,42 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   // Share one fxa client across all views. View can be initialized
   // with an fxaClient for testing.
   var fxaClient = new FxaClient();
+
+  function displaySuccess(displayStrategy, msg) {
+    /*jshint validthis: true*/
+    this.hideError();
+
+    if (msg) {
+      this.$('.success')[displayStrategy](this.translator.get(msg));
+    }
+
+    this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
+    this.trigger('success', msg);
+    this._isSuccessVisible = true;
+  }
+
+  function displayError(displayStrategy, err, errors) {
+    /*jshint validthis: true*/
+    this.hideSuccess();
+    this.$('.spinner').hide();
+
+    errors = errors || AuthErrors;
+    err = this._normalizeError(err, errors);
+
+    this.logError(err, errors);
+    var translated = this.translateError(err, errors);
+
+    if (translated) {
+      this.$('.error')[displayStrategy](translated);
+    }
+
+    this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
+    this.trigger('error', translated);
+
+    this._isErrorVisible = true;
+
+    return translated;
+  }
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
@@ -65,8 +101,6 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     render: function () {
       var self = this;
-
-      self.logScreen();
 
       return p()
         .then(function () {
@@ -109,6 +143,11 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       var success = this.ephemeralMessages.get('success');
       if (success) {
         this.displaySuccess(success);
+      }
+
+      var successUnsafe = this.ephemeralMessages.get('successUnsafe');
+      if (successUnsafe) {
+        this.displaySuccessUnsafe(successUnsafe);
       }
 
       var error = this.ephemeralMessages.get('error');
@@ -256,17 +295,15 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * If msg is not given, the contents of the .success element's text
      * will not be updated.
      */
-    displaySuccess: function (msg) {
-      this.hideError();
+    displaySuccess: _.partial(displaySuccess, 'text'),
 
-      if (msg) {
-        this.$('.success').text(this.translator.get(msg));
-      }
-
-      this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
-      this.trigger('success', msg);
-      this._isSuccessVisible = true;
-    },
+    /**
+     * Display a success message
+     * @method displaySuccess
+     * If msg is not given, the contents of the .success element's HTML
+     * will not be updated.
+     */
+    displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
     hideSuccess: function () {
       this.$('.success').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
@@ -309,29 +346,31 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    displayError: function (err, errors) {
-      this.hideSuccess();
-      this.$('.spinner').hide();
+    displayError: _.partial(displayError, 'text'),
 
-      this.logError(err, errors);
-      var translated = this.translateError(err, errors);
-
-      if (translated) {
-        this.$('.error').text(translated);
-      }
-
-      this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
-      this.trigger('error', translated);
-
-      this._isErrorVisible = true;
-
-      return translated;
-    },
+    /**
+     * Display an error message that may contain HTML. Marked unsafe
+     * because msg could contain XSS. Use with caution and never
+     * with unsanitized user generated content.
+     *
+     * @method displayErrorUnsafe
+     * @param {string} err - If err is not given, the contents of the
+     *   `.error` element's text will not be updated.
+     * @param {object} errors - optional Errors object that transforms codes into messages
+     *
+     * @return {string} translated error text (if available), untranslated
+     *   error text otw.
+     */
+    displayErrorUnsafe: _.partial(displayError, 'html'),
 
     /**
      * Log an error to the event stream
      */
     logError: function (err, errors) {
+      errors = errors || AuthErrors;
+
+      err = this._normalizeError(err, errors);
+
       // The error could already be logged, if so, abort mission.
       // This can occur when `navigate` redirects a user to a different
       // screen and an error is passed. The error is logged before the screen
@@ -342,8 +381,21 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       }
       err.logged = true;
 
-      errors = errors || AuthErrors;
       this.logEvent(this.metrics.errorToId(err, errors));
+    },
+
+    _normalizeError: function (err, errors) {
+      if (! err) {
+        // likely an error in logic, display an unexpected error to the
+        // user and show a console trace to help us debug.
+        err = errors.toError('UNEXPECTED_ERROR');
+
+        if (this.window.console && this.window.console.trace) {
+          this.window.console.trace();
+        }
+      }
+
+      return err;
     },
 
     /**
@@ -359,38 +411,6 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     logEvent: function (eventName) {
       this.metrics.logEvent(eventName);
-    },
-
-    /**
-     * Display an error message that may contain HTML. Marked unsafe
-     * because msg could contain XSS. Use with caution and never
-     * with unsanitized user generated content.
-     *
-     * @method displayErrorUnsafe
-     * @param {string} err - If err is not given, the contents of the
-     *   `.error` element's text will not be updated.
-     * @param {object} errors - optional Errors object that transforms codes into messages
-     *
-     * @return {string} translated error text (if available), untranslated
-     *   error text otw.
-     */
-    displayErrorUnsafe: function (err, errors) {
-      this.hideSuccess();
-      this.$('.spinner').hide();
-
-      this.logError(err, errors);
-      var translated = this.translateError(err, errors);
-
-      if (translated) {
-        this.$('.error').html(translated);
-      }
-
-      this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
-      this.trigger('error', translated);
-
-      this._isErrorVisible = true;
-
-      return translated;
     },
 
     hideError: function () {
@@ -424,6 +444,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       if (options.success) {
         this.ephemeralMessages.set('success', options.success);
       }
+      if (options.successUnsafe) {
+        this.ephemeralMessages.set('successUnsafe', options.successUnsafe);
+      }
 
       if (options.error) {
         // log the error entry before the new screen is rendered so events
@@ -431,6 +454,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         this.logError(options.error);
         this.ephemeralMessages.set('error', options.error);
       }
+
       this.router.navigate(page, { trigger: true });
     },
 

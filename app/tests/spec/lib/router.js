@@ -12,13 +12,15 @@ define([
   'router',
   'views/sign_in',
   'views/sign_up',
+  'views/ready',
   'lib/session',
   'lib/constants',
   'lib/metrics',
+  'lib/ephemeral-messages',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants, Metrics, WindowMock, TestHelpers) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session, Constants, Metrics, EphemeralMessages, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -111,20 +113,105 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants,
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
 
-              // session was cleared in beforeEach, simulating a user
-              // visiting their first page. The user cannot go back.
-              assert.equal(Session.canGoBack, false);
               windowMock.location.pathname = '/signup';
               return router.showView(signUpView);
             })
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
-              // if there is a back button, it can be shown now.
-              assert.equal(Session.canGoBack, true);
 
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signin'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup'));
             });
+      });
+    });
+
+    describe('showView', function () {
+      var view;
+
+      beforeEach(function () {
+        view = new SignUpView({
+          metrics: metrics,
+          window: windowMock,
+          router: router,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages()
+        });
+      });
+
+      afterEach(function() {
+        view = null;
+      });
+
+      it('navigates to unexpected error view on beforeRender errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.beforeRender = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('navigates to unexpected error view on context errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.context = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('navigates to unexpected error view on afterRender errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.afterRender = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('only logs a screen that has children once', function () {
+        windowMock.location.pathname = '/signup_complete';
+
+        view = new ReadyView({
+          metrics: metrics,
+          window: windowMock,
+          router: router,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages()
+        });
+
+        return router.showView(view)
+          .then(function () {
+            assert.equal(metrics.getFilteredData().events.length, 1);
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup_complete'));
+          });
       });
     });
   });

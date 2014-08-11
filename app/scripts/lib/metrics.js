@@ -19,7 +19,7 @@ define([
   'backbone',
   'jquery',
   'speedTrap',
-  'p-promise',
+  'lib/promise',
   'lib/url'
 ], function (_, Backbone, $, speedTrap, p, Url) {
   'use strict';
@@ -40,7 +40,8 @@ define([
     'lang',
     'marketingLink',
     'marketingType',
-    'marketingClicked'
+    'marketingClicked',
+    'screen'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -162,26 +163,21 @@ define([
     },
 
     _send: function (data, url, async) {
-      var deferred = p.defer();
-
       var self = this;
-      this._ajax({
+      return p.jQueryXHR(this._ajax({
         async: async !== false,
         type: 'POST',
         url: url,
         contentType: 'application/json',
-        data: JSON.stringify(data),
-        error: function (jqXHR, textStatus, errorThrown) {
-          self.trigger('flush:error');
-          deferred.reject(errorThrown);
-        },
-        success: function () {
-          self.trigger('flush:success', data);
-          deferred.resolve(data);
-        }
+        data: JSON.stringify(data)
+      }))
+      .then(function () {
+        self.trigger('flush:success', data);
+        return data;
+      }, function(jqXHR) {
+        self.trigger('flush:error');
+        throw jqXHR.statusText;
       });
-
-      return deferred.promise;
     },
 
     /**

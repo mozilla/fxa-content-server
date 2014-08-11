@@ -25,10 +25,17 @@ define([
   'views/complete_reset_password',
   'views/ready',
   'views/settings',
+  'views/settings/avatar',
+  'views/settings/avatar_change',
+  'views/settings/avatar_crop',
+  'views/settings/avatar_url',
+  'views/settings/avatar_gravatar',
+  'views/settings/avatar_camera',
   'views/change_password',
   'views/delete_account',
   'views/cookies_disabled',
-  'views/clear_storage'
+  'views/clear_storage',
+  'views/unexpected_error'
 ],
 function (
   _,
@@ -51,10 +58,17 @@ function (
   CompleteResetPasswordView,
   ReadyView,
   SettingsView,
+  AvatarView,
+  AvatarChangeView,
+  AvatarCropView,
+  AvatarURLView,
+  AvatarGravatarView,
+  AvatarCameraView,
   ChangePasswordView,
   DeleteAccountView,
   CookiesDisabledView,
-  ClearStorageView
+  ClearStorageView,
+  UnexpectedErrorView
 ) {
 
   function showView(View, options) {
@@ -64,7 +78,8 @@ function (
       options = _.extend({
         metrics: this.metrics,
         window: this.window,
-        router: this
+        router: this,
+        language: this.language
       }, options || {});
 
       this.showView(new View(options));
@@ -77,13 +92,18 @@ function (
       'signin(/)': showView(SignInView),
       'oauth/signin(/)': showView(OAuthSignInView),
       'oauth/signup(/)': showView(OAuthSignUpView),
-      'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
       'signup(/)': showView(SignUpView),
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
       'cannot_create_account(/)': showView(CannotCreateAccountView),
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
       'settings(/)': showView(SettingsView),
+      'settings/avatar(/)': showView(AvatarView),
+      'settings/avatar/change(/)': showView(AvatarChangeView),
+      'settings/avatar/crop(/)': showView(AvatarCropView),
+      'settings/avatar/url(/)': showView(AvatarURLView),
+      'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
+      'settings/avatar/camera(/)': showView(AvatarCameraView),
       'change_password(/)': showView(ChangePasswordView),
       'delete_account(/)': showView(DeleteAccountView),
       'legal(/)': showView(LegalView),
@@ -95,7 +115,8 @@ function (
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(ForceAuthView),
       'cookies_disabled(/)': showView(CookiesDisabledView),
-      'clear(/)': showView(ClearStorageView)
+      'clear(/)': showView(ClearStorageView),
+      'unexpected_error(/)': showView(UnexpectedErrorView)
     },
 
     initialize: function (options) {
@@ -104,6 +125,7 @@ function (
       this.window = options.window || window;
 
       this.metrics = options.metrics;
+      this.language = options.language;
 
       this.$stage = $('#stage');
 
@@ -132,12 +154,6 @@ function (
     showView: function (viewToShow) {
       if (this.currentView) {
         this.currentView.destroy();
-        Session.set('canGoBack', true);
-      } else {
-        // user can only go back if there is a screen to go back to.
-        // this is used for the TOS/PP pages where there is no
-        // back button if the user browses there directly.
-        Session.set('canGoBack', false);
       }
 
       this.currentView = viewToShow;
@@ -158,6 +174,8 @@ function (
           self.$stage.html(viewToShow.el).css('display', 'block');
           viewToShow.afterVisible();
 
+          viewToShow.logScreen();
+
           // The user may be scrolled part way down the page
           // on screen transition. Force them to the top of the page.
           self.window.scrollTo(0, 0);
@@ -170,6 +188,13 @@ function (
           }
 
           self.$logo.css('opacity', 1);
+        })
+        .fail(function (err) {
+          // The router's navigate method doesn't set ephemeral messages,
+          // so use the view's higher level navigate method.
+          return viewToShow.navigate('unexpected_error', {
+            error: err && err.message
+          });
         });
     },
 
@@ -185,7 +210,7 @@ function (
           event.preventDefault();
 
           // Remove leading slashes
-          var url = $(event.target).attr('href').replace(/^\//, '');
+          var url = $(this).attr('href').replace(/^\//, '');
 
           // Instruct Backbone to trigger routing events
           self.navigate(url);

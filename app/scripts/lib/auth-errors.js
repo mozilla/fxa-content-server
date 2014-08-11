@@ -31,13 +31,11 @@ function () {
     MISSING_CONTENT_LENGTH_HEADER: 112,
     REQUEST_TOO_LARGE: 113,
     THROTTLED: 114,
-    // If the auth server is unavailable, it will not respond.
-    // Use a client side only code.
-    SERVICE_UNAVAILABLE: 998,
     SERVER_BUSY: 201,
     ENDPOINT_NOT_SUPPORTED: 116,
 
     // local only error codes
+    SERVICE_UNAVAILABLE: 998,
     USER_CANCELED_LOGIN: 1001,
     SESSION_EXPIRED: 1002,
 
@@ -50,7 +48,9 @@ function () {
     PASSWORD_TOO_SHORT: 1009,
     PASSWORD_REQUIRED: 1010,
     EMAIL_REQUIRED: 1011,
-    YEAR_OF_BIRTH_REQUIRED: 1012
+    YEAR_OF_BIRTH_REQUIRED: 1012,
+    UNUSABLE_IMAGE: 1013,
+    NO_CAMERA: 1014
   };
 
   var CODE_TO_MESSAGES = {
@@ -72,11 +72,11 @@ function () {
     112: t('Missing content-length header'),
     113: t('Request body too large'),
     114: t('Attempt limit exceeded'),
-    998: t('System unavailable, try again soon'),
     201: t('Server busy, try again soon'),
     116: t('This endpoint is no longer supported'),
 
     // local only error messages
+    998: t('System unavailable, try again soon'),
     1002: t('Session expired. Sign in to continue.'),
     1003: t('Cookies are still disabled'),
     1004: t('Passwords do not match'),
@@ -87,10 +87,15 @@ function () {
     1009: t('Must be at least 8 characters'),
     1010: t('Valid password required'),
     1011: t('Valid email required'),
-    1012: t('Year of birth required')
+    1012: t('Year of birth required'),
+    1013: t('A usable image was not found'),
+    1014: t('Could not initialize camera')
   };
 
   return {
+    ERROR_TO_CODE: ERROR_TO_CODE,
+    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+
     /**
      * Convert an error, a numeric code or string type to a message
      */
@@ -117,7 +122,7 @@ function () {
         code = this.toCode('SERVICE_UNAVAILABLE');
       }
 
-      return CODE_TO_MESSAGES[code] || err;
+      return this.CODE_TO_MESSAGES[code] || err;
     },
 
     /**
@@ -150,7 +155,7 @@ function () {
      * Convert an error or a text type from ERROR_TO_CODE to a numeric code
      */
     toCode: function (type) {
-      return type.errno || ERROR_TO_CODE[type] || type;
+      return type.errno || this.ERROR_TO_CODE[type] || type;
     },
 
     /**

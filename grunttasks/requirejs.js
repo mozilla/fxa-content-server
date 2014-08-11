@@ -9,7 +9,6 @@ module.exports = function (grunt) {
     dist: {
       // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
       options: {
-        almond: true,
         replaceRequireScript: [{
           files: ['<%= yeoman.page_template_dist %>/{,*/}index.html'],
           module: 'main',
@@ -19,7 +18,7 @@ module.exports = function (grunt) {
         optimize: 'none',
         name: 'main',
         out: '<%= yeoman.tmp %>/scripts/main.js',
-        mainConfigFile: '<%= yeoman.app %>/scripts/main.js',
+        mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
         keepBuildDir: true,
         // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
         // https://github.com/yeoman/grunt-usemin/issues/30

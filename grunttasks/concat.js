@@ -5,10 +5,10 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('bower-install', {
-    app: {
-      html: '<%= yeoman.app %>/index.html',
-      ignorePath: '<%= yeoman.app %>/'
+  grunt.config('concat', {
+    requirejs: {
+      dest: '<%= yeoman.tmp %>/scripts/main.js',
+      src: ['app/bower_components/requirejs/require.js', '<%= yeoman.tmp %>/scripts/main.js']
     }
   });
 };

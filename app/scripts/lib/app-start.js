@@ -20,14 +20,12 @@
 define([
   'underscore',
   'backbone',
-  'p-promise',
+  'lib/promise',
   'router',
-  'lib/constants',
   'lib/translator',
   'lib/session',
   'lib/url',
-  'lib/channels/web',
-  'lib/channels/fx-desktop',
+  'lib/channels',
   'lib/config-loader',
   'lib/metrics',
   'lib/null-metrics'
@@ -37,12 +35,10 @@ function (
   Backbone,
   p,
   Router,
-  Constants,
   Translator,
   Session,
   Url,
-  WebChannel,
-  FxDesktopChannel,
+  Channels,
   ConfigLoader,
   Metrics,
   NullMetrics
@@ -93,7 +89,6 @@ function (
       this._config = config;
       this._configLoader.useConfig(config);
       Session.set('config', config);
-      Session.set('language', config.language);
 
       this._metrics = createMetrics(config.metricsSampleRate, {
         lang: config.language
@@ -101,7 +96,10 @@ function (
       this._metrics.init();
 
       if (! this._router) {
-        this._router = new Router({ metrics: this._metrics });
+        this._router = new Router({
+          metrics: this._metrics,
+          language: config.language
+        });
       }
       this._window.router = this._router;
     },
@@ -111,13 +109,9 @@ function (
       return translator.fetch();
     },
 
-    /**
-     * config can be passed in for testing
-     */
     allResourcesReady: function () {
       // These must be initialized after Backbone.history so that
       // Backbone does not override the page the channel sets.
-      Session.set('channel', this.getChannel());
       var self = this;
       return this._configLoader.areCookiesEnabled()
         .then(function (areCookiesEnabled) {
@@ -130,6 +124,8 @@ function (
 
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
+          } else if (Session.isDesktopContext()) {
+            return self._selectFxDesktopStartPage();
           }
         });
     },
@@ -138,20 +134,26 @@ function (
       return Url.searchParam(name, this._window.location.search);
     },
 
-    getChannel: function () {
-      var context = this._searchParam('context');
-      var channel;
-
-      if (context === Constants.FX_DESKTOP_CONTEXT) {
-        // Firefox for desktop native=>FxA glue code.
-        channel = new FxDesktopChannel();
-      } else {
-        // default to the web channel that doesn't do anything yet.
-        channel = new WebChannel();
-      }
-
-      channel.init();
-      return channel;
+    // XXX - does this belong here?
+    _selectFxDesktopStartPage: function () {
+      // Firefox for desktop native=>FxA glue code.
+      var self = this;
+      return Channels.sendExpectResponse('session_status', {}, { window: this._window })
+          .then(function (response) {
+            // Don't perform any redirection if a pathname is present
+            var canRedirect = self._window.location.pathname === '/';
+            if (response && response.data) {
+              Session.set('email', response.data.email);
+              if (! Session.forceAuth && canRedirect) {
+                self._router.navigate('settings', { trigger: true });
+              }
+            } else {
+              Session.clear();
+              if (canRedirect) {
+                self._router.navigate('signup', { trigger: true });
+              }
+            }
+          });
     },
 
     setSessionValueFromUrl: function (paramName, sessionName) {

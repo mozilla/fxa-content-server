@@ -8,19 +8,22 @@
 define([
   'chai',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'views/sign_in',
   'lib/session',
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/translator',
+  'lib/service-name',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
+  var translator = new Translator('en-US', ['en-US']);
 
   describe('views/sign_in', function () {
     var view, email, routerMock, metrics, windowMock, fxaClient;
@@ -66,6 +69,22 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, WindowMock,
               assert.ok($('#fxa-signin-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
+            });
+      });
+
+      it('Shows Sync service name', function () {
+        Session.set('service', 'sync');
+        var syncName = new ServiceName(translator).get('sync');
+
+        // initialize a new view to set the service name
+        view = new View({
+          router: routerMock,
+          metrics: metrics,
+          window: windowMock
+        });
+        return view.render()
+            .then(function () {
+              assert.include(view.$('#fxa-signin-header').text(), syncName);
             });
       });
     });

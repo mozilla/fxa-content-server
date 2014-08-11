@@ -6,10 +6,11 @@
 
 define([
   'chai',
+  'jquery',
   'lib/metrics',
   '../../mocks/window'
 ],
-function (chai, Metrics, WindowMock) {
+function (chai, $, Metrics, WindowMock) {
   'use strict';
 
   /*global describe, it*/
@@ -54,6 +55,8 @@ function (chai, Metrics, WindowMock) {
         assert.isTrue(filteredData.hasOwnProperty('context'));
         assert.isTrue(filteredData.hasOwnProperty('service'));
         assert.isTrue(filteredData.hasOwnProperty('lang'));
+        assert.equal(filteredData.screen.width, window.screen.width);
+        assert.equal(filteredData.screen.height, window.screen.height);
       });
     });
 
@@ -92,11 +95,15 @@ function (chai, Metrics, WindowMock) {
       function ajaxMock(options) {
         sentData = options.data;
 
+        var deferred = $.Deferred();
+
         if (serverError) {
-          options.error({}, 'bad jiji', serverError);
+          deferred.reject({ statusText: serverError }, 'bad jiji', serverError);
         } else {
-          options.success();
+          deferred.resolve({});
         }
+
+        return deferred.promise();
       }
 
       beforeEach(function () {

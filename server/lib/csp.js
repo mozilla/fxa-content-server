@@ -10,10 +10,17 @@
 var helmet = require('helmet');
 var config = require('./configuration');
 
-var cspMiddleware = helmet.csp({'default-src': ['\'self\''],
-                    'connect-src': ['\'self\'',
+var cspMiddleware = helmet.csp({
+                    'default-src': ['\'self\''],
+                    'connect-src': [
+                          '\'self\'',
                           config.get('fxaccount_url'),
                           config.get('oauth_url')
+                    ],
+                    'img-src': [
+                      '\'self\'',
+                      'data:',
+                      'https://www.gravatar.com'
                     ],
                     'report-uri': '/_/csp-violation'
                    });

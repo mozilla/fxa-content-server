@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Handle sign_in_complete, sign_up_complete,
- * and reset_password_complete.
+ * Handle sign_up_complete and reset_password_complete.
  * Prints a message to the user that says
  * "All ready! You can go visit {{ service }}"
  */
@@ -19,19 +18,21 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
+  'lib/auth-errors',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
-    className: 'reset_password_complete',
+    className: 'ready',
 
     initialize: function (options) {
       options = options || {};
 
       this.type = options.type;
+      this.language = options.language;
     },
 
     beforeRender: function () {
@@ -50,15 +51,19 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(this.serviceRedirectURI), serviceName
-        ]);
+        // if this is a WebChannel flow, then do not show any links, just finish the flow automatically
+        if (Session.oauth && Session.oauth.webChannelId) {
+          serviceName = Strings.interpolate('%s', [serviceName]);
+        } else {
+          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+            Xss.href(this.serviceRedirectURI), serviceName
+          ]);
+        }
       }
 
       return {
         service: this.service,
         serviceName: serviceName,
-        signIn: this.is('sign_in'),
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')
       };
@@ -71,6 +76,10 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+      // Finish the WebChannel flow
+      if (Session.oauth && Session.oauth.webChannelId) {
+        this.submit();
+      }
 
       return this._createMarketingSnippet();
     },
@@ -79,7 +88,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       var marketingSnippet = new MarketingSnippet({
         type: this.type,
         service: Session.service,
-        language: Session.language,
+        language: this.language,
         el: this.$('.marketing-area'),
         metrics: this.metrics
       });
@@ -90,9 +99,14 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
 
     submit: function () {
       if (this.isOAuthSameBrowser()) {
-        return this.finishOAuthFlow();
-      } else if (this.hasService()) {
-        return this.oAuthRedirectWithError();
+        return this.finishOAuthFlow({
+          source: this.type
+        });
+      } else if (this.isOAuthDifferentBrowser()) {
+        return this.finishOAuthFlowDifferentBrowser();
+      } else {
+        // We aren't expecting this case to happen.
+        this.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
     },
 

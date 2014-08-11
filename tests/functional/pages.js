@@ -17,13 +17,18 @@ define([
     'v1/verify_email',
     '',
     'signin',
-    'signin_complete',
     'signup',
     'signup_complete',
     'cannot_create_account',
     'verify_email',
     'confirm',
     'settings',
+    'settings/avatar',
+    'settings/avatar/change',
+    'settings/avatar/url',
+    'settings/avatar/gravatar',
+    'settings/avatar/camera',
+    'settings/avatar/crop',
     'change_password',
     'legal',
     // legal are all redirected to the language detected
@@ -57,7 +62,8 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementByCssSelector('#stage header')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#stage header')
         .end();
     };
   };

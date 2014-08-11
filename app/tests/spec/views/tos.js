@@ -17,7 +17,6 @@ function (chai, View, Session) {
     var view;
 
     beforeEach(function () {
-      Session.set('language', 'en-US');
       view = new View({});
     });
 
@@ -26,8 +25,7 @@ function (chai, View, Session) {
       view.destroy();
     });
 
-    it('Back button displayed if Session.canGoBack is true', function () {
-      Session.set('canGoBack', true);
+    it('Back button is displayed', function () {
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -35,22 +33,11 @@ function (chai, View, Session) {
           });
     });
 
-    it('Back button not displayed if Session.canGoBack is false', function () {
-      Session.set('canGoBack', false);
+    it('fetches translated text from the backend', function () {
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-
-            assert.equal($('#fxa-tos-back').length, 0);
-          });
-    });
-
-    it('fetches translated text from the backend', function (done) {
-      view.on('ready', function() {
-        assert.ok(view.$('#terms-of-service').length);
-        done();
-      });
-      view.render();
+        .then(function () {
+          assert.ok(view.$('#fxa-tos-header').length);
+        });
     });
   });
 });

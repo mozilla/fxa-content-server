@@ -6,7 +6,7 @@
 
 define([
   'underscore',
-  'p-promise',
+  'lib/promise',
   'views/base',
   'views/form',
   'stache!templates/sign_in',
@@ -14,9 +14,10 @@ define([
   'lib/session',
   'views/mixins/password-mixin',
   'lib/auth-errors',
-  'lib/validate'
+  'lib/validate',
+  'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, AuthErrors, Validate) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -42,7 +43,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         serviceName: this.serviceName,
         email: email,
         password: Session.prefillPassword,
-        isSync: Session.isSync()
+        isSync: this.isSync(),
+        error: this.error
       };
     },
 
@@ -54,6 +56,18 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     beforeDestroy: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
+    },
+
+    beforeRender: function() {
+      var self = this;
+      return p().then(function () {
+          return FormView.prototype.beforeRender.call(self);
+        })
+        .then(function () {
+          if (self.hasService() && self.isSync()) {
+            return self.setServiceInfo();
+          }
+        });
     },
 
     submit: function () {
@@ -123,6 +137,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
   });
 
   _.extend(View.prototype, PasswordMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

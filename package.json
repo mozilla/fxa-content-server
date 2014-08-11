@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.16.0",
+  "version": "0.18.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
@@ -29,10 +29,9 @@
     "connect-restreamer": "1.0.0",
     "consolidate": "0.10.0",
     "convict": "0.4.2",
-    "express": "3.6.0",
+    "express": "3.16.0",
     "grunt": "0.4.5",
-    "grunt-autoprefixer": "0.7.3",
-    "grunt-bower-requirejs": "0.11.0",
+    "grunt-autoprefixer": "1.0.0",
     "grunt-cli": "0.1.13",
     "grunt-concurrent": "0.5.0",
     "grunt-connect-fonts": "0.0.4",
@@ -48,7 +47,7 @@
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#c1a7406",
     "grunt-requirejs": "0.4.2",
     "grunt-rev": "0.1.0",
-    "grunt-sass": "0.12.1",
+    "grunt-sass": "0.14.0",
     "grunt-text-replace": "0.3.11",
     "grunt-usemin": "2.1.1",
     "grunt-z-schema": "0.1.0",
@@ -61,7 +60,7 @@
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "0.4.0",
     "mkdirp": "0.5.0",
-    "request": "2.34.0",
+    "request": "2.40.0",
     "time-grunt": "0.3.1"
   },
   "devDependencies": {
@@ -70,13 +69,12 @@
     "grunt-bump": "0.0.13",
     "grunt-contrib-csslint": "0.2.0",
     "grunt-contrib-jshint": "0.10.0",
-    "grunt-contrib-watch": "0.6.1",
     "grunt-conventional-changelog": "1.1.0",
     "grunt-copyright": "0.1.0",
     "grunt-jscs-checker": "0.4.3",
     "grunt-jsonlint": "1.0.4",
     "grunt-todo": "0.2.3",
-    "intern-geezer": "1.7.0",
+    "intern-geezer": "2.0.1",
     "jshint": "2.5.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },

@@ -6,33 +6,54 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
+  'tests/functional/lib/helpers',
   'require'
-], function (intern, registerSuite, assert, require) {
+], function (intern, registerSuite, assert, FunctionalHelpers, require) {
   'use strict';
 
-  var url = intern.config.fxaContentRoot + 'signup';
+  var PAGE_URL = intern.config.fxaContentRoot + 'signup';
+  var TOS_URL = intern.config.fxaContentRoot + 'legal/terms';
 
   registerSuite({
     name: 'tos',
 
+    beforeEach: function () {
+      return FunctionalHelpers.clearBrowserState(this);
+    },
+
     'start at signup': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
-        .waitForElementById('fxa-signup-header')
-
-        .elementById('fxa-tos')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#fxa-tos')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#legal-copy ol li')
-        .waitForVisibleByCssSelector('#fxa-tos-back')
-        .elementById('fxa-tos-back')
+        .findByCssSelector('#fxa-tos-back')
           .click()
         .end()
 
         // success is going back to the signup
-        .waitForElementById('fxa-signup-header')
+        .findByCssSelector('#fxa-signup-header')
+        .end();
+    },
+
+    'start at terms': function () {
+
+      return this.get('remote')
+        .get(require.toUrl(TOS_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findById('fxa-tos-header')
+        .end()
+
+        .findById('fxa-tos-home')
+          .click()
+        .end()
+
+        // success is going home
+        .findById('fxa-signup-header')
         .end();
     }
   });

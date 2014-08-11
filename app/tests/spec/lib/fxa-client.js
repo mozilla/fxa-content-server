@@ -5,7 +5,7 @@
 define([
   'chai',
   'jquery',
-  'p-promise',
+  'lib/promise',
   '../../mocks/channel',
   '../../lib/helpers',
   'lib/session',
@@ -34,11 +34,11 @@ function (chai, $, p, ChannelMock, testHelpers,
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       channelMock = new ChannelMock();
-      Session.set('channel', channelMock);
-      Session.set('language', 'it-CH');
       email = ' testuser' + Math.random() + '@testuser.com ';
 
-      client = new FxaClientWrapper();
+      client = new FxaClientWrapper({
+        channel: channelMock
+      });
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
@@ -68,8 +68,7 @@ function (chai, $, p, ChannelMock, testHelpers,
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             }));
           });
       });
@@ -86,8 +85,10 @@ function (chai, $, p, ChannelMock, testHelpers,
           }
         };
 
-        return new FxaClientWrapper({ client: FxaClientMock })
-          .signUp(email, password)
+        return new FxaClientWrapper({
+          client: FxaClientMock,
+          channel: channelMock
+        }).signUp(email, password)
           .then(
             assert.fail,
             function (err) {
@@ -114,8 +115,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
@@ -293,8 +293,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
@@ -306,8 +305,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
