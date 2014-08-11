@@ -25,6 +25,7 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
       view = new View({
         router: routerMock
       });
+      view.cropImgSrc = pngSrc;
       view.isUserAuthorized = function () {
         return true;
       };
@@ -39,6 +40,8 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
     it('creates a cropper', function () {
       return view.render()
         .then(function () {
+          assert.equal(routerMock.page, 'settings/avatar/crop');
+
           var cropper = new Cropper({
             src: pngSrc,
             width: 1,
@@ -94,8 +97,26 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
         cropper.setImageSrc(pngSrc, 100, 50);
 
         assert.equal(cropper.isLandscape, true, 'landscape should be true');
-        cropper._onrotate();
+        cropper.rotator.trigger('click');
         assert.equal(cropper.isLandscape, false, 'landscape should be false');
+      });
+
+      it('change scale with slider', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.slider.val(50);
+        cropper.slider.trigger('input');
+        assert.equal(cropper.scale, 50);
+      });
+
+      it('zooms in and out', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.container.find('.zoom-in').trigger('click');
+        assert.equal(cropper.scale, 10);
+
+        cropper.container.find('.zoom-out').trigger('click');
+        assert.equal(cropper.scale, 0);
       });
 
       it('sets position', function () {

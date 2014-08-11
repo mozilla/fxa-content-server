@@ -75,8 +75,11 @@ function () {
     });
     this.scale = parseInt(this.slider.val() || 0, 10);
 
-    this.rotater = container.find('.rotate');
-    this.rotater.on('click', this._onrotate);
+    this.rotator = container.find('.rotate');
+    this.rotator.on('click', function () {
+      var data = self.rotate(90);
+      self.setImageSrc(data, self._originalHeight, self._originalWidth);
+    });
 
     container.find('.zoom-out').on('click', function () {
       self.resize(self.scale - 10);
@@ -216,11 +219,6 @@ function () {
     context.drawImage(this.img[0], -this._originalWidth / 2, -this._originalHeight / 2);
 
     return canvas.toDataURL('image/png');
-  };
-
-  Cropper.prototype._onrotate = function () {
-    var data = this.rotate(90);
-    this.setImageSrc(data, this._originalHeight, this._originalWidth);
   };
 
   // Get the scaled position of the crop square over the source image
