@@ -40,7 +40,7 @@
     "grunt-contrib-copy": "0.5.0",
     "grunt-contrib-cssmin": "0.9.0",
     "grunt-contrib-htmlmin": "0.3.0",
-    "grunt-contrib-imagemin": "0.5.0",
+    "grunt-contrib-imagemin": "0.8.0",
     "grunt-contrib-uglify": "0.4.0",
     "grunt-marked": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
