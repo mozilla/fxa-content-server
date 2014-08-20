@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "backbone": "1.1.0",
-    "blanket": "1.1.5",
+    "blanket": "https://github.com/alex-seville/blanket.git#0fda69d1529d7016c2013273235bac430f661167",
     "chai": "1.8.1",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.23",
