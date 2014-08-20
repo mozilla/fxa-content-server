@@ -91,7 +91,7 @@ define([
    * Sends test coverage data to https://coveralls.io
    * This runs with Travis CI. It pipes "coverageData" gathered from "_$blanket_LCOV" LCOV reporter.
    *
-   * @param context
+   * @param {Test} context
    * @returns {Deferred}
    */
   function sendCoverageToCoveralls(context) {
