@@ -7,6 +7,17 @@ define([
 ], function (intern) {
   'use strict';
 
+  intern.tunnel = 'SauceLabsTunnel';
+  intern.tunnelOptions = {
+    port: 4445,
+    directDomains: [
+      'latest.dev.lcip.org'
+    ],
+    skipSslDomains: [
+      'latest.dev.lcip.org'
+    ]
+  };
+
   intern.functionalSuites = [
     'tests/functional/mocha',
     // a few basic functional tests
