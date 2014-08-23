@@ -18,6 +18,10 @@ module.exports = function (grunt) {
       }, {
         from: /^#\s.*?\n$/m,
         to: ''
+      }, {
+        // BEGONE, `target="_blank"`!
+        from: /target=["'].*?["']/g,
+        to: ''
       }]
     }
   });
