@@ -235,8 +235,19 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
           if (autofocusEl.is(':focus')) {
             return;
           }
+
           self.focus(autofocusEl);
-          self.setTimeout(attemptFocus, 50);
+
+          var focusTimeout = self.setTimeout(attemptFocus, 50);
+
+          // If the autofocusElement loses focus before we attempt to re-focus,
+          // then don't try to re-focus. This happens when using WebDriver
+          // (esp with ChromeDriver) where keys are typed at blazing speeds
+          // and then the script moves on to the next input before the focus
+          // attempt is made.
+          autofocusEl.one('blur', function () {
+            self.clearTimeout(focusTimeout);
+          });
         };
 
         attemptFocus();
