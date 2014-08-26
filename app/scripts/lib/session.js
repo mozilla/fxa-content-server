@@ -146,8 +146,7 @@ define([
     // a circular dependency that causes the FxaClientWrapper to not
     // load.
     isOAuth: function () {
-      // It is OAuth if client_id is set, or service is present (service that is not sync)
-      return !! ( this.get('client_id') || (this.get('service') && this.service !== 'sync'));
+      return !! (this.get('client_id') || this.get('oauth'));
     },
 
     // BEGIN TEST API

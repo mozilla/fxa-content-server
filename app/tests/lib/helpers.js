@@ -59,7 +59,7 @@ define([
     try {
       fn();
     } catch (e) {
-      done(e);
+      return done(e);
     }
     done();
   }

@@ -10,9 +10,10 @@ define([
   '/tests/mocks/window.js',
   'lib/session',
   'lib/channels/fx-desktop',
+  'lib/auth-errors',
   '/tests/lib/helpers.js'
 ],
-function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
+function (chai, WindowMock, Session, FxDesktopChannel, AuthErrors, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;
@@ -50,16 +51,16 @@ function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
     });
 
     describe('send', function () {
-      it('sends a message to the browser', function () {
-        channel.send('test-command', { key: 'value' });
-        assert.isTrue(windowMock.dispatchedEvents['test-command']);
+      it('sends a whitelisted message to the browser', function () {
+        channel.send('session_status', { key: 'value' });
+        assert.isTrue(windowMock.dispatchedEvents['session_status']);
       });
 
 
       it('times out if browser does not respond', function (done) {
-        channel.send('wait-for-response', { key: 'value' }, function (err) {
+        channel.send('can_link_account', { key: 'value' }, function (err) {
           wrapAssertion(function () {
-            assert.equal(String(err), 'Error: Unexpected error');
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           }, done);
         });
       });
@@ -67,7 +68,7 @@ function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
       it('does not except on timeout if callback is not given', function (done) {
         // if there is an exception, done is never called.
         setTimeout(done, 500);
-        channel.send('wait-for-response', { key: 'value' });
+        channel.send('can_link_account', { key: 'value' });
       });
     });
 

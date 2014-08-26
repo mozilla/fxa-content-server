@@ -7,14 +7,19 @@
 
 define([
   'chai',
+  'sinon',
   'lib/app-start',
   'lib/session',
   'lib/constants',
+  'lib/promise',
+  'lib/auth-errors',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/history'
+  '../../mocks/history',
+  '../../mocks/channel'
 ],
-function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMock) {
+function (chai, sinon, AppStart, Session, Constants, p, AuthErrors,
+      WindowMock, RouterMock, HistoryMock, ChannelMock) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -43,40 +48,59 @@ function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMoc
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      // force the normal NullChannel to be produced.
+      windowMock.top = windowMock;
+
       routerMock = new RouterMock();
       historyMock = new HistoryMock();
-
-      appStart = new AppStart({
-        window: windowMock,
-        router: routerMock,
-        history: historyMock
-      });
     });
 
-    describe('startApp', function () {
+    describe('default channel choice', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock
+        });
+      });
+
       it('starts the app', function () {
         return appStart.startApp()
                     .then(function () {
                       assert.ok(Session.config);
 
-                      // translator is put on the global object.
+                        // translator is put on the global object.
                       assert.ok(windowMock.translator);
                     });
       });
 
       it('redirects to /cookies_disabled if localStorage is disabled', function () {
-        appStart.useConfig({
-          localStorageEnabled: false,
-          i18n: {
-            supportedLanguages: ['en'],
-            defaultLang: 'en'
-          }
-        });
+
+        var fakeServer = sinon.fakeServer.create();
+        fakeServer.autoRespond = true;
+        fakeServer.respondWith('/config',
+            [200, { 'Content-Type': 'application/json' },
+            JSON.stringify({
+              localStorageEnabled: false,
+              i18n: {
+                supportedLanguages: ['en'],
+                defaultLang: 'en'
+              }
+            })]);
 
         return appStart.startApp()
             .then(function () {
               assert.equal(routerMock.page, 'cookies_disabled');
+              fakeServer.restore();
             });
+      });
+
+      it('sets the session service from a client_id query parameter', function () {
+        windowMock.location.search = '?client_id=testing';
+        return appStart.startApp()
+                    .then(function () {
+                      assert.equal(Session.service, 'testing');
+                    });
       });
 
       it('redirects to /settings if the context is FXA_DESKTOP and user is signed in', function () {
@@ -130,6 +154,69 @@ function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMoc
                     .then(function () {
                       assert.equal(Session.service, 'testing');
                     });
+      });
+    });
+
+    describe('queryChannel with `check_environment`', function () {
+      var channelMock;
+
+      beforeEach(function () {
+        channelMock = new ChannelMock();
+
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          channel: channelMock
+        });
+      });
+
+      describe('when `check_environment` throws an ILLEGAL_IFRAME_PARENT error', function () {
+        it('redirects to /illegal_iframe', function () {
+          channelMock.send = function(command, data, done) {
+            if (command === 'check_environment') {
+              done(AuthErrors.toError('ILLEGAL_IFRAME_PARENT'));
+            }
+            done();
+          };
+
+          return appStart.startApp()
+              .then(function () {
+                assert.equal(routerMock.page, 'illegal_iframe');
+              });
+          });
+      });
+
+      describe('when channel.init throws an COOKIES_DISABLED error', function () {
+        it('redirects to /cookies_disabled', function () {
+          channelMock.send = function(command, data, done) {
+            if (command === 'check_environment') {
+              done(AuthErrors.toError('COOKIES_DISABLED'));
+            }
+            done();
+          };
+
+          return appStart.startApp()
+              .then(function () {
+                assert.equal(routerMock.page, 'cookies_disabled');
+              });
+          });
+      });
+
+      describe('when channel.init throws an unexpected error', function () {
+        it('redirects to /unexpected_error', function () {
+          channelMock.send = function(command, data, done) {
+            if (command === 'check_environment') {
+              done(AuthErrors.toError('INVALID_JSON'));
+            }
+            done();
+          };
+
+          return appStart.startApp()
+              .then(function () {
+                assert.equal(routerMock.page, 'unexpected_error');
+              });
+        });
       });
     });
   });

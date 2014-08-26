@@ -11,15 +11,16 @@ define([
   'lib/fxa-client',
   'views/confirm',
   '../../mocks/router',
+  '../../mocks/channel',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, ChannelMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view, routerMock, metrics, fxaClient;
+    var view, routerMock, metrics, fxaClient, channelMock;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
@@ -27,11 +28,13 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
       routerMock = new RouterMock();
       metrics = new Metrics();
       fxaClient = new FxaClient();
+      channelMock = new ChannelMock();
 
       view = new View({
         router: routerMock,
         metrics: metrics,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        channel: channelMock
       });
 
       return view.render()
@@ -188,11 +191,10 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
               } catch (e) {
                 defer.reject(e);
               }
-            }, view.VERIFICATION_POLL_IN_MS + 1000);
+            }, view.VERIFICATION_POLL_IN_MS + 100);
 
             return defer.promise;
           });
-
       });
     });
 

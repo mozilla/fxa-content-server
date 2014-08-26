@@ -31,6 +31,9 @@ module.exports = function (grunt) {
     // Adds requirejs to the generated r.js bundle
     'concat:requirejs',
 
+    // Generate the include.js file that provides the RP IFramed OAuth API.
+    'replace:include.js',
+
     // general 'css' tasks:
     //    'sass', - compile SASS,
     //    'autoprefixer' - auto prefix CSS for many browsers,

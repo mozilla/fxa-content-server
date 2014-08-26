@@ -11,12 +11,16 @@ define([
   'stache!templates/confirm',
   'lib/session',
   'lib/auth-errors',
-  'views/mixins/resend-mixin'
+  'lib/promise',
+  'views/mixins/resend-mixin',
+  'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
+function (_, FormView, BaseView, Template, Session, AuthErrors,
+      p, ResendMixin, ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
+
     template: Template,
     className: 'confirm',
 
@@ -48,7 +52,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
 
       // If we're in an OAuth flow, start polling the user's verification
       // status and transistion to the signup complete screen to complete the flow
-      if (Session.oauth) {
+      if (this.isOAuth()) {
         var self = this;
         var pollFn = function () {
           self.fxaClient.recoveryEmailStatus(Session.sessionToken)
@@ -86,6 +90,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
   });
 
   _.extend(View.prototype, ResendMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

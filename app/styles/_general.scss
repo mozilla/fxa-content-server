@@ -40,6 +40,10 @@ noscript {
   margin: 160px 0 0 0;
 }
 
+#close {
+  display: none;
+}
+
 #about-mozilla {
   background-image: image-url('mozilla.png');
   background-size: 69px 19px;
@@ -910,5 +914,6 @@ div + .error {
 }
 
 @import 'avatars';
+@import 'iframe';
 @import 'keyframes';
 @import 'media_queries';
