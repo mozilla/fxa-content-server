@@ -167,7 +167,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Ch
     });
 
     describe('oauth', function () {
-      it('defaults action is to redirects to signup_complete after account is verified', function () {
+      it('redirects to signup_complete after account is verified', function () {
         /* jshint camelcase: false */
         var email = TestHelpers.createEmail();
 
@@ -194,35 +194,6 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Ch
             }, view.VERIFICATION_POLL_IN_MS + 100);
 
             return defer.promise;
-          });
-      });
-
-      it('some channels can complete the oauth flow with no user interaction', function (done) {
-        /* jshint camelcase: false */
-
-
-        // Set up the channel mock to auto respond.
-        channelMock.send = function (command, data, complete) {
-          if (command === 'should_original_tab_finish_oauth_flow_on_verification') {
-            complete(null, true);
-          }
-        };
-
-        view.finishOAuthFlow = function(options) {
-          // test completion is when finishOAuthFlow is called.
-          done();
-        };
-
-        var email = TestHelpers.createEmail();
-        Session.set('service', 'sync');
-        view.VERIFICATION_POLL_IN_MS = 100;
-
-        view.fxaClient.signUp(email, 'password', { preVerified: true })
-          .then(function () {
-            Session.set('oauth', {
-              client_id: 'sync'
-            });
-            view.render();
           });
       });
     });

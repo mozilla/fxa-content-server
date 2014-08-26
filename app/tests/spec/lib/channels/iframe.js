@@ -138,17 +138,6 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
           });
         });
       });
-
-      describe('the `should_original_tab_finish_oauth_flow_on_verification` message', function () {
-        it ('should return true', function (done) {
-          channel.send('should_original_tab_finish_oauth_flow_on_verification', null, function (err, response) {
-            wrapAssertion(function () {
-              assert.isNull(err);
-              assert.isTrue(response);
-            }, done);
-          });
-        });
-      });
     });
   });
 });
