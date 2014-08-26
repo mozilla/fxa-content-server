@@ -17,6 +17,21 @@ define([
 ], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel, IFrameChannel, Url) {
   'use strict';
 
+  function isFxDesktop() {
+    return Session.isDesktopContext();
+  }
+
+  function isOAuth() {
+    return Session.isOAuth();
+  }
+
+  function isIFrame(context) {
+    return context.parent && context.parent !== context &&
+    // XXX: we use 'context' for fx desktop sync context, would it make
+    // sense to use 'context' instead of 'flow' here too?
+                Url.searchParam('flow') === 'iframe';
+  }
+
   return {
     /**
      * Get a channel.
@@ -35,16 +50,15 @@ define([
 
       var channel;
       // try to get the webChannelId from Session and URL params
-      var webChannelId = this.getWebChannelId(context);
-
-      if (Session.isDesktopContext()) {
+      if (isFxDesktop()) {
         channel = new FxDesktopChannel();
-      } else if (webChannelId) {
+      } else if (this.isWebChannel(context)) {
         // use WebChannel if "webChannelId" is set
+        var webChannelId = this.getWebChannelId(context);
         channel = new WebChannel(webChannelId);
-      } else if (context.parent && context.parent !== context) {
+      } else if (isIFrame(context)) {
         channel = new IFrameChannel();
-      } else if (Session.isOAuth()) { //jshint ignore:line
+      } else if (isOAuth()) {
         // By default, all OAuth communication happens via redirects.
         channel = new RedirectChannel();
       } else {
@@ -101,6 +115,10 @@ define([
       }
 
       return id;
+    },
+
+    isWebChannel: function (context) {
+      return !! this.getWebChannelId(context);
     }
   };
 });

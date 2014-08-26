@@ -71,7 +71,7 @@ define([
     options = options || {};
 
     // if specific to the WebChannel flow
-    if (Channels.getWebChannelId(options.context)) {
+    if (Channels.isWebChannel(options.context)) {
       // set closeWindow
       result.closeWindow = options.viewOptions && options.viewOptions.source === 'signin';
       // if the source is "signin" then set a timeout for a successful WebChannel signin
