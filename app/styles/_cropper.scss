@@ -1,11 +1,26 @@
 .cropper {
+  position: relative;
+  margin: 0 auto;
+
+  .bounding-box {
+    position: relative;
+    height: $avatar-size;
+    width: 420px;
+    left: -40px;
+    background-color: $cropper-background-color;
+    overflow: hidden;
+  }
+
   .wrapper {
     height: $avatar-size;
-    margin: 0 -40px;
-    overflow: hidden;
-    position: relative;
-    width: $avatar-size + 180px;
-    background-color: $cropper-background-color;
+    width: $avatar-size;
+
+    position: absolute;
+    top: -9999px;
+    bottom: -9999px;
+    left: -9999px;
+    right: -9999px;
+    margin: auto;
 
     & img {
       position: absolute;
@@ -15,7 +30,7 @@
   .mask {
     background: image-url('crop-mask.svg');
     height: $avatar-size;
-    left: (420 - $avatar-size) / 2;
+    left: 0;
     position: relative;
     top: 0;
     width: $avatar-size;
@@ -29,16 +44,16 @@
       height: $avatar-size;
       position: absolute;
       top: 0;
-      width: (420 - $avatar-size) / 2;
+      width: (2000 - $avatar-size) / 2;
       z-index: 1;
     }
 
     &:before {
-      left: -(420 - $avatar-size) / 2;
+      left: -(2000 - $avatar-size) / 2;
     }
 
     &:after {
-      right: -(420 - $avatar-size) / 2;
+      right: -(2000 - $avatar-size) / 2;
     }
   }
 
