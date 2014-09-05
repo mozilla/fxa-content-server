@@ -1,8 +1,10 @@
 language: node_js
 node_js:
   - "0.10"
+
 addons:
   firefox: "29.0"
+
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
@@ -40,5 +42,7 @@ install:
 script:
   - grunt validate-shrinkwrap --force # check for vulnerable modules via nodesecurity.io
   - grunt lint
+  - grunt build &> /dev/null
+  - grunt htmllint:en_US
   - travis_retry npm run test-travis
   - travis_retry npm run test-server
