@@ -61,7 +61,7 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
           displayLength: 240,
           exportLength: 600,
           verticalGutter: 0,
-          horizontalGutter: 90
+          horizontalGutter: 0
         });
       } catch (e) {
         this.navigate('settings/avatar/change', {

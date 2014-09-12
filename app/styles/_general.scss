@@ -99,6 +99,8 @@ noscript {
   padding: 60px 40px 40px 40px;
   text-align: center;
   width: 420px;
+  overflow: hidden;
+  position: relative;
 
   .in-content & {
     margin-top: 85px;
