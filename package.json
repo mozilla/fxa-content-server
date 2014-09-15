@@ -72,6 +72,7 @@
     "grunt-contrib-watch": "0.6.1",
     "grunt-conventional-changelog": "1.1.0",
     "grunt-copyright": "0.1.0",
+    "grunt-html": "1.4.0",
     "grunt-jscs": "0.6.2",
     "grunt-jsonlint": "1.0.4",
     "grunt-nsp-shrinkwrap": "0.0.3",

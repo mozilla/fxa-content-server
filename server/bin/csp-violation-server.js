@@ -6,6 +6,7 @@
 
 var fs = require('fs');
 var https = require('https');
+
 // set up common formatting for all loggers
 var intel = require('intel');
 intel.basicConfig({
