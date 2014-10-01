@@ -6,14 +6,14 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers, pollUntil) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, pollUntil) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -28,7 +28,7 @@ define([
 
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
       return this.get('remote')
-        .get(require.toUrl(CONFIRM_URL))
+        .get(toUrl(CONFIRM_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         // user is immediately redirected to /signup if they have no
@@ -42,7 +42,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(SIGNUP_URL))
+        .get(toUrl(SIGNUP_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)

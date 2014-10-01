@@ -6,17 +6,17 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
@@ -66,7 +66,7 @@ define([
 
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
       return this.get('remote')
-        .get(require.toUrl(CONFIRM_PAGE_URL))
+        .get(toUrl(CONFIRM_PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         // user is immediately redirected to /reset_password if they have no
@@ -77,7 +77,7 @@ define([
 
     'open /reset_password page from /signin': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_PAGE_URL))
+        .get(toUrl(SIGNIN_PAGE_URL))
         .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
@@ -97,7 +97,7 @@ define([
 
     'open confirm_reset_password page, click resend': function () {
       return this.get('remote')
-        .get(require.toUrl(CONFIRM_PAGE_URL))
+        .get(toUrl(CONFIRM_PAGE_URL))
         .findById('resend')
           .click()
         .end()
@@ -137,7 +137,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -147,7 +147,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + malformedToken + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -157,7 +157,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + invalidToken + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-expired-header')
         .end();
     },
@@ -166,7 +166,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -176,7 +176,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + malformedCode + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -185,7 +185,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -194,7 +194,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=invalidemail';
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
@@ -203,7 +203,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findByCssSelector('form input#password')
           .click()
           .type(PASSWORD)
@@ -250,7 +250,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input#password')
           .click()
@@ -274,7 +274,7 @@ define([
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .findById('fxa-reset-link-expired-header')
         .end()
 
@@ -302,7 +302,7 @@ define([
     'open page with email on query params': function () {
       var url = RESET_PAGE_URL + '?email=' + email;
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .getAttribute('value')
@@ -338,7 +338,7 @@ define([
 
     'page transitions after completion': function () {
       return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
+        .get(toUrl(RESET_PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -369,7 +369,7 @@ define([
 
     'open /reset_password page, enter unknown email': function () {
       return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
+        .get(toUrl(RESET_PAGE_URL))
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()

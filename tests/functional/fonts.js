@@ -6,12 +6,13 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'signin';
   var nonFiraUrl = intern.config.fxaContentRoot + 'zh-CN/legal/privacy';
+  var toUrl = FunctionalHelpers.toUrl;
 
   registerSuite({
     name: 'fonts',
@@ -22,7 +23,7 @@ define([
     'Uses Fira for en-US': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         .findByCssSelector('#fxa-signin-header')
@@ -43,7 +44,7 @@ define([
     'Does not use Fira for non-supported locale': function () {
 
       return this.get('remote')
-        .get(require.toUrl(nonFiraUrl))
+        .get(toUrl(nonFiraUrl))
 
         .findByCssSelector('#fxa-pp-header')
           .getComputedStyle('font-family')

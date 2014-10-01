@@ -8,13 +8,14 @@ define([
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/Deferred',
-  'require',
+  'tests/functional/lib/helpers',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!child_process'
-], function (intern, registerSuite, assert, config, Deferred, require, child_process) {
+], function (intern, registerSuite, assert, config, Deferred, FunctionalHelpers, child_process) {
   'use strict';
 
   /* global process */
   var travis = process && process.env.TRAVIS_COMMIT;
+  var toUrl = FunctionalHelpers.toUrl;
   var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
   if (travis) {
     url += '&travis=true';
@@ -32,7 +33,7 @@ define([
 
       return this.get('remote')
         .setFindTimeout(this.timeout)
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .refresh()
         // let the mocha reporter load up
         .sleep(MOCHA_LOADER_SLEEP)

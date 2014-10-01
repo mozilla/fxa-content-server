@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin';
@@ -59,7 +59,7 @@ define([
 
     'sign in unverified': function () {
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -93,7 +93,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
+            .get(toUrl(PAGE_URL))
             .findByCssSelector('form input.email')
               .clearValue()
               .click()
@@ -125,7 +125,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
+            .get(toUrl(PAGE_URL))
             .findByCssSelector('form input.email')
               .clearValue()
               .click()
@@ -163,7 +163,7 @@ define([
       user = TestHelpers.emailToUser(email);
 
       return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()
@@ -207,7 +207,7 @@ define([
       var self = this;
 
       return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()
@@ -225,7 +225,7 @@ define([
       email = 'partial';
 
       return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()
@@ -264,7 +264,7 @@ define([
     var password = '12345678';
 
     return self.get('remote')
-      .get(require.toUrl(PAGE_URL))
+      .get(toUrl(PAGE_URL))
       .findByCssSelector('input[type=email]')
         .clearValue()
         .click()

@@ -6,13 +6,13 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'tests/functional/lib/helpers',
-  'require'
-], function (intern, registerSuite, assert, FunctionalHelpers, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var PP_URL = intern.config.fxaContentRoot + 'legal/privacy';
+  var toUrl = FunctionalHelpers.toUrl;
 
   registerSuite({
     name: 'pp',
@@ -24,7 +24,7 @@ define([
     'start at signup': function () {
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-pp')
           .click()
@@ -46,7 +46,7 @@ define([
     'start at privacy': function () {
 
       return this.get('remote')
-        .get(require.toUrl(PP_URL))
+        .get(toUrl(PP_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         .findById('fxa-pp-header')

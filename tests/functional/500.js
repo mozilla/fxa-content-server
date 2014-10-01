@@ -6,8 +6,8 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'boom';
@@ -19,7 +19,7 @@ define([
       var expected = intern.config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(FunctionalHelpers.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById(expected)
           .click()

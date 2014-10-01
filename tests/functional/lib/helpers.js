@@ -6,8 +6,10 @@ define([
   'intern',
   'require',
   'tests/lib/restmail',
-  'intern/dojo/node!leadfoot/helpers/pollUntil'
-], function (intern, require, restmail, pollUntil) {
+  'intern/dojo/node!leadfoot/helpers/pollUntil',
+  'intern/dojo/node!url',
+  'intern/dojo/node!querystring'
+], function (intern, require, restmail, pollUntil, url, querystring) {
   'use strict';
 
   var config = intern.config;
@@ -24,7 +26,7 @@ define([
         // only load up the content server if we aren't
         // already at the content server.
         if (url.indexOf(CONTENT_SERVER) === -1) {
-          return context.get('remote').get(require.toUrl(CONTENT_SERVER));
+          return context.get('remote').get(toUrl(CONTENT_SERVER));
         }
       })
       .execute(function () {
@@ -84,11 +86,43 @@ define([
       });
   }
 
+  /**
+   * Convert the URL to something usable by the functional tests.
+   *
+   * @param {string} baseUrl
+   * @param {object} options
+   * @param {object} options.query - query parameters to add to the baseUrl
+   * @return {string} URL that can be loaded in functional tests
+   */
+  function toUrl(baseUrl, options) {
+    if (! (options && options.query)) {
+      return require.toUrl(baseUrl);
+    }
+
+    var parsed = url.parse(baseUrl);
+    var queryParams = querystring.parse(parsed.query);
+
+    for (var key in options.query) {
+      queryParams[key] = options.query[key];
+    }
+
+    // update the query object with the updated list.
+    parsed.query = queryParams;
+
+    // url.format uses parsed.search if it is available. Since
+    // we have updated the query parameters, ditch the
+    // search string.
+    delete parsed.search;
+
+    return require.toUrl(url.format(parsed));
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
     visibleByQSA: visibleByQSA,
     pollUntil: pollUntil,
-    getVerificationLink: getVerificationLink
+    getVerificationLink: getVerificationLink,
+    toUrl: toUrl
   };
 });

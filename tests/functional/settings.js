@@ -6,16 +6,17 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
+
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
@@ -49,7 +50,7 @@ define([
 
     'sign in, go to settings, sign out': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -77,7 +78,7 @@ define([
 
     'sign in to desktop context, go to settings, no way to sign out': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
+        .get(toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -101,7 +102,7 @@ define([
           assert.equal(isDisplayed, true);
         })
 
-        .get(require.toUrl(SETTINGS_URL))
+        .get(toUrl(SETTINGS_URL))
         // make sure the sign out element doesn't exist
         .findById('signout')
           .then(assert.fail, assert.ok)
@@ -118,7 +119,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(SETTINGS_URL))
+            .get(toUrl(SETTINGS_URL))
             // Expect to get redirected to sign in since the sessionToken is invalid
             .findById('fxa-signin-header')
             .end();
@@ -127,7 +128,7 @@ define([
 
     'sign in, delete account': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)

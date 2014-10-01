@@ -83,7 +83,7 @@ function (_, Backbone, $, p, Session, AuthErrors,
       this.fxaClient = options.fxaClient;
       this.profileClient = options.profileClient;
 
-      this.automatedBrowser = !!this.searchParam('automatedBrowser');
+      this.automatedBrowser = this.searchParam('automatedBrowser') === 'true';
 
       Backbone.View.call(this, options);
     },

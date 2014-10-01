@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
-  var FROM_URL = 'http://example.com/';
+  var toUrl = FunctionalHelpers.toUrl;
+  var FROM_URL = toUrl('http://example.com/');
   var FXA_ROOT_URL = intern.config.fxaContentRoot;
 
   registerSuite({
@@ -18,8 +19,8 @@ define([
 
     'start at github, visit Fxa root, click `back` - should go back to example': function () {
       return this.get('remote')
-        .get(require.toUrl(FROM_URL))
-        .get(require.toUrl(FXA_ROOT_URL))
+        .get(FROM_URL)
+        .get(toUrl(FXA_ROOT_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-signup-header')
 

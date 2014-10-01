@@ -6,13 +6,13 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'tests/functional/lib/helpers',
-  'require'
-], function (intern, registerSuite, assert, FunctionalHelpers, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var TOS_URL = intern.config.fxaContentRoot + 'legal/terms';
+  var toUrl = FunctionalHelpers.toUrl;
 
   registerSuite({
     name: 'tos',
@@ -24,7 +24,7 @@ define([
     'start at signup': function () {
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('#fxa-tos')
           .click()
@@ -42,7 +42,7 @@ define([
     'start at terms': function () {
 
       return this.get('remote')
-        .get(require.toUrl(TOS_URL))
+        .get(toUrl(TOS_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         .findById('fxa-tos-header')

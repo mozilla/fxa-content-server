@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -39,7 +39,7 @@ define([
       // in prefillEmail
       return self.get('remote')
         // always go to the content server so the browser state is cleared
-        .get(require.toUrl(CONTENT_SERVER))
+        .get(toUrl(CONTENT_SERVER))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .then(function () {
           return FunctionalHelpers.clearBrowserState(self);
@@ -53,7 +53,7 @@ define([
                         'email=' + encodeURIComponent(email);
 
       return self.get('remote')
-        .get(require.toUrl(SIGNUP_URL))
+        .get(toUrl(SIGNUP_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
 
         .findByCssSelector('#fxa-signup-header')

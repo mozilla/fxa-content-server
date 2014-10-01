@@ -6,14 +6,14 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, FunctionalHelpers) {
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   // there is no way to disable cookies using wd. Add `disable_cookies`
   // to the URL to synthesize cookies being disabled.
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var SIGNUP_COOKIES_DISABLED_URL = config.fxaContentRoot + 'signup?disable_local_storage=1';
   var SIGNUP_COOKIES_ENABLED_URL = config.fxaContentRoot + 'signup';
 
@@ -28,7 +28,7 @@ define([
 
     'visit signup page with localStorage disabled': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNUP_COOKIES_DISABLED_URL))
+        .get(toUrl(SIGNUP_COOKIES_DISABLED_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-cookies-disabled-header')
         .end()
@@ -48,13 +48,13 @@ define([
 
     'synthesize enabling cookies by visiting the sign up page, then cookies_disabled, then clicking "try again"': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNUP_COOKIES_ENABLED_URL))
+        .get(toUrl(SIGNUP_COOKIES_ENABLED_URL))
         // wd has no way of disabling/enabling cookies, so we have to
         // manually seed history.
         .findById('fxa-signup-header')
         .end()
 
-        .get(require.toUrl(COOKIES_DISABLED_URL))
+        .get(toUrl(COOKIES_DISABLED_URL))
 
         .findById('fxa-cookies-disabled-header')
         .end()
@@ -70,7 +70,7 @@ define([
 
     'visit verify page with localStorage disabled': function () {
       return this.get('remote')
-        .get(require.toUrl(VERIFY_COOKIES_DISABLED_URL))
+        .get(toUrl(VERIFY_COOKIES_DISABLED_URL))
 
         .findById('fxa-cookies-disabled-header')
         .end();

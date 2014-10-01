@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'intern/node_modules/dojo/node!leadfoot/helpers/pollUntil',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
@@ -37,7 +37,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -78,7 +78,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -125,7 +125,7 @@ define([
       var dateToSelect = now.getDate();
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -176,7 +176,7 @@ define([
       var dateToSelect = now.getDate();
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -230,7 +230,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(urlForSync))
+        .get(toUrl(urlForSync))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -277,7 +277,7 @@ define([
       return client.signUp(email, password, { preVerified: true })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
+            .get(toUrl(PAGE_URL))
             .findByCssSelector('input[type=email]')
               .click()
               .clearValue()
@@ -341,7 +341,7 @@ define([
       return client.signUp(email, password)
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
+            .get(toUrl(PAGE_URL))
             .findByCssSelector('input[type=email]')
               .click()
               .type(email)
@@ -394,7 +394,7 @@ define([
     var year = CUTOFF_YEAR - 1;
 
     return self.get('remote')
-      .get(require.toUrl(PAGE_URL))
+      .get(toUrl(PAGE_URL))
       .findByCssSelector('input[type=email]')
         .clearValue()
         .click()

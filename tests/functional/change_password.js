@@ -6,15 +6,15 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var CHANGE_PASSWORD_URL = config.fxaContentRoot + 'change_password';
@@ -59,7 +59,7 @@ define([
 
     'sign in, try to change password with an incorrect old password': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -133,7 +133,7 @@ define([
 
     'sign in, change password, sign in with new password': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -178,7 +178,7 @@ define([
           })
         .end()
 
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
 
         .findByCssSelector('.use-different')
           .click()
@@ -224,7 +224,7 @@ define([
 
     'sign in, change password screen, user must verifiy account': function () {
       return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
+        .get(toUrl(SIGNIN_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -244,7 +244,7 @@ define([
         .end()
 
         // unverified user browses directly to change password page.
-        .get(require.toUrl(CHANGE_PASSWORD_URL))
+        .get(toUrl(CHANGE_PASSWORD_URL))
         .findById('old_password')
           .click()
           .type(FIRST_PASSWORD)
