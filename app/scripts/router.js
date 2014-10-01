@@ -12,6 +12,7 @@ define([
   'views/sign_in',
   'views/oauth_sign_in',
   'views/force_auth',
+  'views/use_different',
   'views/sign_up',
   'views/oauth_sign_up',
   'views/confirm',
@@ -44,6 +45,7 @@ function (
   SignInView,
   OAuthSignInView,
   ForceAuthView,
+  UseDifferentView,
   SignUpView,
   OAuthSignUpView,
   ConfirmView,
@@ -115,6 +117,7 @@ function (
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(ForceAuthView),
+      'use_different(/)': showView(UseDifferentView),
       'cookies_disabled(/)': showView(CookiesDisabledView),
       'clear(/)': showView(ClearStorageView),
       'unexpected_error(/)': showView(UnexpectedErrorView)

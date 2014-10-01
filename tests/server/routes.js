@@ -49,6 +49,7 @@ define([
     '/reset_password_complete': { statusCode: 200 },
     '/delete_account': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
+    '/use_different': { statusCode: 200 },
     '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
     '/cookies_disabled': { statusCode: 200 }
   };

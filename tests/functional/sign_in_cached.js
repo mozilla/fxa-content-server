@@ -218,8 +218,12 @@ define([
         .click()
         .end()
 
+        // the form should not be prefilled
         .findByCssSelector('form input.email')
-        .clearValue()
+        .getAttribute('value')
+        .then(function (val) {
+          assert.equal(val, '');
+        })
         .click()
         .type(email2)
         .end()
@@ -246,7 +250,7 @@ define([
         .findByCssSelector('form input.email')
         .end()
 
-        .refresh()
+        .get(require.toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('.use-different')
         .end();
@@ -482,7 +486,7 @@ define([
         .findByCssSelector('form input.email')
         .end()
 
-        .refresh()
+        .get(require.toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('.use-different')
         .end();
@@ -517,7 +521,6 @@ define([
         .end()
 
         .findByCssSelector('form input.email')
-        .clearValue()
         .click()
         .type(email2)
         .end()
