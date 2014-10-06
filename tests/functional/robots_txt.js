@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'robots.txt';
+  var toUrl = FunctionalHelpers.toUrl;
 
   registerSuite({
     name: 'robots.txt',
@@ -18,7 +19,7 @@ define([
     'should disallow root': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByTagName('body')
         .getVisibleText()

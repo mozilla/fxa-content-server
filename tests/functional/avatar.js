@@ -6,21 +6,25 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var AVATAR_URL = config.fxaContentRoot + 'settings/avatar';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
-  var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
+  var AVATAR_CHANGE_URL_AUTOMATED = toUrl(AVATAR_CHANGE_URL, {
+    query: {
+      automatedBrowser: true
+    }
+  });
 
   var PASSWORD = 'password';
   var email;
@@ -45,7 +49,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(SIGNIN_URL))
+            .get(toUrl(SIGNIN_URL))
             // This will configure the timeout for the duration of this test suite
             .setFindTimeout(intern.config.pageLoadTimeout)
             .findByCssSelector('form input.email')
@@ -81,7 +85,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(SIGNIN_URL))
+            .get(toUrl(SIGNIN_URL))
             .findByCssSelector('form input.email')
               .click()
               .type(email2)
@@ -99,7 +103,7 @@ define([
             .findById('fxa-confirm-header')
             .end()
 
-            .get(require.toUrl(AVATAR_URL))
+            .get(toUrl(AVATAR_URL))
 
             // success is going to the confirm page
             .findById('fxa-confirm-header')
@@ -109,7 +113,7 @@ define([
 
     'go to avatars then avatar change': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_URL))
+        .get(toUrl(AVATAR_URL))
 
         // go to change avatar
         .findById('change-avatar')
@@ -123,7 +127,7 @@ define([
 
     'visit gravatar with gravatar set': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('gravatar')
@@ -157,7 +161,7 @@ define([
 
     'visit gravatar with gravatar set then cancel': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('gravatar')
@@ -191,7 +195,7 @@ define([
     },
     'visit gravatar with no gravatar set': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL))
+        .get(toUrl(AVATAR_CHANGE_URL))
 
         // go to change avatar
         .findById('gravatar')
@@ -213,7 +217,7 @@ define([
 
     'attempt to use webcam for avatar': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('camera')
@@ -231,7 +235,7 @@ define([
 
     'attempt to use webcam for avatar, then cancel': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('camera')
@@ -249,7 +253,7 @@ define([
 
     'upload a profile image': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('imageLoader')
@@ -286,7 +290,7 @@ define([
 
     'cancel uploading a profile image': function () {
       return this.get('remote')
-        .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
+        .get(toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
         // go to change avatar
         .findById('imageLoader')

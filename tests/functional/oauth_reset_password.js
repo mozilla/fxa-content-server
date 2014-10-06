@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var OAUTH_APP = config.fxaOauthApp;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -70,7 +70,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(OAUTH_APP))
+            .get(toUrl(OAUTH_APP))
             .setFindTimeout(intern.config.pageLoadTimeout)
             .findByCssSelector('.signin')
             .click()
@@ -110,7 +110,7 @@ define([
               return FunctionalHelpers.getVerificationLink(user, 1);
             })
             .then(function (url) {
-              return self.get('remote').get(require.toUrl(url));
+              return self.get('remote').get(toUrl(url));
             })
             .end()
 
@@ -186,7 +186,7 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(OAUTH_APP))
+            .get(toUrl(OAUTH_APP))
             .setFindTimeout(intern.config.pageLoadTimeout)
             .findByCssSelector('.signin')
             .click()
@@ -231,7 +231,7 @@ define([
               return FunctionalHelpers.getVerificationLink(user, 1);
             })
             .then(function (url) {
-              return self.get('remote').get(require.toUrl(url));
+              return self.get('remote').get(toUrl(url));
             })
             .end()
 

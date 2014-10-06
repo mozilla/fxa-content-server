@@ -6,11 +6,12 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot;
+  var toUrl = FunctionalHelpers.toUrl;
 
   var pages = [
     'v1/complete_reset_password',
@@ -60,7 +61,7 @@ define([
   var visitFn = function (path) {
     return function () {
       return this.get('remote')
-        .get(require.toUrl(url + path))
+        .get(toUrl(url + path))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('#stage header')
         .end();

@@ -6,28 +6,39 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'app/scripts/lib/constants'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers, Constants) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers, Constants) {
   'use strict';
 
   var FX_DESKTOP_CONTEXT = Constants.FX_DESKTOP_CONTEXT;
 
   var config = intern.config;
 
+  var toUrl = FunctionalHelpers.toUrl;
+
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   // The automatedBrowser query param tells signin/up to stub parts of the flow
   // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
-  var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SIGNIN_DESKTOP = toUrl(PAGE_SIGNIN, {
+    query: {
+      context: FX_DESKTOP_CONTEXT,
+      automatedBrowser: true
+    }
+  });
   var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
-  var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SIGNUP_DESKTOP = toUrl(PAGE_SIGNUP, {
+    query: {
+      context: FX_DESKTOP_CONTEXT,
+      automatedBrowser: true
+    }
+  });
   var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
 
 
@@ -78,7 +89,8 @@ define([
             .then(function (emails) {
 
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']))
+                .setFindTimeout(intern.config.pageLoadTimeout)
+                .get(toUrl(emails[0].headers['x-link']))
                 .findById('fxa-sign-up-complete-header')
                 .end();
             });
@@ -96,7 +108,7 @@ define([
             .then(function (emails) {
 
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
+                .get(toUrl(emails[0].headers['x-link']));
             });
         })
         .then(function () {
@@ -121,7 +133,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -144,7 +156,7 @@ define([
           return FunctionalHelpers.clearSessionStorage(self);
         })
 
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('form input.password')
         .click()
@@ -163,7 +175,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .get(toUrl(PAGE_SIGNIN_DESKTOP))
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -193,7 +205,7 @@ define([
 
     'sign in once, use a different account': function () {
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -211,7 +223,7 @@ define([
         .findById('fxa-settings-header')
         .end()
 
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         // testing to make sure "Use different account" button works
         .findByCssSelector('.use-different')
@@ -237,7 +249,7 @@ define([
         .end()
 
         // testing to make sure cached signin comes back after a refresh
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('.use-different')
         .click()
@@ -255,7 +267,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .get(toUrl(PAGE_SIGNIN_DESKTOP))
         // signin normally, nothing in session yet
         .findByCssSelector('form input.email')
         .click()
@@ -321,7 +333,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNUP_DESKTOP))
+        .get(toUrl(PAGE_SIGNUP_DESKTOP))
         .findByCssSelector('form input.email')
         .clearValue()
         .click()
@@ -355,7 +367,7 @@ define([
           return FunctionalHelpers.clearSessionStorage(self);
         })
 
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         // cached login should still go to email confirmation screen for unverified accounts
         .findByCssSelector('.use-logged-in')
@@ -369,7 +381,7 @@ define([
       var email = TestHelpers.createEmail();
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNUP))
+        .get(toUrl(PAGE_SIGNUP))
         .findByCssSelector('form input.email')
         .clearValue()
         .click()
@@ -398,7 +410,7 @@ define([
         .findById('fxa-confirm-header')
         .end()
 
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         // cached login should still go to email confirmation screen for unverified accounts
 
@@ -419,7 +431,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .get(toUrl(PAGE_SIGNIN_DESKTOP))
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -465,7 +477,7 @@ define([
         })
 
         // testing to make sure cached signin comes back after a refresh
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('.prefill')
         .getVisibleText()
@@ -492,7 +504,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .get(toUrl(PAGE_SIGNIN_DESKTOP))
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -540,7 +552,7 @@ define([
         })
 
         // testing to make sure cached signin comes back after a refresh
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(toUrl(PAGE_SIGNIN))
 
         .findByCssSelector('.prefill')
         .getVisibleText()

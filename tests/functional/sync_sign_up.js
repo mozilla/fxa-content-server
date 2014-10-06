@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'intern/node_modules/dojo/node!leadfoot/helpers/pollUntil',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -39,7 +39,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()
@@ -102,7 +102,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
+        .get(toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('form input.email')
           .click()

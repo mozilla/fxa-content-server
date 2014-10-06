@@ -6,8 +6,8 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'four-oh-four';
@@ -18,7 +18,7 @@ define([
     'visit an invalid page': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(FunctionalHelpers.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findById('fxa-404-home')
           .click()

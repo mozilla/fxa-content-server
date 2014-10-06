@@ -6,17 +6,17 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
@@ -63,7 +63,7 @@ define([
 
       return this.get('remote')
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
@@ -77,7 +77,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
@@ -90,7 +90,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
@@ -103,7 +103,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
@@ -115,7 +115,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
@@ -152,7 +152,7 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(toUrl(url))
 
         .findById('fxa-verification-link-expired-header')
         .end()
@@ -199,7 +199,7 @@ define([
       return client.signUp(email, PASSWORD)
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(SIGNUP_PAGE_URL))
+            .get(toUrl(SIGNUP_PAGE_URL))
             .setFindTimeout(intern.config.pageLoadTimeout)
             .findById('fxa-signup-header')
             .end()
@@ -232,7 +232,7 @@ define([
             .findById('fxa-confirm-header')
             .end()
 
-            .get(require.toUrl(completeUrl))
+            .get(toUrl(completeUrl))
 
             .findById('fxa-verification-link-expired-header')
             .end()

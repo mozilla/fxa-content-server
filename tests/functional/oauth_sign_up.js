@@ -6,16 +6,16 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -41,7 +41,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(OAUTH_APP))
+        .get(toUrl(OAUTH_APP))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('.signup')
           .click()
@@ -91,7 +91,7 @@ define([
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
+                .get(toUrl(emails[0].headers['x-link']));
             });
         })
         .end()
@@ -122,7 +122,7 @@ define([
       var self = this;
 
       return this.get('remote')
-        .get(require.toUrl(OAUTH_APP))
+        .get(toUrl(OAUTH_APP))
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByCssSelector('.signup')
           .click()
@@ -175,7 +175,7 @@ define([
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
+                .get(toUrl(emails[0].headers['x-link']));
             });
         })
         .end()

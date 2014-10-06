@@ -6,17 +6,17 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
+  var toUrl = FunctionalHelpers.toUrl;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
@@ -57,7 +57,7 @@ define([
     'sign in via force-auth': function () {
       return this.get('remote')
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
+        .get(toUrl(FORCE_AUTH_URL + '?email=' + email))
         .findByCssSelector('form input.password')
           .click()
           .type(PASSWORD)
@@ -74,7 +74,7 @@ define([
     'forgot password flow via force-auth goes directly to confirm email screen': function () {
       return this.get('remote')
         .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
+        .get(toUrl(FORCE_AUTH_URL + '?email=' + email))
         .findByCssSelector('.reset-password')
           .click()
         .end()
@@ -108,7 +108,7 @@ define([
 
     return self.get('remote')
       .setFindTimeout(intern.config.pageLoadTimeout)
-      .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
+      .get(toUrl(FORCE_AUTH_URL + '?email=' + email))
       .findByCssSelector('input[type=password]')
         .clearValue()
         .click()
