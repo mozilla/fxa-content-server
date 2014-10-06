@@ -12,7 +12,27 @@ define([
   intern.tunnelOptions = {
     port: 4445,
     directDomains: [
-      'latest.dev.lcip.org'
+      'lcip.org',
+      'dev.lcip.org',
+
+      'latest.dev.lcip.org',
+      'oauth-latest.dev.lcip.org',
+      '123done-latest.dev.lcip.org',
+
+      'nightly.dev.lcip.org',
+      'oauth-nightly.dev.lcip.org',
+      '123done-nightly.dev.lcip.org',
+
+      'stable.dev.lcip.org',
+      'oauth-stable.dev.lcip.org',
+      '123done-stable.dev.lcip.org',
+
+      'mozaws.net',
+      'stage.mozaws.net',
+      'oauth.stage.mozaws.net',
+      'profile.stage.mozaws.net',
+      'api-accounts.stage.mozaws.net',
+      '123done-stage.mozaws.net'
     ],
     skipSslDomains: [
       'latest.dev.lcip.org'

@@ -19,6 +19,7 @@ function (args, topic, firefoxProfile) {
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaProduction = !!args.fxaProduction;
   var fxaToken = args.fxaToken || 'http://';
+  var proxyPort = args.proxyPort || 9090;
 
   if (topic) {
     topic.subscribe('/suite/start', function (suite) {
@@ -28,10 +29,10 @@ function (args, topic, firefoxProfile) {
 
   var config = {
     // The port on which the instrumenting proxy will listen
-    proxyPort: 9090,
+    proxyPort: proxyPort,
 
     // A fully qualified URL to the Intern proxy
-    proxyUrl: 'http://127.0.0.1:9090/',
+    proxyUrl: 'http://127.0.0.1:' + proxyPort + '/',
 
     asyncTimeout: 5000, // milliseconds
 
