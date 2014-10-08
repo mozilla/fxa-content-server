@@ -46,6 +46,7 @@ define([
     'complete_reset_password',
     'reset_password_complete',
     'force_auth',
+    'use_different',
     'delete_account',
     'non_existent',
     'cookies_disabled',

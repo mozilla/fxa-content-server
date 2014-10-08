@@ -44,6 +44,7 @@ function (Translator, Session) {
     '../tests/spec/views/oauth_sign_in',
     '../tests/spec/views/oauth_sign_up',
     '../tests/spec/views/force_auth',
+    '../tests/spec/views/use_different',
     '../tests/spec/views/settings',
     '../tests/spec/views/settings/avatar',
     '../tests/spec/views/settings/avatar_change',

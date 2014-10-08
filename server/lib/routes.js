@@ -91,6 +91,7 @@ module.exports = function (config, templates, i18n) {
       '/reset_password_complete',
       '/delete_account',
       '/force_auth',
+      '/use_different',
       '/oauth/signin',
       '/oauth/signup',
       '/cookies_disabled',
