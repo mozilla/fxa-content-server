@@ -77,6 +77,14 @@ function (chai, Session) {
 
         assert.equal(Session.sessionToken, localStorageValues.sessionToken);
       });
+
+      it('uid is stored in local storage', function () {
+        Session.set('uid', 'abc123');
+
+        var localStorageValues = JSON.parse(localStorage.getItem('__fxa_session'));
+
+        assert.equal(Session.uid, localStorageValues.uid);
+      });
     });
 
     describe('load', function () {
