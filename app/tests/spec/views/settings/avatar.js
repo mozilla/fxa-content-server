@@ -102,8 +102,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
       it('has an unverified account', function () {
         Session.clear('avatar');
 
-        sinon.stub(fxaClientMock, 'signUpResend', function (options) {
-          assert.ok(options.relier);
+        sinon.stub(fxaClientMock, 'signUpResend', function () {
           return p();
         });
 

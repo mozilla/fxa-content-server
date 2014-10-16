@@ -243,8 +243,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        sinon.stub(fxaClient, 'passwordResetResend', function (options) {
-          assert.ok(options.relier);
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
           return p(true);
         });
 
