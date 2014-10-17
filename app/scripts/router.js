@@ -8,6 +8,7 @@ define([
   'underscore',
   'jquery',
   'backbone',
+  'lib/promise',
   'lib/session',
   'views/sign_in',
   'views/oauth_sign_in',
@@ -40,6 +41,7 @@ function (
   _,
   $,
   Backbone,
+  p,
   Session,
   SignInView,
   OAuthSignInView,
@@ -81,7 +83,7 @@ function (
         relier: this.relier,
         broker: this.broker,
         fxaClient: this.fxaClient,
-        profileClient: this.profileClient,
+        user: this.user,
         interTabChannel: this.interTabChannel
       }, options || {});
 
@@ -131,7 +133,7 @@ function (
       this.relier = options.relier;
       this.broker = options.broker;
       this.fxaClient = options.fxaClient;
-      this.profileClient = options.profileClient;
+      this.user = options.user;
       this.interTabChannel = options.interTabChannel;
 
       this.$stage = $('#stage');
@@ -154,7 +156,7 @@ function (
     },
 
     redirectToSignupOrSettings: function () {
-      var url = Session.sessionToken ? '/settings' : '/signup';
+      var url = this.user.getCurrentAccount() ? '/settings' : '/signup';
       this.navigate(url, { trigger: true, replace: true });
     },
 

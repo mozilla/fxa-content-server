@@ -37,7 +37,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     },
 
     submit: function () {
-      var email = Session.email;
+      var account = this.currentAccount();
+      var email = account.email;
       var oldPassword = this.$('#old_password').val();
       var newPassword = this.$('#new_password').val();
 
@@ -61,9 +62,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             // prevents sync users from seeing the `sign out` button on the
             // settings screen.
 
-            var sessionTokenContext = Session.sessionTokenContext;
-            Session.clear();
-            return self.fxaClient.signIn(email, newPassword, self.relier, {
+            var sessionTokenContext = account.sessionTokenContext;
+            return self.fxaClient.signIn(email, newPassword, self.relier, self.user, {
               sessionTokenContext: sessionTokenContext
             });
           })
@@ -83,8 +83,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     resendVerificationEmail: BaseView.preventDefaultThen(function () {
       var self = this;
+      var sessionToken = this.currentAccount().sessionToken;
 
-      return self.fxaClient.signUpResend(self.relier)
+      return self.fxaClient.signUpResend(self.relier, sessionToken)
               .then(function () {
                 self.navigate('confirm');
               }, function (err) {

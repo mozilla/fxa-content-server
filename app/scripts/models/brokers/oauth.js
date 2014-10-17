@@ -37,7 +37,6 @@ define([
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
-      this._oAuthUrl = options.oAuthUrl;
 
       return DelegatedAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -45,7 +44,7 @@ define([
 
     getOAuthResult: function () {
       var self = this;
-      return self._assertionLibrary.generate(self._oAuthUrl)
+      return self._assertionLibrary.generate(self.session.sessionToken)
         .then(function (assertion) {
           var relier = self.relier;
           var oauthParams = {
