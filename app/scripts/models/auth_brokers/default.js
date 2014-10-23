@@ -29,15 +29,7 @@ define([
       return this._navigate(view, 'signup_complete');
     },
 
-    afterSignUpVerified: function (view) {
-      return this._navigate(view, 'signup_complete');
-    },
-
     afterResetPasswordConfirmed: function (view) {
-      return this._navigate(view, 'reset_password_complete');
-    },
-
-    afterResetPasswordVerified: function (view) {
       return this._navigate(view, 'reset_password_complete');
     }
   });
