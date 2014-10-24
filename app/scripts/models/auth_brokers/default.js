@@ -25,11 +25,11 @@ define([
       return this._navigate(view, 'settings');
     },
 
-    afterSignUpConfirmed: function (view) {
+    afterSignUpConfirmationPoll: function (view) {
       return this._navigate(view, 'signup_complete');
     },
 
-    afterResetPasswordConfirmed: function (view) {
+    afterResetPasswordConfirmationPoll: function (view) {
       return this._navigate(view, 'reset_password_complete');
     }
   });

@@ -41,24 +41,24 @@ function (chai, sinon, DefaultAuthenticationBroker, View, WindowMock) {
       });
     });
 
-    describe('afterSignUpConfirmed', function () {
+    describe('afterSignUpConfirmationPoll', function () {
       it('redirects to the signup_complete page', function () {
         sinon.stub(view, 'navigate', function () {
         });
 
-        return broker.afterSignUpConfirmed(view)
+        return broker.afterSignUpConfirmationPoll(view)
           .then(function () {
             assert.isTrue(view.navigate.calledWith('signup_complete'));
           });
       });
     });
 
-    describe('afterResetPasswordConfirmed', function () {
+    describe('afterResetPasswordConfirmationPoll', function () {
       it('redirects to the reset_password_complete page', function () {
         sinon.stub(view, 'navigate', function () {
         });
 
-        return broker.afterResetPasswordConfirmed(view)
+        return broker.afterResetPasswordConfirmationPoll(view)
           .then(function () {
             assert.isTrue(view.navigate.calledWith('reset_password_complete'));
           });
