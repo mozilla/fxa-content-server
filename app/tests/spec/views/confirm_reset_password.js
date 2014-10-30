@@ -48,9 +48,6 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       fxaClient = new FxaClient();
       interTabChannel = new InterTabChannel();
 
-      Session.set('passwordForgotToken', 'fake password reset token');
-      Session.set('email', 'testuser@testuser.com');
-
       sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
         return p(true);
       });
@@ -63,7 +60,11 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         relier: relier,
         broker: broker,
         interTabChannel: interTabChannel,
-        sessionUpdateTimeoutMS: 100
+        sessionUpdateTimeoutMS: 100,
+        data: {
+          email: 'testuser@testuser.com',
+          passwordForgotToken: 'fake password reset token'
+        }
       });
 
       return view.render()
@@ -91,7 +92,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       });
 
       it('redirects to /reset_password if no passwordForgotToken', function () {
-        Session.clear('passwordForgotToken');
+        view = new View({
+          router: routerMock,
+          window: windowMock
+        });
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'reset_password');
@@ -124,7 +128,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         });
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
-        Session.set('email', xssEmail);
+        view.email = xssEmail;
 
         return view.render()
           .then(function () {
@@ -211,13 +215,13 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
             assert.equal(page, expectedPage);
             // session.email is used to pre-fill the email on
             // the signin page.
-            assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+            assert.equal(Session.prefillEmail, 'atestuser@testuser.com');
           }, done);
         });
 
         // email is cleared in initial render in beforeEach, reset it to
         // see if it makes it through to the redirect.
-        Session.set('email', 'testuser@testuser.com');
+        view.email = 'atestuser@testuser.com';
         view.render();
       }
 

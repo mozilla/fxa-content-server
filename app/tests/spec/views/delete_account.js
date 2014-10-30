@@ -14,11 +14,12 @@ define([
   'lib/session',
   'lib/promise',
   'models/reliers/relier',
+  'models/user',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, FxaClient, Session, p, Relier, RouterMock,
-    TestHelpers) {
+function (chai, $, sinon, View, FxaClient, Session, p,
+    Relier, User, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -29,15 +30,18 @@ function (chai, $, sinon, View, FxaClient, Session, p, Relier, RouterMock,
     var password = 'password';
     var fxaClient;
     var relier;
+    var user;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
       fxaClient = new FxaClient();
+      user = new User();
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
+        user: user,
         relier: relier
       });
     });
@@ -61,10 +65,14 @@ function (chai, $, sinon, View, FxaClient, Session, p, Relier, RouterMock,
     describe('with session', function () {
       beforeEach(function () {
         email = TestHelpers.createEmail();
-        Session.set('email', email);
-        Session.set('sessionToken', 'sessiontoken');
         sinon.stub(view.fxaClient, 'isSignedIn', function () {
           return true;
+        });
+
+        sinon.stub(view, 'currentAccount', function () {
+          return {
+            email: email
+          };
         });
 
         return view.render()
@@ -115,9 +123,17 @@ function (chai, $, sinon, View, FxaClient, Session, p, Relier, RouterMock,
             return p();
           });
 
+          sinon.stub(user, 'removeAccount', function () {
+          });
+
           return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'signup');
+                assert.isTrue(view.fxaClient.deleteAccount
+                  .calledWith(email, password));
+                assert.isTrue(user.removeAccount.calledWith({
+                  email: email
+                }));
               });
         });
       });

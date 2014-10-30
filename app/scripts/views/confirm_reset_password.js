@@ -32,6 +32,11 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       this._interTabChannel = options.interTabChannel;
       this._sessionUpdateTimeoutMS = options.sessionUpdateTimeoutMS ||
               SESSION_UPDATE_TIMEOUT_MS;
+
+      if (options.data) {
+        this.email = options.data.email;
+        this.passwordForgotToken = options.data.passwordForgotToken;
+      }
     },
 
     events: {
@@ -42,15 +47,15 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     context: function () {
       return {
-        email: Session.email,
-        encodedEmail: encodeURIComponent(Session.email),
+        email: this.email,
+        encodedEmail: encodeURIComponent(this.email),
         forceAuth: this.broker.isForceAuth()
       };
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a reset password
-      if (! Session.passwordForgotToken) {
+      if (! this.passwordForgotToken) {
         this.navigate('reset_password');
         return false;
       }
@@ -169,9 +174,8 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // user verified in a different browser, make them sign in. OAuth
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
-      var email = Session.email;
       Session.clear();
-      Session.set('prefillEmail', email);
+      Session.set('prefillEmail', self.email);
       self.navigate(self._getSignInRoute(), {
         success: t('Password reset. Sign in to continue.')
       });
@@ -179,7 +183,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     _waitForServerConfirmationNotice: function () {
       var self = this;
-      return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
+      return self.fxaClient.isPasswordResetComplete(self.passwordForgotToken)
         .then(function (isComplete) {
           if (isComplete) {
             return true;
@@ -251,7 +255,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
     },
 
     savePrefillEmailForSignin: function () {
-      Session.set('prefillEmail', Session.email);
+      Session.set('prefillEmail', this.email);
     }
   });
 

@@ -13,12 +13,13 @@ define([
   'views/confirm',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      OAuthRelier, OAuthBroker, WindowMock, RouterMock, TestHelpers) {
+      OAuthRelier, OAuthBroker, User, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -31,9 +32,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var fxaClient;
     var relier;
     var broker;
+    var user;
+    var account;
 
     beforeEach(function () {
-      Session.set('sessionToken', 'fake session token');
 
       routerMock = new RouterMock();
       windowMock = new WindowMock();
@@ -48,11 +50,23 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier
       });
       fxaClient = new FxaClient();
+      user = new User();
+
+      account = user.createAccount({
+        email: 'a@a.com',
+        uid: 'uid',
+        sessionToken: 'fake session token'
+      });
+
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return account;
+      });
 
       view = new View({
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        user: user,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker
@@ -78,8 +92,16 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         assert.ok($('#fxa-confirm-header').length);
       });
 
-      it('redirects to /signup if no sessionToken', function () {
-        Session.clear('sessionToken');
+      it('redirects to /signup if no account', function () {
+        delete view.account;
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup');
+          });
+      });
+
+      it('redirects to /signup if no account sessionToken', function () {
+        delete account.sessionToken;
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
@@ -96,7 +118,12 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
 
       it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
         sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+          assert.isTrue(user.setAccount.calledWith(account));
+          assert.isTrue(account.verified);
           done();
+        });
+        sinon.stub(user, 'setAccount', function () {
+          return p();
         });
 
         var count = 0;
@@ -128,7 +155,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
                               'confirm.resend'));
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier));
+                relier, account.sessionToken));
           });
       });
 

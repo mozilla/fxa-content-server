@@ -80,9 +80,9 @@ function (_, Backbone, $, p, Session, AuthErrors,
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
       this.broker = options.broker;
+      this.user = options.user;
 
       this.fxaClient = options.fxaClient;
-      this.profileClient = options.profileClient;
 
       this.automatedBrowser = !!this.searchParam('automatedBrowser');
 
@@ -105,19 +105,10 @@ function (_, Backbone, $, p, Session, AuthErrors,
 
       return p()
         .then(function () {
-          return self.isUserAuthorized();
+          return self._checkUserAuthorization();
         })
         .then(function (isUserAuthorized) {
-          if (! isUserAuthorized) {
-            // user is not authorized, make them sign in.
-            var err = AuthErrors.toError('SESSION_EXPIRED');
-            self.navigate('signin', {
-              error: err
-            });
-            return false;
-          }
-
-          return self.beforeRender();
+          return isUserAuthorized && self.beforeRender();
         })
         .then(function (shouldRender) {
           // rendering is opt out.
@@ -138,6 +129,49 @@ function (_, Backbone, $, p, Session, AuthErrors,
             return true;
           });
         });
+    },
+
+    // Checks that the user's current account exists and is
+    // verified. Returns either true or false.
+    _checkUserAuthorization: function () {
+      var self = this;
+
+      return p()
+        .then(function () {
+          return self.isUserAuthorized();
+        })
+        .then(function (isUserAuthorized) {
+          if (! isUserAuthorized) {
+            // user is not authorized, make them sign in.
+            var err = AuthErrors.toError('SESSION_EXPIRED');
+
+            self.navigate(self._reAuthPage(), {
+              error: err
+            });
+            return false;
+          }
+
+          return self.isUserVerified()
+            .then(function (isUserVerified) {
+              if (! isUserVerified) {
+                // user is not verified, prompt them to verify.
+                self.navigate('confirm');
+              }
+
+              return isUserVerified;
+            });
+        });
+    },
+
+    // If the user navigates to a page that requires auth and their session
+    // is not currently cached, we ask them to sign in again. If the relier
+    // specifies an email address, we force the user to use that account.
+    _reAuthPage: function () {
+      var self = this;
+      if (self.relier && self.relier.get('email')) {
+        return 'force_auth';
+      }
+      return 'signin';
     },
 
     showEphemeralMessages: function () {
@@ -164,10 +198,35 @@ function (_, Backbone, $, p, Session, AuthErrors,
      * authorization as well.
      */
     isUserAuthorized: function () {
-      if (this.mustAuth) {
-        return this.fxaClient.isSignedIn(Session.sessionToken);
+      var account;
+
+      if (this.mustAuth || this.mustVerify) {
+        account = this.currentAccount();
+        return !!account && this.fxaClient.isSignedIn(account.sessionToken);
       }
       return true;
+    },
+
+    isUserVerified: function () {
+      var self = this;
+      var account;
+      if (self.mustVerify) {
+        account = self.currentAccount();
+        // If the cached account data shows it hasn't been verified,
+        // check again and update the data if it has.
+        if (! account.verified) {
+          return account.isVerified()
+            .then(function (hasVerified) {
+              if (hasVerified) {
+                account.verified = hasVerified;
+                self.user.setAccount(account);
+              }
+              return hasVerified;
+            });
+        }
+      }
+
+      return p(true);
     },
 
     setTitleFromView: function () {
@@ -495,7 +554,7 @@ function (_, Backbone, $, p, Session, AuthErrors,
         this.ephemeralMessages.set('error', options.error);
       }
 
-      this.router.navigate(page, { trigger: true });
+      this.router.navigate(page, { trigger: true, data: options.data });
     },
 
     /**
@@ -568,6 +627,13 @@ function (_, Backbone, $, p, Session, AuthErrors,
         var err = Strings.interpolate(t('missing search parameter: %(itemName)s'), { itemName: itemName });
         throw new Error(err);
       }
+    },
+
+    /**
+     * Returns the currently logged in account
+     */
+    currentAccount: function () {
+      return this.user.getCurrentAccount();
     }
   });
 

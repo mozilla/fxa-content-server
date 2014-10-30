@@ -101,7 +101,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       var self = this;
       var email = self.email;
       var password = self._getPassword();
-      var relier = self.relier;
       var token = self.token;
       var code = self.code;
 
@@ -113,7 +112,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
-          return self.fxaClient.signIn(email, password, relier);
+          return self.fxaClient.signIn(email, password, self.relier, self.user);
         }).then(function () {
           self.navigate('reset_password_complete');
         })
@@ -141,8 +140,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
     resendResetEmail: function () {
       var self = this;
       return self.fxaClient.passwordReset(self.email, self.relier)
-              .then(function () {
-                self.navigate('confirm_reset_password');
+              .then(function (result) {
+                self.navigate('confirm_reset_password', {
+                  data: {
+                    email: self.email,
+                    passwordForgotToken: result.passwordForgotToken
+                  }
+                });
               }, function (err) {
                 self.displayError(err);
               });

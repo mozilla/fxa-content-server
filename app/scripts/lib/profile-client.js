@@ -16,20 +16,18 @@ define([
 function (xhr, _, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   function ProfileClient(options) {
+    options = options || {};
     this.profileUrl = options.profileUrl;
-
-    // an OAuth access token
-    this.token = options.token;
   }
 
-  ProfileClient.prototype._request = function (path, type, data, headers) {
+  ProfileClient.prototype._request = function (path, type, token, data, headers) {
     var url = this.profileUrl;
 
     var request = {
       url: url + path,
       type: type,
       headers: {
-        Authorization: 'Bearer ' + this.token,
+        Authorization: 'Bearer ' + token,
         Accept: 'application/json'
       }
     };
@@ -58,39 +56,33 @@ function (xhr, _, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   // Returns the user's profile data
   // including: email, uid
-  ProfileClient.prototype.getProfile = function () {
-    return this._request('/v1/profile', 'get');
+  ProfileClient.prototype.getProfile = function (token) {
+    return this._request('/v1/profile', 'get', token);
   };
 
-  ProfileClient.prototype.getAvatar = function () {
-    return this._request('/v1/avatar', 'get');
+  ProfileClient.prototype.getAvatar = function (token) {
+    return this._request('/v1/avatar', 'get', token);
   };
 
-  ProfileClient.prototype.getAvatars = function () {
-    return this._request('/v1/avatars', 'get');
+  ProfileClient.prototype.getAvatars = function (token) {
+    return this._request('/v1/avatars', 'get', token);
   };
 
-  ProfileClient.prototype.postAvatar = function (url, selected) {
-    return this._request('/v1/avatar', 'post', {
+  ProfileClient.prototype.postAvatar = function (token, url, selected) {
+    return this._request('/v1/avatar', 'post', token, {
       url: url,
       selected: selected
     });
   };
 
-  ProfileClient.prototype.deleteAvatar = function (id) {
-    return this._request('/v1/avatar/' + id, 'delete');
+  ProfileClient.prototype.deleteAvatar = function (token, id) {
+    return this._request('/v1/avatar/' + id, 'delete', token);
   };
 
-  ProfileClient.prototype.uploadAvatar = function (data) {
-    return this._request('/v1/avatar/upload', 'post', data, {
+  ProfileClient.prototype.uploadAvatar = function (token, data) {
+    return this._request('/v1/avatar/upload', 'post', token, data, {
       'Content-type': data.type
     });
-  };
-
-  // Returns remote image data
-  // TODO #1581 refactor this to use new remote image proxy
-  ProfileClient.prototype.getRemoteImage = function (url) {
-    return this._request('/v1/remote_image/' + encodeURIComponent(url), 'get');
   };
 
   var t = function (msg) {

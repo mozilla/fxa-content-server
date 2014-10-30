@@ -30,9 +30,9 @@ define([
   'lib/null-metrics',
   'lib/fxa-client',
   'lib/assertion',
-  'lib/profile',
   'lib/constants',
   'lib/oauth-client',
+  'lib/profile-client',
   'lib/auth-errors',
   'lib/channels/inter-tab',
   'models/reliers/relier',
@@ -41,7 +41,9 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/web-channel',
-  'models/auth_brokers/redirect'
+  'models/auth_brokers/redirect',
+  'models/user',
+  'models/account'
 ],
 function (
   _,
@@ -56,9 +58,9 @@ function (
   NullMetrics,
   FxaClient,
   Assertion,
-  Profile,
   Constants,
   OAuthClient,
+  ProfileClient,
   AuthErrors,
   InterTabChannel,
   Relier,
@@ -67,7 +69,9 @@ function (
   BaseAuthenticationBroker,
   FxDesktopAuthenticationBroker,
   WebChannelAuthenticationBroker,
-  RedirectAuthenticationBroker
+  RedirectAuthenticationBroker,
+  User,
+  Account
 ) {
 
   function isMetricsCollectionEnabled(sampleRate) {
@@ -138,6 +142,8 @@ function (
                     .then(_.bind(this.initializeAuthenticationBroker, this))
                     // profileClient dependsd on fxaClient and assertionLibrary
                     .then(_.bind(this.initializeProfileClient, this))
+                    // user depends on the profileClient, oAuthClient, and assertionLibrary.
+                    .then(_.bind(this.initializeUser, this))
                     // metrics depends on the relier.
                     .then(_.bind(this.initializeMetrics, this))
                     // router depends on all of the above
@@ -166,9 +172,15 @@ function (
     },
 
     initializeOAuthClient: function () {
-      if (this._isOAuth()) {
-        this._oAuthClient = new OAuthClient();
-      }
+      this._oAuthClient = new OAuthClient({
+        oauthUrl: this._config.oauthUrl
+      });
+    },
+
+    initializeProfileClient: function () {
+      this._profileClient = new ProfileClient({
+        profileUrl: this._config.profileUrl
+      });
     },
 
     initializeRelier: function () {
@@ -201,7 +213,8 @@ function (
 
     initializeAssertionLibrary: function () {
       this._assertionLibrary = new Assertion({
-        fxaClient: this._fxaClient
+        fxaClient: this._fxaClient,
+        audience: this._config.oauthUrl
       });
     },
 
@@ -242,20 +255,72 @@ function (
     initializeFxaClient: function () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
-          relier: this._relier,
           interTabChannel: this._interTabChannel
         });
       }
     },
 
-    initializeProfileClient: function () {
-      if (! this._profileClient) {
-        this._profileClient = new Profile({
-          config: this._config,
+    initializeUser: function () {
+      if (! this._user) {
+        this._user = new User({
+          oAuthClientId: this._config.oauthClientId,
+          profileClient: this._profileClient,
+          oAuthClient: this._oAuthClient,
           assertion: this._assertionLibrary
         });
       }
     },
+
+    // Old sessions store two accounts: The last account the
+    // user logged in to FxA with, and the account they logged in to
+    // Sync with. If they are different accounts, we'll save both accounts.
+    upgradeOldSession: function () {
+      var self = this;
+      var fxaClient = this._fxaClient;
+
+      return this._user.getCurrentAccount()
+        .then(function (currentAccount) {
+          // We've already using the upgraded session
+          if (currentAccount) {
+            return;
+          }
+
+          var promise = p();
+
+          // add cached Sync account credentials if available
+          if (Session.cachedCredentials) {
+            promise = self._user.setCurrentAccount(new Account({
+              email: Session.cachedCredentials.email,
+              sessionToken: Session.scachedCredentials.essionToken,
+              sessionTokenContext: Session.cachedCredentials.sessionTokenContext,
+              uid: Session.uid
+            }));
+          }
+
+          // Add the last signed in account (if it's different from the Sync account).
+          // If the email is the same we assume it's the same account since users can't change email yet.
+          if (Session.email && Session.sessionToken &&
+              (! Session.cachedCredentials || Session.cachedCredentials.email !== Session.email)) {
+
+            promise = promise
+              // The uid was not persisted in localStorage so get it from the auth server
+              .then(_.bind(fxaClient.sessionStatus, fxaClient, Session.sessionToken))
+              .then(function (result) {
+                return self._user.setCurrentAccount(new Account({
+                  email: Session.email,
+                  sessionToken: Session.sessionToken,
+                  sessionTokenContext: Session.sessionTokenContext,
+                  uid: result.uid
+                }));
+              }, function () {
+                // if there's an error, just ignore the account
+              });
+          }
+
+          return promise;
+        });
+    },
+
 
     initializeRouter: function () {
       if (! this._router) {
@@ -265,7 +330,7 @@ function (
           relier: this._relier,
           broker: this._authenticationBroker,
           fxaClient: this._fxaClient,
-          profileClient: this._profileClient,
+          user: this._user,
           interTabChannel: this._interTabChannel
         });
       }
