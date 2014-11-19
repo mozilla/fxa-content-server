@@ -18,6 +18,7 @@ define([
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var AVATAR_URL = config.fxaContentRoot + 'settings/avatar';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
@@ -86,6 +87,34 @@ define([
         .end();
     },
 
+    'go to settings then click on avatar to change': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+
+        // go to change avatar
+        .findByCssSelector('a.change-avatar')
+          .click()
+        .end()
+
+        // success is going to the change avatar page
+        .findById('avatar-options')
+        .end();
+    },
+
+    'go to settings then click on text link to change': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+
+        // go to change avatar
+        .findByCssSelector('p.change-avatar-text a')
+          .click()
+        .end()
+
+        // success is going to the change avatar page
+        .findById('avatar-options')
+        .end();
+    },
+
     'visit gravatar with gravatar set': function () {
       return this.get('remote')
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
@@ -111,8 +140,8 @@ define([
           })
         .end()
 
-        // redirected back to main avatar page after save
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end()
 
         // check for an image with the gravatar url
@@ -163,8 +192,8 @@ define([
           .click()
         .end()
 
-        // redirected back to main avatar page after error
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end()
 
         // success is seeing the error text
@@ -189,8 +218,8 @@ define([
           .click()
         .end()
 
-        // success is returning to the avatar page with the change link
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end();
     },
 
@@ -243,8 +272,8 @@ define([
           .click()
         .end()
 
-        //success is returning to the avatar page with the change link
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end();
 
     },

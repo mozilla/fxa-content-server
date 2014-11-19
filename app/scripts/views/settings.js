@@ -76,7 +76,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.currentAccount());
+      return this._displayProfileImage(this.currentAccount(), '.avatar-wrapper a.change-avatar');
     }
   });
 
