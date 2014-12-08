@@ -96,6 +96,12 @@ var conf = module.exports = convict({
     default: 'http://127.0.0.1:9000',
     env: 'FXA_URL'
   },
+  ab_url: {
+    doc: 'The url to the AB test server',
+    format: 'url',
+    default: undefined,
+    env: 'AB_URL'
+  },
   api_proxy: {
     enabled: {
       doc: 'Set to true to listen for requests to API servers at the configured endpoint',
@@ -261,6 +267,9 @@ if (!conf.has('public_url')) {
   conf.set('public_url', 'https://' + conf.get('issuer'));
 }
 
+if (!conf.has('ab_url')) {
+  conf.set('ab_url', conf.get('public_url'))
+}
 
 // For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var

@@ -44,7 +44,8 @@ define([
     'marketingLink',
     'marketingType',
     'marketingClicked',
-    'screen'
+    'screen',
+    'ab'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -140,7 +141,8 @@ define([
         entrypoint: this._entrypoint,
         marketingType: this._marketingType || 'none',
         marketingLink: this._marketingLink || 'none',
-        marketingClicked: this._marketingClicked || false
+        marketingClicked: this._marketingClicked || false,
+        ab: AB.report()
       }, loadData, unloadData);
 
       return allData;

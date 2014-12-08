@@ -42,9 +42,13 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     },
 
     context: function () {
+      var email = this.currentAccount().get('email');
+      var avatarLinkVisible = AB.choose('avatarLinkVisible', { email: email })
       return {
-        email: this.currentAccount().get('email'),
-        showSignOut: !this.currentAccount().isFromSync()
+        email: email,
+        showSignOut: !this.currentAccount().isFromSync(),
+        avatarLinkVisible: avatarLinkVisible,
+        avatarLinkPath: avatarLinkVisible ? '/settings/avatar/change' : '#'
       };
     },
 

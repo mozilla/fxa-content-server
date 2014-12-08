@@ -12,6 +12,10 @@ var config = require('./configuration');
 
 var cspMiddleware = helmet.csp({
                       'default-src': ['\'self\''],
+                      'script-src': [
+                        '\'self\'',
+                        config.get('ab_url')
+                      ],
                       'connect-src': [
                         '\'self\'',
                         config.get('fxaccount_url'),
