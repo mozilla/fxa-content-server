@@ -62,12 +62,14 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
                 // user's session is gone
                 self.user.clearSignedInAccount();
                 Session.clear();
+                self.model.clear();
               }, function () {
                 // Clear the session, even on failure. Everything is A-OK.
                 // See issue #616
                 // - https://github.com/mozilla/fxa-content-server/issues/616
                 self.user.clearSignedInAccount();
                 Session.clear();
+                self.model.clear();
               })
               .then(function () {
                 self.navigate('signin', {

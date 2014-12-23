@@ -21,13 +21,14 @@ define([
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
+  'models/form',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, Relier, Broker, User, RouterMock, WindowMock,
-      TestHelpers) {
+      FxaClient, EphemeralMessages, Relier, Broker, User, Form, RouterMock,
+      WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -72,6 +73,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var broker;
     var ephemeralMessages;
     var user;
+    var form;
 
     var now = new Date();
     var CURRENT_YEAR = now.getFullYear();
@@ -90,6 +92,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
       user = new User();
+      form = new Form();
 
       view = new View({
         router: router,
@@ -100,7 +103,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         relier: relier,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
-        screenName: 'signup'
+        screenName: 'signup',
+        model: form
       });
 
       return view.render()
@@ -120,10 +124,10 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     });
 
     describe('render', function () {
-      it('prefills email, password, and year if stored in Session (user comes from signup with existing account)', function () {
-        Session.set('prefillEmail', 'testuser@testuser.com');
-        Session.set('prefillPassword', 'prefilled password');
-        Session.set('prefillYear', '1990');
+      it('prefills email, password, and year if stored in form model (user comes from signup with existing account)', function () {
+        form.set('email', 'testuser@testuser.com');
+        form.set('password', 'prefilled password');
+        form.set('year', '1990');
 
         return view.render()
             .then(function () {
@@ -131,15 +135,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
               assert.ok(view.$('#fxa-1990').is(':selected'));
-            });
-      });
-
-      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
-        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
 

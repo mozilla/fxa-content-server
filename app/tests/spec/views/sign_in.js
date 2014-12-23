@@ -18,13 +18,15 @@ define([
   'lib/constants',
   'models/reliers/relier',
   'models/user',
+  'models/form',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Constants, Relier, User, Broker, WindowMock, RouterMock, TestHelpers) {
+      Constants, Relier, User, Form, Broker, WindowMock, RouterMock,
+      TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -38,6 +40,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     var relier;
     var broker;
     var user;
+    var form;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -51,6 +54,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       broker = new Broker();
       user = new User();
       fxaClient = new FxaClient();
+      form = new Form();
 
       initView();
 
@@ -78,14 +82,15 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         user: user,
         relier: relier,
         broker: broker,
-        screenName: 'signin'
+        screenName: 'signin',
+        model: form
       });
     }
 
     describe('render', function () {
-      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
-        Session.set('prefillEmail', 'testuser@testuser.com');
-        Session.set('prefillPassword', 'prefilled password');
+      it('prefills email and password if stored in form model (user comes from signup with existing account)', function () {
+        form.set('email', 'testuser@testuser.com');
+        form.set('password', 'prefilled password');
 
         initView();
         return view.render()
@@ -123,16 +128,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
               assert.ok($('#fxa-signin-header').length);
               assert.equal(view.$('.prefill').html(), 'a@a.com');
               assert.equal(view.$('[type=password]').val(), '');
-            });
-      });
-
-      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
-        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
-
-        initView();
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
     });
@@ -398,7 +393,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('_suggestedAccount', function () {
-      it('can suggest the user based on session variables', function () {
+      it('can suggest the user based on form model variables', function () {
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no account set');
 
         sinon.stub(user, 'getChooserAccount', function () {
@@ -414,13 +409,13 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no session token set');
 
         user.getChooserAccount.restore();
-        view.prefillEmail = 'a@a.com';
+        form.set('email', 'a@a.com');
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ sessionToken: 'abc123', email: 'b@b.com' });
         });
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when prefill does not match');
 
-        delete view.prefillEmail;
+        form.unset('email');
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ sessionToken: 'abc123', email: 'a@a.com' });
@@ -471,8 +466,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('does not show if there is an email in query params that does not match', function () {
-        windowMock.location.search = '?email=b@b.com';
+      it('does not show if there is an email in form model that does not match', function () {
+        form.set('email', 'b@b.com');
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',

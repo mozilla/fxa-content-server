@@ -19,13 +19,14 @@ define([
   'lib/ephemeral-messages',
   'models/reliers/relier',
   'models/user',
+  'models/form',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       Constants, Metrics, EphemeralMessages, Relier,
-      User, NullBroker, WindowMock, TestHelpers) {
+      User, Form, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -39,6 +40,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     var relier;
     var broker;
     var user;
+    var form;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -52,6 +54,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         window: windowMock
       });
       user = new User();
+      form = new Form();
 
       broker = new NullBroker();
 
@@ -126,7 +129,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: 'signin'
+          screenName: 'signin',
+          model: form
         });
         signUpView = new SignUpView({
           metrics: metrics,
@@ -135,7 +139,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: 'signup'
+          screenName: 'signup',
+          model: form
         });
       });
 
@@ -171,7 +176,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
           relier: relier,
-          screenName: 'signup'
+          screenName: 'signup',
+          model: form
         });
       });
 
@@ -241,7 +247,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           broker: broker,
           type: 'sign_up',
-          screenName: 'signup-complete'
+          screenName: 'signup-complete',
+          model: form
         });
 
         return router.showView(view)

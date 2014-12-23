@@ -10,19 +10,19 @@ define([
   'chai',
   'sinon',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
   'views/reset_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/form',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, Broker, WindowMock, RouterMock, TestHelpers) {
+function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View,
+      Relier, Broker, Form, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -33,6 +33,7 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var fxaClient;
     var relier;
     var broker;
+    var form;
 
     function createView(options) {
       var viewOptions = _.extend({
@@ -41,7 +42,8 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        canGoBack: true
+        canGoBack: true,
+        model: form
       }, options || {});
       return new View(viewOptions);
     }
@@ -54,6 +56,7 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier
       });
       fxaClient = new FxaClient();
+      form = new Form();
 
       view = createView();
       return view.render()
@@ -77,8 +80,8 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         assert.ok($('#fxa-reset-password-header').length);
       });
 
-      it('pre-fills email addresses from Session.prefillEmail', function () {
-        Session.set('prefillEmail', 'prefilled@testuser.com');
+      it('pre-fills email addresses from the form model', function () {
+        form.set('email', 'prefilled@testuser.com');
         return view.render()
           .then(function () {
             assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
@@ -213,24 +216,28 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     });
   });
 
-  describe('views/reset_password with email specified as query param', function () {
+  describe('views/reset_password with canGoBack: false', function () {
     var view;
     var windowMock;
     var relier;
     var broker;
+    var form;
 
     beforeEach(function () {
       windowMock = new WindowMock();
-      windowMock.location.search = '?email=testuser@testuser.com';
       relier = new Relier();
       broker = new Broker({
         relier: relier
       });
+      form = new Form();
+      form.set('email', 'testuser@testuser.com');
 
       view = new View({
         window: windowMock,
         broker: broker,
-        relier: relier
+        relier: relier,
+        model: form,
+        canGoBack: false
       });
       return view.render()
           .then(function () {

@@ -75,6 +75,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/password-mixin',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
+    '../tests/spec/models/form',
     '../tests/spec/models/reliers/base',
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/oauth',

@@ -18,10 +18,11 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'models/reliers/relier',
-  'models/user'
+  'models/user',
+  'models/form'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      Constants, FxaClient, p, Relier, User) {
+      Constants, FxaClient, p, Relier, User, Form) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -31,6 +32,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
     var fxaClient;
     var relier;
     var user;
+    var form;
     var account;
     var UID = 'uid';
 
@@ -46,12 +48,14 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         sessionToken: 'abc123',
         verified: true
       });
+      form = new Form();
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
         relier: relier,
-        user: user
+        user: user,
+        model: form
       });
 
       sinon.stub(user, 'getSignedInAccount', function () {
@@ -97,7 +101,8 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           router: routerMock,
           fxaClient: fxaClient,
           relier: relier,
-          user: user
+          user: user,
+          model: form
         });
 
         return view.render()
@@ -124,7 +129,8 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           router: routerMock,
           fxaClient: fxaClient,
           relier: relier,
-          user: user
+          user: user,
+          model: form
         });
 
         return view.render()

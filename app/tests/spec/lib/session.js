@@ -91,12 +91,12 @@ function (chai, Session) {
       });
 
       it('does not load up items in DO_NOT_PERSIST', function () {
-        var prefillPassword = 'password';
-        Session.set('prefillPassword', prefillPassword);
+        var error = 'an error';
+        Session.set('error', error);
         Session.persist();
         Session.clear();
         Session.load();
-        assert.isUndefined(Session.prefillPassword);
+        assert.isUndefined(Session.error);
       });
     });
   });
