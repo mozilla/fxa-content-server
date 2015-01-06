@@ -1,3 +1,12 @@
+<a name="0.28.1"></a>
+### 0.28.1 (2015-01-06)
+
+
+#### Bug Fixes
+
+* **tests:** better functional tests for age dropdowns ([2876a837](https://github.com/mozilla/fxa-content-server/commit/2876a837d7fbc4a3ce6a91d01952dbb3dcf3663f))
+
+
 <a name="0.28.0"></a>
 ## 0.28.0 (2015-01-05)
 
