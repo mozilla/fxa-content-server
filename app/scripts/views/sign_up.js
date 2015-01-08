@@ -96,13 +96,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     context: function () {
-      // Session.prefillEmail comes first because users can edit the email,
-      // go to another screen, edit the email again, and come back here. We
-      // want the last used email.
-      var email = Session.prefillEmail || this.searchParam('email');
+      var email = this.model.get('email');
+      var password = this.model.get('password');
 
       var autofocusEl = selectAutoFocusEl(
-        this._bouncedEmail, email, Session.prefillPassword);
+        this._bouncedEmail, email, password);
 
       return {
         serviceName: this.relier.get('serviceName'),
@@ -110,8 +108,8 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         isCustomizeSyncChecked: this.relier.isCustomizeSyncChecked(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: email,
-        password: Session.prefillPassword,
-        year: Session.prefillYear || 'none',
+        password: password,
+        year: this.model.get('year') || 'none',
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year',
@@ -120,9 +118,10 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     beforeDestroy: function () {
-      Session.set('prefillEmail', this.$('.email').val());
-      Session.set('prefillPassword', this.$('.password').val());
-      Session.set('prefillYear', this.$('#fxa-age-year').val());
+      var model = this.model;
+      model.set('email', this.getElementValue('.email'));
+      model.set('password', this.getElementValue('.password'));
+      model.set('year', this.getElementValue('#fxa-age-year'));
     },
 
     submitOnEnter: function (event) {
@@ -396,8 +395,8 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     _selectPrefillYear: function () {
-      if (Session.prefillYear) {
-        this.$('#fxa-' + Session.prefillYear).attr('selected', 'selected');
+      if (this.model.has('year')) {
+        this.$('#fxa-' + this.model.get('year')).attr('selected', 'selected');
       }
     }
   });

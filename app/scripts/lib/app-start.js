@@ -45,6 +45,7 @@ define([
   'models/auth_brokers/redirect',
   'models/auth_brokers/iframe',
   'models/user',
+  'models/form',
   'views/close_button'
 ],
 function (
@@ -75,6 +76,7 @@ function (
   RedirectAuthenticationBroker,
   IframeAuthenticationBroker,
   User,
+  Form,
   CloseButtonView
 ) {
 
@@ -139,6 +141,8 @@ function (
                     // both the metrics and router depend on the language
                     // fetched from config.
                     .then(_.bind(this.initializeRelier, this))
+                    // formModel relies on the relier
+                    .then(_.bind(this.initializeFormModel, this))
                     // fxaClient depends on the relier and
                     // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
@@ -164,6 +168,12 @@ function (
     useConfig: function (config) {
       this._config = config;
       this._configLoader.useConfig(config);
+    },
+
+    initializeFormModel: function () {
+      this._formModel = new Form({
+        email: this._relier.get('email')
+      });
     },
 
     initializeL10n: function () {
@@ -315,7 +325,8 @@ function (
           broker: this._authenticationBroker,
           fxaClient: this._fxaClient,
           user: this._user,
-          interTabChannel: this._interTabChannel
+          interTabChannel: this._interTabChannel,
+          formModel: this._formModel
         });
       }
       this._window.router = this._router;

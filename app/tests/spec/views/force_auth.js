@@ -16,12 +16,13 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
+  'models/form',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
-      User, WindowMock, RouterMock, TestHelpers) {
+      User, Form, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -33,6 +34,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
     var relier;
     var broker;
     var user;
+    var form;
 
     describe('missing email address', function () {
       beforeEach(function () {
@@ -43,6 +45,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         broker = new Broker();
         fxaClient = new FxaClient();
         user = new User();
+        form = new Form();
 
         Session.clear();
         view = new View({
@@ -50,7 +53,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
           fxaClient: fxaClient,
           user: user,
           relier: relier,
-          broker: broker
+          broker: broker,
+          model: form
         });
         return view.render()
             .then(function () {
@@ -136,16 +140,17 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
     describe('with email', function () {
       beforeEach(function () {
         email = TestHelpers.createEmail();
-        Session.set('prefillPassword', 'password');
 
         windowMock = new WindowMock();
-        windowMock.location.search = '?email=' + encodeURIComponent(email);
         relier = new Relier();
         relier.set('email', email);
         broker = new Broker();
         fxaClient = new FxaClient();
         router = new RouterMock();
         user = new User();
+        form = new Form();
+        form.set('email', email);
+        form.set('password', 'password');
 
         view = new View({
           window: windowMock,
@@ -153,7 +158,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
           fxaClient: fxaClient,
           user: user,
           relier: relier,
-          broker: broker
+          broker: broker,
+          model: form
         });
         return view.render()
             .then(function () {

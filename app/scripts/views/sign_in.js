@@ -29,12 +29,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     className: 'sign-in',
 
     beforeRender: function () {
-      // Session.prefillEmail comes first because users can edit the email,
-      // go to another screen, edit the email again, and come back here. We
-      // want the last used email. Session.prefillEmail is not until after
-      // the view initializes.
-      this.prefillEmail = Session.prefillEmail || this.searchParam('email');
-
       this._account = this._suggestedAccount();
     },
 
@@ -46,7 +40,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = hasSuggestedAccount ?
-                    suggestedAccount.get('email') : this.prefillEmail;
+                    suggestedAccount.get('email') : this.model.get('email');
 
       return {
         serviceName: this.relier.get('serviceName'),
@@ -54,7 +48,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         email: email,
         suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
-        password: Session.prefillPassword,
+        password: this.model.get('password'),
         error: this.error
       };
     },
@@ -77,8 +71,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     },
 
     beforeDestroy: function () {
-      Session.set('prefillEmail', this.getElementValue('.email'));
-      Session.set('prefillPassword', this.getElementValue('.password'));
+      this.model.set('email', this.getElementValue('.email'));
+      this.model.set('password', this.getElementValue('.password'));
     },
 
     submit: function () {
@@ -245,7 +239,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         // confirm that session email is present
         account.get('email') && account.get('sessionToken') &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === account.get('email') || ! this.prefillEmail)
+        (this.model.get('email') === account.get('email') || ! this.model.has('email'))
       ) {
         return account;
       } else {
@@ -273,7 +267,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       // shows when 'chooserAskForPassword' already set or
       return !!(this.chooserAskForPassword === true ||
           // or when a prefill email does not match the account email
-          (this.prefillEmail && this.prefillEmail !== account.get('email')));
+          (this.model.has('email') && this.model.get('email') !== account.get('email')));
     }
   });
 

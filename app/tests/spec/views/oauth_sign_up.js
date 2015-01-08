@@ -19,12 +19,13 @@ define([
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
+  'models/form',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
-      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, WindowMock,
+      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, Form, WindowMock,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
 
@@ -64,6 +65,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     var relier;
     var broker;
     var user;
+    var form;
 
     beforeEach(function () {
       Session.clear();
@@ -103,6 +105,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         fxaClient: fxaClient
       });
       user = new User();
+      form = new Form();
 
       view = new View({
         router: router,
@@ -114,7 +117,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         user: user,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        screenName: 'oauth.signup'
+        screenName: 'oauth.signup',
+        model: form
       });
 
       return view.render()

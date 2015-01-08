@@ -177,7 +177,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
       Session.clear();
-      Session.set('prefillEmail', self._email);
+      this.model.set('email', self._email);
       self.navigate(self._getSignInRoute(), {
         success: t('Password reset. Sign in to continue.')
       });
@@ -258,7 +258,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
     },
 
     savePrefillEmailForSignin: function () {
-      Session.set('prefillEmail', this._email);
+      this.model.set('email', this._email);
     }
   });
 

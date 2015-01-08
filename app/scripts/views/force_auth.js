@@ -22,10 +22,6 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     initialize: function (options) {
       options = options || {};
 
-      // The session is cleared just after this. Store
-      // the prefillPassword so it can be inserted into the DOM.
-      this._prefillPassword = Session.prefillPassword;
-
       // forceAuth means a user must sign in as a specific user.
       // kill the user's local session.
       Session.clear();
@@ -41,7 +37,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
 
       return {
         email: email,
-        password: this._prefillPassword,
+        password: this.model.get('password'),
         fatalError: fatalError,
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
@@ -54,7 +50,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     },
 
     beforeDestroy: function () {
-      Session.set('prefillPassword', this.$('.password').val());
+      this.model.set('password', this.getElementValue('.password'));
     },
 
     submit: function () {
