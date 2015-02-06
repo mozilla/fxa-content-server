@@ -101,6 +101,14 @@ define([
 
     afterLoaded: function () {
       return this.send('loaded');
+    },
+
+    beforeSignUpConfirmationPoll: function () {
+      // `signup` is used to notify reliers that the user
+      // has initiated a signup. It does not expect a response.
+      this.send('signup');
+
+      return p();
     }
   });
 
