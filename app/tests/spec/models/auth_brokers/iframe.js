@@ -142,6 +142,15 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
       });
     });
 
+    describe('beforeSignUpConfirmationPoll', function () {
+      it('sends a `signup` message', function () {
+        return broker.beforeSignUpConfirmationPoll()
+          .then(function () {
+            assert.isTrue(channelMock.send.calledWith('signup'));
+          });
+      });
+    });
+
   });
 });
 
