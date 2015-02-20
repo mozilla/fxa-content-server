@@ -1,3 +1,12 @@
+<a name="0.31.1"></a>
+### 0.31.1 (2015-02-20)
+
+
+#### Bug Fixes
+
+* **avatars:** fix avatar image uploads ([fbaee5e3](https://github.com/mozilla/fxa-content-server/commit/fbaee5e37da85ae1327054d300d40ce79b4cb2b2))
+
+
 <a name="0.31.0"></a>
 ## 0.31.0 (2015-02-17)
 
