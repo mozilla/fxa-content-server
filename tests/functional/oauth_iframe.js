@@ -205,7 +205,8 @@ define([
           return self.get('remote').get(require.toUrl(verificationLink));
         })
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
+        // verification link is ultimately redirected back to 123done
+        .findByCssSelector('#loggedin')
         .end();
     },
 
@@ -395,7 +396,8 @@ define([
               self, PASSWORD, PASSWORD);
         })
 
-        .findByCssSelector('#fxa-reset-password-complete-header')
+        // verification link is ultimately redirected back to 123done
+        .findByCssSelector('#loggedin')
         .end();
     },
 
