@@ -34,6 +34,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
   function displaySuccess(displayStrategy, msg) {
     /*jshint validthis: true*/
     this.hideError();
+    this.$('.spinner').hide();
 
     if (msg) {
       this.$('.success')[displayStrategy](this.translator.get(msg));
@@ -144,7 +145,9 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
           return p().then(function () {
             self.destroySubviews();
 
-            self.$el.html(self.template(self.getContext()));
+            if (self.template) {
+              self.$el.html(self.template(self.getContext()));
+            }
           })
           .then(_.bind(self.afterRender, self))
           .then(function () {

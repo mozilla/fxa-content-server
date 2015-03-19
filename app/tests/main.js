@@ -8,5 +8,4 @@ require([
 ],
 function () {
   'use strict';
-  // don't need to do anything.
 });

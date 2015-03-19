@@ -898,6 +898,38 @@ input[type="text"] {
       text-decoration: underline;
     }
   }
+
+  &.newsletter-optin {
+    padding-left: 90px;
+    text-align: left;
+
+    input[type=checkbox] {
+      float: left;
+      margin-left: -30px;
+      margin-top: 5px;
+    }
+
+    label {
+      font-size: 18px;
+    }
+
+    .light {
+      color: $newsletter-tospp-color;
+      font-size: 16px;
+      margin-bottom: 0;
+
+      a {
+        color: $newsletter-tospp-color;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &.newsletter-optin ~ .error, 
+  &.newsletter-optin ~ .success {
+    // .error and .success already have the position: relative style applied.
+    top: 90px;
+  }
 }
 
 .reset-warning {

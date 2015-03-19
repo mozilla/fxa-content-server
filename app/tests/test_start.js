@@ -82,6 +82,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',
     '../tests/spec/views/mixins/account-locked-mixin',
+    '../tests/spec/views/snippets/newsletter_optin',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
     '../tests/spec/models/form-prefill',
