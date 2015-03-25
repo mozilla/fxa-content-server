@@ -5,6 +5,7 @@
   text-align: center;
 
 
+
   @include respond-to('big') {
     border-radius: $big-border-radius;
     box-shadow: 0 1px 5px $input-row-border-color;
@@ -47,7 +48,10 @@
 }
 
 #stage {
-  .js & {
+  opacity: 0;
+  display: block;
+
+    js & {
     display: none;
   }
 
