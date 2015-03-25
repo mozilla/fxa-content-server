@@ -43,6 +43,7 @@ $small-border-radius: 2px;
 $big-border-radius: $small-border-radius * 2;
 
 //Animation Variables
+$instant-transition: 0ms;
 $short-transition: 150ms;
 $medium-transition: $short-transition * 3;
 $long-transition: $short-transition * 7;
