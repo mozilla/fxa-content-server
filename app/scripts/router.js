@@ -210,7 +210,7 @@ function (
           // Render the new view and explicitly set the `display: block`
           // using .css. When embedded in about:accounts, the content
           // is not yet visible and show will not display the element.
-          $('#stage').html(viewToShow.el).css('display', 'block');
+          $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', '1');
           viewToShow.afterVisible();
 
           viewToShow.logScreen();
@@ -223,7 +223,7 @@ function (
           var name = self.currentView.el.className;
 
           if (name === 'sign-in' || name === 'sign-up') {
-            self.$logo.addClass('fade-down-logo');
+            self.$logo.addClass('fade-in-forward');
           }
 
           self.$logo.css('opacity', 1);
