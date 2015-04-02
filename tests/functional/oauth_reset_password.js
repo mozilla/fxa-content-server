@@ -58,6 +58,7 @@ define([
 
     'reset password, verify same browser': function () {
       var self = this;
+      self.timeout = 90000;
 
       return FunctionalHelpers.openFxaFromRp(self, 'signin')
         .getCurrentUrl()
@@ -101,10 +102,6 @@ define([
           return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
         })
 
-        // this tab's success is seeing the reset password complete header.
-        .findByCssSelector('#fxa-reset-password-complete-header')
-        .end()
-
         .findByCssSelector('.account-ready-service')
         .getVisibleText()
         .then(function (text) {
@@ -117,9 +114,10 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+        .sleep(2000)
 
         // the original tab should automatically sign in
-        .findByCssSelector('#loggedin')
+        .then(FunctionalHelpers.visibleByQSA('#loggedin'))
         .end();
     },
 

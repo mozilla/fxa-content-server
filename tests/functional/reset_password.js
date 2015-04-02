@@ -328,6 +328,7 @@ define([
 
     'reset password, verify same browser': function () {
       var self = this;
+      self.timeout = 90 * 1000;
 
       return FunctionalHelpers.fillOutResetPassword(self, email)
 
@@ -357,6 +358,7 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
+        .sleep(2000)
 
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
@@ -506,6 +508,7 @@ define([
           return FunctionalHelpers.fillOutResetPassword(self, email)
             .findById('fxa-confirm-reset-password-header')
             .end()
+            .setFindTimeout(intern.config.pageLoadTimeout)
 
             .then(function () {
               return FunctionalHelpers.openVerificationLinkSameBrowser(
@@ -530,11 +533,9 @@ define([
             .closeCurrentWindow()
             // switch to the original window
             .switchToWindow('')
+            .sleep(2000)
 
             .findByCssSelector('#fxa-settings-header')
-            .end()
-
-            .then(FunctionalHelpers.visibleByQSA('.success'))
             .end()
 
             .findByCssSelector('#signout')
