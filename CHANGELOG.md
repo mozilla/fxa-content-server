@@ -1,3 +1,12 @@
+<a name="0.34.1"></a>
+### 0.34.1 (2015-04-02)
+
+
+#### Bug Fixes
+
+* **auth-broker:** fixes fx-desktop channel tests for FF18 and FxOS 1.* ([b1a27619](https://github.com/mozilla/fxa-content-server/commit/b1a2761924acfefbd08c42f576ae02629be3f20e))
+
+
 <a name="0.34.0"></a>
 ## 0.34.0 (2015-03-31)
 
