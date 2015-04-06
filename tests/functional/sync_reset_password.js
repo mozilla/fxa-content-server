@@ -63,8 +63,9 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'sync reset password, verify same browswer': function () {
+    'sync reset password, verify same browser': function () {
       var self = this;
+      self.timeout = 90 * 1000;
 
       // verify account
       return self.get('remote')
@@ -110,7 +111,7 @@ define([
         .closeCurrentWindow()
         // switch to the original window
         .switchToWindow('')
-        .end()
+        .sleep(2000)
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
         .end()
