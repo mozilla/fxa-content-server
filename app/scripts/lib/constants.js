@@ -47,7 +47,7 @@ define([], function () {
 
     ONERROR_MESSAGE_LIMIT: 100,
 
-    PROFILE_WEBCHANNEL_ID: 'account_updates'
+    PROFILE_WEBCHANNEL_ID: 'fx_accounts'
   };
 });
 
