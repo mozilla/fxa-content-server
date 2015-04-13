@@ -19,6 +19,62 @@ define([
 
   var View = BaseView.extend({
     template: Template,
+    appStoreImageLanguages: [
+      'da',
+      'de',
+      'en',
+      'es',
+      'et',
+      'fr',
+      'he',
+      'hu',
+      'id',
+      'it',
+      'ja',
+      'ko',
+      'lt',
+      'nb-NO',
+      'nl',
+      'pl',
+      'pt-BR',
+      'pt',
+      'ru',
+      'sk',
+      'sl',
+      'sv-SE',
+      'tr',
+      'zh-CN',
+      'zh-TW'
+    ],
+    playStoreImageLanguages: [
+      'ca',
+      'cs',
+      'da',
+      'de',
+      'en',
+      'es',
+      'et',
+      'fr',
+      'hu',
+      'id',
+      'it',
+      'ja',
+      'ko',
+      'lt',
+      'nb-NO',
+      'nl',
+      'pl',
+      'pt-BR',
+      'pt',
+      'ru',
+      'sk',
+      'sl',
+      'sv',
+      'tr',
+      'uk',
+      'zh-CN',
+      'zh-TW'
+    ],
 
     initialize: function (options) {
       options = options || {};
@@ -30,9 +86,22 @@ define([
 
     context: function () {
       var shouldShowMarketing = this._shouldShowSignUpMarketing();
+      var iosUser = this._isIosUser();
+      var androidUser = this._isAndroidUser();
+      // app store link will not be ready before push, so this will
+      // need to come from settings or something?
+      var appStoreLink = 'http://giphy.com/gifs/the-simpsons-internet-fJKG1UTK7k64w';
+      var appStoreImage = this._appStoreImage();
+      var playStoreImage = this._playStoreImage();
 
       return {
-        showSignUpMarketing: shouldShowMarketing
+        showSignUpMarketing: shouldShowMarketing,
+        isiOS: iosUser,
+        isAndroid: androidUser,
+        isOther: (!iosUser && !androidUser),
+        appStoreLink: appStoreLink,
+        appStoreImage: appStoreImage,
+        playStoreImage: playStoreImage
       };
     },
 
@@ -43,7 +112,6 @@ define([
     afterRender: function () {
       var marketingType = this.$('[data-marketing-type]').attr('data-marketing-type');
       var marketingLink = this.$('.marketing-link').attr('href');
-
 
       this.metrics.logMarketingImpression(marketingType, marketingLink);
     },
@@ -72,12 +140,53 @@ define([
       return isMobileFirefox || isTabletFirefox;
     },
 
+    _isIosUser: function() {
+      var plat = this.window.navigator.platform;
+
+      if (plat.indexOf('iPhone') !== -1 || plat.indexOf('iPad') !== -1 || plat.indexOf('iPod') !== -1 ) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    _isAndroidUser: function() {
+      return /android/i.test(this.window.navigator.userAgent);
+    },
+
     _logMarketingClick: function () {
       this.metrics.logMarketingClick();
+    },
+
+    _appStoreImage: function() {
+      // fall back to en image if user's language is not supported
+      var buttonLang = (this.appStoreImageLanguages.indexOf(this._language) > -1) ? this._language : 'en';
+
+      return '/images/apple_app_store_button/' + buttonLang + '.svg';
+    },
+
+    _playStoreImage: function() {
+      var buttonPath = (this.playStoreImageLanguages.indexOf(this._language) > -1) ? this._language : 'en';
+
+      if (this._isHighRes()) {
+        buttonPath += '@2x';
+      }
+
+      return '/images/google_play_store_button/' + buttonPath + '.png';
+    },
+
+    _isHighRes: function() {
+      if (this.window.matchMedia) {
+        if (this.window.matchMedia('(-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx), (min-resolution: 144dpi)')) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
     }
   });
 
   return View;
 });
-
-

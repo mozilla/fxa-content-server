@@ -1,9 +1,34 @@
   {{#showSignUpMarketing}}
-    <aside class="marketing desktop image-snippet default" data-marketing-type="android-sync">
-      <div class="marketing-spacer">
-        <span class="android-logo" />
-        <span class="marketing-copy">{{#t}}Stay in sync on the go:{{/t}}</span>
-        <a class="marketing-link" href="http://mzl.la/KBozcn" target="_blank">{{#t}}Get Firefox for Android{{/t}}</a>
-      </div>
+    <aside class="marketing desktop text-snippet default" data-marketing-type="android-sync">
+      {{#isiOS}}
+        <p>
+          {{#t}}Get the full Sync experience.{{/t}}
+          <br>
+          {{#t}}Download Firefox for iOS.{{/t}}
+        </p>
+        <a href="{{ appStoreLink }}" class="marketing-link"><img src="{{ appStoreImage }}"></a>
+      {{/isiOS}}
+
+      {{#isAndroid}}
+        <p>
+          {{#t}}Get the full Sync experience.{{/t}}
+          <br>
+          {{#t}}Download Firefox for Android.{{/t}}
+        </p>
+        <a class="marketing-link" href="market://details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-android-snippet"><img width="129" height="45" src="{{ playStoreImage }}"></a>
+      {{/isAndroid}}
+
+      {{#isOther}}
+        <div class="os-general">
+          <p>
+            {{#t}}Get the full Sync experience.{{/t}}
+            <br>
+            {{#t}}Download Firefox for mobile devices.{{/t}}
+          </p>
+          <a href="{{ appStoreLink }}" class="marketing-link"><img src="{{ appStoreImage }}"></a>
+          <br>
+          <a class="marketing-link" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-desktop-snippet"><img width="129" height="45" src="{{ playStoreImage }}"></a>
+        </div>
+      {{/isOther}}
     </aside>
   {{/showSignUpMarketing}}

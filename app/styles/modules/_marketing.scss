@@ -6,65 +6,33 @@
   font-size: $medium-font;
   position: relative;
 
-  @include respond-to('big') {
-    margin: 60px -40px -40px -40px;
-
-    &.image-snippet {
-      // 160 right padding to avoid overlap of the android logo
-      // in long locales (German)
-      padding: 28px 160px 28px 50px;
-      text-align: left;
-    }
-
-    &.text-snippet {
-      // pull in the margins from #main-content
-      padding: 28px 20px 36px 20px;
-      text-align: center;
-    }
-
-    .android-logo {
-      right: 50px;
-      width: 84px;
-    }
+  .os-general a {
+    display: inline-block;
+    margin-bottom: 10px;
   }
 
   @include respond-to('small') {
     margin: 20px -20px -20px -20px;
 
-    &.image-snippet {
-      font-size: $base-font;
-      padding: 15px 50px 80px 50px;
-      text-align: center;
-    }
-
     &.text-snippet {
       font-size: $base-font;
       text-align: center;
+      padding: 20px;
     }
+  }
 
-    .android-logo {
-      background-position: center bottom;
-      background-repeat: no-repeat;
-      margin: 0 auto;
-      right: 0;
-      width: 100%;
+  @include respond-to('big') {
+    margin: 60px -40px -40px -40px;
+
+    &.text-snippet {
+      // pull in the margins from #main-content
+      padding: 20px 20px 30px;
+      text-align: center;
     }
   }
 
   @include respond-to('trustedUI') {
     display: none;
-  }
-
-  .android-logo {
-    @include hidpi-background-image('android_logo', 84px 74px);
-    bottom: 0;
-    display: block;
-    height: 74px;
-    position: absolute;
-  }
-
-  .marketing-copy {
-    display: block;
   }
 
   a {
