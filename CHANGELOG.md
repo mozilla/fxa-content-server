@@ -1,3 +1,14 @@
+<a name="0.35.1"></a>
+### 0.35.1 (2015-04-14)
+
+
+#### Bug Fixes
+
+* **l10n:**
+  * copy es-ES legal templates to es ([33e08c7a](https://github.com/mozilla/fxa-content-server/commit/33e08c7ab154e53d38370286171aaacad9a7a904), closes [#2305](https://github.com/mozilla/fxa-content-server/issues/2305))
+  * missing legal template redirect should start with "/" ([027e0f8c](https://github.com/mozilla/fxa-content-server/commit/027e0f8c8def72904d3667205382e8414791605d))
+
+
 <a name="0.35.0"></a>
 ## 0.35.0 (2015-04-13)
 
