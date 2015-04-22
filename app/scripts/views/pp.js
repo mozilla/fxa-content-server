@@ -5,48 +5,22 @@
 'use strict';
 
 define([
-  'cocktail',
-  'lib/xhr',
-  'views/base',
+  'views/legal_copy',
   'stache!templates/pp',
-  'lib/auth-errors',
-  'views/mixins/back-mixin'
+  'lib/auth-errors'
 ],
-function (Cocktail, xhr, BaseView, Template, AuthErrors, BackMixin) {
-  var View = BaseView.extend({
+function (LegalCopyView, Template, AuthErrors) {
+  var View = LegalCopyView.extend({
     template: Template,
     className: 'pp',
-
-    afterRender: function () {
-      var self = this;
-      return xhr.ajax({
-        url: '/legal/privacy',
-        accepts: {
-          text: 'text/partial'
-        },
-        dataType: 'text'
-      })
-      .then(function (template) {
-        self.$('#legal-copy').html(template);
-        self.$('.hidden').removeClass('hidden');
-      })
-      .fail(function () {
-        var err = AuthErrors.toError('COULD_NOT_GET_PP');
-        self.displayError(err);
-        self.$('.hidden').removeClass('hidden');
-      });
-    },
+    copyUrl: '/legal/privacy',
+    fetchError: AuthErrors.toError('COULD_NOT_GET_PP'),
 
     events: {
       'click #fxa-pp-back': 'back',
       'keyup #fxa-pp-back': 'backOnEnter'
     }
   });
-
-  Cocktail.mixin(
-    View,
-    BackMixin
-  );
 
   return View;
 });

@@ -28,29 +28,6 @@ define([
 
   var ANIMATION_DELAY_MS = 500;
 
-  function clearBrowserStorage() {
-    /*jshint validthis: true*/
-    // clear localStorage to avoid polluting other tests.
-    return FunctionalHelpers.clearBrowserState(this);
-  }
-
-  function fillOutChangePassword(context, oldPassword, newPassword) {
-    return context.get('remote')
-      .findByCssSelector('#old_password')
-        .click()
-        .type(oldPassword)
-      .end()
-
-      .findByCssSelector('#new_password')
-        .click()
-        .type(newPassword)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
-  }
-
   function initiateLockedAccountChangePassword(context) {
     return context.get('remote')
       .get(require.toUrl(PAGE_URL))
@@ -63,7 +40,7 @@ define([
       })
 
       .then(function () {
-        return fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD);
+        return FunctionalHelpers.fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD);
       })
 
       .findByCssSelector('a[href="/confirm_account_unlock"]')
@@ -91,7 +68,7 @@ define([
             .setFindTimeout(intern.config.pageLoadTimeout);
         })
         .then(function () {
-          return clearBrowserStorage.call(self);
+          return FunctionalHelpers.clearBrowserState(self);
         })
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD)
@@ -101,7 +78,7 @@ define([
     },
 
     teardown: function () {
-      return clearBrowserStorage.call(this);
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'sign in, try to change password with an incorrect old password': function () {
@@ -118,7 +95,7 @@ define([
         .end()
 
         .then(function () {
-          return fillOutChangePassword(self, 'INCORRECT', SECOND_PASSWORD);
+          return FunctionalHelpers.fillOutChangePassword(self, 'INCORRECT', SECOND_PASSWORD);
         })
 
         .then(FunctionalHelpers.visibleByQSA('.error'))
@@ -168,7 +145,7 @@ define([
         .end()
 
         .then(function () {
-          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
         })
 
         .findByCssSelector('#fxa-settings-header')
@@ -203,12 +180,36 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
+        .execute(function () {
+          /* global sessionStorage */
+          sessionStorage.clear();
+        })
+
         .get(require.toUrl(PAGE_URL))
 
         .findByCssSelector('#fxa-change-password-header')
         .end()
 
         .then(Test.noElementById(self, 'back'));
+    },
+
+    'refresh the page - back button': function () {
+      return this.get('remote')
+        // check that signin is complete before proceeding
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .findById('change-password')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-change-password-header')
+        .end()
+
+        .refresh()
+
+        .findByCssSelector('#back')
+        .end();
     },
 
     'locked account, verify same browser': function () {
@@ -233,7 +234,7 @@ define([
 
         // account is unlocked, re-try the password change
         .then(function () {
-          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
         })
 
         .findByCssSelector('#fxa-settings-header')
@@ -289,7 +290,7 @@ define([
 
         // account is unlocked, re-try the password change
         .then(function () {
-          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+          return FunctionalHelpers.fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
         })
 
         .findByCssSelector('#fxa-settings-header')

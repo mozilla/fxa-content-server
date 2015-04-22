@@ -81,7 +81,6 @@ define([
 
       this._type = options.type;
       this._service = options.service;
-      this._language = options.language;
     },
 
     context: function () {

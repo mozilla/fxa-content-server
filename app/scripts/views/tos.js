@@ -5,48 +5,22 @@
 'use strict';
 
 define([
-  'cocktail',
-  'lib/xhr',
-  'views/base',
+  'views/legal_copy',
   'stache!templates/tos',
-  'lib/auth-errors',
-  'views/mixins/back-mixin'
+  'lib/auth-errors'
 ],
-function (Cocktail, xhr, BaseView, Template, AuthErrors, BackMixin) {
-  var View = BaseView.extend({
+function (LegalCopyView, Template, AuthErrors) {
+  var View = LegalCopyView.extend({
     template: Template,
     className: 'tos',
-
-    afterRender: function () {
-      var self = this;
-      return xhr.ajax({
-        url: '/legal/terms',
-        accepts: {
-          text: 'text/partial'
-        },
-        dataType: 'text'
-      })
-      .then(function (template) {
-        self.$('#legal-copy').html(template);
-        self.$('.hidden').removeClass('hidden');
-      })
-      .fail(function () {
-        var err = AuthErrors.toError('COULD_NOT_GET_TOS');
-        self.displayError(err);
-        self.$('.hidden').removeClass('hidden');
-      });
-    },
+    copyUrl: '/legal/terms',
+    fetchError: AuthErrors.toError('COULD_NOT_GET_TOS'),
 
     events: {
       'click #fxa-tos-back': 'back',
       'keyup #fxa-tos-back': 'backOnEnter'
     }
   });
-
-  Cocktail.mixin(
-    View,
-    BackMixin
-  );
 
   return View;
 });

@@ -14,6 +14,7 @@ define([
   'views/sign_in',
   'views/sign_up',
   'views/ready',
+  'lib/able',
   'lib/constants',
   'lib/metrics',
   'lib/ephemeral-messages',
@@ -26,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Constants, Metrics, EphemeralMessages, p, Relier,
+      Able, Constants, Metrics, EphemeralMessages, p, Relier,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
@@ -307,7 +308,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           broker: broker,
           type: 'sign_up',
-          screenName: 'signup-complete'
+          screenName: 'signup-complete',
+          able: new Able()
         });
 
         return router.showView(view)
@@ -409,7 +411,27 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         return router.createAndShowView(SignUpView, { canGoBack: false })
           .then(function () {
             assert.equal($('#fxa-signup-header').length, 1);
+            assert.isTrue(windowMock.sessionStorage.canGoBack);
           });
+      });
+    });
+
+    describe('canGoBack initial value', function () {
+      it('is `false` if sessionStorage.canGoBack is not set', function () {
+        assert.isFalse(router.canGoBack);
+      });
+
+      it('is `true` if sessionStorage.canGoBack is set', function () {
+        windowMock.sessionStorage.canGoBack = true;
+        router = new Router({
+          window: windowMock,
+          metrics: metrics,
+          relier: relier,
+          broker: broker,
+          user: user,
+          formPrefill: formPrefill
+        });
+        assert.isTrue(router.canGoBack);
       });
     });
   });

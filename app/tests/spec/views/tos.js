@@ -8,16 +8,32 @@
 define([
   'chai',
   'sinon',
-  'views/tos'
+  'views/tos',
+  'lib/promise',
+  '../../mocks/window'
 ],
-function (chai, sinon, View) {
+function (chai, sinon, View, p, WindowMock) {
   var assert = chai.assert;
 
   describe('views/tos', function () {
     var view;
+    var xhrMock;
+    var windowMock;
 
     beforeEach(function () {
-      view = new View({});
+      xhrMock = {
+        ajax: function () {
+          return p('<span id="fxa-tos-header"></span>');
+        }
+      };
+
+      windowMock = new WindowMock();
+      windowMock.location.pathname = '/legal/terms';
+
+      view = new View({
+        xhr: xhrMock,
+        window: windowMock
+      });
     });
 
     afterEach(function () {
@@ -31,9 +47,16 @@ function (chai, sinon, View) {
       });
 
       return view.render()
-          .then(function () {
-            assert.equal(view.$('#fxa-tos-back').length, 1);
-          });
+        .then(function () {
+          assert.equal(view.$('#fxa-tos-back').length, 1);
+        });
+    });
+
+    it('sets a cookie that lets the server correctly handle page refreshes', function () {
+      return view.render()
+        .then(function () {
+          assert.isTrue(/canGoBack=1; path=\/legal\/terms/.test(windowMock.document.cookie));
+        });
     });
 
     it('Back button is not displayed if there is no page to go back to', function () {
@@ -42,15 +65,30 @@ function (chai, sinon, View) {
       });
 
       return view.render()
-          .then(function () {
-            assert.equal(view.$('#fxa-tos-back').length, 0);
-          });
+        .then(function () {
+          assert.equal(view.$('#fxa-tos-back').length, 0);
+        });
     });
 
     it('fetches translated text from the backend', function () {
+      sinon.spy(xhrMock, 'ajax');
+
       return view.render()
         .then(function () {
+          assert.isTrue(xhrMock.ajax.called);
           assert.ok(view.$('#fxa-tos-header').length);
+        });
+    });
+
+    it('shows an error if fetch fails', function () {
+      sinon.stub(xhrMock, 'ajax', function () {
+        return p.reject(new Error('could not fetch resource'));
+      });
+
+      return view.render()
+        .then(function () {
+          assert.isTrue(xhrMock.ajax.called);
+          assert.isTrue(view.isErrorVisible());
         });
     });
   });

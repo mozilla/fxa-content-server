@@ -24,19 +24,6 @@ define([
   var email;
   var client;
 
-  function fillOutDeleteAccount(context, password) {
-    return context.get('remote')
-      .findByCssSelector('form input.password')
-        .click()
-        .type(password)
-      .end()
-
-      // delete account
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
-  }
-
   function initiateLockedAccountDeleteAccount(context) {
     return FunctionalHelpers.fillOutSignIn(context, email, PASSWORD)
 
@@ -54,7 +41,7 @@ define([
 
 
       .then(function () {
-        return fillOutDeleteAccount(context, PASSWORD);
+        return FunctionalHelpers.fillOutDeleteAccount(context, PASSWORD);
       })
 
       .then(FunctionalHelpers.visibleByQSA('.error'))
@@ -109,7 +96,7 @@ define([
         .end()
 
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         // success is going to the signup page
@@ -123,12 +110,35 @@ define([
         .findById('fxa-settings-header')
         .end()
 
+        .execute(function () {
+          /* global sessionStorage */
+          sessionStorage.clear();
+        })
+
         // Go to delete account screen directly
         .get(require.toUrl(PAGE_URL))
         .findById('fxa-delete-account-header')
         .end()
 
         .then(Test.noElementById(self, 'back'));
+    },
+
+    'refresh the page, back button shown': function () {
+      return FunctionalHelpers.fillOutSignIn(this, email, PASSWORD)
+        .findById('fxa-settings-header')
+        .end()
+
+        .findById('delete-account')
+          .click()
+        .end()
+
+        .findById('fxa-delete-account-header')
+        .end()
+
+        .refresh()
+
+        .findById('back')
+        .end();
     },
 
     'locked account, verify same browser': function () {
@@ -154,7 +164,7 @@ define([
 
         // account is unlocked, re-try the delete account
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         .findByCssSelector('#fxa-signup-header')
@@ -211,7 +221,7 @@ define([
 
         // account is unlocked, re-try the delete account
         .then(function () {
-          return fillOutDeleteAccount(self, PASSWORD);
+          return FunctionalHelpers.fillOutDeleteAccount(self, PASSWORD);
         })
 
         .findByCssSelector('#fxa-signup-header')

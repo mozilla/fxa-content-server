@@ -11,10 +11,21 @@
 
 var helmet = require('helmet');
 var config = require('./configuration');
+var url = require('url');
 
-var SELF = "'self'";
+var SELF = "'self'"; //jshint ignore: line
 var DATA = 'data:';
 var GRAVATAR = 'https://secure.gravatar.com';
+
+function requiresCsp(req) {
+  // is the user running tests? No CSP.
+  return req.path !== '/tests/index.html';
+}
+
+function getOrigin(link) {
+  var parsed = url.parse(link);
+  return parsed.protocol + '//' + parsed.host;
+}
 
 var cspMiddleware = helmet.csp({
   defaultSrc: [
@@ -23,7 +34,7 @@ var cspMiddleware = helmet.csp({
 
   connectSrc: [
     SELF,
-    config.get('fxaccount_url'),
+    getOrigin(config.get('fxaccount_url')),
     config.get('oauth_url'),
     config.get('profile_url')
   ],
@@ -46,8 +57,3 @@ module.exports = function (req, res, next) {
 
   cspMiddleware(req, res, next);
 };
-
-function requiresCsp(req) {
-  // is the user running tests? No CSP.
-  return req.path !== '/tests/index.html';
-}
