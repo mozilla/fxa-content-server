@@ -132,8 +132,14 @@ define([
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
 
-    if (intern.config.fxaProduction) {
+    if (httpsUrl.indexOf('accounts.stage.mozaws.net') >= 0) {
+      // "Stage"
       assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+    } else if (intern.config.fxaProduction) {
+      // Some other environment running with fxaProduction=true. We don't set
+      // any CSP headers there (yet).
+      assert.ok(!headers.hasOwnProperty('content-security-policy-report-only') &&
+                !headers.hasOwnProperty('content-security-policy'));
     } else if (config.get('env') === 'development' &&
                // the front end tests do not get CSP headers.
                url.parse(route).pathname !== '/tests/index.html') {
