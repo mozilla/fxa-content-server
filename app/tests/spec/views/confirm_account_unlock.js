@@ -67,7 +67,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         window: windowMock,
         relier: relier
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       account = user.initAccount({
         email: EMAIL

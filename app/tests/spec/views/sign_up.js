@@ -81,7 +81,9 @@ function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metric
       broker = new Broker();
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
       coppa = new Coppa();
 

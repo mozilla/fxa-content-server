@@ -55,7 +55,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
       interTabChannel = new InterTabChannel();
       ephemeralMessages = new EphemeralMessages();
       user = new User({
-        storage: Storage.factory('localStorage')
+        storage: Storage.factory('localStorage'),
+        fxaClient: fxaClient
       });
 
       sinon.stub(fxaClient, 'isPasswordResetComplete', function () {

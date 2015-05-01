@@ -42,7 +42,9 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       router = new RouterMock();
       formPrefill = new FormPrefill();
 

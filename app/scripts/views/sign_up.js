@@ -245,25 +245,14 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
 
       return self.broker.beforeSignIn(email)
         .then(function () {
-          return self.fxaClient.signUp(
-                        email, password, self.relier, {
-                          customizeSync: customizeSync
-                        });
-        }).then(function (accountData) {
-          var account = self.user.initAccount(accountData);
-
-          if (preVerifyToken && account.get('verified')) {
-            self.logScreenEvent('preverified.success');
-          }
-          self.logScreenEvent('success');
-
-          return self.user.setSignedInAccount(account)
-            .then(function () {
-              return account;
-            });
+          var account = self.user.initAccount({
+            email: email,
+            password: password
+          });
+          return self.user.signUp(account, self.relier, customizeSync);
         })
         .then(_.bind(self.onSignUpSuccess, self))
-        .then(null, function (err) {
+        .fail(function (err) {
           // Account already exists. No attempt is made at signing the
           // user in directly, instead, point the user to the signin page
           // where the entered email/password will be prefilled.
@@ -282,7 +271,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
 
     onSignUpSuccess: function (account) {
       var self = this;
+
+      self.logScreenEvent('success');
       if (account.get('verified')) {
+        self.logScreenEvent('preverified.success');
         // user was pre-verified, notify the broker.
         return self.broker.afterSignIn(account)
           .then(function (result) {

@@ -15,11 +15,10 @@ define([
   'backbone',
   'underscore',
   'lib/promise',
-  'lib/assertion',
-  'lib/oauth-client',
+  'lib/auth-errors',
   'models/account',
   'lib/storage'
-], function (Backbone, _, p, Assertion, OAuthClient, Account, Storage) {
+], function (Backbone, _, p, AuthErrors, Account, Storage) {
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -213,6 +212,124 @@ define([
           }
 
           return promise;
+        });
+    },
+
+    isSignedIn: function (account) {
+      return account.isSignedIn();
+    },
+
+    signIn: function (account, relier) {
+      var self = this;
+      var fxaClient = self._fxaClient;
+      return p().then(function () {
+        var password = account.get('password');
+        var sessionToken = account.get('sessionToken');
+        if (password) {
+          var email = account.get('email');
+          return fxaClient.signIn(email, password, relier);
+        } else if (sessionToken) {
+          // We have a cached Sync session so just check that it hasn't expired.
+          // The result includes the latest verified state
+          return fxaClient.recoveryEmailStatus(sessionToken);
+        } else {
+          throw AuthErrors.toError('UNEXPECTED_ERROR');
+        }
+      })
+      .then(function (updatedSessionData) {
+        account.set(updatedSessionData);
+        return self.setSignedInAccount(account);
+      })
+      .then(function () {
+        if (! account.get('verified')) {
+          return fxaClient.signUpResend(relier, account.get('sessionToken'));
+        }
+      })
+      .then(function () {
+        return account;
+      });
+    },
+
+    signUp: function (account, relier, customizeSync) {
+      var self = this;
+      var email = account.get('email');
+      var password = account.get('password');
+      var options = {
+        customizeSync: customizeSync
+      };
+
+      return self._fxaClient.signUp(email, password, relier, options)
+        .then(function (accountData) {
+          account.set(accountData);
+          return self.setSignedInAccount(account);
+        })
+        .then(function () {
+          return account;
+        });
+    },
+
+    changePassword: function (account, relier, oldPassword, newPassword) {
+      var self = this;
+      var fxaClient = self._fxaClient;
+      // Try to sign the user in before checking whether the
+      // passwords are the same. If the user typed the incorrect old
+      // password, they should know that first.
+      var email = account.get('email');
+      return fxaClient.checkPassword(email, oldPassword)
+        .then(function () {
+          if (oldPassword === newPassword) {
+            throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
+          }
+
+          return fxaClient.changePassword(email, oldPassword, newPassword);
+        })
+        .then(function () {
+          // sign the user in, keeping the current sessionTokenContext. This
+          // prevents sync users from seeing the `sign out` button on the
+          // settings screen.
+          return fxaClient.signIn(email, newPassword, relier, {
+            sessionTokenContext: account.get('sessionTokenContext')
+          });
+        })
+        .then(function (updatedSessionData) {
+          account.set(updatedSessionData);
+          return self.setSignedInAccount(account);
+        });
+    },
+
+    deleteAccount: function (account, password) {
+      var self = this;
+      return self._fxaClient.deleteAccount(account.get('email'), password)
+        .then(function () {
+          self.removeAccount(account);
+        });
+
+    },
+
+    signOut: function (account) {
+      var self = this;
+      return p()
+        .then(function () {
+          var sessionToken = account.get('sessionToken');
+          return self._fxaClient.signOut(sessionToken)
+        })
+        .fail(function () {
+          // ignore the error.
+          // Even on failure. Everything is A-OK.
+          // See issue #616
+        })
+        .fin(function () {
+          self.clearSignedInAccount();
+        });
+    },
+
+    completePasswordReset: function (account, relier, token, code) {
+      var self = this;
+      var email = account.get('email');
+      var password = account.get('password');
+      return self._fxaClient.completePasswordReset(email, password, token, code)
+        .then(function () {
+          return self.signIn(account, relier);
         });
     },
 

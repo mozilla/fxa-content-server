@@ -57,7 +57,9 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       windowMock = new WindowMock();
       relier = new Relier();
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       account = user.initAccount({
         uid: UID,
         email: 'a@a.com',

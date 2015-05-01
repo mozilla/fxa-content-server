@@ -19,10 +19,11 @@ define([
   'models/reliers/relier',
   'lib/profile-client',
   'lib/promise',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            WindowMock, User, Relier, ProfileClient, p, AuthErrors) {
+            WindowMock, User, Relier, ProfileClient, p, AuthErrors, FxaClient) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -34,10 +35,14 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var user;
     var account;
     var relier;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      user = new User();
+      fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       profileClientMock = new ProfileMock();
       windowMock = new WindowMock();
       relier = new Relier();

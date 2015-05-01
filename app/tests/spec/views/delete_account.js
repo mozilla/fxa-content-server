@@ -44,7 +44,9 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
         relier: relier
       });
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       metrics = new Metrics();
 
 

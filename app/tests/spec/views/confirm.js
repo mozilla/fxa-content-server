@@ -54,7 +54,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       account = user.initAccount({
         email: 'a@a.com',

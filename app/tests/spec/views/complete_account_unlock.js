@@ -87,7 +87,9 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       accountUnlockError = null;
       sinon.stub(fxaClient, 'completeAccountUnlock', function () {

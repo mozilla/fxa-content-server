@@ -57,8 +57,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         session: Session,
         window: windowMock
       });
-      user = new User();
       fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();

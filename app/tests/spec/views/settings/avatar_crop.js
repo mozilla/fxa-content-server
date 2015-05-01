@@ -21,11 +21,12 @@ define([
   'lib/promise',
   'lib/constants',
   'lib/ephemeral-messages',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
 function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
     CropperImage, Relier, AuthBroker, p, Constants, EphemeralMessages,
-    AuthErrors) {
+    AuthErrors, FxaClient) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -38,10 +39,14 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
     var account;
     var relier;
     var broker;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      user = new User();
+      fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       ephemeralMessages = new EphemeralMessages();
       relier = new Relier();
       broker = new AuthBroker({

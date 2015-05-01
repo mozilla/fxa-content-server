@@ -52,8 +52,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
-      user = new User();
       fxaClient = new FxaClient();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
 
       initView();

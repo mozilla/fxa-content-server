@@ -48,7 +48,9 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
       fxaClient = new FxaClient({
         broker: broker
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
 

@@ -87,7 +87,9 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       verificationError = null;
       sinon.stub(fxaClient, 'verifyCode', function () {

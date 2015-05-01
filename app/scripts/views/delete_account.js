@@ -36,13 +36,10 @@ function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
-      var email = account.get('email');
       var password = self.getElementValue('.password');
-      return self.fxaClient.deleteAccount(email, password)
+      return self.user.deleteAccount(account, password)
         .then(function () {
           Session.clear();
-          self.user.removeAccount(account);
-
           return self.broker.afterDeleteAccount(account);
         })
         .then(function () {
