@@ -35,7 +35,9 @@ function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
       routerMock = new RouterMock();
       fxaClientMock = new FxaClientMock();
       relierMock = new Relier();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClientMock
+      });
 
       view = new View({
         router: routerMock,

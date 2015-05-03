@@ -107,17 +107,14 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
       // get a sessionToken. When the reset password complete poll
       // completes in the original tab, it will fetch the sessionToken
       // from localStorage and go to town.
-      return self.fxaClient.completePasswordReset(email, password, token, code)
-        .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier);
-        }).then(function (accountData) {
-          var account = self.user.initAccount(accountData);
-          self._interTabChannel.send('login', accountData);
+      var account = self.user.initAccount({
+        email: email,
+        password: password
+      });
 
-          return self.user.setSignedInAccount(account)
-            .then(function () {
-              return account;
-            });
+      return self.user.completePasswordReset(account, self.relier, token, code)
+        .then(function () {
+          self._interTabChannel.send('login', account.toJSON());
         })
         .then(function (account) {
           // See the above note about notifying the original tab.

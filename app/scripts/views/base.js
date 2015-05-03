@@ -236,8 +236,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
       return p()
         .then(function () {
           if (self.mustAuth || self.mustVerify) {
-            sessionToken = self.getSignedInAccount().get('sessionToken');
-            return !! sessionToken && self.fxaClient.isSignedIn(sessionToken);
+            return self.user.isSignedIn(self.getSignedInAccount());
           }
           return true;
         });

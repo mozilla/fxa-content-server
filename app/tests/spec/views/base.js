@@ -62,7 +62,9 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       view = new View({
         translator: translator,

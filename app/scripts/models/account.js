@@ -146,6 +146,9 @@ define([
     },
 
     isSignedIn: function () {
+      if (! this.has('sessionToken')) {
+        return p(false);
+      }
       return this._fxaClient.isSignedIn(this.get('sessionToken'));
     },
 

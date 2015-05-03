@@ -85,8 +85,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
         .then(function () {
           return self._waitForConfirmation();
         })
-        .then(function (updatedSessionData) {
-          self.getAccount().set(updatedSessionData);
+        .then(function () {
           self.logScreenEvent('verification.success');
 
           // the continuation path depends on the action that triggered
@@ -124,16 +123,14 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
     _waitForConfirmation: function () {
       var self = this;
       var account = self.getAccount();
-      var email = account.get('email');
-      var password = account.get('password');
 
       // try to sign the user in using the email/password that caused the
       // account to be locked. If the user has verified their email address,
       // the sign in will successfully complete. If they have not verified
       // their address, the sign in call will fail with the ACCOUNT_LOCKED
       // error, and we poll again.
-      return self.fxaClient.signIn(email, password, self.relier)
-        .then(null, function (err) {
+      return self.user.signIn(account, self.relier)
+        .fail(function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
             // user has not yet verified, poll again.
             var deferred = p.defer();

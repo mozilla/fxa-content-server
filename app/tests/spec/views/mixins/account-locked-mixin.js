@@ -39,7 +39,9 @@ define([
       routerMock = new RouterMock();
       fxaClient = new FxaClient();
 
-      account = new User().initAccount({
+      account = new User({
+        fxaClient: fxaClient
+      }).initAccount({
         email: 'testuser@testuser.com'
       });
 

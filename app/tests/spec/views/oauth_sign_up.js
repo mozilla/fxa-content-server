@@ -104,7 +104,9 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       assertionLibrary = new Assertion({
         fxaClient: fxaClient
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       formPrefill = new FormPrefill();
 
       view = new View({
