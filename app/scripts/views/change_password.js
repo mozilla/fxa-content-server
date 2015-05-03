@@ -27,12 +27,6 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
     template: Template,
     className: 'change-password',
 
-    context: function () {
-      return {
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
-      };
-    },
-
     afterRender: function () {
       this.initializePlaceholderFields();
     },

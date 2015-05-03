@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'jquery',
   'chai',
   'sinon',
@@ -16,7 +17,7 @@ define([
   'models/reliers/relier',
   'stache!templates/test_template',
   '../../../lib/helpers'
-], function ($, chai, sinon, Backbone, _, Metrics, PasswordMixin, BaseView,
+], function (Cocktail, $, chai, sinon, Backbone, _, Metrics, PasswordMixin, BaseView,
   Relier, TestTemplate, TestHelpers) {
   var assert = chai.assert;
 
@@ -26,7 +27,10 @@ define([
       'change .show-password': 'onPasswordVisibilityChange'
     }
   });
-  _.extend(PasswordView.prototype, PasswordMixin);
+  Cocktail.mixin(
+    PasswordView,
+    PasswordMixin
+  );
 
   describe('views/mixins/password-mixin', function () {
     var view;
@@ -53,6 +57,29 @@ define([
       $('#container').empty();
     });
 
+    describe('afterRender', function () {
+      it('adds the `autocomplete=off` attribute to the form if the relier is sync', function () {
+        // sync users should never be allowed to save their password. If they
+        // were, it would end in this weird situation where sync users ask to
+        // save their sync password to sync before sync is setup.
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('form').attr('autocomplete'), 'off');
+          });
+      });
+
+      it('does not add the `autocomplete=off` attribute by default', function () {
+        return view.render()
+          .then(function () {
+            assert.isUndefined(view.$('form').attr('autocomplete'));
+          });
+      });
+    });
+
     describe('setPasswordVisibilityFromButton', function () {
       it('sets the password field to type=text if button is checked', function () {
         view.$('#show-password').attr('checked', 'checked');
@@ -66,21 +93,6 @@ define([
         view.setPasswordVisibilityFromButton('#show-password');
         assert.equal(view.$('#password').attr('type'), 'password');
         assert.isUndefined(view.$('#password').attr('autocomplete'));
-      });
-
-      it('always sets the `autocomplete=off` attribute if the relier is sync', function () {
-        // sync users should never be allowed to save their password. If they
-        // were, it would end in this weird situation where sync users ask to
-        // save their sync password to sync before sync is setup.
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        view.$('#show-password').removeAttr('checked');
-        view.setPasswordVisibilityFromButton('#show-password');
-        assert.equal(view.$('#password').attr('type'), 'password');
-        assert.equal(view.$('#password').attr('autocomplete'), 'off');
       });
     });
 

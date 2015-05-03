@@ -59,7 +59,6 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
       return {
         serviceName: this.relier.get('serviceName'),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: email,
         suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),

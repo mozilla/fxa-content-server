@@ -13,6 +13,12 @@ define([
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
+    afterRender: function () {
+      if (this.isPasswordAutoCompleteDisabled()) {
+        this.$('form').attr('autocomplete', 'off');
+      }
+    },
+
     onPasswordVisibilityChange: function (event) {
       var target = this.$(event.target);
       this.setPasswordVisibilityFromButton(target);
@@ -39,15 +45,13 @@ define([
       try {
         var passwordField = this.$('.password');
         if (isVisible) {
+          // text password fields should *never* offer to save the password
+          // because the password could end up being auto-filled when
+          // the user does not expect it.
           passwordField.attr('type', 'text').attr('autocomplete', 'off');
           this.logScreenEvent('password.visible');
         } else {
-          passwordField.attr('type', 'password');
-          if (this.isPasswordAutoCompleteDisabled()) {
-            passwordField.attr('autocomplete', 'off');
-          } else {
-            passwordField.removeAttr('autocomplete');
-          }
+          passwordField.attr('type', 'password').removeAttr('autocomplete');
           this.logScreenEvent('password.hidden');
         }
       } catch(e) {
