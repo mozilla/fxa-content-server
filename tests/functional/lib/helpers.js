@@ -568,6 +568,11 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
     fillOutChangePassword: fillOutChangePassword,
-    fillOutDeleteAccount: fillOutDeleteAccount
+    fillOutDeleteAccount: fillOutDeleteAccount,
+    openPage: function (context, url) {
+      return context.get('remote')
+        .get(require.toUrl(url))
+        .setFindTimeout(config.pageLoadTimeout);
+    }
   };
 });

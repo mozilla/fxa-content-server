@@ -6,14 +6,13 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, FunctionalHelpers) {
+], function (intern, registerSuite, assert, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SYNC_SIGNIN_URL = config.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v1';
+  var SYNC_SIGNIN_URL = config.fxaContentRoot + 'signin?service=sync';
 
   registerSuite({
     name: 'password visibility',
@@ -27,8 +26,15 @@ define([
     },
 
     'toggle show password for normal RP': function () {
-      this.get('remote').get(require.toUrl(SIGNIN_URL))
+      return FunctionalHelpers.openPage(this, SIGNIN_URL)
         .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .findByCssSelector('form')
+          .getAttribute('autocomplete')
+          .then(function (autocompleteValue) {
+            assert.isNull(autocompleteValue);
+          })
         .end()
 
         .findByCssSelector('#password')
@@ -71,44 +77,12 @@ define([
         .end();
     },
 
-    'toggle show password for Sync': function () {
-      this.get('remote').get(require.toUrl(SYNC_SIGNIN_URL))
+    'Password manager for Sync': function () {
+      return FunctionalHelpers.openPage(this, SYNC_SIGNIN_URL)
         .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .findByCssSelector('#password')
-          .click()
-          .type('password')
-        .end()
-
-        // turn it into a text field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
-
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'text');
-          })
-
-          .getAttribute('autocomplete')
-          .then(function (autocompleteValue) {
-            assert.equal(autocompleteValue, 'off');
-          })
-        .end()
-
-        // turn it back into a password field
-        .findByCssSelector('.show-password-label')
-          .click()
-        .end()
-
-        .findByCssSelector('#password')
-          .getAttribute('type')
-          .then(function (typeValue) {
-            assert.equal(typeValue, 'password');
-          })
-
+        .findByCssSelector('form')
           .getAttribute('autocomplete')
           .then(function (autocompleteValue) {
             assert.equal(autocompleteValue, 'off');
