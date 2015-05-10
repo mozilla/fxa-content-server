@@ -8,14 +8,9 @@
 
 define([
   'underscore',
-  'jquery',
-  'lib/promise',
-  'lib/channels/iframe',
-  'lib/auth-errors',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel'
-], function (_, $, p, IframeChannel, AuthErrors, OAuthAuthenticationBroker,
-        ChannelMixin) {
+], function (_, OAuthAuthenticationBroker, ChannelMixin) {
 
   // A `ping` is sent out to the expected relier. The relier must respond.
   // No response will be received if the parent is either:

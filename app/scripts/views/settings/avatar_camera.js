@@ -7,7 +7,6 @@
 define([
   'underscore',
   'cocktail',
-  'canvasToBlob',
   'views/form',
   'views/progress_indicator',
   'views/mixins/settings-mixin',
@@ -19,9 +18,8 @@ define([
   'lib/environment',
   'models/profile-image'
 ],
-function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors,
-    Environment, ProfileImage) {
+function (_, Cocktail, FormView, ProgressIndicator, SettingsMixin, AvatarMixin,
+    Template, Constants, p, AuthErrors, Environment, ProfileImage) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
