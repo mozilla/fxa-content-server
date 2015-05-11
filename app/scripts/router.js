@@ -73,7 +73,7 @@ function (
   PermissionsView
 ) {
 
-  function showView(View, options) {
+  function showViewGenerator(View, options) {
     return function () {
       this.createAndShowView(View, options);
     };
@@ -82,40 +82,40 @@ function (
   var Router = Backbone.Router.extend({
     routes: {
       '(/)': 'redirectToSignupOrSettings',
-      'signin(/)': showView(SignInView),
-      'signin_permissions(/)': showView(PermissionsView, { type: 'sign_in' }),
+      'signin(/)': showViewGenerator(SignInView),
+      'signin_permissions(/)': showViewGenerator(PermissionsView, { type: 'sign_in' }),
       'oauth(/)': 'redirectToBestOAuthChoice',
-      'oauth/signin(/)': showView(SignInView),
-      'oauth/signup(/)': showView(SignUpView),
-      'oauth/force_auth(/)': showView(ForceAuthView),
-      'signup(/)': showView(SignUpView),
-      'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
-      'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
-      'cannot_create_account(/)': showView(CannotCreateAccountView),
-      'verify_email(/)': showView(CompleteSignUpView),
-      'confirm(/)': showView(ConfirmView),
-      'settings(/)': showView(SettingsView),
-      'settings/avatar(/)': showView(AvatarView),
-      'settings/avatar/change(/)': showView(AvatarChangeView),
-      'settings/avatar/crop(/)': showView(AvatarCropView),
-      'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
-      'settings/avatar/camera(/)': showView(AvatarCameraView),
-      'change_password(/)': showView(ChangePasswordView),
-      'delete_account(/)': showView(DeleteAccountView),
-      'legal(/)': showView(LegalView),
-      'legal/terms(/)': showView(TosView),
-      'legal/privacy(/)': showView(PpView),
-      'reset_password(/)': showView(ResetPasswordView),
-      'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
-      'complete_reset_password(/)': showView(CompleteResetPasswordView),
-      'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
-      'force_auth(/)': showView(ForceAuthView),
-      'cookies_disabled(/)': showView(CookiesDisabledView),
-      'clear(/)': showView(ClearStorageView),
-      'unexpected_error(/)': showView(UnexpectedErrorView),
-      'confirm_account_unlock(/)': showView(ConfirmAccountUnlockView),
-      'complete_unlock_account(/)': showView(CompleteAccountUnlockView),
-      'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' })
+      'oauth/signin(/)': showViewGenerator(SignInView),
+      'oauth/signup(/)': showViewGenerator(SignUpView),
+      'oauth/force_auth(/)': showViewGenerator(ForceAuthView),
+      'signup(/)': showViewGenerator(SignUpView),
+      'signup_complete(/)': showViewGenerator(ReadyView, { type: 'sign_up' }),
+      'signup_permissions(/)': showViewGenerator(PermissionsView, { type: 'sign_up' }),
+      'cannot_create_account(/)': showViewGenerator(CannotCreateAccountView),
+      'verify_email(/)': showViewGenerator(CompleteSignUpView),
+      'confirm(/)': showViewGenerator(ConfirmView),
+      'settings(/)': showViewGenerator(SettingsView),
+      'settings/avatar(/)': showViewGenerator(AvatarView),
+      'settings/avatar/change(/)': showViewGenerator(AvatarChangeView),
+      'settings/avatar/crop(/)': showViewGenerator(AvatarCropView),
+      'settings/avatar/gravatar(/)': showViewGenerator(AvatarGravatarView),
+      'settings/avatar/camera(/)': showViewGenerator(AvatarCameraView),
+      'change_password(/)': showViewGenerator(ChangePasswordView),
+      'delete_account(/)': showViewGenerator(DeleteAccountView),
+      'legal(/)': showViewGenerator(LegalView),
+      'legal/terms(/)': showViewGenerator(TosView),
+      'legal/privacy(/)': showViewGenerator(PpView),
+      'reset_password(/)': showViewGenerator(ResetPasswordView),
+      'confirm_reset_password(/)': showViewGenerator(ConfirmResetPasswordView),
+      'complete_reset_password(/)': showViewGenerator(CompleteResetPasswordView),
+      'reset_password_complete(/)': showViewGenerator(ReadyView, { type: 'reset_password' }),
+      'force_auth(/)': showViewGenerator(ForceAuthView),
+      'cookies_disabled(/)': showViewGenerator(CookiesDisabledView),
+      'clear(/)': showViewGenerator(ClearStorageView),
+      'unexpected_error(/)': showViewGenerator(UnexpectedErrorView),
+      'confirm_account_unlock(/)': showViewGenerator(ConfirmAccountUnlockView),
+      'complete_unlock_account(/)': showViewGenerator(CompleteAccountUnlockView),
+      'account_unlock_complete(/)': showViewGenerator(ReadyView, { type: 'account_unlock' })
     },
 
     initialize: function (options) {
@@ -283,6 +283,8 @@ function (
           });
         });
     },
+
+    _showViewGenerator: showViewGenerator,
 
     watchAnchors: function () {
       $(document).on('click', 'a[href^="/"]', this.onAnchorClick.bind(this));

@@ -449,6 +449,12 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
     });
 
+    describe('_showViewGenerator', function () {
+      it('generates and shows view', function () {
+        assert.isFunction(router._showViewGenerator(SignUpView, { canGoBack: false })());
+      });
+    });
+
     describe('canGoBack initial value', function () {
       it('is `false` if sessionStorage.canGoBack is not set', function () {
         assert.isFalse(router.canGoBack);
