@@ -130,6 +130,7 @@ define([
 
     afterSignUpConfirmationPoll: function (account) {
       if (this.hasPendingOAuthFlow()) {
+        this.session.clear('oauth');
         return this.finishOAuthFlow(account);
       }
       return p();
