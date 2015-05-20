@@ -19,7 +19,6 @@ define([
   'models/auth_brokers/iframe',
   'models/auth_brokers/redirect',
   'models/auth_brokers/web-channel',
-  'models/reliers/base',
   'models/reliers/fx-desktop',
   'models/reliers/oauth',
   'models/reliers/relier',
@@ -32,8 +31,8 @@ define([
 ],
 function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
-      WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-      User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+      WebChannelBroker, FxDesktopRelier, OAuthRelier, Relier, User, Metrics,
+      WindowMock, RouterMock, HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
