@@ -32,7 +32,7 @@ define([
   if (travis) {
     url += '&travis=true';
   }
-  var MOCHA_LOADER_SLEEP = 50;
+  var MOCHA_LOADER_SLEEP = travis ? 10000 : 50;
 
   registerSuite({
     name: 'mocha tests',
