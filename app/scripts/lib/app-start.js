@@ -98,18 +98,6 @@ function (
   CloseButtonView
 ) {
 
-  function isMetricsCollectionEnabled(sampleRate) {
-    return Math.random() <= sampleRate;
-  }
-
-  function createMetrics(sampleRate, options) {
-    if (isMetricsCollectionEnabled(sampleRate)) {
-      return new Metrics(options);
-    }
-
-    return new NullMetrics();
-  }
-
   function Start(options) {
     options = options || {};
 
@@ -232,7 +220,17 @@ function (
     initializeMetrics: function () {
       var relier = this._relier;
       var screenInfo = new ScreenInfo(this._window);
-      this._metrics = createMetrics(this._config.metricsSampleRate, {
+      // Randomly choose whether to send metrics based on sample rate,
+      // but use the relier's state management to remember this choice
+      // throughout the entire flow.
+      var sendMetrics;
+      if (relier.has('metrics')) {
+        sendMetrics = relier.get('metrics');
+      } else {
+        sendMetrics = Math.random() <= this._config.metricsSampleRate;
+        relier.set('metrics', sendMetrics);
+      }
+      this._metrics = sendMetrics ? new Metrics({
         lang: this._config.language,
         service: relier.get('service'),
         context: relier.get('context'),
@@ -245,7 +243,7 @@ function (
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
         able: this._able
-      });
+      }) : new NullMetrics();
       this._metrics.init();
     },
 

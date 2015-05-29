@@ -26,6 +26,7 @@ define([
   'models/reliers/relier',
   'models/user',
   'lib/metrics',
+  'lib/null-metrics',
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/history',
@@ -34,7 +35,7 @@ define([
 function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-      User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+      User, Metrics, NullMetrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
@@ -443,6 +444,72 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
             assert.equal(err.message, 'uh oh');
             assert.isUndefined(appStart._iframeChannel);
           });
+      });
+    });
+
+    describe('initializeMetrics', function () {
+      var relierMock;
+
+      var METRICS_ON = 0.3;
+      var METRICS_OFF = 0.7;
+      var METRICS_CHOICE;
+
+      beforeEach(function () {
+        relierMock = new BaseRelier();
+
+        appStart = new AppStart({
+          window: windowMock,
+          relier: relierMock
+        });
+        appStart.useConfig({
+          metricsSampleRate: 0.5
+        });
+
+        sinon.stub(Math, 'random', function () {
+          return METRICS_CHOICE;
+        });
+      });
+
+      afterEach(function () {
+        Math.random.restore();
+      });
+
+      it('creates a Metrics instance when within sample range', function () {
+        METRICS_CHOICE = METRICS_ON;
+        appStart.initializeMetrics();
+        assert.instanceOf(appStart._metrics, Metrics);
+      });
+
+      it('creates a NullMetrics instance when outside sample range', function () {
+        METRICS_CHOICE = METRICS_OFF;
+        appStart.initializeMetrics();
+        assert.instanceOf(appStart._metrics, NullMetrics);
+      });
+
+      it('stores metrics=true choice in relier state data', function () {
+        METRICS_CHOICE = METRICS_ON;
+        appStart.initializeMetrics();
+        assert.equal(appStart._relier.get('metrics'), true);
+      });
+
+      it('stores metrics=false choice in relier state data', function () {
+        METRICS_CHOICE = METRICS_OFF;
+        appStart.initializeMetrics();
+        assert.equal(appStart._relier.get('metrics'), false);
+      });
+
+      it('restores metrics=true choice from relier state data', function () {
+        METRICS_CHOICE = METRICS_OFF;
+        relierMock.set('metrics', true);
+        appStart.initializeMetrics();
+        assert.instanceOf(appStart._metrics, Metrics);
+      });
+
+      it('restores metrics=false choice from relier state data', function () {
+        METRICS_CHOICE = METRICS_ON;
+        relierMock.set('metrics', false);
+        appStart.initializeMetrics();
+        assert.instanceOf(appStart._metrics, NullMetrics);
       });
     });
 

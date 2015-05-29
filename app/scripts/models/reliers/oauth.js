@@ -11,13 +11,11 @@
 define([
   'underscore',
   'models/reliers/relier',
-  'lib/resume-token',
   'lib/oauth-errors',
   'lib/relier-keys',
   'lib/url',
   'lib/constants'
-], function (_, Relier, ResumeToken, OAuthErrors, RelierKeys, Url, Constants) {
-  var RELIER_FIELDS_IN_RESUME_TOKEN = ['state', 'verificationRedirect'];
+], function (_, Relier, OAuthErrors, RelierKeys, Url, Constants) {
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.
   var PERMISSION_WHITE_LIST = ['profile:uid', 'profile:email'];
@@ -52,10 +50,9 @@ define([
       var self = this;
       return Relier.prototype.fetch.call(this)
         .then(function () {
-          // parse the resume token before importing server provided data,
-          // the server values might take precedent over the parsed values
-          self._parseResumeToken();
-
+          // The following set relier properties from localStorage and
+          // from server-side data, both of which will take precedent
+          // over fields restored from the resume token.
           if (self._isVerificationFlow()) {
             self._setupVerificationFlow();
           } else {
@@ -96,37 +93,15 @@ define([
       return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
-    getResumeToken: function () {
-      var resumeObj = {};
-
-      _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
-        if (this.has(itemName)) {
-          resumeObj[itemName] = this.get(itemName);
-        }
-      }, this);
-
-      return ResumeToken.stringify(resumeObj);
+    getRelierFieldsInResumeToken: function () {
+      var fields = Relier.prototype.getRelierFieldsInResumeToken.call(this);
+      fields.push('state');
+      fields.push('verificationRedirect');
+      return fields;
     },
 
     _isVerificationFlow: function () {
       return !! this.getSearchParam('code');
-    },
-
-    /**
-     * Sets relier properties from the resume token value
-     * @private
-     */
-    _parseResumeToken: function () {
-      var resumeToken = this.getSearchParam('resume');
-      var parsedResumeToken = ResumeToken.parse(resumeToken);
-
-      if (parsedResumeToken) {
-        _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
-          if (Object.prototype.hasOwnProperty.call(parsedResumeToken, itemName)) {
-            this.set(itemName, parsedResumeToken[itemName]);
-          }
-        }, this);
-      }
     },
 
     _setupVerificationFlow: function () {

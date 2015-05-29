@@ -7,10 +7,11 @@
 define([
   'chai',
   'lib/constants',
+  'lib/resume-token',
   'models/reliers/relier',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, Constants, Relier, WindowMock, TestHelpers) {
+], function (chai, Constants, ResumeToken, Relier, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/relier', function () {
@@ -24,6 +25,7 @@ define([
     var UID = 'uid';
     var ENTRYPOINT = 'preferences';
     var CAMPAIGN = 'fennec';
+    var CAMPAIGN_ALTERNATE = 'spring2015';
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -56,6 +58,25 @@ define([
               assert.isFalse(relier.has('ignored'));
             });
       });
+
+      it('restores fields from the resume param, but prefers values from search params', function () {
+        var resumeData = {
+          metrics: true,
+          campaign: CAMPAIGN_ALTERNATE
+        };
+        var resumeToken = ResumeToken.stringify(resumeData);
+
+        windowMock.location.search = TestHelpers.toSearchString({
+          resume: resumeToken,
+          campaign: CAMPAIGN
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('metrics'), true);
+            assert.equal(relier.get('campaign'), CAMPAIGN);
+          });
+      });
     });
 
     describe('isOAuth', function () {
@@ -71,8 +92,45 @@ define([
     });
 
     describe('getResumeToken', function () {
-      it('returns null', function () {
+      it('returns null by default', function () {
         assert.isNull(relier.getResumeToken());
+      });
+
+      it('saves campaign, entrypoint and metrics fields if present', function () {
+        relier.set('metrics', true);
+        relier.set('campaign', CAMPAIGN);
+        assert.deepEqual(ResumeToken.parse(relier.getResumeToken()), {
+          metrics: true,
+          campaign: CAMPAIGN
+        });
+        relier.set('entrypoint', ENTRYPOINT);
+        assert.deepEqual(ResumeToken.parse(relier.getResumeToken()), {
+          metrics: true,
+          campaign: CAMPAIGN,
+          entrypoint: ENTRYPOINT
+        });
+      });
+    });
+
+    describe('_parseResumeToken', function () {
+      it('restores known fields from the resume param', function () {
+        var resumeData = {
+          metrics: false,
+          campaign: CAMPAIGN,
+          extraField: 'shouldBeIgnored'
+        };
+        var resumeToken = ResumeToken.stringify(resumeData);
+
+        windowMock.location.search = TestHelpers.toSearchString({
+          resume: resumeToken
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('metrics'), false);
+            assert.equal(relier.get('campaign'), CAMPAIGN);
+            assert.isUndefined(relier.get('extraField'), 'only allow specific resume token values');
+          });
       });
     });
 

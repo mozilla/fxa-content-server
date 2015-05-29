@@ -13,8 +13,9 @@ define([
   'models/reliers/base',
   'models/mixins/search-param',
   'lib/promise',
+  'lib/resume-token',
   'lib/constants'
-], function (_, BaseRelier, SearchParamMixin, p, Constants) {
+], function (_, BaseRelier, SearchParamMixin, p, ResumeToken, Constants) {
 
   var Relier = BaseRelier.extend({
     defaults: {
@@ -22,6 +23,7 @@ define([
       preVerifyToken: null,
       email: null,
       allowCachedCredentials: true,
+      metrics: null,
       entrypoint: null,
       campaign: null
     },
@@ -50,6 +52,7 @@ define([
       var self = this;
       return p()
         .then(function () {
+          self._parseResumeToken();
           self.importSearchParam('service');
           self.importSearchParam('preVerifyToken');
           self.importSearchParam('uid');
@@ -91,7 +94,49 @@ define([
      */
     allowCachedCredentials: function () {
       return this.get('allowCachedCredentials');
+    },
+
+    /**
+     * Creates a resume token from subset of model fields.
+     */
+    getResumeToken: function () {
+      var resumeObj = {};
+      var fieldCount = 0;
+
+      _.each(this.getRelierFieldsInResumeToken(), function (itemName) {
+        if (this.has(itemName)) {
+          resumeObj[itemName] = this.get(itemName);
+          fieldCount++;
+        }
+      }, this);
+
+      if (fieldCount === 0) {
+        return null;
+      }
+      return ResumeToken.stringify(resumeObj);
+    },
+
+    getRelierFieldsInResumeToken: function () {
+      return ['metrics', 'campaign', 'entrypoint'];
+    },
+
+    /**
+     * Sets relier properties from the resume token value
+     * @private
+     */
+    _parseResumeToken: function () {
+      var resumeToken = this.getSearchParam('resume');
+      var parsedResumeToken = ResumeToken.parse(resumeToken);
+
+      if (parsedResumeToken) {
+        _.each(this.getRelierFieldsInResumeToken(), function (itemName) {
+          if (Object.prototype.hasOwnProperty.call(parsedResumeToken, itemName)) {
+            this.set(itemName, parsedResumeToken[itemName]);
+          }
+        }, this);
+      }
     }
+
   });
 
   _.extend(Relier.prototype, SearchParamMixin);
