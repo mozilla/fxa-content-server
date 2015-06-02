@@ -381,7 +381,10 @@ if (missingLangs.length) {
 
 var areDistResources = conf.get('static_directory') === 'dist';
 conf.set('are_dist_resources', areDistResources);
+var options = {
+  strict : true
+}
 
 // validate the configuration based on the above specification
-conf.validate();
+conf.validate(options);
 
