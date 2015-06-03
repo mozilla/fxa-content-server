@@ -7,12 +7,14 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 
 ## Prerequisites
 
+Follow the steps outlined in:
+https://github.com/mozilla/fxa-local-dev
+
+The above link helps you to install the following pre-requisites and set up a development environment.
 * node 0.10.x
 * npm
-* Grunt (`npm install -g grunt-cli`)
+* Grunt
 * libgmp
-  * On Linux, Install libgmp and libgmp-dev packages: `sudo apt-get install libgmp3-dev`
-  * On Mac OS X: `brew install gmp`
 * [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) running on 127.0.0.1:9000.
 
 ## Development Setup
@@ -27,6 +29,8 @@ It will listen on <http://127.0.0.1:3030> by default.
 
 Note: If you have issues with `npm install` please update to npm 2.0+ using `npm install -g npm@2` 
 ([Issue #1594](https://github.com/mozilla/fxa-content-server/issues/1594))
+Note: If you have issues with bigint (gmp.h not found) that stops pm2 from being installed, install pm2
+ separately using `npm install pm2` 
 
 ## Docker Based Development
 
@@ -57,6 +61,8 @@ To stop the container, first try CTRL+C. If that does not work, run `docker ps |
 * Run Selenium Server
 * Run the Firefox Content Server locally: `npm start`
 * Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
+
+Note: You do not have to start the servers if they are already running through pm2. You can check this by typing `./pm2 status`.
 
 e.g. in shell form:
 
