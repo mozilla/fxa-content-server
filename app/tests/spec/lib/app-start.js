@@ -27,14 +27,12 @@ define([
   'lib/storage-metrics',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/history',
-  '../../lib/helpers'
+  '../../mocks/history'
 ],
 function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-      User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-      TestHelpers) {
+      User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
@@ -129,21 +127,6 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
                     .then(function () {
                       assert.isTrue(userMock.upgradeFromSession.calledOnce);
                     });
-      });
-
-      it('tracks window errors', function () {
-        var message = 'Fake ReferenceError: xyz is not defined. ' +
-          'Testing length of a long window.onerror error message here, that is more than the given limit';
-
-        return appStart.startApp()
-          .then(function () {
-            appStart._metrics = new Metrics();
-            window.onerror.call(window, message, document.location.toString(), 2);
-          })
-          .then(function () {
-            var expectedMessage = message.substring(0, Constants.ONERROR_MESSAGE_LIMIT);
-            assert.isTrue(TestHelpers.isEventLogged(appStart._metrics, 'error.onwindow.' + expectedMessage));
-          });
       });
 
       it('uses storage metrics when an automated browser is detected', function () {
@@ -359,6 +342,35 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
       it('creates a user', function () {
         appStart.initializeUser();
         assert.isDefined(appStart._user);
+      });
+    });
+
+    describe('initializeErrorMetrics', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({});
+      });
+
+      it('skips error metrics on empty config', function () {
+        appStart.initializeErrorMetrics();
+        assert.isUndefined(appStart._sentryMetrics);
+      });
+
+      it('creates error metrics', function () {
+        var appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          broker: brokerMock
+        });
+        appStart.useConfig({ sentrySampleRate: 1 });
+        appStart.initializeErrorMetrics();
+        assert.isDefined(appStart._sentryMetrics);
       });
     });
 

@@ -27,6 +27,7 @@ define([
   'lib/config-loader',
   'lib/screen-info',
   'lib/metrics',
+  'lib/sentry',
   'lib/storage-metrics',
   'lib/null-metrics',
   'lib/fxa-client',
@@ -69,6 +70,7 @@ function (
   ConfigLoader,
   ScreenInfo,
   Metrics,
+  SentryMetrics,
   StorageMetrics,
   NullMetrics,
   FxaClient,
@@ -130,9 +132,7 @@ function (
         this.initializeInterTabChannel()
       ])
       .then(_.bind(this.allResourcesReady, this))
-      .then(function () {
-        self._trackWindowOnError();
-      }, function (err) {
+      .then(null, function (err) {
         if (console && console.error) {
           console.error('Critical error:');
           console.error(String(err));
@@ -159,19 +159,7 @@ function (
     },
 
     _trackWindowOnError: function () {
-      var self = this;
-      // if startup is okay we want to log future window.onerror events
-      window.onerror = function (message /*, url, lineNumber*/) {
-        var errMsg = 'null';
 
-        if (message) {
-          errMsg = message.toString().substring(0, Constants.ONERROR_MESSAGE_LIMIT);
-        }
-
-        if (self._metrics) {
-          self._metrics.logEvent('error.onwindow.' +  errMsg);
-        }
-      };
     },
 
     initializeAble: function () {
@@ -181,6 +169,7 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
+                    .then(_.bind(this.initializeErrorMetrics, this))
                     .then(_.bind(this.initializeOAuthClient, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
@@ -219,6 +208,12 @@ function (
     useConfig: function (config) {
       this._config = config;
       this._configLoader.useConfig(config);
+    },
+
+    initializeErrorMetrics: function () {
+      if (this._config && this._config.sentrySampleRate && isMetricsCollectionEnabled(this._config.sentrySampleRate)) {
+        this._sentryMetrics = new SentryMetrics(this._window.location.host);
+      }
     },
 
     initializeL10n: function () {

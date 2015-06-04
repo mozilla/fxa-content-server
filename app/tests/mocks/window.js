@@ -19,7 +19,8 @@ function (_, Backbone, NullStorage) {
       href: window.location.href,
       search: window.location.search,
       pathname: '/',
-      origin: window.location.origin
+      origin: window.location.origin,
+      host: window.location.host
     };
 
     this.document = {

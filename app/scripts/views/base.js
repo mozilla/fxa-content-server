@@ -7,6 +7,7 @@ define([
   'cocktail',
   'underscore',
   'backbone',
+  'raven',
   'jquery',
   'lib/promise',
   'lib/auth-errors',
@@ -15,7 +16,7 @@ define([
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
-function (Cocktail, _, Backbone, $, p, AuthErrors,
+function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -490,7 +491,7 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
       if (typeof console !== 'undefined' && console) {
         console.error(err.message);
       }
-
+      Raven.captureException(err);
       this.metrics.logError(err);
     },
 

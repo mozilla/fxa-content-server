@@ -78,6 +78,22 @@ var conf = module.exports = convict({
     },
     sample_rate: 1
   },
+  sentry: {
+    endpoint: {
+      doc: 'Remote Sentry endpoint',
+      default: 'https://sentry.prod.mozaws.net/api/31/store/'
+    },
+    api_key: {
+      doc: 'Sentry API key',
+      format: String,
+      default: '8e7aaaa38fdb46e58ec0b3de61373492'
+    },
+    sample_rate: {
+      doc: 'Front-end error metrics sample rate - must be between 0 and 1',
+      format: Number,
+      default: 0
+    }
+  },
   logging: {
     app: {
       default: 'fxa-content-server'
