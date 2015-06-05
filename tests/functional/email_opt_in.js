@@ -15,6 +15,7 @@ define([
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
+  var COMMUNICATION_PREFS_URL = intern.config.fxaContentRoot + 'settings/communication_preferences';
   var CUTOFF_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = CUTOFF_YEAR - 1;
 
@@ -83,9 +84,13 @@ define([
           return waitForBasket(email);
         })
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
-          .click()
-        .end()
+        // The "communication prefernences" link is not visible in this release.
+        // .findByCssSelector('a[href="/settings/communication_preferences"]')
+        //   .click()
+        // .end()
+        .then(function () {
+          return FunctionalHelpers.openPage(self, COMMUNICATION_PREFS_URL, '#fxa-communication-preferences-header');
+        })
 
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
@@ -118,9 +123,13 @@ define([
           return waitForBasket(email);
         })
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
-          .click()
-        .end()
+        // The "communication prefernences" link is not visible in this release.
+        // .findByCssSelector('a[href="/settings/communication_preferences"]')
+        //   .click()
+        // .end()
+        .then(function () {
+          return FunctionalHelpers.openPage(self, COMMUNICATION_PREFS_URL, '#fxa-communication-preferences-header');
+        })
 
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
@@ -175,9 +184,13 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .findByCssSelector('a[href="/settings/communication_preferences"]')
-          .click()
-        .end()
+        // The "communication prefernences" link is not visible in this release.
+        // .findByCssSelector('a[href="/settings/communication_preferences"]')
+        //   .click()
+        // .end()
+        .then(function () {
+          return FunctionalHelpers.openPage(self, COMMUNICATION_PREFS_URL, '#fxa-communication-preferences-header');
+        })
 
         .findByCssSelector('#fxa-communication-preferences-header')
         .end()
