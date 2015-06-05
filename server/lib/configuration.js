@@ -283,6 +283,37 @@ var conf = module.exports = convict({
       doc: 'Location of "report-uri"',
       default: '/_/csp-violation',
     }
+  },
+  basket: {
+    proxy_url: {
+      doc: 'Url for the Basket proxy server',
+      format: String,
+      default: 'http://127.0.0.1:1114'
+    },
+    api_url: {
+      doc: 'Url for the Basket API server',
+      format: String,
+      default: 'http://127.0.0.1:10140'
+    },
+    api_key: {
+      doc: 'Basket API key',
+      format: String,
+      default: 'test key please change'
+    }
+  },
+  marketing_email: {
+    api_url: {
+      doc: 'User facing URL of the Marketing Email Server',
+      format: 'url',
+      default: 'http://127.0.0.1:1114',
+      env: 'FXA_MARKETING_EMAIL_API_URL'
+    },
+    preferences_url: {
+      doc: 'User facing URL where a user can manage their email preferences',
+      format: 'url',
+      default: 'https://www-dev.allizom.org/newsletter/existing/',
+      env: 'FXA_MARKETING_EMAIL_PREFERENCES_URL'
+    }
   }
 });
 
