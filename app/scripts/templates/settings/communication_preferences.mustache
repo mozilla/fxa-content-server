@@ -1,19 +1,25 @@
-<div id="main-content" class="card">
-  <header>
-    <h1 id="fxa-communication-preferences-header">{{#t}}Communication preferences{{/t}}</h1>
-  </header>
+<div id="communication-preferences" class="settings-unit">
+  <div class="success">Hello</div>
+  <div class="error"></div>
 
-  <section>
-    <div class="success"></div>
-    <div class="error"></div>
+    <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Communication preferences{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden">{{#t}}Change {{/t}}</button>
+  </div>
 
+   <div class="settings-unit-details">
     <form novalidate>
-      <div>
+      <p>
         {{#t}}Get the latest news about Mozilla and Firefox.{{/t}}
-      </div>
+        {{#preferencesUrl}}
+          <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
+        {{/preferencesUrl}}
+      </p>
 
       <div class="button-row">
-        <button type="submit" id="marketing-email-optin" class="marketing-email-optin">
+        <button type="submit" id="marketing-email-optin" class="marketing-email-optin settings-button primary">
           {{#isOptedIn}}
             {{#t}}Unsubscribe{{/t}}
           {{/isOptedIn}}
@@ -21,19 +27,9 @@
             {{#t}}Subscribe{{/t}}
           {{/isOptedIn}}
         </button>
+        <button class="settings-button secondary cancel">{{#t}}Cancel{{/t}}</button>
+
       </div>
     </form>
-
-
-    <div class="links email-optin-links">
-      {{#preferencesUrl}}
-        <a href="#" id="back" class="left back">{{#t}}Back{{/t}}</a>
-        <a href="{{preferencesUrl}}" id="preferences-url" class="right">{{#t}}Email preferences{{/t}}</a>
-      {{/preferencesUrl}}
-
-      {{^preferencesUrl}}
-        <a href="#" id="back" class="back">{{#t}}Back{{/t}}</a>
-      {{/preferencesUrl}}
-    </div>
-  </section>
+  </div>
 </div>
