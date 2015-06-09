@@ -25,13 +25,13 @@ define([
   'views/complete_account_unlock',
   'views/ready',
   'views/settings',
-  'views/settings/avatar',
   'views/settings/avatar_change',
   'views/settings/avatar_crop',
   'views/settings/avatar_gravatar',
   'views/settings/avatar_camera',
   'views/settings/communication_preferences',
   'views/settings/gravatar_permissions',
+  'views/settings/display_name',
   'views/change_password',
   'views/delete_account',
   'views/cookies_disabled',
@@ -62,13 +62,13 @@ function (
   CompleteAccountUnlockView,
   ReadyView,
   SettingsView,
-  AvatarView,
   AvatarChangeView,
   AvatarCropView,
   AvatarGravatarView,
   AvatarCameraView,
   CommunicationPreferencesView,
   GravatarPermissions,
+  DisplayNameView,
   ChangePasswordView,
   DeleteAccountView,
   CookiesDisabledView,
@@ -80,7 +80,25 @@ function (
 
   function showView(View, options) {
     return function () {
-      this.createAndShowView(View, options);
+      // The view will be the same if we're navigating from a subview to a superview.
+      var isSameView = this.currentView instanceof View;
+      if (! isSameView) {
+        this.createAndShowView(View, options);
+      }
+    };
+  }
+
+  // Show a sub-view, creating and initializing the SuperView if needed.
+  function showSubView(SuperView, options) {
+    return function () {
+      // If currentView is of the SuperView type, simply show the subView
+      if (this.currentView &&
+         Object.getPrototypeOf(this.currentView).className === SuperView.prototype.className) {
+        this.currentView.showSubView(options.subView, options);
+      } else {
+        // Create the SuperView; its initialization method should handle the subView option.
+        this.createAndShowView(SuperView, options);
+      }
     };
   }
 
@@ -100,15 +118,14 @@ function (
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
       'settings(/)': showView(SettingsView),
-      'settings/avatar(/)': showView(AvatarView),
-      'settings/avatar/change(/)': showView(AvatarChangeView),
-      'settings/avatar/crop(/)': showView(AvatarCropView),
-      'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
-      'settings/avatar/camera(/)': showView(AvatarCameraView),
-      'settings/avatar/gravatar_permissions(/)': showView(GravatarPermissions),
-      'settings/communication_preferences(/)': showView(CommunicationPreferencesView),
-      'change_password(/)': showView(ChangePasswordView),
-      'delete_account(/)': showView(DeleteAccountView),
+      'settings/avatar/change(/)': showSubView(SettingsView, { subView: AvatarChangeView }),
+      'settings/avatar/crop(/)': showSubView(SettingsView, { subView: AvatarCropView }),
+      'settings/avatar/gravatar(/)': showSubView(SettingsView, { subView: AvatarGravatarView }),
+      'settings/avatar/camera(/)': showSubView(SettingsView, { subView: AvatarCameraView }),
+      'settings/communication_preferences(/)': showSubView(SettingsView, { subView: CommunicationPreferencesView }),
+      'settings/change_password(/)': showSubView(SettingsView, { subView: ChangePasswordView }),
+      'settings/delete_account(/)': showSubView(SettingsView, { subView: DeleteAccountView }),
+      'settings/display_name(/)': showSubView(SettingsView, { subView: DisplayNameView }),
       'legal(/)': showView(LegalView),
       'legal/terms(/)': showView(TosView),
       'legal/privacy(/)': showView(PpView),
@@ -282,6 +299,7 @@ function (
           self._checkForRefresh();
         })
         .fail(function (err) {
+          console.log('err', err);
           // The router's navigate method doesn't set ephemeral messages,
           // so use the view's higher level navigate method.
           return viewToShow.navigate('unexpected_error', {
