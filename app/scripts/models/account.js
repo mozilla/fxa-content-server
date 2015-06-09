@@ -22,6 +22,7 @@ define([
   // Account attributes that can be persisted
   var PERSISTENT = {
     accessToken: undefined,
+    displayName: undefined,
     email: undefined,
     grantedPermissions: undefined,
     lastLogin: undefined,
@@ -175,6 +176,22 @@ define([
         // had a custom profile image.
         this.set('hadProfileImageSetBefore', true);
       }
+    },
+
+    fetchProfile: function () {
+      var self = this;
+      var profileImage = new ProfileImage();
+
+      return self.getProfile()
+        .then(function (result) {
+          profileImage = new ProfileImage({ url: result.avatar });
+          self.setProfileImage(profileImage);
+          self.set('displayName', result.displayName);
+          return profileImage.fetch();
+        })
+        .then(function () {
+          return profileImage;
+        });
     },
 
     fetchCurrentProfileImage: function () {
@@ -333,7 +350,15 @@ define([
     }
   });
 
-  ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
+  [
+    'getProfile',
+    'getAvatar',
+    'getAvatars',
+    'postAvatar',
+    'deleteAvatar',
+    'uploadAvatar',
+    'postDisplayName'
+  ]
     .forEach(function (method) {
       Account.prototype[method] = function () {
         var self = this;
