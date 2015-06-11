@@ -30,15 +30,32 @@ define([
   if (travis) {
     url += '&travis=true';
   }
-  var MOCHA_LOADER_SLEEP = 50;
+  var MOCHA_LOADER_SLEEP = 3000;
+
+  var counter = -1;
 
   registerSuite({
     name: 'mocha tests',
 
+    beforeEach: function () {
+      counter++;
+    },
+
+    afterEach: function () {
+      var currentTest = this.tests[counter];
+      if (!currentTest.error) {
+        return;
+      }
+      this.remote.takeScreenshot()
+        .then(function(buffer) {
+          console.error(buffer.toString('base64'));
+        });
+    },
+
     'run the mocha tests': function () {
       var self = this;
       // timeout after 300 seconds
-      this.timeout = 300000;
+      this.timeout = 20000;
 
       return this.remote
         .setFindTimeout(this.timeout)
@@ -48,7 +65,7 @@ define([
         .sleep(MOCHA_LOADER_SLEEP)
 
         // wait for the tests to complete
-        .findById('total-failures')
+        .findById('total-failures5')
         .getVisibleText()
         .then(function (text) {
           if (text !== '0') {
