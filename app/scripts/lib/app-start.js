@@ -21,6 +21,7 @@ define([
   'backbone',
   'lib/promise',
   'router',
+  'raven',
   'lib/translator',
   'lib/session',
   'lib/url',
@@ -64,6 +65,7 @@ function (
   Backbone,
   p,
   Router,
+  Raven,
   Translator,
   Session,
   Url,
@@ -137,6 +139,15 @@ function (
           console.error('Critical error:');
           console.error(String(err));
         }
+
+        // if there is no error metrics set that means there was an error with the /config endpoint
+        // therefore force error reporting to get error information
+        if (! self._sentryMetrics) {
+          self._sentryMetrics = new SentryMetrics(self._window.location.host);
+        }
+
+        Raven.captureException(err);
+
         if (self._metrics) {
           self._metrics.logError(err);
         }
@@ -147,9 +158,13 @@ function (
         // persistent logs enabled. See #2183
         return p()
           .then(function () {
-            //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(err);
-            self._window.location.href = redirectTo;
+            // give a bit of time to flush the error logs,
+            // otherwise Safari Mobile redirects too quickly.
+            setTimeout(function () {
+              //Something terrible happened. Let's bail.
+              var redirectTo = self._getErrorPage(err);
+              self._window.location.href = redirectTo;
+            }, 1000);
           });
       });
     },

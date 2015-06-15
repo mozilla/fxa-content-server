@@ -108,14 +108,17 @@ function (chai, sinon, AppStart, Session, Constants, p, Url, OAuthErrors,
           });
       });
 
-      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function () {
+      it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function (done) {
         sinon.stub(appStart, '_selectStartPage', function () {
           return p.reject(new Error('boom!'));
         });
 
         return appStart.startApp()
           .then(function () {
-            assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+            setTimeout(function (params) {
+              assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
+              done();
+            }, 1500)
           });
       });
 
