@@ -176,6 +176,17 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         $(windowMock).trigger('unload');
       });
 
+      it('sends filtered data to the server on window blur', function (done) {
+        metrics.logEvent('event10');
+        metrics.logEvent('event20');
+
+        metrics.on('flush.success', function () {
+          done();
+        });
+
+        $(windowMock).trigger('blur');
+      });
+
       it('handles server errors', function () {
         metrics.logEvent('event100');
         metrics.logEvent('event200');
