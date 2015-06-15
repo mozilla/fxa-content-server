@@ -4,7 +4,6 @@
   "camelcase": true,
   "curly": true,
   "eqeqeq": true,
-  "es3": true,
   "esnext": true,
   "globalstrict": true,
   "immed": true,
