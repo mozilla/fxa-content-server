@@ -11,6 +11,7 @@ var authServerUrl = config.get('fxaccount_url');
 var oauthServerUrl = config.get('oauth_url');
 var profileServerUrl = config.get('profile_url');
 var metricsSampleRate = config.get('metrics.sample_rate');
+var sentrySampleRate = config.get('sentry.sample_rate');
 var allowedParentOrigins = config.get('allowed_parent_origins');
 var marketingEmailApiServerUrl = config.get('marketing_email.api_url');
 var marketingEmailPreferencesUrl = config.get('marketing_email.preferences_url');
@@ -47,6 +48,7 @@ module.exports = function () {
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
       metricsSampleRate: metricsSampleRate,
+      sentrySampleRate: sentrySampleRate,
       profileUrl: profileServerUrl
     });
   };
