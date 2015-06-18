@@ -105,9 +105,10 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('')
-        .end()
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
         .end()
@@ -151,9 +152,10 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
-        .switchToWindow('')
-        .end();
+        .switchToWindow('');
     },
 
     'password reset, verify same browser by replacing the original tab': function () {

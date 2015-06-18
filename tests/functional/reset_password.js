@@ -360,6 +360,8 @@ define([
         })
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('')
 
@@ -398,6 +400,8 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
+
         .switchToWindow('');
     },
 
@@ -533,8 +537,11 @@ define([
             })
 
             .closeCurrentWindow()
+            .end()
+
             // switch to the original window
             .switchToWindow('')
+            .end()
 
             .findByCssSelector('#fxa-settings-header')
             .end()

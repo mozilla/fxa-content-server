@@ -143,6 +143,8 @@ define([
         })
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('')
         .setFindTimeout(CHANNEL_DELAY)
@@ -190,6 +192,8 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('');
     },
@@ -336,6 +340,8 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('')
         .setFindTimeout(CHANNEL_DELAY)
@@ -396,6 +402,8 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         // switch to the original window
         .switchToWindow('');
     },

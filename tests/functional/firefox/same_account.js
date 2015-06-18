@@ -113,6 +113,7 @@ define([
         .findById('fxa-sign-up-complete-header')
         .end()
         .closeCurrentWindow()
+        .end()
         // switch to the original window
         .switchToWindow('')
         // wait for the verified window in the old tab

@@ -107,10 +107,10 @@ define([
 
         .end()
         .closeCurrentWindow()
+        .end()
 
         // switch to the original window, it should not transition.
         .switchToWindow('')
-        .end()
 
         .findByCssSelector('#fxa-confirm-header')
         .end();
@@ -153,8 +153,9 @@ define([
         })
 
         .closeCurrentWindow()
-        .switchToWindow('')
-        .end();
+        .end()
+
+        .switchToWindow('');
     },
 
     'signup, verify same browser by replacing the original tab': function () {

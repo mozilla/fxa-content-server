@@ -121,6 +121,8 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
+
         .switchToWindow('');
     },
 

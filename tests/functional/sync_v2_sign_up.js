@@ -116,10 +116,10 @@ define([
 
         .end()
         .closeCurrentWindow()
+        .end()
 
         // switch to the original window, it should not transition.
         .switchToWindow('')
-        .end()
 
         .findByCssSelector('#fxa-confirm-header')
         .end();
