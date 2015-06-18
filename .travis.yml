@@ -2,6 +2,7 @@ language: node_js
 
 node_js:
   - "0.10"
+  - "0.12"
 
 addons:
   firefox: "38.0"
@@ -64,3 +65,8 @@ script:
   - grunt lint
   - travis_retry npm run test-travis
   - travis_retry npm run test-server
+
+matrix:
+  allow_failures:
+     - node_js: "0.12"
+  fast_finish: true
