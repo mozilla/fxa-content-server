@@ -28,6 +28,7 @@ define([
 
   function initiateLockedAccountChangePassword(context) {
     return context.remote
+      .setFindTimeout(intern.config.pageLoadTimeout)
       .get(require.toUrl(PAGE_URL))
 
       .findByCssSelector('#fxa-change-password-header')
@@ -225,6 +226,7 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
         .switchToWindow('')
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
@@ -259,6 +261,7 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
         .switchToWindow('');
     },
 

@@ -87,6 +87,7 @@ define([
         })
 
         .closeCurrentWindow()
+        .end()
 
         // back to the original window
         .switchToWindow('')
@@ -119,6 +120,7 @@ define([
         })
 
         .closeCurrentWindow()
+        .end()
 
         // back to the original window
         .switchToWindow('')

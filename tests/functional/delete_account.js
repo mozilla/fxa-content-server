@@ -154,6 +154,7 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
         .switchToWindow('')
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
@@ -189,6 +190,7 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
         .switchToWindow('');
     },
 
@@ -212,6 +214,9 @@ define([
         .then(function () {
           return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
         })
+
+        .findByCssSelector('#fxa-delete-account-header')
+        .end()
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
         .end()

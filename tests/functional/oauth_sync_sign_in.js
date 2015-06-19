@@ -116,6 +116,8 @@ define([
 
             // switch to the original window
             .closeCurrentWindow()
+            .end()
+
             .switchToWindow('')
 
             .findByCssSelector('#loggedin')

@@ -111,6 +111,7 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
         // switch to the original window
         .switchToWindow('')
 
@@ -155,6 +156,8 @@ define([
 
         // switch to the original window
         .closeCurrentWindow()
+        .end()
+
         .switchToWindow('');
     },
 

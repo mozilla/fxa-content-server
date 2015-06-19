@@ -128,6 +128,7 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
 
         // switch to the original window
         .switchToWindow('')
@@ -171,6 +172,7 @@ define([
 
         // close the new tab
         .closeCurrentWindow()
+        .end()
 
         // go back to the original window
         .switchToWindow('')
@@ -297,6 +299,7 @@ define([
         .end()
 
         .closeCurrentWindow()
+        .end()
 
         // go back to the original window
         .switchToWindow('')
@@ -349,6 +352,7 @@ define([
 
         // close the new tab
         .closeCurrentWindow()
+        .end()
 
         // go back to the original window
         .switchToWindow('')
