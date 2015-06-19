@@ -91,7 +91,7 @@ define([
       // upgrade the credentials with an accessToken
       promise = promise.then(function () {
         if (self._needsAccessToken()) {
-          return self.createOAuthToken('profile:write')
+          return self.createOAuthToken('profile profile:write')
             .then(function (accessToken) {
               self.set('accessToken', accessToken.get('token'));
             }, function () {
@@ -187,10 +187,6 @@ define([
           profileImage = new ProfileImage({ url: result.avatar });
           self.setProfileImage(profileImage);
           self.set('displayName', result.displayName);
-          return profileImage.fetch();
-        })
-        .then(function () {
-          return profileImage;
         });
     },
 
