@@ -80,9 +80,11 @@ function (
 
   function showView(View, options) {
     return function () {
-      // The view will be the same if we're navigating from a subview to a superview.
-      var isSameView = this.currentView instanceof View;
-      if (! isSameView) {
+      // If the current view is an instance of View, that means we're
+      // navigating from a subview of the current view
+      if (this.currentView instanceof View) {
+        this.currentView.trigger('navigate-from-subview');
+      } else {
         this.createAndShowView(View, options);
       }
     };
@@ -92,8 +94,7 @@ function (
   function showSubView(SuperView, options) {
     return function () {
       // If currentView is of the SuperView type, simply show the subView
-      if (this.currentView &&
-         Object.getPrototypeOf(this.currentView).className === SuperView.prototype.className) {
+      if (this.currentView instanceof SuperView) {
         this.currentView.showSubView(options.subView, options);
       } else {
         // Create the SuperView; its initialization method should handle the subView option.
