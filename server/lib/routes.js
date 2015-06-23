@@ -131,7 +131,7 @@ module.exports = function (config, i18n) {
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
         if (ALLOWED_TO_FRAME[req.path]) {
-          res.removeHeader('x-frame-options');
+          /*res.removeHeader('x-frame-options');*/
         }
 
         // setting the url to / will use the correct
@@ -156,12 +156,12 @@ module.exports = function (config, i18n) {
       });
 
       app.get('/503.html', function (req, res) {
-        res.removeHeader('x-frame-options');
+        /*res.removeHeader('x-frame-options');*/
         return res.render('503');
       });
 
       app.get('/502.html', function (req, res) {
-        res.removeHeader('x-frame-options');
+        /*res.removeHeader('x-frame-options');*/
         return res.render('502');
       });
 
@@ -173,7 +173,7 @@ module.exports = function (config, i18n) {
 
     // we always want to handle these so we can do some logging.
     app.get('/400.html', function (req, res) {
-      res.removeHeader('x-frame-options');
+      /*res.removeHeader('x-frame-options');*/
       logger.error('400.html', {
         message: req.query.message,
         errno: req.query.errno,
@@ -188,7 +188,7 @@ module.exports = function (config, i18n) {
     });
 
     app.get('/500.html', function (req, res) {
-      res.removeHeader('x-frame-options');
+      /*res.removeHeader('x-frame-options');*/
       logger.error('500.html', {
         message: req.query.message,
         errno: req.query.errno,

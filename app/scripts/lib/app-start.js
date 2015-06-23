@@ -280,12 +280,16 @@ function (
 
     initializeIframeChannel: function () {
       var self = this;
+      console.log('checking if in an iframe');
       if (! self._isInAnIframe()) {
         return p();
       }
 
+      console.log('initializing iframe channel');
+
       return self._checkParentOrigin()
         .then(function (parentOrigin) {
+          console.log('parentOrigin', parentOrigin);
           if (! parentOrigin) {
             // No allowed origins were found. Illegal iframe.
             throw AuthErrors.toError('ILLEGAL_IFRAME_PARENT');
