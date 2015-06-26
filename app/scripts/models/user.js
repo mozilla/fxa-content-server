@@ -21,11 +21,9 @@ define([
     initialize: function (options) {
       options = options || {};
       this._oAuthClientId = options.oAuthClientId;
-      this._oAuthClient = options.oAuthClient;
       this._profileClient = options.profileClient;
       this._fxaClient = options.fxaClient;
       this._marketingEmailClient = options.marketingEmailClient;
-      this._assertion = options.assertion;
       this._storage = options.storage || Storage.factory();
     },
 
@@ -62,8 +60,6 @@ define([
 
       return new Account({
         accountData: accountData,
-        assertion: this._assertion,
-        oAuthClient: this._oAuthClient,
         profileClient: this._profileClient,
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,

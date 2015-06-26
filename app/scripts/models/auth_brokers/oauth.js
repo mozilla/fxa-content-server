@@ -54,8 +54,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
       options = options || {};
 
       this.session = options.session;
-      this._assertionLibrary = options.assertionLibrary;
-      this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -63,20 +62,19 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
 
     getOAuthResult: function (account) {
       var self = this;
-      if (! account || ! account.get('sessionToken')) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-      }
-
-      return self._assertionLibrary.generate(account.get('sessionToken'))
-        .then(function (assertion) {
+      // Ensure we always return a promise, even on error.
+      return p()
+        .then(function() {
+          if (! account || ! account.get('sessionToken')) {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          }
           var relier = self.relier;
-          var oauthParams = {
-            assertion: assertion,
+          var params = {
             client_id: relier.get('clientId'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };
-          return self._oAuthClient.getCode(oauthParams);
+          return self._fxaClient.getOAuthCode(account.get('sessionToken'), params);
         })
         .then(_formatOAuthResult);
     },

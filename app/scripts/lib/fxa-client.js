@@ -419,6 +419,36 @@ function (FxaClient, $, p, Session, AuthErrors) {
         });
     },
 
+    getOAuthClientInfo: function getOAuthClientInfo(clientId) {
+      return this._getClient()
+        .then(function (client) {
+          return client.getOAuthClientInfo(clientId);
+        });
+    },
+
+    // params = { assertion, client_id, redirect_uri, scope, state }
+    getOAuthCode: function getOAuthCode(sessionToken, params) {
+      return this._getClient()
+        .then(function (client) {
+          return client.getOAuthCode(sessionToken, params);
+        });
+    },
+
+    // params = { assertion, client_id, scope }
+    getOAuthToken: function getOAuthToken(sessionToken, params) {
+      return this._getClient()
+        .then(function (client) {
+          return client.getOAuthToken(sessionToken, params);
+        });
+    },
+
+    destroyOAuthToken: function destroyOAuthToken(token) {
+      return this._getClient()
+        .then(function (client) {
+          return client.detroyOAuthToken(token);
+        });
+    },
+
     // The resume token is eventually for post-verification if the
     // user verifies in a second client, with the goal of allowing
     // users to continue back to the original RP.

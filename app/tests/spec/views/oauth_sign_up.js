@@ -11,8 +11,6 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/metrics',
-  'lib/oauth-client',
-  'lib/assertion',
   'lib/able',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
@@ -22,8 +20,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
-      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock,
+function (chai, $, sinon, View, p, Session, FxaClient, Metrics,
+      Able, OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock,
       RouterMock, TestHelpers) {
   'use strict';
 
@@ -60,8 +58,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
     var metrics;
     var windowMock;
     var fxaClient;
-    var oAuthClient;
-    var assertionLibrary;
     var relier;
     var broker;
     var user;
@@ -92,18 +88,14 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         window: windowMock
       });
 
-      oAuthClient = new OAuthClient();
-      sinon.stub(oAuthClient, 'getClientInfo', function () {
+      fxaClient = new FxaClient();
+      sinon.stub(fxaClient, 'getOAuthClientInfo', function () {
         return p({
           name: '123Done',
           redirect_uri: BASE_REDIRECT_URL //eslint-disable-line camelcase
         });
       });
 
-      fxaClient = new FxaClient();
-      assertionLibrary = new Assertion({
-        fxaClient: fxaClient
-      });
       user = new User({
         fxaClient: fxaClient
       });
@@ -118,8 +110,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         relier: relier,
         broker: broker,
         user: user,
-        assertionLibrary: assertionLibrary,
-        oAuthClient: oAuthClient,
         screenName: 'oauth.signup',
         formPrefill: formPrefill,
         able: able

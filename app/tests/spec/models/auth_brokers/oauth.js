@@ -8,16 +8,15 @@ define([
   'lib/session',
   'lib/promise',
   'lib/constants',
-  'lib/oauth-client',
-  'lib/assertion',
+  'lib/fxa-client',
   'lib/auth-errors',
   'lib/oauth-errors',
   'models/reliers/relier',
   'models/user',
   'models/auth_brokers/oauth'
 ],
-function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors,
-      OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
+function (chai, sinon, Session, p, Constants, FxaClientWrapper,
+      AuthErrors, OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
   'use strict';
 
   var assert = chai.assert;
@@ -39,23 +38,17 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
 
   describe('models/auth_brokers/oauth', function () {
     var broker;
-    var oAuthClient;
-    var assertionLibrary;
+    var fxaClient;
     var relier;
     var user;
     var account;
 
     beforeEach(function () {
-      oAuthClient = new OAuthClient();
-      sinon.stub(oAuthClient, 'getCode', function () {
+      fxaClient = new FxaClientWrapper();
+      sinon.stub(fxaClient, 'getOAuthCode', function () {
         return p({
           redirect: VALID_OAUTH_CODE_REDIRECT_URL
         });
-      });
-
-      assertionLibrary = new Assertion({});
-      sinon.stub(assertionLibrary, 'generate', function () {
-        return p('assertion');
       });
 
       relier = new Relier();
@@ -75,8 +68,7 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
 
       broker = new OAuthAuthenticationBroker({
         session: Session,
-        assertionLibrary: assertionLibrary,
-        oAuthClient: oAuthClient,
+        fxaClient: fxaClient,
         relier: relier
       });
 
@@ -179,16 +171,15 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
       it('gets an object with the OAuth login information', function () {
         return broker.getOAuthResult(account)
           .then(function (result) {
-            assert.isTrue(assertionLibrary.generate.calledWith(account.get('sessionToken')));
             assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
             assert.equal(result.state, 'state');
             assert.equal(result.code, VALID_OAUTH_CODE);
           });
       });
 
-      it('passes on errors from assertion generation', function () {
-        assertionLibrary.generate.restore();
-        sinon.stub(assertionLibrary, 'generate', function () {
+      it('passes on errors from fxaClient.getOAuthCode', function () {
+        fxaClient.getOAuthCode.restore();
+        sinon.stub(fxaClient, 'getOAuthCode', function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -198,21 +189,9 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
           });
       });
 
-      it('passes on errors from oAuthClient.getCode', function () {
-        oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
-          return p.reject(new Error('uh oh'));
-        });
-
-        return broker.getOAuthResult(account)
-          .then(assert.fail, function (err) {
-            assert.equal(err.message, 'uh oh');
-          });
-      });
-
-      it('throws an error if oAuthClient.getCode returns nothing', function () {
-        oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+      it('throws an error if fxaClient.getOAuthCode returns nothing', function () {
+        fxaClient.getOAuthCode.restore();
+        sinon.stub(fxaClient, 'getOAuthCode', function () {
           return;
         });
 
@@ -222,9 +201,9 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
           });
       });
 
-      it('throws an error if oAuthClient.getCode returns an empty object', function () {
-        oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+      it('throws an error if fxaClient.getOAuthCode returns an empty object', function () {
+        fxaClient.getOAuthCode.restore();
+        sinon.stub(fxaClient, 'getOAuthCode', function () {
           return {};
         });
 
@@ -234,9 +213,9 @@ function (chai, sinon, Session, p, Constants, OAuthClient, Assertion, AuthErrors
           });
       });
 
-      it('throws an error if oAuthClient.getCode returns an invalid code', function () {
-        oAuthClient.getCode.restore();
-        sinon.stub(oAuthClient, 'getCode', function () {
+      it('throws an error if fxaClient.getOAuthCode returns an invalid code', function () {
+        fxaClient.getOAuthCode.restore();
+        sinon.stub(fxaClient, 'getOAuthCode', function () {
           return {
             redirect: INVALID_OAUTH_CODE_REDIRECT_URL
           };

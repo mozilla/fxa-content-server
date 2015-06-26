@@ -21,12 +21,12 @@ define([
     initialize: function (options) {
       options = options || {};
 
-      this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
       this.set('token', options.token);
     },
 
     destroy: function () {
-      return this._oAuthClient.destroyToken(this.get('token'));
+      return this._fxaClient.destroyOAuthToken(this.get('token'));
     }
   });
 

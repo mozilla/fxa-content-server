@@ -30,9 +30,7 @@ define([
   'lib/storage-metrics',
   'lib/null-metrics',
   'lib/fxa-client',
-  'lib/assertion',
   'lib/constants',
-  'lib/oauth-client',
   'lib/oauth-errors',
   'lib/auth-errors',
   'lib/profile-client',
@@ -74,9 +72,7 @@ function (
   StorageMetrics,
   NullMetrics,
   FxaClient,
-  Assertion,
   Constants,
-  OAuthClient,
   OAuthErrors,
   AuthErrors,
   ProfileClient,
@@ -188,27 +184,21 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
-                    .then(_.bind(this.initializeOAuthClient, this))
-                    // both the metrics and router depend on the language
-                    // fetched from config.
+                    // fxaClient depends on inter tab communication.
+                    .then(_.bind(this.initializeFxaClient, this))
+                    // relier depends on fxaClient.
                     .then(_.bind(this.initializeRelier, this))
                     // metrics depends on the relier.
                     .then(_.bind(this.initializeMetrics, this))
                     // iframe channel depends on the relier and metrics
                     .then(_.bind(this.initializeIframeChannel, this))
-                    // fxaClient depends on the relier and
-                    // inter tab communication.
-                    .then(_.bind(this.initializeFxaClient, this))
-                    // assertionLibrary depends on fxaClient
-                    .then(_.bind(this.initializeAssertionLibrary, this))
-                    // profileClient depends on fxaClient and assertionLibrary
+                    // profileClient depends on fxaClient
                     .then(_.bind(this.initializeProfileClient, this))
                     // marketingEmailClient depends on config
                     .then(_.bind(this.initializeMarketingEmailClient, this))
-                    // user depends on the profileClient, oAuthClient, and assertionLibrary.
+                    // user depends on the profileClient
                     .then(_.bind(this.initializeUser, this))
-                    // broker relies on the user, relier, fxaClient,
-                    // assertionLibrary, and metrics
+                    // broker relies on the user, relier, fxaClient, and metrics
                     .then(_.bind(this.initializeAuthenticationBroker, this))
                     // depends on the authentication broker
                     .then(_.bind(this.initializeHeightObserver, this))
@@ -306,12 +296,6 @@ function (
       this._formPrefill = new FormPrefill();
     },
 
-    initializeOAuthClient: function () {
-      this._oAuthClient = new OAuthClient({
-        oAuthUrl: this._config.oAuthUrl
-      });
-    },
-
     initializeProfileClient: function () {
       this._profileClient = new ProfileClient({
         profileUrl: this._config.profileUrl
@@ -339,7 +323,7 @@ function (
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
             window: this._window,
-            oAuthClient: this._oAuthClient,
+            fxaClient: this._fxaClient,
             session: Session
           });
         } else {
@@ -351,13 +335,6 @@ function (
         this._relier = relier;
         return relier.fetch();
       }
-    },
-
-    initializeAssertionLibrary: function () {
-      this._assertionLibrary = new Assertion({
-        fxaClient: this._fxaClient,
-        audience: this._config.oAuthUrl
-      });
     },
 
     initializeAuthenticationBroker: function () {
@@ -380,16 +357,13 @@ function (
             window: this._window,
             relier: this._relier,
             fxaClient: this._fxaClient,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
             session: Session
           });
         } else if (this._isIframe()) {
           this._authenticationBroker = new IframeAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
+            fxaClient: this._fxaClient,
             session: Session,
             channel: this._iframeChannel,
             metrics: this._metrics
@@ -398,8 +372,7 @@ function (
           this._authenticationBroker = new RedirectAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
+            fxaClient: this._fxaClient,
             session: Session
           });
         } else {
@@ -453,10 +426,8 @@ function (
         this._user = new User({
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
-          oAuthClient: this._oAuthClient,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
-          assertion: this._assertionLibrary,
           storage: this._getStorageInstance()
         });
       }

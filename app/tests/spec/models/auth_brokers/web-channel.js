@@ -74,21 +74,13 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWr
     }
 
     function setupGeneratesOAuthCode() {
-      broker._assertionLibrary = {
-        generate: function mockGenerate() {
-          return p('mock_assertion');
-        }
-      };
-
-      broker._oAuthClient = {
-        getCode: function mockGetCode() {
-          var code = '00000000000000000000000000000000' +
-                     '00000000000000000000000000000000';
-          return p({
-            redirect: 'mock?state=STATE&code=' + code
-          });
-        }
-      };
+      sinon.stub(fxaClientMock, 'getOAuthCode', function () {
+        var code = '00000000000000000000000000000000' +
+                   '00000000000000000000000000000000';
+        return p({
+          redirect: 'mock?state=STATE&code=' + code
+        });
+      });
     }
 
 
