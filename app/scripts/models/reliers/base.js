@@ -47,6 +47,16 @@ define([
     },
 
     /**
+     * Check if we whitelisted/authorized service to
+     * ask for password only once.
+     *
+     * So far, only OAuth relier whould possibly make it return true.
+     */
+    isSsoAuthorizedRelier: function () {
+      return false;
+    },
+
+    /**
      * Check if the relier is Sync for Firefox Desktop
      */
     isSync: function () {

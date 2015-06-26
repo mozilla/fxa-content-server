@@ -49,9 +49,23 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
+    /**
+     * If our relier has whitelisted: true, we want to
+     * ensure we can prevent asking for a password again to
+     * an already authenticated user.
+     *
+     * So far its used if isSyncAccount because its the only way, so far,
+     * where we can do such shortcut.
+     */
+    checkSsoAuthorizedRelier: function () {
+      console.log('checkSsoAuthrizedRelier', this.relier);
+      return this.relier.isSsoAuthorizedRelier();
+    },
+
     context: function () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
+      console.debug('sign_in context hasSuggestedAccount', hasSuggestedAccount);
       var email = hasSuggestedAccount ?
                     suggestedAccount.get('email') : this.getPrefillEmail();
 
@@ -73,6 +87,16 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
     afterRender: function () {
       this.transformLinks();
+
+      // Provided we have a relier with canSso activated, and we already have a signed-in user
+      // lets skip the password part altogether.
+      if (this.relier.isSsoAuthorizedRelier()) {
+        try {
+          console.log('afterRender: Force logged in');
+          this.useLoggedInAccount();
+        } catch(e) { /* not breaking in your face */ }
+      }
+
       return FormView.prototype.afterRender.call(this);
     },
 
@@ -222,6 +246,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     _suggestedAccount: function () {
       var account = this.user.getChooserAccount();
       var prefillEmail = this.getPrefillEmail();
+      console.debug('sign_in _suggestedAccount', account);
 
       if (
         // the relier can overrule cached creds.
@@ -231,6 +256,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         // prefilled email must be the same or absent
         (prefillEmail === account.get('email') || ! prefillEmail)
       ) {
+
         return account;
       } else {
         return this.user.initAccount();
@@ -242,6 +268,16 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      * @private
      */
     _suggestedAccountAskPassword: function (account) {
+
+      // In order to skip asking password, we must meet two conditions.
+      //
+      // 1. Relier dont need to regenerate keys (which requires user to give his password!)
+      // 2. We are not sync service
+      //
+      // If we meet those two conditions AND we set a whitelisted property
+      // to a relier to true, we can skip asking password.
+      var areGoingThroughSsoAuthorizedRelier = this.checkSsoAuthorizedRelier();
+
       // If there's no email, obviously we'll have to ask for the password.
       if (! account.get('email')) {
         this.logScreenEvent('ask-password.shown.account-unknown');
@@ -250,7 +286,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
       // If the relier wants keys, then the user must authenticate and the password must be requested.
       // This includes sync, which must skip the login chooser at all cost
-      if (this.relier.wantsKeys()) {
+      if (this.relier.wantsKeys() && areGoingThroughSsoAuthorizedRelier === false) {
         this.logScreenEvent('ask-password.shown.keys-required');
         return true;
       }
@@ -258,7 +294,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       // We need to ask the user again for their password unless the credentials came from Sync.
       // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
       // your account that invalidates your sessionToken.
-      if (! this.user.isSyncAccount(account)) {
+      if (! this.user.isSyncAccount(account) && areGoingThroughSsoAuthorizedRelier === false) {
         this.logScreenEvent('ask-password.shown.session-from-web');
         return true;
       }
