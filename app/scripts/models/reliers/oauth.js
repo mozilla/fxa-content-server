@@ -45,7 +45,7 @@ define([
       Relier.prototype.initialize.call(this, options);
 
       this._session = options.session;
-      this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
     },
 
     fetch: function () {
@@ -187,7 +187,7 @@ define([
       var self = this;
       var clientId = self.get('clientId');
 
-      return self._oAuthClient.getClientInfo(clientId)
+      return self._fxaClient.getOAuthClientInfo(clientId)
         .then(function (serviceInfo) {
           self.set('serviceName', serviceInfo.name);
           // server version always takes precedent over the search parameter

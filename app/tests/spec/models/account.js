@@ -7,9 +7,7 @@ define([
   'sinon',
   'lib/promise',
   'lib/constants',
-  'lib/assertion',
   'lib/profile-client',
-  'lib/oauth-client',
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/profile-errors',
@@ -17,8 +15,8 @@ define([
   'models/account',
   'models/reliers/relier'
 ],
-function (chai, sinon, p, Constants, Assertion, ProfileClient,
-    OAuthClient, FxaClientWrapper, AuthErrors, ProfileErrors,
+function (chai, sinon, p, Constants, ProfileClient,
+    FxaClientWrapper, AuthErrors, ProfileErrors,
     MarketingEmailClient, Account, Relier) {
   'use strict';
 
@@ -26,8 +24,6 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
 
   describe('models/account', function () {
     var account;
-    var assertion;
-    var oAuthClient;
     var profileClient;
     var relier;
     var fxaClient;
@@ -41,16 +37,12 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     var SESSION_TOKEN = 'abc123';
 
     beforeEach(function () {
-      assertion = new Assertion();
-      oAuthClient = new OAuthClient();
       profileClient = new ProfileClient();
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
       relier = new Relier();
 
       account = new Account({
-        oAuthClient: oAuthClient,
-        assertion: assertion,
         profileClient: profileClient,
         fxaClient: fxaClient,
         marketingEmailClient: marketingEmailClient,
@@ -82,19 +74,14 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({ verified: true });
         });
-        sinon.stub(assertion, 'generate', function () {
-          return p('assertion');
-        });
-        sinon.stub(oAuthClient, 'getToken', function () {
+        sinon.stub(fxaClient, 'getOAuthToken', function () {
           return p({ 'access_token': 'access token' });
         });
 
         return account.fetch()
           .then(function () {
-            assert.isTrue(assertion.generate.calledWith(SESSION_TOKEN));
-            assert.isTrue(oAuthClient.getToken.calledWith({
+            assert.isTrue(fxaClient.getOAuthToken.calledWith(SESSION_TOKEN, {
               'client_id': CLIENT_ID,
-              assertion: 'assertion',
               scope: 'profile:write'
             }));
 
@@ -133,7 +120,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({ verified: true });
         });
-        sinon.stub(assertion, 'generate', function () {
+        sinon.stub(fxaClient, 'getOAuthToken', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
         return account.fetch()
@@ -305,10 +292,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({ verified: true });
         });
-        sinon.stub(assertion, 'generate', function () {
-          return p('assertion');
-        });
-        sinon.stub(oAuthClient, 'getToken', function () {
+        sinon.stub(fxaClient, 'getOAuthToken', function () {
           return p({ 'access_token': accessToken });
         });
       });
@@ -402,13 +386,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     describe('without an access token', function () {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(assertion, 'generate', function () {
-          return p('assertion');
-        });
         sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
           return p({ verified: true });
         });
-        sinon.stub(oAuthClient, 'getToken', function () {
+        sinon.stub(fxaClient, 'getOAuthToken', function () {
           return p.reject(ProfileClient.Errors.toError('UNVERIFIED_ACCOUNT'));
         });
       });
@@ -465,14 +446,12 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           sessionToken: SESSION_TOKEN,
           foo: 'bar',
           password: 'password'
-        },
-        assertion: 'test'
+        }
       });
 
       var data = account.toJSON();
 
       assert.isUndefined(data.accountData);
-      assert.isUndefined(data.assertion);
       assert.isUndefined(data.foo);
       assert.ok(data.email);
       assert.ok(data.password);
@@ -489,14 +468,12 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           grantedPermissions: {
             'some-client-id': ['profile:email', 'profile:uid']
           }
-        },
-        assertion: 'test'
+        }
       });
 
       var data = account.toPersistentJSON();
 
       assert.isUndefined(data.accountData);
-      assert.isUndefined(data.assertion);
       assert.isUndefined(data.foo);
       assert.isUndefined(data.password);
       assert.ok(data.email);
@@ -510,7 +487,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
 
       it('true for account with data that is not in one of its allowed keys', function () {
-        assert.isTrue(new Account({ assertion: 'blah' }).isDefault());
+        assert.isTrue(new Account({ oAuthClientId: 'blah' }).isDefault());
       });
 
       it('not true for account with data', function () {

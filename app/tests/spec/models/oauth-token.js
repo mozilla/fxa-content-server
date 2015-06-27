@@ -14,19 +14,19 @@ function (chai, sinon, p, OAuthToken) {
   var assert = chai.assert;
 
   describe('models/oauth-token', function () {
-    var oAuthClient;
+    var fxaClient;
     var oAuthToken;
 
     beforeEach(function () {
-      oAuthClient = {
-        destroyToken: sinon.spy(function () {
+      fxaClient = {
+        destroyOAuthToken: sinon.spy(function () {
           return p();
         })
       };
 
       oAuthToken = new OAuthToken({
         token: 'access_token',
-        oAuthClient: oAuthClient
+        fxaClient: fxaClient
       });
     });
 
@@ -40,7 +40,7 @@ function (chai, sinon, p, OAuthToken) {
       it('destroys the token', function () {
         return oAuthToken.destroy()
           .then(function () {
-            assert.isTrue(oAuthClient.destroyToken.calledWith('access_token'));
+            assert.isTrue(fxaClient.destroyOAuthToken.calledWith('access_token'));
           });
       });
     });

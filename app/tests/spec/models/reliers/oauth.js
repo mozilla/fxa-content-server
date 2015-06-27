@@ -8,7 +8,7 @@ define([
   'models/reliers/oauth',
   'models/user',
   'lib/session',
-  'lib/oauth-client',
+  'lib/fxa-client',
   'lib/oauth-errors',
   'lib/promise',
   'lib/relier-keys',
@@ -16,7 +16,7 @@ define([
   'lib/url',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, sinon, OAuthRelier, User, Session, OAuthClient, OAuthErrors,
+], function (chai, sinon, OAuthRelier, User, Session, FxaClientWrapper, OAuthErrors,
       p, RelierKeys, ResumeToken, Url, WindowMock, TestHelpers) {
   'use strict';
 
@@ -25,8 +25,8 @@ define([
 
   describe('models/reliers/oauth', function () {
     var relier;
-    var oAuthClient;
     var windowMock;
+    var fxaClient;
     var user;
 
     var STATE = 'fakestatetoken';
@@ -50,9 +50,9 @@ define([
 
     beforeEach(function () {
       windowMock = new WindowMock();
-      oAuthClient = new OAuthClient();
+      fxaClient = new FxaClientWrapper();
 
-      sinon.stub(oAuthClient, 'getClientInfo', function () {
+      sinon.stub(fxaClient, 'getOAuthClientInfo', function () {
         return p({
           name: SERVICE_NAME,
           redirect_uri: SERVER_REDIRECT_URI
@@ -63,7 +63,7 @@ define([
 
       relier = new OAuthRelier({
         window: windowMock,
-        oAuthClient: oAuthClient,
+        fxaClient: fxaClient,
         session: Session
       });
     });
@@ -252,8 +252,8 @@ define([
           scope: SCOPE
         });
 
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
+        fxaClient.getOAuthClientInfo.restore();
+        sinon.stub(fxaClient, 'getOAuthClientInfo', function () {
           return p.reject(OAuthErrors.toError('INVALID_REQUEST_SIGNATURE'));
         });
 
@@ -282,8 +282,8 @@ define([
           client_id: CLIENT_ID,
           scope: SCOPE
         });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
+        fxaClient.getOAuthClientInfo.restore();
+        sinon.stub(fxaClient, 'getOAuthClientInfo', function () {
           return p({
             name: SERVICE_NAME,
             redirect_uri: SERVER_REDIRECT_URI,
@@ -301,8 +301,8 @@ define([
           client_id: CLIENT_ID,
           scope: SCOPE
         });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
+        fxaClient.getOAuthClientInfo.restore();
+        sinon.stub(fxaClient, 'getOAuthClientInfo', function () {
           return p({
             name: SERVICE_NAME,
             redirect_uri: SERVER_REDIRECT_URI,

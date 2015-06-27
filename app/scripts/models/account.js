@@ -61,8 +61,6 @@ define([
       }
 
       self._oAuthClientId = options.oAuthClientId;
-      self._oAuthClient = options.oAuthClient;
-      self._assertion = options.assertion;
       self._profileClient = options.profileClient;
       self._fxaClient = options.fxaClient;
       self._marketingEmailClient = options.marketingEmailClient;
@@ -93,7 +91,7 @@ define([
           return self.createOAuthToken('profile:write')
             .then(function (accessToken) {
               self.set('accessToken', accessToken.get('token'));
-            }, function () {
+            }, function (err) {
               // Ignore errors; we'll just fetch again when needed
             });
         }
@@ -131,18 +129,14 @@ define([
     createOAuthToken: function (scope) {
       var self = this;
 
-      return self._assertion.generate(self.get('sessionToken'))
-        .then(function (assertion) {
-          var params = {
-            client_id: self._oAuthClientId, //eslint-disable-line camelcase
-            scope: scope,
-            assertion: assertion
-          };
-          return self._oAuthClient.getToken(params);
-        })
+      var params = {
+        client_id: self._oAuthClientId, //eslint-disable-line camelcase
+        scope: scope
+      };
+      return self._fxaClient.getOAuthToken(self.get('sessionToken'), params)
         .then(function (result) {
           return new OAuthToken({
-            oAuthClient: self._oAuthClient,
+            fxaClient: self._fxaClient,
             token: result.access_token
           });
         });
