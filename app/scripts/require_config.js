@@ -25,6 +25,7 @@ require.config({
     crosstab: 'vendor/crosstab',
     uuid: '../bower_components/node-uuid/uuid',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
+    modal: '../bower_components/jquery-modal/jquery.modal',
     raven: '../bower_components/raven-js/dist/raven'
   },
   config: {
@@ -61,6 +62,10 @@ require.config({
     },
     sjcl: {
       exports: 'sjcl'
+    },
+    modal: {
+      deps: ['jquery'],
+      exports: 'modal'
     },
     mailcheck: {
       deps: ['jquery'],
