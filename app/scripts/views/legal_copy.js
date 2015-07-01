@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'jquery',
   'cocktail',
   'lib/xhr',
   'views/base',
   'views/mixins/back-mixin'
 ],
-function (Cocktail, xhr, BaseView, BackMixin) {
+function ($, Cocktail, xhr, BaseView, BackMixin) {
   'use strict';
 
   // A view to fetch and render legal copy. Sub-classes must provide

@@ -8,9 +8,10 @@
 define([
   'views/tooltip',
   'lib/url',
+  'jquery',
   'mailcheck'
 ],
-function (Tooltip, Url) {
+function (Tooltip, Url, $) {
   'use strict';
 
   var DOMAINS = [ // domains that get suggested, i.e gnail.com => gmail.com

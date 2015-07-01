@@ -9,12 +9,13 @@
  */
 
 define([
+  'jquery',
   'views/base',
   'lib/promise',
   'lib/oauth-errors',
   'stache!templates/partial/close-button'
 ],
-function (BaseView, p, OAuthErrors, CloseTemplate) {
+function ($, BaseView, p, OAuthErrors, CloseTemplate) {
   'use strict';
 
   var View = BaseView.extend({

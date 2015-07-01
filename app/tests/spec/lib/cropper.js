@@ -4,6 +4,7 @@
 
 /* exceptsPaths: jquery-simulate */
 define([
+  'jquery',
   'chai',
   'sinon',
   'jquery-simulate',
@@ -17,8 +18,8 @@ define([
   'models/user',
   'models/reliers/relier'
 ],
-function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
-    CropperImage, User, Relier) {
+function ($, chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper,
+          EphemeralMessages, View, CropperImage, User, Relier) {
   'use strict';
 
   var assert = chai.assert;
