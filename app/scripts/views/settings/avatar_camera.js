@@ -6,7 +6,7 @@
 define([
   'underscore',
   'cocktail',
-  'canvasToBlob',
+  'imports?this=>window!canvasToBlob',
   'views/form',
   'views/progress_indicator',
   'views/mixins/settings-mixin',
