@@ -109,7 +109,11 @@ define([
       var self = this;
 
       var account = _.find(self._accounts(), function (account) {
-        return self.isSyncAccount(account);
+        // We want true in two cases
+        // - self.isSyncAccount(account)
+        // - Ask relier.isSsoAuthorizedRelier()
+        console.debug('getChooserAccount (account)', account );
+        return true;//self.isSyncAccount(account);
       }) || self._getSignedInAccount();
 
       return self.initAccount(account);

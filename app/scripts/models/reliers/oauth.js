@@ -37,7 +37,11 @@ define([
       // whether to fetch and derive relier-specific keys
       keys: false,
       // verification redirect to the rp, useful during email verification signup flow
-      verificationRedirect: Constants.VERIFICATION_REDIRECT_NO
+      verificationRedirect: Constants.VERIFICATION_REDIRECT_NO,
+      // Feature flag to allow prevent to ask password twice to authenticated user
+      // ... default value should be false and if, only if, relier config has canSso: true
+      // would enable it.
+      canSso: true
     }),
 
     initialize: function (options) {
@@ -91,6 +95,15 @@ define([
         return true;
       }
       return Relier.prototype.wantsKeys.call(this);
+    },
+
+    /**
+     * Check if oauth relier entry has a trusted boolean.
+     * Only OAuth2 relier with trusted: (bool) true should
+     * make thi method call return true.
+     */
+    isSsoAuthorizedRelier: function () {
+      return this.get('canSso');
     },
 
     deriveRelierKeys: function (keys, uid) {
