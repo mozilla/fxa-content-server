@@ -5,7 +5,7 @@
 /* exceptsPaths: canvasToBlob */
 define([
   'p',
-  'imports?this=>window!canvasToBlob',
+  'canvasToBlob',
   'cocktail',
   'views/form',
   'views/mixins/settings-mixin',

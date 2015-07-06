@@ -65,8 +65,12 @@
     "node-statsd": "0.1.1",
     "request": "2.40.0",
     "serve-static": "1.9.2",
+    "stache-loader": "0.1.0",
     "time-grunt": "0.4.0",
-    "ua-parser": "0.3.5"
+    "ua-parser": "0.3.5",
+    "webpack": "1.9.12",
+    "webpack-dev-server": "1.9.0",
+    "webpack-split-by-path": "0.0.1"
   },
   "devDependencies": {
     "awsbox": "0.7.0",
@@ -86,6 +90,7 @@
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.4.0",
     "husky": "0.8.1",
+    "imports-loader": "0.6.4",
     "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
     "sync-exec": "0.5.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
