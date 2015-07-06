@@ -11,7 +11,8 @@ lib-cov
 *.gz
 
 pids
-logs
+logs 
+logs-id
 results
 
 npm-debug.log*
