@@ -11,12 +11,13 @@ define([
   'views/form',
   'views/mixins/back-mixin',
   'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'views/mixins/checkbox-mixin',
   'views/mixins/loading-mixin',
   'stache!templates/settings/communication_preferences'
 ],
 function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
-  BackMixin, SettingsMixin, CheckboxMixin, LoadingMixin, Template) {
+  BackMixin, SettingsMixin, SettingsPanelMixin, CheckboxMixin, LoadingMixin, Template) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -26,6 +27,10 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
     template: Template,
     className: 'communication-preferences',
 
+    events: {
+      'click .settings-unit-toggle': '_openSettingsUnit'
+    },
+
     getMarketingEmailPrefs: function () {
       var self = this;
       if (! self._marketingEmailPrefs) {
@@ -34,6 +39,10 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
       }
 
       return self._marketingEmailPrefs;
+    },
+
+    _openSettingsUnit: function () {
+      this.navigate('/settings/communication_preferences');
     },
 
     beforeRender: function () {
@@ -102,6 +111,7 @@ function (Cocktail, Xss, Constants, MarketingEmailErrors, BaseView, FormView,
     View,
     BackMixin,
     SettingsMixin,
+    SettingsPanelMixin,
     CheckboxMixin,
     LoadingMixin
   );
