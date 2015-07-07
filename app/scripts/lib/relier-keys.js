@@ -8,7 +8,7 @@
 
 define([
   'sjcl',
-  'p-promise',
+  'p',
   'lib/hkdf',
   'lib/base64url',
   'lib/constants'

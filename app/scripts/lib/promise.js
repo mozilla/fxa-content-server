@@ -4,7 +4,7 @@
 
 // monkey patch p to be able to convert jQuery XHR promises to our promises.
 define([
-  'p-promise'
+  'p'
 ], function (p) {
   'use strict';
 

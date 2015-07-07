@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'jquery',
   'cocktail',
   'chai',
   'sinon',
   'views/mixins/checkbox-mixin',
   'views/base',
   'stache!templates/test_template'
-], function (Cocktail, Chai, sinon, CheckboxMixin, BaseView, Template) {
+], function ($, Cocktail, Chai, sinon, CheckboxMixin, BaseView, Template) {
   'use strict';
 
   var assert = Chai.assert;

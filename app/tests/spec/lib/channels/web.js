@@ -6,7 +6,7 @@ define([
   'chai',
   'sinon',
   'lib/channels/web',
-  '/tests/mocks/window.js'
+  '../../../mocks/window'
 ],
 function (chai, sinon, WebChannel, WindowMock) {
   'use strict';

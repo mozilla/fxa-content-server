@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'jquery',
   'chai',
   'sinon',
   'lib/promise',
@@ -19,7 +20,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
+function ($, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       EphemeralMessages, View, Relier, BaseBroker, User,
       WindowMock, RouterMock, TestHelpers) {
   'use strict';

@@ -7,8 +7,9 @@ define([
   'stache!templates/partial/coppa-date-picker',
   'lib/strings',
   'lib/auth-errors',
-  'lib/promise'
-], function (FormView, Template, Strings, AuthErrors, p) {
+  'lib/promise',
+  'jquery'
+], function (FormView, Template, Strings, AuthErrors, p, $) {
   'use strict';
 
   var now = new Date();

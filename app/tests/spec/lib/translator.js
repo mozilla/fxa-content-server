@@ -6,9 +6,10 @@
 
 define([
   'chai',
-  'lib/translator'
+  'lib/translator',
+  'jquery'
 ],
-function (chai, Translator) {
+function (chai, Translator, $) {
   'use strict';
 
   var assert = chai.assert;

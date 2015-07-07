@@ -8,13 +8,12 @@ require.config({
     jquery: '../bower_components/jquery/dist/jquery',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
-    fxaClient: '../bower_components/fxa-js-client/fxa-client',
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
-    'p-promise': '../bower_components/p/p',
+    p: '../bower_components/p/p',
     sjcl: '../bower_components/sjcl/sjcl',
     sinon: '../bower_components/sinon/index',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
@@ -40,6 +39,11 @@ require.config({
     { name: 'touch-punch',
       location: '../bower_components/jquery-ui-touch-punch',
       main: 'jquery.ui.touch-punch'
+    },
+    {
+      name: 'fxaClient',
+      location: '../bower_components/fxa-js-client/client',
+      main: 'FxAccountClient'
     }
   ],
   shim: {

@@ -8,7 +8,6 @@
     "chai": "1.8.1",
     "cocktail": "0.5.9",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.29",
     "html5shiv": "3.7.2",
     "JavaScript-MD5": "1.1.0",
     "jquery": "1.11.1",
@@ -26,13 +25,26 @@
     "requirejs": "2.1.11",
     "requirejs-mustache": "https://github.com/jfparadis/requirejs-mustache.git#5fb8c0a3e8560526e8f9617a689e2924a8532d0a",
     "requirejs-text": "2.0.10",
-    "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js",
-    "sjcl": "1.0.2",
-    "speed-trap": "0.0.5",
+    "sinon": "http://sinonjs.org/releases/sinon-1.15.4.js",
+    "speed-trap": "https://github.com/rum-diary/speed-trap.git#issue-9-webpack-loading",
     "tos-pp": "https://github.com/mozilla/legal-docs.git",
-    "underscore": "1.8.3"
+    "underscore": "1.8.3",
+    "jquery-ui": "1.11.0",
+    "JavaScript-MD5": "1.1.0",
+    "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830",
+    "blueimp-canvas-to-blob": "https://github.com/eoger/JavaScript-Canvas-to-Blob.git#2968d43641b88e45216fdb99cf889ad247383595",
+    "mailcheck": "https://github.com/mailcheck/mailcheck.git#9fcf9c40da06f6769e5d702dd0fd1f33f36e55a6",
+    "node-uuid": "1.4.3",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#438b76fd13361bfb4d8eb599bdce8ccd51bdda85",
+    "fxa-js-client-packaged": "https://github.com/mozilla/fxa-js-client.git#0.1.29",
+    "p": "https://github.com/eoger/p.git#webpack-fix",
+    "sjcl": "1.0.2"
   },
   "devDependencies": {
     "moment": "2.8.3"
+  },
+  "resolutions": {
+    "p": "webpack-fix",
+    "sjcl": "1.0.2"
   }
 }

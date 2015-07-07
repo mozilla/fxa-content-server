@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* exceptsPaths: canvasToBlob */
 define([
-  'p-promise',
+  'p',
+  'canvasToBlob',
   'cocktail',
   'views/form',
   'views/mixins/settings-mixin',
@@ -15,8 +17,8 @@ define([
   'models/cropper-image',
   'models/profile-image'
 ],
-function (p, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
-    Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
+function (p, canvasToBlob, Cocktail, FormView, SettingsMixin, AvatarMixin,
+    Template, Constants, Cropper, AuthErrors, CropperImage, ProfileImage) {
   'use strict';
 
   var HORIZONTAL_GUTTER = 90;

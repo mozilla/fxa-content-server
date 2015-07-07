@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'jquery',
   'chai',
   'sinon',
   'backbone',
@@ -23,7 +24,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
+function ($, chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
       Able, Constants, Environment, Metrics, EphemeralMessages, p, Relier,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';

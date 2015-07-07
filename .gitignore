@@ -48,6 +48,7 @@ test/temp
 
 
 ### Pre-processed files that become part of the build ###
+app/scripts/dist
 app/scripts/processed
 
 ### Pre-processed error pages

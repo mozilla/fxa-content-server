@@ -7,14 +7,14 @@ define([
   'intern!object',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
+  'app/bower_components/fxa-js-client-packaged/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
 ], function (intern, registerSuite, require, nodeXMLHttpRequest, FxaClient,
         TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
+  var PAGE_URL = config.fxaContentRoot + 'signin?service=sync';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
