@@ -28,13 +28,14 @@ define([
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/history',
+  '../../mocks/storage',
   '../../lib/helpers'
 ],
 function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
       User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-      TestHelpers) {
+      StorageMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -47,6 +48,8 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
     var historyMock;
     var brokerMock;
     var userMock;
+    var storageAbility;
+    var storageMock;
     var appStart;
 
     beforeEach(function () {
@@ -57,6 +60,12 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       historyMock = new HistoryMock();
       userMock = new User();
       brokerMock = new BaseBroker();
+
+      storageAbility = {
+        isSessionStorageEnabled: true,
+        isLocalStorageEnabled: true
+      };
+      storageMock = new StorageMock(storageAbility);
     });
 
     afterEach(function () {
@@ -70,7 +79,8 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
           router: routerMock,
           history: historyMock,
           user: userMock,
-          broker: brokerMock
+          broker: brokerMock,
+          storage: storageMock
         });
       });
 
@@ -82,33 +92,26 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
           });
       });
 
-      it('redirects to /cookies_disabled if localStorage is disabled', function () {
-        appStart.useConfig({
-          localStorageEnabled: false,
-          i18n: {
-            supportedLanguages: ['en'],
-            defaultLang: 'en'
-          }
-        });
-
+      it('does not redirect', function () {
+        sinon.spy(routerMock, 'navigate');
         return appStart.startApp()
-            .then(function () {
-              assert.equal(routerMock.page, 'cookies_disabled');
-            });
+          .then(function () {
+            assert.isFalse(routerMock.navigate.called);
+          });
       });
 
-      it('does not redirect if at /cookies_disabled and cookies are disabled', function () {
+      it('redirects to /cookies_disabled if local storage is disabled', function () {
+        storageAbility.isLocalStorageEnabled = false;
+        return appStart.startApp()
+          .then(function () {
+            assert.equal(routerMock.page, 'cookies_disabled');
+          });
+      });
+
+      it('does not redirect if at /cookies_disabled and local storage is disabled', function () {
         windowMock.location.pathname = '/cookies_disabled';
-        appStart.useConfig({
-          localStorageEnabled: false,
-          i18n: {
-            supportedLanguages: ['en'],
-            defaultLang: 'en'
-          }
-        });
-
+        storageAbility.isLocalStorageEnabled = false;
         sinon.spy(routerMock, 'navigate');
-
         return appStart.startApp()
           .then(function () {
             assert.isFalse(routerMock.navigate.called);
@@ -116,7 +119,7 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
 
       it('redirects to the `INTERNAL_ERROR_PAGE` if an error occurs', function (done) {
-        sinon.stub(appStart, '_selectStartPage', function () {
+        sinon.stub(appStart, 'allResourcesReady', function () {
           return p.reject(new Error('boom!'));
         });
 
@@ -669,19 +672,12 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
 
       it('should set the window hash if in an iframe', function () {
-        sinon.stub(appStart, '_selectStartPage', function () {
-          return p();
-        });
-
         sinon.stub(appStart, '_isInAnIframe', function () {
           return true;
         });
-
         windowMock.location.pathname = 'signup';
-        return appStart.allResourcesReady()
-          .then(function () {
-            assert.equal(windowMock.location.hash, 'signup');
-          });
+        appStart.allResourcesReady();
+        assert.equal(windowMock.location.hash, 'signup');
       });
     });
   });
