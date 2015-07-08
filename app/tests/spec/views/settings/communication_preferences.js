@@ -136,7 +136,20 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
 
         return render()
           .then(function () {
-            assert.isTrue(view.isErrorVisible());
+            assert.ok(view.$('.error').text().length);
+          });
+      });
+
+      it('shows 400 errors as service unavailable', function () {
+        emailPrefsModel.fetch.restore();
+        sinon.stub(emailPrefsModel, 'fetch', function () {
+          return p.reject(MarketingEmailErrors.toError('UNKNOWN_ERROR'));
+        });
+
+        return render()
+          .then(function () {
+            assert.equal(view.$('.error').text().trim(),
+              MarketingEmailErrors.toMessage('SERVICE_UNAVAILABLE'));
           });
       });
     });
