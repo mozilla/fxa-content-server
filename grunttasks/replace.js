@@ -10,13 +10,18 @@ module.exports = function (grunt) {
         '<%= yeoman.tos_md_src %>/*.md'
       ],
       overwrite: true,
-      replacements: [{
-        from: /{:\s.*?\s}/g,
-        to: ''
-      }, {
-        from: /^#\s.*?\n$/m,
-        to: ''
-      }]
+      replacements: [
+        {
+          from: /{:\s.*?\s}/g,
+          to: ''
+        }, {
+          from: /^#\s.*?\n$/m,
+          to: ''
+        }, {
+          from: '.  Learn More.',
+          to: '.'
+        }
+      ]
     }
   });
 };
