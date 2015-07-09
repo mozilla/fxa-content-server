@@ -20,7 +20,7 @@ define([
   var email;
   var client;
 
-  function openFxa(self, email) {
+  function openFxa(self, email) { //eslint-disable-line consistent-this
     return self.remote
       .setFindTimeout(intern.config.pageLoadTimeout)
       .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
@@ -29,7 +29,7 @@ define([
       .end();
   }
 
-  function attemptSignIn(self) {
+  function attemptSignIn(self) { //eslint-disable-line consistent-this
     return self.remote
       // user should be at the force-auth screen
       .findByCssSelector('#fxa-force-auth-header')

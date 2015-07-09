@@ -24,7 +24,7 @@ define([
     return FunctionalHelpers.openFxaFromRp(context, 'force_auth', emailParam);
   }
 
-  function attemptSignIn(self) {
+  function attemptSignIn(self) { //eslint-disable-line consistent-this
     return self.remote
       // user should be at the force-auth screen
       .findByCssSelector('#fxa-force-auth-header')
