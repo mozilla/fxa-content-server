@@ -19,6 +19,9 @@ var child_process = require('child_process'); //eslint-disable-line camelcase
 var Promise = require('bluebird');
 var logger = require('mozlog')('server.ver.json');
 
+var config = require('../configuration');
+var experimentsBranch = config.get('experiments.git');
+
 var version = require('../../../package.json').version;
 
 exports.method = 'get';
@@ -103,11 +106,13 @@ function getVersionInfo() {
                 logger.info('commit hash set to: %s', commitHash);
                 logger.info('fxa-content-server-l10n commit hash set to: %s', l10nVersion);
                 logger.info('tos-pp (legal-docs) commit hash set to: %s', tosPpVersion);
+                logger.info('experiments branch is set to: %s', experimentsBranch);
                 return {
                   version: version,
                   commit: commitHash,
                   l10n: l10nVersion,
-                  tosPp: tosPpVersion
+                  tosPp: tosPpVersion,
+                  experimentsBranch: experimentsBranch
                 };
               });
 

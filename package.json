@@ -4,6 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
+    "start-prod": "grunt build; ",
     "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",
@@ -87,6 +88,7 @@
     "grunt-todo": "0.4.0",
     "husky": "0.8.1",
     "intern": "git://github.com/theintern/intern#42aebd9beb942a11e2c6e6d7687c70a1c22b9bf7",
+    "semver-utils": "^1.1.0",
     "sync-exec": "0.5.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
