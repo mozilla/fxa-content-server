@@ -25,6 +25,7 @@ define([
   'models/reliers/relier',
   'models/user',
   'lib/metrics',
+  'lib/storage',
   'lib/storage-metrics',
   '../../mocks/window',
   '../../mocks/router',
@@ -34,8 +35,8 @@ define([
 function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       AuthErrors, Storage, BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
       WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier, Relier,
-      User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-      TestHelpers) {
+      User, Metrics, Storage, StorageMetrics, WindowMock, RouterMock,
+      HistoryMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -362,10 +363,10 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
         assert.isDefined(appStart._user);
       });
 
-      it('sets the user uuid', function () {
-        appStart.initializeUuid();
+      it('sets the user uniqueUserId', function () {
+        appStart.initializeUniqueUserId();
         appStart.initializeUser();
-        assert.isDefined(appStart._user.get('uuid'));
+        assert.isDefined(appStart._user.get('uniqueUserId'));
       });
     });
 
@@ -420,7 +421,7 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
     });
 
-    describe('initializeUuid', function () {
+    describe('initializeUniqueUserId', function () {
       beforeEach(function () {
         appStart = new AppStart({
           window: windowMock,
@@ -432,17 +433,32 @@ function (chai, sinon, Raven, AppStart, Session, Constants, p, Url, OAuthErrors,
       });
 
       it('creates a user', function () {
-        appStart.initializeUuid();
-        assert.isDefined(appStart._uuid);
+        appStart.initializeUniqueUserId();
+        assert.isDefined(appStart._uniqueUserId);
       });
 
-      it('persistent via localStorage', function () {
-        appStart.initializeUuid();
-        assert.isDefined(appStart._uuid);
-        var uuid = appStart._uuid;
+      it('persists to & loads from localStorage', function () {
+        var storage = Storage.factory('localStorage', windowMock);
 
-        appStart.initializeUuid();
-        assert.equal(appStart._uuid, uuid);
+        // saves to localStorage
+        appStart.initializeUniqueUserId();
+        assert.equal(storage.get('uniqueUserId'), appStart._uniqueUserId);
+
+        // load from localStorage
+        storage.set('uniqueUserId', 'stored in uniqueUserId');
+        appStart.initializeUniqueUserId();
+        assert.equal(storage.get('uniqueUserId'), 'stored in uniqueUserId');
+        assert.equal(appStart._uniqueUserId, 'stored in uniqueUserId');
+      });
+
+      it('migrates data stored in `localStorage.uuid` to `localStorage.uniqueUserId`', function () {
+        var storage = Storage.factory('localStorage', windowMock);
+        storage.set('uuid', 'stored in uuid');
+
+        appStart.initializeUniqueUserId();
+
+        assert.equal(storage.get('uniqueUserId'), 'stored in uuid');
+        assert.isUndefined(storage.get('uuid'));
       });
     });
 
