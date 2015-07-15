@@ -8,15 +8,16 @@ define([
   'md5',
   'cocktail',
   'views/form',
-  'views/mixins/settings-mixin',
   'views/mixins/avatar-mixin',
+  'views/mixins/settings-mixin',
+  'views/mixins/settings-panel-mixin',
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
   'lib/image-loader',
   'views/decorators/progress_indicator',
   'models/profile-image'
 ],
-function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
+function ($, _, md5, Cocktail, FormView, AvatarMixin, SettingsMixin, SettingsPanelMixin,
     Template, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
   'use strict';
 
@@ -93,7 +94,12 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
     }
   });
 
-  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
+  Cocktail.mixin(
+    View,
+    AvatarMixin,
+    SettingsMixin,
+    SettingsPanelMixin
+  );
 
   return View;
 });
