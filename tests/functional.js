@@ -9,6 +9,7 @@ define([
   './functional/sign_up',
   './functional/complete_sign_up',
   './functional/sync_sign_up',
+  './functional/sync_sign_up_choose_what_to_sync',
   './functional/sync_v2_sign_up',
   './functional/firstrun_sign_up',
   './functional/firstrun_sign_in',

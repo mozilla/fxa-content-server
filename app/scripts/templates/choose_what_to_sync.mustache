@@ -1,0 +1,44 @@
+<div id="main-content" class="card">
+  <div id="choose-what-to-sync-graphic"></div>
+
+  <header>
+    <h1 id="fxa-choose-what-to-sync-header">{{#t}}Choose What to Sync{{/t}}</h1>
+    <h2 id="fxa-choose-what-to-sync-email">for {{ email }}</h2>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form id="choose-what-to-sync" novalidate>
+        <div class="input-row choose-what-to-sync-row">
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="bookmarks"> {{#t}}Bookmarks{{/t}}
+          </label>
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="history"> {{#t}}History{{/t}}
+          </label>
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="tabs"> {{#t}}Tabs{{/t}}
+          </label>
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="passwords"> {{#t}}Passwords{{/t}}
+          </label>
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="addons"> {{#t}}Desktop Add-ons{{/t}}
+          </label>
+          <label>
+            <input name="sync-content" type="checkbox" class="customize-sync" checked="checked" value="prefs"> {{#t}}Desktop Preferences{{/t}}
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="next" type="submit">{{#t}}Next{{/t}}</button>
+        </div>
+    </form>
+
+    <ul class="links">
+      <li><button id="back" type="button">{{#t}}Back{{/t}}</button></li>
+    </ul>
+
+  </section>
+</div>

@@ -89,6 +89,7 @@ module.exports = function (config, i18n) {
       '/settings/avatar/gravatar_permissions',
       '/settings/communication_preferences',
       '/change_password',
+      '/choose_what_to_sync',
       '/legal',
       '/cannot_create_account',
       '/verify_email',

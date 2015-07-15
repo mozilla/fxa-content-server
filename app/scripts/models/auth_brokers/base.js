@@ -17,6 +17,7 @@ define([
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
+    _capabilities: [],
     initialize: function (options) {
       options = options || {};
 
@@ -48,6 +49,14 @@ define([
      * The user wants to cancel
      */
     cancel: function () {
+      return p();
+    },
+
+    /**
+     * Called before view is rendered. Can be used
+     * to notify the RP the system is loaded.
+     */
+    beforeRender: function () {
       return p();
     },
 
@@ -202,6 +211,13 @@ define([
      */
     isAutomatedBrowser: function () {
       return !! this.get('automatedBrowser');
+    },
+
+    setCapabilities: function (capabilities) {
+      this._capabilities = capabilities;
+    },
+    getCapabilityByName: function (name) {
+      return _.findWhere(this._capabilities, { name: name });
     }
   });
 

@@ -53,9 +53,11 @@
       </div>
 
       {{#isSync}}
+      {{^isChooseWhatToSyncWeb}}
         <div class="input-row customize-sync-row">
           <label><input id="customize-sync" type="checkbox" class="customize-sync" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
         </div>
+      {{/isChooseWhatToSyncWeb}}
       {{/isSync}}
     </form>
 

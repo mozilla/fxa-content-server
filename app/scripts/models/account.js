@@ -46,6 +46,7 @@ define([
 
   var DEFAULTS = _.extend({
     accessToken: undefined,
+    declinedSyncEngines: undefined,
     customizeSync: undefined,
     keyFetchToken: undefined,
     password: undefined,

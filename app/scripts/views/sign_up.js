@@ -142,6 +142,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return {
         serviceName: relier.get('serviceName'),
         isSync: relier.isSync(),
+        isChooseWhatToSyncWeb: this._isSyncChooser(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: prefillEmail,
@@ -257,6 +258,15 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       this.navigate('cannot_create_account');
     },
 
+    _isSyncChooser: function () {
+      var chooseSyncCapability = this.broker.getCapabilityByName('choose_what_to_sync');
+      // if this is sync and broker is capable of using choose what to sync on the web v1
+      if (this.relier.isSync() && chooseSyncCapability && chooseSyncCapability.version === 'web_v1') {
+        // even if the client is capable, let able to determine if we want to opt-in the user into this behaviour
+        return this.relier.isChooseWhatToSyncWeb(this.user.get('uniqueUserId'), this.window.location.search, this._able);
+      }
+    },
+
     _initAccount: function () {
       var self = this;
 
@@ -288,8 +298,20 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
           }
           self.logScreenEvent('success');
 
+          // if this is an OAuth flow and the relier is untrusted, then we ask for permissions
           if (self.relier.accountNeedsPermissions(account)) {
             self.navigate('signup_permissions', {
+              data: {
+                account: account
+              }
+            });
+
+            return;
+          }
+
+          // if we are setting up Firefox Sync and what the user to choose what to sync first
+          if (self.relier.isSync() && self._isSyncChooser()) {
+            self.navigate('choose_what_to_sync', {
               data: {
                 account: account
               }
