@@ -6,7 +6,6 @@ define([
   'chai',
   'sinon',
   'raven',
-  'lib/app-start',
   'lib/session',
   'lib/channels/null',
   'lib/constants',
@@ -30,13 +29,14 @@ define([
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/history',
-  '../../lib/helpers'
+  '../../lib/helpers',
+  '../../lib/mock-require'
 ],
-function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
+function (chai, sinon, Raven, Session, NullChannel, Constants, p,
   Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopBroker, IframeBroker,
   RedirectBroker, WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier,
   Relier, User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-  TestHelpers) {
+  TestHelpers, MockRequire) {
   'use strict';
 
   var assert = chai.assert;
@@ -66,15 +66,22 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
     });
 
     describe('startApp', function () {
-      beforeEach(function () {
-        appStart = new AppStart({
-          window: windowMock,
-          router: routerMock,
-          history: historyMock,
-          user: userMock,
-          broker: brokerMock,
-          storage: Storage
+      beforeEach(function (done) {
+
+        MockRequire.stub('component!lib/components/window', windowMock);
+        MockRequire.stub('component!lib/components/router', routerMock);
+        MockRequire.stub('component!lib/components/history', historyMock);
+        MockRequire.stub('component!lib/components/user', userMock);
+        MockRequire.stub('component!lib/components/broker', brokerMock);
+        MockRequire.stub('component!lib/components/storage', Storage);
+        MockRequire.loadWithCurrentStubs('lib/app-start', function (app) {
+          appStart = new app();
+          done();
         });
+      });
+
+      afterEach(function () {
+        MockRequire.reset();
       });
 
       it('starts the app', function () {
