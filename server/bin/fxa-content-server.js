@@ -29,6 +29,7 @@ var consolidate = require('consolidate');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var serveStatic = require('serve-static');
+var xFrameOptions = require('../lib/x-frame-options');
 
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var routes = require('../lib/routes')(config, i18n);
@@ -64,7 +65,8 @@ function makeApp() {
   // render the correct template for the locale.
   app.use(localizedRender({ i18n: i18n }));
 
-  app.use(helmet.xframe('deny'));
+  /*app.use(helmet.xframe('deny'));*/
+  app.use(xFrameOptions(config));
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     maxAge: config.get('hsts_max_age'),

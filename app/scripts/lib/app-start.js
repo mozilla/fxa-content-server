@@ -309,6 +309,7 @@ function (
 
     initializeIframeChannel: function () {
       var self = this;
+      console.log('checking if in an iframe');
       if (! self._isInAnIframe()) {
         // Create a NullChannel in case any dependencies require it, such
         // as when the FirstRunAuthenticationBroker is used in functional
@@ -318,8 +319,11 @@ function (
         return p();
       }
 
+      console.log('initializing iframe channel');
+
       return self._checkParentOrigin()
         .then(function (parentOrigin) {
+          console.log('parentOrigin', parentOrigin);
           if (! parentOrigin) {
             // No allowed origins were found. Illegal iframe.
             throw AuthErrors.toError('ILLEGAL_IFRAME_PARENT');
