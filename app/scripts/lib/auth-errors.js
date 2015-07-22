@@ -225,6 +225,26 @@ function (_, Errors) {
     SIGNUP_DISABLED_BY_RELIER: {
       errno: 1030,
       message: t('Signup has been disabled')
+    },
+    ALL_NUMBERS_LETTERS: {
+      errno: 1031,
+      message: 'UNEXPECTED_ERROR_MESSAGE'
+    },
+    BLOOMFILTER_TRIGGERED: {
+      errno: 1032,
+      message: 'UNEXPECTED_ERROR_MESSAGE'
+    },
+    BLOOMFILTER_HIT: {
+      errno: 1033,
+      message: 'UNEXPECTED_ERROR_MESSAGE'
+    },
+    BLOOMFILTER_MISS: {
+      errno: 1034,
+      message: 'UNEXPECTED_ERROR_MESSAGE'
+    },
+    PASSWORD_NOT_A_STRING: {
+      errno: 1035,
+      message: 'UNEXPECTED_ERROR_MESSAGE'
     }
   };
 

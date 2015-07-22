@@ -24,6 +24,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       MigrationMixin, SignupDisabledMixin, CoppaDatePicker) {
   'use strict';
 
+  // getNow is needed so that the password files arent loaded into main.js
+  var getNow = require;
   var t = BaseView.t;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
@@ -50,6 +52,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     },
 
     beforeRender: function () {
+      var self = this;
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
         return p(false);
@@ -61,8 +64,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
 
       this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
-
-      return FormView.prototype.beforeRender.call(this);
+      getNow(['passwordcheck'], function (PasswordCheck) {
+        self.passwordcheck = new PasswordCheck();
+        return FormView.prototype.beforeRender.call(this);
+      });
     },
 
     _createCoppaView: function () {
@@ -122,7 +127,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     },
 
     events: {
-      'blur input.email': 'suggestEmail'
+      'blur input.email': 'suggestEmail',
+      'blur input.password': '_checkPasswordStrength'
     },
 
     getPrefillEmail: function () {
@@ -237,6 +243,22 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
           this.logScreenEvent('mailcheck-useful');
         }
       }
+    },
+
+    _checkPasswordStrength: function () {
+      var self = this;
+      var password = this.getElementValue('.password');
+      self.passwordcheck(password, function (passwordCheckStatus) {
+        var err;
+        if (passwordCheckStatus === 'MISSING_PASSWORD') {
+          // same as PASSWORD_REQUIRED
+          err = AuthErrors.toError('PASSWORD_REQUIRED');
+        } else {
+          err = AuthErrors.toError(passwordCheckStatus);
+        }
+        self.logError(err);
+        // in the future, do some fancy tooltip here.
+      });
     },
 
     suggestEmail: function () {

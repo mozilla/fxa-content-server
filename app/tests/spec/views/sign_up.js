@@ -6,6 +6,7 @@
 define([
   'chai',
   'jquery',
+  'passwordcheck',
   'sinon',
   'lib/promise',
   'views/sign_up',
@@ -25,7 +26,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
+function (chai, $, PasswordCheck, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';
@@ -909,6 +910,64 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
           });
       });
     });
+
+    describe('passwordCheck', function () {
+      var logErrorSpy;
+      beforeEach(function () {
+        view.passwordcheck = new PasswordCheck();
+        logErrorSpy = sinon.spy(view, 'logError');
+      });
+
+      it('logs PASSWORD_TOO_SHORT when password is short', function () {
+        view.$('.password').val('hello');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('PASSWORD_TOO_SHORT').toString()
+        );
+      });
+
+      it('logs MISSING_PASSWORD when no password is passed', function () {
+        view.$('.password').val('');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('PASSWORD_REQUIRED').toString()
+        );
+      });
+
+      it('logs ALL_NUMBERS_LETTERS when password is all numbers', function () {
+        view.$('.password').val('123456789');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('ALL_NUMBERS_LETTERS').toString()
+        );
+      });
+
+      it('logs ALL_NUMBERS_LETTERS when password is all letters', function () {
+        view.$('.password').val('dragondrag');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('ALL_NUMBERS_LETTERS').toString()
+        );
+      });
+
+      it('logs BLOOMFILTER_MISS when password is not in Bloom Filter', function () {
+        view.$('.password').val('imsuperlongandstrong');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('BLOOMFILTER_MISS').toString()
+        );
+      });
+
+      it('logs BLOOMFILTER_HIT when password is in Bloom Filter', function () {
+        view.$('.password').val('charlie2');
+        view._checkPasswordStrength();
+        assert.equal(
+          logErrorSpy.args[0][0].toString(), AuthErrors.toError('BLOOMFILTER_HIT').toString()
+        );
+      });
+
+    });
+
   });
 });
 
