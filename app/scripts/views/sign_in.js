@@ -2,26 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/promise',
-  'views/base',
-  'views/form',
-  'stache!templates/sign_in',
-  'lib/session',
-  'lib/auth-errors',
-  'views/mixins/password-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/avatar-mixin',
-  'views/mixins/account-locked-mixin',
-  'views/decorators/allow_only_one_submit',
-  'views/decorators/progress_indicator'
-],
-function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
-      AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin, AvatarMixin,
-      AccountLockedMixin, allowOnlyOneSubmit, showProgressIndicator) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  var AuthErrors = require('lib/auth-errors');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Session = require('lib/session');
+  var showProgressIndicator = require('views/decorators/progress_indicator');
+  var SignInTemplate = require('stache!templates/sign_in');
 
   var t = BaseView.t;
 

@@ -4,10 +4,10 @@
 
 // helper functions for views with a profile image. Meant to be mixed into views.
 
-define([
-  'lib/session'
-], function (Session) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Session = require('lib/session');
 
   return {
     // user must be authenticated and verified to see Settings pages

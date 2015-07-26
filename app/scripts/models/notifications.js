@@ -6,11 +6,11 @@
  * The notifier broadcasts messages across multiple channels (iframe, tabs, browsers, etc).
  */
 
-define([
-  'backbone',
-  'underscore'
-], function (Backbone, _) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
 
   var EVENTS = {
     PROFILE_CHANGE: 'profile:change'

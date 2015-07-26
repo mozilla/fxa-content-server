@@ -2,81 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'underscore',
-  'jquery',
-  'backbone',
-  'lib/environment',
-  'lib/promise',
-  'lib/storage',
-  'views/sign_in',
-  'views/force_auth',
-  'views/sign_up',
-  'views/confirm',
-  'views/legal',
-  'views/tos',
-  'views/pp',
-  'views/cannot_create_account',
-  'views/complete_sign_up',
-  'views/reset_password',
-  'views/confirm_reset_password',
-  'views/complete_reset_password',
-  'views/confirm_account_unlock',
-  'views/complete_account_unlock',
-  'views/ready',
-  'views/settings',
-  'views/settings/avatar',
-  'views/settings/avatar_change',
-  'views/settings/avatar_crop',
-  'views/settings/avatar_gravatar',
-  'views/settings/avatar_camera',
-  'views/settings/communication_preferences',
-  'views/settings/gravatar_permissions',
-  'views/change_password',
-  'views/delete_account',
-  'views/cookies_disabled',
-  'views/clear_storage',
-  'views/unexpected_error',
-  'views/permissions'
-],
-function (
-  _,
-  $,
-  Backbone,
-  Environment,
-  p,
-  Storage,
-  SignInView,
-  ForceAuthView,
-  SignUpView,
-  ConfirmView,
-  LegalView,
-  TosView,
-  PpView,
-  CannotCreateAccountView,
-  CompleteSignUpView,
-  ResetPasswordView,
-  ConfirmResetPasswordView,
-  CompleteResetPasswordView,
-  ConfirmAccountUnlockView,
-  CompleteAccountUnlockView,
-  ReadyView,
-  SettingsView,
-  AvatarView,
-  AvatarChangeView,
-  AvatarCropView,
-  AvatarGravatarView,
-  AvatarCameraView,
-  CommunicationPreferencesView,
-  GravatarPermissions,
-  ChangePasswordView,
-  DeleteAccountView,
-  CookiesDisabledView,
-  ClearStorageView,
-  UnexpectedErrorView,
-  PermissionsView
-) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var AvatarCameraView = require('views/settings/avatar_camera');
+  var AvatarChangeView = require('views/settings/avatar_change');
+  var AvatarCropView = require('views/settings/avatar_crop');
+  var AvatarGravatarView = require('views/settings/avatar_gravatar');
+  var AvatarView = require('views/settings/avatar');
+  var Backbone = require('backbone');
+  var CannotCreateAccountView = require('views/cannot_create_account');
+  var ChangePasswordView = require('views/change_password');
+  var ClearStorageView = require('views/clear_storage');
+  var CommunicationPreferencesView = require('views/settings/communication_preferences');
+  var CompleteAccountUnlockView = require('views/complete_account_unlock');
+  var CompleteResetPasswordView = require('views/complete_reset_password');
+  var CompleteSignUpView = require('views/complete_sign_up');
+  var ConfirmAccountUnlockView = require('views/confirm_account_unlock');
+  var ConfirmResetPasswordView = require('views/confirm_reset_password');
+  var ConfirmView = require('views/confirm');
+  var CookiesDisabledView = require('views/cookies_disabled');
+  var DeleteAccountView = require('views/delete_account');
+  var Environment = require('lib/environment');
+  var ForceAuthView = require('views/force_auth');
+  var GravatarPermissions = require('views/settings/gravatar_permissions');
+  var LegalView = require('views/legal');
+  var p = require('lib/promise');
+  var PermissionsView = require('views/permissions');
+  var PpView = require('views/pp');
+  var ReadyView = require('views/ready');
+  var ResetPasswordView = require('views/reset_password');
+  var SettingsView = require('views/settings');
+  var SignInView = require('views/sign_in');
+  var SignUpView = require('views/sign_up');
+  var Storage = require('lib/storage');
+  var TosView = require('views/tos');
+  var UnexpectedErrorView = require('views/unexpected_error');
 
   function showView(View, options) {
     return function () {

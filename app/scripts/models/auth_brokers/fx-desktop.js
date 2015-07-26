@@ -14,17 +14,16 @@
  *   `haltBeforeSignUpConfirmationPoll`
  */
 
-define([
-  'cocktail',
-  'underscore',
-  'models/auth_brokers/base',
-  'models/auth_brokers/mixins/channel',
-  'lib/auth-errors',
-  'lib/channels/fx-desktop-v1',
-  'lib/url'
-], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors,
-  FxDesktopChannel, Url) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var ChannelMixin = require('models/auth_brokers/mixins/channel');
+  var Cocktail = require('cocktail');
+  var FxDesktopChannel = require('lib/channels/fx-desktop-v1');
+  var Url = require('lib/url');
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'fx-desktop-v1',

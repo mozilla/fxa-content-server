@@ -4,12 +4,11 @@
 
 // Basic XSS protection
 
-define([
-  'underscore',
-  'lib/constants'
-],
-function (_, Constants) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Constants = require('lib/constants');
 
   return {
     // only allow http or https URLs, encoding the URL.

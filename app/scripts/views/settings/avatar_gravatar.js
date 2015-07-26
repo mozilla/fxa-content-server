@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'underscore',
-  'md5',
-  'cocktail',
-  'views/form',
-  'views/mixins/settings-mixin',
-  'views/mixins/avatar-mixin',
-  'stache!templates/settings/avatar_gravatar',
-  'lib/constants',
-  'lib/image-loader',
-  'views/decorators/progress_indicator',
-  'models/profile-image'
-],
-function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
-    Template, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var ImageLoader = require('lib/image-loader');
+  var md5 = require('md5');
+  var ProfileImage = require('models/profile-image');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var showProgressIndicator = require('views/decorators/progress_indicator');
+  var Template = require('stache!templates/settings/avatar_gravatar');
 
   function t (s) { return s; }
 

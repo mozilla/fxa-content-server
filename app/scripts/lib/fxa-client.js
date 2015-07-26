@@ -6,15 +6,14 @@
 // and to allow us to develop to features that are not yet present in the real
 // client.
 
-define([
-  'fxaClient',
-  'jquery',
-  'lib/promise',
-  'lib/session',
-  'lib/auth-errors'
-],
-function (FxaClient, $, p, Session, AuthErrors) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var FxaClient = require('fxaClient');
+  var p = require('lib/promise');
+  var Session = require('lib/session');
 
   function trim(str) {
     return $.trim(str);

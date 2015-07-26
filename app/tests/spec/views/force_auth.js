@@ -2,25 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/force_auth',
-  'lib/fxa-client',
-  'lib/promise',
-  'lib/auth-errors',
-  'models/reliers/relier',
-  'models/auth_brokers/base',
-  'models/user',
-  'models/form-prefill',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
-      User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/force_auth');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

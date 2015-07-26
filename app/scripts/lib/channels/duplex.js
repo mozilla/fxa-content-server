@@ -10,12 +10,12 @@
  * receive messages via a postMessage (Fx Desktop Sync v1).
  */
 
-define([
-  'underscore',
-  'lib/promise',
-  'lib/channels/base'
-], function (_, p, BaseChannel) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var BaseChannel = require('lib/channels/base');
+  var p = require('lib/promise');
 
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 90 * 1000;
 

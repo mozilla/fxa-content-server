@@ -2,25 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'underscore',
-  'lib/promise',
-  'views/base',
-  'views/form',
-  'stache!templates/sign_up',
-  'lib/auth-errors',
-  'lib/mailcheck',
-  'lib/url',
-  'views/mixins/password-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/checkbox-mixin',
-  'views/mixins/resume-token-mixin',
-  'views/coppa/coppa-date-picker'
-],
-function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-      Url, PasswordMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin, CoppaDatePicker) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var CheckboxMixin = require('views/mixins/checkbox-mixin');
+  var Cocktail = require('cocktail');
+  var CoppaDatePicker = require('views/coppa/coppa-date-picker');
+  var FormView = require('views/form');
+  var mailcheck = require('lib/mailcheck');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Template = require('stache!templates/sign_up');
+  var Url = require('lib/url');
 
   var t = BaseView.t;
 

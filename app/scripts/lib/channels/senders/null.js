@@ -6,10 +6,10 @@
  * A null sender. Sends messages nowhere.
  */
 
-define([
-  'lib/promise'
-], function (p) {
+define(function(require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
 
   function NullSender() {
     // nothing to do here.

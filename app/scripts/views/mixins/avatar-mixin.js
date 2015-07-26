@@ -4,11 +4,11 @@
 
 // helper functions for views with a profile image. Meant to be mixed into views.
 
-define([
-  'lib/profile-errors',
-  'models/profile-image'
-], function (ProfileErrors, ProfileImage) {
+define(function(require, exports, module) {
   'use strict';
+
+  var ProfileErrors = require('lib/profile-errors');
+  var ProfileImage = require('models/profile-image');
 
   return {
     initialize: function (options) {

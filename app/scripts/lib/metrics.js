@@ -14,17 +14,17 @@
  * but can also be sent by calling metrics.flush();
  */
 
-define([
-  'underscore',
-  'backbone',
-  'jquery',
-  'speedTrap',
-  'lib/xhr',
-  'lib/strings',
-  'lib/environment',
-  'lib/promise'
-], function (_, Backbone, $, speedTrap, xhr, Strings, Environment, p) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var Environment = require('lib/environment');
+  var p = require('lib/promise');
+  var speedTrap = require('speedTrap');
+  var Strings = require('lib/strings');
+  var xhr = require('lib/xhr');
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.

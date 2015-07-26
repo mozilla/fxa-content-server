@@ -3,32 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /*global translator */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'lib/promise',
-  'views/sign_up',
-  'views/coppa/coppa-date-picker',
-  'lib/session',
-  'lib/auth-errors',
-  'lib/metrics',
-  'lib/fxa-client',
-  'lib/ephemeral-messages',
-  'lib/mailcheck',
-  'lib/able',
-  'models/reliers/fx-desktop',
-  'models/auth_brokers/base',
-  'models/user',
-  'models/form-prefill',
-  '../../mocks/router',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
-      RouterMock, WindowMock, TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Able = require('lib/able');
+  var AuthErrors = require('lib/auth-errors');
+  var Broker = require('models/auth_brokers/base');
+  var chai = require('chai');
+  var Coppa = require('views/coppa/coppa-date-picker');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var mailcheck = require('lib/mailcheck');
+  var Metrics = require('lib/metrics');
+  var p = require('lib/promise');
+  var Relier = require('models/reliers/fx-desktop');
+  var RouterMock = require('../../mocks/router');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/sign_up');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

@@ -4,12 +4,11 @@
 
 // provides functions to work with errors returned by the auth server.
 
-define([
-  'underscore',
-  'lib/errors'
-],
-function (_, Errors) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Errors = require('lib/errors');
 
   var t = function (msg) {
     return msg;

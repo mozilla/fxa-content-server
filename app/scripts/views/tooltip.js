@@ -4,12 +4,12 @@
 
 // It's a tooltip!
 
-define([
-  'underscore',
-  'jquery',
-  'views/base'
-], function (_, $, BaseView) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var BaseView = require('views/base');
 
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;

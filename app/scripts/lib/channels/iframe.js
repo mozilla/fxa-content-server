@@ -9,13 +9,13 @@
  * on the URL.
  */
 
-define([
-  'underscore',
-  'lib/channels/duplex',
-  'lib/channels/receivers/postmessage',
-  'lib/channels/senders/postmessage'
-], function (_, DuplexChannel, PostMessageReceiver, PostMessageSender) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var DuplexChannel = require('lib/channels/duplex');
+  var PostMessageReceiver = require('lib/channels/receivers/postmessage');
+  var PostMessageSender = require('lib/channels/senders/postmessage');
 
   function IFrameChannel() {
     // constructor, nothing to do.

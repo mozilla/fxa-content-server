@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'jquery',
-  'sinon',
-  'views/settings/gravatar_permissions',
-  'lib/metrics',
-  'models/user',
-  '../../../mocks/router',
-  '../../../lib/helpers'
-],
-function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var RouterMock = require('../../../mocks/router');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
+  var View = require('views/settings/gravatar_permissions');
 
   var assert = chai.assert;
 

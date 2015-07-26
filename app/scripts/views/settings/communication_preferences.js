@@ -2,23 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/xss',
-  'lib/constants',
-  'lib/marketing-email-errors',
-  'lib/metrics',
-  'views/base',
-  'views/form',
-  'views/mixins/back-mixin',
-  'views/mixins/settings-mixin',
-  'views/mixins/checkbox-mixin',
-  'views/mixins/loading-mixin',
-  'stache!templates/settings/communication_preferences'
-],
-function (Cocktail, Xss, Constants, MarketingEmailErrors, Metrics, BaseView, FormView,
-  BackMixin, SettingsMixin, CheckboxMixin, LoadingMixin, Template) {
+define(function(require, exports, module) {
   'use strict';
+
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var CheckboxMixin = require('views/mixins/checkbox-mixin');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var LoadingMixin = require('views/mixins/loading-mixin');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
+  var Metrics = require('lib/metrics');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var Template = require('stache!templates/settings/communication_preferences');
+  var Xss = require('lib/xss');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;

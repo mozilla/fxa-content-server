@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'cocktail',
-  'views/form',
-  'views/mixins/avatar-mixin',
-  'views/mixins/settings-mixin',
-  'stache!templates/settings/avatar_change',
-  'lib/auth-errors',
-  'lib/image-loader',
-  'lib/promise',
-  'models/cropper-image'
-],
-function ($, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
-    AuthErrors, ImageLoader, p, CropperImage) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var Cocktail = require('cocktail');
+  var CropperImage = require('models/cropper-image');
+  var FormView = require('views/form');
+  var ImageLoader = require('lib/image-loader');
+  var p = require('lib/promise');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var Template = require('stache!templates/settings/avatar_change');
 
   var View = FormView.extend({
     template: Template,

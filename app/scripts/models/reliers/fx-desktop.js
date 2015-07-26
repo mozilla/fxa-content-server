@@ -10,12 +10,12 @@
  * - migration
  */
 
-define([
-  'underscore',
-  'models/reliers/relier',
-  'lib/service-name'
-], function (_, Relier, ServiceNameTranslator) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Relier = require('models/reliers/relier');
+  var ServiceNameTranslator = require('lib/service-name');
 
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {

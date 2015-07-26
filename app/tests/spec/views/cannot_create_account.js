@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'views/cannot_create_account',
-  'models/reliers/relier'
-],
-function (chai, sinon, View, Relier) {
+define(function(require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var View = require('views/cannot_create_account');
 
   var assert = chai.assert;
 

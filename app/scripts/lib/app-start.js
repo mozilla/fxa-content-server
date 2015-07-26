@@ -15,101 +15,54 @@
  * 6) Start the app if cookies are enabled.
  */
 
-define([
-  'underscore',
-  'backbone',
-  'lib/promise',
-  'router',
-  'raven',
-  'lib/translator',
-  'lib/session',
-  'lib/url',
-  'lib/config-loader',
-  'lib/screen-info',
-  'lib/metrics',
-  'lib/sentry',
-  'lib/storage-metrics',
-  'lib/fxa-client',
-  'lib/assertion',
-  'lib/constants',
-  'lib/oauth-client',
-  'lib/oauth-errors',
-  'lib/auth-errors',
-  'lib/profile-client',
-  'lib/marketing-email-client',
-  'lib/channels/inter-tab',
-  'lib/channels/iframe',
-  'lib/channels/null',
-  'lib/channels/web',
-  'lib/storage',
-  'lib/able',
-  'lib/environment',
-  'lib/origin-check',
-  'lib/height-observer',
-  'models/reliers/relier',
-  'models/reliers/oauth',
-  'models/reliers/fx-desktop',
-  'models/auth_brokers/base',
-  'models/auth_brokers/fx-desktop',
-  'models/auth_brokers/fx-desktop-v2',
-  'models/auth_brokers/first-run',
-  'models/auth_brokers/web-channel',
-  'models/auth_brokers/redirect',
-  'models/auth_brokers/iframe',
-  'models/unique-user-id',
-  'models/user',
-  'models/form-prefill',
-  'models/notifications',
-  'views/close_button'
-],
-function (
-  _,
-  Backbone,
-  p,
-  Router,
-  Raven,
-  Translator,
-  Session,
-  Url,
-  ConfigLoader,
-  ScreenInfo,
-  Metrics,
-  SentryMetrics,
-  StorageMetrics,
-  FxaClient,
-  Assertion,
-  Constants,
-  OAuthClient,
-  OAuthErrors,
-  AuthErrors,
-  ProfileClient,
-  MarketingEmailClient,
-  InterTabChannel,
-  IframeChannel,
-  NullChannel,
-  WebChannel,
-  Storage,
-  Able,
-  Environment,
-  OriginCheck,
-  HeightObserver,
-  Relier,
-  OAuthRelier,
-  FxDesktopRelier,
-  BaseAuthenticationBroker,
-  FxDesktopV1AuthenticationBroker,
-  FxDesktopV2AuthenticationBroker,
-  FirstRunAuthenticationBroker,
-  WebChannelAuthenticationBroker,
-  RedirectAuthenticationBroker,
-  IframeAuthenticationBroker,
-  UniqueUserId,
-  User,
-  FormPrefill,
-  Notifications,
-  CloseButtonView
-) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Able = require('lib/able');
+  var Assertion = require('lib/assertion');
+  var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
+  var BaseAuthenticationBroker = require('models/auth_brokers/base');
+  var CloseButtonView = require('views/close_button');
+  var ConfigLoader = require('lib/config-loader');
+  var Constants = require('lib/constants');
+  var Environment = require('lib/environment');
+  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
+  var FormPrefill = require('models/form-prefill');
+  var FxaClient = require('lib/fxa-client');
+  var FxDesktopRelier = require('models/reliers/fx-desktop');
+  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop');
+  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var HeightObserver = require('lib/height-observer');
+  var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
+  var IframeChannel = require('lib/channels/iframe');
+  var InterTabChannel = require('lib/channels/inter-tab');
+  var MarketingEmailClient = require('lib/marketing-email-client');
+  var Metrics = require('lib/metrics');
+  var Notifications = require('models/notifications');
+  var NullChannel = require('lib/channels/null');
+  var OAuthClient = require('lib/oauth-client');
+  var OAuthErrors = require('lib/oauth-errors');
+  var OAuthRelier = require('models/reliers/oauth');
+  var OriginCheck = require('lib/origin-check');
+  var p = require('lib/promise');
+  var ProfileClient = require('lib/profile-client');
+  var Raven = require('raven');
+  var RedirectAuthenticationBroker = require('models/auth_brokers/redirect');
+  var Relier = require('models/reliers/relier');
+  var Router = require('router');
+  var ScreenInfo = require('lib/screen-info');
+  var SentryMetrics = require('lib/sentry');
+  var Session = require('lib/session');
+  var Storage = require('lib/storage');
+  var StorageMetrics = require('lib/storage-metrics');
+  var Translator = require('lib/translator');
+  var UniqueUserId = require('models/unique-user-id');
+  var Url = require('lib/url');
+  var User = require('models/user');
+  var WebChannel = require('lib/channels/web');
+  var WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
 
   // delay before redirecting to the error page to
   // ensure metrics are reported to the backend.

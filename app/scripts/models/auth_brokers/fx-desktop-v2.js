@@ -10,13 +10,12 @@
  * If Sync is iframed by web content, v2 of the protocol is assumed.
  */
 
-define([
-  './fx-desktop',
-  'lib/channels/web',
-  'lib/constants'
-
-], function (FxDesktopAuthenticationBroker, WebChannel, Constants) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Constants = require('lib/constants');
+  var FxDesktopAuthenticationBroker = require('./fx-desktop');
+  var WebChannel = require('lib/channels/web');
 
   var FxDesktopV2AuthenticationBroker = FxDesktopAuthenticationBroker.extend({
     type: 'fx-desktop-v2',

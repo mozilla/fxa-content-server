@@ -2,18 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'models/auth_brokers/fx-desktop',
-  'models/user',
-  'lib/auth-errors',
-  'lib/channels/null',
-  'lib/promise',
-  '../../../mocks/window'
-], function (chai, sinon, FxDesktopAuthenticationBroker, User,
-        AuthErrors, NullChannel, p, WindowMock) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var chai = require('chai');
+  var FxDesktopAuthenticationBroker = require('models/auth_brokers/fx-desktop');
+  var NullChannel = require('lib/channels/null');
+  var p = require('lib/promise');
+  var sinon = require('sinon');
+  var User = require('models/user');
+  var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 

@@ -4,9 +4,9 @@
 
 // module to calculate screen dimentions given a window.
 
-define([
-], function () {
+define(function(require, exports, module) {
   'use strict';
+
 
   var NOT_REPORTED_VALUE = 'none';
 

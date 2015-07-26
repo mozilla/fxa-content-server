@@ -4,13 +4,11 @@
 
 // A ux utility to suggest correct spelling of email domains
 
-/* exceptsPaths: mailcheck */
-define([
-  'views/tooltip',
-  'mailcheck'
-],
-function (Tooltip) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Tooltip = require('views/tooltip');
+  var mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
 
   var DOMAINS = [];
   var SECOND_LEVEL_DOMAINS = [ // domains that get suggested, i.e gnail => gmail

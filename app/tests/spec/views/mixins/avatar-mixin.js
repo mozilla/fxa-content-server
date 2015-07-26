@@ -2,26 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'underscore',
-  'views/mixins/avatar-mixin',
-  'views/base',
-  'models/notifications',
-  'models/reliers/relier',
-  'models/user',
-  'models/account',
-  'models/profile-image',
-  'lib/metrics',
-  'lib/profile-errors',
-  'lib/promise',
-  'lib/channels/null',
-  '../../../lib/helpers'
-], function (Chai, sinon, _, AvatarMixin, BaseView, Notifications, Relier,
-    User, Account, ProfileImage, Metrics, ProfileErrors, p, NullChannel,
-    TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Account = require('models/account');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var BaseView = require('views/base');
+  var Chai = require('chai');
+  var Metrics = require('lib/metrics');
+  var Notifications = require('models/notifications');
+  var NullChannel = require('lib/channels/null');
+  var p = require('lib/promise');
+  var ProfileErrors = require('lib/profile-errors');
+  var ProfileImage = require('models/profile-image');
+  var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../../lib/helpers');
+  var User = require('models/user');
 
   var assert = Chai.assert;
 

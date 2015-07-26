@@ -8,9 +8,9 @@
  * @class BackMixin
  */
 
-define([
-], function () {
+define(function(require, exports, module) {
   'use strict';
+
 
   var ENTER_BUTTON_CODE = 13;
 

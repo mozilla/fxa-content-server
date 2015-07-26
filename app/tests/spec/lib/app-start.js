@@ -2,42 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'raven',
-  'lib/app-start',
-  'lib/session',
-  'lib/channels/null',
-  'lib/constants',
-  'lib/promise',
-  'lib/url',
-  'lib/oauth-errors',
-  'lib/auth-errors',
-  'lib/storage',
-  'models/auth_brokers/base',
-  'models/auth_brokers/fx-desktop',
-  'models/auth_brokers/iframe',
-  'models/auth_brokers/redirect',
-  'models/auth_brokers/web-channel',
-  'models/reliers/base',
-  'models/reliers/fx-desktop',
-  'models/reliers/oauth',
-  'models/reliers/relier',
-  'models/user',
-  'lib/metrics',
-  'lib/storage-metrics',
-  '../../mocks/window',
-  '../../mocks/router',
-  '../../mocks/history',
-  '../../lib/helpers'
-],
-function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
-  Url, OAuthErrors, AuthErrors, Storage, BaseBroker, FxDesktopBroker, IframeBroker,
-  RedirectBroker, WebChannelBroker, BaseRelier, FxDesktopRelier, OAuthRelier,
-  Relier, User, Metrics, StorageMetrics, WindowMock, RouterMock, HistoryMock,
-  TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AppStart = require('lib/app-start');
+  var AuthErrors = require('lib/auth-errors');
+  var BaseBroker = require('models/auth_brokers/base');
+  var BaseRelier = require('models/reliers/base');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxDesktopBroker = require('models/auth_brokers/fx-desktop');
+  var FxDesktopRelier = require('models/reliers/fx-desktop');
+  var HistoryMock = require('../../mocks/history');
+  var IframeBroker = require('models/auth_brokers/iframe');
+  var Metrics = require('lib/metrics');
+  var NullChannel = require('lib/channels/null');
+  var OAuthErrors = require('lib/oauth-errors');
+  var OAuthRelier = require('models/reliers/oauth');
+  var p = require('lib/promise');
+  var Raven = require('raven');
+  var RedirectBroker = require('models/auth_brokers/redirect');
+  var Relier = require('models/reliers/relier');
+  var RouterMock = require('../../mocks/router');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var Storage = require('lib/storage');
+  var StorageMetrics = require('lib/storage-metrics');
+  var TestHelpers = require('../../lib/helpers');
+  var Url = require('lib/url');
+  var User = require('models/user');
+  var WebChannelBroker = require('models/auth_brokers/web-channel');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';

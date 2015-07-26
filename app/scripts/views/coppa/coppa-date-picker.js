@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'views/form',
-  'stache!templates/partial/coppa-date-picker',
-  'lib/strings',
-  'lib/auth-errors',
-  'lib/promise'
-], function (FormView, Template, Strings, AuthErrors, p) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var Strings = require('lib/strings');
+  var Template = require('stache!templates/partial/coppa-date-picker');
 
   var now = new Date();
   var CUTOFF_AGE = {

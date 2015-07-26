@@ -2,31 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'backbone',
-  'router',
-  'views/sign_in',
-  'views/sign_up',
-  'views/ready',
-  'lib/able',
-  'lib/constants',
-  'lib/environment',
-  'lib/metrics',
-  'lib/ephemeral-messages',
-  'lib/promise',
-  'models/reliers/relier',
-  'models/user',
-  'models/form-prefill',
-  'models/auth_brokers/base',
-  '../../mocks/window',
-  '../../lib/helpers'
-],
-function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Able, Constants, Environment, Metrics, EphemeralMessages, p, Relier,
-      User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Able = require('lib/able');
+  var Backbone = require('backbone');
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var Environment = require('lib/environment');
+  var EphemeralMessages = require('lib/ephemeral-messages');
+  var FormPrefill = require('models/form-prefill');
+  var Metrics = require('lib/metrics');
+  var NullBroker = require('models/auth_brokers/base');
+  var p = require('lib/promise');
+  var ReadyView = require('views/ready');
+  var Relier = require('models/reliers/relier');
+  var Router = require('router');
+  var SignInView = require('views/sign_in');
+  var SignUpView = require('views/sign_up');
+  var sinon = require('sinon');
+  var TestHelpers = require('../../lib/helpers');
+  var User = require('models/user');
+  var WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 

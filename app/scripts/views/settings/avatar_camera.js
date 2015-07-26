@@ -2,26 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* exceptsPaths: canvasToBlob */
-define([
-  'underscore',
-  'cocktail',
-  'canvasToBlob',
-  'views/form',
-  'views/progress_indicator',
-  'views/mixins/settings-mixin',
-  'views/mixins/avatar-mixin',
-  'stache!templates/settings/avatar_camera',
-  'lib/constants',
-  'lib/promise',
-  'lib/auth-errors',
-  'lib/environment',
-  'models/profile-image'
-],
-function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors,
-    Environment, ProfileImage) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var AuthErrors = require('lib/auth-errors');
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var Environment = require('lib/environment');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var ProfileImage = require('models/profile-image');
+  var ProgressIndicator = require('views/progress_indicator');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var Template = require('stache!templates/settings/avatar_camera');
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

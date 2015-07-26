@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/promise',
-  'views/base',
-  'views/form',
-  'views/sign_in',
-  'views/mixins/password-mixin',
-  'views/mixins/resume-token-mixin',
-  'stache!templates/force_auth',
-  'lib/session',
-  'lib/auth-errors'
-],
-function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
-    ResumeTokenMixin, Template, Session, AuthErrors) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var Session = require('lib/session');
+  var SignInView = require('views/sign_in');
+  var Template = require('stache!templates/force_auth');
 
   function getFatalErrorMessage(self, fatalError) {
     if (fatalError) {

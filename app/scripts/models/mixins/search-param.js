@@ -6,10 +6,10 @@
  * A mixin that allows models to get/import search parameters
  */
 
-define([
-  'lib/url'
-], function (Url) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Url = require('lib/url');
 
   return {
     /**

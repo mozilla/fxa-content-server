@@ -7,19 +7,17 @@
  * "All ready! You can go visit {{ service }}"
  */
 
-define([
-  'cocktail',
-  'views/form',
-  'stache!templates/ready',
-  'lib/url',
-  'lib/constants',
-  'views/mixins/service-mixin',
-  'views/marketing_snippet',
-  'views/marketing_snippet_ios'
-],
-function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
-      MarketingSnippet, MarketingSnippetiOS) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var MarketingSnippet = require('views/marketing_snippet');
+  var MarketingSnippetiOS = require('views/marketing_snippet_ios');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Template = require('stache!templates/ready');
+  var Url = require('lib/url');
 
   var View = FormView.extend({
     template: Template,

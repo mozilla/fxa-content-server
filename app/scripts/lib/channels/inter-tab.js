@@ -7,10 +7,10 @@
  * tabs of the same browser. It uses localStorage to communicate.
  */
 
-define([
-  'crosstab'
-], function (crosstab) {
+define(function(require, exports, module) {
   'use strict';
+
+  var crosstab = require('crosstab');
 
   function InterTabChannel(options) {
     options = options || {};
