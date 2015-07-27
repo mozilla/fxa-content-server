@@ -180,7 +180,7 @@ define([
 
     fetchProfile: function () {
       var self = this;
-      var profileImage = new ProfileImage();
+      var profileImage;
 
       return self.getProfile()
         .then(function (result) {
