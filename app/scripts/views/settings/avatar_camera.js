@@ -118,19 +118,19 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
       this._avatarProgressIndicator.start(this.$('.progress-container'));
 
       this.canvas = this.$('#canvas')[0];
-      this.width = 320;
-      this.height = 0;
+      this.width = 0;
+      this.height = 240;
 
       this.video[0].addEventListener('canplay', _.bind(this.canPlay, this), false);
     },
 
     canPlay: function () {
       if (! this.streaming) {
+        this.width = this.video[0].videoWidth / (this.video[0].videoHeight / this.height);
         var pos = this.centeredPos(this.width, this.height, this.displayLength);
-        this.height = this.video[0].videoHeight / (this.video[0].videoWidth / this.width);
-        this.video.width(this.width);
+
         this.video.height(this.height);
-        this.wrapper.css(pos);
+        this.wrapper.css({ marginLeft: pos.left, marginTop: pos.top });
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this._avatarProgressIndicator.done();
