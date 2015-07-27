@@ -96,7 +96,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
             assert.isTrue(oAuthClient.getToken.calledWith({
               'client_id': CLIENT_ID,
               assertion: 'assertion',
-              scope: 'profile:write'
+              scope: 'profile profile:write'
             }));
 
             assert.isTrue(account.get('verified'));
