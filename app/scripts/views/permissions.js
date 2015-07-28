@@ -2,16 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/form',
-  'stache!templates/permissions',
-  'lib/promise',
-  'views/mixins/back-mixin',
-  'views/mixins/service-mixin'
-],
-function (Cocktail, FormView, Template, p, BackMixin, ServiceMixin) {
+define(function(require, exports, module) {
   'use strict';
+
+  var BackMixin = require('views/mixins/back-mixin');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var p = require('lib/promise');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Template = require('stache!templates/permissions');
 
   var View = FormView.extend({
     template: Template,

@@ -12,8 +12,6 @@ module.exports = function (grunt) {
       files: [{
         expand: true,
         src: [
-          'app/{scripts,tests}/**/*.js',
-          'app/!scripts/vendor/**',
           'tests/functional/**/*.js'
         ]
       }]

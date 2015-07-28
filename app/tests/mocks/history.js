@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // A mock for Backbone.history
-define([
-], function () {
+define(function(require, exports, module) {
   'use strict';
+
 
   function History() {}
 

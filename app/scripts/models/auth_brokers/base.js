@@ -7,13 +7,13 @@
  * the outside world.
  */
 
-define([
-  'underscore',
-  'backbone',
-  'lib/promise',
-  'models/mixins/search-param'
-], function (_, Backbone, p, SearchParamMixin) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var Backbone = require('backbone');
+  var p = require('lib/promise');
+  var SearchParamMixin = require('models/mixins/search-param');
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',

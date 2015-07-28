@@ -23,11 +23,11 @@
  * is found after a short period, return `null`.
  */
 
-define([
-  'lib/promise',
-  'lib/channels/iframe'
-], function (p, IFrameChannel) {
+define(function(require, exports, module) {
   'use strict';
+
+  var IFrameChannel = require('lib/channels/iframe');
+  var p = require('lib/promise');
 
   var RESPONSE_TIMEOUT_MS = 100;
 

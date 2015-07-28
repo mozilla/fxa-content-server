@@ -6,11 +6,11 @@
  * Log when checkbox values are changed, if the checkbox has an id.
  */
 
-define([
-  'jquery',
-  'lib/strings'
-], function ($, Strings) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var Strings = require('lib/strings');
 
   return {
     events: {

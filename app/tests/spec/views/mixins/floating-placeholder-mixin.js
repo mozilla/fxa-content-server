@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'jquery',
-  'underscore',
-  'chai',
-  'views/form',
-  'stache!templates/test_template',
-  'views/mixins/floating-placeholder-mixin'
-], function ($, _, chai, FormView, Template, FloatingPlaceholderMixin) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var _ = require('underscore');
+  var chai = require('chai');
+  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  var FormView = require('views/form');
+  var Template = require('stache!templates/test_template');
 
   var assert = chai.assert;
 

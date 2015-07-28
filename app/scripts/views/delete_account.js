@@ -2,21 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/base',
-  'views/form',
-  'stache!templates/delete_account',
-  'lib/session',
-  'lib/auth-errors',
-  'views/mixins/password-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/back-mixin',
-  'views/mixins/account-locked-mixin'
-],
-function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
-      PasswordMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AuthErrors = require('lib/auth-errors');
+  var BackMixin = require('views/mixins/back-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var PasswordMixin = require('views/mixins/password-mixin');
+  var ServiceMixin = require('views/mixins/service-mixin');
+  var Session = require('lib/session');
+  var Template = require('stache!templates/delete_account');
 
   var t = BaseView.t;
 

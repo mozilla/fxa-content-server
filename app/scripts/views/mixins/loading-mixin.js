@@ -7,11 +7,11 @@
  * the View's normal template is rendered.
  */
 
-define([
-  'jquery',
-  'stache!templates/loading'
-], function ($, loadingTemplate) {
+define(function(require, exports, module) {
   'use strict';
+
+  var $ = require('jquery');
+  var loadingTemplate = require('stache!templates/loading');
 
   return {
     initialize: function () {

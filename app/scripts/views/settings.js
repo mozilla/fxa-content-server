@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'lib/session',
-  'views/form',
-  'views/base',
-  'views/mixins/avatar-mixin',
-  'views/mixins/settings-mixin',
-  'stache!templates/settings'
-],
-function (Cocktail, Session, FormView, BaseView, AvatarMixin,
-  SettingsMixin, Template) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AvatarMixin = require('views/mixins/avatar-mixin');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var FormView = require('views/form');
+  var Session = require('lib/session');
+  var SettingsMixin = require('views/mixins/settings-mixin');
+  var Template = require('stache!templates/settings');
 
   var t = BaseView.t;
 

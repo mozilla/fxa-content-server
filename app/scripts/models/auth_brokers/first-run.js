@@ -7,10 +7,10 @@
  * embedded in the Firefox firstrun flow.
  */
 
-define([
-  'models/auth_brokers/fx-desktop-v2'
-], function (FxDesktopV2AuthenticationBroker) {
+define(function(require, exports, module) {
   'use strict';
+
+  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
 
   var proto = FxDesktopV2AuthenticationBroker.prototype;
 

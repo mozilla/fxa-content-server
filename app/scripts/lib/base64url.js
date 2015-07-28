@@ -9,10 +9,10 @@
  * variant, which is needed for JWTs.
  */
 
-define([
-  'sjcl'
-], function (sjcl) {
+define(function(require, exports, module) {
   'use strict';
+
+  var sjcl = require('sjcl');
 
   return {
 

@@ -4,9 +4,9 @@
 
 // stub out the router object for testing.
 
-define([
-], function () {
+define(function(require, exports, module) {
   'use strict';
+
 
   function Profile() {
   }

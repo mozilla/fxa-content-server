@@ -7,11 +7,11 @@
  * A model to hold account unlock verification data
  */
 
-define([
-  './base',
-  'lib/validate'
-], function (VerificationInfo, Validate) {
+define(function(require, exports, module) {
   'use strict';
+
+  var Validate = require('lib/validate');
+  var VerificationInfo = require('./base');
 
   return VerificationInfo.extend({
     defaults: {

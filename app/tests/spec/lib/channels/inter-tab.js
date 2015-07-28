@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  '../../../mocks/crosstab',
-  'lib/channels/inter-tab'
-], function (chai, sinon, CrossTabMock, InterTabChannel) {
+define(function(require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var CrossTabMock = require('../../../mocks/crosstab');
+  var InterTabChannel = require('lib/channels/inter-tab');
+  var sinon = require('sinon');
 
   describe('lib/channels/inter-tab', function () {
     var assert = chai.assert;

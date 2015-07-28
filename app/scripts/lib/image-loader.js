@@ -4,9 +4,11 @@
 
 // A utility for pre-loading images
 
-define(['underscore', 'lib/promise'],
-function (_, p) {
+define(function(require, exports, module) {
   'use strict';
+
+  var _ = require('underscore');
+  var p = require('lib/promise');
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme

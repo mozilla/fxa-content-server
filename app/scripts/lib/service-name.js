@@ -4,9 +4,9 @@
 
 // Look up friendly service names by their 'slug'
 
-define([],
-function () {
+define(function(require, exports, module) {
   'use strict';
+
 
   function t(str) {
     return str;

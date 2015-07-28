@@ -4,15 +4,11 @@
 
 // fetch config from the backend and provide some helper functions.
 
-define([
-  'lib/xhr',
-  'lib/promise'
-],
-function (
-  xhr,
-  p
-) {
+define(function(require, exports, module) {
   'use strict';
+
+  var p = require('lib/promise');
+  var xhr = require('lib/xhr');
 
   function ConfigLoader() {
   }

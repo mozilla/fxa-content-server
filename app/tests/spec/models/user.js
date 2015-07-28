@@ -2,17 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'chai',
-  'sinon',
-  'lib/promise',
-  'lib/constants',
-  'lib/session',
-  'lib/fxa-client',
-  'models/user'
-],
-function (chai, sinon, p, Constants, Session, FxaClient, User) {
+define(function(require, exports, module) {
   'use strict';
+
+  var chai = require('chai');
+  var Constants = require('lib/constants');
+  var FxaClient = require('lib/fxa-client');
+  var p = require('lib/promise');
+  var Session = require('lib/session');
+  var sinon = require('sinon');
+  var User = require('models/user');
 
   var assert = chai.assert;
 

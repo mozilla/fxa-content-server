@@ -2,23 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'cocktail',
-  'views/form',
-  'views/base',
-  'stache!templates/complete_sign_up',
-  'lib/auth-errors',
-  'views/mixins/resend-mixin',
-  'views/mixins/loading-mixin',
-  'views/mixins/resume-token-mixin',
-  'models/verification/sign-up',
-  'lib/url',
-  'lib/constants'
-],
-function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
-  Url, Constants) {
+define(function(require, exports, module) {
   'use strict';
+
+  var AuthErrors = require('lib/auth-errors');
+  var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
+  var Constants = require('lib/constants');
+  var FormView = require('views/form');
+  var LoadingMixin = require('views/mixins/loading-mixin');
+  var ResendMixin = require('views/mixins/resend-mixin');
+  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  var Url = require('lib/url');
+  var VerificationInfo = require('models/verification/sign-up');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
   var t = BaseView.t;
