@@ -80,7 +80,7 @@
     "grunt-bump": "0.3.1",
     "grunt-contrib-csslint": "0.5.0",
     "grunt-contrib-watch": "0.6.1",
-    "grunt-conventional-changelog": "2.0.2",
+    "grunt-conventional-changelog": "^3.0.0",
     "grunt-copyright": "0.2.0",
     "grunt-eslint": "16.0.0",
     "grunt-htmllint": "0.2.7",
