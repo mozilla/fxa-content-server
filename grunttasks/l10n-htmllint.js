@@ -38,7 +38,7 @@ module.exports = function (grunt) {
         grunt.file.write(path.join(tmpDir, pathname[1], pathname[2], pathname[3].replace('json', 'html')), content);
       }
     });
-    grunt.log.ok(this.files.length + ' file(s) converted from JSON to HTML');
+    grunt.log.ok('%d %s converted from JSON to HTML', this.files.length, grunt.util.pluralize(this.files.length, 'file/files'));
   });
 
   grunt.config('l10n-json-to-html', {

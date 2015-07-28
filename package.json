@@ -94,7 +94,8 @@
     "proxyquire": "1.6.0",
     "sinon": "1.15.4",
     "sync-exec": "0.6.1",
-    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
+    "xss": "0.2.2"
   },
   "engines": {
     "node": ">=0.10.0"
