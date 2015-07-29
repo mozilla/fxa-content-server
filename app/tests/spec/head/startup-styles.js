@@ -143,6 +143,21 @@ define([
       });
     });
 
+    describe('addHideSignupLinksStyles', function () {
+      it('adds the `hide-signup-links` style if exclude_signup=1', function () {
+        windowMock.location.search = '?service=-not-sync&exclude_signup=1';
+
+        startupStyles.addHideSignupLinksStyles();
+        assert.isTrue(/hide-signup-links/.test(startupStyles.getClassName()));
+      });
+
+      it('does not add `hide-signup-links` style if exclude_signup is not present', function () {
+        windowMock.location.search = '?service=sync';
+        startupStyles.addHideSignupLinksStyles();
+        assert.isFalse(/hide-signup-links/.test(startupStyles.getClassName()));
+      });
+    });
+
     describe('addGetUserMediaStyles', function () {
       it('adds `getusermedia` if UA supports getUserMedia', function () {
         sinon.stub(environment, 'hasGetUserMedia', function () {

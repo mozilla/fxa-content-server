@@ -1,0 +1,18 @@
+// Temporary hack to hide sign-up links on Firefox-for-iOS,
+// where the sync setup logic can't handle being the first
+// device connected to an account.
+// See https://bugzilla.mozilla.org/show_bug.cgi?id=1182255
+html.hide-signup-links {
+  .sign-in {
+    a[href="/signup"] {
+      display: none;
+    }
+    // This bit of hackery is necessary to undo the floating
+    // left of the "forgot password?" link, which should be
+    // centered when it's the only link on the page.
+    .unfloat-if-hide-signup-links {
+      float: none;
+      padding: 0;
+    }            
+  }
+}

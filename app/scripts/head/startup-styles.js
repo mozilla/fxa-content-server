@@ -81,6 +81,7 @@
       this.addIframeStyles();
       this.addSearchParamStyles();
       this.addFxiOSSyncStyles();
+      this.addHideSignupLinksStyles();
       this.addGetUserMediaStyles();
     },
 
@@ -128,6 +129,13 @@
       var isSync = this._getQueryParam('service') === 'sync';
       if (this.environment.isFxiOS() && isSync) {
         this._addClass('fx-ios-sync');
+      }
+    },
+
+    addHideSignupLinksStyles: function () {
+      var excludeSignup = this._getQueryParam('exclude_signup');
+      if (excludeSignup === '1') {
+        this._addClass('hide-signup-links');
       }
     },
 
