@@ -1,4 +1,14 @@
 <a name="0.42.0"></a>
+## 0.42.0 (2015-08-03)
+
+
+#### Features
+
+* **client:** Provide `fx_ios_v1` context string for use by FxiOS ([f85b5f38](https://github.com/mozilla/fxa-content-server/commit/f85b5f38f60d47d0b2ccbd98a299f5b8cda8162f))
+* **test:** Add signin functional tests for Fx on iOS. ([2e90691d](https://github.com/mozilla/fxa-content-server/commit/2e90691d52a26d64e34a5391837980b2d4ec5b86))
+
+
+<a name="0.42.0"></a>
 ### 0.42.0 (2015-07-21)
 
 
