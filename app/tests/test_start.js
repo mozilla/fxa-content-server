@@ -82,6 +82,7 @@ function (Translator, Session) {
     '../tests/spec/views/confirm_reset_password',
     '../tests/spec/views/complete_reset_password',
     '../tests/spec/views/ready',
+    '../tests/spec/views/choose_what_to_sync',
     '../tests/spec/views/confirm_account_unlock',
     '../tests/spec/views/complete_account_unlock',
     '../tests/spec/views/cookies_disabled',

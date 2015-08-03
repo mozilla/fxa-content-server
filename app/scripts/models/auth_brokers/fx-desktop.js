@@ -21,15 +21,21 @@ define([
   'models/auth_brokers/mixins/channel',
   'lib/auth-errors',
   'lib/channels/fx-desktop-v1',
-  'lib/url'
+  'lib/url',
+  'lib/promise'
 ], function (Cocktail, _, BaseAuthenticationBroker, ChannelMixin, AuthErrors,
-  FxDesktopChannel, Url) {
+  FxDesktopChannel, Url, p) {
   'use strict';
+
+  // old versions of Firefox do not support the CAPABILITIES message
+  // we timeout if that is the case
+  var CAPABILITIES_RENDER_TIMEOUT = 1500;
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'fx-desktop-v1',
     _commands: {
       CAN_LINK_ACCOUNT: 'can_link_account',
+      CAPABILITIES: 'capabilities',
       CHANGE_PASSWORD: 'change_password',
       DELETE_ACCOUNT: 'delete_account',
       LOADED: 'loaded',
@@ -63,6 +69,36 @@ define([
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           self, options);
+    },
+
+    /**
+      * Is used to ask the client about capabilities before rendering the views
+      *
+      * @returns {Promise}
+      */
+    beforeRender: function () {
+      var self = this;
+      var defer = p.defer();
+      var result = null;
+
+      self.request(self._commands.CAPABILITIES)
+        .then(function (response) {
+          if (response && response.data && _.isObject(response.data)) {
+            result = response.data;
+
+            self.setCapabilities(result);
+          }
+
+          defer.resolve();
+        });
+
+      self.window.setTimeout(function () {
+        if (! result) {
+          defer.reject();
+        }
+      }, CAPABILITIES_RENDER_TIMEOUT);
+
+      return defer.promise;
     },
 
     afterLoaded: function () {
@@ -183,6 +219,7 @@ define([
         'unwrapBKey',
         'keyFetchToken',
         'customizeSync',
+        'declinedSyncEngines',
         'verified'
       ];
 

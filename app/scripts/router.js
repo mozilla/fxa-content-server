@@ -17,6 +17,7 @@ define([
   'views/tos',
   'views/pp',
   'views/cannot_create_account',
+  'views/choose_what_to_sync',
   'views/complete_sign_up',
   'views/reset_password',
   'views/confirm_reset_password',
@@ -54,6 +55,7 @@ function (
   TosView,
   PpView,
   CannotCreateAccountView,
+  ChooseWhatToSyncView,
   CompleteSignUpView,
   ResetPasswordView,
   ConfirmResetPasswordView,
@@ -97,6 +99,7 @@ function (
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
       'signup_permissions(/)': showView(PermissionsView, { type: 'sign_up' }),
       'cannot_create_account(/)': showView(CannotCreateAccountView),
+      'choose_what_to_sync(/)': showView(ChooseWhatToSyncView),
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
       'settings(/)': showView(SettingsView),
@@ -244,9 +247,18 @@ function (
       // rendered for any reason, including if the view was
       // automatically redirected.
       var self = this;
-
       viewToShow.logScreen();
-      return viewToShow.render()
+      // perform any actions needed by the broker before the view has rendered
+      return self.broker.beforeRender()
+        .then(
+          function () {
+            return viewToShow.render();
+          }, function () {
+            // log the timeout event, this even should only happen in Firefox <43
+            viewToShow.logScreenEvent('broker.timeout');
+
+            return viewToShow.render();
+          })
         .then(function (isShown) {
           if (! isShown) {
             return;

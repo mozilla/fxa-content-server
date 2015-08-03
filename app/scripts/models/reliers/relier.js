@@ -16,9 +16,9 @@ define([
   'models/mixins/resume-token',
   'models/mixins/search-param',
   'lib/promise',
+  'lib/url',
   'lib/constants'
-], function (Cocktail, BaseRelier, ResumeTokenMixin, SearchParamMixin, p,
-  Constants) {
+], function (Cocktail, BaseRelier, ResumeTokenMixin, SearchParamMixin, p, Url, Constants) {
   'use strict';
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['campaign', 'entrypoint'];
@@ -75,6 +75,7 @@ define([
           self.importSearchParam('setting');
           self.importSearchParam('entrypoint');
           self.importSearchParam('campaign');
+          self.importSearchParam('sync_chooser');
 
           self.importSearchParam('utm_campaign', 'utmCampaign');
           self.importSearchParam('utm_content', 'utmContent');
@@ -98,6 +99,19 @@ define([
      */
     isSync: function () {
       return this.get('service') === Constants.SYNC_SERVICE;
+    },
+
+    /**
+     * Check if the relier is Sync for Firefox Desktop
+     */
+    isChooseWhatToSyncWeb: function (uniqueUserId, locationParams, able) {
+      var abData = {
+        uniqueUserId: uniqueUserId,
+        // the window parameter will override any ab testing features
+        forceChooseWhatToSyncMode: Url.searchParam('force_choose_what_to_sync', locationParams)
+      };
+
+      return able.choose('chooseWhatToSyncMode', abData) === 'web_v1';
     },
 
     /**
