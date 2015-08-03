@@ -90,7 +90,10 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.subviews = [];
       this.window = options.window || window;
       this.navigator = options.navigator || this.window.navigator || navigator;
-      this.translator = options.translator || this.window.translator;
+      this.translator = options.translator;
+      if (! this.translator) {
+        throw new Error('translator not passed');
+      }
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;

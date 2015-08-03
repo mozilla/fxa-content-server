@@ -18,6 +18,7 @@
 define([
   'underscore',
   'backbone',
+  'diy',
   'lib/promise',
   'router',
   'raven',
@@ -65,6 +66,7 @@ define([
 function (
   _,
   Backbone,
+  DIY,
   p,
   Router,
   Raven,
@@ -115,14 +117,407 @@ function (
     options = options || {};
 
     this._window = options.window || window;
-    this._router = options.router;
-    this._relier = options.relier;
-    this._authenticationBroker = options.broker;
-    this._user = options.user;
-    this._storage = options.storage || Storage;
 
-    this._history = options.history || Backbone.history;
-    this._configLoader = new ConfigLoader();
+    var self = this;
+    this._depList = {
+      able: {
+        constructor: function () {
+          return new Able();
+        }
+      },
+      assertionLibrary: {
+        constructor: function (options) {
+          return new Assertion({
+            fxaClient: options.fxaClient,
+            audience: options.config.oAuthUrl
+          });
+        },
+        deps: {
+          fxaClient: 'fxaClient',
+          config: 'config'
+        }
+      },
+      authenticationBroker: {
+        instance: options.broker,
+        constructor: function () {
+          return self.initializeAuthenticationBroker();
+        },
+        initialize: 'fetch'
+      },
+      baseAuthenticationBroker: {
+        constructor: BaseAuthenticationBroker,
+        deps: {
+          relier: 'relier'
+        }
+      },
+      baseRelier: {
+        constructor: Relier,
+        deps: {
+          window: 'window'
+        }
+      },
+      config: {
+        constructor: function (options) {
+          return options.configLoader._config;
+        },
+        deps: {
+          configLoader: 'configLoader'
+        }
+      },
+      configLoader: {
+        constructor: ConfigLoader,
+        initialize: 'fetch'
+      },
+      closeButton: {
+        constructor: function (options) {
+          var broker = options.broker;
+          if (broker.canCancel()) {
+            var closeButton = new CloseButtonView({
+              broker: broker
+            });
+
+            closeButton.render();
+
+            return closeButton;
+          }
+        },
+        deps: {
+          broker: 'authenticationBroker'
+        }
+      },
+      errorMetrics: {
+        constructor: function (options) {
+          return self.initializeErrorMetrics(options);
+        },
+        deps: {
+          able: 'able',
+          config: 'config',
+          uniqueUserId: 'uniqueUserId'
+        }
+      },
+      firstRunAuthenticationBroker: {
+        constructor: FirstRunAuthenticationBroker,
+        deps: {
+          iframeChannel: 'iframeChannel',
+          relier: 'relier',
+          window: 'window'
+        }
+      },
+      formPrefill: {
+        constructor: FormPrefill
+      },
+      fxaClient: {
+        constructor: function (options) {
+          return new FxaClient({
+            interTabChannel: options.interTabChannel,
+            authServerUrl: options.config.authServerUrl
+          });
+        },
+        deps: {
+          config: 'config',
+          interTabChannel: 'interTabChannel'
+        }
+      },
+      fxDesktopV1AuthenticationBroker: {
+        constructor: FxDesktopV1AuthenticationBroker,
+        deps: {
+          window: 'window',
+          relier: 'relier'
+        }
+      },
+      fxDesktopV2AuthenticationBroker: {
+        constructor: FxDesktopV2AuthenticationBroker,
+        deps: {
+          window: 'window',
+          relier: 'relier'
+        }
+      },
+      fxDesktopRelier: {
+        constructor: FxDesktopRelier,
+        deps: {
+          translator: 'translator',
+          window: 'window'
+        }
+      },
+      heightObserver: {
+        constructor: function (options) {
+          if (self._isInAnIframe()) {
+            var win = options.window;
+            var iframeChannel = options.iframeChannel;
+
+            var heightObserver = new HeightObserver({
+              target: win.document.body,
+              window: win
+            });
+
+            heightObserver.on('change', function (height) {
+              iframeChannel.send('resize', { height: height });
+            });
+
+            heightObserver.start();
+
+            return heightObserver;
+          }
+        },
+        deps: {
+          iframeChannel: 'iframeChannel',
+          window: 'window'
+        }
+      },
+      history: {
+        instance: options.history || Backbone.history,
+      },
+      iframeAuthenticationBroker: {
+        constructor: IframeAuthenticationBroker,
+        deps: {
+          window: 'window',
+          relier: 'relier',
+          assertionLibrary: 'assertionLibrary',
+          oAuthClient: 'oAuthClient',
+          session: 'session',
+          channel: 'iframeChannel',
+          metrics: 'metrics'
+        }
+      },
+      iframeChannel: {
+        constructor: function (options) {
+          return self.initializeIframeChannel(options);
+        },
+        deps: {
+          window: 'window',
+          metrics: 'metrics'
+        }
+      },
+      interTabChannel: {
+        constructor: InterTabChannel
+      },
+      metrics: {
+        constructor: function (options) {
+          var able = options.able;
+          var config = options.config;
+          var relier = options.relier;
+          var win = options.window;
+          var uniqueUserId = options.uniqueUserId;
+
+          var isSampledUser = able.choose('isSampledUser', {
+            env: config.env,
+            uniqueUserId: uniqueUserId
+          });
+
+          var screenInfo = new ScreenInfo(win);
+          var MetricsConstructor =
+             self._isAutomatedBrowser() ? StorageMetrics : Metrics;
+
+          self._metrics = new MetricsConstructor({
+            lang: config.language,
+            service: relier.get('service'),
+            context: relier.get('context'),
+            entrypoint: relier.get('entrypoint'),
+            migration: relier.get('migration'),
+            campaign: relier.get('campaign'),
+            clientHeight: screenInfo.clientHeight,
+            clientWidth: screenInfo.clientWidth,
+            devicePixelRatio: screenInfo.devicePixelRatio,
+            screenHeight: screenInfo.screenHeight,
+            screenWidth: screenInfo.screenWidth,
+            able: able,
+            isSampledUser: isSampledUser,
+            uniqueUserId: uniqueUserId,
+            utmCampaign: relier.get('utmCampaign'),
+            utmContent: relier.get('utmContent'),
+            utmMedium: relier.get('utmMedium'),
+            utmSource: relier.get('utmSource'),
+            utmTerm: relier.get('utmTerm')
+          });
+
+          return self._metrics;
+        },
+        initialize: 'init',
+        deps: {
+          able: 'able',
+          config: 'config',
+          relier: 'relier',
+          window: 'window',
+          uniqueUserId: 'uniqueUserId'
+        }
+      },
+      notifications: {
+        constructor: Notifications,
+        deps: {
+          tabChannel: 'interTabChannel',
+          iframeChannel: 'iframeChannel',
+          webChannel: 'notificationWebChannel'
+        }
+      },
+      notificationWebChannel: {
+        constructor: function (options) {
+          return new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
+        },
+        initialize: 'initialize'
+      },
+      oAuthClient: {
+        constructor: function (options) {
+          var client = new OAuthClient({
+            oAuthUrl: options.config.oAuthUrl
+          });
+
+          self._oAuthClient = client;
+          return client;
+        },
+        deps: {
+          config: 'config'
+        }
+      },
+      oAuthRelier: {
+        constructor: OAuthRelier,
+        deps: {
+          oAuthClient: 'oAuthClient',
+          session: 'session',
+          window: 'window'
+        }
+      },
+      originCheck: {
+        constructor: function (options) {
+          return new OriginCheck(options.window);
+        },
+        deps: {
+          window: 'window'
+        }
+      },
+      profileClient: {
+        constructor: function (options) {
+          return new ProfileClient({
+            profileUrl: options.config.profileUrl
+          });
+        },
+        deps: {
+          config: 'config'
+        }
+      },
+      redirectAuthenticationBroker: {
+        constructor: RedirectAuthenticationBroker,
+        deps: {
+          window: 'window',
+          relier: 'relier',
+          assertionLibrary: 'assertionLibrary',
+          oAuthClient: 'oAuthClient',
+          session: 'session',
+          metrics: 'metrics'
+        }
+      },
+      relier: {
+        instance: options.relier,
+        constructor: function () {
+          return self.initializeRelier();
+        },
+        initialize: 'fetch'
+      },
+      marketingEmailClient: {
+        constructor: function (options) {
+          var config = options.config;
+          return new MarketingEmailClient({
+            baseUrl: config.marketingEmailServerUrl,
+            preferencesUrl: config.marketingEmailPreferencesUrl
+          });
+        },
+        deps: {
+          config: 'config'
+        }
+      },
+      storage: {
+        constructor: function (options) {
+          return Storage.factory('localStorage', options.window);
+        },
+        deps: {
+          window: 'window'
+        }
+      },
+      router: {
+        instance: options.router,
+        constructor: function (options) {
+          options.language = options.config.language;
+
+          var router = options.window.router = new Router(options);
+
+          return router;
+        },
+        deps: {
+          metrics: 'metrics',
+          config: 'config',
+          relier: 'relier',
+          broker: 'authenticationBroker',
+          fxaClient: 'fxaClient',
+          user: 'user',
+          interTabChannel: 'interTabChannel',
+          session: 'session',
+          formPrefill: 'formPrefill',
+          notifications: 'notifications',
+          able: 'able',
+          window: 'window',
+          translator: 'translator'
+        }
+      },
+      sentryMetrics: {
+        constructor: function (options) {
+          return new SentryMetrics(options.window.location.host);
+        },
+        deps: {
+          window: 'window'
+        }
+      },
+      session: {
+        instance: Session
+      },
+      translator: {
+        constructor: Translator,
+        initialize: 'fetch'
+      },
+      uniqueUserId: {
+        constructor: function (options) {
+          /**
+           * Sets a UUID value that is unrelated to any account information.
+           * This value is useful to determine if the logged out user qualifies
+           * for A/B testing or metrics.
+           */
+          return new UniqueUserId(options).get('uniqueUserId');
+        },
+        deps: {
+          window: 'window'
+        }
+      },
+      user: {
+        instance: options.user,
+        constructor: function (options) {
+          options.oAuthClientId = options.config.oAuthClientId;
+
+          return new User(options);
+        },
+        deps: {
+          config: 'config',
+          profileClient: 'profileClient',
+          oAuthClient: 'oAuthClient',
+          fxaClient: 'fxaClient',
+          marketingEmailClient: 'marketingEmailClient',
+          assertion: 'assertionLibrary',
+          storage: 'storage',
+          uniqueUserId: 'uniqueUserId'
+        }
+      },
+      webChannelAuthenticationBroker: {
+        constructor: WebChannelAuthenticationBroker,
+        deps: {
+          window: 'window',
+          relier: 'relier',
+          fxaClient: 'fxaClient',
+          assertionLibrary: 'assertionLibrary',
+          oAuthClient: 'oAuthClient',
+          session: 'session'
+        }
+      },
+      window: {
+        instance: options.window || window,
+      }
+    };
   }
 
   Start.prototype = {
@@ -132,191 +527,125 @@ function (
     startApp: function () {
       var self = this;
 
-      // fetch both config and translations in parallel to speed up load.
-      return p.all([
-        this.initializeConfig(),
-        this.initializeL10n(),
-        this.initializeInterTabChannel()
-      ])
-      .then(_.bind(this.allResourcesReady, this))
-      .fail(function (err) {
-        if (console && console.error) {
-          console.error('Critical error:');
-          console.error(String(err));
-        }
+      // The items in the below `create` are not depended upon by
+      // anything and must be created manually
+      return this.create('errorMetrics', 'heightObserver', 'closeButton')
+        .then(this.upgradeStorageFormats.bind(this))
+        .then(_.bind(this.allResourcesReady, this))
+        .fail(function (err) {
+          if (console && console.error) {
+            console.error('Critical error:');
+            console.error(String(err));
+          }
 
-        // if there is no error metrics set that means there was probably an error with app start
-        // therefore force error reporting to get error information
-        if (! self._sentryMetrics) {
-          self.enableSentryMetrics();
-        }
+          // if there is no error metrics set that means there was probably an error with app start
+          // therefore force error reporting to get error information
+          if (! self._sentryMetrics) {
+            // TODO ensure this doesn't blow up. should probably use a then after
+            // this.
+            self.create('sentryMetrics');
+          }
 
-        Raven.captureException(err);
+          Raven.captureException(err);
 
-        if (self._metrics) {
-          self._metrics.logError(err);
-        }
+          if (self._metrics) {
+            self._metrics.logError(err);
+          }
 
-        // give a bit of time to flush the Sentry error logs,
-        // otherwise Safari Mobile redirects too quickly.
-        return p().delay(self.ERROR_REDIRECT_TIMEOUT_MS)
-          .then(function () {
-            if (self._metrics) {
-              return self._metrics.flush();
-            }
-          })
-          .then(function () {
-            //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(err);
-            self._window.location.href = redirectTo;
-          });
-      });
+          // give a bit of time to flush the Sentry error logs,
+          // otherwise Safari Mobile redirects too quickly.
+          return p().delay(self.ERROR_REDIRECT_TIMEOUT_MS)
+            .then(function () {
+              if (self._metrics) {
+                return self._metrics.flush();
+              }
+            })
+            .then(function () {
+              //Something terrible happened. Let's bail.
+              /*var redirectTo = self._getErrorPage(err);*/
+              console.error(String(err));
+              console.dir(err);
+              /*self._window.location.href = redirectTo;*/
+            });
+        });
     },
 
-    initializeInterTabChannel: function () {
-      this._interTabChannel = new InterTabChannel();
-    },
-
-    initializeAble: function () {
-      this._able = new Able();
-    },
-
-    initializeConfig: function () {
-      return this._configLoader.fetch()
-                    .then(_.bind(this.useConfig, this))
-                    .then(_.bind(this.initializeAble, this))
-                    .then(_.bind(this.initializeErrorMetrics, this))
-                    .then(_.bind(this.initializeOAuthClient, this))
-                    // both the metrics and router depend on the language
-                    // fetched from config.
-                    .then(_.bind(this.initializeRelier, this))
-                    // metrics depends on the relier.
-                    .then(_.bind(this.initializeMetrics, this))
-                    // iframe channel depends on the relier and metrics
-                    .then(_.bind(this.initializeIframeChannel, this))
-                    // fxaClient depends on the relier and
-                    // inter tab communication.
-                    .then(_.bind(this.initializeFxaClient, this))
-                    // assertionLibrary depends on fxaClient
-                    .then(_.bind(this.initializeAssertionLibrary, this))
-                    // profileClient depends on fxaClient and assertionLibrary
-                    .then(_.bind(this.initializeProfileClient, this))
-                    // marketingEmailClient depends on config
-                    .then(_.bind(this.initializeMarketingEmailClient, this))
-                    // user depends on the profileClient, oAuthClient, and assertionLibrary.
-                    .then(_.bind(this.initializeUser, this))
-                    // broker relies on the user, relier, fxaClient,
-                    // assertionLibrary, and metrics
-                    .then(_.bind(this.initializeAuthenticationBroker, this))
-                    // depends on the authentication broker
-                    .then(_.bind(this.initializeHeightObserver, this))
-                    // the close button depends on the broker
-                    .then(_.bind(this.initializeCloseButton, this))
-                    // storage format upgrades depend on user
-                    .then(_.bind(this.upgradeStorageFormats, this))
-
-                    // depends on nothing
-                    .then(_.bind(this.initializeFormPrefill, this))
-                    // depends on iframeChannel and interTabChannel
-                    .then(_.bind(this.initializeNotifications, this))
-                    // router depends on all of the above
-                    .then(_.bind(this.initializeRouter, this));
-    },
-
-    useConfig: function (config) {
-      this._config = config;
-      this._configLoader.useConfig(config);
-    },
-
-    initializeErrorMetrics: function () {
-      if (this._config && this._config.env && this._able) {
+    initializeErrorMetrics: function (options) {
+      var able = options.able;
+      var config = options.config;
+      var uniqueUserId = options.uniqueUserId;
+      if (config.env) {
         var abData = {
-          env: this._config.env,
-          uniqueUserId: this._getUniqueUserId()
+          env: config.env,
+          uniqueUserId: uniqueUserId
         };
-        var abChoose = this._able.choose('sentryEnabled', abData);
+        var abChoose = able.choose('sentryEnabled', abData);
 
         if (abChoose) {
-          this.enableSentryMetrics();
+          return this.create('sentryMetrics');
         }
       }
     },
 
-    enableSentryMetrics: function () {
-      this._sentryMetrics = new SentryMetrics(this._window.location.host);
-    },
-
-    initializeL10n: function () {
-      this._translator = this._window.translator = new Translator();
-      return this._translator.fetch();
-    },
-
-    initializeMetrics: function () {
-      var isSampledUser = this._able.choose('isSampledUser', {
-        env: this._config.env,
-        uniqueUserId: this._getUniqueUserId()
+    create: function () {
+      var diy = new DIY(this._depList);
+      var names = [].slice.call(arguments, 0).filter(function (name) {
+        return typeof name === 'string' && name.length;
       });
 
-      var relier = this._relier;
-      var screenInfo = new ScreenInfo(this._window);
-      this._metrics = this._createMetrics({
-        lang: this._config.language,
-        service: relier.get('service'),
-        context: relier.get('context'),
-        entrypoint: relier.get('entrypoint'),
-        migration: relier.get('migration'),
-        campaign: relier.get('campaign'),
-        clientHeight: screenInfo.clientHeight,
-        clientWidth: screenInfo.clientWidth,
-        devicePixelRatio: screenInfo.devicePixelRatio,
-        screenHeight: screenInfo.screenHeight,
-        screenWidth: screenInfo.screenWidth,
-        able: this._able,
-        isSampledUser: isSampledUser,
-        uniqueUserId: this._getUniqueUserId(),
-        utmCampaign: relier.get('utmCampaign'),
-        utmContent: relier.get('utmContent'),
-        utmMedium: relier.get('utmMedium'),
-        utmSource: relier.get('utmSource'),
-        utmTerm: relier.get('utmTerm')
-      });
-      this._metrics.init();
+      if (names.length === 1) {
+        return diy.create(names[0]);
+      } else {
+        var promises = names.map(function (name) {
+          return diy.create(name);
+        });
+        return p.all(promises);
+      }
     },
 
     _getAllowedParentOrigins: function () {
-      if (! this._isInAnIframe()) {
-        return [];
-      } else if (this._isFxDesktop()) {
-        // If in an iframe for sync, the origin is checked against
-        // a pre-defined set of origins sent from the server.
-        return this._config.allowedParentOrigins;
-      } else if (this._isOAuth()) {
-        // If in oauth, the relier has the allowed parent origin.
-        return [this._relier.get('origin')];
-      }
+      var self = this;
+      return self.create('config', 'relier')
+        .spread(function (config, relier) {
+          if (! self._isInAnIframe()) {
+            return [];
+          } else if (self._isFxDesktop()) {
+            // If in an iframe for sync, the origin is checked against
+            // a pre-defined set of origins sent from the server.
+            return config.allowedParentOrigins;
+          } else if (self._isOAuth()) {
+            // If in oauth, the relier has the allowed parent origin.
+            return [relier.get('origin')];
+          }
 
-      return [];
+          return [];
+        });
     },
 
     _checkParentOrigin: function (originCheck) {
       var self = this;
-      originCheck = originCheck || new OriginCheck(self._window);
-      var allowedOrigins = self._getAllowedParentOrigins();
-
-      return originCheck.getOrigin(self._window.parent, allowedOrigins);
+      return p.all([
+        self.create('window'),
+        self.create('originCheck'),
+        self._getAllowedParentOrigins()
+      ]).spread(function (win, originCheck, allowedOrigins) {
+        return originCheck.getOrigin(win.parent, allowedOrigins);
+      });
     },
 
-    initializeIframeChannel: function () {
+    initializeIframeChannel: function (options) {
       var self = this;
+
       if (! self._isInAnIframe()) {
         // Create a NullChannel in case any dependencies require it, such
         // as when the FirstRunAuthenticationBroker is used in functional
         // tests. The firstrun tests don't actually use an iframe, so the
         // real IframeChannel is not created.
-        self._iframeChannel = new NullChannel();
-        return p();
+        return new NullChannel();
       }
 
+      var win = options.window;
+      var metrics = options.metrics;
       return self._checkParentOrigin()
         .then(function (parentOrigin) {
           if (! parentOrigin) {
@@ -326,260 +655,99 @@ function (
 
           var iframeChannel = new IframeChannel();
           iframeChannel.initialize({
-            window: self._window,
+            window: win,
             origin: parentOrigin,
-            metrics: self._metrics
+            metrics: metrics
           });
 
-          self._iframeChannel = iframeChannel;
+          return iframeChannel;
         });
-    },
-
-    initializeFormPrefill: function () {
-      this._formPrefill = new FormPrefill();
-    },
-
-    initializeOAuthClient: function () {
-      this._oAuthClient = new OAuthClient({
-        oAuthUrl: this._config.oAuthUrl
-      });
-    },
-
-    initializeProfileClient: function () {
-      this._profileClient = new ProfileClient({
-        profileUrl: this._config.profileUrl
-      });
-    },
-
-    initializeMarketingEmailClient: function () {
-      this._marketingEmailClient = new MarketingEmailClient({
-        baseUrl: this._config.marketingEmailServerUrl,
-        preferencesUrl: this._config.marketingEmailPreferencesUrl
-      });
     },
 
     initializeRelier: function () {
-      if (! this._relier) {
-        var relier;
-
-        if (this._isFxDesktop()) {
-          // Use the FxDesktopRelier for sync verification so that
-          // the service name is translated correctly.
-          relier = new FxDesktopRelier({
-            window: this._window,
-            translator: this._translator
-          });
-        } else if (this._isOAuth()) {
-          relier = new OAuthRelier({
-            window: this._window,
-            oAuthClient: this._oAuthClient,
-            session: Session
-          });
-        } else {
-          relier = new Relier({
-            window: this._window
-          });
-        }
-
-        this._relier = relier;
-        return relier.fetch();
+      var relierName;
+      if (this._isFxDesktop()) {
+        // Use the FxDesktopRelier for sync verification so that
+        // the service name is translated correctly.
+        relierName = 'fxDesktopRelier';
+      } else if (this._isOAuth()) {
+        relierName = 'oAuthRelier';
+      } else {
+        relierName = 'baseRelier';
       }
-    },
 
-    initializeAssertionLibrary: function () {
-      this._assertionLibrary = new Assertion({
-        fxaClient: this._fxaClient,
-        audience: this._config.oAuthUrl
-      });
+      return this.create(relierName);
     },
 
     initializeAuthenticationBroker: function () {
-      if (! this._authenticationBroker) {
-        if (this._isFirstRun()) {
-          this._authenticationBroker = new FirstRunAuthenticationBroker({
-            iframeChannel: this._iframeChannel,
-            relier: this._relier,
-            window: this._window
-          });
-        } else if (this._isFxDesktopV2()) {
-          this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
-          });
-        } else if (this._isFxDesktopV1()) {
-          this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
-            window: this._window,
-            relier: this._relier
-          });
-        } else if (this._isWebChannel()) {
-          this._authenticationBroker = new WebChannelAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
-            fxaClient: this._fxaClient,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            session: Session
-          });
-        } else if (this._isIframe()) {
-          this._authenticationBroker = new IframeAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            session: Session,
-            channel: this._iframeChannel,
-            metrics: this._metrics
-          });
-        } else if (this._isOAuth()) {
-          this._authenticationBroker = new RedirectAuthenticationBroker({
-            window: this._window,
-            relier: this._relier,
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            session: Session,
-            metrics: this._metrics
-          });
-        } else {
-          this._authenticationBroker = new BaseAuthenticationBroker({
-            relier: this._relier
-          });
-        }
-
-        var metrics = this._metrics;
-        var win = this._window;
-
-        this._authenticationBroker.on('error', function (err) {
-          win.console.error('broker error', String(err));
-          metrics.logError(err);
-        });
-
-        metrics.setBrokerType(this._authenticationBroker.type);
-
-        return this._authenticationBroker.fetch();
-      }
-    },
-
-    initializeHeightObserver: function () {
-      var self = this;
-      if (self._isInAnIframe()) {
-        var heightObserver = new HeightObserver({
-          target: self._window.document.body,
-          window: self._window
-        });
-
-        heightObserver.on('change', function (height) {
-          self._iframeChannel.send('resize', { height: height });
-        });
-
-        heightObserver.start();
-      }
-    },
-
-    initializeCloseButton: function () {
-      if (this._authenticationBroker.canCancel()) {
-        this._closeButton = new CloseButtonView({
-          broker: this._authenticationBroker
-        });
-        this._closeButton.render();
-      }
-    },
-
-    initializeFxaClient: function () {
-      if (! this._fxaClient) {
-        this._fxaClient = new FxaClient({
-          interTabChannel: this._interTabChannel,
-          authServerUrl: this._config.authServerUrl
-        });
-      }
-    },
-
-    initializeUser: function () {
-      if (! this._user) {
-        this._user = new User({
-          oAuthClientId: this._config.oAuthClientId,
-          profileClient: this._profileClient,
-          oAuthClient: this._oAuthClient,
-          fxaClient: this._fxaClient,
-          marketingEmailClient: this._marketingEmailClient,
-          assertion: this._assertionLibrary,
-          storage: this._getStorageInstance(),
-          uniqueUserId: this._getUniqueUserId()
-        });
-      }
-    },
-
-    initializeNotifications: function () {
-      var notificationWebChannel =
-            new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-      notificationWebChannel.initialize();
-
-      this._notifications = new Notifications({
-        tabChannel: this._interTabChannel,
-        iframeChannel: this._iframeChannel,
-        webChannel: notificationWebChannel
-      });
-    },
-
-    _uniqueUserId: null,
-    _getUniqueUserId: function () {
-      if (! this._uniqueUserId) {
-        /**
-         * Sets a UUID value that is unrelated to any account information.
-         * This value is useful to determine if the logged out user qualifies
-         * for A/B testing or metrics.
-         */
-        this._uniqueUserId = new UniqueUserId({
-          window: this._window
-        }).get('uniqueUserId');
+      var authenticationBrokerName;
+      if (this._isFirstRun()) {
+        authenticationBrokerName = 'firstRunAuthenticationBroker';
+      } else if (this._isFxDesktopV2()) {
+        authenticationBrokerName = 'fxDesktopV2AuthenticationBroker';
+      } else if (this._isFxDesktopV1()) {
+        authenticationBrokerName = 'fxDesktopV1AuthenticationBroker';
+      } else if (this._isWebChannel()) {
+        authenticationBrokerName = 'webChannelAuthenticationBroker';
+      } else if (this._isIframe()) {
+        authenticationBrokerName = 'iframeAuthenticationBroker';
+      } else if (this._isOAuth()) {
+        authenticationBrokerName = 'redirectAuthenticationBroker';
+      } else {
+        authenticationBrokerName = 'baseAuthenticationBroker';
       }
 
-      return this._uniqueUserId;
+      return this.create(authenticationBrokerName, 'metrics', 'window')
+        .spread(function (authenticationBroker, metrics, win) {
+          authenticationBroker.on('error', function (err) {
+            win.console.error('broker error', String(err));
+            metrics.logError(err);
+          });
+
+          metrics.setBrokerType(authenticationBroker.type);
+
+          return authenticationBroker;
+        });
     },
 
     upgradeStorageFormats: function () {
-      return this._user.upgradeFromSession(Session, this._fxaClient);
+      return this.create('user', 'fxaClient', 'session')
+        .spread(function (user, fxaClient, session) {
+          return user.upgradeFromSession(session, fxaClient);
+        });
     },
 
     initializeRouter: function () {
-      if (! this._router) {
-        this._router = new Router({
-          metrics: this._metrics,
-          language: this._config.language,
-          relier: this._relier,
-          broker: this._authenticationBroker,
-          fxaClient: this._fxaClient,
-          user: this._user,
-          interTabChannel: this._interTabChannel,
-          session: Session,
-          formPrefill: this._formPrefill,
-          notifications: this._notifications,
-          able: this._able
-        });
-      }
-      this._window.router = this._router;
+      return this.create('router');
     },
 
     allResourcesReady: function () {
-      // The IFrame cannot use pushState or else a page transition
-      // would cause the parent frame to redirect.
-      var usePushState = ! this._isInAnIframe();
+      var self = this;
+      return this.create('window', 'history', 'router')
+        .spread(function (win, history, router) {
+          // The IFrame cannot use pushState or else a page transition
+          // would cause the parent frame to redirect.
+          var usePushState = ! self._isInAnIframe();
 
-      if (! usePushState) {
-        // If pushState cannot be used, Backbone falls back to using
-        // the hashchange. Put the initial pathname onto the hash
-        // so the correct page loads.
-        this._window.location.hash = this._window.location.pathname;
-      }
+          if (! usePushState) {
+            // If pushState cannot be used, Backbone falls back to using
+            // the hashchange. Put the initial pathname onto the hash
+            // so the correct page loads.
+            window.location.hash = win.location.pathname;
+          }
 
-      // If a new start page is specified, do not attempt to render
-      // the route displayed in the URL because the user is
-      // immediately redirected
-      var startPage = this._selectStartPage();
-      var isSilent = !! startPage;
-      this._history.start({ pushState: usePushState, silent: isSilent });
-      if (startPage) {
-        this._router.navigate(startPage);
-      }
+          // If a new start page is specified, do not attempt to render
+          // the route displayed in the URL because the user is
+          // immediately redirected
+          return self._selectStartPage()
+            .then(function (startPage) {
+              var isSilent = !! startPage;
+              history.start({ pushState: usePushState, silent: isSilent });
+              if (startPage) {
+                router.navigate(startPage);
+              }
+            });
+        });
     },
 
     _getErrorPage: function (err) {
@@ -598,10 +766,6 @@ function (
       }
 
       return Constants.INTERNAL_ERROR_PAGE;
-    },
-
-    _getStorageInstance: function () {
-      return Storage.factory('localStorage', this._window);
     },
 
     _isSync: function () {
@@ -675,18 +839,13 @@ function (
     },
 
     _selectStartPage: function () {
-      if (this._window.location.pathname !== '/cookies_disabled' &&
-        ! this._storage.isLocalStorageEnabled(this._window)) {
-        return 'cookies_disabled';
-      }
-    },
-
-    _createMetrics: function (options) {
-      if (this._isAutomatedBrowser()) {
-        return new StorageMetrics(options);
-      }
-
-      return new Metrics(options);
+      return this.create('window')
+        .then(function (win) {
+          if (win.location.pathname !== '/cookies_disabled' &&
+            ! Storage.isLocalStorageEnabled(win)) {
+            return 'cookies_disabled';
+          }
+        });
     },
 
     _isAutomatedBrowser: function () {
