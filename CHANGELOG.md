@@ -1,3 +1,14 @@
+<a name="0.43.1"></a>
+## 0.43.1 (2015-08-05)
+
+
+### fix
+
+* fix(client): Only make profile requests if a valid accessToken exists.
+ ([894ad9c](https://github.com/mozilla/fxa-content-server/commit/894ad9c))
+
+
+
 <a name="0.43.0"></a>
 # 0.43.0 (2015-08-04)
 
