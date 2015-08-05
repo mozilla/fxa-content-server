@@ -1,6 +1,14 @@
-<a name="0.42.0"></a>
-## 0.42.0 (2015-08-03)
+<a name="0.42.2"></a>
+### 0.42.2 (2015-08-05)
 
+
+#### Bug Fixes
+
+* **client:** Only make profile requests if a valid accessToken exists. ([7f9f33ae](https://github.com/mozilla/fxa-content-server/commit/7f9f33aeea74a8935665b4e42f7c292b1a25d4fb))
+
+
+<a name="0.42.1"></a>
+## 0.42.1 (2015-08-03)
 
 #### Features
 
