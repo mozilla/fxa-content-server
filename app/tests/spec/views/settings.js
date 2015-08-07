@@ -15,12 +15,13 @@ define([
   'lib/auth-errors',
   'lib/able',
   'lib/metrics',
+  'lib/translator',
   'models/reliers/relier',
   'models/profile-image',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, TestHelpers,
-      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Relier, ProfileImage, User) {
+      FxaClient, p, ProfileErrors, AuthErrors, Able, Metrics, Translator, Relier, ProfileImage, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -33,6 +34,7 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
     var user;
     var account;
     var metrics;
+    var translator;
     var UID = 'uid';
     var able;
 
@@ -43,6 +45,7 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
         relier: relier,
         user: user,
         metrics: metrics,
+        translator: translator,
         able: able,
         screenName: 'settings'
       });
@@ -51,6 +54,7 @@ function (chai, $, sinon, View, RouterMock, TestHelpers,
     beforeEach(function () {
       routerMock = new RouterMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       fxaClient = new FxaClient();
       user = new User();

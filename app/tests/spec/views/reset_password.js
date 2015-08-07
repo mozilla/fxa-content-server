@@ -9,6 +9,7 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   'lib/fxa-client',
   'views/reset_password',
   'models/reliers/relier',
@@ -17,7 +18,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
+function (_, chai, sinon, p, AuthErrors, Metrics, Translator, FxaClient, View, Relier,
       Broker, FormPrefill, RouterMock, TestHelpers) {
   'use strict';
 
@@ -28,6 +29,7 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var view;
     var router;
     var metrics;
+    var translator;
     var fxaClient;
     var relier;
     var broker;
@@ -37,6 +39,7 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       var viewOptions = _.extend({
         router: router,
         metrics: metrics,
+        translator: translator,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
@@ -49,6 +52,7 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     beforeEach(function () {
       router = new RouterMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       broker = new Broker({
         relier: relier
@@ -227,6 +231,7 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var relier;
     var broker;
     var formPrefill;
+    var translator;
 
     beforeEach(function () {
       relier = new Relier();
@@ -235,11 +240,13 @@ function (_, chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         relier: relier
       });
       formPrefill = new FormPrefill();
+      translator = new Translator();
 
       view = new View({
         broker: broker,
         relier: relier,
-        formPrefill: formPrefill
+        formPrefill: formPrefill,
+        translator: translator
       });
       return view.render();
     });

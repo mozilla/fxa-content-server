@@ -9,13 +9,14 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/able',
+  'lib/translator',
   'lib/promise',
   'models/reliers/fx-desktop',
   'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
-      OAuthBroker, WindowMock) {
+function (chai, sinon, View, Session, FxaClient, Able, Translator,
+  p, FxDesktopRelier, OAuthBroker, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,6 +29,7 @@ function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
     var broker;
     var able;
     var metrics;
+    var translator;
 
     function createView() {
       windowMock = new WindowMock();
@@ -42,6 +44,7 @@ function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
       fxaClient = new FxaClient();
 
       able = new Able();
+      translator = new Translator();
       metrics = {
         flush: sinon.spy(p),
         logMarketingImpression: function () {}
@@ -52,7 +55,8 @@ function (chai, sinon, View, Session, FxaClient, Able, p, FxDesktopRelier,
         relier: relier,
         broker: broker,
         able: able,
-        metrics: metrics
+        metrics: metrics,
+        translator: translator
       });
     }
 

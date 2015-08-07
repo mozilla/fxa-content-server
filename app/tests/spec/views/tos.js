@@ -7,9 +7,10 @@ define([
   'sinon',
   'views/tos',
   'lib/promise',
+  'lib/translator',
   '../../mocks/window'
 ],
-function (chai, sinon, View, p, WindowMock) {
+function (chai, sinon, View, p, Translator, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -23,6 +24,7 @@ function (chai, sinon, View, p, WindowMock) {
     var view;
     var xhrMock;
     var windowMock;
+    var translator;
 
     beforeEach(function () {
       xhrMock = {
@@ -32,11 +34,13 @@ function (chai, sinon, View, p, WindowMock) {
       };
 
       windowMock = new WindowMock();
+      translator = new Translator();
       windowMock.location.pathname = '/legal/terms';
 
       view = new View({
         xhr: xhrMock,
-        window: windowMock
+        window: windowMock,
+        translator: translator
       });
     });
 

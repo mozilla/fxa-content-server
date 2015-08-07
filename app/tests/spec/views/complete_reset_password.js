@@ -8,6 +8,7 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   'lib/fxa-client',
   'lib/channels/inter-tab',
   'views/complete_reset_password',
@@ -18,7 +19,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
+function (chai, sinon, p, AuthErrors, Metrics, Translator, FxaClient, InterTabChannel,
       View, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
@@ -31,6 +32,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
     var windowMock;
     var isPasswordResetComplete;
     var metrics;
+    var translator;
     var fxaClient;
     var interTabChannel;
     var relier;
@@ -59,6 +61,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        translator: translator,
         fxaClient: fxaClient,
         interTabChannel: interTabChannel,
         relier: relier,
@@ -71,6 +74,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
     beforeEach(function () {
       routerMock = new RouterMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();

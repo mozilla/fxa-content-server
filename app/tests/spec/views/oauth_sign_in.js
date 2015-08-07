@@ -11,6 +11,7 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'lib/metrics',
+  'lib/translator',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
@@ -19,7 +20,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
+function (chai, $, sinon, View, Session, FxaClient, p, Metrics, Translator, OAuthRelier,
       OAuthBroker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
@@ -33,6 +34,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var fxaClient;
     var relier;
     var metrics;
+    var translator;
     var broker;
     var profileClientMock;
     var user;
@@ -62,6 +64,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         fxaClient: fxaClient
       });
       metrics = new Metrics();
+      translator = new Translator();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
 
@@ -88,6 +91,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         user: user,
         profileClient: profileClientMock,
         metrics: metrics,
+        translator: translator,
         screenName: 'oauth.signin',
         formPrefill: formPrefill
       });

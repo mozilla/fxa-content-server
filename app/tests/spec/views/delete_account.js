@@ -11,6 +11,7 @@ define([
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -18,7 +19,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
-    Relier, Broker, User, RouterMock, TestHelpers) {
+  Translator, Relier, Broker, User, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -35,6 +36,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
     var user;
     var account;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -45,6 +47,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
       fxaClient = new FxaClient();
       user = new User();
       metrics = new Metrics();
+      translator = new Translator();
 
       view = new View({
         router: routerMock,
@@ -53,6 +56,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
         relier: relier,
         broker: broker,
         metrics: metrics,
+        translator: translator,
         screenName: 'delete-account'
       });
     });

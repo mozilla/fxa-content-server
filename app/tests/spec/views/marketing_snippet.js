@@ -6,15 +6,16 @@ define([
   'chai',
   'views/marketing_snippet',
   'lib/metrics',
+  'lib/translator',
   '../../mocks/window'
 ],
-function (chai, View, Metrics, WindowMock) {
+function (chai, View, Metrics, Translator, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/marketing_snippet', function () {
-    var view, windowMock, metrics;
+    var view, windowMock, metrics, translator;
 
     function createView(options) {
       options.window = windowMock;
@@ -27,6 +28,7 @@ function (chai, View, Metrics, WindowMock) {
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      translator = new Translator();
     });
 
     afterEach(function () {

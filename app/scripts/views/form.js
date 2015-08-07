@@ -426,7 +426,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
 
       var tooltip = new Tooltip({
         message: message,
-        invalidEl: invalidEl
+        invalidEl: invalidEl,
+        translator: this.translator
       });
 
       var self = this;

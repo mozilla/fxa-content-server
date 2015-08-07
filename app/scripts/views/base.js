@@ -87,10 +87,14 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     constructor: function (options) {
       options = options || {};
 
+      if (! options.translator) {
+        throw new Error('Translator is required');
+      }
+      this.translator = options.translator;
+
       this.subviews = [];
       this.window = options.window || window;
       this.navigator = options.navigator || this.window.navigator || navigator;
-      this.translator = options.translator || this.window.translator;
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;

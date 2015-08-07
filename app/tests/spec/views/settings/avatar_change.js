@@ -17,10 +17,11 @@ define([
   'lib/profile-client',
   'lib/promise',
   'lib/auth-errors',
-  'lib/metrics'
+  'lib/metrics',
+  'lib/translator'
 ],
 function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            WindowMock, TestHelpers, User, Relier, ProfileClient, p, AuthErrors, Metrics) {
+            WindowMock, TestHelpers, User, Relier, ProfileClient, p, AuthErrors, Metrics, Translator) {
   'use strict';
 
   var assert = chai.assert;
@@ -37,6 +38,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var account;
     var relier;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -45,6 +47,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       windowMock = new WindowMock();
       relier = new Relier();
       metrics = new Metrics();
+      translator = new Translator();
 
       view = new View({
         user: user,
@@ -52,6 +55,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        translator: translator,
         screenName: SCREEN_NAME
       });
     });
@@ -82,6 +86,7 @@ function (chai, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           window: windowMock,
           user: user,
           metrics: metrics,
+          translator: translator,
           screenName: SCREEN_NAME
         });
         view.isUserAuthorized = function () {

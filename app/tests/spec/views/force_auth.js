@@ -10,6 +10,7 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'lib/auth-errors',
+  'lib/translator',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -18,7 +19,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
+function (chai, $, sinon, View, FxaClient, p, AuthErrors, Translator, Relier, Broker,
       User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
@@ -28,6 +29,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
     var email;
     var view;
     var router;
+    var translator;
     var windowMock;
     var fxaClient;
     var relier;
@@ -41,6 +43,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
       broker = new Broker();
       fxaClient = new FxaClient();
       user = new User();
+      translator = new Translator();
       router = new RouterMock();
       formPrefill = new FormPrefill();
 
@@ -51,6 +54,7 @@ function (chai, $, sinon, View, FxaClient, p, AuthErrors, Relier, Broker,
         relier: relier,
         broker: broker,
         router: router,
+        translator: translator,
         formPrefill: formPrefill
       });
     }

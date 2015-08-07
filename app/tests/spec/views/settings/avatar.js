@@ -11,11 +11,12 @@ define([
   '../../../mocks/fxa-client',
   'lib/promise',
   'lib/auth-errors',
+  'lib/translator',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, $, sinon, View, RouterMock, FxaClientMock,
-    p, AuthErrors, Relier, User) {
+    p, AuthErrors, Translator, Relier, User) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,15 +29,18 @@ function (chai, $, sinon, View, RouterMock, FxaClientMock,
     var relierMock;
     var user;
     var account;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       fxaClientMock = new FxaClientMock();
       relierMock = new Relier();
       user = new User();
+      translator = new Translator();
 
       view = new View({
         router: routerMock,
+        translator: translator,
         user: user,
         fxaClient: fxaClientMock,
         relier: relierMock

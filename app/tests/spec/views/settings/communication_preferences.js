@@ -15,10 +15,11 @@ define([
   'lib/constants',
   'lib/marketing-email-errors',
   'lib/metrics',
+  'lib/translator',
   '../../../lib/helpers'
 ],
 function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
-  p, Constants, MarketingEmailErrors, Metrics, TestHelpers) {
+  p, Constants, MarketingEmailErrors, Metrics, Translator, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -28,6 +29,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
     var account;
     var emailPrefsModel;
     var metrics;
+    var translator;
     var preferencesUrl = 'https://marketing.preferences.com/user/user-token';
     var relier;
     var user;
@@ -45,6 +47,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
       relier = new Relier();
       account = new Account();
       metrics = new Metrics();
+      translator = new Translator();
 
       emailPrefsModel = new MarketingEmailPrefs({
         newsletters: [ NEWSLETTER_ID ],
@@ -71,6 +74,7 @@ function (chai, $, sinon, View, User, Account, MarketingEmailPrefs, Relier,
 
       view = new View({
         metrics: metrics,
+        translator: translator,
         relier: relier,
         screenName: 'settings.communication-preferences',
         user: user

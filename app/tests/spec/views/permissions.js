@@ -9,6 +9,7 @@ define([
   'lib/promise',
   'views/permissions',
   'lib/metrics',
+  'lib/translator',
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'models/reliers/relier',
@@ -18,7 +19,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
+function (chai, $, sinon, p, View, Metrics, Translator, FxaClient, EphemeralMessages,
       Relier, User, Broker, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
@@ -28,6 +29,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
     var view;
     var routerMock;
     var metrics;
+    var translator;
     var windowMock;
     var fxaClient;
     var relier;
@@ -46,6 +48,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       relier.set({
         clientId: CLIENT_ID,
@@ -82,6 +85,7 @@ function (chai, $, sinon, p, View, Metrics, FxaClient, EphemeralMessages,
       view = new View({
         router: routerMock,
         metrics: metrics,
+        translator: translator,
         window: windowMock,
         fxaClient: fxaClient,
         user: user,

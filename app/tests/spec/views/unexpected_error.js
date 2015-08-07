@@ -5,6 +5,7 @@
 define([
   'chai',
   'lib/ephemeral-messages',
+  'lib/translator',
   'views/unexpected_error',
   '../../mocks/window'
 ],
@@ -14,14 +15,16 @@ function (chai, EphemeralMessages, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/unexpected_error', function () {
-    var view, windowMock, ephemeralMessages;
+    var view, windowMock, ephemeralMessages, translator;
 
     beforeEach(function () {
       ephemeralMessages = new EphemeralMessages();
       windowMock = new WindowMock();
+      translator = new Translator();
       view = new View({
         window: windowMock,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        translator: translator
       });
     });
 

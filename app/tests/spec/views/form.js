@@ -12,20 +12,22 @@ define([
   'lib/constants',
   'lib/metrics',
   'lib/auth-errors',
+  'lib/translator',
   '../../lib/helpers'
 ],
 function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
-      TestHelpers) {
+      Translator, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/form', function () {
     var view, metrics;
+    var translator;
 
     var View = FormView.extend({
       template: Template,
-
+      translator: new Translator(),
       // overridden in tests.
       formIsValid: false,
       isFormSubmitted: false,
@@ -72,9 +74,11 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
     }
 
     beforeEach(function () {
+      translator = new Translator();
       metrics = new Metrics();
       view = new View({
-        metrics: metrics
+        metrics: metrics,
+        translator: translator
       });
 
       return view.render()

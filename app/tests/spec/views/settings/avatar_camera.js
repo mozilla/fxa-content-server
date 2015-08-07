@@ -16,10 +16,11 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'lib/promise',
-  'lib/metrics'
+  'lib/metrics',
+  'lib/translator'
 ],
 function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, Metrics) {
+    ProfileMock, TestHelpers, User, Relier, AuthBroker, p, Metrics, Translator) {
   'use strict';
 
   var assert = chai.assert;
@@ -35,6 +36,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     var relier;
     var broker;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -45,6 +47,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         relier: relier
       });
       metrics = new Metrics();
+      translator = new Translator();
 
       view = new View({
         router: routerMock,
@@ -53,6 +56,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
         relier: relier,
         broker: broker,
         metrics: metrics,
+        translator: translator,
         screenName: SCREEN_NAME
       });
 
@@ -160,6 +164,7 @@ function (chai, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           relier: relier,
           broker: broker,
           metrics: metrics,
+          translator: translator,
           screenName: SCREEN_NAME,
           displayLength: 240,
           exportLength: 600

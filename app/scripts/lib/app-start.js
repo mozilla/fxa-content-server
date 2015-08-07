@@ -249,7 +249,7 @@ function (
     },
 
     initializeL10n: function () {
-      this._translator = this._window.translator = new Translator();
+      this._translator = new Translator();
       return this._translator.fetch();
     },
 
@@ -485,7 +485,8 @@ function (
     initializeCloseButton: function () {
       if (this._authenticationBroker.canCancel()) {
         this._closeButton = new CloseButtonView({
-          broker: this._authenticationBroker
+          broker: this._authenticationBroker,
+          translator: this._translator
         });
         this._closeButton.render();
       }
@@ -560,7 +561,8 @@ function (
           session: Session,
           formPrefill: this._formPrefill,
           notifications: this._notifications,
-          able: this._able
+          able: this._able,
+          translator: this._translator
         });
       }
       this._window.router = this._router;

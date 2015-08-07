@@ -9,6 +9,7 @@ define([
   'views/complete_account_unlock',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   'lib/constants',
   'lib/fxa-client',
   'lib/url',
@@ -19,7 +20,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
+function (chai, sinon, p, View, AuthErrors, Metrics, Translator, Constants, FxaClient,
       Url, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
@@ -31,6 +32,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     var windowMock;
     var accountUnlockError;
     var metrics;
+    var translator;
     var fxaClient;
     var relier;
     var broker;
@@ -70,6 +72,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        translator: translator,
         user: user,
         fxaClient: fxaClient,
         relier: relier,
@@ -82,6 +85,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();

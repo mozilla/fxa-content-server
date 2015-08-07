@@ -8,15 +8,16 @@ define([
   'views/marketing_snippet_ios',
   'lib/able',
   'lib/metrics',
+  'lib/translator',
   '../../mocks/window'
 ],
-function (chai, sinon, View, Able, Metrics, WindowMock) {
+function (chai, sinon, View, Able, Metrics, Translator, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/marketing_snippet_ios', function () {
-    var view, windowMock, metrics;
+    var view, windowMock, metrics, translator;
 
     function createView(options) {
       options = options || {};
@@ -29,6 +30,7 @@ function (chai, sinon, View, Able, Metrics, WindowMock) {
 
       metrics = new Metrics();
       options.metrics = metrics;
+      options.translator = new Translator();
 
       options.able = new Able();
 

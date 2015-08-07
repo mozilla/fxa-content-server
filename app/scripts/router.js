@@ -141,6 +141,7 @@ function (
       this.notifications = options.notifications;
       this.able = options.able;
       this.storage = Storage.factory('sessionStorage', this.window);
+      this.translator = options.translator;
 
       this.environment = options.environment || new Environment(this.window);
       this._firstViewHasLoaded = false;
@@ -210,7 +211,8 @@ function (
         screenName: this.fragmentToScreenName(Backbone.history.fragment),
         formPrefill: this.formPrefill,
         notifications: this.notifications,
-        able: this.able
+        able: this.able,
+        translator: this.translator
       }, options || {});
 
       return new View(viewOptions);
