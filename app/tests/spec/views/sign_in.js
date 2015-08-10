@@ -12,6 +12,7 @@ define([
   'lib/auth-errors',
   'lib/oauth-errors',
   'lib/metrics',
+  'lib/translator',
   'lib/fxa-client',
   'lib/constants',
   'lib/ephemeral-messages',
@@ -23,7 +24,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
+function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics, Translator,
       FxaClient, Constants, EphemeralMessages, Relier, User, FormPrefill, Broker,
       WindowMock, RouterMock, TestHelpers) {
   'use strict';
@@ -36,6 +37,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     var email;
     var routerMock;
     var metrics;
+    var translator;
     var windowMock;
     var fxaClient;
     var relier;
@@ -52,6 +54,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       broker = new Broker({
         relier: relier
@@ -84,6 +87,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       view = new View({
         router: routerMock,
         metrics: metrics,
+        translator: translator,
         window: windowMock,
         fxaClient: fxaClient,
         user: user,

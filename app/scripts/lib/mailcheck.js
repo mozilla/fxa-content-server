@@ -58,7 +58,8 @@ function (Tooltip) {
             invalidEl: target,
             type: 'mailcheck',
             extraClassNames: SUGGEST_DIV_CLASS,
-            dismissible: true
+            dismissible: true,
+            translator: translator
           });
 
           tooltip.render();

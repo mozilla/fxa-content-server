@@ -10,6 +10,7 @@ define([
   '../../mocks/router',
   '../../mocks/canvas',
   'lib/promise',
+  'lib/translator',
   'lib/cropper',
   'lib/ephemeral-messages',
   'views/settings/avatar_crop',
@@ -17,8 +18,8 @@ define([
   'models/user',
   'models/reliers/relier'
 ],
-function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, EphemeralMessages, View,
-    CropperImage, User, Relier) {
+function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Translator,
+  Cropper, EphemeralMessages, View, CropperImage, User, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -30,6 +31,7 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
     var ephemeralMessages;
     var user;
     var relier;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -41,12 +43,14 @@ function (chai, sinon, jQuerySimulate, RouterMock, CanvasMock, p, Cropper, Ephem
       });
       user = new User();
       relier = new Relier();
+      translator = new Translator();
 
       view = new View({
         router: routerMock,
         ephemeralMessages: ephemeralMessages,
         user: user,
-        relier: relier
+        relier: relier,
+        translator: translator
       });
 
       view.isUserAuthorized = function () {

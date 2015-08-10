@@ -20,10 +20,11 @@ define([
   'lib/ephemeral-messages',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   '../../../lib/helpers'
 ],
 function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, User, CropperImage,
-    Relier, AuthBroker, p, EphemeralMessages, AuthErrors, Metrics, TestHelpers) {
+    Relier, AuthBroker, p, EphemeralMessages, AuthErrors, Metrics, Translator, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -40,10 +41,12 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
     var relier;
     var broker;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       metrics = new Metrics();
+      translator = new Translator();
       user = new User();
       ephemeralMessages = new EphemeralMessages();
       relier = new Relier();
@@ -53,6 +56,7 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
 
       view = new View({
         user: user,
+        translator: translator,
         ephemeralMessages: ephemeralMessages,
         router: routerMock,
         relier: relier,
@@ -123,6 +127,7 @@ function (chai, $, ui, sinon, jQuerySimulate, View, RouterMock, ProfileMock, Use
             user: user,
             relier: relier,
             metrics: metrics,
+            translator: translator,
             screenName: 'settings.avatar.crop'
           });
           view.isUserAuthorized = function () {

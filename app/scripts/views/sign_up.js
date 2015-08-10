@@ -76,6 +76,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       var coppaDatePicker = new CoppaDatePicker({
         el: self.$('#coppa'),
         metrics: this.metrics,
+        translator: this.translator,
         screenName: self.getScreenName(),
         formPrefill: self._formPrefill,
         shouldFocus: autofocusEl === null

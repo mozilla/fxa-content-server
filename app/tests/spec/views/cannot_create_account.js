@@ -6,9 +6,10 @@ define([
   'chai',
   'sinon',
   'views/cannot_create_account',
+  'lib/translator',
   'models/reliers/relier'
 ],
-function (chai, sinon, View, Relier) {
+function (chai, sinon, View, Translator, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -16,12 +17,14 @@ function (chai, sinon, View, Relier) {
   describe('views/cannot_create_account', function () {
     var view;
     var relier;
+    var translator;
 
     beforeEach(function () {
       relier = new Relier();
 
       view = new View({
-        relier: relier
+        relier: relier,
+        translator: translator
       });
     });
 

@@ -9,6 +9,7 @@ define([
   'lib/auth-errors',
   'views/confirm_reset_password',
   'lib/metrics',
+  'lib/translator',
   'lib/ephemeral-messages',
   'lib/channels/inter-tab',
   'lib/storage',
@@ -20,7 +21,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
+function (chai, sinon, p, AuthErrors, View, Metrics, Translator, EphemeralMessages,
       InterTabChannel, Storage, FxaClient, Relier, Broker, User,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';
@@ -34,6 +35,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
     var routerMock;
     var windowMock;
     var metrics;
+    var translator;
     var fxaClient;
     var relier;
     var broker;
@@ -46,6 +48,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
       windowMock = new WindowMock();
 
       metrics = new Metrics();
+      translator = new Translator();
       relier = new Relier();
       broker = new Broker({
         relier: relier
@@ -70,6 +73,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        translator: translator,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
@@ -152,6 +156,7 @@ function (chai, sinon, p, AuthErrors, View, Metrics, EphemeralMessages,
           router: routerMock,
           window: windowMock,
           metrics: metrics,
+          translator: translator,
           fxaClient: fxaClient,
           relier: relier,
           broker: broker,

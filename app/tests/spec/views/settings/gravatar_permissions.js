@@ -8,11 +8,12 @@ define([
   'sinon',
   'views/settings/gravatar_permissions',
   'lib/metrics',
+  'lib/translator',
   'models/user',
   '../../../mocks/router',
   '../../../lib/helpers'
 ],
-function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, Metrics, Translator, User, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -21,6 +22,7 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
     var view;
     var routerMock;
     var metrics;
+    var translator;
     var user;
     var email;
     var account;
@@ -30,6 +32,7 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
       email = TestHelpers.createEmail();
       routerMock = new RouterMock();
       metrics = new Metrics();
+      translator = new Translator();
       user = new User();
       account = user.initAccount({
         email: email,
@@ -51,6 +54,7 @@ function (chai, $, sinon, View, Metrics, User, RouterMock, TestHelpers) {
       view = new View({
         router: routerMock,
         metrics: metrics,
+        translator: translator,
         user: user,
         screenName: 'gravatar-permissions'
       });

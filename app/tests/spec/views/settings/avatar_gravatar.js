@@ -15,10 +15,11 @@ define([
   'models/auth_brokers/base',
   'lib/promise',
   'lib/metrics',
+  'lib/translator',
   'lib/profile-client'
 ],
 function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
-    Relier, AuthBroker, p, Metrics, ProfileClient) {
+    Relier, AuthBroker, p, Metrics, Translator, ProfileClient) {
   'use strict';
 
   var assert = chai.assert;
@@ -35,6 +36,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
     var relier;
     var broker;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -44,6 +46,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
         relier: relier
       });
       metrics = new Metrics();
+      translator = new Translator();
 
       view = new View({
         user: user,
@@ -51,6 +54,7 @@ function (chai, $, sinon, View, RouterMock, ProfileMock, TestHelpers, User,
         relier: relier,
         broker: broker,
         metrics: metrics,
+        translator: translator,
         screenName: 'settings.avatar.gravatar'
       });
 

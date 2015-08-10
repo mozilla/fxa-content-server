@@ -5,22 +5,25 @@
 define([
   'chai',
   'jquery',
+  'lib/translator',
   'views/tooltip'
 ],
-function (chai, $, Tooltip) {
+function (chai, $, Translator, Tooltip) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/tooltip', function () {
     var tooltip;
+    var translator;
 
     beforeEach(function () {
       $('#container').html('<div class="input-row"><input id="focusMe" /></div>');
-
+      translator = new Translator();
       tooltip = new Tooltip({
         message: 'this is a tooltip',
-        invalidEl: '#focusMe'
+        invalidEl: '#focusMe',
+        translator: translator
       });
     });
 
@@ -41,7 +44,8 @@ function (chai, $, Tooltip) {
       it('only one tooltip can be rendered at a time', function () {
         var tooltip2 = new Tooltip({
           message: 'this is a second tooltip',
-          invalidEl: '#focusMe'
+          invalidEl: '#focusMe',
+          translator: translator
         });
 
         return tooltip.render()

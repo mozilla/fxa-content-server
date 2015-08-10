@@ -8,15 +8,16 @@ define([
   'sinon',
   'views/cookies_disabled',
   '../../mocks/window',
-  'lib/storage'
+  'lib/storage',
+  'lib/translator'
 ],
-function ($, chai, sinon, View, WindowMock, Storage) {
+function ($, chai, sinon, View, WindowMock, Storage, Translator) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/cookies_disabled', function () {
-    var view, windowMock, serverConfig;
+    var view, windowMock, serverConfig, translator;
 
     var origGetJSON = $.getJSON;
 
@@ -32,8 +33,10 @@ function ($, chai, sinon, View, WindowMock, Storage) {
       };
 
       windowMock = new WindowMock();
+      translator = new Translator();
       view = new View({
         window: windowMock,
+        translator: translator,
         Storage: Storage
       });
       return view.render()

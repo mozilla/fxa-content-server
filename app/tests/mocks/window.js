@@ -8,9 +8,10 @@ define([
   'backbone',
   'sinon',
   'underscore',
-  'lib/null-storage'
+  'lib/null-storage',
+  'lib/translator'
 ],
-function (Backbone, sinon, _, NullStorage) {
+function (Backbone, sinon, _, NullStorage, Translator) {
   'use strict';
 
   function MutationObserver (notifier) {
@@ -27,7 +28,6 @@ function (Backbone, sinon, _, NullStorage) {
   function WindowMock() {
     var self = this;
 
-    this.translator = window.translator;
     this.location = {
       href: window.location.href,
       search: window.location.search,

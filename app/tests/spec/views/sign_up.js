@@ -17,6 +17,7 @@ define([
   'lib/ephemeral-messages',
   'lib/mailcheck',
   'lib/able',
+  'lib/translator',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
@@ -26,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, mailcheck, Able, Relier, Broker, User, FormPrefill,
+      FxaClient, EphemeralMessages, mailcheck, Able, Translator, Relier, Broker, User, FormPrefill,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
@@ -45,6 +46,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
     var formPrefill;
     var coppa;
     var able;
+    var translator;
 
     function fillOutSignUp(email, password, isCoppaValid) {
       view.$('[type=email]').val(email);
@@ -69,7 +71,8 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
         screenName: 'signup',
         formPrefill: formPrefill,
         coppa: coppa,
-        able: able
+        able: able,
+        translator: translator
       });
     }
 
@@ -91,6 +94,7 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       formPrefill = new FormPrefill();
       coppa = new Coppa();
       able = new Able();
+      translator = new Translator();
 
       createView();
 

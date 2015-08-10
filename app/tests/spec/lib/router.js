@@ -16,6 +16,7 @@ define([
   'lib/metrics',
   'lib/ephemeral-messages',
   'lib/promise',
+  'lib/translator',
   'models/reliers/relier',
   'models/user',
   'models/form-prefill',
@@ -24,8 +25,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Able, Constants, Environment, Metrics, EphemeralMessages, p, Relier,
-      User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
+      Able, Constants, Environment, Metrics, EphemeralMessages, p, Translator,
+      Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -43,6 +44,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
     var formPrefill;
     var able;
     var environment;
+    var translator;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -51,6 +53,7 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
 
       windowMock = new WindowMock();
       metrics = new Metrics();
+      translator = new Translator();
 
       relier = new Relier({
         window: windowMock
@@ -73,7 +76,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
         user: user,
         formPrefill: formPrefill,
         able: able,
-        environment: environment
+        environment: environment,
+        translator: translator
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -161,7 +165,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           router: router,
           broker: broker,
           screenName: 'signin',
-          formPrefill: formPrefill
+          formPrefill: formPrefill,
+          translator: translator
         });
         signUpView = new SignUpView({
           metrics: metrics,
@@ -172,7 +177,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           broker: broker,
           screenName: 'signup',
           formPrefill: formPrefill,
-          able: able
+          able: able,
+          translator: translator
         });
       });
 
@@ -273,7 +279,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           broker: broker,
           screenName: 'signup',
           formPrefill: formPrefill,
-          able: able
+          able: able,
+          translator: translator
         });
       });
 
@@ -361,7 +368,8 @@ function (chai, sinon, Backbone, Router, SignInView, SignUpView, ReadyView,
           broker: broker,
           type: 'sign_up',
           screenName: 'signup-complete',
-          able: new Able()
+          able: new Able(),
+          translator: translator
         });
 
         return router.showView(view)

@@ -11,9 +11,10 @@ define([
   'models/form-prefill',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/translator',
   '../../../lib/helpers'
 ],
-function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, TestHelpers) {
+function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, Translator, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -47,13 +48,15 @@ function (chai, $, moment, sinon, View, FormPrefill, AuthErrors, Metrics, TestHe
     var view;
     var formPrefill;
     var metrics;
+    var translator;
 
     function createView() {
 
       view = new View({
         screenName: 'signup',
         formPrefill: formPrefill,
-        metrics: metrics
+        metrics: metrics,
+        translator: translator
       });
     }
 

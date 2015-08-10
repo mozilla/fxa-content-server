@@ -8,9 +8,10 @@ define([
   'sinon',
   'chai',
   'jquery',
-  'lib/mailcheck'
+  'lib/mailcheck',
+  'lib/translator'
 ],
-function (sinon, chai, $, mailcheck) {
+function (sinon, chai, $, mailcheck, Translator) {
   'use strict';
 
   var assert = chai.assert;
@@ -22,7 +23,7 @@ function (sinon, chai, $, mailcheck) {
   var RESULT_TEXT = 'Did you mean gmail.com?✕';
 
   describe('lib/mailcheck', function () {
-    var mockTranslator = window.translator;
+    var mockTranslator = new Translator();
     var mockMetrics = {
       logEvent: function () {
       }

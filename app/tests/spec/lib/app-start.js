@@ -83,8 +83,9 @@ function (chai, sinon, Raven, AppStart, Session, NullChannel, Constants, p,
       it('starts the app', function () {
         return appStart.startApp()
           .then(function () {
-            // translator is put on the global object.
-            assert.isDefined(windowMock.translator);
+            assert.isDefined(appStart._translator);
+            // translator is not put on the global object.
+            assert.isUndefined(windowMock.translator);
           });
       });
 

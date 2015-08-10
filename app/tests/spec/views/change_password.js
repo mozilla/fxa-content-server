@@ -9,6 +9,7 @@ define([
   'lib/auth-errors',
   'lib/fxa-client',
   'lib/metrics',
+  'lib/translator',
   'lib/promise',
   'lib/ephemeral-messages',
   'views/change_password',
@@ -18,7 +19,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
+function (chai, $, sinon, AuthErrors, FxaClient, Metrics, Translator, p,
     EphemeralMessages, View, Relier, Broker, User, RouterMock, TestHelpers) {
   'use strict';
 
@@ -35,6 +36,7 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
     var account;
     var ephemeralMessages;
     var metrics;
+    var translator;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -50,6 +52,7 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
       });
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
+      translator = new Translator();
 
       view = new View({
         router: routerMock,
@@ -59,6 +62,7 @@ function (chai, $, sinon, AuthErrors, FxaClient, Metrics, p,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
         metrics: metrics,
+        translator: translator,
         screenName: 'change-password'
       });
     });
