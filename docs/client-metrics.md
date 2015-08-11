@@ -214,6 +214,11 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signup.auth.1023 - user entered an email address that was invalid
 * error.signup.auth.1029 - signup is disabled on Fx for iOS v1
 * error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
+* experiment.pw-strength.ALL_NUMBERS_LETTERS - password contains all numbers or letters
+* experiment.pw-strength.BLOOMFILTER_HIT - password was found in bloomfilter
+* experiment.pw-strength.BLOOMFILTER_MISS - password was not found in bloomfilter
+* experiment.pw-strength.PASSWORD_TOO_SHORT - password was less than 8 characters
+* experiment.pw-strength.MISSING_PASSWORD - no password supplied
 * signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
 * signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 * signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in

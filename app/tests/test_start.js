@@ -100,6 +100,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/resume-token-mixin',
     '../tests/spec/views/mixins/service-mixin',
     '../tests/spec/views/mixins/password-mixin',
+    '../tests/spec/views/mixins/password-strength-mixin',
     '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/views/mixins/back-mixin',
     '../tests/spec/views/mixins/account-locked-mixin',
