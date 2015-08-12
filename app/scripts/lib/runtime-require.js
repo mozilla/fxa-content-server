@@ -19,27 +19,25 @@ define([
 ], function (p) {
   'use strict';
 
-  // An alias to require is used to prevent almond from bundling
-  // the resource into the main bundle. instead, the item will
-  // be loaded on demand, and the module returned when the promise
-  // resolves.
-
-  var getNow = require;
-  var resources = {};
-
-  return function (resourceToGet) {
-    if (! resources[resourceToGet]) {
+  function runtimeRequire(resourceToGet) {
+    return p().then(function () {
       var deferred = p.defer();
 
-      // ensure only one request for the resource can be
-      // done by caching the promise. When the promise resolves,
-      // the loaded module will be returned to the caller.
-      resources[resourceToGet] = deferred.promise;
+      // requirejs takes care of ensuring only one outstanding request
+      // per module occurs if multiple requests are concurrently made
+      // for the same module.
 
+      // An alias to require is used to prevent almond from bundling
+      // the resource into the main bundle. Instead, the item will
+      // be loaded on demand, and the module returned when the promise
+      // resolves.
+      var getNow = window.require;
       getNow([resourceToGet], deferred.resolve.bind(deferred));
-    }
 
-    return resources[resourceToGet];
-  };
+      return deferred.promise;
+    });
+  }
+
+  return runtimeRequire;
 });
 

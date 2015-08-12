@@ -911,7 +911,6 @@ function (chai, $, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
     });
 
     describe('onPasswordBlur', function () {
-
       beforeEach(function () {
         sinon.spy(view, 'checkPasswordStrength');
       });

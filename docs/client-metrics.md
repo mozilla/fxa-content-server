@@ -214,11 +214,6 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signup.auth.1023 - user entered an email address that was invalid
 * error.signup.auth.1029 - signup is disabled on Fx for iOS v1
 * error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
-* experiment.pw-strength.ALL_NUMBERS_LETTERS - password contains all numbers or letters
-* experiment.pw-strength.BLOOMFILTER_HIT - password was found in bloomfilter
-* experiment.pw-strength.BLOOMFILTER_MISS - password was not found in bloomfilter
-* experiment.pw-strength.PASSWORD_TOO_SHORT - password was less than 8 characters
-* experiment.pw-strength.MISSING_PASSWORD - no password supplied
 * signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
 * signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 * signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in
@@ -227,6 +222,13 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.checkbox.change.show-password.unchecked - password is hidden
 * signup.email-optin.visible.false - email opt-in is not visible
 * signup.email-optin.visible.true - email opt-in is visible
+* signup.experiment.pw_strength.bloomfilter_hit - password was found in bloomfilter
+* signup.experiment.pw_strength.bloomfilter_used - bloomfilter was used
+* signup.experiment.pw_strength.missing_password - no password supplied
+* signup.experiment.pw_strength.not_strong_enough - password contains all numbers or letters and is less than 12 characters in length
+* signup.experiment.pw_strength.password_strength_check_enabled - user was opted in to password strength check
+* signup.experiment.pw_strength.password_too_short - password was less than 8 characters
+* signup.experiment.pw_strength.success - password was not found to be weak
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
 * tooltip.mailcheck-suggested - an email address correction was suggested
