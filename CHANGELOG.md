@@ -1,3 +1,14 @@
+<a name="0.43.2"></a>
+## 0.43.2 (2015-08-13)
+
+
+### fix
+
+* fix(firstrun): increase response timeout for iframing
+ ([64b5990](https://github.com/mozilla/fxa-content-server/commit/64b5990))
+
+
+
 <a name="0.43.1"></a>
 ## 0.43.1 (2015-08-05)
 
