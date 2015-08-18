@@ -229,7 +229,7 @@ The event stream is a log of events and the time they occurred while the user is
 * signup.experiment.pw_strength.enabled - user was opted in to password strength check
 * signup.experiment.pw_strength.long_enough - password is &gt;= 12 characters
 * signup.experiment.pw_strength.missing_password - no password supplied
-* signup.experiment.pw_strength.too_short - password was less than 8 characters
+* signup.experiment.pw_strength.too_short - password was &lt; 8 characters
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
 * tooltip.mailcheck-suggested - an email address correction was suggested

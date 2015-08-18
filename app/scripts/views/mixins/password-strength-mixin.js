@@ -27,7 +27,9 @@ define([
         this._isPasswordStrengthCheckEnabledValue =
               this._able.choose('passwordStrengthCheckEnabled', abData);
 
-        this._logStrengthExperimentEvent('enabled');
+        if (this._isPasswordStrengthCheckEnabledValue) {
+          this._logStrengthExperimentEvent('enabled');
+        }
       }
       return this._isPasswordStrengthCheckEnabledValue;
     },
