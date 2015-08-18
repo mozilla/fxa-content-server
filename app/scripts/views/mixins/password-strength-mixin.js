@@ -16,7 +16,6 @@ define([
 
     _isPasswordStrengthCheckEnabledValue: undefined,
     _isPasswordStrengthCheckEnabled: function () {
-      var self = this;
       if (typeof this._isPasswordStrengthCheckEnabledValue === 'undefined') {
         var abData = {
           isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
@@ -27,8 +26,8 @@ define([
 
         this._isPasswordStrengthCheckEnabledValue =
               this._able.choose('passwordStrengthCheckEnabled', abData);
-        var eventName = 'experiment.pw_strength.password_strength_check_enabled';
-        self.logScreenEvent(eventName);
+
+        this._logStrengthExperimentEvent('enabled');
       }
       return this._isPasswordStrengthCheckEnabledValue;
     },
@@ -74,17 +73,21 @@ define([
             // in the future, do some fancy tooltip here.
             passwordCheckStatus = passwordCheckStatus || 'UNKNOWN';
 
-            if (passwordCheckStatus.toLowerCase() === 'bloomfilter_hit'
-                      || passwordCheckStatus.toLowerCase() === 'bloomfilter_miss') {
-              self.logScreenEvent('experiment.pw_strength.bloomfilter_used');
+            if (passwordCheckStatus === 'BLOOMFILTER_HIT' ||
+                passwordCheckStatus === 'BLOOMFILTER_MISS') {
+              self._logStrengthExperimentEvent('bloomfilter_used');
             }
-            var eventName = 'experiment.pw_strength.' +
-                                passwordCheckStatus.toLowerCase();
-            self.logScreenEvent(eventName);
+            self._logStrengthExperimentEvent(passwordCheckStatus);
+
             deferred.resolve(passwordCheckStatus);
           });
           return deferred.promise;
         });
+    },
+
+    _logStrengthExperimentEvent: function (eventNameSuffix) {
+      var eventName = 'experiment.pw_strength.' + eventNameSuffix.toLowerCase();
+      this.logScreenEvent(eventName);
     }
   };
   return PasswordStrengthMixin;

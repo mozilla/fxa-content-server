@@ -40,9 +40,7 @@ define([
             isCollectionEnabled: function () {
               return true;
             },
-            logEvent: sinon.spy(function () {
-              return true;
-            })
+            logEvent: sinon.spy()
           },
           user: {
             get: function () {
@@ -56,6 +54,7 @@ define([
           }
         });
 
+        sinon.spy(view, 'logScreenEvent');
         assert.isTrue(view._isPasswordStrengthCheckEnabled());
         assert.isTrue(
           ableMock.choose.calledWith('passwordStrengthCheckEnabled', {
@@ -64,6 +63,7 @@ define([
             forcePasswordStrengthCheck: 'true'
           })
         );
+        assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'enabled'));
       });
     });
 
@@ -94,48 +94,56 @@ define([
         });
       });
 
-      it('logs password_too_short when password is short', function () {
+      it('logs `too_short` when password is short', function () {
         return view.checkPasswordStrength('hello')
           .then(function () {
-            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'password_too_short'));
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'too_short'));
           });
       });
 
-      it('logs missing_password when no password is passed', function () {
+      it('logs `missing_password` when no password is passed', function () {
         return view.checkPasswordStrength('')
           .then(function () {
             assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'missing_password'));
           });
       });
 
-      it('logs all_numbers_letters when password is all numbers', function () {
+      it('logs `all_letters_or_numbers` when password is all numbers', function () {
         return view.checkPasswordStrength('123456789')
           .then(function () {
-            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'not_strong_enough'));
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'all_letters_or_numbers'));
           });
       });
 
-      it('logs all_numbers_letters when password is all letters', function () {
+      it('logs `all_letters_or_numbers` when password is all letters', function () {
         return view.checkPasswordStrength('dragondrag')
           .then(function () {
-            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'not_strong_enough'));
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'all_letters_or_numbers'));
           });
       });
 
-      it('logs bloomfilter_miss when password is not in Bloom Filter', function () {
+      it('logs `long_enough` when password is >= 12 chars', function () {
         return view.checkPasswordStrength('imsuperlongandstrong')
           .then(function () {
-            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'success'));
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'long_enough'));
           });
       });
 
-      it('logs bloomfilter_hit when password is in Bloom Filter', function () {
+      it('logs `bloomfilter_used` and `bloomfilter_hit` when password is in Bloom filter', function () {
         return view.checkPasswordStrength('charlie2')
           .then(function () {
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'bloomfilter_used'));
             assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'bloomfilter_hit'));
           });
       });
-    });
 
+      it('logs `bloomfilter_used` and `bloomfilter_miss` when checked against Bloom filter but not present', function () {
+        return view.checkPasswordStrength('pO09kskAs')
+          .then(function () {
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'bloomfilter_used'));
+            assert.isTrue(view.logScreenEvent.calledWith(EVENT_NAME_PREFIX + 'bloomfilter_miss'));
+          });
+      });
+    });
   });
 });
