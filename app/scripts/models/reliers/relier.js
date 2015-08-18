@@ -42,6 +42,7 @@ define([
       options = options || {};
 
       this.window = options.window || window;
+      this.authServerUrl = options.authServerUrl;
     },
 
     /**
@@ -80,6 +81,11 @@ define([
             self.importSearchParam('entryPoint', 'entrypoint');
           }
           self.importSearchParam('campaign');
+          self.importSearchParam('session');
+          self.importSearchParam('key');
+          self.importSearchParam('unwrap');
+          self.importSearchParam('email');
+          self.importSearchParam('err');
 
           self.importSearchParam('utm_campaign', 'utmCampaign');
           self.importSearchParam('utm_content', 'utmContent');

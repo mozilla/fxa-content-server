@@ -369,17 +369,20 @@ function (
           // the service name is translated correctly.
           relier = new FxDesktopRelier({
             window: this._window,
-            translator: this._translator
+            translator: this._translator,
+            authServerUrl: this._config.authServerUrl
           });
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
             window: this._window,
             oAuthClient: this._oAuthClient,
+            authServerUrl: this._config.authServerUrl,
             session: Session
           });
         } else {
           relier = new Relier({
-            window: this._window
+            window: this._window,
+            authServerUrl: this._config.authServerUrl
           });
         }
 
