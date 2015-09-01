@@ -7,6 +7,8 @@ var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
 var GACollector = require('../ga-collector');
 var logger = require('mozlog')('server.post-metrics');
+var config = require('../configuration');
+var env = config.get('env');
 
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
@@ -20,6 +22,11 @@ module.exports = function () {
     process: function (req, res) {
       // don't wait around to send a response.
       res.json({ success: true });
+
+      // support do not track
+      if (env === 'production' && req.headers.dnt === '1') {
+        return;
+      }
 
       process.nextTick(function () {
         var metrics = req.body || {};
