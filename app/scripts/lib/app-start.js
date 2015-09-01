@@ -113,9 +113,7 @@ function (
 ) {
   'use strict';
 
-  function Start(options) {
-    options = options || {};
-
+  function Start(options = {}) {
     this._window = options.window || window;
     this._router = options.router;
     this._relier = options.relier;

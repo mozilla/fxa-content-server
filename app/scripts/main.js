@@ -9,8 +9,8 @@ function () {
   'use strict';
 
   // Ensure config is loaded before trying to load any other scripts.
-  require(['./lib/app-start'], function (AppStart) {
-    var appStart = new AppStart();
+  require(['./lib/app-start'], (AppStart) => {
+    const appStart = new AppStart();
     appStart.startApp();
   });
 });

@@ -17,9 +17,7 @@ define([
 
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this.relier = options.relier;
       this.window = options.window || window;
     },

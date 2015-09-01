@@ -50,9 +50,7 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
 
   var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'oauth',
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;

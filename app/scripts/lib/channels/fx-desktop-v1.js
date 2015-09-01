@@ -18,9 +18,7 @@ define([
   }
 
   _.extend(FxDesktopV1Channel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var win = options.window || window;
 
       var sender = this._sender = new FxDesktopV1Sender();

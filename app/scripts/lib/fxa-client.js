@@ -48,9 +48,7 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
     return wrappedClient;
   }
 
-  function FxaClientWrapper(options) {
-    options = options || {};
-
+  function FxaClientWrapper(options = {}) {
     var client;
 
     if (options.client) {
@@ -170,10 +168,9 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
      *                   the session token is being created. Defaults to the
      *                   relier's context.
      */
-    signIn: function (originalEmail, password, relier, options) {
+    signIn: function (originalEmail, password, relier, options = {}) {
       var email = trim(originalEmail);
       var self = this;
-      options = options || {};
 
       return self._getClient()
         .then(function (client) {
@@ -195,10 +192,9 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
         });
     },
 
-    signUp: function (originalEmail, password, relier, options) {
+    signUp: function (originalEmail, password, relier, options = {}) {
       var email = trim(originalEmail);
       var self = this;
-      options = options || {};
 
       return self._getClient()
         .then(function (client) {
@@ -245,9 +241,7 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
         });
     },
 
-    signUpResend: function (relier, sessionToken, options) {
-      options = options || {};
-
+    signUpResend: function (relier, sessionToken, options = {}) {
       return this._getClient()
         .then(function (client) {
           var clientOptions = {
@@ -277,9 +271,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
               });
     },
 
-    passwordReset: function (originalEmail, relier, options) {
+    passwordReset: function (originalEmail, relier, options = {}) {
       var email = trim(originalEmail);
-      options = options || {};
 
       return this._getClient()
         .then(function (client) {
@@ -300,9 +293,8 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
         });
     },
 
-    passwordResetResend: function (originalEmail, passwordForgotToken, relier, options) {
+    passwordResetResend: function (originalEmail, passwordForgotToken, relier, options = {}) {
       var email = trim(originalEmail);
-      options = options || {};
 
       return this._getClient()
         .then(function (client) {
@@ -364,10 +356,9 @@ function (FxaClient, $, Constants, p, Session, AuthErrors) {
         });
     },
 
-    sendAccountUnlockEmail: function (originalEmail, relier, options) {
+    sendAccountUnlockEmail: function (originalEmail, relier, options = {}) {
       var self = this;
       var email = trim(originalEmail);
-      options = options || {};
 
       return self._getClient()
         .then(function (client) {

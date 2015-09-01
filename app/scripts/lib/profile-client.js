@@ -11,8 +11,7 @@ define([
 function (xhr, ProfileErrors) {
   'use strict';
 
-  function ProfileClient(options) {
-    options = options || {};
+  function ProfileClient(options = {}) {
     this.profileUrl = options.profileUrl;
   }
 

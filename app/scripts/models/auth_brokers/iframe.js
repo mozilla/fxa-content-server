@@ -13,9 +13,7 @@ define([
 
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'iframe',
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       // channel can be passed in for testing.
       this._channel = options.channel;
 

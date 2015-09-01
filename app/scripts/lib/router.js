@@ -153,9 +153,7 @@ function (
       'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' })
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this.window = options.window || window;
 
       this.metrics = options.metrics;
@@ -177,7 +175,7 @@ function (
       this.watchAnchors();
     },
 
-    navigate: function (url, options) {
+    navigate: function (url, options = { trigger: true }) {
       // Only add search parameters if they do not already exist.
       // Search parameters are added to the URLs because they are sometimes
       // used to pass state from the browser to the screens. Perhaps we should
@@ -187,7 +185,6 @@ function (
         url = url + this.window.location.search;
       }
 
-      options = options || { trigger: true };
       return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 
@@ -230,7 +227,7 @@ function (
       });
     },
 
-    createView: function (View, options) {
+    createView: function (View, options = {}) {
       // passed in options block can override
       // default options.
       var viewOptions = _.extend({
@@ -252,7 +249,7 @@ function (
         formPrefill: this.formPrefill,
         notifications: this.notifications,
         able: this.able
-      }, options || {});
+      }, options);
 
       return new View(viewOptions);
     },

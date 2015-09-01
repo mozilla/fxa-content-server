@@ -24,8 +24,7 @@ define([
     defaults: {
     },
 
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       this._channels = [];
       if (options.iframeChannel) {
         this._channels.push(options.iframeChannel);

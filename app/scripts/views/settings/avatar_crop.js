@@ -27,9 +27,7 @@ function (p, Cocktail, FormView, AvatarMixin, ModalSettingsPanelMixin, SettingsM
     template: Template,
     className: 'avatar-crop',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var data = this.ephemeralData() || {};
       this._cropImg = data.cropImg;
 

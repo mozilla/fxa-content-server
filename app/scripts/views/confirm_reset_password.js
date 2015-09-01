@@ -27,8 +27,7 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
     template: Template,
     className: 'confirm-reset-password',
 
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       this._interTabChannel = options.interTabChannel;
       this._sessionUpdateTimeoutMS = options.sessionUpdateTimeoutMS ||
               SESSION_UPDATE_TIMEOUT_MS;

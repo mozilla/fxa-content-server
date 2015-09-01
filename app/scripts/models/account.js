@@ -61,8 +61,7 @@ define([
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       var self = this;
 
       if (options.accountData) {
@@ -220,9 +219,8 @@ define([
         });
     },
 
-    signIn: function (relier, options) {
+    signIn: function (relier, options = {}) {
       var self = this;
-      options = options || {};
 
       return p().then(function () {
         var password = self.get('password');
@@ -254,9 +252,8 @@ define([
       });
     },
 
-    signUp: function (relier, options) {
+    signUp: function (relier, options = {}) {
       var self = this;
-      options = options || {};
 
       return self._fxaClient.signUp(
         self.get('email'),

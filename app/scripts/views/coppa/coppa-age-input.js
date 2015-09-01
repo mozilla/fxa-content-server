@@ -18,9 +18,7 @@ define([
     template: Template,
     className: 'coppa-age-input',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._formPrefill = options.formPrefill;
     },
 

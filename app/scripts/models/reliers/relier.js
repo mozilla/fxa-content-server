@@ -46,9 +46,7 @@ define([
       utmTerm: null
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this.window = options.window || window;
     },
 

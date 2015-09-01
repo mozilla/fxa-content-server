@@ -14,8 +14,8 @@ define([
 function (Cocktail, BaseView, ConfigLoader, AuthErrors, Storage, Template, BackMixin) {
   'use strict';
 
-  var View = BaseView.extend({
-    constructor: function (options) {
+  const View = BaseView.extend({
+    constructor (options = {}) {
       BaseView.call(this, options);
 
       this._configLoader = new ConfigLoader();
@@ -29,7 +29,7 @@ function (Cocktail, BaseView, ConfigLoader, AuthErrors, Storage, Template, BackM
       'click #submit-btn': 'backIfLocalStorageEnabled'
     },
 
-    backIfLocalStorageEnabled: function () {
+    backIfLocalStorageEnabled () {
       if (! this._Storage.isLocalStorageEnabled()) {
         return this.displayError(AuthErrors.toError('COOKIES_STILL_DISABLED'));
       }

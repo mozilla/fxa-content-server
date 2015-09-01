@@ -60,9 +60,7 @@ define([
   }
 
   _.extend(DuplexChannel.prototype, new BaseChannel(), {
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._sender = options.sender;
       if (! this._sender) {
         throw new Error('DuplexChannel must have a sender');

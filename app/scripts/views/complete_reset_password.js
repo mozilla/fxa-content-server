@@ -26,9 +26,7 @@ function (Cocktail, BaseView, FormView, Template, FloatingPlaceholderMixin,
     template: Template,
     className: 'complete-reset-password',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
 

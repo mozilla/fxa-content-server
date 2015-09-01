@@ -34,9 +34,7 @@ define([
   // See https://github.com/mozilla/fxa-content-server/issues/2946 for details
   var RESPONSE_TIMEOUT_MS = 5000;
 
-  function OriginCheck(options) {
-    options = options || {};
-
+  function OriginCheck(options = {}) {
     this._window = options.window || window;
     if ('responseTimeoutMS' in options) {
       this._responseTimeoutMS = options.responseTimeoutMS;

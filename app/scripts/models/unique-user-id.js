@@ -29,8 +29,7 @@ define([
   'use strict';
 
   var Model = Backbone.Model.extend({
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       this.window = options.window || window;
 
       this.fetch();

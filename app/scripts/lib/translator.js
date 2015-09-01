@@ -21,16 +21,16 @@ function (_, $, p, Strings) {
   };
 
   Translator.prototype = {
-    set: function (translations) {
+    set (translations) {
       this.translations = translations;
     },
 
     // Fetches our JSON translation file
-    fetch: function () {
+    fetch () {
       var self = this;
 
       return p.jQueryXHR($.getJSON('/i18n/client.json'))
-          .then(function (data) {
+          .then((data) => {
             // Only update the translations if some came back
             // from the server. If the server sent no translations,
             // english strings will be served.
@@ -50,7 +50,7 @@ function (_, $, p, Strings) {
      * Does string interpolation on %s and %(named)s.
      * @method get
      */
-    get: function (key, context) {
+    get (key, context) {
       var translation = this.translations[key];
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1

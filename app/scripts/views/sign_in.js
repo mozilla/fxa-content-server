@@ -27,41 +27,39 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
 
   'use strict';
 
-  var t = BaseView.t;
+  let t = BaseView.t;
 
-  var View = FormView.extend({
+  let View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._formPrefill = options.formPrefill;
-      var data = this.ephemeralData();
+      let data = this.ephemeralData();
       if (data) {
         this._redirectTo = data.redirectTo;
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       this._account = this._suggestedAccount();
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    context: function () {
-      var suggestedAccount = this.getAccount();
-      var hasSuggestedAccount = suggestedAccount.get('email');
-      var email = hasSuggestedAccount ?
+    context () {
+      let suggestedAccount = this.getAccount();
+      let hasSuggestedAccount = suggestedAccount.get('email');
+      let email = hasSuggestedAccount ?
                     suggestedAccount.get('email') : this.getPrefillEmail();
 
       return {
@@ -82,23 +80,23 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       'click .use-different': 'useDifferentAccount'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.transformLinks();
       return FormView.prototype.afterRender.call(this);
     },
 
-    afterVisible: function () {
+    afterVisible () {
       FormView.prototype.afterVisible.call(this);
       return this.displayAccountProfileImage(this.getAccount());
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    submit: function () {
-      var account = this.user.initAccount({
+    submit () {
+      let account = this.user.initAccount({
         email: this.getElementValue('.email'),
         password: this.getElementValue('.password')
       });
@@ -116,20 +114,20 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      *     Session token from the account
      * @private
      */
-    _signIn: function (account) {
-      var self = this;
+    _signIn (account) {
+      let self = this;
       if (! account || account.isDefault()) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
       return self.broker.beforeSignIn(account.get('email'))
-        .then(function () {
+        .then(() => {
           return self.user.signInAccount(account, self.relier, {
             // a resume token is passed in to handle unverified users.
             resume: self.getStringifiedResumeToken()
           });
         })
-        .then(function (account) {
+        .then((account) => {
           // formPrefill information is no longer needed after the user
           // has successfully signed in. Clear the info to ensure
           // passwords aren't sticking around in memory.
@@ -154,8 +152,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         .fail(self.onSignInError.bind(self, account));
     },
 
-    onSignInError: function (account, err) {
-      var self = this;
+    onSignInError (account, err) {
+      let self = this;
 
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
         return self._suggestSignUp(err);
@@ -170,11 +168,11 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       throw err;
     },
 
-    onSignInSuccess: function (account) {
-      var self = this;
+    onSignInSuccess (account) {
+      let self = this;
       self.logScreenEvent('success');
       return self.broker.afterSignIn(account)
-        .then(function (result) {
+        .then((result) => {
           if (! (result && result.halt)) {
             self.navigate(self._redirectTo || 'settings');
           }
@@ -183,7 +181,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
         });
     },
 
-    onSignInUnverified: function (account) {
+    onSignInUnverified (account) {
       this.navigate('confirm', {
         data: {
           account: account
@@ -191,7 +189,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       });
     },
 
-    _suggestSignUp: function (err) {
+    _suggestSignUp (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
     },
@@ -201,19 +199,18 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      * which is present when there is already a logged in user in the session
      */
     useLoggedInAccount: allowOnlyOneSubmit(showProgressIndicator(function () {
-      var self = this;
-      var account = this.getAccount();
+      let self = this;
+      let account = this.getAccount();
 
       return this._signIn(account)
-        .fail(
-          function () {
-            self.chooserAskForPassword = true;
-            return self.render()
-              .then(function () {
-                self.user.removeAccount(account);
-                return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-              });
-          });
+        .fail(() => {
+          self.chooserAskForPassword = true;
+          return self.render()
+            .then(() => {
+              self.user.removeAccount(account);
+              return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
+            });
+        });
     })),
 
     /**
@@ -238,9 +235,9 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      *          Returns "null" if the current signin view must not suggest users.
      * @private
      */
-    _suggestedAccount: function () {
-      var account = this.user.getChooserAccount();
-      var prefillEmail = this.getPrefillEmail();
+    _suggestedAccount () {
+      let account = this.user.getChooserAccount();
+      let prefillEmail = this.getPrefillEmail();
 
       if (
         // the relier can overrule cached creds.
@@ -260,7 +257,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
      * Determines if the suggested user must be asked for a password.
      * @private
      */
-    _suggestedAccountAskPassword: function (account) {
+    _suggestedAccountAskPassword (account) {
       // If there's no email, obviously we'll have to ask for the password.
       if (! account.get('email')) {
         this.logScreenEvent('ask-password.shown.account-unknown');
@@ -290,7 +287,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
       }
 
       // Ask when a prefill email does not match the account email.
-      var prefillEmail = this.getPrefillEmail();
+      let prefillEmail = this.getPrefillEmail();
       if (prefillEmail && prefillEmail !== account.get('email')) {
         this.logScreenEvent('ask-password.shown.email-mismatch');
         return true;

@@ -24,9 +24,7 @@ function (_, OAuthAuthenticationBroker, ChannelMixin, p,
       webChannelId: null
     }),
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._fxaClient = options.fxaClient;
       // channel can be passed in for testing.
       this._channel = options.channel;

@@ -14,9 +14,7 @@ define([
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._metrics = options.metrics;
 
       return OAuthAuthenticationBroker.prototype.initialize.call(this, options);

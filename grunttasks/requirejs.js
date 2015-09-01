@@ -12,11 +12,11 @@ module.exports = function (grunt) {
           module: 'main',
           modulePath: '/scripts/main'
         }],
-        baseUrl: '<%= yeoman.app %>/scripts',
+        baseUrl: '<%= yeoman.app %>/scripts-built',
         optimize: 'none',
         name: 'main',
         out: '<%= yeoman.tmp %>/scripts/main.js',
-        mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
+        mainConfigFile: '<%= yeoman.app %>/scripts-built/require_config.js',
         keepBuildDir: true,
         findNestedDependencies: true,
         // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin

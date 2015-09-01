@@ -23,9 +23,7 @@ define([
   }
 
   _.extend(WebChannel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var win = options.window || window;
       var webChannelId = this._id;
 

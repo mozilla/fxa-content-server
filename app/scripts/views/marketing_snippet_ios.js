@@ -49,9 +49,7 @@ define([
   var View = MarketingSnippetView.extend({
     template: Template,
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       MarketingSnippetView.prototype.initialize.call(this, options);
 
       this._language = options.language;

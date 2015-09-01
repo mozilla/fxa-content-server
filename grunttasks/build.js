@@ -19,6 +19,13 @@ module.exports = function (grunt) {
     // use error pages from en as the static error pages
     'copy:error_pages',
 
+    // convert ES6 code to ES5
+    'babel:scripts',
+
+    // copy the client side templates and vendor directories to ensure
+    // they are built.
+    'copy:scripts-built',
+
     // prepares the configuration to transform specific blocks
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',

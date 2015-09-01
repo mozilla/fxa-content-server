@@ -10,6 +10,7 @@ define([
   'stache!templates/sign_up',
   'lib/auth-errors',
   'lib/mailcheck',
+  'lib/url',
   'views/mixins/experiment-mixin',
   'views/mixins/password-mixin',
   'views/mixins/password-strength-mixin',
@@ -21,12 +22,12 @@ define([
   'views/coppa/coppa-date-picker',
   'views/coppa/coppa-age-input'
 ],
-function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
+function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck, Url,
       ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin, CheckboxMixin, ResumeTokenMixin,
       MigrationMixin, SignupDisabledMixin, CoppaDatePicker, CoppaAgeInput) {
   'use strict';
 
-  var t = BaseView.t;
+  let t = BaseView.t;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
     if (bouncedEmail) {
@@ -39,19 +40,17 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     return null;
   }
 
-  var View = FormView.extend({
+  let View = FormView.extend({
     template: Template,
     className: 'sign-up',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._formPrefill = options.formPrefill;
       this._coppa = options.coppa;
       this._able = options.able;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
         return p(false);
@@ -66,16 +65,16 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return FormView.prototype.beforeRender.call(this);
     },
 
-    _createCoppaView: function () {
-      var self = this;
+    _createCoppaView () {
+      let self = this;
 
       if (self._coppa) {
         return p();
       }
 
-      var autofocusEl = this._selectAutoFocusEl();
-      var coppaView;
-      var coppaOptions = {
+      let autofocusEl = this._selectAutoFocusEl();
+      let coppaView;
+      let coppaOptions = {
         el: self.$('#coppa'),
         metrics: self.metrics,
         screenName: self.getScreenName(),
@@ -104,21 +103,21 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         });
     },
 
-    afterRender: function () {
-      var self = this;
+    afterRender () {
+      let self = this;
 
       self.logScreenEvent('email-optin.visible.' +
           String(self._isEmailOptInEnabled()));
 
       self._createCoppaView()
-        .then(function () {
+        .then(() => {
           self.transformLinks();
 
           return FormView.prototype.afterRender.call(self);
         });
     },
 
-    afterVisible: function () {
+    afterVisible () {
       if (this._bouncedEmail) {
         this.showValidationError('input[type=email]',
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
@@ -146,29 +145,30 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       'blur input.password': 'onPasswordBlur'
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    _selectAutoFocusEl: function () {
-      var prefillEmail = this.getPrefillEmail();
-      var prefillPassword = this._formPrefill.get('password');
+    _selectAutoFocusEl () {
+      let prefillEmail = this.getPrefillEmail();
+      let prefillPassword = this._formPrefill.get('password');
 
       return selectAutoFocusEl(
             this._bouncedEmail, prefillEmail, prefillPassword);
     },
 
-    context: function () {
-      var prefillEmail = this.getPrefillEmail();
-      var prefillPassword = this._formPrefill.get('password');
-      var autofocusEl = this._selectAutoFocusEl();
+    context () {
+      let prefillEmail = this.getPrefillEmail();
+      let prefillPassword = this._formPrefill.get('password');
+      let autofocusEl = this._selectAutoFocusEl();
 
-      var relier = this.relier;
-      var isSync = relier.isSync();
-      var context = {
+      let relier = this.relier;
+      let isSync = relier.isSync();
+
+      let context = {
         serviceName: relier.get('serviceName'),
         isSync: isSync,
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
@@ -190,16 +190,17 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         }
       }
 
+
       return context;
     },
 
-    beforeDestroy: function () {
-      var formPrefill = this._formPrefill;
+    beforeDestroy () {
+      let formPrefill = this._formPrefill;
       formPrefill.set('email', this.getElementValue('.email'));
       formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         return false;
       }
@@ -215,7 +216,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return FormView.prototype.isValidEnd.call(this);
     },
 
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
                 AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
@@ -227,8 +228,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
     },
 
-    submit: function () {
-      var self = this;
+    submit () {
+      let self = this;
       return p()
         .then(function () {
           if (! self._isUserOldEnough()) {
@@ -242,28 +243,66 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         });
     },
 
-    onPasswordBlur: function () {
+    onPasswordBlur () {
       var password = this.getElementValue('.password');
       this.checkPasswordStrength(password);
     },
 
-    onEmailBlur: function () {
+    onEmailBlur () {
       if (this.isInExperiment('mailcheck')) {
-        mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
+        mailcheck(
+          this.$el.find('.email'), this.metrics, this.translator, this);
       }
     },
 
-    _isEmailSameAsBouncedEmail: function () {
+    _isMailcheckEnabled () {
+      // only check whether mailcheck is enabled once. Otherwise,
+      // an event is added to the able log every time the user
+      // blurs the email field, which could be multiple times.
+      if (typeof this._isMailcheckEnabledValue === 'undefined') {
+        let abData = {
+          isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+          uniqueUserId: this.user.get('uniqueUserId'),
+          // the window parameter will override any ab testing features
+          forceMailcheck: Url.searchParam('mailcheck', this.window.location.search)
+        };
+
+        this._isMailcheckEnabledValue =
+              this._able.choose('mailcheckEnabled', abData);
+      }
+
+      return this._isMailcheckEnabledValue;
+    },
+
+    _wasMailcheckUseful () {
+      let email = this.$el.find('.email');
+
+      if (email) {
+        let emailValue = email.val();
+        let mailcheckValue = email.data('mailcheckValue');
+        if (emailValue.length > 0 && mailcheckValue === emailValue) {
+          this.logScreenEvent('mailcheck-useful');
+        }
+      }
+    },
+
+    suggestEmail () {
+      if (this._isMailcheckEnabled()) {
+        mailcheck(this.$el.find('.email'), this.metrics, this.translator);
+      }
+    },
+
+    _isEmailSameAsBouncedEmail () {
       return (this._bouncedEmail &&
              (this.getElementValue('input[type=email]') === this._bouncedEmail));
     },
 
-    _isUserOldEnough: function () {
+    _isUserOldEnough () {
       return this._coppa.isUserOldEnough();
     },
 
-    _isEmailFirefoxDomain: function () {
-      var email = this.getElementValue('.email');
+    _isEmailFirefoxDomain () {
+      let email = this.getElementValue('.email');
 
       // some users input a "@firefox.com" email.
       // this is not a valid email at this time, therefore we block the attempt.
@@ -274,7 +313,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       return false;
     },
 
-    _cannotCreateAccount: function () {
+    _cannotCreateAccount () {
       // this is a session cookie. It will go away once:
       // 1. the user closes the tab
       // and
@@ -286,11 +325,11 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       this.navigate('cannot_create_account');
     },
 
-    _initAccount: function () {
-      var self = this;
+    _initAccount () {
+      let self = this;
 
-      var preVerifyToken = self.relier.get('preVerifyToken');
-      var account = self.user.initAccount({
+      let preVerifyToken = self.relier.get('preVerifyToken');
+      let account = self.user.initAccount({
         email: self.getElementValue('.email'),
         password: self.getElementValue('.password'),
         customizeSync: self.$('.customize-sync').is(':checked'),
@@ -342,8 +381,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
         .fail(_.bind(self.signUpError, self));
     },
 
-    onSignUpSuccess: function (account) {
-      var self = this;
+    onSignUpSuccess (account) {
+      let self = this;
       if (account.get('verified')) {
         // user was pre-verified, notify the broker.
         return self.broker.afterSignIn(account)
@@ -361,8 +400,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       }
     },
 
-    signUpError: function (err) {
-      var self = this;
+    signUpError (err) {
+      let self = this;
       // Account already exists. No attempt is made at signing the
       // user in directly, instead, point the user to the signin page
       // where the entered email/password will be prefilled.
@@ -378,12 +417,12 @@ function (Cocktail, _, p, BaseView, FormView, Template, AuthErrors, mailcheck,
       throw err;
     },
 
-    _suggestSignIn: function (err) {
+    _suggestSignIn (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.displayErrorUnsafe(err);
     },
 
-    _isEmailOptInEnabled: function () {
+    _isEmailOptInEnabled () {
       return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });

@@ -18,9 +18,7 @@ define([
       token: undefined
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._oAuthClient = options.oAuthClient;
       this.set('token', options.token);
     },

@@ -23,9 +23,7 @@ define([
     template: Template,
     className: 'coppa-date-picker',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._formPrefill = options.formPrefill;
       this._shouldFocus = options.shouldFocus;
     },
