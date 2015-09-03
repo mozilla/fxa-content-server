@@ -95,12 +95,25 @@ function initApp() {
     var params = req.body;
     var email = params.email;
     var user = userData[email];
+    // Basket accepts either an explicit language choice,
+    // or an "accept_lang" preference string from which it
+    // will choose the best language.,
+    var lang = params.lang;
+    if (! lang) {
+      lang = params.accept_lang;
+      if (lang) {
+        lang = lang.split(/[\s\-;,]/)[0];
+      } else {
+        lang = '';
+      }
+    }
     var token;
     if (! user) {
       token = newToken();
       userData[email] = {
         email: email,
         token: token,
+        lang: lang,
         newsletters: params.newsletters.split(',')
       };
       tokenToUser[token] = userData[email];
