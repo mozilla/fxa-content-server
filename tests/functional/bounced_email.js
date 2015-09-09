@@ -37,6 +37,7 @@ define([
       });
 
       return FunctionalHelpers.fillOutSignUp(this, bouncedEmail, PASSWORD, CUTOFF_YEAR - 1)
+        .then(FunctionalHelpers.visibleByQSA('#fxa-confirm-header'))
         .findById('fxa-confirm-header')
         .end()
 
