@@ -160,6 +160,9 @@ function initApp() {
   app.post('/subscribe', function (req, res) {
     var params = req.body;
     params.email = res.locals.creds.email;
+    if (req.headers['accept-language']) {
+      params.accept_lang = req.headers['accept-language']; //eslint-disable-line camelcase
+    }
     logger.info('subscribe.params', params);
 
     basketRequest('/subscribe/', 'post', params)
