@@ -17,27 +17,23 @@ define([
 ) {
   'use strict';
 
-  function ConfigLoader(options) {
-    options = options || {};
+  class ConfigLoader {
+    constructor (options = {}) {
+      this._xhr = options.xhr || xhr;
+    }
 
-    this._xhr = options.xhr || xhr;
-  }
-
-  ConfigLoader.prototype = {
     /**
      * Pass in a configuration to use. Useful for unit testing.
      */
-    useConfig: function (config) {
+    useConfig (config) {
       this._configPromise = p(config);
-    },
+    }
 
-    _configPromise: null,
-    fetch: function (force) {
-      var self = this;
-      if (force !== true && self._configPromise) {
-        // self will resolve to the eventual config value,
+    fetch (force = false) {
+      if (! force && this._configPromise) {
+        // this will resolve to the eventual config value,
         // but prevent multiple concurrent requests to /config
-        return self._configPromise;
+        return this._configPromise;
       }
 
       // The content server sets no cookies of its own, and cannot check for
@@ -58,16 +54,16 @@ define([
         // did not receive the cookie.
       }
 
-      self._configPromise = self._xhr.getJSON('/config')
-        .fail(function (jqXHR) {
+      this._configPromise = this._xhr.getJSON('/config')
+        .fail((jqXHR) => {
           throw ConfigLoader.Errors.normalizeXHRError(jqXHR);
         });
 
-      return self._configPromise;
-    },
-  };
+      return this._configPromise;
+    }
+  }
 
-  var t = function (msg) {
+  let t = function (msg) {
     return msg;
   };
 

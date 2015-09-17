@@ -18,7 +18,8 @@ module.exports = function (grunt) {
       src: [
         '<%= yeoman.app %>/**/*.js',
         '!<%= yeoman.app %>/bower_components/**',
-        '!<%= yeoman.app %>/scripts/vendor/**'
+        '!<%= yeoman.app %>/scripts/vendor/**',
+        '!<%= yeoman.app %>/scripts-built/**'
       ]
     },
     tests: [

@@ -26,9 +26,7 @@ define([
     haltAfterSignIn: false,
     haltBeforeSignUpConfirmationPoll: false,
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._iframeChannel = options.iframeChannel;
       return proto.initialize.call(this, options);
     },

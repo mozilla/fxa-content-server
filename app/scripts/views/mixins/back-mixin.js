@@ -17,9 +17,7 @@ define([
 
   var BackMixin = {
     _canGoBack: false,
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._canGoBack = options.canGoBack;
     },
 

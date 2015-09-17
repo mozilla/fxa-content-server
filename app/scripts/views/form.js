@@ -51,7 +51,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     // Time to wait for a request to finish before showing a notice
     LONGER_THAN_EXPECTED: 10000, // 10 seconds
 
-    constructor: function (options) {
+    constructor (options) {
       BaseView.call(this, options);
 
       // attach events of the descendent view and this view.
@@ -65,7 +65,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       'input form': ifFormValuesChanged(BaseView.cancelEventThen('enableSubmitIfValid'))
     },
 
-    afterRender: function () {
+    afterRender () {
       this.enableSubmitIfValid();
 
       BaseView.prototype.afterRender.call(this);
@@ -77,7 +77,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @method getFormValues
      */
-    getFormValues: function () {
+    getFormValues () {
       var values = {};
       var inputEls = this.$('input,textarea,select');
 
@@ -94,7 +94,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       return values;
     },
 
-    enableSubmitIfValid: function (event) {
+    enableSubmitIfValid (event) {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
@@ -114,7 +114,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     /**
      * TODO - this should be called disableSubmit
      */
-    disableForm: function () {
+    disableForm () {
       // the disabled class is used instead of the disabled attribute
       // so that the submit handler is still called. With the submit attribute
       // applied, no submit handler is fired, and the form validation does not
@@ -123,13 +123,13 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       this._isFormEnabled = false;
     },
 
-    enableForm: function () {
+    enableForm () {
       this.$('button[type=submit]').removeClass('disabled');
       this._isFormEnabled = true;
     },
 
     _isFormEnabled: true,
-    isFormEnabled: function () {
+    isFormEnabled () {
       return !! this._isFormEnabled;
     },
 
@@ -155,52 +155,50 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return {promise}
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event) {
-      var self = this;
       if (event) {
         event.stopImmediatePropagation();
       }
 
       return p()
-        .then(function () {
-          if (self.isHalted()) {
+        .then(() => {
+          if (this.isHalted()) {
             return;
           }
 
-          if (! self.isValid()) {
+          if (! this.isValid()) {
             // Validation error is surfaced for testing.
-            throw self.showValidationErrors();
+            throw this.showValidationErrors();
           }
 
           // the form enabled check is done after the validation check
           // so that the form's `submit` handler is triggered and validation
           // error tooltips are displayed, even if the form is disabled.
-          if (! self.isFormEnabled()) {
+          if (! this.isFormEnabled()) {
             // form is disabled, get outta here.
             return;
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
-          self.logScreenEvent('submit');
-          return self._submitForm();
+          this.logScreenEvent('submit');
+          return this._submitForm();
         });
     }),
 
     _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
-      var self = this;
       return p()
-          .then(_.bind(self.beforeSubmit, self))
-          .then(function (shouldSubmit) {
+          .then(_.bind(this.beforeSubmit, this))
+          .then((shouldSubmit) => {
             // submission is opt out, not opt in.
             if (shouldSubmit !== false) {
-              return self.submit();
+              return this.submit();
             }
           })
-          .then(null, function (err) {
+          .fail((err) => {
             // display error and surface for testing.
-            self.displayError(err);
+            this.displayError(err);
             throw err;
           })
-          .then(_.bind(self.afterSubmit, self));
+          .then(_.bind(this.afterSubmit, this));
     })),
 
     /**
@@ -212,7 +210,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * Descendent views can override isValidStart or isValidEnd to perform
      * view specific checks.
      */
-    isValid: function () {
+    isValid () {
       if (! this.isValidStart()) {
         return false;
       }
@@ -236,7 +234,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if form is valid, false otw.
      */
-    isValidStart: function () {
+    isValidStart () {
       return true;
     },
 
@@ -248,14 +246,14 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if form is valid, false otw.
      */
-    isValidEnd: function () {
+    isValidEnd () {
       return true;
     },
 
     /**
      * Check to see if an element passes HTML5 form validation.
      */
-    isElementValid: function (el) {
+    isElementValid (el) {
       el = this.$(el);
       var type = this.getElementType(el);
 
@@ -275,7 +273,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * Descendent views can override showValidationErrorsStart
      * or showValidationErrorsEnd to display view specific messages.
      */
-    showValidationErrors: function () {
+    showValidationErrors () {
       this.hideError();
 
       if (this.showValidationErrorsStart()) {
@@ -307,7 +305,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     /**
      * Get an element value, trimming the value of whitespace if necesary
      */
-    getElementValue: function (el) {
+    getElementValue (el) {
       var value = this.$(el).val();
 
       if (value && this.getElementType(el) === 'email') {
@@ -318,7 +316,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     },
 
 
-    getElementType: function (el) {
+    getElementType (el) {
       var fieldType = $(el).attr('type');
 
       // text fields with the password class are treated as passwords.
@@ -339,7 +337,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if a validation error is displayed.
      */
-    showValidationErrorsStart: function () {
+    showValidationErrorsStart () {
     },
 
     /**
@@ -350,7 +348,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if a validation error is displayed.
      */
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
     },
 
     /**
@@ -358,12 +356,12 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if email is valid, false otw.
      */
-    validateEmail: function (el) {
+    validateEmail (el) {
       var email = this.getElementValue(el);
       return Validate.isEmailValid(email);
     },
 
-    showEmailValidationError: function (el) {
+    showEmailValidationError (el) {
       var value = this.getElementValue(el);
       var err = value && value.length ?
                   // if the email element has any length, but is marked
@@ -380,7 +378,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if password is valid, false otw.
      */
-    validatePassword: function (el) {
+    validatePassword (el) {
       var password = this.getElementValue(el);
       return Validate.isPasswordValid(password);
     },
@@ -391,7 +389,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * browser validation will kick in. If validating an email or password
      * field, call validateEmail or validatePassword instead.
      */
-    validateInput: function (el) {
+    validateInput (el) {
       el = this.$(el);
       var isRequired = typeof el.attr('required') !== 'undefined';
 
@@ -411,7 +409,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       return true;
     },
 
-    showPasswordValidationError: function (el) {
+    showPasswordValidationError (el) {
       var passwordVal = this.getElementValue(el);
 
       var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
@@ -422,7 +420,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     /**
      * Show a form validation error to the user in the form of a tooltip.
      */
-    showValidationError: function (el, err) {
+    showValidationError (el, err) {
       this.logError(err);
 
       var invalidEl = this.$(el);
@@ -433,13 +431,12 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         invalidEl: invalidEl
       });
 
-      var self = this;
-      tooltip.on('destroyed', function () {
+      tooltip.on('destroyed', () => {
         invalidEl.removeClass('invalid');
-        self.trigger('validation_error_removed', el);
-      }).render().then(function () {
+        this.trigger('validation_error_removed', el);
+      }).render().then(() => {
         // used for testing
-        self.trigger('validation_error', el, message);
+        this.trigger('validation_error', el, message);
       });
 
       this.trackSubview(tooltip);
@@ -463,7 +460,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return {promise || boolean || none} Reture a promise if
      *   beforeSubmit is an asynchronous operation.
      */
-    beforeSubmit: function () {
+    beforeSubmit () {
       this.disableForm();
     },
 
@@ -476,7 +473,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return {promise || none} Return a promise if submit is
      *   an asynchronous operation.
      */
-    submit: function () {
+    submit () {
     },
 
     /**
@@ -488,9 +485,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return {promise || none} Return a promise if afterSubmit is
      *   an asynchronous operation.
      */
-    afterSubmit: function (result) {
-      var self = this;
-      return p().then(function () {
+    afterSubmit (result) {
+      return p().then(() => {
         // the flow may be halted by an authentication broker after form
         // submission. Views may display an error without throwing an exception.
         // Ensure the flow is not halted and and no errors are visible before
@@ -498,9 +494,9 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         // be re-enabled.
 
         if (result && result.halt) {
-          self.halt();
-        } else if (! self.isErrorVisible()) {
-          self.enableForm();
+          this.halt();
+        } else if (! this.isErrorVisible()) {
+          this.enableForm();
         }
 
         return result;
@@ -512,7 +508,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return {boolean} true if form is being submitted, false otw.
      */
-    isSubmitting: function () {
+    isSubmitting () {
       return this._isSubmitting;
     },
 
@@ -521,7 +517,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * TODO - this should be named disableForm, but that name is already taken.
      */
-    halt: function () {
+    halt () {
       this.$('input,textarea,button').attr('disabled', 'disabled').blur();
       this._isHalted = true;
     },
@@ -531,7 +527,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return {boolean} true if the view is halted, false otw.
      */
-    isHalted: function () {
+    isHalted () {
       return this._isHalted;
     },
 
@@ -540,7 +536,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return {object || null} the form values or null if they haven't changed.
      */
-    detectFormValueChanges: function () {
+    detectFormValueChanges () {
       // oldValues will be `undefined` the first time through.
       var oldValues = this._previousFormValues;
       var newValues = this.getFormValues();
@@ -558,7 +554,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return {object || null} the form values or null if they haven't changed.
      */
-    updateFormValueChanges: function () {
+    updateFormValueChanges () {
       var newValues = this.detectFormValueChanges();
       if (newValues) {
         this._previousFormValues = newValues;

@@ -1,8 +1,7 @@
 {
-    "disallowKeywords": ["with", "eval", "const"],
+    "disallowKeywords": ["with", "eval"],
     "disallowKeywordsOnNewLine": ["else"],
     "disallowMultipleLineStrings": true,
-    "disallowSpaceAfterObjectKeys": true,
     "disallowSpaceAfterPrefixUnaryOperators": ["++", "--", "+", "-"],
     "disallowSpaceBeforePostfixUnaryOperators": ["++", "--"],
     "maximumLineLength": 160,

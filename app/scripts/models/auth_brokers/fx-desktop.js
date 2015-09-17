@@ -43,8 +43,7 @@ define([
      * @param {String} options.channel
      *        Channel used to send commands to remote listeners.
      */
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       var self = this;
 
       // channel can be passed in for testing.

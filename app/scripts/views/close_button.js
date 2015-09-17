@@ -17,33 +17,27 @@ define([
 function (BaseView, p, OAuthErrors, CloseTemplate) {
   'use strict';
 
-  var View = BaseView.extend({
+  return BaseView.extend({
     template: CloseTemplate,
 
     events: {
       'click': BaseView.preventDefaultThen('close')
     },
 
-    render: function () {
-      var self = this;
-      return p().then(function () {
+    render () {
+      return p().then(() => {
         var foxLogo = $('#fox-logo');
-        foxLogo.after(self.template());
-        self.$el = $('#close');
-        self.delegateEvents();
+        foxLogo.after(this.template());
+        this.$el = $('#close');
+        this.delegateEvents();
       });
     },
 
-    close: function () {
-      var self = this;
-      self.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
-      return self.broker.cancel()
-        .then(null, function (err) {
-          self.displayError(err);
-        });
+    close () {
+      this.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
+      return this.broker.cancel()
+        .fail(this.displayError.bind(this));
     }
   });
-
-  return View;
 });
 

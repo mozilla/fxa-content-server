@@ -27,13 +27,11 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
   }
 
 
-  var View = SignInView.extend({
+  const View = SignInView.extend({
     template: Template,
     className: 'sign-in',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (options = {}) {
       this._formPrefill = options.formPrefill;
 
       // forceAuth means a user must sign in as a specific user.
@@ -42,13 +40,9 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       this.user.clearSignedInAccount();
     },
 
-    context: function () {
-      var fatalError = '';
-      var email = this.relier.get('email');
-
-      if (! email) {
-        fatalError = AuthErrors.toError('FORCE_AUTH_EMAIL_REQUIRED');
-      }
+    context () {
+      const email = this.relier.get('email');
+      const fatalError = ! email && AuthErrors.toError('FORCE_AUTH_EMAIL_REQUIRED');
 
       return {
         email: email,
@@ -62,12 +56,12 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow')
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    submit: function () {
-      var account = this.user.initAccount({
+    submit () {
+      const account = this.user.initAccount({
         email:  this.relier.get('email'),
         password: this.$('.password').val()
       });
@@ -75,7 +69,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       return this._signIn(account);
     },
 
-    onSignInError: function (account, err) {
+    onSignInError (account, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
         // dead end, do not allow the user to sign up.
         this.displayError(err);
@@ -84,36 +78,35 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
       }
     },
 
-    resetPasswordNow: function () {
-      var self = this;
-      return p().then(function () {
+    resetPasswordNow () {
+      return p().then(() => {
         // If the user is already making a request, ban submission.
-        if (self.isSubmitting()) {
+        if (this.isSubmitting()) {
           throw new Error('submit already in progress');
         }
 
-        var email = self.relier.get('email');
-        self._isSubmitting = true;
+        const email = this.relier.get('email');
+        this._isSubmitting = true;
 
-        return self.fxaClient.passwordReset(
+        return this.fxaClient.passwordReset(
           email,
-          self.relier,
+          this.relier,
           {
-            resume: self.getStringifiedResumeToken()
+            resume: this.getStringifiedResumeToken()
           }
         )
-        .then(function (result) {
-          self._isSubmitting = false;
-          self.navigate('confirm_reset_password', {
+        .then((result) => {
+          this._isSubmitting = false;
+          this.navigate('confirm_reset_password', {
             data: {
               email: email,
               passwordForgotToken: result.passwordForgotToken
             }
           });
         })
-        .fail(function (err) {
-          self._isSubmitting = false;
-          self.displayError(err);
+        .fail((err) => {
+          this._isSubmitting = false;
+          this.displayError(err);
         });
       });
     },
@@ -122,9 +115,9 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
      * Displays the account's avatar
      */
 
-    afterVisible: function () {
-      var email = this.relier.get('email');
-      var account = this.user.getAccountByEmail(email);
+    afterVisible () {
+      const email = this.relier.get('email');
+      const account = this.user.getAccountByEmail(email);
 
       // Use FormView's afterVisible because SignIn attemps to
       // display a profile image for the "suggested" account.

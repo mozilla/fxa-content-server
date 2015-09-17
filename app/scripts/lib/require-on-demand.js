@@ -21,11 +21,11 @@ define([
 ], function (Errors, p, _) {
   'use strict';
 
-  var t = function (msg) {
+  let t = function (msg) {
     return msg;
   };
 
-  var RODErrors = _.extend({}, Errors, {
+  let RODErrors = _.extend({}, Errors, {
     ERRORS: {
       UNEXPECTED_ERROR: {
         errno: 999,
@@ -49,7 +49,7 @@ define([
 
   function requireOnDemand(resourceToGet) {
     return p().then(function () {
-      var deferred = p.defer();
+      let deferred = p.defer();
 
       // requirejs takes care of ensuring only one outstanding request
       // per module occurs if multiple requests are concurrently made
@@ -59,14 +59,14 @@ define([
       // the resource into the main bundle. Instead, the item will
       // be loaded on demand, and the module returned when the promise
       // resolves.
-      var getNow = window.require;
+      let getNow = window.require;
       getNow(['nocache!' + resourceToGet],
         deferred.resolve.bind(deferred), function (requireErr) {
           // RequireJS errors described in
           // http://requirejs.org/docs/api.html#errors
-          var errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
-          var normalizedErrorType = errorType.toUpperCase();
-          var err = RODErrors.toError(normalizedErrorType, resourceToGet);
+          let errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
+          let normalizedErrorType = errorType.toUpperCase();
+          let err = RODErrors.toError(normalizedErrorType, resourceToGet);
 
           deferred.reject(err);
         });

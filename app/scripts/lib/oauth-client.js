@@ -13,9 +13,7 @@ function (xhr, OAuthErrors) {
   var GET_CODE = '/v1/authorization';
   var DESTROY_TOKEN = '/v1/destroy';
 
-  function OAuthClient(options) {
-    options = options || {};
-
+  function OAuthClient(options = {}) {
     this._oAuthUrl = options.oAuthUrl;
     this._xhr = options.xhr || xhr;
   }

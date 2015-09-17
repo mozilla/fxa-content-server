@@ -47,6 +47,9 @@ dist
 test/temp
 
 
+### Babel produced
+app/scripts-built
+
 ### Pre-processed files that become part of the build ###
 app/scripts/processed
 

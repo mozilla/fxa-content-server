@@ -54,9 +54,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
 
     FADE_OUT_SETTINGS_MS: 250,
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._able = options.able;
       this._subPanels = options.subPanels || this._initializeSubPanels(options);
       this._formPrefill = options.formPrefill;

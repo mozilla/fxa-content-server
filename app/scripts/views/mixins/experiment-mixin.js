@@ -8,9 +8,7 @@ define([
   'use strict';
 
   return {
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this.notifications = options.notifications;
       this.experiments = new ExperimentInterface({
         able: options.able,

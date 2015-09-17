@@ -23,9 +23,7 @@ function (Cocktail, BaseView, FormView, Template, Session,
     template: Template,
     className: 'reset_password',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._formPrefill = options.formPrefill;
     },
 

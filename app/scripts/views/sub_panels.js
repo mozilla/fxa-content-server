@@ -15,9 +15,7 @@ function (p, BaseView, Template) {
     template: Template,
     className: 'sub-panels',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._panelViews = options.panelViews || [];
     },
 

@@ -23,9 +23,7 @@ define([
       migration: null
     }),
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._translator = options.translator;
 
       Relier.prototype.initialize.call(this, options);

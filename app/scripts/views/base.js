@@ -10,26 +10,25 @@ define([
   'jquery',
   'lib/promise',
   'lib/auth-errors',
-  'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
 function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
-      Strings, EphemeralMessages, NullMetrics, TimerMixin) {
+      EphemeralMessages, NullMetrics, TimerMixin) {
   'use strict';
 
-  var DEFAULT_TITLE = window.document.title;
-  var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
+  const DEFAULT_TITLE = window.document.title;
+  const EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
 
   // Share one ephemeral messages across all views. View can be
   // intialized with an ephemeralMessages for testing.
-  var ephemeralMessages = new EphemeralMessages();
+  const ephemeralMessages = new EphemeralMessages();
 
   // A null metrics instance is created for unit tests. In the app,
   // when a view is initialized, an initialized Metrics instance
   // is passed in to the constructor.
-  var nullMetrics = new NullMetrics();
+  const nullMetrics = new NullMetrics();
 
   function displaySuccess(displayStrategy, msg) {
     this.hideError();
@@ -56,7 +55,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     err = this._normalizeError(err);
 
     this.logError(err);
-    var translated = this.translateError(err);
+    const translated = this.translateError(err);
 
     if (translated) {
       this.$('.error')[displayStrategy](translated);
@@ -83,10 +82,8 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
   }
 
 
-  var BaseView = Backbone.View.extend({
-    constructor: function (options) {
-      options = options || {};
-
+  const BaseView = Backbone.View.extend({
+    constructor (options = {}) {
       this.subviews = [];
       this.window = options.window || window;
       this.navigator = options.navigator || this.window.navigator || navigator;
@@ -120,34 +117,32 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * * afterRender - called after the rendering occurs. Can be used
      *   to print an error message after the view is already rendered.
      */
-    render: function () {
-      var self = this;
-
+    render () {
       return p()
-        .then(function () {
-          return self._checkUserAuthorization();
+        .then(() => {
+          return this._checkUserAuthorization();
         })
-        .then(function (isUserAuthorized) {
-          return isUserAuthorized && self.beforeRender();
+        .then((isUserAuthorized) => {
+          return isUserAuthorized && this.beforeRender();
         })
-        .then(function (shouldRender) {
+        .then((shouldRender) => {
           // rendering is opt out.
           if (shouldRender === false) {
             return false;
           }
 
-          return p().then(function () {
-            self.destroySubviews();
+          return p().then(() => {
+            this.destroySubviews();
 
             // force a re-load of the context every time the
             // view is rendered or else stale data may
             // be returned.
-            self._context = null;
-            self.$el.html(self.template(self.getContext()));
+            this._context = null;
+            this.$el.html(this.template(this.getContext()));
           })
-          .then(_.bind(self.afterRender, self))
-          .then(function () {
-            self.showEphemeralMessages();
+          .then(_.bind(this.afterRender, this))
+          .then(() => {
+            this.showEphemeralMessages();
 
             return true;
           });
@@ -156,31 +151,29 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
 
     // Checks that the user's current account exists and is
     // verified. Returns either true or false.
-    _checkUserAuthorization: function () {
-      var self = this;
-
-      return self.isUserAuthorized()
-        .then(function (isUserAuthorized) {
+    _checkUserAuthorization () {
+      return this.isUserAuthorized()
+        .then((isUserAuthorized) => {
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
-            var err = AuthErrors.toError('SESSION_EXPIRED');
-            self.navigate(self._reAuthPage(), {
+            const err = AuthErrors.toError('SESSION_EXPIRED');
+            this.navigate(this._reAuthPage(), {
               error: err,
               data: {
-                redirectTo: self.router.getCurrentPage()
+                redirectTo: this.router.getCurrentPage()
               }
             });
             return false;
           }
 
-          if (self.mustVerify) {
-            return self.isUserVerified()
-              .then(function (isUserVerified) {
+          if (this.mustVerify) {
+            return this.isUserVerified()
+              .then((isUserVerified) => {
                 if (! isUserVerified) {
                   // user is not verified, prompt them to verify.
-                  self.navigate('confirm', {
+                  this.navigate('confirm', {
                     data: {
-                      account: self.getSignedInAccount()
+                      account: this.getSignedInAccount()
                     }
                   });
                 }
@@ -196,32 +189,32 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     // If the user navigates to a page that requires auth and their session
     // is not currently cached, we ask them to sign in again. If the relier
     // specifies an email address, we force the user to use that account.
-    _reAuthPage: function () {
-      var self = this;
+    _reAuthPage () {
+      const self = this;
       if (self.relier && self.relier.get('email')) {
         return 'force_auth';
       }
       return 'signin';
     },
 
-    showEphemeralMessages: function () {
-      var success = this.ephemeralMessages.get('success');
+    showEphemeralMessages () {
+      const success = this.ephemeralMessages.get('success');
       if (success) {
         this.displaySuccess(success);
       }
 
-      var successUnsafe = this.ephemeralMessages.get('successUnsafe');
+      const successUnsafe = this.ephemeralMessages.get('successUnsafe');
       if (successUnsafe) {
         this.displaySuccessUnsafe(successUnsafe);
       }
 
-      var error = this.ephemeralMessages.get('error');
+      const error = this.ephemeralMessages.get('error');
       if (error) {
         this.displayError(error);
       }
     },
 
-    ephemeralData: function () {
+    ephemeralData () {
       return this.ephemeralMessages.get('data') || {};
     },
 
@@ -231,31 +224,26 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * authentication, but this could be extended to other types of
      * authorization as well.
      */
-    isUserAuthorized: function () {
-      var self = this;
-      var sessionToken;
-
-      return p()
-        .then(function () {
-          if (self.mustAuth || self.mustVerify) {
-            sessionToken = self.getSignedInAccount().get('sessionToken');
-            return !! sessionToken && self.fxaClient.isSignedIn(sessionToken);
-          }
-          return true;
-        });
+    isUserAuthorized () {
+      return p().then(() => {
+        if (this.mustAuth || this.mustVerify) {
+          const sessionToken = this.getSignedInAccount().get('sessionToken');
+          return !! sessionToken && this.fxaClient.isSignedIn(sessionToken);
+        }
+        return true;
+      });
     },
 
-    isUserVerified: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+    isUserVerified () {
+      const account = this.getSignedInAccount();
       // If the cached account data shows it hasn't been verified,
       // check again and update the data if it has.
       if (! account.get('verified')) {
         return account.isVerified()
-          .then(function (hasVerified) {
+          .then((hasVerified) => {
             if (hasVerified) {
               account.set('verified', hasVerified);
-              self.user.setAccount(account);
+              this.user.setAccount(account);
             }
             return hasVerified;
           });
@@ -264,10 +252,9 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       return p(true);
     },
 
-    titleFromView: function (baseTitle) {
-      var title = baseTitle || DEFAULT_TITLE;
-      var titleText = this.$('header:first h1').text();
-      var subText = this.$('header:first h2').text();
+    titleFromView (title = DEFAULT_TITLE) {
+      const titleText = this.$('header:first h1').text();
+      const subText = this.$('header:first h2').text();
 
       if (titleText && subText) {
         title = titleText + ': ' + subText;
@@ -280,65 +267,63 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       return title;
     },
 
-    getContext: function () {
+    getContext () {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
         this._context = this.context() || {};
       }
-      var ctx = this._context;
+      const ctx = this._context;
 
       ctx.t = _.bind(this.translate, this);
 
       return ctx;
     },
 
-    translate: function () {
-      var self = this;
-      return function (text) {
-        return self.translator.get(text, self.getContext());
+    translate () {
+      return (text) => {
+        return this.translator.get(text, this.getContext());
       };
     },
 
-    context: function () {
+    context () {
       // Implement in subclasses
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // Implement in subclasses. If returns false, or if returns a promise
       // that resolves to false, then the view is not rendered.
       // Useful if the view must immediately redirect to another view.
     },
 
-    afterRender: function () {
+    afterRender () {
       // Implement in subclasses
     },
 
     // called after the view is visible.
-    afterVisible: function () {
+    afterVisible () {
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
       // hiding part of the screen. The no-touch class is added by
       // startup-styles
       if ($('html').hasClass('no-touch')) {
-        var autofocusEl = this.$('[autofocus]');
+        const autofocusEl = this.$('[autofocus]');
         if (! autofocusEl.length) {
           return;
         }
 
-        var self = this;
-        var attemptFocus = function () {
+        const attemptFocus = () => {
           if (autofocusEl.is(':focus')) {
             return;
           }
-          self.focus(autofocusEl);
+          this.focus(autofocusEl);
 
           // only elements that are visible can be focused. When embedded in
           // about:accounts, the content is hidden when the first "focus" is
           // done. Keep trying to focus until the element is actually focused,
           // and then stop trying.
           if (! autofocusEl.is(':visible')) {
-            self.setTimeout(attemptFocus, 50);
+            this.setTimeout(attemptFocus, 50);
           }
         };
 
@@ -346,8 +331,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       }
     },
 
-    destroy: function (remove) {
-
+    destroy (remove) {
       this.trigger('destroy');
 
       if (this.beforeDestroy) {
@@ -368,7 +352,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.trigger('destroyed');
     },
 
-    trackSubview: function (view) {
+    trackSubview (view) {
       if (! _.contains(this.subviews, view)) {
         this.subviews.push(view);
         view.on('destroyed', _.bind(this.untrackSubview, this, view));
@@ -377,19 +361,19 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       return view;
     },
 
-    untrackSubview: function (view) {
+    untrackSubview (view) {
       this.subviews = _.without(this.subviews, view);
 
       return view;
     },
 
-    destroySubviews: function () {
+    destroySubviews () {
       _.invoke(this.subviews, 'destroy');
 
       this.subviews = [];
     },
 
-    isSubviewTracked: function (view) {
+    isSubviewTracked (view) {
       return _.indexOf(this.subviews, view) > -1;
     },
 
@@ -409,7 +393,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      */
     displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
-    hideSuccess: function () {
+    hideSuccess () {
       this.$('.success').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this._isSuccessVisible = false;
     },
@@ -417,7 +401,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     /**
      * Return true if the success message is visible
      */
-    isSuccessVisible: function () {
+    isSuccessVisible () {
       return !! this._isSuccessVisible;
     },
 
@@ -429,9 +413,9 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    translateError: function (err) {
-      var errors = getErrorModule(err);
-      var translated = errors.toInterpolatedMessage(err, this.translator);
+    translateError (err) {
+      const errors = getErrorModule(err);
+      const translated = errors.toInterpolatedMessage(err, this.translator);
 
       return translated;
     },
@@ -442,7 +426,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      *
      * @method disableErrors
      */
-    disableErrors: function () {
+    disableErrors () {
       this._areErrorsEnabled = false;
     },
 
@@ -474,7 +458,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     /**
      * Log an error to the event stream
      */
-    logError: function (err) {
+    logError (err) {
       err = this._normalizeError(err);
 
       // The error could already be logged, if so, abort mission.
@@ -494,12 +478,12 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
       this.metrics.logError(err);
     },
 
-    getScreenName: function () {
+    getScreenName () {
       return this.screenName;
     },
 
-    _normalizeError: function (err) {
-      var errors = getErrorModule(err);
+    _normalizeError (err) {
+      const errors = getErrorModule(err);
       if (! err) {
         // likely an error in logic, display an unexpected error to the
         // user and show a console trace to help us debug.
@@ -524,43 +508,40 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     /**
      * Log the current screen
      */
-    logScreen: function () {
+    logScreen () {
       this.metrics.logScreen(this.getScreenName());
     },
 
     /**
      * Log an event to the event stream
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this.metrics.logEvent(eventName);
     },
 
     /**
      * Log an event with the screen name as a prefix
      */
-    logScreenEvent: function (eventName) {
-      var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
-        screenName: this.getScreenName(),
-        eventName: eventName
-      });
+    logScreenEvent (eventName) {
+      const screenName = this.getScreenName();
+      const event = `${screenName}.${eventName}`;
 
       this.metrics.logEvent(event);
     },
 
-    hideError: function () {
+    hideError () {
       this.$('.error').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;
     },
 
-    isErrorVisible: function () {
+    isErrorVisible () {
       return !! this._isErrorVisible;
     },
 
     /**
      * navigate to another screen
      */
-    navigate: function (page, options) {
-      options = options || {};
+    navigate (page, options = {}) {
       if (options.success) {
         this.ephemeralMessages.set('success', options.success);
       }
@@ -585,9 +566,9 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     /**
      * Safely focus an element
      */
-    focus: function (which) {
+    focus (which) {
       try {
-        var focusEl = this.$(which);
+        const focusEl = this.$(which);
         // place the cursor at the end of the input when the
         // element is focused.
         focusEl.one('focus', function () {
@@ -612,19 +593,17 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * @method invokeHandler
      * @param {string || function} handler.
      */
-    invokeHandler: function (handler/*, args...*/) {
+    invokeHandler (handler, ...args){
       // convert a name to a function.
-      if (typeof handler === 'string') {
+      if (_.isString(handler)) {
         handler = this[handler];
 
-        if (typeof handler !== 'function') {
+        if (! _.isFunction(handler)) {
           throw new Error(handler + ' is an invalid function name');
         }
       }
 
-      if (typeof handler === 'function') {
-        var args = [].slice.call(arguments, 1);
-
+      if (_.isFunction(handler)) {
         // If an `arguments` type object was passed in as the first item,
         // then use that as the arguments list. Otherwise, use all arguments.
         if (_.isArguments(args[0])) {
@@ -638,7 +617,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
     /**
      * Returns the currently logged in account
      */
-    getSignedInAccount: function () {
+    getSignedInAccount () {
       return this.user.getSignedInAccount();
     },
 
@@ -646,14 +625,14 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
      * Returns the account that is active in the current view. It may not
      * be the currently logged in account.
      */
-    getAccount: function () {
+    getAccount () {
       // Implement in subclasses
     },
 
     /**
      * Shows the SubView, creating and rendering it if needed.
      */
-    showSubView: function (/* SubView */) {
+    showSubView (/* SubView */) {
       // Implement in subclasses
     }
   });
@@ -672,7 +651,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
         event.preventDefault();
       }
 
-      var args = [].slice.call(arguments, 0);
+      const args = [].slice.call(arguments, 0);
       args.unshift(handler);
       return this.invokeHandler.apply(this, args);
     };
@@ -690,7 +669,7 @@ function (Cocktail, _, Backbone, Raven, $, p, AuthErrors,
         event.stopPropagation();
       }
 
-      var args = [].slice.call(arguments, 0);
+      const args = [].slice.call(arguments, 0);
       args.unshift(handler);
       return this.invokeHandler.apply(this, args);
     };

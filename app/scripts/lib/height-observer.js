@@ -13,9 +13,7 @@ define([
 ], function (Backbone, _) {
   'use strict';
 
-  function HeightObserver (options) {
-    options = options || {};
-
+  function HeightObserver (options = {}) {
     this._targetEl = options.target;
     this._window = options.window;
 

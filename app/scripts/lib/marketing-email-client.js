@@ -13,9 +13,7 @@ define([
 ], function (Constants, xhr, MarketingEmailErrors) {
   'use strict';
 
-  function MarketingEmailClient(options) {
-    options = options || {};
-
+  function MarketingEmailClient(options = {}) {
     var self = this;
     self._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
     self._xhr = options.xhr || xhr;

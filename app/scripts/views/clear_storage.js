@@ -14,7 +14,7 @@ define([
 function (BaseView, Template) {
   'use strict';
 
-  var View = BaseView.extend({
+  return BaseView.extend({
     template: Template,
 
     beforeRender: function () {
@@ -27,7 +27,5 @@ function (BaseView, Template) {
       }
     }
   });
-
-  return View;
 });
 

@@ -33,9 +33,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
       var uid = this._verificationInfo.get('uid');

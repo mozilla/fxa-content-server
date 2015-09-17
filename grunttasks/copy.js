@@ -118,6 +118,34 @@ module.exports = function (grunt) {
       src: 'app/bower_components/normalize-css/normalize.css',
       dest: '<%= yeoman.tmp %>/bower_components/normalize-css/normalize.css'
     },
+    'scripts-built': {
+      files: [
+        // mustache templates are not run through babel.
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>/scripts/templates',
+          dest: '<%= yeoman.app %>/scripts-built/templates/',
+          src: '**/*.mustache'
+        },
+        // vendor files that are not run through babel.
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>/scripts/vendor',
+          dest: '<%= yeoman.app %>/scripts-built/vendor/',
+          src: '**/*.js'
+        },
+        // bower components are not run through babel.
+        {
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>/bower_components/',
+          dest: '<%= yeoman.app %>/scripts-built/bower_components/',
+          src: '**/*.*'
+        },
+      ]
+    },
     build: {
       files: [
         {

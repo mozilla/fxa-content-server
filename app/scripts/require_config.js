@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require.config({
-  baseUrl: '/scripts',
+  baseUrl: '/scripts-built',
   paths: {
     jquery: '../bower_components/jquery/dist/jquery',
     backbone: '../bower_components/backbone/backbone',

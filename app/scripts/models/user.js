@@ -20,8 +20,7 @@ define([
   'use strict';
 
   var User = Backbone.Model.extend({
-    initialize: function (options) {
-      options = options || {};
+    initialize: function (options = {}) {
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
       this._profileClient = options.profileClient;

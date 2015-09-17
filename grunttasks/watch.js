@@ -8,6 +8,13 @@ module.exports = function (grunt) {
     sass: {
       files: '<%= yeoman.app %>/styles/**/*.scss',
       tasks: ['sass', 'autoprefixer']
+    },
+    babel: {
+      files: '<%= yeoman.app %>/scripts/**/*.js',
+      tasks: ['babel:scripts'],
+      options: {
+        spawn: false
+      }
     }
   });
 };

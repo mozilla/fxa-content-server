@@ -28,10 +28,10 @@ define([
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.
-  var SpeedTrap = function () {};
+  let SpeedTrap = function () {};
   SpeedTrap.prototype = speedTrap;
 
-  var ALLOWED_FIELDS = [
+  const ALLOWED_FIELDS = [
     'campaign',
     'context',
     'duration',
@@ -58,9 +58,9 @@ define([
     'utm_term'
   ];
 
-  var DEFAULT_INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000;
-  var NOT_REPORTED_VALUE = 'none';
-  var UNKNOWN_CAMPAIGN_ID = 'unknown';
+  const DEFAULT_INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000;
+  const NOT_REPORTED_VALUE = 'none';
+  const UNKNOWN_CAMPAIGN_ID = 'unknown';
 
 
   // convert a hash of marketing impressions into an array of objects.
@@ -72,9 +72,7 @@ define([
     }, []);
   }
 
-  function Metrics (options) {
-    options = options || {};
-
+  function Metrics (options = {}) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
 
@@ -129,9 +127,9 @@ define([
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
-    ALLOWED_FIELDS: ALLOWED_FIELDS,
+    ALLOWED_FIELDS,
 
-    init: function () {
+    init () {
       this._flush = _.bind(this.flush, this, true);
       $(this._window).on('unload', this._flush);
       // iOS will not send events once the window is in the background,
@@ -144,7 +142,7 @@ define([
       this._resetInactivityFlushTimeout();
     },
 
-    destroy: function () {
+    destroy () {
       $(this._window).off('unload', this._flush);
       $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
@@ -153,14 +151,13 @@ define([
     /**
      * Send the collected data to the backend.
      */
-    flush: function (isPageUnloading) {
+    flush (isPageUnloading) {
       // Inactivity timer is restarted when the next event/timer comes in.
       // This avoids sending empty result sets if the tab is
       // just sitting there open with no activity.
       this._clearInactivityFlushTimeout();
 
-      var self = this;
-      var filteredData = this.getFilteredData();
+      let filteredData = this.getFilteredData();
 
       if (! this._isFlushRequired(filteredData)) {
         return p();
@@ -169,34 +166,33 @@ define([
       this._lastAbLength = filteredData.ab.length;
 
       return this._send(filteredData, isPageUnloading)
-        .then(function (sent) {
+        .then((sent) => {
           if (sent) {
-            self._speedTrap.events.clear();
-            self._speedTrap.timers.clear();
+            this._speedTrap.events.clear();
+            this._speedTrap.timers.clear();
           }
 
           return sent;
         });
     },
 
-    _isFlushRequired: function (data) {
+    _isFlushRequired (data) {
       return data.events.length !== 0 ||
         Object.keys(data.timers).length !== 0 ||
         data.ab.length !== this._lastAbLength;
     },
 
-    _clearInactivityFlushTimeout: function () {
+    _clearInactivityFlushTimeout () {
       clearTimeout(this._inactivityFlushTimeout);
     },
 
-    _resetInactivityFlushTimeout: function () {
+    _resetInactivityFlushTimeout () {
       this._clearInactivityFlushTimeout();
 
-      var self = this;
       this._inactivityFlushTimeout =
-          setTimeout(function () {
-            self.logEvent('inactivity.flush');
-            self.flush();
+          setTimeout(() => {
+            this.logEvent('inactivity.flush');
+            this.flush();
           }, this._inactivityFlushMs);
     },
 
@@ -204,11 +200,11 @@ define([
     /**
      * Get all the data, whether it's allowed to be sent or not.
      */
-    getAllData: function () {
-      var loadData = this._speedTrap.getLoad();
-      var unloadData = this._speedTrap.getUnload();
+    getAllData () {
+      let loadData = this._speedTrap.getLoad();
+      let unloadData = this._speedTrap.getUnload();
 
-      var allData = _.extend({}, loadData, unloadData, {
+      let allData = _.extend({}, loadData, unloadData, {
         ab: this._able ? this._able.report() : [],
         context: this._context,
         service: this._service,
@@ -245,10 +241,10 @@ define([
      * Filtered data is data that is allowed to be sent,
      * that is defined and not an empty string.
      */
-    getFilteredData: function () {
-      var allData = this.getAllData();
+    getFilteredData () {
+      let allData = this.getAllData();
 
-      var filteredData = {};
+      let filteredData = {};
       _.forEach(ALLOWED_FIELDS, function (itemName) {
         if (typeof allData[itemName] !== 'undefined' &&
             allData[itemName] !== '') {
@@ -259,18 +255,17 @@ define([
       return filteredData;
     },
 
-    _send: function (data, isPageUnloading) {
-      var self = this;
-      var url = this._collector + '/metrics';
-      var payload = JSON.stringify(data);
+    _send (data, isPageUnloading) {
+      let url = this._collector + '/metrics';
+      let payload = JSON.stringify(data);
 
       if (this._env.hasSendBeacon()) {
         // Always use sendBeacon if it is available because:
         //   1. it works asynchronously, even on unload.
         //   2. user agents SHOULD make "multiple attempts to transmit the
         //      data in presence of transient network or server errors".
-        return p().then(function () {
-          return self._window.navigator.sendBeacon(url, payload);
+        return p().then(() => {
+          return this._window.navigator.sendBeacon(url, payload);
         });
       }
 
@@ -279,7 +274,7 @@ define([
       return this._xhr.ajax({
         async: ! isPageUnloading,
         type: 'POST',
-        url: url,
+        url,
         contentType: 'application/json',
         data: payload
       })
@@ -294,7 +289,7 @@ define([
     /**
      * Log an event
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this._resetInactivityFlushTimeout();
       this.events.capture(eventName);
     },
@@ -302,7 +297,7 @@ define([
     /**
      * Start a timer
      */
-    startTimer: function (timerName) {
+    startTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.start(timerName);
     },
@@ -310,7 +305,7 @@ define([
     /**
      * Stop a timer
      */
-    stopTimer: function (timerName) {
+    stopTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.stop(timerName);
     },
@@ -318,15 +313,15 @@ define([
     /**
      * Log an error.
      */
-    logError: function (error) {
+    logError (error) {
       this.logEvent(this.errorToId(error));
     },
 
     /**
      * Convert an error to an identifier that can be used for logging.
      */
-    errorToId: function (error) {
-      var id = Strings.interpolate('error.%s.%s.%s', [
+    errorToId (error) {
+      let id = Strings.interpolate('error.%s.%s.%s', [
         error.context || 'unknown context',
         error.namespace || 'unknown namespace',
         error.errno || String(error)
@@ -337,14 +332,14 @@ define([
     /**
      * Log a screen
      */
-    logScreen: function (screenName) {
+    logScreen (screenName) {
       this.logEvent(this.screenToId(screenName));
     },
 
     /**
      * Convert a screenName an identifier
      */
-    screenToId: function (screenName) {
+    screenToId (screenName) {
       return 'screen.' + screenName;
     },
 
@@ -354,17 +349,17 @@ define([
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - url of marketing link
      */
-    logMarketingImpression: function (campaignId, url) {
+    logMarketingImpression (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
-      var impressions = this._marketingImpressions;
+      let impressions = this._marketingImpressions;
       if (! impressions[campaignId]) {
         impressions[campaignId] = {};
       }
 
       impressions[campaignId][url] = {
-        campaignId: campaignId,
-        url: url,
+        campaignId,
+        url,
         clicked: false
       };
     },
@@ -375,26 +370,26 @@ define([
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - URL clicked.
      */
-    logMarketingClick: function (campaignId, url) {
+    logMarketingClick (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
-      var impression = this.getMarketingImpression(campaignId, url);
+      let impression = this.getMarketingImpression(campaignId, url);
 
       if (impression) {
         impression.clicked = true;
       }
     },
 
-    getMarketingImpression: function (campaignId, url) {
-      var impressions = this._marketingImpressions;
+    getMarketingImpression (campaignId, url) {
+      let impressions = this._marketingImpressions;
       return impressions[campaignId] && impressions[campaignId][url];
     },
 
-    setBrokerType: function (brokerType) {
+    setBrokerType (brokerType) {
       this._brokerType = brokerType;
     },
 
-    isCollectionEnabled: function () {
+    isCollectionEnabled () {
       return this._isSampledUser;
     }
   });

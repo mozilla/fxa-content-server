@@ -78,8 +78,7 @@ function (P, jwcrypto) {
     });
   }
 
-  function Assertion(options) {
-    options = options || {};
+  function Assertion(options = {}) {
     this._fxaClient = options.fxaClient;
     this._audience = options.audience;
   }

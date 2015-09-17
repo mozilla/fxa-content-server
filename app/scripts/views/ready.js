@@ -25,9 +25,7 @@ function (Cocktail, FormView, Template, Url, Constants, ServiceMixin,
     template: Template,
     className: 'ready',
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._able = options.able;
 
       this.type = options.type;

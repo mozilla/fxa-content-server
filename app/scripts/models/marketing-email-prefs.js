@@ -24,9 +24,7 @@ define([
       newsletters: []
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       var self = this;
       self._marketingEmailClient = options.marketingEmailClient;
       self._account = options.account;

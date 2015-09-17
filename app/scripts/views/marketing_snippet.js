@@ -21,9 +21,7 @@ define([
   var View = BaseView.extend({
     template: Template,
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       this._type = options.type;
       this._service = options.service;
     },

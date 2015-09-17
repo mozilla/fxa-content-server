@@ -12,8 +12,7 @@ define([
 ], function (crosstab) {
   'use strict';
 
-  function InterTabChannel(options) {
-    options = options || {};
+  function InterTabChannel(options = {}) {
     this._crosstab = options.crosstab || crosstab;
   }
 

@@ -44,9 +44,7 @@ define([
       Relier.prototype.resumeTokenFields
     ),
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize: function (options = {}) {
       Relier.prototype.initialize.call(this, options);
 
       this._session = options.session;

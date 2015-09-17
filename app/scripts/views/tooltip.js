@@ -11,18 +11,17 @@ define([
 ], function (_, $, BaseView) {
   'use strict';
 
-  var displayedTooltip;
-  var PADDING_BELOW_TOOLTIP_PX = 2;
-  var PADDING_ABOVE_TOOLTIP_PX = 4;
+  let displayedTooltip;
+  const PADDING_BELOW_TOOLTIP_PX = 2;
+  const PADDING_ABOVE_TOOLTIP_PX = 4;
 
-  var Tooltip = BaseView.extend({
+  let Tooltip = BaseView.extend({
     tagName: 'aside',
     className: 'tooltip',
     // tracks the type of a tooltip, used for metrics purposes
     type: 'generic',
 
-    initialize: function (options) {
-      options = options || {};
+    initialize (options = {}) {
       this.message = options.message || '';
       this.dismissible  = options.dismissible || false;
       this.extraClassNames = options.extraClassNames || '';
@@ -34,18 +33,18 @@ define([
       this.invalidEl = $(options.invalidEl);
     },
 
-    template: function () {
+    template () {
       return this.translator.get(this.message);
     },
 
-    afterRender: function () {
+    afterRender () {
       // only one tooltip at a time!
       if (displayedTooltip) {
         displayedTooltip.destroy(true);
       }
       displayedTooltip = this;
 
-      var tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
+      let tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
 
       this.$el.addClass(this.extraClassNames);
       this.$el.appendTo(tooltipContainer);
@@ -59,23 +58,23 @@ define([
       this.bindDOMEvents();
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       displayedTooltip = null;
 
       // ditch the events we manually added to reduce interference
       // between tooltips.
-      var invalidEl = this.invalidEl;
+      let invalidEl = this.invalidEl;
       invalidEl.off('keydown change', this._destroy);
       invalidEl.find('option').off('click', this._destroy);
     },
 
-    setPosition: function () {
+    setPosition () {
       // by default, the position is above the input/select element
       // to show the tooltip below the element, we use JS to set
       // the top of the tooltip to be just below the element it is
       // attached to.
-      var tooltipEl = this.$el;
-      var invalidEl = this.invalidEl;
+      let tooltipEl = this.$el;
+      let invalidEl = this.invalidEl;
       if (invalidEl.hasClass('tooltip-below')) {
         tooltipEl.addClass('tooltip-below fade-up-tt');
         tooltipEl.css({
@@ -89,8 +88,8 @@ define([
       }
     },
 
-    bindDOMEvents: function () {
-      var invalidEl = this.invalidEl;
+    bindDOMEvents () {
+      let invalidEl = this.invalidEl;
 
       // destroy the tooltip any time the user
       // interacts with the invalid element.
@@ -98,7 +97,7 @@ define([
       // keyboard input for input/select elements.
       invalidEl.one('change', this._destroy);
       // destroy the tooltip if a key different than tab is pressed
-      var destroyIfNotTab = function (e) {
+      let destroyIfNotTab = (e) => {
         if (e.which !== 9) {
           this._destroy();
         } else {
@@ -106,20 +105,20 @@ define([
           // future events
           invalidEl.one('keydown', destroyIfNotTab);
         }
-      }.bind(this);
+      };
 
       invalidEl.one('keydown', destroyIfNotTab);
       // handle selecting an option with the mouse for select elements
       invalidEl.find('option').one('click', this._destroy);
 
       // destroy when dismissed
-      this.$el.find('.dismiss').one('click keypress', function (e) {
+      this.$el.find('.dismiss').one('click keypress', (e) => {
         if (e.type === 'click' || e.which === 13) {
-          var metricsEvent = 'tooltip.' + this.type + '-dismissed';
+          let metricsEvent = 'tooltip.' + this.type + '-dismissed';
           this.logEvent(metricsEvent);
           this._destroy();
         }
-      }.bind(this));
+      });
     }
   });
 

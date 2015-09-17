@@ -14,25 +14,26 @@
 define([], function () {
   'use strict';
 
-  function AbleWrapper() {
-    // nothing to do here.
-  }
+  class AbleWrapper {
+    constructor () {
+      // nothing to do here.
+    }
 
-  AbleWrapper.prototype = {
-    choose: function () {
+    choose () {
       var able = window.able;
       if (able) {
         return able.choose.apply(able, arguments);
       }
-    },
-    report: function () {
+    }
+
+    report () {
       var able = window.able;
       if (able) {
         return able.report.apply(able, arguments);
       }
       return [];
     }
-  };
+  }
 
   return AbleWrapper;
 });
