@@ -4,7 +4,6 @@
 
 define([
   'cocktail',
-  'underscore',
   'views/confirm',
   'views/base',
   'stache!templates/confirm_reset_password',
@@ -15,13 +14,13 @@ define([
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
+function (Cocktail, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       ResendMixin, ResumeTokenMixin, ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
 
-  var SESSION_UPDATE_TIMEOUT_MS = 10000;
+  var LOGIN_MESSAGE_TIMEOUT_MS = 10000;
 
   var View = ConfirmView.extend({
     template: Template,
@@ -30,8 +29,11 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
     initialize: function (options) {
       options = options || {};
       this._interTabChannel = options.interTabChannel;
-      this._sessionUpdateTimeoutMS = options.sessionUpdateTimeoutMS ||
-              SESSION_UPDATE_TIMEOUT_MS;
+      this._loginMessageTimeoutMS = options.loginMessageTimeoutMS ||
+              LOGIN_MESSAGE_TIMEOUT_MS;
+      this._verificationPollMS = options.verificationPollMS ||
+              this.VERIFICATION_POLL_IN_MS;
+
 
       var data = this.ephemeralData();
       this._email = data.email;
@@ -130,7 +132,7 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
               return self._finishPasswordResetDifferentBrowser();
             })
-            .then(null, function (err) {
+            .fail(function (err) {
               self.displayError(err);
             });
         });
@@ -138,17 +140,38 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      return p.all([
-        self._waitForSessionUpdate(),
-        self._waitForServerConfirmationNotice()
-          .then(function () {
-            if (! self._isWaitForSessionUpdateComplete) {
-              self._startSessionUpdateWaitTimeout();
-            }
-          })
-      ]).spread(function (sessionInfo) {
-        return sessionInfo;
-      });
+      var confirmationDeferred = p.defer();
+      var confirmationPromise = confirmationDeferred.promise;
+      self._confirmationPromise = confirmationPromise;
+
+      // If either the `login` message comes through or the `login` message
+      // timeout elapses after the server confirms the user is verified,
+      // stop waiting all together and move to the next screen.
+      function onComplete(response) {
+        self._stopWaiting();
+        confirmationDeferred.resolve(response);
+      }
+
+      function onError(err) {
+        self._stopWaiting();
+        confirmationDeferred.reject(err);
+      }
+
+      self._waitForLoginMessage().then(onComplete, onError);
+
+      self._waitForServerConfirmation()
+        .then(function (isVerified) {
+          if (self._isStillWaiting() && isVerified) {
+            // server indicates the user has been verified and the `login`
+            // message has not arrived from another tab. Wait a short
+            // period of time for the `login` message. If the timeout
+            // elapses, assume the user verified in a different browser.
+            return self._startWaitForLoginMessageTimeout()
+              .then(onComplete.bind(null, null));
+          }
+        }).fail(onError);
+
+      return confirmationPromise;
     },
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
@@ -190,58 +213,74 @@ function (Cocktail, _, ConfirmView, BaseView, Template, p, Session, AuthErrors,
       });
     },
 
-    _waitForServerConfirmationNotice: function () {
+    _waitForServerConfirmation: function () {
       var self = this;
-      return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
-        .then(function (isComplete) {
-          if (isComplete) {
-            return true;
-          }
+      // only check if still waiting.
+      if (self._isStillWaiting()) {
+        return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
+          .then(function (isComplete) {
+            if (isComplete) {
+              return true;
+            } else if (! self._isStillWaiting()) {
+              // If the `login` message came through while the XHR request was
+              // outstanding, no need to check again.
+              return false;
+            }
 
-          var deferred = p.defer();
+            var deferred = p.defer();
+            self._waitForServerConfirmationTimeout = self.setTimeout(function () {
+              deferred.resolve(self._waitForServerConfirmation());
+            }, self._verificationPollMS);
 
-          self.setTimeout(function () {
-            // _waitForServerConfirmationNotice will return a promise and the
-            // promise chain remains unbroken.
-            deferred.resolve(self._waitForServerConfirmationNotice());
-          }, self.VERIFICATION_POLL_IN_MS);
-
-          return deferred.promise;
-        });
+            return deferred.promise;
+          });
+      }
     },
 
-    _waitForSessionUpdate: function () {
+    _waitForLoginMessage: function () {
       var deferred = p.defer();
-      var self = this;
-      self._deferred = deferred;
 
-      self._sessionUpdateNotificationHandler = _.bind(self._sessionUpdateWaitComplete, self);
-      self._interTabChannel.on('login', self._sessionUpdateNotificationHandler);
+      var onLogin = function (event) {
+        deferred.resolve(event && event.data);
+      };
+
+      this._loginMessageRemoveListenerKey =
+          this._interTabChannel.on('login', onLogin);
 
       return deferred.promise;
     },
 
-    _startSessionUpdateWaitTimeout: function () {
-      var self = this;
-      self._sessionUpdateWaitTimeoutHandler =
-            _.bind(self._sessionUpdateWaitComplete, self, null);
-      self._sessionUpdateWaitTimeout =
-            self.setTimeout(self._sessionUpdateWaitTimeoutHandler,
-                self._sessionUpdateTimeoutMS);
+    _startWaitForLoginMessageTimeout: function () {
+      var deferred = p.defer();
+
+      this._waitForLoginMessageTimeout =
+            this.setTimeout(deferred.resolve.bind(deferred),
+                this._loginMessageTimeoutMS);
+
+      return deferred.promise;
     },
 
-    _sessionUpdateWaitComplete: function (event) {
+    _isStillWaiting: function () {
+      var confirmationPromise = this._confirmationPromise;
+      return !! confirmationPromise &&
+                confirmationPromise.inspect().state === 'pending';
+    },
+
+    _stopWaiting: function () {
       var self = this;
-      var data = event && event.data;
 
-      self._isWaitForSessionUpdateComplete = true;
+      if (self._waitForServerConfirmationTimeout) {
+        self.clearTimeout(self._waitForServerConfirmationTimeout);
+      }
 
-      self.clearTimeout(self._sessionUpdateWaitTimeout);
-      self._interTabChannel.off('login', self._sessionUpdateNotificationHandler);
+      if (self._waitForLoginMessageTimeout) {
+        self.clearTimeout(self._waitForLoginMessageTimeout);
+      }
+
+      self._interTabChannel.off('login', self._loginMessageRemoveListenerKey);
       // Sensitive data is passed between tabs using localStorage.
       // Delete the data from storage as soon as possible.
       self._interTabChannel.clearMessages();
-      self._deferred.resolve(data);
     },
 
     submit: function () {
