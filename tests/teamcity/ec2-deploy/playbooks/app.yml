@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "../env/{{ stack_name }}.yml"
+
+  tasks:
+    - name: validate vars
+      assert:
+        that:
+          - stack_name != ''
+          - keyname != ''
+          - region_name != ''
+          - owner != ''
+          - quay_io_deploy_key != ''
+
+    - name: Create a stack for running Teamcity with Docker agents
+      action: cloudformation
+        region="{{ region_name }}"
+        stack_name="TC-{{ stack_name }}"
+        state=present
+        template="../templates/app.json"
+      args:
+        template_parameters:
+          KeyName: "{{ keyname }}"
+          StackName: "{{ stack_name }}"
+      register: stack
+
+    - debug: var=stack
+
+    - name: add new host
+      add_host: hostname={{ stack['stack_outputs']['EC2HostName'] }} groupname=whatevs
+
+- name: Configure instance
+  hosts: whatevs
+  remote_user: ec2-user
+  gather_facts: true
+  vars:
+    public_hostname: "{{ hostvars['localhost']['stack']['stack_outputs']['PublicDNS'] }}"
+    ec2_hostname: "{{ hostvars['localhost']['stack']['stack_outputs']['ECSHostName'] }}"
+  roles:
+    - nginx
+    - common
+    - team
+    - teamcity
+
+

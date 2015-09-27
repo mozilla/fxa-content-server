@@ -1,0 +1,19 @@
+---
+
+- name: install human tools
+  sudo: true
+  yum: name={{ item }} state=present
+  with_items:
+    - emacs-nox
+    - htop
+    - lsof
+    - mlocate
+    - strace
+    - tmux
+
+- name: get team public keys
+  git: repo=https://github.com/mozilla/identity-pubkeys.git
+       dest=/home/ec2-user/identity-pubkeys
+       version=58603a70014aa170b94093338532834fa0b9768f
+       force=true
+  notify: update authorized_keys
