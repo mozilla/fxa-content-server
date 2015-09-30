@@ -197,6 +197,18 @@ function (chai, Relier, BaseAuthenticationBroker,
         it('returns `true` for `signup` by default', function () {
           assert.isTrue(broker.hasCapability('signup'));
         });
+
+        it('returns `true` for `interTabSignIn` by default', function () {
+          assert.isTrue(broker.hasCapability('interTabSignIn'));
+        });
+
+        it('returns `true` for `emailVerificationMarketingSnippet` by default', function () {
+          assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+        });
+
+        it('returns `false` for `syncPreferencesNotification` by default', function () {
+          assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
+        });
       });
 
       describe('getCapability', function () {

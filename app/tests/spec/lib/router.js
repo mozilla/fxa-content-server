@@ -14,6 +14,7 @@ define([
   'views/ready',
   'views/settings',
   'lib/able',
+  'lib/channels/inter-tab',
   'lib/constants',
   'lib/environment',
   'lib/metrics',
@@ -27,8 +28,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, SignUpView,
-      ReadyView, SettingsView, Able, Constants, Environment, Metrics, EphemeralMessages, p,
-      Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
+      ReadyView, SettingsView, Able, InterTabChannel, Constants, Environment, Metrics,
+      EphemeralMessages, p, Relier, User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -45,6 +46,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
     var formPrefill;
     var able;
     var environment;
+    var interTabChannel;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -67,11 +69,13 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
       able = new Able();
 
       environment = new Environment(windowMock);
+      interTabChannel = new InterTabChannel();
       router = new Router({
         able: able,
         broker: broker,
         environment: environment,
         formPrefill: formPrefill,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         relier: relier,
         user: user,
@@ -270,6 +274,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
           formPrefill: formPrefill,
+          interTabChannel: interTabChannel,
           metrics: metrics,
           relier: relier,
           router: router,
@@ -361,6 +366,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
         signInView = new SignInView({
           broker: broker,
           formPrefill: formPrefill,
+          interTabChannel: interTabChannel,
           metrics: metrics,
           relier: relier,
           router: router,
@@ -372,6 +378,7 @@ function (chai, sinon, Backbone, Router, BaseView, DisplayNameView, SignInView, 
           able: able,
           broker: broker,
           formPrefill: formPrefill,
+          interTabChannel: interTabChannel,
           metrics: metrics,
           relier: relier,
           router: router,

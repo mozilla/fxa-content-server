@@ -11,6 +11,7 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'lib/ephemeral-messages',
+  'lib/channels/inter-tab',
   'views/confirm',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -20,7 +21,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, Relier, BaseBroker, User,
+      EphemeralMessages, InterTabChannel, View, Relier, BaseBroker, User,
       WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
@@ -37,6 +38,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     var user;
     var account;
     var ephemeralMessages;
+    var interTabChannel;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -53,6 +55,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
       user = new User();
+      interTabChannel = new InterTabChannel();
 
       account = user.initAccount({
         customizeSync: true,
@@ -72,6 +75,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         relier: relier,
         router: routerMock,
@@ -300,46 +304,51 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('complete', function () {
-      it('direct access redirects to `/settings`', function () {
+      var signinHandler;
+
+      beforeEach(function () {
         sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
           return p({
             verified: true
           });
         });
 
+        signinHandler = sinon.spy();
+        interTabChannel.on('signin.success', signinHandler);
+
+        sinon.stub(view, 'navigate', function () {});
+      });
+
+      it('direct access redirects to `/settings`', function (done) {
         sinon.stub(relier, 'isDirectAccess', function () {
           return true;
         });
 
-        sinon.stub(view, 'navigate', function (page) {
-          // do nothing
-        });
-
         return view.afterVisible()
-          .then(function () {
+          .then(setTimeout.bind(null, function () {
+            assert.equal(view.navigate.callCount, 1);
             assert.isTrue(view.navigate.calledWith('settings'));
-          });
+            assert.equal(signinHandler.callCount, 1);
+            assert.isTrue(signinHandler.calledAfter(view.navigate));
+            var args = signinHandler.args[0];
+            assert.lengthOf(args, 1);
+            assert.isObject(args[0].data);
+            done();
+          }, 0));
       });
 
-      it('non-direct-access redirects to `/signup_complete`', function () {
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-          return p({
-            verified: true
-          });
-        });
-
+      it('non-direct-access redirects to `/signup_complete`', function (done) {
         sinon.stub(relier, 'isDirectAccess', function () {
           return false;
         });
 
-        sinon.stub(view, 'navigate', function (page) {
-          // do nothing
-        });
-
         return view.afterVisible()
-          .then(function () {
+          .then(setTimeout.bind(null, function () {
+            assert.equal(view.navigate.callCount, 1);
             assert.isTrue(view.navigate.calledWith('signup_complete'));
-          });
+            assert.equal(signinHandler.callCount, 0);
+            done();
+          }, 0));
       });
     });
 

@@ -3,28 +3,29 @@
 
 define([
   'cocktail',
-  'lib/promise',
-  'views/base',
-  'views/form',
-  'stache!templates/sign_up',
   'lib/auth-errors',
   'lib/mailcheck',
+  'lib/promise',
+  'stache!templates/sign_up',
+  'views/base',
+  'views/form',
+  'views/coppa/coppa-date-picker',
+  'views/coppa/coppa-age-input',
+  'views/mixins/checkbox-mixin',
   'views/mixins/experiment-mixin',
+  'views/mixins/inter-tab-signin-mixin',
+  'views/mixins/migration-mixin',
   'views/mixins/password-mixin',
   'views/mixins/password-strength-mixin',
-  'views/mixins/service-mixin',
-  'views/mixins/checkbox-mixin',
   'views/mixins/resume-token-mixin',
-  'views/mixins/migration-mixin',
+  'views/mixins/service-mixin',
   'views/mixins/signup-disabled-mixin',
-  'views/mixins/signup-success-mixin',
-  'views/coppa/coppa-date-picker',
-  'views/coppa/coppa-age-input'
+  'views/mixins/signup-success-mixin'
 ],
-function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
-  ExperimentMixin, PasswordMixin, PasswordStrengthMixin, ServiceMixin,
-  CheckboxMixin, ResumeTokenMixin, MigrationMixin, SignupDisabledMixin,
-  SignupSuccessMixin, CoppaDatePicker, CoppaAgeInput) {
+function (Cocktail, AuthErrors, mailcheck, p, Template, BaseView, FormView,
+  CoppaDatePicker, CoppaAgeInput, CheckboxMixin, ExperimentMixin,
+  InterTabSigninMixin, MigrationMixin, PasswordMixin, PasswordStrengthMixin,
+  ResumeTokenMixin, ServiceMixin, SignupDisabledMixin, SignupSuccessMixin) {
   'use strict';
 
   var t = BaseView.t;
@@ -326,6 +327,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
 
           if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
+            self.onSignInSuccess();
           }
           self.logScreenEvent('success');
           return self.invokeBrokerMethod('afterSignUp', account);
@@ -367,6 +369,7 @@ function (Cocktail, p, BaseView, FormView, Template, AuthErrors, mailcheck,
     View,
     CheckboxMixin,
     ExperimentMixin,
+    InterTabSigninMixin,
     MigrationMixin,
     PasswordMixin,
     PasswordStrengthMixin,

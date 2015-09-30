@@ -11,6 +11,7 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'lib/metrics',
+  'lib/channels/inter-tab',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
@@ -19,8 +20,9 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
-      OAuthBroker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, Session, FxaClient, p, Metrics, InterTabChannel,
+      OAuthRelier, OAuthBroker, User, FormPrefill, WindowMock, RouterMock,
+      TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -37,6 +39,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var profileClientMock;
     var user;
     var formPrefill;
+    var interTabChannel;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -64,6 +67,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
+      interTabChannel = new InterTabChannel();
 
       initView();
       return view.render()
@@ -83,6 +87,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         broker: broker,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         profileClient: profileClientMock,
         relier: relier,
@@ -128,6 +133,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
+        var signinHandler = sinon.spy();
+        interTabChannel.on('signin.success', signinHandler);
 
         var password = 'password';
         $('.email').val(email);
@@ -142,6 +149,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
                               'oauth.signin.success'));
             assert.isTrue(broker.afterSignIn.calledWith(account));
             assert.equal(router.page, 'settings');
+            assert.isTrue(signinHandler.calledOnce);
+            var args = signinHandler.args[0];
+            assert.equal(args.length, 1);
+            assert.isObject(args[0].data);
           });
       });
     });
