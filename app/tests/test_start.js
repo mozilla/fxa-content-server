@@ -123,6 +123,8 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/account-locked-mixin',
     '../tests/spec/views/mixins/checkbox-mixin',
     '../tests/spec/views/mixins/inter-tab-channel-mixin',
+    '../tests/spec/views/mixins/inter-tab-signin-mixin',
+    '../tests/spec/views/mixins/inter-tab-signout-mixin',
     '../tests/spec/views/mixins/loading-mixin',
     '../tests/spec/views/mixins/migration-mixin',
     '../tests/spec/views/mixins/modal-settings-panel-mixin',

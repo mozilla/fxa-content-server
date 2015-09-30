@@ -23,7 +23,7 @@ define([
     var user;
     var windowMock;
 
-    beforeEach(function () {
+    before(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       channelMock.send = sinon.spy(function () {
@@ -41,6 +41,22 @@ define([
         channel: channelMock,
         window: windowMock
       });
+    });
+
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `interTabSignIn` capability by default', function () {
+      assert.isTrue(broker.hasCapability('interTabSignIn'));
+    });
+
+    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('does not have the `syncPreferencesNotification` capability by default', function () {
+      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
     describe('createChannel', function () {

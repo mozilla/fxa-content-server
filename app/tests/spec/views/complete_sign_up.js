@@ -10,6 +10,7 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/constants',
+  'lib/channels/inter-tab',
   'lib/fxa-client',
   'lib/marketing-email-errors',
   'models/reliers/relier',
@@ -20,9 +21,9 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
-      MarketingEmailErrors, Relier, Broker, User, Notifications, RouterMock,
-      WindowMock, TestHelpers) {
+function (chai, sinon, p, View, AuthErrors, Metrics, Constants, InterTabChannel,
+      FxaClient, MarketingEmailErrors, Relier, Broker, User, Notifications,
+      RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -39,6 +40,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
     var user;
     var notifications;
     var account;
+    var interTabChannel;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -74,6 +76,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
         account: account,
         broker: broker,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         notifications: notifications,
         relier: relier,
@@ -93,6 +96,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       fxaClient = new FxaClient();
       user = new User();
       notifications = new Notifications();
+      interTabChannel = new InterTabChannel();
 
       verificationError = null;
       sinon.stub(fxaClient, 'verifyCode', function () {
@@ -223,9 +227,16 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
           return p(true);
         });
 
+        var signinHandler = sinon.spy();
+        interTabChannel.on('signin.success', signinHandler);
+
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'settings');
+            assert.equal(signinHandler.callCount, 1);
+            var args = signinHandler.args[0];
+            assert.lengthOf(args, 1);
+            assert.isObject(args[0].data);
           });
       });
 

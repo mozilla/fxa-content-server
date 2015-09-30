@@ -22,6 +22,7 @@ define([
   'lib/auth-errors',
   'lib/able',
   'lib/metrics',
+  'lib/channels/inter-tab',
   'models/form-prefill',
   'models/notifications',
   'models/reliers/relier',
@@ -32,7 +33,8 @@ define([
 function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
   CommunicationPreferencesView, SettingsPanelMixin, RouterMock, TestHelpers,
   FxaClient, p, ProfileClient, ProfileErrors, AuthErrors, Able, Metrics,
-  FormPrefill, Notifications, Relier, ProfileImage, User, TestTemplate) {
+  InterTabChannel, FormPrefill, Notifications, Relier, ProfileImage, User,
+  TestTemplate) {
   'use strict';
 
   var assert = chai.assert;
@@ -50,6 +52,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
     var formPrefill;
     var fxaClient;
     var initialSubView;
+    var interTabChannel;
     var metrics;
     var notifications;
     var panelViews;
@@ -68,6 +71,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         able: able,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         notifications: notifications,
         panelViews: panelViews,
@@ -94,6 +98,7 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
       notifications = new Notifications();
 
       formPrefill = new FormPrefill();
+      interTabChannel = new InterTabChannel();
 
       account = user.initAccount({
         email: 'a@a.com',
@@ -226,41 +231,54 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
         $.modal.close.restore();
       });
 
-      it('afterVisible', function () {
-        sinon.stub(subPanels, 'setElement', function () {});
-        return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.isTrue(subPanels.setElement.called);
-            assert.isTrue(subPanels.render.called);
-          });
-      });
+      describe('afterVisible', function () {
+        beforeEach(function () {
+          sinon.stub(subPanels, 'setElement', function () {});
+          sinon.spy(view, 'interTabOn');
+          return view.render()
+            .then(function () {
+              $('#container').append(view.el);
+              return view.afterVisible();
+            });
+        });
 
-      it('on profile change', function () {
-        return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-            return view.afterVisible();
-          })
-          .then(function () {
+        afterEach(function () {
+          subPanels.setElement.restore();
+          view.interTabOn.restore();
+        });
+
+        it('calls subPanel methods correctly', function () {
+          assert.isTrue(subPanels.setElement.called);
+          assert.isTrue(subPanels.render.called);
+        });
+
+        it('shows avatar change link', function () {
+          assert.ok(view.$('.avatar-wrapper a').length);
+        });
+
+        it('calls this.interTabOn correctly', function () {
+          assert.isTrue(view.interTabOn.calledOnce);
+          var args = view.interTabOn.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'signout.success');
+          assert.equal(args[1], view.clearSessionAndNavigateToSignIn);
+        });
+
+        describe('on profile change', function () {
+          beforeEach(function () {
             sinon.spy(view, 'displayAccountProfileImage');
             view.onProfileUpdate();
-            assert.isTrue(view.displayAccountProfileImage.calledWith(account));
           });
-      });
 
-      it('shows avatar change link', function () {
-        return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.ok(view.$('.avatar-wrapper a').length);
+          afterEach(function () {
+            view.displayAccountProfileImage.restore();
           });
+
+          it('calls displayAccountProfileImage correctly', function () {
+            assert.isTrue(view.displayAccountProfileImage.calledOnce);
+            assert.isTrue(view.displayAccountProfileImage.calledWithExactly(account));
+          });
+        });
       });
 
       describe('with a profile image set', function () {
@@ -351,18 +369,24 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
       });
 
       describe('signOut', function () {
+        beforeEach(function () {
+          sinon.spy(user, 'removeAllAccounts');
+          view.afterVisible();
+        });
+
         it('on success, signs the user out, clears formPrefill info, redirects to the signin page', function () {
           sinon.stub(fxaClient, 'signOut', function () {
             return p();
           });
-          sinon.spy(user, 'clearSignedInAccount');
+          var signoutHandler = sinon.spy();
+          interTabChannel.on('signout.success', signoutHandler);
 
           formPrefill.set('email', 'testuser@testuser.com');
           formPrefill.set('password', 'password');
 
           return view.signOut()
             .then(function () {
-              assert.isTrue(user.clearSignedInAccount.called);
+              assert.isTrue(user.removeAllAccounts.calledOnce);
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.success'));
               assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));
@@ -371,6 +395,8 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
               assert.isFalse(formPrefill.has('password'));
 
               assert.equal(routerMock.page, 'signin');
+
+              assert.isTrue(signoutHandler.calledOnce);
             });
         });
 
@@ -378,11 +404,10 @@ function (chai, $, sinon, Cocktail, _, View, BaseView, SubPanels,
           sinon.stub(fxaClient, 'signOut', function () {
             return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
-          sinon.spy(user, 'clearSignedInAccount');
 
           return view.signOut()
             .then(function () {
-              assert.isTrue(user.clearSignedInAccount.called);
+              assert.isTrue(user.removeAllAccounts.calledOnce);
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.submit'));
               // track the error, but success is still finally called
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.signout.error'));

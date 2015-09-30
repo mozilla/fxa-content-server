@@ -9,6 +9,7 @@ define([
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
   'views/mixins/experiment-mixin',
+  'views/mixins/inter-tab-channel-mixin',
   'views/mixins/resend-mixin',
   'views/mixins/loading-mixin',
   'views/mixins/resume-token-mixin',
@@ -16,12 +17,13 @@ define([
   'lib/url',
   'lib/constants'
 ],
-function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
-  AuthErrors, ExperimentMixin, ResendMixin, LoadingMixin, ResumeTokenMixin, VerificationInfo,
-  Url, Constants) {
+function (Cocktail, FormView, BaseView, CompleteSignUpTemplate, AuthErrors,
+  ExperimentMixin, InterTabChannelMixin, ResendMixin, LoadingMixin,
+  ResumeTokenMixin, VerificationInfo, Url, Constants) {
   'use strict';
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+  var EVENTS = Constants.EVENTS;
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({
@@ -94,9 +96,11 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
               return false;
             }
 
-            return self.getAccount().isSignedIn()
+            var account = self.getAccount();
+            return account.isSignedIn()
               .then(function (isSignedIn) {
                 if (isSignedIn) {
+                  self.interTabSend(EVENTS.SIGNIN_SUCCESS, account);
                   self.navigate('settings', {
                     success: t('Account verified successfully')
                   });
@@ -189,6 +193,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
   Cocktail.mixin(
     CompleteSignUpView,
     ExperimentMixin,
+    InterTabChannelMixin,
     LoadingMixin,
     ResendMixin,
     ResumeTokenMixin

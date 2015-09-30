@@ -15,6 +15,7 @@ define([
   'lib/fxa-client',
   'lib/constants',
   'lib/ephemeral-messages',
+  'lib/channels/inter-tab',
   'models/reliers/relier',
   'models/user',
   'models/form-prefill',
@@ -24,8 +25,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
-      FxaClient, Constants, EphemeralMessages, Relier, User, FormPrefill, Broker,
-      WindowMock, RouterMock, TestHelpers) {
+      FxaClient, Constants, EphemeralMessages, InterTabChannel, Relier, User,
+      FormPrefill, Broker, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -43,6 +44,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
     var user;
     var formPrefill;
     var ephemeralMessages;
+    var interTabChannel;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -62,6 +64,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       });
       formPrefill = new FormPrefill();
       ephemeralMessages = new EphemeralMessages();
+      interTabChannel = new InterTabChannel();
 
       initView();
 
@@ -86,6 +89,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         relier: relier,
         router: routerMock,
@@ -317,6 +321,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
         sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
+        var signinHandler = sinon.spy();
+        interTabChannel.on('signin.success', signinHandler);
 
         return view.submit()
           .then(function () {
@@ -330,6 +336,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
             assert.isTrue(broker.afterSignIn.calledWith(account));
 
             assert.equal(routerMock.page, 'settings');
+
+            assert.isTrue(signinHandler.calledOnce);
+            var args = signinHandler.args[0];
+            assert.lengthOf(args, 1);
+            assert.isObject(args[0].data);
           });
       });
 
@@ -812,5 +823,23 @@ function (chai, $, sinon, p, View, Session, AuthErrors, OAuthErrors, Metrics,
       });
     });
 
+    describe('afterVisible', function () {
+      beforeEach(function () {
+        sinon.stub(view, 'interTabOn', function () {});
+        return view.afterVisible();
+      });
+
+      afterEach(function () {
+        view.interTabOn.restore();
+      });
+
+      it('calls this.interTabOn correctly', function () {
+        assert.isTrue(view.interTabOn.calledOnce);
+        var args = view.interTabOn.args[0];
+        assert.lengthOf(args, 2);
+        assert.equal(args[0], 'signin.success');
+        assert.equal(args[1], view.navigateToSignedInView);
+      });
+    });
   });
 });
