@@ -14,6 +14,7 @@ define([
   'lib/oauth-client',
   'lib/assertion',
   'lib/able',
+  'lib/channels/inter-tab',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
@@ -24,8 +25,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
-      Assertion, Able, OAuthRelier, OAuthBroker, User, FormPrefill, Notifications, WindowMock,
-      RouterMock, TestHelpers) {
+      Assertion, Able, InterTabChannel, OAuthRelier, OAuthBroker, User,
+      FormPrefill, Notifications, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -69,6 +70,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
     var formPrefill;
     var able;
     var notifications;
+    var interTabChannel;
 
     beforeEach(function () {
       Session.clear();
@@ -112,6 +114,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
       formPrefill = new FormPrefill();
       able = new Able();
       notifications = new Notifications();
+      interTabChannel = new InterTabChannel();
 
       view = new View({
         able: able,
@@ -119,6 +122,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, OAuthClient,
         broker: broker,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         notifications: notifications,
         oAuthClient: oAuthClient,

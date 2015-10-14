@@ -432,6 +432,64 @@ define([
             assert.equal(resultText, '');
           })
         .end();
+    },
+
+    'sign up and verify with a second sign-in tab open': function () {
+      var windowName = 'sign-up inter-tab functional test';
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.openSigninSameBrowser(self, windowName);
+        })
+        .switchToWindow(windowName)
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+        .switchToWindow('newwindow')
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+        .closeCurrentWindow()
+        .switchToWindow(windowName)
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+        .closeCurrentWindow()
+        .switchToWindow('')
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'sign up and verify with a second sign-up tab open': function () {
+      var windowName = 'sign-up inter-tab functional test';
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.openSignupSameBrowser(self, windowName);
+        })
+        .switchToWindow(windowName)
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+        .switchToWindow('newwindow')
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+        .closeCurrentWindow()
+        .switchToWindow(windowName)
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+        .closeCurrentWindow()
+        .switchToWindow('')
+        .findByCssSelector('#fxa-settings-header')
+        .end();
     }
   });
 

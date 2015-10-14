@@ -16,6 +16,7 @@ define([
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'lib/able',
+  'lib/channels/inter-tab',
   'models/reliers/sync',
   'models/auth_brokers/base',
   'models/user',
@@ -26,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, ExperimentInterface, Metrics,
-      FxaClient, EphemeralMessages, Able, Relier, Broker, User, FormPrefill,
+      FxaClient, EphemeralMessages, Able, InterTabChannel, Relier, Broker, User, FormPrefill,
       Notifications, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
@@ -46,6 +47,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
     var coppa;
     var able;
     var notifications;
+    var interTabChannel;
 
     function fillOutSignUp(email, password, isCoppaValid) {
       view.$('[type=email]').val(email);
@@ -68,6 +70,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
         ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         metrics: metrics,
         notifications: notifications,
         relier: relier,
@@ -101,6 +104,7 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
       coppa = new CoppaDatePicker();
       able = new Able();
       notifications = new Notifications();
+      interTabChannel = new InterTabChannel();
 
       createView();
 
@@ -618,10 +622,14 @@ function (chai, $, sinon, p, View, CoppaDatePicker, Session, AuthErrors, Experim
           return true;
         });
 
+        sinon.stub(view, 'onSignInSuccess', function () {});
+
         return view.submit()
             .then(function () {
               assert.isTrue(user.signUpAccount.called);
               assert.isTrue(broker.afterSignIn.called);
+              assert.equal(view.onSignInSuccess.callCount, 1);
+              assert.lengthOf(view.onSignInSuccess.args[0], 0);
             });
       });
 

@@ -4,22 +4,25 @@
 
 define([
   'cocktail',
-  'views/form',
-  'views/base',
-  'stache!templates/confirm',
-  'lib/promise',
   'lib/auth-errors',
   'lib/constants',
+  'lib/promise',
+  'stache!templates/confirm',
+  'views/base',
+  'views/form',
   'views/mixins/experiment-mixin',
+  'views/mixins/inter-tab-channel-mixin',
   'views/mixins/resend-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
-  ExperimentMixin, ResendMixin, ResumeTokenMixin, ServiceMixin) {
+function (Cocktail, AuthErrors, Constants, p, Template, BaseView, FormView,
+  ExperimentMixin, InterTabChannelMixin, ResendMixin, ResumeTokenMixin,
+  ServiceMixin) {
   'use strict';
 
   var t = BaseView.t;
+  var EVENTS = Constants.EVENTS;
 
   var View = FormView.extend({
     template: Template,
@@ -112,6 +115,9 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
             .then(function () {
               // the user is definitely authenticated here.
               if (self.relier.isDirectAccess()) {
+                setTimeout(function () {
+                  self.interTabSend(EVENTS.SIGNIN_SUCCESS, self.getAccount());
+                }, 0);
                 self.navigate('settings', {
                   success: t('Account verified successfully')
                 });
@@ -188,6 +194,7 @@ function (Cocktail, FormView, BaseView, Template, p, AuthErrors, Constants,
   Cocktail.mixin(
     View,
     ExperimentMixin,
+    InterTabChannelMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

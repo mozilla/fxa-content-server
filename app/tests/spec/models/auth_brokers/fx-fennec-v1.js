@@ -46,6 +46,22 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
       sinon.spy(broker, 'send');
     });
 
+    it('has the `signup` capability by default', function () {
+      assert.isTrue(broker.hasCapability('signup'));
+    });
+
+    it('has the `interTabSignIn` capability by default', function () {
+      assert.isTrue(broker.hasCapability('interTabSignIn'));
+    });
+
+    it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
+    });
+
+    it('has the `syncPreferencesNotification` capability by default', function () {
+      assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
+    });
+
     describe('afterForceAuth', function () {
       it('notifies the channel of `login`, redirects to `/force_auth_complete`', function () {
         return broker.afterForceAuth(account)
