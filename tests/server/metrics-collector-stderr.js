@@ -48,11 +48,31 @@ define([
         assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
         assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
 
+        assert.lengthOf(loggedMetrics.events, 10);
+        assert.lengthOf(loggedMetrics.event_durations, 6);
+
         assert.equal(loggedMetrics.events[0], 'firstEvent');
         assert.equal(loggedMetrics.event_durations[0], 1235);
 
         assert.equal(loggedMetrics.events[1], 'secondEvent');
         assert.equal(loggedMetrics.event_durations[1], 3512);
+
+        assert.equal(loggedMetrics.events[2], 'screen.signup');
+        assert.equal(loggedMetrics.event_durations[2], 3513);
+
+        assert.equal(loggedMetrics.events[3], 'screen.signin');
+        assert.equal(loggedMetrics.event_durations[3], 3514);
+
+        assert.equal(loggedMetrics.events[4], 'screen.confirm');
+        assert.equal(loggedMetrics.event_durations[4], 3515);
+
+        assert.equal(loggedMetrics.events[5], 'verify-email.verification.success');
+        assert.equal(loggedMetrics.event_durations[5], 3516);
+
+        assert.equal(loggedMetrics.events[6], 'flow.signup:menupanel');
+        assert.equal(loggedMetrics.events[7], 'flow.signin:menupanel');
+        assert.equal(loggedMetrics.events[8], 'flow.signup.success:menupanel');
+        assert.equal(loggedMetrics.events[9], 'flow.signup.verify:menupanel');
 
         assert.equal(loggedMetrics.service, 'sync');
         assert.equal(loggedMetrics.context, 'fx_desktop_v1');
@@ -94,6 +114,22 @@ define([
         {
           offset: 3512,
           type: 'secondEvent'
+        },
+        {
+          offset: 3513,
+          type: 'screen.signup'
+        },
+        {
+          offset: 3514,
+          type: 'screen.signin'
+        },
+        {
+          offset: 3515,
+          type: 'screen.confirm'
+        },
+        {
+          offset: 3516,
+          type: 'verify-email.verification.success'
         }
       ],
       lang: 'db_LB',
