@@ -78,7 +78,12 @@ define([], function () {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
-    DEFAULT_XHR_TIMEOUT_MS: 2500
+    DEFAULT_XHR_TIMEOUT_MS: 2500,
+
+    EVENTS: {
+      SIGNIN_SUCCESS: 'signin.success',
+      SIGNOUT_SUCCESS: 'signout.success'
+    }
   };
   /*eslint-enable sorting/sort-object-props*/
 });

@@ -271,6 +271,10 @@ define([
        */
       emailVerificationMarketingSnippet: true,
       /**
+       * Should the view try to synchronise sign-in state across tabs?
+       */
+      interTabSignIn: true,
+      /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
       signup: true,

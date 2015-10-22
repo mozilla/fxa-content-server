@@ -7,9 +7,9 @@ define([
   'jquery',
   'modal',
   'cocktail',
-  'lib/session',
   'views/base',
   'views/mixins/avatar-mixin',
+  'views/mixins/inter-tab-signout-mixin',
   'views/settings/avatar',
   'views/settings/avatar_change',
   'views/settings/avatar_crop',
@@ -26,14 +26,12 @@ define([
   'views/decorators/allow_only_one_submit',
   'stache!templates/settings'
 ],
-function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
+function ($, modal, Cocktail, BaseView, AvatarMixin, InterTabSignoutMixin,
   AvatarView, AvatarChangeView, AvatarCropView, AvatarCameraView, GravatarView,
   GravatarPermissionsView, CommunicationPreferencesView, ChangePasswordView,
   DeleteAccountView, DisplayNameView, SubPanels, SettingsMixin, LoadingMixin,
   allowOnlyOneSubmit, Template) {
   'use strict';
-
-  var t = BaseView.t;
 
   var PANEL_VIEWS = [
     AvatarView,
@@ -205,17 +203,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
           self.logViewEvent('signout.error');
         })
         .fin(function () {
-          self.logViewEvent('signout.success');
-          self.user.clearSignedInAccount();
-          // The user has manually signed out, a pretty strong indicator
-          // the user does not want any of their information pre-filled
-          // on the signin page. Clear any remaining formPrefill info
-          // to ensure their data isn't sticking around in memory.
-          self._formPrefill.clear();
-          Session.clear();
-          self.navigate('signin', {
-            success: t('Signed out successfully')
-          });
+          self.onSignOutSuccess();
         });
     }),
 
@@ -243,6 +231,7 @@ function ($, modal, Cocktail, Session, BaseView, AvatarMixin,
   Cocktail.mixin(
     View,
     AvatarMixin,
+    InterTabSignoutMixin,
     LoadingMixin,
     SettingsMixin
   );

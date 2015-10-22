@@ -4,26 +4,27 @@
 
 define([
   'cocktail',
+  'lib/auth-errors',
   'lib/promise',
+  'lib/session',
+  'stache!templates/sign_in',
   'views/base',
   'views/form',
-  'stache!templates/sign_in',
-  'lib/session',
-  'lib/auth-errors',
+  'views/decorators/allow_only_one_submit',
+  'views/decorators/progress_indicator',
+  'views/mixins/avatar-mixin',
+  'views/mixins/account-locked-mixin',
+  'views/mixins/inter-tab-signin-mixin',
+  'views/mixins/migration-mixin',
   'views/mixins/password-mixin',
   'views/mixins/resume-token-mixin',
   'views/mixins/service-mixin',
-  'views/mixins/signup-disabled-mixin',
-  'views/mixins/avatar-mixin',
-  'views/mixins/account-locked-mixin',
-  'views/mixins/migration-mixin',
-  'views/decorators/allow_only_one_submit',
-  'views/decorators/progress_indicator'
+  'views/mixins/signup-disabled-mixin'
 ],
-function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
-  AuthErrors, PasswordMixin, ResumeTokenMixin, ServiceMixin,
-  SignupDisabledMixin, AvatarMixin, AccountLockedMixin, MigrationMixin,
-  allowOnlyOneSubmit, showProgressIndicator) {
+function (Cocktail, AuthErrors, p, Session, SignInTemplate, BaseView, FormView,
+  allowOnlyOneSubmit, showProgressIndicator, AvatarMixin, AccountLockedMixin,
+  InterTabSignInMixin, MigrationMixin, PasswordMixin, ResumeTokenMixin,
+  ServiceMixin, SignupDisabledMixin) {
 
   'use strict';
 
@@ -302,6 +303,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
     View,
     AccountLockedMixin,
     AvatarMixin,
+    InterTabSignInMixin,
     MigrationMixin,
     PasswordMixin,
     ResumeTokenMixin,

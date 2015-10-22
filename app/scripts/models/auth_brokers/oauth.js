@@ -61,6 +61,12 @@ function (_, Constants, Url, OAuthErrors, AuthErrors, p, Validate,
       afterSignIn: new HaltBehavior()
     }),
 
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      // Disable inter-tab sign-in for OAuth due to the potential for unintended
+      // consequences from redirecting to a relier URL more than once.
+      interTabSignIn: false
+    }),
+
     initialize: function (options) {
       options = options || {};
 
