@@ -131,15 +131,6 @@ function (chai, NullChannel, FxFennecV1AuthenticationBroker, Relier,
           });
       });
     });
-
-    describe('openSyncPreferences', function () {
-      it('sends the `fxaccounts:sync_preferences` message', function () {
-        return broker.openSyncPreferences()
-          .then(function () {
-            assert.isTrue(broker.send.calledWith('fxaccounts:sync_preferences'));
-          });
-      });
-    });
   });
 });
 

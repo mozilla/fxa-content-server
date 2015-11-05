@@ -20,10 +20,6 @@ define([
   var FxFennecV1AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     type: 'fx-fennec-v1',
 
-    commands: _.extend({}, proto.commands, {
-      SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
-    }),
-
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
@@ -34,8 +30,7 @@ define([
           'tabs'
         ]
       },
-      emailVerificationMarketingSnippet: false,
-      syncPreferencesNotification: true
+      emailVerificationMarketingSnippet: false
     }),
 
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
@@ -55,16 +50,6 @@ define([
           });
         }
       });
-    },
-
-    /**
-     * Notify the browser that it should open sync preferences
-     *
-     * @method openSyncPreferences
-     * @returns {promise} resolves when notification is sent.
-     */
-    openSyncPreferences: function () {
-      return this.send(this.getCommand('SYNC_PREFERENCES'));
     }
   });
 

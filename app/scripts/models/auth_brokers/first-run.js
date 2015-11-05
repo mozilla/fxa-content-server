@@ -26,7 +26,8 @@ define([
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: true,
-      chooseWhatToSyncWebV1: false
+      chooseWhatToSyncWebV1: false,
+      syncPreferencesNotification: false
     }),
 
     initialize: function (options) {

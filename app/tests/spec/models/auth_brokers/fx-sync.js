@@ -35,7 +35,8 @@ define([
           CHANGE_PASSWORD: 'change_password',
           DELETE_ACCOUNT: 'delete_account',
           LOADED: 'loaded',
-          LOGIN: 'login'
+          LOGIN: 'login',
+          SYNC_PREFERENCES: 'sync_preferences'
         },
         window: windowMock
       }, options));
@@ -292,6 +293,15 @@ define([
             assert.equal(args[0], 'delete_account');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
+          });
+      });
+    });
+
+    describe('openSyncPreferences', function () {
+      it('sends the `sync_preferences` message', function () {
+        return broker.openSyncPreferences()
+          .then(function () {
+            assert.isTrue(channelMock.send.calledWith('sync_preferences'));
           });
       });
     });

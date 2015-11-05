@@ -96,6 +96,11 @@ Sent after the user successfully deletes their account. No response is expected.
 
 Sent after the user successfully changes their password. No response is expected. A change password causes a user's `unwrapBKey` to change, all data that is sent with `fxaccounts:login` is sent with `fxaccounts:change_password`.
 
+
+#### fxaccounts:sync_preferences
+Sent after the user clicks the `Sync preferences` button after the user
+verifies their email address. No data is sent. No response is expected.
+
 #### profile:change
 
 Sent after the user changes their avatar or display name. No response is
