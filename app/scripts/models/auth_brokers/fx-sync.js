@@ -162,6 +162,16 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Notify the browser that it should open sync preferences
+     *
+     * @method openSyncPreferences
+     * @returns {promise} resolves when notification is sent.
+     */
+    openSyncPreferences: function () {
+      return this.send(this.getCommand('SYNC_PREFERENCES'));
+    },
+
+    /**
      * Get a reference to a channel. If a channel has already been created,
      * the cached channel will be returned. Used by the ChannelMixin.
      *

@@ -111,12 +111,24 @@ define([
         .end()
 
         .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          assert.ok(text.indexOf('Firefox Sync') > -1);
-        })
-
+          .getVisibleText()
+          .then(function (text) {
+            assert.ok(text.indexOf('Firefox Sync') > -1);
+          })
         .end()
+
+          // user can open sync preferences in new tab.
+        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+
+        // user should be able to open sync preferences
+        .findByCssSelector('#sync-preferences')
+          // user wants to open sync preferences.
+          .click()
+        .end()
+
+        // browser is notified of desire to open Sync preferences
+        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
+
         .closeCurrentWindow()
 
         // switch to the original window, it should not transition.
