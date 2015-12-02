@@ -754,13 +754,15 @@ define([
         .findByCssSelector(selector)
         .end()
 
-        .executeAsync(function (selector, done) {
+        .execute(function (selector) {
           // remove the attribute so subsequent checks can be made
           // against the same element. displaySuccess and displayError
           // will re-add the 'data-shown' attribute.
-          $(selector).removeAttr('data-shown');
-          done();
-        }, [selector]);
+          $(selector).removeAttr('data-shown').css('display', 'none');
+        }, [selector])
+        // on small resolutions the notification might overlay the "Signout" button
+        // display:none style and a sleep gets rid of the notification as quickly as possible.
+        .sleep(1000);
     };
   }
 
