@@ -16,9 +16,10 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
+  var client;
   var email;
   var PASSWORD = '12345678';
-  var client;
+  var TIMEOUT = 90 * 1000;
 
   function fillOutSignUp(context, email, password) {
     return FunctionalHelpers.fillOutSignUp(context, email, password);
@@ -56,6 +57,7 @@ define([
 
     'sign up, verify same browser': function () {
       var self = this;
+
       return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
@@ -83,6 +85,8 @@ define([
 
     'sign up, verify same browser with original tab closed, sign out': function () {
       var self = this;
+      self.timeout = TIMEOUT;
+
       return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
@@ -126,6 +130,8 @@ define([
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = TestHelpers.createEmail();
       var self = this;
+      self.timeout = TIMEOUT;
+
       return fillOutSignUp(this, email, PASSWORD)
         .then(function () {
           return testAtConfirmScreen(self, email);
@@ -369,6 +375,8 @@ define([
         // message.
         .findByCssSelector('#fxa-settings-header')
         .end()
+
+        .then(FunctionalHelpers.testSuccessWasShown(self))
 
         .findByCssSelector('#signout')
           .click()
