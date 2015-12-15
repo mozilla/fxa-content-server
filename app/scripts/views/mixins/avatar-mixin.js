@@ -8,10 +8,13 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var p = require('lib/promise');
   var AuthErrors = require('lib/auth-errors');
   var Notifier = require('lib/channels/notifier');
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
+
+  var MAX_SPINNER_COMPLETE_TIME = 800; // ms
 
   var Mixin = {
     notifications: {
@@ -22,7 +25,7 @@ define(function (require, exports, module) {
       // implement in view
     },
 
-    displayAccountProfileImage: function (account, wrapperClass) {
+    displayAccountProfileImage: function (account, wrapperClass, showSpinner) {
       var self = this;
       if (! wrapperClass) {
         wrapperClass = '.avatar-wrapper';
@@ -33,9 +36,13 @@ define(function (require, exports, module) {
       if (self._shouldShowDefaultProfileImage(account)) {
         self.$(wrapperClass).addClass('with-default');
       }
+      else if (showSpinner) {
+        self._addLoadingSpinner(self.$(wrapperClass).addClass('with-spinner'));
+      }
 
       return account.fetchCurrentProfileImage()
         .then(function (profileImage) {
+
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
           self._updateCachedProfileImage(profileImage, account);
@@ -50,15 +57,31 @@ define(function (require, exports, module) {
           return new ProfileImage();
         })
         .then(function (profileImage) {
+          if (showSpinner) {
+            // Wait for an upper limit of MAX_SPINNER_COMPLETE_TIME before
+            // showing the profile image.  May only be necessary to satisfy
+            // tests.
+            return p.allSettled([
+              self._completeLoadingSpinner(self.$(wrapperClass))
+                .timeout(MAX_SPINNER_COMPLETE_TIME)])
+              .then(function() { return profileImage; });
+          }
+          else {
+            return p(profileImage);
+          }
+        })
+        .then(function (profileImage) {
           self._displayedProfileImage = profileImage;
 
           if (profileImage.isDefault()) {
-            self.$(wrapperClass).addClass('with-default');
-            self.$(wrapperClass).html('<span></span>');
+            self.$(wrapperClass)
+              .addClass('with-default')
+              .append('<span></span>');
             self.logViewEvent('profile_image_not_shown');
           } else {
-            self.$(wrapperClass).removeClass('with-default');
-            self.$(wrapperClass).html(profileImage.get('img'));
+            self.$(wrapperClass)
+              .removeClass('with-default')
+              .append( $(profileImage.get('img')).addClass('profile-image') );
             self.logViewEvent('profile_image_shown');
           }
         });
@@ -79,6 +102,29 @@ define(function (require, exports, module) {
 
     _shouldShowDefaultProfileImage: function (account) {
       return ! account.has('profileImageUrl');
+    },
+
+    _addLoadingSpinner: function ($wrapperClass) {
+      $wrapperClass.append('<span class="avatar-spinner"></span>');
+    },
+
+    // "Completes" the spinner, transitioning the semi-circle to a circle, and
+    // then removes the spinner element.
+    _completeLoadingSpinner: function ($wrapperClass) {
+      var deferred = p.defer();
+      var $spinner = $wrapperClass.find('.avatar-spinner');
+      $spinner.addClass('completed')
+        .on('transitionend', function (evt) {
+          // Hook on the transition event of the ::after pseudoelement, which
+          // which "expands" to hide the spinner.
+          if (evt.originalEvent.pseudoElement === '::after') {
+            $spinner.remove();
+          }
+          else {
+            deferred.resolve();
+          }
+        });
+      return deferred.promise;
     },
 
     logAccountImageChange: function (account) {

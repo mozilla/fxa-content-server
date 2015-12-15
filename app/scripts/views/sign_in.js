@@ -85,7 +85,9 @@ define(function (require, exports, module) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getAccount());
+      return this.displayAccountProfileImage(this.getAccount(),
+                                             null /* wrapper */,
+                                             true /* showSpinner */);
     },
 
     beforeDestroy: function () {

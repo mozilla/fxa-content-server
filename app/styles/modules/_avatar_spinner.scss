@@ -1,0 +1,96 @@
+.with-spinner .profile-image {
+  animation: $profile-image-fade-in-duration ease-in 1 both fadein;
+}
+
+%fill-avatar {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.avatar-spinner {
+  $rotation-period: 2s; // Time for the spinner to make a single rotation
+  $fade-in-delay: 200ms;
+  $fade-in-duration: 200ms;
+  $complete-duration: 200ms;
+  $center-expand-delay: $complete-duration;
+  $center-expand-duration: 200ms;
+
+  $arc-width: 3%; // Percent that the overlay should be shrunk by, to reveal the spinner band.
+  $solid-part-width: 75%;
+
+  @extend %fill-avatar;
+
+  // Fade in the spinner, to try to reduce flash of spinner, in addition to its
+  // continual rotation.
+  animation: $rotation-period linear infinite spin,
+    $fade-in-duration linear 1 $fade-in-delay both fadein;
+
+  // The spinner is comprised of a background section covering the left portion
+  // of the element, and an inset box shadow emanating from the bottom left.
+  background: {
+    color: $content-background-color;
+    image: linear-gradient($avatar-spinner-color, $avatar-spinner-color);
+    position: left;
+    repeat: no-repeat;
+    size: $solid-part-width;
+  }
+  box-shadow: inset $avatar-size/8 $avatar-size/-8 $avatar-size/16 $avatar-spinner-color;
+  left: 0;
+  position: absolute;
+  top: 0;
+
+  &.completed {
+    // Keep the spinner spinning, but don't let it fade out again
+    animation-play-state: running, paused;
+  }
+
+  &::before {
+    @extend %fill-avatar;
+
+    // A second solid background, comprised of the left 75% of the element,
+    // overlaid upon the top of the underlying first, used to advance the "head"
+    // of the spinner when it completes.
+    background: {
+      image: linear-gradient($avatar-spinner-color, $avatar-spinner-color);
+      size: $solid-part-width;
+      position: left;
+      repeat: no-repeat;
+    }
+    content: '';
+
+    // When the spinner completes, this pseudoelement spins clockwise,
+    // making the ring 100% solid
+    transform: rotate(0deg);
+    transition: {
+      duration: $complete-duration;
+      property: transform;
+      timing-function: ease-in;
+    }
+  }
+  &.completed::before {
+    transform: rotate(90deg);
+  }
+
+  &::after {
+    // Overlay a slightly-smaller circle of the background color over the
+    // element, so it appears as a ring
+    @extend %fill-avatar;
+    background-color: $content-background-color;
+    content: '';
+    left: 0;
+    position: absolute;
+    transform: scale(1 - $arc-width / 100%);
+    transition: {
+      delay: $center-expand-delay;
+      duration: $center-expand-duration;
+      property: transform;
+      timing-function: ease-in-out;
+    }
+    top: 0;
+  }
+  &.completed::after {
+    transform: scale(1 + $arc-width / 100%);
+  }
+}
