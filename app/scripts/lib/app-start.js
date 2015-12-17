@@ -599,6 +599,30 @@ define(function (require, exports, module) {
       // immediately redirected
       var startPage = this._selectStartPage();
       var isSilent = !! startPage;
+
+      if (usePushState) {
+        // There was a change in Firefox where the initial page in
+        // about:accounts does not create a history entry and the
+        // previous history entry is `about:blank`. If the user signs up,
+        // goes to choose what to sync and then clicks "back",
+        // the screen does not transition.
+        //
+        // This replaces the `about:blank` entry with the current page when
+        // embedded in about:accounts, and if the user just loads
+        // accounts.firefox.com, it should effectively be a noOp.
+        //
+        // See #3329
+        try {
+          This._window.history.replaceState(
+              {}, document.title, this._window.location.href);
+        } catch (e) {
+          // This happens if the user refreshes
+          // about:accounts?action=signup. History is now botched. Should
+          // we present a message to the user "No way Jose"
+          // See #3335
+        }
+      }
+
       this._history.start({ pushState: usePushState, silent: isSilent });
       if (startPage) {
         this._router.navigate(startPage);
