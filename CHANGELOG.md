@@ -1,3 +1,22 @@
+<a name="0.53.1"></a>
+## 0.53.1 (2016-01-05)
+
+
+### Bug Fixes
+
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([09d8533](https://github.com/mozilla/fxa-content-server/commit/09d8533))
+* **docs:** remove outdated Docker docs ([4487573](https://github.com/mozilla/fxa-content-server/commit/4487573))
+* **metrics:** optimize StatsD tags for performance ([207556a](https://github.com/mozilla/fxa-content-server/commit/207556a)), closes [#3349](https://github.com/mozilla/fxa-content-server/issues/3349)
+* **signup:** disallow @firefox email field during sign up ([56465b2](https://github.com/mozilla/fxa-content-server/commit/56465b2)), closes [#3332](https://github.com/mozilla/fxa-content-server/issues/3332)
+* **sourcemap:** add head.js sourcemap ([fdb822c](https://github.com/mozilla/fxa-content-server/commit/fdb822c)), closes [#3355](https://github.com/mozilla/fxa-content-server/issues/3355)
+* **styles:** update age styles to work properly in latest Firefox ([c6da26c](https://github.com/mozilla/fxa-content-server/commit/c6da26c))
+
+### Refactor
+
+* **metrics:** remove unused metrics tags ([d086fa0](https://github.com/mozilla/fxa-content-server/commit/d086fa0)), closes [#3346](https://github.com/mozilla/fxa-content-server/issues/3346)
+
+
+
 <a name="0.53.0"></a>
 # 0.53.0 (2015-12-30)
 
