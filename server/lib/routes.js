@@ -34,7 +34,8 @@ module.exports = function (config, i18n) {
     require('./routes/get-metrics-errors')(),
     require('./routes/get-openid-login')(config),
     require('./routes/get-openid-authenticate')(config),
-    require('./routes/get-openid-configuration')(config)
+    require('./routes/get-openid-configuration')(config),
+    require('./routes/get-fxa-client-configuration')(config)
   ];
 
   function addVersionPrefix(unversionedUrl) {
