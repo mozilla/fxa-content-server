@@ -1,3 +1,13 @@
+<a name="0.55.1"></a>
+## 0.55.1 (2016-02-01)
+
+
+### Bug Fixes
+
+* **experiments:** update to train-55 experiments ([ec15233](https://github.com/mozilla/fxa-content-server/commit/ec15233))
+
+
+
 <a name="0.55.0"></a>
 # 0.55.0 (2016-01-26)
 
