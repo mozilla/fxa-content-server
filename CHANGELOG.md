@@ -1,3 +1,13 @@
+<a name="0.55.2"></a>
+## 0.55.2 (2016-02-03)
+
+
+### Bug Fixes
+
+* **metrics:** Send an error's context as a Sentry report tag. ([abac14a](https://github.com/mozilla/fxa-content-server/commit/abac14a)), closes [#3470](https://github.com/mozilla/fxa-content-server/issues/3470)
+
+
+
 <a name="0.55.1"></a>
 ## 0.55.1 (2016-02-01)
 
