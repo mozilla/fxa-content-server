@@ -1,3 +1,17 @@
+<a name="0.56.1"></a>
+## 0.56.1 (2016-02-19)
+
+
+### Bug Fixes
+
+* **client:** Fix uploading an avatar from file ([0bafc2a](https://github.com/mozilla/fxa-content-server/commit/0bafc2a)), closes [#3519](https://github.com/mozilla/fxa-content-server/issues/3519)
+
+### Refactor
+
+* **test:** Image uploader functional tests upload images. ([7aed7fc](https://github.com/mozilla/fxa-content-server/commit/7aed7fc))
+
+
+
 <a name="0.56.0"></a>
 # 0.56.0 (2016-02-10)
 
