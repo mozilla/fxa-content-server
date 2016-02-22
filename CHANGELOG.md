@@ -1,3 +1,13 @@
+<a name="0.56.2"></a>
+## 0.56.2 (2016-02-22)
+
+
+### Bug Fixes
+
+* **client:** Fix password reset in e10s. ([b67296e](https://github.com/mozilla/fxa-content-server/commit/b67296e))
+
+
+
 <a name="0.56.1"></a>
 ## 0.56.1 (2016-02-19)
 
