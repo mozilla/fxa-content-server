@@ -64,7 +64,25 @@ define(function (require, exports, module) {
       openGmailButtonVisible: true
     }),
 
-    type: 'fx-desktop-v2'
+    type: 'fx-desktop-v2',
+
+    afterResetPasswordConfirmationPoll: function (/*account*/) {
+      // this is only called if the user verifies in the same browser.
+      // With Fx's E10s enabled, the account data only contains an
+      // unwrapBKey and keyFetchToken, not enough to sign in the user.
+      // Luckily, with WebChannels, the verification page can send
+      // the data to the browser and everybody is happy
+      return p(new HaltBehavior());
+    },
+
+    afterCompleteResetPassword: function (account) {
+      var self = this;
+      // See the note in afterResetPasswordConfirmationPoll
+      return self._notifyRelierOfLogin(account)
+        .then(function () {
+          return proto.afterCompleteResetPassword.call(self, account);
+        });
+    }
   });
 
   module.exports = FxDesktopV2AuthenticationBroker;
