@@ -1,3 +1,13 @@
+<a name="0.56.3"></a>
+## 0.56.3 (2016-02-23)
+
+
+### Bug Fixes
+
+* **tests:** adjust case sensitive tests for sync v2 ([e8c3bb5](https://github.com/mozilla/fxa-content-server/commit/e8c3bb5))
+
+
+
 <a name="0.56.2"></a>
 ## 0.56.2 (2016-02-22)
 
