@@ -32,24 +32,20 @@ define(function (require, exports, module) {
         return false;
       }
 
-      var parts = email.split('@');
-
-      var localLength = parts[0] && parts[0].length;
-      var domainLength = parts[1] && parts[1].length;
-
-      // Original regexp from:
-      //  http://blog.gerv.net/2011/05/html5_email_address_regexp/
-      // Modified to remove the length checks, which are done later.
-      // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-      // NOTE: this does *NOT* allow internationalized domain names.
-      return (/^[\w.!#$%&'*+\-\/=?\^`{|}~]+@[a-z\d][a-z\d\-]*(?:\.[a-z\d][a-z\d\-]*)*$/i).test(email) &&
-          // total email allwed to be 256 bytes long
-        email.length <= 256 &&
-          // local side only allowed to be 64 bytes long
-        1 <= localLength && localLength <= 64 &&
-          // domain side allowed to be up to 255 bytes long which
-          // doesn't make much sense unless the local side has 0 length;
-        1 <= domainLength && domainLength <= 255;
+      return email.length <= 256 &&
+        // Original regex:
+        //   * http://blog.gerv.net/2011/05/html5_email_address_regexp/
+        // Modifications:
+        //   * Use case-insensitive regex, delete explicit `A-Z` ranges.
+        //   * Replace `0-9` ranges with `\d` character class.
+        //   * Replace local part `+` with `{1,64}`, to enforce maximum
+        //     64-character limit for the local part.
+        //   * Replace final domain part `*` with `+`, to enforce at least
+        //     one period in the domain part (conent server issue 2199).
+        // IETF spec:
+        //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
+        // NOTE: this does *NOT* allow internationalized domain names.
+        /^[a-z\d.!#$%&’*+/=?^_`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i.test(email);
     },
 
     /**
