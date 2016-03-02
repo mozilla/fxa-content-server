@@ -8,6 +8,13 @@ var fs = require('fs');
 var path = require('path');
 
 var conf = module.exports = convict({
+  activity_events: {
+    sample_rate: {
+      default: 0.1,
+      doc: 'number between 0 (no activity events) and 1 (activity event on each request)',
+      format: Number
+    }
+  },
   allowed_parent_origins: {
     default: [],
     doc: 'Origins that are allowed to embed the FxA within an IFRAME',
