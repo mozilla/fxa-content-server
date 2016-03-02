@@ -1,3 +1,13 @@
+<a name="0.57.1"></a>
+## 0.57.1 (2016-03-02)
+
+
+### Bug Fixes
+
+* **build:** copy error pages into dist, not app ([4319c28](https://github.com/mozilla/fxa-content-server/commit/4319c28))
+
+
+
 <a name="0.57.0"></a>
 # 0.57.0 (2016-02-23)
 
