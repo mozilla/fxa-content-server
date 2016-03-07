@@ -59,8 +59,13 @@ define(function (require, exports, module) {
       options = options || {};
 
       MarketingSnippetView.prototype.initialize.call(this, options);
+      this._account = this.user.getSignedInAccount();
 
       this._language = options.language;
+    },
+
+    getAccount: function () {
+      return this._account;
     },
 
     context: function () {
@@ -78,6 +83,12 @@ define(function (require, exports, module) {
         playStoreImage: playStoreImage,
         showSignUpMarketing: shouldShowMarketing
       };
+    },
+
+    submit: function () {
+      this.logViewEvent('sms');
+      var phoneNumber = this.getElementValue('#phone-number');
+      return this.getAccount().sendSmsInstallLink(phoneNumber);
     },
 
     _isIos: function () {

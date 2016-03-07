@@ -118,6 +118,18 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Send an SMS message to a phone number
+     *
+     * @method sendSms
+     * @param {String} phoneNumber
+     * @param {String} newsletterId
+     * @returns {Promise}
+     */
+    sendSms: function (phoneNumber, messageId) {
+      return this._withMarketingEmailClient('sendSms', phoneNumber, messageId);
+    },
+
+    /**
      * Check if the user is opted in to a newsletter
      *
      * @method isOptedIn

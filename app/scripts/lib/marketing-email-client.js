@@ -64,6 +64,16 @@ define(function (require, exports, module) {
       return this._request('post', '/unsubscribe', accessToken, {
         newsletters: newsletterId
       });
+    },
+
+    sendSms: function (accessToken, phoneNumber, messageName) {
+      /*eslint-disable camelcase*/
+      return this._request('post', '/subscribe_sms', accessToken, {
+        mobile_number: phoneNumber,
+        msg_name: messageName,
+        optin: 'N'
+      });
+      /*eslint-enable camelcase*/
     }
   };
 

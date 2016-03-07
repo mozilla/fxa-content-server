@@ -94,6 +94,8 @@ define(function (require, exports, module) {
 
     MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey',
 
+    SMS_INSTALL_LINK_ID: 'SMS_Android',
+
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 

@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   var Session = require('lib/session');
   var sinon = require('sinon');
   var SyncRelier = require('models/reliers/sync');
+  var User = require('models/user');
   var View = require('views/ready');
   var WindowMock = require('../../mocks/window');
 
@@ -26,6 +27,7 @@ define(function (require, exports, module) {
     var broker;
     var able;
     var metrics;
+    var user;
 
     function createDeps() {
       windowMock = new WindowMock();
@@ -44,6 +46,7 @@ define(function (require, exports, module) {
         flush: sinon.spy(p),
         logMarketingImpression: function () {}
       };
+      user = new User();
     }
 
     function createView(type) {
@@ -54,6 +57,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         relier: relier,
         type: type,
+        user: user,
         window: windowMock
       });
     }

@@ -12,13 +12,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
+  var FormView = require('views/form');
   var MarketingMixin = require('views/mixins/marketing-mixin');
   var Template = require('stache!templates/marketing_snippet');
 
-  var View = BaseView.extend({
+  var View = FormView.extend({
     template: Template,
 
     initialize: function (options) {

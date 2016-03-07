@@ -118,5 +118,27 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('sendSms', function () {
+      it('sends a SMS message', function () {
+        sinon.spy(xhrMock, 'ajax');
+
+        return client.sendSms('token', 'phone_number', 'msg_id')
+          .then(function () {
+            var request = xhrMock.ajax.args[0][0];
+            assert.equal(request.url, BASE_URL + '/subscribe_sms');
+            assert.equal(request.type, 'post');
+            assert.include(request.headers.Authorization, 'token');
+            /*eslint-disable camelcase*/
+            assert.deepEqual(request.data, {
+              mobile_number: 'phone_number',
+              msg_name: 'msg_id',
+              optin: 'N'
+            });
+            /*eslint-enable camelcase*/
+          });
+      });
+    });
+
   });
 });

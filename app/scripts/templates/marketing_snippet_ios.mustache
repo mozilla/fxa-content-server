@@ -26,6 +26,15 @@
             {{#t}}Download Firefox for mobile devices.{{/t}}
           </p>
 
+          <form class="marketing-sms-link">
+            <div class="input-row">
+              <input placeholder="{{#t}}Phone number{{/t}}" type="text" id="phone-number" class="phone" />
+            </div>
+            <div class="button-row">
+              <button id="submit-btn" type="submit" class="disabled">{{#t}}Send SMS link{{/t}}</button>
+            </div>
+          </form>
+
           <ul>
             <li>
                 <a class="marketing-link marketing-link-android" href="https://play.google.com/store/apps/details?id=org.mozilla.firefox&amp;referrer=utm_source%3Dmozilla%26utm_medium%3DReferral%26utm_campaign%3Dsync-desktop-snippet" data-marketing-id="spring-2015-android-ios-sync"><img width="129" height="45" src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}"></a>
