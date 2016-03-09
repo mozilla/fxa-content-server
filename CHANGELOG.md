@@ -1,3 +1,13 @@
+<a name="0.57.2"></a>
+## 0.57.2 (2016-03-09)
+
+
+### Bug Fixes
+
+* **client:** Only normalize scopes for trusted reliers when prompting for consent. ([48d4684](https://github.com/mozilla/fxa-content-server/commit/48d4684))
+
+
+
 <a name="0.57.1"></a>
 ## 0.57.1 (2016-03-02)
 
