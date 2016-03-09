@@ -34,6 +34,7 @@ define(function (require, exports, module) {
     var ACTION = 'signup';
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var PERMISSIONS_EXPANDED_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION;
+    var PERMISSIONS_PROFILE = [Constants.OAUTH_TRUSTED_PROFILE_SCOPE];
     var PERMISSIONS_WITH_UNRECOGNIZED = ['profile:email', 'profile:uid', 'profile:unrecognized'];
     var PREVERIFY_TOKEN = 'abigtoken';
     var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
@@ -251,10 +252,11 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('`profile` scope', function () {
+        describe('`profile` scope with consent prompt', function () {
           beforeEach(function () {
             windowMock.location.search = TestHelpers.toSearchString({
               client_id: CLIENT_ID,
+              prompt: PROMPT,
               scope: SCOPE_PROFILE
             });
 
@@ -268,6 +270,22 @@ define(function (require, exports, module) {
           });
         });
 
+        describe('`profile` scope without consent prompt', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({
+              client_id: CLIENT_ID,
+              scope: SCOPE_PROFILE,
+            });
+
+            return relier.fetch();
+          });
+
+          it('is not expanded to individual components', function () {
+            assert.equal(relier.get('scope'), SCOPE_PROFILE);
+            testPermissionsEqual(
+              relier.get('permissions'), PERMISSIONS_PROFILE);
+          });
+        });
       });
 
       it('errors if `client_id` is missing', function () {
