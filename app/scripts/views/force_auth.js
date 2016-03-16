@@ -43,7 +43,7 @@ define(function (require, exports, module) {
       return {
         email: email,
         fatalError: getFatalErrorMessage(this, fatalError),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+       // isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         password: this._formPrefill.get('password')
       };
     },

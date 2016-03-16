@@ -162,7 +162,7 @@ define(function (require, exports, module) {
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+       // isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,

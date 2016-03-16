@@ -24,11 +24,12 @@ define(function (require, exports, module) {
     className: 'change-password',
     viewName: 'settings.change-password',
 
-    context: function () {
+  /*  context: function () {
       return {
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
     },
+    */
 
     submit: function () {
       var self = this;
