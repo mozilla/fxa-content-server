@@ -127,48 +127,6 @@ define(function (require, exports, module) {
         assert.equal(model.get('campaign'), CAMPAIGN);
         assert.isFalse(model.has('notResumeable'), 'only allow specific resume token values');
       });
-
-      it('does not call sentryMetrics.captureException', function () {
-        assert.strictEqual(sentryMetrics.captureException.callCount, 0);
-      });
-    });
-
-    describe('populateFromStringifiedResumeToken with invalid data', function () {
-      beforeEach(function () {
-        var stringifiedResumeToken = ResumeToken.stringify(INVALID_RESUME_DATA);
-        model.populateFromStringifiedResumeToken(stringifiedResumeToken);
-      });
-
-      it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
-      });
-
-      it('called sentryMetrics.captureException correctly', function () {
-        assert.strictEqual(sentryMetrics.captureException.callCount, 1);
-        var args = sentryMetrics.captureException.args[0];
-        assert.lengthOf(args, 1);
-        assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Invalid property in resume token: campaign');
-      });
-    });
-
-    describe('populateFromStringifiedResumeToken with missing data', function () {
-      beforeEach(function () {
-        var stringifiedResumeToken = ResumeToken.stringify(MISSING_RESUME_DATA);
-        model.populateFromStringifiedResumeToken(stringifiedResumeToken);
-      });
-
-      it('does not populate the model', function () {
-        assert.isFalse(model.has('campaign'));
-      });
-
-      it('called sentryMetrics.captureException correctly', function () {
-        assert.strictEqual(sentryMetrics.captureException.callCount, 1);
-        var args = sentryMetrics.captureException.args[0];
-        assert.lengthOf(args, 1);
-        assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Missing property in resume token: campaign');
-      });
     });
   });
 });

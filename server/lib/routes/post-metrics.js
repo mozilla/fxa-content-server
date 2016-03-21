@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var activityEvent = require('../activity-event');
 var config = require('../configuration');
 var MetricsCollector = require('../metrics-collector-stderr');
 var StatsDCollector = require('../statsd-collector');
@@ -47,6 +48,19 @@ module.exports = function () {
           statsd.write(metrics);
         }
         ga.write(metrics);
+
+        var events = metrics.events || [];
+        var hasFlowBeginEvent = events.some(function (event) {
+          return event.type === 'flow.begin';
+        });
+
+        if (hasFlowBeginEvent) {
+          activityEvent('flow.begin', {
+            flow_id: metrics.flowId, //eslint-disable-line camelcase
+            flow_time: 0, //eslint-disable-line camelcase
+            time: metrics.flowBeginTime
+          }, req);
+        }
       });
     }
   };

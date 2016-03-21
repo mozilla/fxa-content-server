@@ -18,7 +18,10 @@ define(function (require, exports, module) {
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
+  var SearchParamMixin = require('models/mixins/search-param');
   var Storage = require('lib/storage');
+  var uuid = require('uuid');
+  var vat = require('lib/vat');
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -40,14 +43,38 @@ define(function (require, exports, module) {
       // consumers so that they don't have to refetch the account's
       // ephemeral data, e.g. OAuth access tokens.
       this._cachedSignedInAccount = null;
+
+      this.window = options.window || window;
+      this.fetch();
     },
 
     defaults: {
+      // flowId identifies an event flow, which may span across multiple devices.
+      flowId: null,
       // uniqueUserId is a stable identifier for this User on this computer.
       uniqueUserId: null
     },
 
-    resumeTokenFields: ['uniqueUserId'],
+    resumeTokenFields: ['flowId', 'uniqueUserId'],
+
+    resumeTokenSchema: {
+      flowId: vat.hex().len(64),
+      uniqueUserId: vat.uuid()
+    },
+
+    // Hydrate the model. Returns a promise.
+    fetch: function () {
+      var self = this;
+
+      return p()
+        .then(function () {
+          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+          if (! self.has('flowId')) {
+            var flowId = (uuid.v4() + uuid.v4()).replace(/-/g, '');
+            self.set('flowId', flowId);
+          }
+        });
+    },
 
     _accounts: function () {
       return this._storage.get('accounts') || {};
@@ -529,7 +556,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     User,
-    ResumeTokenMixin
+    ResumeTokenMixin,
+    SearchParamMixin
   );
 
   module.exports = User;
