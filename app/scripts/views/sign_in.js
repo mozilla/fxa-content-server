@@ -77,7 +77,8 @@ define(function (require, exports, module) {
 
     events: {
       'click .use-different': 'useDifferentAccount',
-      'click .use-logged-in': 'useLoggedInAccount'
+      'click .use-logged-in': 'useLoggedInAccount',
+      'keypress .input-row': 'hideSuccessAndErrorMessages'
     },
 
     afterRender: function () {
@@ -93,6 +94,12 @@ define(function (require, exports, module) {
     beforeDestroy: function () {
       this._formPrefill.set('email', this.getElementValue('.email'));
       this._formPrefill.set('password', this.getElementValue('.password'));
+    },
+
+    hideSuccessAndErrorMessages: function () {
+      $(this.el).off('keypress', '.input-row');
+      BaseView.prototype.hideSuccess.apply(this, arguments);
+      BaseView.prototype.hideError.apply(this, arguments);
     },
 
     submit: function () {
