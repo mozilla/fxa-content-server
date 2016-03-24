@@ -23,6 +23,12 @@ define(function (require, exports, module) {
   var uuid = require('uuid');
   var vat = require('lib/vat');
 
+  function createHex32 () {
+    // Compose a random 32-byte hex value from two UUIDs
+    // concatenated with the hyphens stripped out.
+    return (uuid.v4() + uuid.v4()).replace(/-/g, '');
+  }
+
   var User = Backbone.Model.extend({
     initialize: function (options) {
       options = options || {};
@@ -70,8 +76,7 @@ define(function (require, exports, module) {
         .then(function () {
           self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
           if (! self.has('flowId')) {
-            var flowId = (uuid.v4() + uuid.v4()).replace(/-/g, '');
-            self.set('flowId', flowId);
+            self.set('flowId', createHex32());
           }
         });
     },
@@ -399,6 +404,7 @@ define(function (require, exports, module) {
 
       return account.signOut()
         .fin(function () {
+          self.unset('flowId');
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
           if (self.isSignedInAccount(account)) {
