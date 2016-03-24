@@ -6,11 +6,12 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!bluebird',
+  'intern/dojo/node!lodash',
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
   'intern/dojo/node!../helpers/init-logging'
-], function (registerSuite, assert, Promise, path, proxyquire, sinon, initLogging) {
+], function (registerSuite, assert, Promise, _, path, proxyquire, sinon, initLogging) {
   var mocks, route, instance;
 
   registerSuite({
@@ -79,34 +80,15 @@ define([
 
       'route.process': {
         setup: function () {
-          mocks.request = {
-            body: {
-              events: [
-                { type: 'foo' },
-                { type: 'bar' },
-                { type: 'flow.begin' },
-                { type: 'baz' }
-              ],
+          setupMetricsHandlerTests({
+            data: {
               flowBeginTime: 42,
               flowId: 'qux',
               isSampledUser: true
             },
-            get: sinon.spy(function (header) {
-              switch (header.toLowerCase()) {
-              case 'content-type':
-                return 'application/json';
-              case 'user-agent':
-                return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0';
-              }
-              return '';
-            })
-          };
-          mocks.response = { json: sinon.spy() };
-          mocks.nextTick = sinon.spy();
-          var nextTickCopy = process.nextTick;
-          process.nextTick = mocks.nextTick;
-          instance.process(mocks.request, mocks.response);
-          process.nextTick = nextTickCopy;
+            events: [ 'foo', 'bar', 'flow.begin', 'baz' ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+          });
         },
 
         'response.json was called correctly': function () {
@@ -181,33 +163,15 @@ define([
 
       'route.process without flow.begin event': {
         setup: function () {
-          mocks.request = {
-            body: {
-              events: [
-                { type: 'foo' },
-                { type: 'bar' },
-                { type: 'baz' }
-              ],
+          setupMetricsHandlerTests({
+            data: {
               flowBeginTime: 42,
               flowId: 'qux',
               isSampledUser: true
             },
-            get: sinon.spy(function (header) {
-              switch (header.toLowerCase()) {
-              case 'content-type':
-                return 'application/json';
-              case 'user-agent':
-                return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0';
-              }
-              return '';
-            })
-          };
-          mocks.response = { json: sinon.spy() };
-          mocks.nextTick = sinon.spy();
-          var nextTickCopy = process.nextTick;
-          process.nextTick = mocks.nextTick;
-          instance.process(mocks.request, mocks.response);
-          process.nextTick = nextTickCopy;
+            events: [ 'foo', 'bar', 'baz' ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+          });
         },
 
         'response.json was called': function () {
@@ -247,33 +211,14 @@ define([
 
       'route.process without isSampledUser': {
         setup: function () {
-          mocks.request = {
-            body: {
-              events: [
-                { type: 'foo' },
-                { type: 'bar' },
-                { type: 'flow.begin' },
-                { type: 'baz' }
-              ],
+          setupMetricsHandlerTests({
+            data: {
               flowBeginTime: 42,
               flowId: 'qux'
             },
-            get: sinon.spy(function (header) {
-              switch (header.toLowerCase()) {
-              case 'content-type':
-                return 'application/json';
-              case 'user-agent':
-                return 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0';
-              }
-              return '';
-            })
-          };
-          mocks.response = { json: sinon.spy() };
-          mocks.nextTick = sinon.spy();
-          var nextTickCopy = process.nextTick;
-          process.nextTick = mocks.nextTick;
-          instance.process(mocks.request, mocks.response);
-          process.nextTick = nextTickCopy;
+            events: [ 'foo', 'bar', 'flow.begin', 'baz' ],
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+          });
         },
 
         'response.json was called': function () {
@@ -313,32 +258,17 @@ define([
 
       'route.process with text/plain Content-Type': {
         setup: function () {
-          mocks.request = {
-            body: JSON.stringify({
-              events: [
-                { type: 'flow.begin' },
-                { type: 'foo' }
-              ],
+          setupMetricsHandlerTests({
+            contentType: 'text/plain',
+            data: {
               flowBeginTime: 77,
               flowId: 'bar',
               isSampledUser: true
-            }),
-            get: sinon.spy(function (header) {
-              switch (header.toLowerCase()) {
-              case 'content-type':
-                return 'text/plain';
-              case 'user-agent':
-                return 'baz';
-              }
-              return '';
-            })
-          };
-          mocks.response = { json: sinon.spy() };
-          mocks.nextTick = sinon.spy();
-          var nextTickCopy = process.nextTick;
-          process.nextTick = mocks.nextTick;
-          instance.process(mocks.request, mocks.response);
-          process.nextTick = nextTickCopy;
+            },
+            events: [ 'flow.begin', 'foo' ],
+            isBodyJSON: true,
+            userAgent: 'baz'
+          });
         },
 
         'response.json was called': function () {
@@ -405,32 +335,16 @@ define([
 
       'route.process with text/plain Content-Type and parsed JSON': {
         setup: function () {
-          mocks.request = {
-            body: {
-              events: [
-                { type: 'flow.begin' },
-                { type: 'foo' }
-              ],
+          setupMetricsHandlerTests({
+            contentType: 'text/plain',
+            data: {
               flowBeginTime: 42,
               flowId: 'bar',
               isSampledUser: true
             },
-            get: sinon.spy(function (header) {
-              switch (header.toLowerCase()) {
-              case 'content-type':
-                return 'text/plain';
-              case 'user-agent':
-                return 'baz';
-              }
-              return '';
-            })
-          };
-          mocks.response = { json: sinon.spy() };
-          mocks.nextTick = sinon.spy();
-          var nextTickCopy = process.nextTick;
-          process.nextTick = mocks.nextTick;
-          instance.process(mocks.request, mocks.response);
-          process.nextTick = nextTickCopy;
+            events: [ 'flow.begin', 'foo' ],
+            userAgent: 'baz'
+          });
         },
 
         'response.json was called': function () {
@@ -472,4 +386,37 @@ define([
       }
     }
   });
+
+  function setupMetricsHandlerTests (options) {
+    options = options || {};
+    mocks.request = {
+      body: {},
+      get: sinon.spy(function (header) {
+        switch (header.toLowerCase()) {
+        case 'content-type':
+          return options.contentType || 'application/json';
+        case 'user-agent':
+          return options.userAgent;
+        }
+        return '';
+      })
+    };
+    if (options.events) {
+      mocks.request.body.events = _.map(options.events, function (event) {
+        return { type: event };
+      });
+    }
+    if (options.data) {
+      _.assign(mocks.request.body, options.data);
+    }
+    if (options.isBodyJSON) {
+      mocks.request.body = JSON.stringify(mocks.request.body);
+    }
+    mocks.response = { json: sinon.spy() };
+    mocks.nextTick = sinon.spy();
+    var nextTickCopy = process.nextTick;
+    process.nextTick = mocks.nextTick;
+    instance.process(mocks.request, mocks.response);
+    process.nextTick = nextTickCopy;
+  }
 });
