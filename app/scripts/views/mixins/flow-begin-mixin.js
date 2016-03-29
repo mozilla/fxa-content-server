@@ -9,11 +9,20 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
 
+  var ELEMENT_NAME = 'body';
+  var ATTRIBUTE_NAME = 'data-flow-begin';
+
   module.exports = {
     afterRender: function () {
-      var flowId = this.user.get('flowId');
-      var flowBeginTime = $('body').attr('data-flow-begin');
-      this.metrics.logFlowBegin(flowId, flowBeginTime);
+      var flowBeginTime = parseInt($(ELEMENT_NAME).attr(ATTRIBUTE_NAME), 10);
+
+      this.user.beginFlow(flowBeginTime);
+
+      this.user.on('end-flow', function () {
+        // Clean up the DOM after the flow has ended to ensure
+        // that future flow.begin events have the correct time.
+        $(ELEMENT_NAME).removeAttr(ATTRIBUTE_NAME);
+      });
     }
   };
 });

@@ -22,6 +22,8 @@ module.exports = function () {
     method: 'post',
     path: '/metrics',
     process: function (req, res) {
+      var requestReceivedTime = Date.now();
+
       // don't wait around to send a response.
       res.json({ success: true });
 
@@ -49,19 +51,48 @@ module.exports = function () {
         }
         ga.write(metrics);
 
-        var events = metrics.events || [];
-        var hasFlowBeginEvent = events.some(function (event) {
-          return event.type === 'flow.begin';
-        });
-
-        if (hasFlowBeginEvent) {
-          activityEvent('flow.begin', {
-            flow_id: metrics.flowId, //eslint-disable-line camelcase
-            flow_time: 0, //eslint-disable-line camelcase
-            time: metrics.flowBeginTime
-          }, req);
-        }
+        optionallyLogFlowBeginEvent(req, metrics, requestReceivedTime);
       });
     }
   };
 };
+
+function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
+  var events = metrics.events || [];
+  var hasFlowBeginEvent = events.some(function (event) {
+    if (event.type === 'flow.begin') {
+      if (! metrics.flowBeginTime) {
+        // If navigation occurred wholly on the client, there'll be no
+        // flowBeginTime. In that case, we estimate it based on client
+        // data and the time the metrics request was received by the
+        // server.
+        metrics.flowBeginTime = estimateFlowBeginTime({
+          /*eslint-disable sorting/sort-object-props*/
+          start: metrics.startTime,
+          offset: event.offset,
+          sent: metrics.flushTime,
+          received: requestReceivedTime
+          /*eslint-enable sorting/sort-object-props*/
+        });
+      }
+
+      return true;
+    }
+
+    return false;
+  });
+
+  if (hasFlowBeginEvent) {
+    activityEvent('flow.begin', {
+      flow_id: metrics.flowId, //eslint-disable-line camelcase
+      flow_time: 0, //eslint-disable-line camelcase
+      time: metrics.flowBeginTime
+    }, req);
+  }
+}
+
+function estimateFlowBeginTime (times) {
+  var skew = times.received - times.sent;
+  return times.start + times.offset + skew;
+}
+

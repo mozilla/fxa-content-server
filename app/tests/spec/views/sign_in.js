@@ -53,6 +53,7 @@ define(function (require, exports, module) {
       });
 
       user = new User({
+        metrics: metrics,
         notifier: notifier
       });
 

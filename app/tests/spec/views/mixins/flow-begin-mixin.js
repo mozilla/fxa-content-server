@@ -21,31 +21,42 @@ define(function (require, exports, module) {
 
     describe('afterRender', function () {
       beforeEach(function () {
-        flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
-        };
         flowBeginMixin.user = {
-          get: sinon.spy(function () {
-            return 'foo';
-          })
+          beginFlow: sinon.spy(),
+          on: sinon.spy()
         };
-        $('body').attr('data-flow-begin', 'bar');
+        $('body').attr('data-flow-begin', '42');
         flowBeginMixin.afterRender();
       });
 
-      it('called user.get correctly', function () {
-        assert.strictEqual(flowBeginMixin.user.get.callCount, 1);
-        var args = flowBeginMixin.user.get.args[0];
+      it('called user.beginFlow correctly', function () {
+        assert.strictEqual(flowBeginMixin.user.beginFlow.callCount, 1);
+        var args = flowBeginMixin.user.beginFlow.args[0];
         assert.strictEqual(args.length, 1);
-        assert.strictEqual(args[0], 'flowId');
+        assert.strictEqual(args[0], 42);
       });
 
-      it('called metrics.logFlowBegin correctly', function () {
-        assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
-        var args = flowBeginMixin.metrics.logFlowBegin.args[0];
+      it('called user.on correctly', function () {
+        assert.strictEqual(flowBeginMixin.user.on.callCount, 1);
+        var args = flowBeginMixin.user.on.args[0];
         assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'foo');
-        assert.strictEqual(args[1], 'bar');
+        assert.strictEqual(args[0], 'end-flow');
+        assert.isFunction(args[1]);
+        assert.lengthOf(args[1], 0);
+      });
+
+      it('data-flow-begin attribute is correct', function () {
+        assert.strictEqual($('body').attr('data-flow-begin'), '42');
+      });
+
+      describe('end-flow handler', function () {
+        beforeEach(function () {
+          flowBeginMixin.user.on.args[0][1]();
+        });
+
+        it('data-flow-begin attribute was removed', function () {
+          assert.isUndefined($('body').attr('data-flow-begin'));
+        });
       });
     });
   });

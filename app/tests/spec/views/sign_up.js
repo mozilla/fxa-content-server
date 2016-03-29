@@ -91,7 +91,8 @@ define(function (require, exports, module) {
       });
 
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        metrics: metrics
       });
 
       createView();
