@@ -58,6 +58,10 @@ module.exports = function () {
 };
 
 function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
+  if (DISABLE_CLIENT_METRICS_STDERR) {
+    return;
+  }
+
   var events = metrics.events || [];
   var hasFlowBeginEvent = events.some(function (event) {
     if (event.type === 'flow.begin') {
