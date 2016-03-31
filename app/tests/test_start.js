@@ -85,6 +85,7 @@ function (Translator, Session) {
     '../tests/spec/models/email-resend',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/marketing-email-prefs',
+    '../tests/spec/models/metrics-context',
     '../tests/spec/models/mixins/resume-token',
     '../tests/spec/models/mixins/search-param',
     '../tests/spec/models/oauth-token',

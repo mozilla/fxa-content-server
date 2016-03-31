@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var OAuthClient = require('lib/oauth-client');
@@ -53,6 +54,7 @@ define(function (require, exports, module) {
     var view;
     var email;
     var metrics;
+    var metricsContext;
     var windowMock;
     var fxaClient;
     var oAuthClient;
@@ -71,6 +73,7 @@ define(function (require, exports, module) {
 
       windowMock = new WindowMock();
       metrics = new Metrics();
+      metricsContext = new MetricsContext();
       relier = new OAuthRelier({
         window: windowMock
       });
@@ -113,6 +116,7 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        metricsContext: metricsContext,
         notifier: notifier,
         oAuthClient: oAuthClient,
         relier: relier,

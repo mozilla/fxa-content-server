@@ -24,6 +24,9 @@ define(function (require, exports, module) {
         flowBeginMixin.metrics = {
           logFlowBegin: sinon.spy()
         };
+        flowBeginMixin.metricsContext = {
+          set: sinon.spy()
+        };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
             return 'foo';
@@ -41,6 +44,14 @@ define(function (require, exports, module) {
         var args = flowBeginMixin.user.get.args[0];
         assert.strictEqual(args.length, 1);
         assert.strictEqual(args[0], 'flowId');
+      });
+
+      it('called metricsContext.set correctly', function () {
+        assert.strictEqual(flowBeginMixin.metricsContext.set.callCount, 1);
+        var args = flowBeginMixin.metricsContext.set.args[0];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowBeginTime');
+        assert.strictEqual(args[1], 42);
       });
 
       it('called metrics.logFlowBegin correctly', function () {
@@ -61,6 +72,9 @@ define(function (require, exports, module) {
         flowBeginMixin.metrics = {
           logFlowBegin: sinon.spy()
         };
+        flowBeginMixin.metricsContext = {
+          set: sinon.spy()
+        };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
             return 'wibble';
@@ -78,6 +92,14 @@ define(function (require, exports, module) {
         var args = flowBeginMixin.user.get.args[0];
         assert.strictEqual(args.length, 1);
         assert.strictEqual(args[0], 'flowId');
+      });
+
+      it('called metricsContext.set correctly', function () {
+        assert.strictEqual(flowBeginMixin.metricsContext.set.callCount, 1);
+        var args = flowBeginMixin.metricsContext.set.args[0];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowBeginTime');
+        assert.isUndefined(args[1]);
       });
 
       it('called metrics.logFlowBegin correctly', function () {

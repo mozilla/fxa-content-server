@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var FormPrefill = require('models/form-prefill');
   var Metrics = require('lib/metrics');
+  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -32,6 +33,7 @@ define(function (require, exports, module) {
     var email;
     var formPrefill;
     var metrics;
+    var metricsContext;
     var model;
     var notifier;
     var relier;
@@ -43,6 +45,7 @@ define(function (require, exports, module) {
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
       metrics = new Metrics();
+      metricsContext = new MetricsContext();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
@@ -81,6 +84,7 @@ define(function (require, exports, module) {
         broker: broker,
         formPrefill: formPrefill,
         metrics: metrics,
+        metricsContext: metricsContext,
         model: model,
         notifier: notifier,
         relier: relier,

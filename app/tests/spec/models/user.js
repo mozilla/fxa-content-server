@@ -32,6 +32,7 @@ define(function (require, exports, module) {
 
   describe('models/user', function () {
     var fxaClientMock;
+    var metricsContext;
     var notifier;
     var sentryMetrics;
     var user;
@@ -51,9 +52,13 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
+      metricsContext = {
+        set: sinon.spy()
+      };
       notifier = new Notifier();
       sentryMetrics = new SentryMetrics();
       user = new User({
+        metricsContext: metricsContext,
         notifier: notifier,
         sentryMetrics: sentryMetrics,
         uniqueUserId: UUID
@@ -1122,6 +1127,14 @@ define(function (require, exports, module) {
         assert.isTrue(user.has('flowId'));
         assert.strictEqual(user.get('flowId'), VALID_FLOW_ID);
       });
+
+      it('called metricsContext.set correctly', function () {
+        assert.strictEqual(metricsContext.set.callCount, 2);
+        var args = metricsContext.set.args[1];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowId');
+        assert.strictEqual(args[1], VALID_FLOW_ID);
+      });
     });
 
     describe('fetch without flowId', function () {
@@ -1151,6 +1164,14 @@ define(function (require, exports, module) {
       it('set a new flowId', function () {
         assert.isTrue(user.has('flowId'));
         assert.match(user.get('flowId'), /^[0-9a-f]{64}$/i);
+      });
+
+      it('called metricsContext.set correctly', function () {
+        assert.strictEqual(metricsContext.set.callCount, 2);
+        var args = metricsContext.set.args[1];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'flowId');
+        assert.strictEqual(args[1], user.get('flowId'));
       });
     });
 

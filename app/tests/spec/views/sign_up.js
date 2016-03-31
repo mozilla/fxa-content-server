@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/sync');
@@ -37,6 +38,7 @@ define(function (require, exports, module) {
     var formPrefill;
     var fxaClient;
     var metrics;
+    var metricsContext;
     var model;
     var notifier;
     var relier;
@@ -60,6 +62,7 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
+        metricsContext: metricsContext,
         model: model,
         notifier: notifier,
         relier: relier,
@@ -82,6 +85,7 @@ define(function (require, exports, module) {
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      metricsContext = new MetricsContext();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();

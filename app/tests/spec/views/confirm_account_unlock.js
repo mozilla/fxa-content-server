@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var Duration = require('duration');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
+  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
@@ -30,6 +31,7 @@ define(function (require, exports, module) {
     var broker;
     var fxaClient;
     var metrics;
+    var metricsContext;
     var model;
     var notifier;
     var relier;
@@ -56,6 +58,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      metricsContext = new MetricsContext();
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -66,7 +69,8 @@ define(function (require, exports, module) {
         window: windowMock
       });
       user = new User({
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        metricsContext: metricsContext
       });
 
       account = user.initAccount({
