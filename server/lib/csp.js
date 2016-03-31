@@ -25,9 +25,10 @@ function addCdnRuleIfRequired(target) {
   return target;
 }
 
-function isCspRequired(req) {
+function isCspRequired(path) {
   // is the user running tests? No CSP.
-  return req.path !== '/tests/index.html';
+  return path !== '/tests/index.html' &&
+         ! /\.(js|json|css|woff|ttf|eot|svg|mustache)$/.test(path);
 }
 
 function getOrigin(link) {
@@ -35,7 +36,11 @@ function getOrigin(link) {
   return parsed.protocol + '//' + parsed.host;
 }
 
-var cspMiddleware = helmet.csp({
+/**
+ * blockingCspMiddleware is where to declare rules that will cause a resource
+ * to be blocked if it runs afowl of a rule.
+ */
+var blockingCspMiddleware = helmet.csp({
   connectSrc: [
     SELF,
     getOrigin(config.get('fxaccount_url')),
@@ -54,10 +59,13 @@ var cspMiddleware = helmet.csp({
     config.get('profile_images_url')
   ]),
   mediaSrc: [BLOB],
-  reportOnly: config.get('csp.reportOnly'),
+  reportOnly: false,
   reportUri: config.get('csp.reportUri'),
   scriptSrc: addCdnRuleIfRequired([
-    SELF
+    // allow unsafe-eval for functional tests. A report-only middleware
+    // is also added that does not allow 'unsafe-eval' so that we can see
+    // if other scripts are being added.
+    SELF, "'unsafe-eval'"
   ]),
   styleSrc: addCdnRuleIfRequired([
     SELF,
@@ -66,10 +74,27 @@ var cspMiddleware = helmet.csp({
   ])
 });
 
+/**
+ * reportOnlyCspMiddleware is where to declare experimental rules that
+ * will not cause a resource to be blocked if it runs afowl of a rule, but will
+ * cause the resource to be reported.
+ */
+var reportOnlyCspMiddleware = helmet.csp({
+  reportOnly: true,
+  reportUri: config.get('csp.reportUri'),
+  scriptSrc: addCdnRuleIfRequired([
+    SELF
+  ])
+});
+
 module.exports = function (req, res, next) {
-  if (! isCspRequired(req)) {
+  if (! isCspRequired(req.path)) {
     return next();
   }
 
-  cspMiddleware(req, res, next);
+  blockingCspMiddleware(req, res, function () {
+    reportOnlyCspMiddleware(req, res, next);
+  });
 };
+
+module.exports.isCspRequired = isCspRequired;

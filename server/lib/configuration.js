@@ -70,7 +70,7 @@ var conf = module.exports = convict({
     },
     reportOnly: {
       default: false,
-      doc: 'Only send the "Content-Security-Policy-Report-Only" header'
+      doc: 'DEPRECATED - Only send the "Content-Security-Policy-Report-Only" header'
     },
     reportUri: {
       default: '/_/csp-violation',
