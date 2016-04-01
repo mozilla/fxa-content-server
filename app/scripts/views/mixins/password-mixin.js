@@ -10,7 +10,8 @@ define(function (require, exports, module) {
 
   module.exports = {
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'keyup input.password': 'onPasswordKeyup'
     },
 
     onPasswordVisibilityChange: function (event) {
@@ -53,6 +54,23 @@ define(function (require, exports, module) {
         // IE8 blows up when changing the type of the input field. Other
         // browsers might too. Ignore the error.
       }
+    },
+
+    onPasswordKeyup: function (event) {
+      var val = this.getElementValue('.password').length;
+      if (val < 8) {
+        this.showPasswordHelper();
+      } else {
+        this.hidePasswordHelper();
+      }
+    },
+
+    showPasswordHelper: function () {
+      this.$('.input-help').css('opacity', '1');
+    },
+
+    hidePasswordHelper: function () {
+      this.$('.input-help').css('opacity', '0');
     }
   };
 });
