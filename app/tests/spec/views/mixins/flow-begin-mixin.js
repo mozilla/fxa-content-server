@@ -29,7 +29,10 @@ define(function (require, exports, module) {
             return 'foo';
           })
         };
-        $('body').attr('data-flow-begin', 'bar');
+        flowBeginMixin.sentryMetrics = {
+          captureException: sinon.spy()
+        };
+        $('body').attr('data-flow-begin', '42');
         flowBeginMixin.afterRender();
       });
 
@@ -45,7 +48,52 @@ define(function (require, exports, module) {
         var args = flowBeginMixin.metrics.logFlowBegin.args[0];
         assert.lengthOf(args, 2);
         assert.strictEqual(args[0], 'foo');
-        assert.strictEqual(args[1], 'bar');
+        assert.strictEqual(args[1], 42);
+      });
+
+      it('did not call sentryMetrics.captureException', function () {
+        assert.strictEqual(flowBeginMixin.sentryMetrics.captureException.callCount, 0);
+      });
+    });
+
+    describe('afterRender with invalid data-flow-begin attribute', function () {
+      beforeEach(function () {
+        flowBeginMixin.metrics = {
+          logFlowBegin: sinon.spy()
+        };
+        flowBeginMixin.user = {
+          get: sinon.spy(function () {
+            return 'wibble';
+          })
+        };
+        flowBeginMixin.sentryMetrics = {
+          captureException: sinon.spy()
+        };
+        $('body').attr('data-flow-begin', 'bar');
+        flowBeginMixin.afterRender();
+      });
+
+      it('called user.get correctly', function () {
+        assert.strictEqual(flowBeginMixin.user.get.callCount, 1);
+        var args = flowBeginMixin.user.get.args[0];
+        assert.strictEqual(args.length, 1);
+        assert.strictEqual(args[0], 'flowId');
+      });
+
+      it('called metrics.logFlowBegin correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
+        var args = flowBeginMixin.metrics.logFlowBegin.args[0];
+        assert.lengthOf(args, 2);
+        assert.strictEqual(args[0], 'wibble');
+        assert.isUndefined(args[1]);
+      });
+
+      it('called sentryMetrics.captureException correctly', function () {
+        assert.strictEqual(flowBeginMixin.sentryMetrics.captureException.callCount, 1);
+        var args = flowBeginMixin.sentryMetrics.captureException.args[0];
+        assert.lengthOf(args, 1);
+        assert.instanceOf(args[0], Error);
+        assert.equal(args[0].message, 'Invalid data-flow-begin attribute');
       });
     });
   });

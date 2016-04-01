@@ -12,7 +12,13 @@ define(function (require, exports, module) {
   module.exports = {
     afterRender: function () {
       var flowId = this.user.get('flowId');
-      var flowBeginTime = $('body').attr('data-flow-begin');
+      var flowBeginTime = parseInt($('body').attr('data-flow-begin'), 10);
+
+      if (! flowBeginTime) {
+        flowBeginTime = undefined;
+        this.sentryMetrics.captureException(new Error('Invalid data-flow-begin attribute'));
+      }
+
       this.metrics.logFlowBegin(flowId, flowBeginTime);
     }
   };
