@@ -237,6 +237,24 @@ define(function (require, exports, module) {
             it('clears the event stream', function () {
               assert.equal(metrics.getFilteredData().events.length, 0);
             });
+
+            describe('log a second flow.begin event with same flowId', function () {
+              beforeEach(function () {
+                metrics.logFlowBegin('bar', 'blee');
+                metrics.logEvent('wibble');
+                return metrics.flush();
+              });
+
+              it('calls sendBeacon correctly', function () {
+                assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
+                var data = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
+                assert.isArray(data.events);
+                assert.lengthOf(data.events, 1);
+                assert.equal(data.events[0].type, 'wibble');
+                assert.equal(data.flowId, 'bar');
+                assert.equal(data.flowBeginTime, 'baz');
+              });
+            });
           });
 
           describe('flush, sendBeacon fails', function () {

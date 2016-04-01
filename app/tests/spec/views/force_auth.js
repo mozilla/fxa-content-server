@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var FormPrefill = require('models/form-prefill');
-  var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
@@ -30,7 +29,6 @@ define(function (require, exports, module) {
     var broker;
     var email;
     var formPrefill;
-    var metrics;
     var model;
     var notifier;
     var relier;
@@ -45,12 +43,10 @@ define(function (require, exports, module) {
       broker = new Broker();
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
-      metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       user = new User({
-        metrics: metrics,
         notifier: notifier
       });
       user.getSignedInAccount().set('uid', 'foo');

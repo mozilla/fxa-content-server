@@ -148,7 +148,6 @@ function (Translator, Session) {
     '../tests/spec/models/devices',
     '../tests/spec/models/profile-image',
     '../tests/spec/models/email-resend',
-    '../tests/spec/models/flow',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/marketing-email-prefs',
     '../tests/spec/models/oauth-token',

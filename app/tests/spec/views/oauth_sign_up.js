@@ -100,8 +100,7 @@ define(function (require, exports, module) {
         fxaClient: fxaClient
       });
       user = new User({
-        fxaClient: fxaClient,
-        metrics: metrics
+        fxaClient: fxaClient
       });
       formPrefill = new FormPrefill();
       able = new Able();

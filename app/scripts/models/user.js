@@ -15,11 +15,19 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
-  var FlowModel = require('models/flow');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
+  var SearchParamMixin = require('models/mixins/search-param');
   var Storage = require('lib/storage');
+  var uuid = require('uuid');
+  var vat = require('lib/vat');
+
+  function createHex32 () {
+    // Compose a random 32-byte hex value from two UUIDs
+    // concatenated with the hyphens stripped out.
+    return (uuid.v4() + uuid.v4()).replace(/-/g, '');
+  }
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -42,7 +50,8 @@ define(function (require, exports, module) {
       // ephemeral data, e.g. OAuth access tokens.
       this._cachedSignedInAccount = null;
 
-      this._flow = new FlowModel(options);
+      this.window = options.window || window;
+      this.fetch();
     },
 
     defaults: {
@@ -53,6 +62,24 @@ define(function (require, exports, module) {
     },
 
     resumeTokenFields: ['flowId', 'uniqueUserId'],
+
+    resumeTokenSchema: {
+      flowId: vat.hex().len(64),
+      uniqueUserId: vat.uuid()
+    },
+
+    // Hydrate the model. Returns a promise.
+    fetch: function () {
+      var self = this;
+
+      return p()
+        .then(function () {
+          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+          if (! self.has('flowId')) {
+            self.set('flowId', createHex32());
+          }
+        });
+    },
 
     _accounts: function () {
       return this._storage.get('accounts') || {};
@@ -377,7 +404,7 @@ define(function (require, exports, module) {
 
       return account.signOut()
         .fin(function () {
-          self._endFlow();
+          self.unset('flowId');
           // Clear the session, even on failure. Everything is A-OK.
           // See issue #616
           if (self.isSignedInAccount(account)) {
@@ -530,25 +557,13 @@ define(function (require, exports, module) {
           }
           return exists;
         });
-    },
-
-    beginFlow: function (flowBeginTime) {
-      if (! this.has('flowId')) {
-        this._flow.begin(flowBeginTime);
-        this.set('flowId', this._flow.get('flowId'));
-      }
-    },
-
-    _endFlow: function () {
-      this.unset('flowId');
-      this._flow.end();
-      this.trigger('end-flow');
     }
   });
 
   Cocktail.mixin(
     User,
-    ResumeTokenMixin
+    ResumeTokenMixin,
+    SearchParamMixin
   );
 
   module.exports = User;

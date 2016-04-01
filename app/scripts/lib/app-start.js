@@ -132,7 +132,7 @@ define(function (require, exports, module) {
                     .then(_.bind(this.initializeProfileClient, this))
                     // marketingEmailClient depends on config
                     .then(_.bind(this.initializeMarketingEmailClient, this))
-                    // user depends on the profileClient, oAuthClient, metrics,
+                    // user depends on the profileClient, oAuthClient,
                     // assertionLibrary and notifier.
                     .then(_.bind(this.initializeUser, this))
                     // broker relies on the user, relier, fxaClient,
@@ -439,7 +439,6 @@ define(function (require, exports, module) {
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
-          metrics: this._metrics,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,

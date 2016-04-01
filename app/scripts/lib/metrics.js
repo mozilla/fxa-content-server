@@ -414,9 +414,12 @@ define(function (require, exports, module) {
     },
 
     logFlowBegin: function (flowId, flowBeginTime) {
-      this._flowId = flowId;
-      this._flowBeginTime = flowBeginTime;
-      this.logEvent('flow.begin');
+      // Don't emit a new flow.begin event unless flowId has changed.
+      if (flowId !== this._flowId) {
+        this._flowId = flowId;
+        this._flowBeginTime = flowBeginTime;
+        this.logEvent('flow.begin');
+      }
     }
   });
 
