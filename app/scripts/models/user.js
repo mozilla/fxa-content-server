@@ -41,6 +41,8 @@ define(function (require, exports, module) {
       this._notifier = options.notifier;
       this._storage = options.storage || Storage.factory();
 
+      this.sentryMetrics = options.sentryMetrics;
+
       // For now, the uniqueUserId is passed in from app-start instead of
       // being initialized from the resume token or localStorage.
       this.set('uniqueUserId', options.uniqueUserId);

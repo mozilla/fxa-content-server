@@ -88,14 +88,6 @@ define(function (require, exports, module) {
       it('does not populate the model', function () {
         assert.isFalse(model.has('campaign'));
       });
-
-      it('called sentryMetrics.captureException correctly', function () {
-        assert.strictEqual(sentryMetrics.captureException.callCount, 1);
-        var args = sentryMetrics.captureException.args[0];
-        assert.lengthOf(args, 1);
-        assert.instanceOf(args[0], Error);
-        assert.strictEqual(args[0].message, 'Invalid property in resume token: campaign');
-      });
     });
 
     describe('populateFromResumeToken with missing data', function () {
@@ -114,6 +106,10 @@ define(function (require, exports, module) {
         assert.lengthOf(args, 1);
         assert.instanceOf(args[0], Error);
         assert.strictEqual(args[0].message, 'Missing property in resume token: campaign');
+      });
+
+      it('does not call sentryMetrics.captureException', function () {
+        assert.strictEqual(sentryMetrics.captureException.callCount, 0);
       });
     });
 
