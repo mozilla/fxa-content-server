@@ -170,7 +170,7 @@ define(function (require, exports, module) {
      * @method signIn
      * @param {String} originalEmail
      * @param {String} password
-     * @param {Releir} relier
+     * @param {Relier} relier
      * @param {Object} [options]
      *   @param {String} [options.reason] - reason for the sign in. Can be
      *                   one of the values defined in SIGNIN_REASON.
@@ -181,6 +181,8 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
+     *   @param {String} [options.contentToken] - The content token from the
+     *                   generated page.
      */
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
@@ -190,6 +192,8 @@ define(function (require, exports, module) {
       return self._getClient()
         .then(function (client) {
           var signInOptions = {
+            // TODO: this should be an option.
+            contentToken: $('body').data('contentToken'),
             keys: relier.wantsKeys(),
             reason: options.reason || self.SIGNIN_REASON.SIGN_IN
           };
