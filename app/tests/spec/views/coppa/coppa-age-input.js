@@ -67,6 +67,24 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('onKeyDown', function () {
+      function testForceNumericInput(element, done) {
+        view.on('preventDefault', function () {
+          done();
+        });
+
+        // non-numeric input
+        var e1 = jQuery.Event('keydown', { which: 49 });
+        var e2 = jQuery.Event('keydown', { which: 190 });
+        $(element).trigger(e1);
+        $(element).trigger(e2);
+      }
+
+      it('preventDefault if input is non-numeric', function (done) {
+        testForceNumericInput('#age', done);
+      });
+    });
+
     describe('isValid', function () {
       it('returns true if age is valid', function () {
         view.$('#age').val('14');
