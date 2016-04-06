@@ -29,6 +29,7 @@ define(function (require, exports, module) {
     events: {
       'input': 'onInput',
       'keydown': 'submitOnEnter',
+      'keydown': 'onKeyDown',
       'keyup': 'onInput'
     },
 
@@ -54,6 +55,13 @@ define(function (require, exports, module) {
       // limit age to only 3 characters
       var age = this.$(AGE_ELEMENT);
       age.val(age.val().substr(0, 3));
+    },
+    
+    onKeyDown: function (event) {
+      // force numeric input
+      if (event.which < 48 || event.which > 57) {
+        event.preventDefault();
+      }
     },
 
     afterRender: function () {
