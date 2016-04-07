@@ -100,6 +100,9 @@ define(function (require, exports, module) {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
+    VERIFY_EMAIL: 'verify-email',
+    REVERIFY_EMAIL: 'reverify-email',
+
     DEFAULT_XHR_TIMEOUT_MS: 2500,
     DEFAULT_DECLINED_ENGINES: [
       'bookmarks',

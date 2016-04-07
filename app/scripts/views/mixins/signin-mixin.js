@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Constants = require('lib/constants');
   var p = require('lib/promise');
 
   module.exports = {
@@ -55,7 +56,11 @@ define(function (require, exports, module) {
     },
 
     onSignInSuccess: function (account) {
-      if (! account.get('verified')) {
+      if (! account.get('verified') && account.get('challenge') === Constants.REVERIFY_EMAIL) {
+        return this.navigate('confirm_sign_in', {
+          account: account
+        });
+      } else if (! account.get('verified')) {
         return this.navigate('confirm', {
           account: account
         });
