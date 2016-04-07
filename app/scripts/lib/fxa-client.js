@@ -85,7 +85,13 @@ define(function (require, exports, module) {
       var self = this;
       return this._getClient()
         .then(function (client) {
+          // TODO: we can do a better getter for contentToken here later...
+          var contentToken = null;
+          if (window.$) {
+            contentToken = window.$('body').data('contentToken');
+          }
           return client.signIn(email, password, {
+            contentToken: contentToken,
             reason: self.SIGNIN_REASON.PASSWORD_CHECK
           })
           .then(function (sessionInfo) {
