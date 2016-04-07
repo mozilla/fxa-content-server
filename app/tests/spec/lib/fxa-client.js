@@ -611,6 +611,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
+                contentToken: undefined,
                 reason: client.SIGNIN_REASON.PASSWORD_CHECK
               }
             ));
@@ -637,6 +638,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
+                contentToken: undefined,
                 reason: client.SIGNIN_REASON.PASSWORD_CHECK
               }
             ));
