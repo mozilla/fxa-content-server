@@ -356,14 +356,8 @@ define(function (require, exports, module) {
 
     _initAccount: function () {
       var self = this;
-      // TODO: we can do a better check here later...
-      var contentToken = null;
-      if (this.window.$) {
-        contentToken = this.window.$('body').data('contentToken');
-      }
 
       var account = self.user.initAccount({
-        contentToken: contentToken,
         customizeSync: self.$('.customize-sync').is(':checked'),
         email: self.getElementValue('.email'),
         needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')

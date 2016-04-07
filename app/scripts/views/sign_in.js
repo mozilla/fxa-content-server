@@ -96,14 +96,7 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      // TODO: we can do a better check here later...
-      var contentToken = null;
-      if (this.window.$) {
-        contentToken = this.window.$('body').data('contentToken');
-      }
-
       var account = this.user.initAccount({
-        contentToken: contentToken,
         email: this.getElementValue('.email')
       });
 

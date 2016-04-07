@@ -181,18 +181,22 @@ define(function (require, exports, module) {
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
-     *   @param {String} [options.contentToken] - The content token from the
-     *                   generated page.
      */
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
+      // TODO: we can do a better getter for contentToken here later...
+      var contentToken = null;
+      if (window.$) {
+        contentToken = window.$('body').data('contentToken');
+      }
+
       options = options || {};
 
       return self._getClient()
         .then(function (client) {
           var signInOptions = {
-            contentToken: options.contentToken,
+            contentToken: contentToken,
             keys: relier.wantsKeys(),
             reason: options.reason || self.SIGNIN_REASON.SIGN_IN
           };
