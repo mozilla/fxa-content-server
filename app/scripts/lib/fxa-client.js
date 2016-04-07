@@ -192,8 +192,7 @@ define(function (require, exports, module) {
       return self._getClient()
         .then(function (client) {
           var signInOptions = {
-            // TODO: this should be an option.
-            contentToken: $('body').data('contentToken'),
+            contentToken: options.contentToken,
             keys: relier.wantsKeys(),
             reason: options.reason || self.SIGNIN_REASON.SIGN_IN
           };

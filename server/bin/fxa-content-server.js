@@ -20,7 +20,7 @@ var mozlog = require('mozlog');
 var config = require('../lib/configuration');
 
 // This can't possibly be best way to librar-ify this module.
-var isMain = process.argv[1] === __filename;
+var isMain = true;
 if (isMain) {
   // ./server is our current working directory
   process.chdir(path.dirname(__dirname));

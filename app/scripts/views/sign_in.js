@@ -97,6 +97,7 @@ define(function (require, exports, module) {
 
     submit: function () {
       var account = this.user.initAccount({
+        contentToken: this.window.$('body').data('contentToken'),
         email: this.getElementValue('.email')
       });
 

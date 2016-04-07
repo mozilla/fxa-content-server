@@ -50,6 +50,7 @@ define(function (require, exports, module) {
 
   var DEFAULTS = _.extend({
     accessToken: undefined,
+    contentToken: undefined,
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
@@ -309,9 +310,12 @@ define(function (require, exports, module) {
       return p().then(function () {
         var email = self.get('email');
         var sessionToken = self.get('sessionToken');
+        var contentToken = self.get('contentToken');
 
         if (password) {
-          return self._fxaClient.signIn(email, password, relier);
+          return self._fxaClient.signIn(email, password, relier, {
+            contentToken: contentToken
+          });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state

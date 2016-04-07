@@ -13,8 +13,10 @@ module.exports = function (config) {
   route.path = '/';
 
   route.process = function (req, res) {
-    var contentTokenContent = req.ip + req.headers['user-agent'];
-    var contentToken = crypto.createHmac('sha1', CONTENT_TOKEN_KEY).update(contentTokenContent).digest('hex');
+    var timestampString = Date.now().toString();
+    var timestampHex = new Buffer(timestampString).toString('hex');
+    var contentTokenContent = timestampString + req.ip + req.headers['user-agent'];
+    var contentToken = timestampHex + crypto.createHmac('sha1', CONTENT_TOKEN_KEY).update(contentTokenContent).digest('hex');
 
     res.render('index', {
       contentToken: contentToken,
