@@ -22,6 +22,7 @@ define(function (require, exports, module) {
 
   // Account attributes that can be persisted
   var PERSISTENT = {
+    challenge: undefined,
     displayName: undefined,
     email: undefined,
     grantedPermissions: undefined,
@@ -153,6 +154,16 @@ define(function (require, exports, module) {
       return ! _.find(ALLOWED_KEYS, function (key) {
         return self.get(key) !== DEFAULTS[key];
       });
+    },
+
+    shouldVerifyEmail: function () {
+      var self = this;
+      return ! self.get('verified') && self.get('challenge') === Constants.VERIFY_EMAIL;
+    },
+
+    shouldReverifyEmail: function () {
+      var self = this;
+      return ! self.get('verified') && self.get('challenge') === Constants.REVERIFY_EMAIL;
     },
 
     // If we're verified and don't have an accessToken, we should
@@ -323,7 +334,15 @@ define(function (require, exports, module) {
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
 
-        if (! self.get('verified')) {
+        if (! self.get('verified') && self.get('challenge') === Constants.REVERIFY_EMAIL) {
+          return self._fxaClient.confirmSignInResend(
+            relier,
+            self.get('sessionToken'),
+            {
+              resume: options.resume
+            }
+          );
+        } else if (! self.get('verified')) {
           return self._fxaClient.signUpResend(
             relier,
             self.get('sessionToken'),
@@ -374,6 +393,26 @@ define(function (require, exports, module) {
       options = options || {};
 
       return this._fxaClient.signUpResend(
+        relier,
+        this.get('sessionToken'),
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
+     * Retry sending sign-in confirmation
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise} - resolves when complete
+     */
+    retrySignInConfirmation: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.confirmSignInResend(
         relier,
         this.get('sessionToken'),
         {
