@@ -105,6 +105,7 @@ define(function (require, exports, module) {
 
           self.importSearchParam('migration');
 
+          self.importBooleanSearchParam('reset_password_confirm', 'resetPasswordConfirm');
         });
     },
 

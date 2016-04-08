@@ -27,6 +27,20 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
+    beforeRender: function () {
+      var email = this.relier.get('email');
+      var canSkip = this.relier.get('resetPasswordConfirm') === false;
+      if (canSkip && email) {
+        var self = this;
+        return this._resetPassword(email)
+          .then(function () { return false; })
+          .fail(function (err) {
+            self.model.set('error', err);
+          });
+      }
+      return FormView.prototype.beforeRender.call(this);
+    },
+
     afterRender: function () {
       if (this.relier.isOAuth()) {
         this.transformLinks();
@@ -40,8 +54,10 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var email = this.getElementValue('.email');
+      return this._resetPassword(this.getElementValue('.email'));
+    },
 
+    _resetPassword: function (email) {
       var self = this;
       return self.resetPassword(email)
         .fail(function (err) {
