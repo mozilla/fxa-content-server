@@ -728,5 +728,47 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('_suggestReset', function () {
+      var err;
+
+      beforeEach(function () {
+        err = AuthErrors.toError('ACCOUNT_RESET');
+        err.email = 'testuser@testuser.com';
+
+        sinon.spy(view, 'displayErrorUnsafe');
+
+        return view._suggestReset(err);
+      });
+
+      it('calls displayErrorUnsafe with the error', function () {
+        assert.isTrue(view.displayErrorUnsafe.calledWith(err));
+      });
+
+      it('the expected message is set on the error', function () {
+        assert.include(err.forceMessage.toLowerCase(), 'locked');
+        assert.include(err.forceMessage.toLowerCase(), 'reset password');
+        assert.include(err.forceMessage.toLowerCase(), '/confirm_reset_password');
+      });
+    });
+
+    describe('resetPasswordNow', function () {
+      beforeEach(function () {
+        sinon.stub(view, 'resetPassword', function () {
+          return p();
+        });
+
+        view.email = 'testuser@testuser.com';
+
+        return view.resetPasswordNow();
+      });
+
+      it('saves `resetPasswordConfirm=false` into the relier', function () {
+        assert.isFalse(relier.get('resetPasswordConfirm'));
+      });
+
+      it('calls `resetPassword` with the correct email', function () {
+        assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
+      });
+    });
   });
 });

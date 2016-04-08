@@ -273,6 +273,10 @@ define(function (require, exports, module) {
       });
 
       sinon.spy(view, 'navigate');
+      sinon.stub(view, 'resetPassword', function () {
+        return p();
+      });
+
       return view.render();
     });
 
@@ -283,7 +287,7 @@ define(function (require, exports, module) {
     });
 
     it('submits the email address automatically', function () {
-      assert.isTrue(view.navigate.calledWith('confirm_reset_password'));
+      assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
     });
 
   });

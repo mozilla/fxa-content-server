@@ -150,11 +150,21 @@ define(function (require, exports, module) {
       var msg = t('Your account has been locked for security reasons') + '<br>' +
         '<a href="/confirm_reset_password">' + t('Reset password') + '</a>';
       err.forceMessage = msg;
+
       return this.displayErrorUnsafe(err);
     },
 
     resetPasswordNow: function () {
       var self = this;
+
+      // this state causes two side effects:
+      // 1. The "remember password? Sign in" link is not shown on the
+      //    "confirm_reset_password" screen.
+      // 2. The data is saved into the resume token and the user does not
+      //    see the big scary "You'll lose all your Sync data"
+      //    when they open the verification link.
+      this.relier.set('resetPasswordConfirm', false);
+
       return self.resetPassword(self.email)
         .fail(function (err) {
           Session.clear('oauth');
