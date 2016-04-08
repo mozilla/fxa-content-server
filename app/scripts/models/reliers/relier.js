@@ -21,13 +21,14 @@ define(function (require, exports, module) {
   var SearchParamMixin = require('models/mixins/search-param');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
-    'utmTerm',
-    'utmSource',
-    'utmMedium',
-    'utmContent',
-    'utmCampaign',
     'campaign',
-    'entrypoint'
+    'entrypoint',
+    'resetPasswordConfirm',
+    'utmCampaign',
+    'utmContent',
+    'utmMedium',
+    'utmSource',
+    'utmTerm'
   ];
 
   var Relier = BaseRelier.extend({
@@ -37,6 +38,7 @@ define(function (require, exports, module) {
       email: null,
       entrypoint: null,
       preVerifyToken: null,
+      resetPasswordConfirm: true,
       service: null,
       utmCampaign: null,
       utmContent: null,
