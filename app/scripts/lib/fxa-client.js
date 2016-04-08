@@ -85,7 +85,13 @@ define(function (require, exports, module) {
       var self = this;
       return this._getClient()
         .then(function (client) {
+          // TODO: we can do a better getter for contentToken here later...
+          var contentToken = null;
+          if (window.$) {
+            contentToken = window.$('body').data('contentToken');
+          }
           return client.signIn(email, password, {
+            contentToken: contentToken,
             reason: self.SIGNIN_REASON.PASSWORD_CHECK
           })
           .then(function (sessionInfo) {
@@ -170,7 +176,7 @@ define(function (require, exports, module) {
      * @method signIn
      * @param {String} originalEmail
      * @param {String} password
-     * @param {Releir} relier
+     * @param {Relier} relier
      * @param {Object} [options]
      *   @param {String} [options.reason] - reason for the sign in. Can be
      *                   one of the values defined in SIGNIN_REASON.
@@ -185,11 +191,18 @@ define(function (require, exports, module) {
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
+      // TODO: we can do a better getter for contentToken here later...
+      var contentToken = null;
+      if (window.$) {
+        contentToken = window.$('body').data('contentToken');
+      }
+
       options = options || {};
 
       return self._getClient()
         .then(function (client) {
           var signInOptions = {
+            contentToken: contentToken,
             keys: relier.wantsKeys(),
             reason: options.reason || self.SIGNIN_REASON.SIGN_IN
           };
