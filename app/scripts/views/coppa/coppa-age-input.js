@@ -57,12 +57,21 @@ define(function (require, exports, module) {
     },
 
     onKeyDown: function (event) {
-      // force interger input and submit on enter
-      var x = event.which;
-      if ((x > 8 && x < 48) || (x > 57 && x < 96) || x > 105) {
-        event.preventDefault();
-      } else if (x === KeyCodes.ENTER) {
+      // helper function to check for digit
+      function isKeyADigit (keyCode) {
+        if ((keyCode > 8 && keyCode < 48) || (keyCode > 57 && keyCode < 96) || keyCode > 105) {
+          return false;
+        } else {
+          return true;
+        }
+      }
+
+      // submit on enter, force digit input
+      if (event.which === KeyCodes.ENTER) {
         this.trigger('submit');
+      } else if (! isKeyADigit(event.which)) {
+        console.log("caught");
+        event.preventDefault();
       }
     },
 
@@ -92,12 +101,6 @@ define(function (require, exports, module) {
 
     _validateAge: function () {
       return ! isNaN(this._getAge());
-    },
-
-    submitOnEnter: function (event) {
-      if (event.which === KeyCodes.ENTER) {
-        this.trigger('submit');
-      }
     },
 
     _getAge: function () {
