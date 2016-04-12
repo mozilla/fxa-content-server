@@ -36,34 +36,36 @@ function getOrigin(link) {
 }
 
 var cspMiddleware = helmet.csp({
-  connectSrc: [
-    SELF,
-    getOrigin(config.get('fxaccount_url')),
-    config.get('oauth_url'),
-    config.get('profile_url'),
-    config.get('marketing_email.api_url')
-  ],
-  defaultSrc: [SELF],
-  fontSrc: addCdnRuleIfRequired([
-    SELF
-  ]),
-  imgSrc: addCdnRuleIfRequired([
-    SELF,
-    DATA,
-    GRAVATAR,
-    config.get('profile_images_url')
-  ]),
-  mediaSrc: [BLOB],
-  reportOnly: config.get('csp.reportOnly'),
-  reportUri: config.get('csp.reportUri'),
-  scriptSrc: addCdnRuleIfRequired([
-    SELF
-  ]),
-  styleSrc: addCdnRuleIfRequired([
-    SELF,
-    // The sha of the embedded <style> tag in default-profile.svg.
-    "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
-  ])
+  directives: {
+    connectSrc: [
+      SELF,
+      getOrigin(config.get('fxaccount_url')),
+      config.get('oauth_url'),
+      config.get('profile_url'),
+      config.get('marketing_email.api_url')
+    ],
+    defaultSrc: [SELF],
+    fontSrc: addCdnRuleIfRequired([
+      SELF
+    ]),
+    imgSrc: addCdnRuleIfRequired([
+      SELF,
+      DATA,
+      GRAVATAR,
+      config.get('profile_images_url')
+    ]),
+    mediaSrc: [BLOB],
+    reportUri: config.get('csp.reportUri'),
+    scriptSrc: addCdnRuleIfRequired([
+      SELF
+    ]),
+    styleSrc: addCdnRuleIfRequired([
+      SELF,
+      // The sha of the embedded <style> tag in default-profile.svg.
+      "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
+    ])
+  },
+  reportOnly: config.get('csp.reportOnly')
 });
 
 module.exports = function (req, res, next) {
