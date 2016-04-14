@@ -62,6 +62,11 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
+    // handle sign in verification links
+    app.get(addVersionPrefix('/verify_sign_in'), function (req, res) {
+      res.redirect(removeVersionPrefix(req.originalUrl));
+    });
+
     // handle reset password from notification emails
     app.get(addVersionPrefix('/reset_password'), function (req, res) {
       res.redirect(removeVersionPrefix(req.originalUrl));
@@ -91,7 +96,6 @@ module.exports = function (config, i18n) {
       '/clear',
       '/complete_reset_password',
       '/complete_unlock_account',
-      '/complete_sign_in',
       '/confirm',
       '/confirm_sign_in',
       '/confirm_account_unlock',
@@ -126,7 +130,8 @@ module.exports = function (config, i18n) {
       '/signup_complete',
       '/signup_permissions',
       '/unexpected_error',
-      '/verify_email'
+      '/verify_email',
+      '/verify_sign_in',
     ];
 
     var ALLOWED_TO_FRAME = {

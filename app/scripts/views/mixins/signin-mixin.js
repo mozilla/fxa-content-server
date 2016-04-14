@@ -56,7 +56,7 @@ define(function (require, exports, module) {
     },
 
     onSignInSuccess: function (account) {
-      if (! account.get('verified') && account.get('challenge') === Constants.REVERIFY_EMAIL) {
+      if (account.get('verified') && account.get('challenge') === Constants.SIGNIN_EMAIL) {
         return this.navigate('confirm_sign_in', {
           account: account
         });
