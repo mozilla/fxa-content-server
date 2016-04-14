@@ -69,7 +69,6 @@ define(function (require, exports, module) {
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
-      'complete_sign_in(/)': createViewHandler(CompleteSignInView),
       'complete_unlock_account(/)': createViewHandler(CompleteAccountUnlockView),
       'confirm(/)': createViewHandler(ConfirmView),
       'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
@@ -108,7 +107,8 @@ define(function (require, exports, module) {
       'signup_complete(/)': createViewHandler(ReadyView, { type: 'sign_up' }),
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_up' }),
       'unexpected_error(/)': createViewHandler(UnexpectedErrorView),
-      'verify_email(/)': createViewHandler(CompleteSignUpView)
+      'verify_email(/)': createViewHandler(CompleteSignUpView),
+      'verify_sign_in(/)': createViewHandler(CompleteSignInView)
     },
 
     initialize: function (options) {

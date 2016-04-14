@@ -156,16 +156,6 @@ define(function (require, exports, module) {
       });
     },
 
-    shouldVerifyEmail: function () {
-      var self = this;
-      return ! self.get('verified') && self.get('challenge') === Constants.VERIFY_EMAIL;
-    },
-
-    shouldReverifyEmail: function () {
-      var self = this;
-      return ! self.get('verified') && self.get('challenge') === Constants.REVERIFY_EMAIL;
-    },
-
     // If we're verified and don't have an accessToken, we should
     // go ahead and get one.
     _needsAccessToken: function () {
@@ -334,15 +324,7 @@ define(function (require, exports, module) {
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
 
-        if (! self.get('verified') && self.get('challenge') === Constants.REVERIFY_EMAIL) {
-          return self._fxaClient.confirmSignInResend(
-            relier,
-            self.get('sessionToken'),
-            {
-              resume: options.resume
-            }
-          );
-        } else if (! self.get('verified')) {
+        if (! self.get('verified')) {
           return self._fxaClient.signUpResend(
             relier,
             self.get('sessionToken'),
