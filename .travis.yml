@@ -48,7 +48,7 @@ before_install:
 
 install:
   # install everything for full dev in the fxa-content-server.
-  - travis_retry npm install --silent
+  - travis_retry npm install
   - npm ls --depth 0 | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/ /g'
   - grunt lint
   # copy over the configuration that can be used to start the server.
