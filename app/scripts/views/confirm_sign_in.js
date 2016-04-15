@@ -18,7 +18,7 @@ define(function (require, exports, module) {
 
   var View = FormView.extend({
     template: Template,
-    className: 'confirm_sign_in',
+    className: 'confirm-sign-in',
 
     // used by unit tests
     VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
@@ -58,12 +58,6 @@ define(function (require, exports, module) {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    _bouncedEmailSignup: function () {
-      this.navigate('signup', {
-        bouncedEmail: this.getAccount().get('email')
-      });
-    },
-
     _gmailTabOpened: function () {
       this.logViewEvent('openGmail.clicked');
     },
@@ -92,7 +86,7 @@ define(function (require, exports, module) {
 
       self.logViewEvent('resend');
 
-      return self.getAccount().retrySignInConfirmation(
+      return self.getAccount().retrySendVerifyToken(
         self.relier,
         {
           resume: self.getStringifiedResumeToken()
