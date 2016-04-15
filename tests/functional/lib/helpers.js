@@ -23,6 +23,7 @@ define([
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var EXTERNAL_SITE_LINK_TEXT = 'More information';
   var EXTERNAL_SITE_URL = 'http://example.com';
+  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
   var OAUTH_APP = config.fxaOauthApp;
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
@@ -293,8 +294,7 @@ define([
     // openPage is called, before the page is ready. Wait for
     // the prerequisites, then attach.
     function startListening() {
-      if (typeof window !== 'undefined' &&
-          typeof window.addEventListener === 'function') {
+      try {
         newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
           var command = e.detail.message.command;
           var data = e.detail.message.data;
@@ -317,7 +317,8 @@ define([
         // CTRL-T, which does NOT copy sessionStorage over. Wipe
         // sessionStorage in this new context;
         newWindow.sessionStorage.clear();
-      } else {
+      } catch (e) {
+        // problem adding the listener, window may not be ready, try again.
         setTimeout(startListening, 0);
       }
     }
@@ -326,6 +327,13 @@ define([
   }
 
   function openVerificationLinkDifferentBrowser(client, email) {
+    if (typeof client === 'string') {
+      email = client;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+
     var user = TestHelpers.emailToUser(email);
 
     return getVerificationHeaders(user, 0)
@@ -338,6 +346,14 @@ define([
   }
 
   function openPasswordResetLinkDifferentBrowser(client, email, password) {
+    if (typeof client === 'string') {
+      password = email;
+      email = client;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+
     var user = TestHelpers.emailToUser(email);
 
     return getVerificationHeaders(user, 0)
@@ -385,12 +401,26 @@ define([
       });
   }
 
-  function openFxaFromUntrustedRp(context, page, urlSuffix) {
-    return openFxaFromRp(context, page, urlSuffix, true);
+  /**
+   * Open the force auth page
+   *
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openForceAuth(options) {
+    return function () {
+      options = options || {};
+
+      var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
+      return openPage(this.parent, urlToOpen, options.header || '#fxa-force-auth-header');
+    };
   }
 
   function reOpenWithAdditionalQueryParams(context, additionalQueryParams, waitForSelector) {
-    return context.remote
+    var remote = context.getCurrentUrl ? context : context.remote;
+    return remote
       .getCurrentUrl()
       .then(function (url) {
         var parsedUrl = Url.parse(url);
@@ -402,40 +432,66 @@ define([
       });
   }
 
-  function openFxaFromRp(context, page, urlSuffix, untrusted) {
-    var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+  /**
+   * Open FxA from the untrusted OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openFxaFromUntrustedRp(context, page, options) {
+    options = options || {};
+    options.untrusted = true;
+    return openFxaFromRp(context, page, options);
+  }
 
-    var additionalQueryParams;
-    if (urlSuffix) {
-      additionalQueryParams = Querystring.parse(urlSuffix.replace(/^\?/, ''));
-    }
+  /**
+   * Open FxA from an OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
+   * relier. Defaults to `true`
+   */
+  function openFxaFromRp(context, page, options) {
+    options = options || {};
+    var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+    var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
+    var queryParams = options.query || {};
 
     // force_auth does not have a button on 123done, instead this is
     // only available programatically. Load the force_auth page
     // with only the email initially, then reload with the full passed
     // in urlSuffix so things like the webChannelId are correctly passed.
+
     if (page === 'force_auth') {
-      var email = additionalQueryParams.email;
-      var emailSearchString = '?' + Querystring.stringify({ email: email });
-      return openPage(context, app + 'api/force_auth' + emailSearchString, '#fxa-force-auth-header')
+      var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
+      var endpoint = app + 'api/force_auth' + emailSearchString;
+      return openPage(context, endpoint, expectedHeader)
         .then(function () {
-          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-force-auth-header');
+          if (Object.keys(queryParams).length > 1) {
+            return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
+          }
         });
     }
 
     return openPage(context, app, '.ready #splash .' + page)
-      .findByCssSelector('.ready #splash .' + page)
-        .click()
-      .end()
+      .then(click('.ready #splash .' + page))
 
       // wait until the page fully loads or else the re-load with
       // the suffix will blow its lid when run against latest.
-      .findByCssSelector('#fxa-' + page + '-header')
-      .end()
+      .then(testElementExists(expectedHeader))
 
       .then(function () {
-        if (additionalQueryParams) {
-          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-' + page + '-header');
+        if (Object.keys(queryParams).length) {
+          return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
         }
       });
   }
@@ -463,6 +519,7 @@ define([
     options = options || {};
 
     var customizeSync = options.customizeSync || false;
+    var enterEmail = options.enterEmail !== false;
     var optInToMarketingEmail = options.optInToMarketingEmail || false;
     var age = options.age || 24;
     var submit = options.submit !== false;
@@ -480,7 +537,11 @@ define([
         }
       })
 
-      .then(type('input[type=email]', email))
+      .then(function () {
+        if (enterEmail) {
+          return type('input[type=email]', email).call(this);
+        }
+      })
       .then(type('input[type=password]', password))
       .then(type('#age', age || '24'))
 
@@ -534,21 +595,19 @@ define([
       .end();
   }
 
-  function fillOutForceAuth(context, password) {
-    return context.remote
-      .setFindTimeout(intern.config.pageLoadTimeout)
-
-      .findByCssSelector('#fxa-force-auth-header')
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .click()
-        .type(password)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+  /**
+   * Fill out and submit the force auth page.
+   *
+   * @param {string} password
+   */
+  function fillOutForceAuth(password) {
+    return function () {
+      return this.parent
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(testElementExists('#fxa-force-auth-header'))
+        .then(type('input[type=password]', password))
+        .then(click('button[type=submit]'));
+    };
   }
 
 
@@ -611,8 +670,7 @@ define([
     // openPage is called, before the page is ready. Wait for
     // the prerequisites, then attach.
     function startListening() {
-      if (typeof window !== 'undefined' &&
-          typeof window.addEventListener === 'function') {
+      try {
         addEventListener('WebChannelMessageToChrome', function (e) {
           var command = e.detail.message.command;
           var data = e.detail.message.data;
@@ -622,7 +680,8 @@ define([
           element.innerText = JSON.stringify(data);
           document.body.appendChild(element);
         });
-      } else {
+      } catch(e) {
+        // problem adding the listener, window may not be ready, try again.
         setTimeout(startListening, 0);
       }
     }
@@ -635,8 +694,7 @@ define([
       return context.remote
         .execute(function (expectedCommand, response) {
           function startListening() {
-            if (typeof window !== 'undefined' &&
-                typeof window.addEventListener === 'function') {
+            try {
               addEventListener('WebChannelMessageToChrome', function listener(e) {
                 var command = e.detail.message.command;
                 var messageId = e.detail.message.messageId;
@@ -657,7 +715,9 @@ define([
                   dispatchEvent(event);
                 }
               });
-            } else {
+            } catch (e) {
+              // problem adding the listener, window may not be
+              // ready, try again.
               setTimeout(startListening, 0);
             }
           }
@@ -691,7 +751,8 @@ define([
   }
 
   function openPage(context, url, readySelector) {
-    return context.remote
+    var remote = context.get ? context : context.remote;
+    return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
 
@@ -704,7 +765,7 @@ define([
       .end()
 
       .then(null, function (err) {
-        return context.remote
+        return remote
           .getCurrentUrl()
             .then(function (resultUrl) {
               console.log('Error fetching %s, now at %s', url, resultUrl);
@@ -712,7 +773,7 @@ define([
           .end()
 
           .then(function () {
-            return context.remote.takeScreenshot();
+            return remote.takeScreenshot();
           })
           .then(function (buffer) {
             console.error('Error occurred, capturing base64 screenshot:');
@@ -777,6 +838,39 @@ define([
   function testErrorWasShown(context, selector) {
     selector = selector || '.error[data-shown]';
     return testElementWasShown(context, selector);
+  }
+
+  /**
+   * Check to ensure an element has a `disabled` attribute.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if test fails
+   */
+  function testElementDisabled(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .getAttribute('disabled')
+          .then(function (disabledValue) {
+            // attribute value is null if it does not exist
+            assert.notStrictEqual(disabledValue, null);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Check to ensure an element exists
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if element does not exist
+   */
+  function testElementExists(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .end();
+    };
   }
 
   /**
@@ -911,7 +1005,7 @@ define([
     return function () {
       var args = arguments;
       return function () {
-        return callback.apply(context || null, args);
+        return callback.apply(context || this, args);
       };
     };
   }
@@ -979,12 +1073,49 @@ define([
     };
   }
 
-  function testElementExists(selector) {
+  /**
+   * Assert the value of an attribute
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} assertion Name of the chai assertion to invoke
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttribute (elementSelector, attributeName, assertion, value) {
     return function () {
       return this.parent
-        .findByCssSelector(selector)
+        .findByCssSelector(elementSelector)
+          .getAtribute(attributeName)
+          .then(function (attributeValue) {
+            assert[assertion](attributeValue, value);
+          })
         .end();
     };
+  }
+
+  /**
+   * Assert that an attribute value === expected value
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttributeEquals (elementSelector, attributeName, value) {
+    return testAttribute(elementSelector, attributeName, 'strictEqual', value);
+  }
+
+  /**
+   * Assert that an attribute value matches a regex
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {regex} regex Expression for the attribute value to be matched against
+   * @returns {promise}
+   */
+  function testAttributeMatches (elementSelector, attributeName, regex) {
+    return testAttribute(elementSelector, attributeName, 'match', regex);
   }
 
   function verifyUser(user, index, client, accountData) {
@@ -1016,6 +1147,7 @@ define([
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
     openExternalSite: openExternalSite,
+    openForceAuth: openForceAuth,
     openFxaFromRp: openFxaFromRp,
     openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     openPage: openPage,
@@ -1029,6 +1161,10 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testAttribute: testAttribute,
+    testAttributeEquals: testAttributeEquals,
+    testAttributeMatches: testAttributeMatches,
+    testElementDisabled: testElementDisabled,
     testElementExists: testElementExists,
     testElementTextInclude: testElementTextInclude,
     testElementValueEquals: testElementValueEquals,

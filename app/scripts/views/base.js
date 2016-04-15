@@ -10,8 +10,10 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var ErrorUtils = require('lib/error-utils');
   var NotifierMixin = require('views/mixins/notifier-mixin');
   var NullMetrics = require('lib/null-metrics');
+  var Logger = require('lib/logger');
   var p = require('lib/promise');
   var Raven = require('raven');
   var TimerMixin = require('views/mixins/timer-mixin');
@@ -49,7 +51,7 @@ define(function (require, exports, module) {
     // Errors are disabled on page unload to supress errors
     // caused by aborted XHR requests.
     if (! this._areErrorsEnabled) {
-      console.error('Error ignored: %s', JSON.stringify(err));
+      this.logger.error('Error ignored: %s', JSON.stringify(err));
       return;
     }
 
@@ -123,6 +125,7 @@ define(function (require, exports, module) {
       this.childViews = [];
       this.user = options.user;
       this.window = options.window || window;
+      this.logger = new Logger(this.window);
 
       this.navigator = options.navigator || this.window.navigator || navigator;
       this.translator = options.translator || this.window.translator;
@@ -198,6 +201,31 @@ define(function (require, exports, module) {
             return true;
           });
         });
+    },
+
+
+    /**
+     * Write content to the DOM
+     *
+     * @param {string || element} content
+     */
+    writeToDOM: function (content) {
+      $('#loading-spinner').hide();
+
+      // Two notes:
+      // 1. Render the new view while stage is invisible then fade it in
+      // using css animations to catch problems with an explicit
+      // opacity rule after class is added.
+      // 2. The html is written directly into #stage instead
+      // of this.$el because overwriting this.$el has a nasty side effect
+      // where the view's DOM event handlers do hook up properly.
+      $('#stage').html(content).addClass('fade-in-forward').css('opacity', 1);
+
+      // The user may be scrolled part way down the page
+      // on view transition. Force them to the top of the page.
+      this.window.scrollTo(0, 0);
+
+      $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
     },
 
     // Checks that the user's current account exists and is
@@ -551,11 +579,20 @@ define(function (require, exports, module) {
       }
       err.logged = true;
 
-      if (typeof console !== 'undefined' && console) {
-        console.error(err.message || err);
-      }
-      this.sentryMetrics.captureException(err);
-      this.metrics.logError(err);
+      ErrorUtils.captureError(err, this.sentryMetrics, this.metrics);
+    },
+
+
+    /**
+     * Handle a fatal error. Logs and reports the error, then redirects
+     * to the appropriate error page.
+     *
+     * @param {Error} error
+     * @returns {promise}
+     */
+    fatalError: function (err) {
+      return ErrorUtils.fatalError(
+        err, this.sentryMetrics, this.metrics, this.window, this.translator);
     },
 
     /**
@@ -574,9 +611,7 @@ define(function (require, exports, module) {
         // user and show a console trace to help us debug.
         err = errors.toError('UNEXPECTED_ERROR');
 
-        if (this.window.console && this.window.console.trace) {
-          this.window.console.trace();
-        }
+        this.logger.trace();
       }
 
       if (_.isString(err)) {

@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var FormPrefill = require('models/form-prefill');
@@ -210,10 +211,10 @@ define(function (require, exports, module) {
   });
 
   describe('views/reset_password with email specified in relier', function () {
-    var view;
-    var relier;
     var broker;
     var formPrefill;
+    var relier;
+    var view;
 
     beforeEach(function () {
       relier = new Relier();
@@ -228,6 +229,7 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         relier: relier
       });
+
       return view.render();
     });
 
@@ -240,9 +242,99 @@ define(function (require, exports, module) {
     it('does not pre-fills email address', function () {
       assert.equal(view.$('.email').val(), '');
     });
+  });
+
+  describe('views/reset_password with model.forceEmail', function () {
+    var broker;
+    var email = 'testuser@testuser.com';
+    var formPrefill;
+    var model;
+    var relier;
+    var view;
+
+    beforeEach(function () {
+      broker = new Broker({ relier: relier });
+      formPrefill = new FormPrefill();
+      model = new Backbone.Model({ forceEmail: email });
+      relier = new Relier({ email: email });
+
+      view = new View({
+        broker: broker,
+        formPrefill: formPrefill,
+        model: model,
+        relier: relier
+      });
+
+      sinon.spy(view, '_resetPassword');
+
+      return view.render();
+    });
+
+    afterEach(function () {
+      view.destroy();
+      view = null;
+      $('#container').empty();
+    });
+
+    it('shows a readonly email', function () {
+      var $emailInputEl = view.$('[type=email]');
+      assert.equal($emailInputEl.val(), email);
+      assert.isTrue($emailInputEl.hasClass('hidden'));
+
+      assert.equal(view.$('.prefillEmail').text(), email);
+    });
+
+    it('has a link back to /force_auth', function () {
+      assert.ok(view.$('a[href="/force_auth"]').length);
+    });
+
+    it('does not submit the email address automatically', function () {
+      assert.isFalse(view._resetPassword.called);
+    });
 
     it('removes the back button - the user probably browsed here directly', function () {
       assert.equal(view.$('#back').length, 0);
+    });
+  });
+
+  describe('views/reset_password with reset_password_confirm=false', function () {
+    var view;
+    var relier;
+    var broker;
+    var formPrefill;
+
+    beforeEach(function () {
+      relier = new Relier();
+      relier.set('email', 'testuser@testuser.com');
+      relier.set('resetPasswordConfirm', false);
+
+      broker = new Broker({
+        relier: relier
+      });
+
+      formPrefill = new FormPrefill();
+
+      view = new View({
+        broker: broker,
+        formPrefill: formPrefill,
+        relier: relier
+      });
+
+      sinon.stub(view, 'resetPassword', function () {
+        return p();
+      });
+
+      return view.render();
+    });
+
+    afterEach(function () {
+      view.destroy();
+      view = null;
+      $('#container').empty();
+    });
+
+    it('submits the email address automatically', function () {
+      assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
     });
   });
 });

@@ -143,6 +143,26 @@ define(function (require, exports, module) {
           });
       });
 
+      describe('with model.forceEmail', function () {
+        beforeEach(function () {
+          model.set('forceEmail', 'testuser@testuser.com');
+
+          return view.render();
+        });
+
+        it('shows a readonly email', function () {
+          var $emailInputEl = view.$('[type=email]');
+          assert.equal($emailInputEl.val(), 'testuser@testuser.com');
+          assert.isTrue($emailInputEl.hasClass('hidden'));
+
+          assert.equal(view.$('.prefillEmail').text(), 'testuser@testuser.com');
+        });
+
+        it('does not allow `signin`', function () {
+          assert.equal(view.$('.sign-in').length, 0);
+        });
+      });
+
       it('prefills email with email from the relier if formPrefill.email is not set', function () {
         relier.set('email', 'testuser@testuser.com');
 
@@ -804,6 +824,70 @@ define(function (require, exports, module) {
             var args = view.logEvent.args[0];
             assert.lengthOf(args, 1);
             assert.equal(args[0], 'login.canceled');
+          });
+        });
+
+        describe('signin fails with a locked out account', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+            });
+
+            sinon.spy(view, 'notifyOfLockedAccount');
+
+            return view.submit();
+          });
+
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
+          });
+
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('notifies the user of the locked account', function () {
+            assert.isTrue(view.notifyOfLockedAccount.called);
+            var args = view.notifyOfLockedAccount.args[0];
+            var account = args[0];
+            assert.instanceOf(account, Account);
+            var lockedAccountPassword = args[1];
+            assert.equal(lockedAccountPassword, 'password');
+          });
+        });
+
+        describe('signin failse with a reset accont', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
+            });
+
+            sinon.spy(view, 'notifyOfResetAccount');
+
+            return view.submit();
+          });
+
+          it('does not call view.signUp', function () {
+            assert.isFalse(view.signUp.called);
+          });
+
+          it('calls view.signIn correctly', function () {
+            assert.equal(view.signIn.callCount, 1);
+
+            var args = view.signIn.args[0];
+            assert.instanceOf(args[0], Account);
+            assert.equal(args[1], 'password');
+          });
+
+          it('notifies the user of the reset account', function () {
+            assert.isTrue(view.notifyOfResetAccount.called);
+            var args = view.notifyOfResetAccount.args[0];
+            var account = args[0];
+            assert.instanceOf(account, Account);
           });
         });
 

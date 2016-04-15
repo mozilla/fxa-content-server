@@ -68,13 +68,14 @@ define(function (require, exports, module) {
       var verificationInfo = this._verificationInfo;
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
+      var showSyncWarning = this.relier.get('resetPasswordConfirm');
 
       // damaged and expired links have special messages.
       return {
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired,
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
+        showSyncWarning: showSyncWarning
       };
     },
 
@@ -116,6 +117,8 @@ define(function (require, exports, module) {
           self.relier
         )
         .then(function (updatedAccount) {
+          // The password was reset, future attempts should ask confirmation.
+          self.relier.set('resetPasswordConfirm', true);
           // See the above note about notifying the original tab.
           self.logViewEvent('verification.success');
           return self.invokeBrokerMethod(

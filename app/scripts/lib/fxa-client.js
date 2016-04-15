@@ -125,6 +125,24 @@ define(function (require, exports, module) {
         });
     },
 
+    confirmSignInResend: function (relier, sessionToken, options) {
+      options = options || {};
+
+      return this._getClient()
+        .then(function (client) {
+          var clientOptions = {
+            redirectTo: relier.get('redirectTo'),
+            service: relier.get('service')
+          };
+
+          if (options.resume) {
+            clientOptions.resume = options.resume;
+          }
+
+          return client.confirmSignInSendCode(sessionToken, clientOptions);
+        });
+    },
+
     _getUpdatedSessionData: function (email, relier, accountData, options) {
       var sessionTokenContext = options.sessionTokenContext;
       if (! sessionTokenContext && relier.isSync()) {
@@ -132,6 +150,8 @@ define(function (require, exports, module) {
       }
 
       var updatedSessionData = {
+        challengeMethod: accountData.challengeMethod,
+        challengeReason: accountData.challengeReason,
         email: email,
         sessionToken: accountData.sessionToken,
         sessionTokenContext: sessionTokenContext,
@@ -161,7 +181,7 @@ define(function (require, exports, module) {
       PASSWORD_CHANGE: 'password_change',
       PASSWORD_CHECK: 'password_check',
       PASSWORD_RESET: 'password_reset',
-      SIGN_IN: 'signin',
+      SIGN_IN: 'signin'
     },
 
     /**

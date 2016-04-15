@@ -9,6 +9,8 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Errors = require('lib/errors');
+  var Logger = require('lib/logger');
+  var logger = new Logger();
 
   var t = function (msg) {
     return msg;
@@ -93,6 +95,10 @@ define(function (require, exports, module) {
     ACCOUNT_NOT_LOCKED: {
       errno: 122,
       message: UNEXPECTED_ERROR_MESSAGE
+    },
+    ACCOUNT_RESET: {
+      errno: 126,
+      message: t('Your account has been locked for security reasons')
     },
     SERVER_BUSY: {
       errno: 201,
@@ -204,10 +210,13 @@ define(function (require, exports, module) {
       errno: 1023,
       message: t('Valid email required')
     },
+    /*
+    Removed in issue #3040
     FORCE_AUTH_EMAIL_REQUIRED: {
       errno: 1024,
       message: t('/force_auth requires an email')
     },
+    */
     EXPIRED_VERIFICATION_LINK: {
       errno: 1025,
       message: t('The link you clicked to verify your email is expired.')
@@ -243,6 +252,10 @@ define(function (require, exports, module) {
     INVALID_CAMERA_DIMENSIONS: {
       errno: 1033,
       message: UNEXPECTED_ERROR_MESSAGE
+    },
+    DELETED_ACCOUNT: {
+      errno: 1034,
+      message: t('Account no longer exists.')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
@@ -260,7 +273,7 @@ define(function (require, exports, module) {
       try {
         if (this.is(err, 'INVALID_PARAMETER')) {
           return {
-            param: err.validation.keys
+            param: err.param || err.validation.keys
           };
         } else if (this.is(err, 'MISSING_PARAMETER')) {
           return {
@@ -269,9 +282,7 @@ define(function (require, exports, module) {
         }
       } catch (e) {
         // handle invalid/unexpected data from the backend.
-        if (window.console && console.error) {
-          console.error('Error in errors.js->toInterpolationContext: %s', String(e));
-        }
+        logger.error('Error in errors.js->toInterpolationContext: %s', String(e));
       }
 
       return {};

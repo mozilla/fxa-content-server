@@ -50,6 +50,8 @@ define(function (require, exports, module) {
 
   var DEFAULTS = _.extend({
     accessToken: undefined,
+    challengeMethod: undefined,
+    challengeReason: undefined,
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
@@ -336,6 +338,26 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Retry sending a verify token code
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise} - resolves when complete
+     */
+    retrySendVerifyToken: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.verifyTokenResendCode(
+        relier,
+        this.get('sessionToken'),
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
      * Sign up a new user.
      *
      * @param {string} password - The user's password
@@ -406,13 +428,23 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check if user exists by stored email.
+     * Check whether the account's email is registered.
      *
-     * @returns {promise} - resolves when complete
+     * @returns {promise} resolves to `true` if email is registered,
+     * `false` otw.
      */
-    checkAccountEmailExists: function () {
-      var email = this.get('email');
-      return this._fxaClient.checkAccountExistsByEmail(email);
+    checkEmailExists: function () {
+      return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
+    },
+
+    /**
+     * Check whether the account's UID is registered.
+     *
+     * @returns {promise} resolves to `true` if the uid is registered,
+     * `false` otw.
+     */
+    checkUidExists: function () {
+      return this._fxaClient.checkAccountExists(this.get('uid'));
     },
 
     /**

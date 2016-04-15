@@ -26,14 +26,14 @@
       {{#suggestedAccount}}
           <div class="avatar-wrapper avatar-view">
           </div>
-          <p class="prefill">{{ email }}</p>
+          <p class="prefillEmail">{{ email }}</p>
 
         {{#chooserAskForPassword}}
           <form novalidate>
             <input type="email" class="email hidden" value="{{ email }}" />
 
             <div class="input-row password-row">
-              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} autofocus />
+              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" required pattern=".{8,}" autofocus />
 
               <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
               <label for="show-password" class="show-password-label">
@@ -70,7 +70,7 @@
         </div>
 
         <div class="input-row password-row">
-          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} />
+          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} />
 
           <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
           <label for="show-password" class="show-password-label">
