@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       'confirm(/)': createViewHandler(ConfirmView),
       'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
-      'confirm_sign_in(/)': createViewHandler(ConfirmSignInView),
+      'confirm_signin(/)': createViewHandler(ConfirmSignInView),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
       'force_auth_complete(/)': createViewHandler(ReadyView, { type: 'force_auth' }),
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
       'signup_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_up' }),
       'unexpected_error(/)': createViewHandler(UnexpectedErrorView),
       'verify_email(/)': createViewHandler(CompleteSignUpView),
-      'verify_sign_in(/)': createViewHandler(CompleteSignInView)
+      'verify_signin(/)': createViewHandler(CompleteSignInView)
     },
 
     initialize: function (options) {
@@ -180,7 +180,7 @@ define(function (require, exports, module) {
           // Attempt to get account status of email and navigate
           // to correct signin/signup page if exists.
           var account = self.user.initAccount({ email: email });
-          return account.checkAccountEmailExists()
+          return self.user.checkAccountEmailExists(account)
             .then(function (exists) {
               if (exists) {
                 return '/oauth/signin';

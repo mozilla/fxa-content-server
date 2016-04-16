@@ -5,112 +5,83 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
+  var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
+  var openFxaFromRp = thenify(FunctionalHelpers.openFxaFromRp);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
+  var testElementDisabled = FunctionalHelpers.testElementDisabled;
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
+  var testUrlEquals = FunctionalHelpers.testUrlEquals;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var PASSWORD = 'password';
   var email;
-  var client;
-
-  function openFxaFromRp(context, email) {
-    var emailParam = '?email=' + encodeURIComponent(email);
-    return FunctionalHelpers.openFxaFromRp(context, 'force_auth', emailParam);
-  }
-
-  function attemptSignIn(context) {
-    return context.remote
-      // user should be at the force-auth screen
-      .findByCssSelector('#fxa-force-auth-header')
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .click()
-        .type(PASSWORD)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
-  }
-
 
   registerSuite({
-    name: 'oauth force_auth with a registered force_email',
+    name: 'oauth force_auth',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          // clear localStorage to avoid polluting other tests.
-          return FunctionalHelpers.clearBrowserState(self, {
-            '123done': true,
-            contentServer: true
-          });
-        });
+      return this.remote
+        .then(clearBrowserState(this, {
+          '123done': true,
+          contentServer: true
+        }));
     },
 
-    'allows the user to sign in': function () {
-      var self = this;
-      return openFxaFromRp(this, email)
-        .then(function () {
-          return attemptSignIn(self);
-        })
+    'with a registered email': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openFxaFromRp(this, 'force_auth', { query: { email: email }}))
+        .then(fillOutForceAuth(PASSWORD))
 
-        .findByCssSelector('#loggedin')
-        .end()
-
-        .getCurrentUrl()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end();
-    }
-  });
-
-  registerSuite({
-    name: 'oauth force_auth with an unregistered force_mail',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-      // clear localStorage to avoid polluting other tests.
-      return FunctionalHelpers.clearBrowserState(this, {
-        '123done': true,
-        contentServer: true
-      });
+        .then(testElementExists('#loggedin'))
+        // redirected back to the App
+        .then(testUrlEquals(OAUTH_APP));
     },
 
-    'sign in shows an error message': function () {
-      var self = this;
-      return openFxaFromRp(self, email)
-        .then(function () {
-          return attemptSignIn(self);
-        })
+    'with an unregistered email': function () {
+      return this.remote
+        .then(openFxaFromRp(this, 'force_auth', {
+          header: '#fxa-signup-header',
+          query: { email: email }
+        }))
+        .then(visibleByQSA('.error'))
+        .then(testElementTextInclude('.error', 'recreate'))
+        // ensure the email is filled in, and not editible.
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
+        .then(fillOutSignUp(this, email, PASSWORD, { enterEmail: false }))
 
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end();
-    },
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(this, email, 0))
 
-    'reset password shows an error message': function () {
-      var self = this;
-      return openFxaFromRp(self, email)
-        .findByCssSelector('a[href="/confirm_reset_password"]')
-          .click()
-        .end()
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        // user sees the name of the RP,
+        // but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'))
 
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end();
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#loggedin'))
+        // redirected back to the App
+        .then(testUrlEquals(OAUTH_APP));
     }
   });
 });

@@ -13,10 +13,10 @@
     <div class="avatar-wrapper avatar-view">
     </div>
     <form novalidate>
-      <p class="prefill">{{ email }}</p>
-      <input type="email" class="email hidden" value="{{ email }}" />
+      <p class="prefillEmail">{{ email }}</p>
+      <input type="email" class="email hidden" value="{{ email }}" disabled />
       <div class="input-row password-row">
-        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} />
+        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" required pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} />
 
         <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
         <label for="show-password" class="show-password-label">
@@ -30,7 +30,7 @@
     </form>
 
     <div class="links">
-      <a href="/confirm_reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
+      <a href="/reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
     </div>
 
     <div class="extra-links">

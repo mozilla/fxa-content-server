@@ -209,7 +209,8 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
 * `fx_ios_v2` - Firefox Accounts is being used to sign in to Sync on Firefox
    for iOS using CustomEvents. Adds `chooseWhatToSyncWebV1` and
    `syncPreferencesNotification` capabilities.
-* `iframe` - Firefox Accounts is displayed in an iframe.
+* `iframe` - Firefox Accounts is being used to sign in to Sync on Firefox
+    Desktop firstrun page. Misnamed and should be called `fx_firstrun_v1`.
 
 ### `email`
 When used on /signin, /oauth/signin, /signup, or /oauth/signup, suggest a user to sign in. If set to the string `blank`, an empty sign in form will be displayed and no suggested accounts will appear.
@@ -343,6 +344,16 @@ If the "mailcheck" feature should be used.
 * /signup
 * /oauth/signup
 
+## Reset Password parameters
 
+### `reset_password_confirm`
+Used to skip the confirmation form to reset a password
 
+#### Options
+* `true` (default)
+* `false`
+
+#### When to use
+Should not be used by reliers.
+Should only be used for accounts that must be reset.
 

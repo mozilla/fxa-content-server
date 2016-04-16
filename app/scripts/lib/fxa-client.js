@@ -150,7 +150,8 @@ define(function (require, exports, module) {
       }
 
       var updatedSessionData = {
-        challenge: accountData.challenge || 'verify-email',
+        challengeMethod: accountData.challengeMethod,
+        challengeReason: accountData.challengeReason,
         email: email,
         sessionToken: accountData.sessionToken,
         sessionTokenContext: sessionTokenContext,

@@ -16,12 +16,12 @@ define(function (require, exports, module) {
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
-  var Url = require('lib/url');
   var User = require('models/user');
   var WindowMock = require('../../../mocks/window');
 
   /*eslint-disable camelcase */
   var assert = chai.assert;
+  var getValueLabel = TestHelpers.getValueLabel;
 
   describe('models/reliers/oauth', function () {
     var err;
@@ -34,7 +34,8 @@ define(function (require, exports, module) {
     var ACCESS_TYPE = 'offline';
     var ACTION = 'signup';
     var CLIENT_ID = 'dcdb5ae7add825d2';
-    var PREVERIFY_TOKEN = 'abigtoken';
+    var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
+    var PREVERIFY_TOKEN = 'a=.big==.token==';
     var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
     var REDIRECT_URI = 'http://redirect.here';
     var SCOPE = 'profile:email profile:uid';
@@ -109,7 +110,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('sets serviceName, redirectUri, and origin from parameters returned by the server', function () {
+      it('sets serviceName, and redirectUri from parameters returned by the server', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           action: ACTION,
           client_id: CLIENT_ID,
@@ -124,7 +125,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(relier.get('serviceName'), SERVICE_NAME);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-            assert.equal(relier.get('origin'), Url.getOrigin(SERVER_REDIRECT_URI));
           });
       });
 
@@ -157,7 +157,7 @@ define(function (require, exports, module) {
           });
       });
 
-      describe('parameter validation', function () {
+      describe('query parameter validation', function () {
         describe('access_type', function () {
           var validValues = [undefined, 'offline', 'online'];
           testValidQueryParams('access_type', validValues, 'accessType', validValues);
@@ -253,14 +253,6 @@ define(function (require, exports, module) {
           testValidQueryParams('keys', validValues, 'keys', expectedValues);
         });
 
-        describe('privacy_uri', function () {
-          var validValues = ['', PRIVACY_URI];
-          testValidClientInfoValues('privacy_uri', validValues, 'privacyUri', validValues);
-
-          var invalidValues = [' ', 'not-a-url'];
-          testInvalidClientInfoValues('privacy_uri', invalidValues);
-        });
-
         describe('prompt', function () {
           var invalidValues = ['', ' ', 'invalid'];
           testInvalidQueryParams('prompt', invalidValues);
@@ -278,10 +270,6 @@ define(function (require, exports, module) {
         });
 
         describe('redirect_uri', function () {
-          describe('is missing on the server', function () {
-            testMissingClientInfoValue('redirect_uri');
-          });
-
           var validQueryParamValues = [undefined, REDIRECT_URI];
           // redirectUri will always be loaded from the server
           var expectedValues = [SERVER_REDIRECT_URI, SERVER_REDIRECT_URI];
@@ -289,9 +277,6 @@ define(function (require, exports, module) {
 
           var invalidQueryParamValues = ['', ' ', 'not-a-url'];
           testInvalidQueryParams('redirect_uri', invalidQueryParamValues);
-
-          var invalidClientInfoValues = ['', ' '];
-          testInvalidClientInfoValues('redirect_uri', invalidClientInfoValues);
         });
 
         describe('scope', function () {
@@ -354,14 +339,6 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('terms_uri', function () {
-          var invalidValues = [' ', 'not-a-url'];
-          testInvalidClientInfoValues('terms_uri', invalidValues);
-
-          var validValues = ['', TERMS_URI];
-          testValidClientInfoValues('terms_uri', validValues, 'termsUri', validValues);
-        });
-
         describe('verification_redirect', function () {
           var invalidValues = ['', ' ', 'invalid'];
           testInvalidQueryParams('verification_redirect', invalidValues);
@@ -370,37 +347,94 @@ define(function (require, exports, module) {
           var expectedValues = ['no', 'no', 'always'];
           testValidQueryParams('verification_redirect', validValues, 'verificationRedirect', expectedValues);
         });
-
       });
 
-      describe('isTrusted', function () {
+      describe('client info validation', function () {
+
+        describe('image_uri', function () {
+          // leading & trailing whitespace will be trimmed
+          var validValues = ['', ' ', CLIENT_IMAGE_URI, ' ' + CLIENT_IMAGE_URI];
+          var expectedValues = ['', '', CLIENT_IMAGE_URI, CLIENT_IMAGE_URI];
+          testValidClientInfoValues(
+            'image_uri', validValues, 'imageUri', expectedValues);
+
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('image_uri', invalidValues);
+        });
+
+        describe('name', function () {
+          var validValues = ['client name'];
+          testValidClientInfoValues('name', validValues, 'serviceName', validValues);
+
+          var invalidValues = ['', ' '];
+          testInvalidClientInfoValues('name', invalidValues);
+        });
+
+        describe('privacy_uri', function () {
+          var validValues = ['', ' ', PRIVACY_URI, PRIVACY_URI + ' '];
+          var expectedValues = ['', '', PRIVACY_URI, PRIVACY_URI];
+          testValidClientInfoValues(
+            'privacy_uri', validValues, 'privacyUri', expectedValues);
+
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('privacy_uri', invalidValues);
+        });
+
+        describe('redirect_uri', function () {
+          describe('is missing on the server', function () {
+            testMissingClientInfoValue('redirect_uri');
+          });
+
+          var invalidClientInfoValues = ['', ' '];
+          testInvalidClientInfoValues('redirect_uri', invalidClientInfoValues);
+        });
+
+        describe('terms_uri', function () {
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('terms_uri', invalidValues);
+
+          var validValues = ['', ' ', TERMS_URI, ' ' + TERMS_URI];
+          var expectedValues = ['', '', TERMS_URI, TERMS_URI];
+          testValidClientInfoValues('terms_uri', validValues, 'termsUri', expectedValues);
+        });
+
+        describe('trusted', function () {
+          var validValues = ['true', true, 'false', false];
+          var expected = [true, true, false, false];
+          testValidClientInfoValues('trusted', validValues, 'trusted', expected);
+          var invalidValues = ['', 'not-a-boolean'];
+          testInvalidClientInfoValues('trusted', invalidValues);
+        });
+      });
+    });
+
+    describe('isTrusted', function () {
+      beforeEach(function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+      });
+
+      describe('when `trusted` is true', function () {
         beforeEach(function () {
-          windowMock.location.search = TestHelpers.toSearchString({
-            client_id: CLIENT_ID,
-            scope: SCOPE
-          });
+          isTrusted = true;
+          return relier.fetch();
         });
 
-        describe('when `trusted` is true', function () {
-          beforeEach(function () {
-            isTrusted = true;
-            return relier.fetch();
-          });
+        it('returns `true`', function () {
+          assert.isTrue(relier.isTrusted());
+        });
+      });
 
-          it('returns `true`', function () {
-            assert.isTrue(relier.isTrusted());
-          });
+      describe('when `trusted` is false', function () {
+        beforeEach(function () {
+          isTrusted = false;
+          return relier.fetch();
         });
 
-        describe('when `trusted` is false', function () {
-          beforeEach(function () {
-            isTrusted = false;
-            return relier.fetch();
-          });
-
-          it('returns `false`', function () {
-            assert.isFalse(relier.isTrusted());
-          });
+        it('returns `false`', function () {
+          assert.isFalse(relier.isTrusted());
         });
       });
     });
@@ -423,6 +457,7 @@ define(function (require, exports, module) {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           notPassed: 'this should not be picked',
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
@@ -437,6 +472,7 @@ define(function (require, exports, module) {
           // the Relier are still passed.
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
@@ -599,6 +635,7 @@ define(function (require, exports, module) {
 
       sinon.stub(oAuthClient, 'getClientInfo', function () {
         var clientInfo = {
+          id: CLIENT_ID,
           name: SERVICE_NAME,
           privacy_uri: PRIVACY_URI,
           redirect_uri: SERVER_REDIRECT_URI,
@@ -791,18 +828,6 @@ define(function (require, exports, module) {
           testValidClientInfo(paramName, value, modelName, expectedValue);
         });
       });
-    }
-
-    function getValueLabel(value) {
-      if (_.isUndefined(value)) {
-        return 'not set';
-      } else if (value === '') {
-        return 'empty';
-      } else if (/^\s+$/.test(value)) {
-        return 'whitespace only';
-      }
-
-      return value;
     }
   });
 });

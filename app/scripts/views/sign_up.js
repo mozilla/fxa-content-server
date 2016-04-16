@@ -4,6 +4,8 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
   var CheckboxMixin = require('views/mixins/checkbox-mixin');
@@ -58,6 +60,11 @@ define(function (require, exports, module) {
           error: this.getSignupDisabledReason()
         });
         return p(false);
+      }
+
+      var error = this.model.get('error');
+      if (error && AuthErrors.is(error, 'DELETED_ACCOUNT')) {
+        error.forceMessage = t('Account no longer exists. Recreate it?');
       }
 
       return FormView.prototype.beforeRender.call(this);
@@ -141,7 +148,7 @@ define(function (require, exports, module) {
     },
 
     _selectAutoFocusEl: function () {
-      var prefillEmail = this.getPrefillEmail();
+      var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
 
       return selectAutoFocusEl(
@@ -149,20 +156,23 @@ define(function (require, exports, module) {
     },
 
     context: function () {
+      var autofocusEl = this._selectAutoFocusEl();
+      var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
-      var autofocusEl = this._selectAutoFocusEl();
 
       var relier = this.relier;
       var isSync = relier.isSync();
+
       var context = {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
+        forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isEmailOptInVisible: this._isEmailOptInEnabled(),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
+        isSignInEnabled: ! forceEmail,
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
         password: prefillPassword,
@@ -299,6 +309,10 @@ define(function (require, exports, module) {
         } else {
           throw AuthErrors.toError('AGE_REQUIRED');
         }
+      } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
+        return this.notifyOfLockedAccount(account, password);
+      } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+        return this.notifyOfResetAccount(account);
       }
 
       // re-throw error, it will be handled at a lower level.
@@ -393,6 +407,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    AccountLockedMixin,
+    AccountResetMixin,
     CheckboxMixin,
     ExperimentMixin,
     MigrationMixin,

@@ -28,6 +28,7 @@ define([
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var openPage = FunctionalHelpers.openPage;
+  var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -501,6 +502,11 @@ define([
 
         .findByCssSelector('#fxa-settings-header')
         .end();
+    },
+
+    'data-flow-begin attribute is set': function () {
+      this.remote
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{13,}$/));
     }
   });
 

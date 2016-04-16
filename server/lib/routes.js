@@ -62,11 +62,6 @@ module.exports = function (config, i18n) {
       res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
-    // handle sign in verification links
-    app.get(addVersionPrefix('/verify_sign_in'), function (req, res) {
-      res.redirect(removeVersionPrefix(req.originalUrl));
-    });
-
     // handle reset password from notification emails
     app.get(addVersionPrefix('/reset_password'), function (req, res) {
       res.redirect(removeVersionPrefix(req.originalUrl));
@@ -131,7 +126,7 @@ module.exports = function (config, i18n) {
       '/signup_permissions',
       '/unexpected_error',
       '/verify_email',
-      '/verify_sign_in',
+      '/verify_signin',
     ];
 
     var ALLOWED_TO_FRAME = {

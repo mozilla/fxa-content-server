@@ -7,6 +7,7 @@
         <title>{{#t}}Firefox Accounts{{/t}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
+        <meta name="referrer" content="origin">
 
         <!-- build:css(.tmp) /styles/{{ locale }}.css -->
         <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
@@ -32,8 +33,9 @@
           <!-- endbuild -->
         <![endif]-->
     </head>
-    <body>
+    <body data-flow-begin="{{flowBeginTime}}">
         <div id="fox-logo"></div>
+        <div id="loading-spinner" class="spinner"></div>
         <div id="stage">
           <div id="main-content" class="card">
           </div>
