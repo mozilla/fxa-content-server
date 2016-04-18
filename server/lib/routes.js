@@ -94,7 +94,7 @@ module.exports = function (config, i18n) {
       '/confirm',
       '/confirm_account_unlock',
       '/confirm_reset_password',
-      '/confirm_token',
+      '/confirm_signin',
       '/cookies_disabled',
       '/force_auth',
       '/force_auth_complete',

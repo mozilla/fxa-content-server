@@ -100,9 +100,6 @@ define(function (require, exports, module) {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
-    // Verification challenge strings
-    SIGNIN_EMAIL: 'signin.email',
-
     DEFAULT_XHR_TIMEOUT_MS: 2500,
     DEFAULT_DECLINED_ENGINES: [
       'bookmarks',
