@@ -338,7 +338,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Retry sending a verify token code
+     * Retry sending a sign in verification code
      *
      * @param {object} relier
      * @param {object} [options]
@@ -355,6 +355,23 @@ define(function (require, exports, module) {
           resume: options.resume
         }
       );
+    },
+
+    /**
+     * Verify the signin using the verification code
+     *
+     * @param {string} code - the verification code
+     * @returns {promise} - resolves when complete
+     */
+    verifySignIn: function (code) {
+      var self = this;
+      return self._fxaClient.verifyCode(
+        self.get('uid'),
+        code
+      )
+      .then(function () {
+        self.set('verified', true);
+      });
     },
 
     /**
@@ -396,26 +413,6 @@ define(function (require, exports, module) {
       options = options || {};
 
       return this._fxaClient.signUpResend(
-        relier,
-        this.get('sessionToken'),
-        {
-          resume: options.resume
-        }
-      );
-    },
-
-    /**
-     * Retry sending sign-in confirmation
-     *
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise} - resolves when complete
-     */
-    retrySignInConfirmation: function (relier, options) {
-      options = options || {};
-
-      return this._fxaClient.confirmSignInResend(
         relier,
         this.get('sessionToken'),
         {

@@ -59,7 +59,7 @@ define(function (require, exports, module) {
       var challengeReason = account.get('challengeReason');
 
       if (challengeReason === 'signin' && challengeMethod === 'email') {
-        return this.navigate('confirm_token', {
+        return this.navigate('confirm_signin', {
           account: account
         });
       } else if (! account.get('verified')) {
