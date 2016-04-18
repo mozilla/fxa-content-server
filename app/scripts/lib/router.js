@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       'confirm(/)': createViewHandler(ConfirmView),
       'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
-      'confirm_signin(/)': createViewHandler(ConfirmSignInView),
+      'confirm_token(/)': createViewHandler(ConfirmSignInView),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
       'force_auth_complete(/)': createViewHandler(ReadyView, { type: 'force_auth' }),

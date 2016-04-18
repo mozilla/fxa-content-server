@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
+  var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
@@ -78,33 +79,77 @@ define(function (require, exports, module) {
     },
 
     afterVisible: function () {
-      // TODO Add polling logic
+      var self = this;
+      return self._startPolling();
+    },
+
+    _startPolling: function () {
+      var self = this;
+
+      return self._waitForConfirmation()
+        .then(function () {
+          self.logViewEvent('verification.success');
+          self.notifier.trigger('verification.success');
+          return self.invokeBrokerMethod(
+            'afterSignUpConfirmationPoll', self.getAccount())
+            .then(function () {
+              // the user is definitely authenticated here.
+              if (self.relier.isDirectAccess()) {
+                self.navigate('settings', {
+                  success: t('Account verified successfully')
+                });
+              } else {
+                self.navigate('signin_complete');
+              }
+            });
+        }, function (err) {
+          // The user's email may have bounced because it was invalid.
+          // Redirect them to the sign up page with an error notice.
+          if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
+            // Hide the error from the user if it is an unexpected error.
+            // an error may happen here if the status api is overloaded or if the user is switching networks.
+            // Report errors to Sentry, but not the user.
+            // Details: github.com/mozilla/fxa-content-server/issues/2638.
+            self.sentryMetrics.captureException(err);
+            var deferred = p.defer();
+
+            self.setTimeout(function () {
+              deferred.resolve(self._startPolling());
+            }, self.VERIFICATION_POLL_IN_MS);
+
+            return deferred.promise;
+          } else {
+            self.displayError(err);
+          }
+        });
+    },
+
+    _waitForConfirmation: function () {
+      var self = this;
+      var account = self.getAccount();
+      return self.fxaClient.recoveryEmailStatus(
+        account.get('sessionToken'), account.get('uid'))
+        .then(function (result) {
+          if (result.verified) {
+            account.set('verified', true);
+            self.user.setAccount(account);
+            return true;
+          }
+
+          var deferred = p.defer();
+
+          // _waitForConfirmation will return a promise and the
+          // promise chain remains unbroken.
+          self.setTimeout(function () {
+            deferred.resolve(self._waitForConfirmation());
+          }, self.VERIFICATION_POLL_IN_MS);
+
+          return deferred.promise;
+        });
     },
 
     submit: function () {
-      var self = this;
-
-      self.logViewEvent('resend');
-
-      return self.getAccount().retrySendVerifyToken(
-        self.relier,
-        {
-          resume: self.getStringifiedResumeToken()
-        }
-      )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
-        if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('signup', {
-            error: err
-          });
-        }
-
-        // unexpected error, rethrow for display.
-        throw err;
-      });
+      // TODO Add re-send confirmation email logic
     },
 
     // The ResendMixin overrides beforeSubmit. Unless set to undefined,
