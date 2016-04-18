@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
-  var Constants = require('lib/constants');
   var p = require('lib/promise');
 
   module.exports = {

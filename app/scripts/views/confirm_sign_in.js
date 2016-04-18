@@ -17,6 +17,8 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/confirm_sign_in');
 
+  var t = BaseView.t;
+
   var View = FormView.extend({
     template: Template,
     className: 'confirm-sign-in',
