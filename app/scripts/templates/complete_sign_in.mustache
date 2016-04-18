@@ -1,21 +1,28 @@
 <div id="main-content" class="card">
   {{#isLinkExpired}}
   <header>
-    <h1 id="fxa-account-unlock-link-expired-header">{{#t}}Unlock link expired{{/t}}</h1>
+    <h1 id="fxa-verify-signin-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>
   </header>
 
   <section>
     <div class="error"></div>
+    <div class="success">{{#t}}Email resent{{/t}}</div>
 
     <p>
       {{#t}}The link you clicked to verify your email is expired.{{/t}}
     </p>
+
+    {{#canResend}}
+    <div class="links">
+      <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new verification link{{/t}}</a>
+    </div>
+    {{/canResend}}
   </section>
   {{/isLinkExpired}}
 
   {{#isLinkDamaged}}
   <header>
-    <h1 id="fxa-account-unlock-link-damaged-header">{{#t}}Unlock link damaged{{/t}}</h1>
+    <h1 id="fxa-verify-signin-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>
   </header>
 
   <section>
@@ -27,7 +34,7 @@
 
   {{#error}}
   <header>
-    <h1 id="fxa-account-unlock-error-header">{{#t}}Unlock error{{/t}}</h1>
+    <h1 id="fxa-verify-signin-error-header">{{#t}}Verification error{{/t}}</h1>
   </header>
 
   <section>
