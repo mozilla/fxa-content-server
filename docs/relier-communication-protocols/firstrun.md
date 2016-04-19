@@ -1,6 +1,6 @@
 # FIRSTRUN channel protocol
 
-## v1
+## v1 & v2
 
 ### Commands
 A command is a postMessage sent from FxA to the parent IFRAME.
@@ -18,6 +18,9 @@ their email after an account unlock.
 #### signup_must_verify
 The user has successfully completed the signup form and must verify
 their email address.
+
+The `data` field contains:
+* `emailOptIn` {Boolean} - whether the user has opted in to receiving marketing email
 
 #### verification_complete
 The user has successfully verified their email address.

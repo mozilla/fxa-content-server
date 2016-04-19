@@ -6,16 +6,15 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Account = require('models/account');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
-  var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
   var Relier = require('models/reliers/relier');
   var Session = require('lib/session');
@@ -29,37 +28,36 @@ define(function (require, exports, module) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
-    var view;
-    var email;
-    var metrics;
-    var windowMock;
-    var fxaClient;
-    var relier;
     var broker;
-    var user;
+    var email;
     var formPrefill;
-    var ephemeralMessages;
+    var metrics;
+    var model;
     var notifier;
+    var relier;
+    var user;
+    var view;
+    var windowMock;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
-
-      Session.clear();
-
-      windowMock = new WindowMock();
+      formPrefill = new FormPrefill();
       metrics = new Metrics();
+      model = new Backbone.Model();
+      notifier = new Notifier();
       relier = new Relier();
+      windowMock = new WindowMock();
+
       broker = new Broker({
         relier: relier
       });
-      fxaClient = new FxaClient();
+
       user = new User({
-        fxaClient: fxaClient,
         notifier: notifier
       });
-      formPrefill = new FormPrefill();
-      ephemeralMessages = new EphemeralMessages();
-      notifier = new Notifier();
+
+      Session.clear();
+
 
       initView();
 
@@ -81,10 +79,9 @@ define(function (require, exports, module) {
     function initView () {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         formPrefill: formPrefill,
-        fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -133,7 +130,7 @@ define(function (require, exports, module) {
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
-              assert.equal(view.$('.prefill').html(), 'a@a.com');
+              assert.equal(view.$('.prefillEmail').html(), 'a@a.com');
               assert.equal(view.$('[type=password]').val(), '');
             });
       });
@@ -147,30 +144,41 @@ define(function (require, exports, module) {
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
+    });
 
-      it('displays a message if isMigration returns true', function () {
+    describe('migration', function () {
+      it('does not display migration message if no migration', function () {
         initView();
-        sinon.stub(view, 'isMigration', function (arg) {
+
+        return view.render()
+          .then(function () {
+            assert.lengthOf(view.$('.info.nudge'), 0);
+          });
+      });
+
+      it('displays migration message if isSyncMigration returns true', function () {
+        initView();
+        sinon.stub(view, 'isSyncMigration', function () {
           return true;
         });
 
         return view.render()
           .then(function () {
             assert.equal(view.$('.info.nudge').html(), 'Migrate your sync data by signing in to your Firefox&nbsp;Account.');
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
 
-      it('does not display a message if isMigration returns false', function () {
+      it('does not display migration message if isSyncMigration returns false', function () {
         initView();
-        sinon.stub(view, 'isMigration', function (arg) {
+        sinon.stub(view, 'isSyncMigration', function () {
           return false;
         });
 
         return view.render()
           .then(function () {
             assert.lengthOf(view.$('.info.nudge'), 0);
-            view.isMigration.restore();
+            view.isSyncMigration.restore();
           });
       });
     });
@@ -203,230 +211,154 @@ define(function (require, exports, module) {
         $('[type=password]').val('password');
       });
 
-      it('clears formPrefill information on successful sign in', function () {
-        sinon.stub(user, 'signInAccount', function (account) {
-          return p(account);
+      describe('with a user that successfully signs in', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p();
+          });
+
+          return view.submit();
         });
 
-        sinon.stub(view, 'navigate', function () { });
+        it('delegates to view.signIn', function () {
+          assert.isTrue(view.signIn.calledOnce);
 
-        formPrefill.set('email', email);
-        formPrefill.set('password', 'password');
-
-        return view.submit()
-          .then(function () {
-            assert.isFalse(formPrefill.has('email'));
-            assert.isFalse(formPrefill.has('password'));
-          });
+          var args = view.signIn.args[0];
+          var account = args[0];
+          assert.instanceOf(account, Account);
+          var lockedAccountPassword = args[1];
+          assert.equal(lockedAccountPassword, 'password');
+        });
       });
 
-      it('redirects users to permissions page if relier needs permissions', function () {
-        sinon.spy(user, 'initAccount');
-        sinon.spy(broker, 'beforeSignIn');
-        var sessionToken = 'abc123';
-
-        sinon.stub(user, 'signInAccount', function (account) {
-          account.set('sessionToken', sessionToken);
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return true;
-        });
-        sinon.stub(view, 'navigate', function () { });
-
-        return view.submit()
-          .then(function () {
-            var account = user.initAccount.returnValues[0];
-
-            assert.equal(account.get('email'), email);
-            assert.equal(account.get('sessionToken'), sessionToken);
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signInAccount.calledWith(account, relier));
-            assert.isTrue(relier.accountNeedsPermissions.calledWith(account));
-            assert.isTrue(view.navigate.calledWith('signin_permissions', {
-              data: {
-                account: account
-              }
-            }));
+      describe('with a locked out account', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
           });
+
+          sinon.spy(view, 'notifyOfLockedAccount');
+
+          return view.submit();
+        });
+
+        it('notifies the user of the locked account', function () {
+          assert.isTrue(view.notifyOfLockedAccount.called);
+          var args = view.notifyOfLockedAccount.args[0];
+          var account = args[0];
+          assert.instanceOf(account, Account);
+          var lockedAccountPassword = args[1];
+          assert.equal(lockedAccountPassword, 'password');
+        });
       });
 
-      it('redirects users to the page they requested before getting redirected to signin', function () {
-        sinon.stub(user, 'signInAccount', function (account) {
-          account.set('verified', true);
-          return p(account);
-        });
-
-        ephemeralMessages.set('data', {
-          redirectTo: '/settings/avatar/change'
-        });
-
-        initView();
-        sinon.stub(view, 'navigate', function () { });
-
-        return view.render()
-          .then(view.submit.bind(view))
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('/settings/avatar/change'));
+      describe('with a reset account', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
           });
+
+          sinon.spy(view, 'notifyOfResetAccount');
+
+          return view.submit();
+        });
+
+        it('notifies the user of the reset account', function () {
+          assert.isTrue(view.notifyOfResetAccount.called);
+          var args = view.notifyOfResetAccount.args[0];
+          var account = args[0];
+          assert.instanceOf(account, Account);
+        });
       });
 
-      it('redirects unverified users to the confirm page on success', function () {
-        sinon.spy(user, 'initAccount');
-        sinon.spy(broker, 'beforeSignIn');
-
-        sinon.stub(user, 'signInAccount', function (account) {
-          account.set('verified', false);
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return false;
-        });
-        sinon.stub(view, 'getStringifiedResumeToken', function () {
-          // the resume token is used post email verification.
-          return 'resume token';
-        });
-
-        sinon.spy(view, 'navigate');
-        return view.submit()
-          .then(function () {
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signInAccount.calledWith(
-              user.initAccount.returnValues[0],
-              relier,
-              {
-                resume: 'resume token'
-              }
-            ));
-            assert.isTrue(view.navigate.calledWith('confirm'));
+      describe('with a user that cancels login', function () {
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
           });
+
+          return view.submit();
+        });
+
+        it('logs the error', function () {
+          assert.isTrue(TestHelpers.isEventLogged(metrics,
+                            'signin.canceled'));
+        });
+
+        it('does not display an error', function () {
+          assert.isFalse(view.isErrorVisible());
+        });
       });
 
-      it('notifies the broker when a verified user signs in', function () {
-        sinon.spy(user, 'initAccount');
-        sinon.spy(broker, 'beforeSignIn');
+      describe('with an unknown account', function () {
+        describe('and signup is enabled', function () {
+          beforeEach(function () {
+            broker.setCapability('signup', true);
 
-        sinon.stub(user, 'signInAccount', function (account) {
-          account.set('verified', true);
-          return p(account);
-        });
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return false;
-        });
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
-        });
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+            });
 
-        sinon.spy(view, 'navigate');
+            sinon.spy(view, 'displayErrorUnsafe');
 
-        return view.submit()
-          .then(function () {
-            var account = user.initAccount.returnValues[0];
-
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isTrue(user.signInAccount.calledWith(account, relier));
-
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signin.success'));
-            assert.isTrue(broker.afterSignIn.calledWith(account));
-
-            assert.isTrue(view.navigate.calledWith('settings'));
+            return view.submit();
           });
-      });
 
-      it('shows error message to locked out users', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
-        });
-
-        return view.submit()
-          .then(function () {
-            assert.isTrue(view.isErrorVisible());
-            assert.include(view.$('.error').text().toLowerCase(), 'locked');
-            var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
-            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          it('shows a link to the signup page', function () {
+            var err = view.displayErrorUnsafe.args[0][0];
+            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+            assert.include(err.forceMessage, '/signup');
           });
-      });
-
-      it('shows an error message if the scope is invalid', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(OAuthErrors.toError({ errno: 114 }));
         });
 
-        // The submit handler does not special case INVALID_SCOPES and error
-        // generic handling logic is done by validateAndSubmit.
-        // Call validateAndSubmit to ensure the error message is displayed.
-        return view.validateAndSubmit()
-          .then(assert.fail, function () {
-            assert.isTrue(view.isErrorVisible());
-            assert.include(view.$('.error').text().toLowerCase(), 'scope');
+        describe('and signup is disabled', function () {
+          var err;
 
-            var err = view._normalizeError(OAuthErrors.toError('INVALID_SCOPES'));
-            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          beforeEach(function () {
+            broker.setCapability('signup', false);
+
+            sinon.stub(view, 'signIn', function () {
+              return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+            });
+
+            sinon.spy(view, 'displayError');
+
+            return view.validateAndSubmit()
+              .then(assert.fail, function (_err) {
+                err = _err;
+              });
           });
-      });
 
-      it('logs an error if user cancels login', function () {
-        sinon.stub(broker, 'beforeSignIn', function () {
-          return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
-        });
-
-        return view.submit()
-          .then(function () {
-            assert.isTrue(broker.beforeSignIn.calledWith(email));
-            assert.isFalse(view.isErrorVisible());
-
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signin.canceled'));
-          });
-      });
-
-      it('rejects promise with incorrect password message on incorrect password', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
-        });
-
-        return view.submit()
-          .then(assert.fail, function (err) {
-            assert.ok(err.message.indexOf('Incorrect') > -1);
-          });
-      });
-
-      it('show a link to to signup page if user enters unknown account and signup is enabled', function () {
-        broker.setCapability('signup', true);
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-        });
-
-        return view.submit()
-          .then(function (msg) {
-            assert.include(msg, '/signup');
-          });
-      });
-
-      it('do not show a link to signup page if user enters unknown account and signup is disabled', function () {
-        broker.setCapability('signup', false);
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-        });
-
-        return view.submit()
-          .fail(function (err) {
+          it('does not show the signup link', function () {
+            var displayedError = view.displayError.args[0][0];
+            assert.strictEqual(err, displayedError);
+            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
             assert.notInclude(AuthErrors.toMessage(err), '/signup');
           });
+        });
       });
 
-      it('passes other errors along', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          return p.reject(AuthErrors.toError('INVALID_JSON'));
+      describe('other errors', function () {
+        var err;
+
+        beforeEach(function () {
+          sinon.stub(view, 'signIn', function () {
+            return p.reject(AuthErrors.toError('INVALID_JSON'));
+          });
+
+          sinon.spy(view, 'displayError');
+
+          return view.validateAndSubmit()
+            .then(assert.fail, function (_err) {
+              err = _err;
+            });
         });
 
-        return view.submit()
-          .then(assert.fail, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
-          });
+        it('are displayed', function () {
+          var displayedError = view.displayError.args[0][0];
+          assert.strictEqual(err, displayedError);
+          assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
+        });
       });
     });
 
@@ -464,7 +396,8 @@ define(function (require, exports, module) {
         sinon.stub(view, 'getAccount', function () {
           return user.initAccount({
             email: 'a@a.com',
-            sessionToken: 'abc123'
+            sessionToken: 'abc123',
+            uid: 'foo'
           });
         });
 
@@ -506,7 +439,8 @@ define(function (require, exports, module) {
       it('can switch to signin with the useDifferentAccount button', function () {
         var account = user.initAccount({
           email: 'a@a.com',
-          sessionToken: 'abc123'
+          sessionToken: 'abc123',
+          uid: 'foo'
         });
         sinon.stub(view, 'getAccount', function () {
           return account;

@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/amo_sign_up',
+  './functional/oauth_choose_redirect',
+  './functional/oauth_query_param_validation',
   './functional/oauth_sign_in',
   './functional/oauth_sign_up',
   './functional/oauth_sign_up_verification_redirect',
@@ -11,7 +14,6 @@ define([
   './functional/oauth_webchannel_force_auth',
   './functional/oauth_webchannel_keys',
   './functional/oauth_preverified_sign_up',
-  './functional/oauth_iframe',
   './functional/oauth_force_auth',
   './functional/oauth_permissions'
 ], function () {});

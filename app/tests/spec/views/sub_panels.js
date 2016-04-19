@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -44,7 +45,7 @@ define(function (require, exports, module) {
     var metrics;
     var notifier;
     var panelViews;
-    var parentView;
+    var parent;
     var view;
 
     function createView () {
@@ -52,7 +53,7 @@ define(function (require, exports, module) {
         metrics: metrics,
         notifier: notifier,
         panelViews: panelViews,
-        parentView: parentView,
+        parent: parent,
         createView: function (Constructor, options) {
           return new Constructor(options);
         }
@@ -62,6 +63,9 @@ define(function (require, exports, module) {
     beforeEach(function () {
       metrics = new Metrics();
       notifier = new Notifier();
+      parent = {
+        model: new Backbone.Model()
+      };
 
       panelViews = [
         SettingsPanelView,
@@ -100,9 +104,16 @@ define(function (require, exports, module) {
         sinon.spy(view, 'trackChildView');
         sinon.spy(view, 'renderChildView');
 
-        return view._createChildViewIfNeeded(SettingsPanelView)
+        var model = new Backbone.Model({ key: 'value' });
+        var options = {
+          model: model
+        };
+        return view._createChildViewIfNeeded(SettingsPanelView, options)
           .then(function (childView) {
             assert.ok(childView);
+            // passed in model data is immediately made
+            // available to the child.
+            assert.equal(childView.model.get('key'), 'value');
             assert.isTrue(view.trackChildView.calledWith(childView));
             assert.isTrue(view.renderChildView.calledWith(childView));
           });
@@ -138,14 +149,15 @@ define(function (require, exports, module) {
           return p(childView);
         });
 
+        var options = {};
         return view.render()
           .then(function () {
             $('#container').append(view.el);
-            return view.showChildView(SettingsPanelView);
+            return view.showChildView(SettingsPanelView, options);
           })
           .then(function (childView) {
             assert.isTrue(
-                view._createChildViewIfNeeded.calledWith(SettingsPanelView));
+                view._createChildViewIfNeeded.calledWith(SettingsPanelView, options));
             assert.isTrue(childView.openPanel.called);
           });
       });

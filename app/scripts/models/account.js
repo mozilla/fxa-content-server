@@ -18,6 +18,8 @@ define(function (require, exports, module) {
   var ProfileClient = require('lib/profile-client');
   var ProfileImage = require('models/profile-image');
 
+  var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+
   // Account attributes that can be persisted
   var PERSISTENT = {
     displayName: undefined,
@@ -26,6 +28,8 @@ define(function (require, exports, module) {
     hadProfileImageSetBefore: undefined,
     lastLogin: undefined,
     needsOptedInToMarketingEmail: undefined,
+    // password field intentionally omitted to avoid unintentional leaks
+    permissions: undefined,
     profileImageId: undefined,
     profileImageUrl: undefined,
     sessionToken: undefined,
@@ -49,7 +53,7 @@ define(function (require, exports, module) {
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
-    password: undefined,
+    // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined
   }, PERSISTENT);
 
@@ -58,20 +62,19 @@ define(function (require, exports, module) {
 
   var PROFILE_SCOPE = 'profile profile:write';
 
+  var PERMISSIONS_TO_KEYS = {
+    'profile:avatar': 'profileImageUrl',
+    'profile:display_name': 'displayName',
+    'profile:email': 'email',
+    'profile:uid': 'uid'
+  };
+
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (options) {
+    initialize: function (accountData, options) {
       options = options || {};
       var self = this;
-
-      if (options.accountData) {
-        ALLOWED_KEYS.forEach(function (key) {
-          if (typeof options.accountData[key] !== 'undefined') {
-            self.set(key, options.accountData[key]);
-          }
-        });
-      }
 
       self._oAuthClientId = options.oAuthClientId;
       self._oAuthClient = options.oAuthClient;
@@ -86,6 +89,9 @@ define(function (require, exports, module) {
        * requests for the same sessionToken.
        */
       self._assertionPromises = {};
+
+      // upgrade old `grantedPermissions` to the new `permissions`.
+      self._upgradeGrantedPermissions();
 
       self._boundOnChange = self.onChange.bind(self);
       self.on('change', self._boundOnChange);
@@ -207,11 +213,20 @@ define(function (require, exports, module) {
     },
 
     toJSON: function () {
-      return _.pick(this.attributes, ALLOWED_KEYS);
+      /*
+       * toJSON is explicitly disabled because it fetches all attributes
+       * on the model, making accidental data exposure easier than it
+       * should be. Use the [pick](http:*underscorejs.org/#pick) method
+       * instead, which requires a list of attributes to get.
+       *
+       * e.g.:
+       * var accountData = account.pick('email', 'uid');
+       */
+      throw new Error('toJSON is explicitly disabled, use `.pick` instead');
     },
 
     toPersistentJSON: function () {
-      return _.pick(this.attributes, ALLOWED_PERSISTENT_KEYS);
+      return this.pick(ALLOWED_PERSISTENT_KEYS);
     },
 
     setProfileImage: function (profileImage) {
@@ -277,14 +292,23 @@ define(function (require, exports, module) {
         });
     },
 
-    signIn: function (relier, options) {
+    /**
+     * Sign in an existing user.
+     *
+     * @param {string} password - The user's password
+     * @param {object} relier - Relier being signed in to
+     * @param {object} [options]
+     * @param {string} [options.resume] - Resume token to send in verification
+     * email if user is unverified.
+     * @returns {promise} - resolves when complete
+     */
+    signIn: function (password, relier, options) {
       var self = this;
       options = options || {};
 
       return p().then(function () {
-        var password = self.get('password');
-        var sessionToken = self.get('sessionToken');
         var email = self.get('email');
+        var sessionToken = self.get('sessionToken');
 
         if (password) {
           return self._fxaClient.signIn(email, password, relier);
@@ -311,13 +335,23 @@ define(function (require, exports, module) {
       });
     },
 
-    signUp: function (relier, options) {
+    /**
+     * Sign up a new user.
+     *
+     * @param {string} password - The user's password
+     * @param {object} relier - Relier being signed in to
+     * @param {object} [options]
+     * @param {string} [options.resume] - Resume token to send in verification
+     * email if user is unverified.
+     * @returns {promise} - resolves when complete
+     */
+    signUp: function (password, relier, options) {
       var self = this;
       options = options || {};
 
       return self._fxaClient.signUp(
         self.get('email'),
-        self.get('password'),
+        password,
         relier,
         {
           customizeSync: self.get('customizeSync'),
@@ -328,41 +362,213 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Retry a sign up
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise} - resolves when complete
+     */
+    retrySignUp: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.signUpResend(
+        relier,
+        this.get('sessionToken'),
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
+     * Verify the account using the verification code
+     *
+     * @param {string} code - the verification code
+     * @returns {promise} - resolves when complete
+     */
+    verifySignUp: function (code) {
+      var self = this;
+      return self._fxaClient.verifyCode(
+        self.get('uid'),
+        code
+      )
+      .then(function () {
+        self.set('verified', true);
+
+        if (self.get('needsOptedInToMarketingEmail')) {
+          self.unset('needsOptedInToMarketingEmail');
+          var emailPrefs = self.getMarketingEmailPrefs();
+          return emailPrefs.optIn(NEWSLETTER_ID);
+        }
+      });
+    },
+
+    /**
+     * Check whether the account's email is registered.
+     *
+     * @returns {promise} resolves to `true` if email is registered,
+     * `false` otw.
+     */
+    checkEmailExists: function () {
+      return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
+    },
+
+    /**
+     * Check whether the account's UID is registered.
+     *
+     * @returns {promise} resolves to `true` if the uid is registered,
+     * `false` otw.
+     */
+    checkUidExists: function () {
+      return this._fxaClient.checkAccountExists(this.get('uid'));
+    },
+
+    /**
+     * Sign out the user
+     *
+     * @returns {promise} - resolves when complete
+     */
     signOut: function () {
       return this._fxaClient.signOut(this.get('sessionToken'));
     },
 
     /**
      * Destroy the account, remove it from the server
+     *
+     * @param {string} password - The user's password
+     * @returns {promise} - resolves when complete
      */
-    destroy: function () {
+    destroy: function (password) {
       var self = this;
       return self._fxaClient.deleteAccount(
         self.get('email'),
-        self.get('password')
+        password
       )
       .then(function () {
         self.trigger('destroy', self);
       });
     },
 
-    saveGrantedPermissions: function (clientId, clientPermissions) {
-      var permissions = this.get('grantedPermissions') || {};
-      permissions[clientId] = clientPermissions;
-      this.set('grantedPermissions', permissions);
-    },
+    /**
+     * convert the old `grantedPermissions` field to the new
+     * `permissions` field. `grantedPermissions` was only filled
+     * with permissions that were granted. `permissions` contains
+     * each permission that the user has made a choice for, as
+     * well as its status.
+     *
+     * @private
+     */
+    _upgradeGrantedPermissions: function () {
+      if (this.has('grantedPermissions')) {
+        var grantedPermissions = this.get('grantedPermissions');
 
-    hasGrantedPermissions: function (clientId, scope) {
-      if (! scope) {
-        return true;
+        for (var clientId in grantedPermissions) {
+          var clientPermissions = {};
+          grantedPermissions[clientId].forEach(function (permissionName) {
+            // if the permission is in grantedPermissions, it's
+            // status is `true`
+            clientPermissions[permissionName] = true;
+          });
+
+          this.setClientPermissions(clientId, clientPermissions);
+        }
+
+        this.unset('grantedPermissions');
       }
-      return this.ungrantedPermissions(clientId, scope).length === 0;
     },
 
-    ungrantedPermissions: function (clientId, clientPermissions) {
-      var permissions = this.get('grantedPermissions') || {};
-      var clientGrantedPermissions = permissions[clientId] || [];
-      return _.difference(clientPermissions, clientGrantedPermissions);
+    /**
+     * Return the permissions the client has seen as well as their state.
+     *
+     * Example returned object:
+     * {
+     *   'profile:display_name': false,
+     *   'profile:email': true
+     * }
+     *
+     * @param {string} clientId
+     * @returns {object}
+     */
+    getClientPermissions: function (clientId) {
+      var permissions = this.get('permissions') || {};
+      return permissions[clientId] || {};
+    },
+
+    /**
+     * Get the value of a single permission
+     *
+     * @param {string} clientId
+     * @param {string} permissionName
+     * @returns {boolean}
+     */
+    getClientPermission: function (clientId, permissionName) {
+      var clientPermissions = this.getClientPermissions(clientId);
+      return clientPermissions[permissionName];
+    },
+
+    /**
+     * Set the permissions for a client. `permissions`
+     * should be an object with the following format:
+     * {
+     *   'profile:display_name': false,
+     *   'profile:email': true
+     * }
+     *
+     * @param {string} clientId
+     * @param {object} clientPermissions
+     */
+    setClientPermissions: function (clientId, clientPermissions) {
+      var allPermissions = this.get('permissions') || {};
+      allPermissions[clientId] = clientPermissions;
+      this.set('permissions', allPermissions);
+    },
+
+    /**
+     * Check whether all the passed in permissions have been
+     * seen previously.
+     *
+     * @param {string} clientId
+     * @param {array of strings} permissions
+     * @returns {boolean} `true` if client has seen all the permissions,
+     *  `false` otw.
+     */
+    hasSeenPermissions: function (clientId, permissions) {
+      var seenPermissions = Object.keys(this.getClientPermissions(clientId));
+      // without's signature is `array, *values)`,
+      // *values cannot be an array, so convert to a form without can use.
+      var args = [permissions].concat(seenPermissions);
+      var notSeen = _.without.apply(_, args);
+      return notSeen.length === 0;
+    },
+
+    /**
+     * Return a list of permissions that have
+     * corresponding account values.
+     *
+     * @param {array of strings} permissionNames
+     * @returns {array of strings}
+     */
+    getPermissionsWithValues: function (permissionNames) {
+      var self = this;
+      return permissionNames.map(function (permissionName) {
+        var accountKey = PERMISSIONS_TO_KEYS[permissionName];
+
+        // filter out permissions we do not know about
+        if (! accountKey) {
+          return null;
+        }
+
+        // filter out permissions for which the account does not have a value
+        if (! self.has(accountKey)) {
+          return null;
+        }
+
+        return permissionName;
+      }).filter(function (permissionName) {
+        return permissionName !== null;
+      });
     },
 
     getMarketingEmailPrefs: function () {
@@ -412,12 +618,45 @@ define(function (require, exports, module) {
         });
     },
 
-    completePasswordReset: function (token, code, relier) {
+    /**
+     * Override set to only allow fields listed in ALLOWED_FIELDS
+     *
+     * @method set
+     */
+    set: _.wrap(Backbone.Model.prototype.set, function (func, attribute, value, options) {
+
+      var attributes;
+      // Handle both `"key", value` and `{key: value}` -style arguments.
+      if (_.isObject(attribute)) {
+        attributes = attribute;
+      } else {
+        attributes = {};
+        attributes[attribute] = value;
+      }
+
+      for (var key in attributes) {
+        if (! _.contains(ALLOWED_KEYS, key)) {
+          throw new Error(key + ' cannot be set on an Account');
+        }
+      }
+
+      return func.call(this, attribute, value, options);
+    }),
+
+    /**
+     * Complete a password reset
+     *
+     * @param {string} password - the user's new password
+     * @param {string} token - email verification token
+     * @param {string} code - email verification code
+     * @param {object} relier - relier being signed in to.
+     * @returns {promise} - resolves when complete
+     */
+    completePasswordReset: function (password, token, code, relier) {
       var self = this;
 
       var fxaClient = self._fxaClient;
       var email = self.get('email');
-      var password = self.get('password');
 
       return fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
@@ -507,7 +746,45 @@ define(function (require, exports, module) {
           resume: options.resume
         }
       );
+    },
+
+    /**
+     * Fetch keys for the account. Requires account to have
+     * `keyFetchToken` and `unwrapBKey`
+     *
+     * @returns {promise} that resolves with the account keys, if they
+     *   can be generated, resolves with null otherwise.
+     */
+    accountKeys: function () {
+      if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
+        return p(null);
+      }
+
+      return this._fxaClient.accountKeys(
+          this.get('keyFetchToken'), this.get('unwrapBKey'));
+    },
+
+    /**
+     * Fetch keys that can be used by a relier.
+     *
+     * @param {object} relier
+     * @returns {promise} that resolves with the relier keys, if they
+     *   can be generated, resolves with null otherwise.
+     */
+    relierKeys: function (relier) {
+      var self = this;
+      return this.accountKeys()
+        .then(function (accountKeys) {
+          if (! accountKeys) {
+            return null;
+          }
+
+          return relier.deriveRelierKeys(accountKeys, self.get('uid'));
+        });
     }
+  }, {
+    ALLOWED_KEYS: ALLOWED_KEYS,
+    PERMISSIONS_TO_KEYS: PERMISSIONS_TO_KEYS
   });
 
   [

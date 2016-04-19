@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AccountLockedMixin = require('views/mixins/account-locked-mixin');
+  var AccountResetMixin = require('views/mixins/account-reset-mixin');
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var AvatarMixin = require('views/mixins/avatar-mixin');
@@ -13,15 +14,16 @@ define(function (require, exports, module) {
   var Cocktail = require('cocktail');
   var FormView = require('views/form');
   var MigrationMixin = require('views/mixins/migration-mixin');
-  var p = require('lib/promise');
   var PasswordMixin = require('views/mixins/password-mixin');
+  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Session = require('lib/session');
   var showProgressIndicator = require('views/decorators/progress_indicator');
   var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  var SignInMixin = require('views/mixins/signin-mixin');
   var SignInTemplate = require('stache!templates/sign_in');
-  var SignupDisabledMixin = require('views/mixins/signup-disabled-mixin');
+  var SignUpDisabledMixin = require('views/mixins/signup-disabled-mixin');
 
   var t = BaseView.t;
 
@@ -33,10 +35,6 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
-      var data = this.ephemeralData();
-      if (data) {
-        this._redirectTo = data.redirectTo;
-      }
     },
 
     beforeRender: function () {
@@ -54,19 +52,24 @@ define(function (require, exports, module) {
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
+    getEmail: function () {
+      var suggestedAccount = this.getAccount();
+      var hasSuggestedAccount = suggestedAccount.get('email');
+      return hasSuggestedAccount ?
+        suggestedAccount.get('email') : this.getPrefillEmail();
+    },
+
     context: function () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
-      var email = hasSuggestedAccount ?
-                    suggestedAccount.get('email') : this.getPrefillEmail();
+      var email = this.getEmail();
 
       return {
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
-        isMigration: this.isMigration(),
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isSignupDisabled: this.isSignupDisabled(),
+        isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
         serviceName: this.relier.get('serviceName'),
         suggestedAccount: hasSuggestedAccount
@@ -85,7 +88,7 @@ define(function (require, exports, module) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this.displayAccountProfileImage(this.getAccount());
+      return this.displayAccountProfileImage(this.getAccount(), { spinner: true });
     },
 
     beforeDestroy: function () {
@@ -95,62 +98,30 @@ define(function (require, exports, module) {
 
     submit: function () {
       var account = this.user.initAccount({
-        email: this.getElementValue('.email'),
-        password: this.getElementValue('.password')
+        email: this.getElementValue('.email')
       });
 
-      return this._signIn(account);
+      var password = this.getElementValue('.password');
+
+      return this._signIn(account, password);
     },
 
     /**
+     * Sign in a user
      *
      * @param {Account} account
-     *     The account instance should either include a password or a sessionToken
-     *     @param {String} account.password
-     *     User password from the input
      *     @param {String} account.sessionToken
      *     Session token from the account
+     * @param {string} [password] - the user's password. Can be null if
+     *  user is signing in with a sessionToken.
      * @private
      */
-    _signIn: function (account) {
-      var self = this;
-      if (! account || account.isDefault()) {
-        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-      }
-
-      return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
-        .then(function () {
-          return self.user.signInAccount(account, self.relier, {
-            // a resume token is passed in to handle unverified users.
-            resume: self.getStringifiedResumeToken()
-          });
-        })
-        .then(function (account) {
-          // formPrefill information is no longer needed after the user
-          // has successfully signed in. Clear the info to ensure
-          // passwords aren't sticking around in memory.
-          self._formPrefill.clear();
-
-          if (self.relier.accountNeedsPermissions(account)) {
-            self.navigate('signin_permissions', {
-              data: {
-                account: account
-              }
-            });
-
-            return false;
-          }
-
-          if (account.get('verified')) {
-            return self.onSignInSuccess(account);
-          }
-
-          return self.onSignInUnverified(account);
-        })
-        .fail(self.onSignInError.bind(self, account));
+    _signIn: function (account, password) {
+      return this.signIn(account, password)
+        .fail(this.onSignInError.bind(this, account, password));
     },
 
-    onSignInError: function (account, err) {
+    onSignInError: function (account, password, err) {
       var self = this;
 
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') && ! this.isSignupDisabled()) {
@@ -160,27 +131,12 @@ define(function (require, exports, module) {
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-        return self.notifyOfLockedAccount(account);
+        return self.notifyOfLockedAccount(account, password);
+      } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+        return self.notifyOfResetAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
-    },
-
-    onSignInSuccess: function (account) {
-      var self = this;
-      self.logViewEvent('success');
-      return self.invokeBrokerMethod('afterSignIn', account)
-        .then(function () {
-          self.navigate(self._redirectTo || 'settings');
-        });
-    },
-
-    onSignInUnverified: function (account) {
-      this.navigate('confirm', {
-        data: {
-          account: account
-        }
-      });
     },
 
     _suggestSignUp: function (err) {
@@ -196,7 +152,7 @@ define(function (require, exports, module) {
       var self = this;
       var account = this.getAccount();
 
-      return this._signIn(account)
+      return this._signIn(account, null)
         .fail(
           function () {
             self.chooserAskForPassword = true;
@@ -297,13 +253,16 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AccountLockedMixin,
+    AccountResetMixin,
     AvatarMixin,
     MigrationMixin,
     PasswordMixin,
+    PasswordResetMixin,
     ResumeTokenMixin,
     ServiceMixin,
-    SignedInNotificationMixin,
-    SignupDisabledMixin
+    SignInMixin,
+    SignUpDisabledMixin,
+    SignedInNotificationMixin
   );
 
   module.exports = View;

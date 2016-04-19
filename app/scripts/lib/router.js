@@ -31,6 +31,7 @@ define(function (require, exports, module) {
   var LegalView = require('../views/legal');
   var OpenIdLoginView = require('../views/openid/login');
   var OpenIdStartView = require('../views/openid/start');
+  var p = require('./promise');
   var PermissionsView = require('../views/permissions');
   var PpView = require('../views/pp');
   var ReadyView = require('../views/ready');
@@ -52,6 +53,10 @@ define(function (require, exports, module) {
     return function () {
       return this.showChildView(ChildView, ParentView, options);
     };
+  }
+
+  function createViewModel(data) {
+    return new Backbone.Model(data || {});
   }
 
   var Router = Backbone.Router.extend({
@@ -112,12 +117,19 @@ define(function (require, exports, module) {
 
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
       this.notifier.on('navigate', this.onNavigate.bind(this));
+      this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
 
-    onNavigate: function (data) {
-      this.navigate(data.url, _.omit(data, 'url'));
+    onNavigate: function (event) {
+      this._nextViewModel = createViewModel(event.nextViewData);
+      this.navigate(event.url, event.routerOptions);
+    },
+
+    onNavigateBack: function (event) {
+      this._nextViewModel = createViewModel(event.nextViewData);
+      this.navigateBack();
     },
 
     navigate: function (url, options) {
@@ -137,6 +149,10 @@ define(function (require, exports, module) {
       return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 
+    navigateBack: function () {
+      this.window.history.back();
+    },
+
     redirectToSignupOrSettings: function () {
       var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
@@ -144,17 +160,51 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Redirect the user to the best suitable OAuth flow
+     * Redirect the user to the best suitable OAuth flow.
+     * If email parameter is available, it will check to see if an
+     * an account associated with it and navigate to signin/signup page.
      */
     redirectToBestOAuthChoice: function () {
-      var account = this.user.getChooserAccount();
-      var route = '/oauth/signin';
+      var self = this;
 
-      if (account.isDefault()) {
-        route = '/oauth/signup';
-      }
+      // Attempt to get email address from relier
+      var email = self.broker.relier.get('email');
 
-      return this.navigate(route, { replace: true, trigger: true });
+      return p().then(function () {
+        if (email) {
+          // Attempt to get account status of email and navigate
+          // to correct signin/signup page if exists.
+          var account = self.user.initAccount({ email: email });
+          return self.user.checkAccountEmailExists(account)
+            .then(function (exists) {
+              if (exists) {
+                return '/oauth/signin';
+              } else {
+                return '/oauth/signup';
+              }
+            }, function (err) {
+              // The error here is a throttling error or server error (500).
+              // In either case, we don't want to stop the user from
+              // navigating to a signup/signin page. Instead, we fallback
+              // to choosing navigation page based on whether account is
+              // a default account. Swallow and log error.
+              self.metrics.logError(err);
+            });
+        }
+        // If no email in relier, choose navigation page based on
+        // whether account is a default account.
+      })
+      .then(function (route) {
+        if (! route) {
+          if (self.user.getChooserAccount().isDefault()) {
+            route = '/oauth/signup';
+          } else {
+            route = '/oauth/signin';
+          }
+        }
+
+        return self.navigate(route, { replace: true, trigger: true });
+      });
     },
 
     /**
@@ -169,6 +219,7 @@ define(function (require, exports, module) {
       return _.extend({
         canGoBack: this.canGoBack(),
         currentPage: this.getCurrentPage(),
+        model: this._nextViewModel,
         viewName: this.getCurrentViewName()
       }, options);
     },

@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
+  var Duration = require('duration');
   var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
   var p = require('lib/promise');
   var showButtonProgressIndicator = require('views/decorators/progress_indicator');
@@ -47,7 +48,7 @@ define(function (require, exports, module) {
   var FormView = BaseView.extend({
 
     // Time to wait for a request to finish before showing a notice
-    LONGER_THAN_EXPECTED: 10000, // 10 seconds
+    LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
     constructor: function (options) {
       BaseView.call(this, options);
@@ -64,7 +65,19 @@ define(function (require, exports, module) {
     },
 
     afterRender: function () {
-      this.enableSubmitIfValid();
+      // Firefox has a strange issue where if the previous
+      // screen was submit using the keyboard, the `enter` key's
+      // `keyup` event fires here on the element that receives
+      // focus. Without seeding the initial form values, any
+      // errors passed from the previous screen are immediately
+      // hidden.
+      this.updateFormValueChanges();
+
+      // only enable submit if no error is passed
+      // from one screen to the next.
+      if (! this.model.has('error')) {
+        this.enableSubmitIfValid();
+      }
 
       BaseView.prototype.afterRender.call(this);
     },
@@ -92,7 +105,7 @@ define(function (require, exports, module) {
       return values;
     },
 
-    enableSubmitIfValid: function (event) {
+    enableSubmitIfValid: function () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
@@ -100,9 +113,10 @@ define(function (require, exports, module) {
         return;
       }
 
-
+      // hide success and error messages after user changes the form
+      this.hideError();
+      this.hideSuccess();
       if (this.isValid()) {
-        this.hideError();
         this.enableForm();
       } else {
         this.disableForm();
@@ -303,7 +317,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Get an element value, trimming the value of whitespace if necesary
+     * Get an element value, trimming the value of whitespace if necessary
      */
     getElementValue: function (el) {
       var value = this.$(el).val();

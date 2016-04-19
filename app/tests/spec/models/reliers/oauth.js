@@ -5,7 +5,9 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var OAuthClient = require('lib/oauth-client');
   var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
@@ -14,31 +16,39 @@ define(function (require, exports, module) {
   var Session = require('lib/session');
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
-  var Url = require('lib/url');
   var User = require('models/user');
   var WindowMock = require('../../../mocks/window');
 
   /*eslint-disable camelcase */
   var assert = chai.assert;
+  var getValueLabel = TestHelpers.getValueLabel;
 
   describe('models/reliers/oauth', function () {
-    var relier;
+    var err;
+    var isTrusted;
     var oAuthClient;
-    var windowMock;
+    var relier;
     var user;
+    var windowMock;
 
-    var STATE = 'fakestatetoken';
+    var ACCESS_TYPE = 'offline';
+    var ACTION = 'signup';
+    var CLIENT_ID = 'dcdb5ae7add825d2';
+    var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
+    var PREVERIFY_TOKEN = 'a=.big==.token==';
+    var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
+    var REDIRECT_URI = 'http://redirect.here';
+    var SCOPE = 'profile:email profile:uid';
+    var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
+    var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
+    var PERMISSIONS = ['profile:email', 'profile:uid'];
+    var PRIVACY_URI = 'http://privacy.com';
+    var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
+    var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
     var SERVICE = 'service';
     var SERVICE_NAME = '123Done';
-    var CLIENT_ID = 'dcdb5ae7add825d2';
-    var REDIRECT_URI = 'http://redirect.here';
-    var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-    var SCOPE = 'profile:email profile:uid';
-    var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
-    var PERMISSIONS = ['profile:email', 'profile:uid'];
-    var ACTION = 'signup';
-    var PREVERIFY_TOKEN = 'abigtoken';
-    var ACCESS_TYPE = 'offline';
+    var STATE = 'fakestatetoken';
+    var TERMS_URI = 'http://terms.com';
 
     var RESUME_INFO = {
       access_type: ACCESS_TYPE,
@@ -49,15 +59,11 @@ define(function (require, exports, module) {
     };
 
     beforeEach(function () {
-      windowMock = new WindowMock();
+      isTrusted = false;
       oAuthClient = new OAuthClient();
+      windowMock = new WindowMock();
 
-      sinon.stub(oAuthClient, 'getClientInfo', function () {
-        return p({
-          name: SERVICE_NAME,
-          redirect_uri: SERVER_REDIRECT_URI
-        });
-      });
+      mockGetClientInfo();
 
       user = new User();
 
@@ -75,6 +81,7 @@ define(function (require, exports, module) {
           action: ACTION,
           client_id: CLIENT_ID,
           preVerifyToken: PREVERIFY_TOKEN,
+          prompt: PROMPT,
           redirect_uri: REDIRECT_URI,
           scope: SCOPE,
           service: SERVICE,
@@ -84,6 +91,7 @@ define(function (require, exports, module) {
         return relier.fetch()
           .then(function () {
             assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
+            assert.equal(relier.get('prompt'), PROMPT);
             assert.equal(relier.get('service'), SERVICE);
             assert.equal(relier.get('state'), STATE);
 
@@ -95,13 +103,14 @@ define(function (require, exports, module) {
             // The redirect_uri passed in is ignored, we only care about
             // the redirect_uri returned by the oauth server
             assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
+            assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
 
             // Encryption keys are not fetched by default.
             assert.equal(relier.get('keys'), false);
           });
       });
 
-      it('sets serviceName, redirectUri, and origin from parameters returned by the server', function () {
+      it('sets serviceName, and redirectUri from parameters returned by the server', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           action: ACTION,
           client_id: CLIENT_ID,
@@ -116,7 +125,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(relier.get('serviceName'), SERVICE_NAME);
             assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-            assert.equal(relier.get('origin'), Url.getOrigin(SERVER_REDIRECT_URI));
           });
       });
 
@@ -135,23 +143,6 @@ define(function (require, exports, module) {
           });
       });
 
-      it('errors in verification flow if `client_id` is missing', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          code: '123'
-        });
-        Session.set('oauth', {
-          action: ACTION,
-          scope: SCOPE,
-          state: STATE
-        });
-
-        return relier.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-            assert.equal(err.param, 'client_id');
-          });
-      });
-
       it('populates `clientId` and `service` from the `service` URL search parameter if verifying in a second browser', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           code: '123',
@@ -166,160 +157,285 @@ define(function (require, exports, module) {
           });
       });
 
-      it('populates `keys` from the URL search parameter if given', function () {
+      describe('query parameter validation', function () {
+        describe('access_type', function () {
+          var validValues = [undefined, 'offline', 'online'];
+          testValidQueryParams('access_type', validValues, 'accessType', validValues);
+
+          var invalidValues = ['', ' ', 'invalid'];
+          testInvalidQueryParams('access_type', invalidValues);
+        });
+
+        describe('client_id', function () {
+          testMissingRequiredQueryParam('client_id');
+
+          var invalidValues = ['', ' ', 'not-hex'];
+          testInvalidQueryParams('client_id', invalidValues);
+
+          describe('is unknown', function () {
+            beforeEach(function () {
+              oAuthClient.getClientInfo.restore();
+              sinon.stub(oAuthClient, 'getClientInfo', function () {
+                var err = OAuthErrors.toError('INVALID_PARAMETER');
+                err.validation = {
+                  keys: ['client_id']
+                };
+                return p.reject(err);
+              });
+
+              return fetchExpectError({
+                client_id: '1234567abcde', // Invalid client
+                scope: SCOPE
+              });
+            });
+
+            it('errors correctly', function () {
+              // INVALID_PARAMETER should be converted to UNKNOWN_CLIENT
+              assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
+            });
+          });
+
+          describe('is missing in verification flow', function () {
+            beforeEach(function () {
+              Session.set('oauth', {
+                action: ACTION,
+                scope: SCOPE,
+                state: STATE
+              });
+
+              return fetchExpectError({
+                code: '123'
+              });
+            });
+
+            it('errors correctly', function () {
+              assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+              assert.equal(err.param, 'client_id');
+            });
+          });
+
+          describe('is valid', function () {
+            describe('without a service', function () {
+              beforeEach(function () {
+                return fetchExpectSuccess({
+                  client_id: CLIENT_ID,
+                  scope: SCOPE
+                });
+              });
+
+              it('populates service with client_id', function () {
+                assert.equal(relier.get('service'), CLIENT_ID);
+              });
+            });
+
+            describe('with a service', function () {
+              beforeEach(function () {
+                return fetchExpectSuccess({
+                  client_id: CLIENT_ID,
+                  scope: SCOPE,
+                  service: SERVICE
+                });
+              });
+
+              it('populates service from url', function () {
+                assert.equal(relier.get('service'), SERVICE);
+              });
+            });
+          });
+        });
+
+        describe('keys', function () {
+          var invalidValues = ['', ' ', 'not-boolean'];
+          testInvalidQueryParams('keys', invalidValues);
+
+          var validValues = [undefined, 'true', 'false'];
+          var expectedValues = [false, true, false];
+          testValidQueryParams('keys', validValues, 'keys', expectedValues);
+        });
+
+        describe('prompt', function () {
+          var invalidValues = ['', ' ', 'invalid'];
+          testInvalidQueryParams('prompt', invalidValues);
+
+          var validValues = [undefined, Constants.OAUTH_PROMPT_CONSENT];
+          testValidQueryParams('prompt', validValues, 'prompt', validValues);
+        });
+
+        describe('redirectTo', function () {
+          var invalidValues = ['', ' '];
+          testInvalidQueryParams('redirectTo', invalidValues);
+
+          var validValues = [undefined, 'http://testdomain.com'];
+          testValidQueryParams('redirectTo', validValues, 'redirectTo', validValues);
+        });
+
+        describe('redirect_uri', function () {
+          var validQueryParamValues = [undefined, REDIRECT_URI];
+          // redirectUri will always be loaded from the server
+          var expectedValues = [SERVER_REDIRECT_URI, SERVER_REDIRECT_URI];
+          testValidQueryParams('redirect_uri', validQueryParamValues, 'redirectUri', expectedValues);
+
+          var invalidQueryParamValues = ['', ' ', 'not-a-url'];
+          testInvalidQueryParams('redirect_uri', invalidQueryParamValues);
+        });
+
+        describe('scope', function () {
+          testMissingRequiredQueryParam('scope');
+
+          var invalidValues = ['', ' '];
+          testInvalidQueryParams('scope', invalidValues);
+
+          describe('is valid', function () {
+            testValidQueryParam('scope', SCOPE, 'scope', SCOPE);
+
+            it('transforms to permissions', function () {
+              assert.deepEqual(relier.get('permissions'), PERMISSIONS);
+            });
+          });
+
+          describe('untrusted reliers', function () {
+            beforeEach(function () {
+              sinon.stub(relier, 'isTrusted', function () {
+                return false;
+              });
+            });
+
+            var validValues = [SCOPE_WITH_EXTRAS];
+            var expectedValues = [SCOPE];
+            testValidQueryParams('scope', validValues, 'scope', expectedValues);
+
+            var invalidValues = ['profile', 'profile:unrecognized'];
+            testInvalidQueryParams('scope', invalidValues);
+          });
+
+          describe('trusted reliers that dont ask for consent', function () {
+            beforeEach(function () {
+              sinon.stub(relier, 'isTrusted', function () {
+                return true;
+              });
+              sinon.stub(relier, 'wantsConsent', function () {
+                return false;
+              });
+            });
+
+            var validValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+            var expectedValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+            testValidQueryParams('scope', validValues, 'scope', expectedValues);
+          });
+
+          describe('trusted reliers that ask for consent', function () {
+            beforeEach(function () {
+              sinon.stub(relier, 'isTrusted', function () {
+                return true;
+              });
+              sinon.stub(relier, 'wantsConsent', function () {
+                return true;
+              });
+            });
+
+            var validValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE, 'profile:unrecognized'];
+            var expectedValues = [SCOPE_WITH_EXTRAS, SCOPE_PROFILE_EXPANDED, 'profile:unrecognized'];
+            testValidQueryParams('scope', validValues, 'scope', expectedValues);
+          });
+        });
+
+        describe('verification_redirect', function () {
+          var invalidValues = ['', ' ', 'invalid'];
+          testInvalidQueryParams('verification_redirect', invalidValues);
+
+          var validValues = [undefined, 'no', 'always'];
+          var expectedValues = ['no', 'no', 'always'];
+          testValidQueryParams('verification_redirect', validValues, 'verificationRedirect', expectedValues);
+        });
+      });
+
+      describe('client info validation', function () {
+
+        describe('image_uri', function () {
+          // leading & trailing whitespace will be trimmed
+          var validValues = ['', ' ', CLIENT_IMAGE_URI, ' ' + CLIENT_IMAGE_URI];
+          var expectedValues = ['', '', CLIENT_IMAGE_URI, CLIENT_IMAGE_URI];
+          testValidClientInfoValues(
+            'image_uri', validValues, 'imageUri', expectedValues);
+
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('image_uri', invalidValues);
+        });
+
+        describe('name', function () {
+          var validValues = ['client name'];
+          testValidClientInfoValues('name', validValues, 'serviceName', validValues);
+
+          var invalidValues = ['', ' '];
+          testInvalidClientInfoValues('name', invalidValues);
+        });
+
+        describe('privacy_uri', function () {
+          var validValues = ['', ' ', PRIVACY_URI, PRIVACY_URI + ' '];
+          var expectedValues = ['', '', PRIVACY_URI, PRIVACY_URI];
+          testValidClientInfoValues(
+            'privacy_uri', validValues, 'privacyUri', expectedValues);
+
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('privacy_uri', invalidValues);
+        });
+
+        describe('redirect_uri', function () {
+          describe('is missing on the server', function () {
+            testMissingClientInfoValue('redirect_uri');
+          });
+
+          var invalidClientInfoValues = ['', ' '];
+          testInvalidClientInfoValues('redirect_uri', invalidClientInfoValues);
+        });
+
+        describe('terms_uri', function () {
+          var invalidValues = ['not-a-url'];
+          testInvalidClientInfoValues('terms_uri', invalidValues);
+
+          var validValues = ['', ' ', TERMS_URI, ' ' + TERMS_URI];
+          var expectedValues = ['', '', TERMS_URI, TERMS_URI];
+          testValidClientInfoValues('terms_uri', validValues, 'termsUri', expectedValues);
+        });
+
+        describe('trusted', function () {
+          var validValues = ['true', true, 'false', false];
+          var expected = [true, true, false, false];
+          testValidClientInfoValues('trusted', validValues, 'trusted', expected);
+          var invalidValues = ['', 'not-a-boolean'];
+          testInvalidClientInfoValues('trusted', invalidValues);
+        });
+      });
+    });
+
+    describe('isTrusted', function () {
+      beforeEach(function () {
         windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID,
-          keys: 'true',
           scope: SCOPE
         });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('keys'), true);
-          });
       });
 
-      it('populates service with client_id if service is not set', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
+      describe('when `trusted` is true', function () {
+        beforeEach(function () {
+          isTrusted = true;
+          return relier.fetch();
         });
 
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('service'), CLIENT_ID);
-          });
+        it('returns `true`', function () {
+          assert.isTrue(relier.isTrusted());
+        });
       });
 
-      it('populates permissions from scope', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
+      describe('when `trusted` is false', function () {
+        beforeEach(function () {
+          isTrusted = false;
+          return relier.fetch();
         });
 
-        return relier.fetch()
-          .then(function () {
-            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
-          });
-      });
-
-      it('sanitizes the scope of untrusted reliers', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE_WITH_EXTRAS
+        it('returns `false`', function () {
+          assert.isFalse(relier.isTrusted());
         });
-
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('scope'), SCOPE);
-            assert.deepEqual(relier.get('permissions'), PERMISSIONS);
-          });
-      });
-
-      it('does not sanitize the scope of trusted reliers', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE_WITH_EXTRAS
-        });
-
-        sinon.stub(relier, 'isTrusted', function () {
-          return true;
-        });
-
-        return relier.fetch()
-          .then(function () {
-            assert.equal(relier.get('scope'), SCOPE_WITH_EXTRAS);
-            assert.isFalse(relier.has('permissions'), 'permissions not set for trusted reliers');
-          });
-      });
-
-      it('errors if `client_id` is missing', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          scope: SCOPE
-        });
-
-        return relier.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-            assert.equal(err.param, 'client_id');
-          });
-      });
-
-      it('errors if the `client_id` is unknown or invalid', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: 'BAD_CLIENT_ID',
-          scope: SCOPE
-        });
-
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
-          var err = OAuthErrors.toError('INVALID_REQUEST_PARAMETER');
-          err.validation = {
-            keys: ['client_id']
-          };
-          return p.reject(err);
-        });
-
-        return relier.fetch()
-          .then(assert.fail, function (err) {
-            // INVALID_REQUEST_PARAMETER should be converted to
-            // UNKNOWN_CLIENT
-            assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
-          });
-      });
-
-      it('errors if `scope` is missing', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID
-        });
-
-        return relier.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-            assert.equal(err.param, 'scope');
-          });
-      });
-
-      it('isTrusted when `trusted` is true', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
-        });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
-          return p({
-            name: SERVICE_NAME,
-            redirect_uri: SERVER_REDIRECT_URI,
-            trusted: true
-          });
-        });
-        return relier.fetch()
-          .then(function () {
-            assert.isTrue(relier.isTrusted());
-          });
-      });
-
-      it('! isTrusted when `trusted` is false', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          client_id: CLIENT_ID,
-          scope: SCOPE
-        });
-        oAuthClient.getClientInfo.restore();
-        sinon.stub(oAuthClient, 'getClientInfo', function () {
-          return p({
-            name: SERVICE_NAME,
-            redirect_uri: SERVER_REDIRECT_URI,
-            trusted: false
-          });
-        });
-        return relier.fetch()
-          .then(function () {
-            assert.isFalse(relier.isTrusted());
-          });
       });
     });
 
@@ -341,6 +457,7 @@ define(function (require, exports, module) {
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
           notPassed: 'this should not be picked',
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
@@ -355,6 +472,7 @@ define(function (require, exports, module) {
           // the Relier are still passed.
           campaign: CAMPAIGN,
           entrypoint: ENTRYPOINT,
+          resetPasswordConfirm: false,
           state: STATE,
           utmCampaign: CAMPAIGN,
           utmContent: ITEM,
@@ -389,44 +507,328 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('accountNeedsPermissions', function () {
-      it('should not prompt when relier is trusted', function () {
-        sinon.stub(relier, 'isTrusted', function () {
-          return true;
+    describe('wantsConsent', function () {
+      describe('prompt=consent', function () {
+        beforeEach(function () {
+          relier.set('prompt', 'consent');
         });
-        assert.isFalse(relier.accountNeedsPermissions(user.initAccount()));
-        assert.isTrue(relier.isTrusted.called);
+
+        it('returns true', function () {
+          assert.isTrue(relier.wantsConsent());
+        });
       });
 
-      it('should not prompt when relier is untrusted and has permissions', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+      describe('otherwise', function () {
+        beforeEach(function () {
+          relier.unset('prompt');
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return true;
-        });
-        relier.set('permissions', ['profile:email']);
-        assert.isFalse(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
-      });
 
-      it('returns true when relier is untrusted and at least one permission is needed', function () {
-        var account = user.initAccount();
-        sinon.stub(relier, 'isTrusted', function () {
-          return false;
+        it('returns false', function () {
+          assert.isFalse(relier.wantsConsent());
         });
-        sinon.stub(account, 'hasGrantedPermissions', function () {
-          return false;
-        });
-        relier.set('permissions', ['profile:email']);
-        assert.isTrue(relier.accountNeedsPermissions(account));
-        assert.isTrue(relier.isTrusted.called);
-        assert.isTrue(account.hasGrantedPermissions.calledWith(relier.get('clientId'), ['profile:email']));
       });
     });
 
+    describe('accountNeedsPermissions', function () {
+      var account;
+      var hasSeenPermissions;
+
+      beforeEach(function () {
+        account = user.initAccount();
+        account.set('email', 'testuser@testuser.com');
+
+        hasSeenPermissions = false;
+
+        sinon.stub(account, 'hasSeenPermissions', function () {
+          return hasSeenPermissions;
+        });
+
+        relier.set({
+          clientId: CLIENT_ID,
+          permissions: ['profile:email', 'profile:display_name']
+        });
+      });
+
+      describe('a trusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', true);
+        });
+
+        describe('without prompt=consent', function () {
+          beforeEach(function () {
+            relier.unset('prompt');
+          });
+
+          it('returns false', function () {
+            assert.isFalse(relier.accountNeedsPermissions(account));
+          });
+        });
+
+        describe('with prompt=consent', function () {
+          beforeEach(function () {
+            relier.set('prompt', 'consent');
+          });
+
+          describe('account does not need additional permissions', function () {
+            beforeEach(function () {
+              hasSeenPermissions = true;
+            });
+
+            it('returns false', function () {
+              assert.isFalse(relier.accountNeedsPermissions(account));
+            });
+          });
+
+          describe('account needs additional permissions', function () {
+            beforeEach(function () {
+              hasSeenPermissions = false;
+            });
+
+            it('returns true', function () {
+              assert.isTrue(relier.accountNeedsPermissions(account));
+            });
+          });
+        });
+      });
+
+      describe('an untrusted relier', function () {
+        beforeEach(function () {
+          relier.set('trusted', false);
+        });
+
+        describe('account has seen all the permissions', function () {
+          beforeEach(function () {
+            hasSeenPermissions = true;
+          });
+
+          it('should return false', function () {
+            assert.isFalse(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
+        });
+
+        describe('account has not seen all permissions', function () {
+          beforeEach(function () {
+            hasSeenPermissions = false;
+          });
+
+          it('should return true', function () {
+            assert.isTrue(relier.accountNeedsPermissions(account));
+          });
+
+          it('should filter any permissions for which the account has no value', function () {
+            relier.accountNeedsPermissions(account);
+            assert.isTrue(account.hasSeenPermissions.calledWith(CLIENT_ID, ['profile:email']));
+          });
+        });
+      });
+    });
+
+    function mockGetClientInfo(paramName, paramValue) {
+      if (oAuthClient.getClientInfo.restore) {
+        oAuthClient.getClientInfo.restore();
+      }
+
+      sinon.stub(oAuthClient, 'getClientInfo', function () {
+        var clientInfo = {
+          id: CLIENT_ID,
+          name: SERVICE_NAME,
+          privacy_uri: PRIVACY_URI,
+          redirect_uri: SERVER_REDIRECT_URI,
+          terms_uri: TERMS_URI,
+          trusted: isTrusted
+        };
+
+        if (! _.isUndefined(paramName)) {
+          if (_.isUndefined(paramValue)) {
+            delete clientInfo[paramName];
+          } else {
+            clientInfo[paramName] = paramValue;
+          }
+        }
+
+        return p(clientInfo);
+      });
+    }
+
+    function fetchExpectError(params) {
+      windowMock.location.search = TestHelpers.toSearchString(params);
+
+      return relier.fetch()
+        .then(assert.fail, function (_err) {
+          err = _err;
+        });
+    }
+
+    function fetchExpectSuccess(params) {
+      windowMock.location.search = TestHelpers.toSearchString(params);
+
+      return relier.fetch();
+    }
+
+    function testInvalidQueryParams(paramName, values) {
+      describe('invalid', function () {
+        values.forEach(function (value) {
+          var description = 'is ' + getValueLabel(value);
+          describe(description, function () {
+            testInvalidQueryParam(paramName, value);
+          });
+        });
+      });
+    }
+
+    function testInvalidQueryParam(paramName, value) {
+      beforeEach(function () {
+        var params = {
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        };
+
+        if (! _.isUndefined(value)) {
+          params[paramName] = value;
+        } else {
+          delete params[paramName];
+        }
+
+        return fetchExpectError(params);
+      });
+
+      it('errors correctly', function () {
+        assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, paramName);
+      });
+    }
+
+    function testMissingRequiredQueryParam(paramName) {
+      describe('is missing', function () {
+        beforeEach(function () {
+          var params = {
+            client_id: CLIENT_ID,
+            scope: SCOPE
+          };
+
+          delete params[paramName];
+
+          return fetchExpectError(params);
+        });
+
+        it('errors correctly', function () {
+          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+          assert.equal(err.param, paramName);
+        });
+      });
+    }
+
+    function testValidQueryParams(paramName, values, modelName, expectedValues) {
+      describe('valid', function () {
+        values.forEach(function (value, index) {
+          var description = 'is ' + getValueLabel(value);
+          describe(description, function () {
+            var expectedValue = expectedValues[index];
+            testValidQueryParam(paramName, value, modelName, expectedValue);
+          });
+        });
+      });
+    }
+
+    function testValidQueryParam(paramName, paramValue, modelName, expectedValue) {
+      beforeEach(function () {
+        var params = {
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        };
+
+        if (! _.isUndefined(paramValue)) {
+          params[paramName] = paramValue;
+        } else {
+          delete params[paramName];
+        }
+
+        return fetchExpectSuccess(params);
+      });
+
+      it('is successful', function () {
+        if (_.isUndefined(expectedValue)) {
+          assert.isFalse(relier.has(modelName));
+        } else {
+          assert.equal(relier.get(modelName), expectedValue);
+        }
+      });
+    }
+
+    function testMissingClientInfoValue(paramName) {
+      beforeEach(function () {
+        mockGetClientInfo(paramName, undefined);
+
+        return fetchExpectError({
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+      });
+
+      it('errors correctly', function () {
+        assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, paramName);
+      });
+    }
+
+    function testInvalidClientInfoValues(paramName, values) {
+      values.forEach(function (value) {
+        var description = 'is ' + getValueLabel(value);
+        describe(description, function () {
+          testInvalidClientInfoValue(paramName, value);
+        });
+      });
+    }
+
+    function testInvalidClientInfoValue(paramName, paramValue) {
+      beforeEach(function () {
+        mockGetClientInfo(paramName, paramValue);
+
+        return fetchExpectError({
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+      });
+
+      it('errors correctly', function () {
+        assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, paramName);
+      });
+    }
+
+    function testValidClientInfo(paramName, paramValue, modelName, expectedValue) {
+      beforeEach(function () {
+        mockGetClientInfo(paramName, paramValue);
+
+        return fetchExpectSuccess({
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+      });
+
+      it('is successful', function () {
+        if (_.isUndefined(expectedValue)) {
+          assert.isFalse(relier.has(modelName));
+        } else {
+          assert.equal(relier.get(modelName), expectedValue);
+        }
+      });
+    }
+
+    function testValidClientInfoValues(paramName, values, modelName, expectedValues) {
+      values.forEach(function (value, index) {
+        var description = 'is ' + getValueLabel(value);
+        describe(description, function () {
+          var expectedValue = expectedValues[index];
+          testValidClientInfo(paramName, value, modelName, expectedValue);
+        });
+      });
+    }
   });
 });
 

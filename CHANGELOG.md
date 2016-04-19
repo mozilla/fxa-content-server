@@ -1,18 +1,305 @@
-<a name="0.53.1"></a>
-## 0.53.1 (2016-01-05)
+<a name="0.60.0"></a>
+# 0.60.0 (2016-04-19)
 
 
 ### Bug Fixes
 
-* **client:** Only send `internal:*` messages across the InterTabChannel. ([09d8533](https://github.com/mozilla/fxa-content-server/commit/09d8533))
+* **client:** Clear `resetPasswordConfirm` flag after successful reset. ([b72c27c](https://github.com/mozilla/fxa-content-server/commit/b72c27c))
+* **client:** Do not skip "reset password" screen in force_auth. ([b22eeb4](https://github.com/mozilla/fxa-content-server/commit/b22eeb4)), closes [#3477](https://github.com/mozilla/fxa-content-server/issues/3477)
+* **client:** Reduce the number of `parseMessage` errors. ([37e8f04](https://github.com/mozilla/fxa-content-server/commit/37e8f04)), closes [#3594](https://github.com/mozilla/fxa-content-server/issues/3594)
+* **client:** Remove support for Iframed OAuth flows. ([5d19757](https://github.com/mozilla/fxa-content-server/commit/5d19757)), closes [#3628](https://github.com/mozilla/fxa-content-server/issues/3628)
+* **client:** Sign out messages disappear when user starts typing ([198070e](https://github.com/mozilla/fxa-content-server/commit/198070e))
+* **client:** isPasswordAutocompleteDisabled removed ([7fb7dae](https://github.com/mozilla/fxa-content-server/commit/7fb7dae))
+* **deps:** update most prod deps ([a5ae334](https://github.com/mozilla/fxa-content-server/commit/a5ae334))
+* **deps:** update node-uap version ([b43ecdd](https://github.com/mozilla/fxa-content-server/commit/b43ecdd))
+* **deps:** update to bluebird 3 promises ([b5f5f17](https://github.com/mozilla/fxa-content-server/commit/b5f5f17))
+* **strings:** fix device string ([c4a85c8](https://github.com/mozilla/fxa-content-server/commit/c4a85c8))
+* **tests:** Fix the failure on addEventListener. ([371f091](https://github.com/mozilla/fxa-content-server/commit/371f091)), closes [#3408](https://github.com/mozilla/fxa-content-server/issues/3408)
+* **tests:** adjust checkbox test to click on labels properly ([fd3c658](https://github.com/mozilla/fxa-content-server/commit/fd3c658)), closes [#3618](https://github.com/mozilla/fxa-content-server/issues/3618)
+* **tests:** update device tests to wait for device delete request ([84a34df](https://github.com/mozilla/fxa-content-server/commit/84a34df)), closes [#3405](https://github.com/mozilla/fxa-content-server/issues/3405)
+
+### Features
+
+* **client:** Show a startup spinner on startup ([e8f3252](https://github.com/mozilla/fxa-content-server/commit/e8f3252)), closes [#2980](https://github.com/mozilla/fxa-content-server/issues/2980)
+* **client:** Smooth out the "reset_password_confirm=false" flow. ([17e27c1](https://github.com/mozilla/fxa-content-server/commit/17e27c1))
+* **client:** Strict validation of email and uid on force_auth ([f666c8b](https://github.com/mozilla/fxa-content-server/commit/f666c8b)), closes [#3040](https://github.com/mozilla/fxa-content-server/issues/3040)
+* **reset:** add reset_password_confirm parameter to allow auto submit ([59bfb5f](https://github.com/mozilla/fxa-content-server/commit/59bfb5f))
+* **signin:** handle new account must reset error (126) ([b2908af](https://github.com/mozilla/fxa-content-server/commit/b2908af))
+
+### Refactor
+
+* **client:** Convert durations into duration-js ([8795b14](https://github.com/mozilla/fxa-content-server/commit/8795b14)), closes [#1657](https://github.com/mozilla/fxa-content-server/issues/1657)
+* **client:** Extract account reset logic into a mixin to be shared. ([7bc28f6](https://github.com/mozilla/fxa-content-server/commit/7bc28f6))
+* **client:** Extract open-gmail logic into a mixin to be shared. ([007d470](https://github.com/mozilla/fxa-content-server/commit/007d470))
+* **client:** In siginin, rename `.prefill` to `.prefillEmail`. ([489a80f](https://github.com/mozilla/fxa-content-server/commit/489a80f))
+* **client:** Move error reporting from app-start a shared module. ([ea12cc5](https://github.com/mozilla/fxa-content-server/commit/ea12cc5))
+* **logging:** Add error module ([13858f3](https://github.com/mozilla/fxa-content-server/commit/13858f3))
+
+### chore
+
+* **ci:** add circleci scripts into tests ([235e20d](https://github.com/mozilla/fxa-content-server/commit/235e20d))
+* **client:** Add the strings needed for the email reconfirmation feature. ([efb639f](https://github.com/mozilla/fxa-content-server/commit/efb639f))
+* **client:** Alphabetize a couple of out of order dependencies. ([39dd282](https://github.com/mozilla/fxa-content-server/commit/39dd282))
+* **deps:** update devDeps ([b7a2862](https://github.com/mozilla/fxa-content-server/commit/b7a2862))
+* **deps:** update to Intern 3.1.1 ([aa14ce6](https://github.com/mozilla/fxa-content-server/commit/aa14ce6))
+
+
+
+<a name="0.59.0"></a>
+# 0.59.0 (2016-03-21)
+
+
+### Bug Fixes
+
+* **confirm:** do not show errors during confirmation polling ([944fc5e](https://github.com/mozilla/fxa-content-server/commit/944fc5e)), closes [#2638](https://github.com/mozilla/fxa-content-server/issues/2638)
+* **metrics:** limit Sentry stack frames ([293ab07](https://github.com/mozilla/fxa-content-server/commit/293ab07)), closes [#3167](https://github.com/mozilla/fxa-content-server/issues/3167)
+* **tests:** server tests now require bluebird and lodash ([39461dd](https://github.com/mozilla/fxa-content-server/commit/39461dd))
+
+### chore
+
+* **docs:** add a link to prod content server ([659bd3c](https://github.com/mozilla/fxa-content-server/commit/659bd3c))
+* **docs:** Document helper functions added in #3595 ([2255991](https://github.com/mozilla/fxa-content-server/commit/2255991))
+* **tests:** Add a missing unit test for views/confirm.js ([5ac2347](https://github.com/mozilla/fxa-content-server/commit/5ac2347))
+* **travis:** unlock node.js versions ([0cf6289](https://github.com/mozilla/fxa-content-server/commit/0cf6289)), closes [#3586](https://github.com/mozilla/fxa-content-server/issues/3586)
+
+### Features
+
+* **client:** Better handling of deleted accounts on /force_auth ([485433f](https://github.com/mozilla/fxa-content-server/commit/485433f)), closes [#3057](https://github.com/mozilla/fxa-content-server/issues/3057) [#3283](https://github.com/mozilla/fxa-content-server/issues/3283)
+* **client:** joi like validation of query parameters ([d9e18ea](https://github.com/mozilla/fxa-content-server/commit/d9e18ea))
+* **referer:** Only send origin in referer header, not whole URL. ([f12b67b](https://github.com/mozilla/fxa-content-server/commit/f12b67b))
+* **server:** emit the new flow.begin activity event ([5b74706](https://github.com/mozilla/fxa-content-server/commit/5b74706))
+
+### Refactor
+
+* **tests:** Overhaul the force_auth tests. ([89de5cd](https://github.com/mozilla/fxa-content-server/commit/89de5cd))
+
+### Reverts
+
+* **server:** remove server-generated flowId and flow.begin event ([83f0503](https://github.com/mozilla/fxa-content-server/commit/83f0503))
+
+
+
+<a name="0.58.1"></a>
+## 0.58.1 (2016-03-09)
+
+
+### Bug Fixes
+
+* **build:** Fix `grunt build` exception if server template open in vim ([d6c9661](https://github.com/mozilla/fxa-content-server/commit/d6c9661)), closes [#3581](https://github.com/mozilla/fxa-content-server/issues/3581)
+* **client:** Only normalize scopes for trusted reliers when prompting for consent. ([8aa23fe](https://github.com/mozilla/fxa-content-server/commit/8aa23fe))
+* **server:** Ensure the 400 page prints error messages in production. ([1279cff](https://github.com/mozilla/fxa-content-server/commit/1279cff)), closes [#2070](https://github.com/mozilla/fxa-content-server/issues/2070) [#3572](https://github.com/mozilla/fxa-content-server/issues/3572)
+* **tests:** add htmlparser2 dependency to teamcity/run-server.sh ([26d33af](https://github.com/mozilla/fxa-content-server/commit/26d33af))
+
+### chore
+
+* **tests:** Functional test for trusted relier that prompts for consent ([c89ceb1](https://github.com/mozilla/fxa-content-server/commit/c89ceb1))
+
+### Refactor
+
+* **client:** Simplify url.js->searchParams ([ed3c190](https://github.com/mozilla/fxa-content-server/commit/ed3c190))
+
+
+
+<a name="0.58.0"></a>
+# 0.58.0 (2016-03-08)
+
+
+### Bug Fixes
+
+* **build:** copy error pages into dist, not app ([118e2c8](https://github.com/mozilla/fxa-content-server/commit/118e2c8))
+* **client:** forbid single-part domains in email addresses ([4c42f47](https://github.com/mozilla/fxa-content-server/commit/4c42f47))
+* **client:** Handle old accounts that contain `accountData` ([479b7dd](https://github.com/mozilla/fxa-content-server/commit/479b7dd)), closes [#3466](https://github.com/mozilla/fxa-content-server/issues/3466)
+* **client:** Only send login notices to Fx if all data is available. ([53fe05f](https://github.com/mozilla/fxa-content-server/commit/53fe05f)), closes [#3514](https://github.com/mozilla/fxa-content-server/issues/3514)
+* **server:** Allow the /signin, /signup, /reset_pasword to be framed ([f513fb2](https://github.com/mozilla/fxa-content-server/commit/f513fb2)), closes [#3518](https://github.com/mozilla/fxa-content-server/issues/3518)
+* **test:** Ensure `addEventListener` exists before invoking. ([918cf7b](https://github.com/mozilla/fxa-content-server/commit/918cf7b)), closes [#3408](https://github.com/mozilla/fxa-content-server/issues/3408)
+* **tests:** allow setting fxaDevBox with teamcity run-server.sh ([62b8b58](https://github.com/mozilla/fxa-content-server/commit/62b8b58))
+* **tests:** don't quote commit value (might have leading spaces) ([d25225b](https://github.com/mozilla/fxa-content-server/commit/d25225b))
+* **tests:** Fix test timeout with selenium 51 ([9021c28](https://github.com/mozilla/fxa-content-server/commit/9021c28))
+* **tests:** handle OUT: garbage from jsawk ([6b268ea](https://github.com/mozilla/fxa-content-server/commit/6b268ea))
+* **tests:** update modules to match package.json, and jsawk fix ([d36f285](https://github.com/mozilla/fxa-content-server/commit/d36f285))
+* **tests:** update teamcity server test driver ([902195c](https://github.com/mozilla/fxa-content-server/commit/902195c))
+* **validation:** Add validation to optional params in models and reliers ([46cc1ad](https://github.com/mozilla/fxa-content-server/commit/46cc1ad)), closes [#2025](https://github.com/mozilla/fxa-content-server/issues/2025) [#3490](https://github.com/mozilla/fxa-content-server/issues/3490) [#3452](https://github.com/mozilla/fxa-content-server/issues/3452)
+
+### chore
+
+* **client:** Update fxa-js-client to 0.1.34 ([fdd9f4e](https://github.com/mozilla/fxa-content-server/commit/fdd9f4e))
+* **git:** Remove built app based error pages from .gitignore ([ebf464c](https://github.com/mozilla/fxa-content-server/commit/ebf464c))
+* **strings:** Add strings needed for update password reset flow ([fb5087c](https://github.com/mozilla/fxa-content-server/commit/fb5087c))
+* **tests:** latest4 is also an fxa-dev box ([8b57f1e](https://github.com/mozilla/fxa-content-server/commit/8b57f1e))
+* **tests:** Pre-merge cleanup of tests and HTML. ([5844134](https://github.com/mozilla/fxa-content-server/commit/5844134))
+* **tests:** Remove hard coded client_id from `oauth choose redirect` tests. ([5064b69](https://github.com/mozilla/fxa-content-server/commit/5064b69))
+
+### Features
+
+* **amo:** Signin/Signup based on email query param with existing account ([d30d508](https://github.com/mozilla/fxa-content-server/commit/d30d508))
+* **build:** Prepare to serve static content from a CDN. ([93209b2](https://github.com/mozilla/fxa-content-server/commit/93209b2)), closes [#3447](https://github.com/mozilla/fxa-content-server/issues/3447) [#3462](https://github.com/mozilla/fxa-content-server/issues/3462) [#3463](https://github.com/mozilla/fxa-content-server/issues/3463)
+* **client:** Add a mixin to handle updating external URLs on Fx for iOS ([f2f7fc1](https://github.com/mozilla/fxa-content-server/commit/f2f7fc1))
+* **server:** add hard crash maintenance mode template ([b168cf2](https://github.com/mozilla/fxa-content-server/commit/b168cf2)), closes [#3103](https://github.com/mozilla/fxa-content-server/issues/3103)
+* **styles:** Updated password reset flow ([822ab77](https://github.com/mozilla/fxa-content-server/commit/822ab77))
+
+
+
+<a name="0.57.0"></a>
+# 0.57.0 (2016-02-23)
+
+
+### Bug Fixes
+
+* **client:** Do not show the easter egg if in an iframe. ([b59e4fe](https://github.com/mozilla/fxa-content-server/commit/b59e4fe)), closes [#3483](https://github.com/mozilla/fxa-content-server/issues/3483)
+* **client:** Fix error message behavior post-screen transition. ([7da39a8](https://github.com/mozilla/fxa-content-server/commit/7da39a8)), closes [#3503](https://github.com/mozilla/fxa-content-server/issues/3503)
+* **client:** Fix password reset in e10s. ([2211306](https://github.com/mozilla/fxa-content-server/commit/2211306))
+* **client:** Fix show/hide password toggle on force_auth ([6033838](https://github.com/mozilla/fxa-content-server/commit/6033838)), closes [#3532](https://github.com/mozilla/fxa-content-server/issues/3532)
+* **client:** Fix uploading an avatar from file ([0d87a98](https://github.com/mozilla/fxa-content-server/commit/0d87a98)), closes [#3519](https://github.com/mozilla/fxa-content-server/issues/3519)
+* **client:** Focus the display name field when opening the panel. ([21634ba](https://github.com/mozilla/fxa-content-server/commit/21634ba)), closes [#3517](https://github.com/mozilla/fxa-content-server/issues/3517)
+* **cwts:** show all sync engine options to all clients ([98d1059](https://github.com/mozilla/fxa-content-server/commit/98d1059)), closes [#3494](https://github.com/mozilla/fxa-content-server/issues/3494)
+* **devices:** remove plural strings from connected date ([02d493b](https://github.com/mozilla/fxa-content-server/commit/02d493b)), closes [#3510](https://github.com/mozilla/fxa-content-server/issues/3510)
+* **metrics:** Report Windows 10 metrics reporting. ([045ad50](https://github.com/mozilla/fxa-content-server/commit/045ad50)), closes [#3445](https://github.com/mozilla/fxa-content-server/issues/3445)
+* **style:** Cleanup sync options styling ([6d8cd85](https://github.com/mozilla/fxa-content-server/commit/6d8cd85))
+* **teamcity:** record content,oauth,profile,auth __version__ (latest4) ([3190cb0](https://github.com/mozilla/fxa-content-server/commit/3190cb0))
+* **tests:** adjust case sensitive tests for sync v2 ([82946a2](https://github.com/mozilla/fxa-content-server/commit/82946a2))
+
+### chore
+
+* **client:** Add the strings for PR #3426 ([bc80f3a](https://github.com/mozilla/fxa-content-server/commit/bc80f3a))
+* **client:** signin from signup final touches ([7ef7ae9](https://github.com/mozilla/fxa-content-server/commit/7ef7ae9))
+* **install:** Sort the dependencies in package.json ([3c0d651](https://github.com/mozilla/fxa-content-server/commit/3c0d651))
+
+### Features
+
+* **build:** Add SRI `integrity` attributes to static resources. ([4b23a90](https://github.com/mozilla/fxa-content-server/commit/4b23a90)), closes [#3449](https://github.com/mozilla/fxa-content-server/issues/3449)
+* **client:** Add support for `prompt=consent` for OAuth reliers. ([041b9fa](https://github.com/mozilla/fxa-content-server/commit/041b9fa)), closes [#3505](https://github.com/mozilla/fxa-content-server/issues/3505)
+* **client:** allow users to sign in from sign-up view ([b513701](https://github.com/mozilla/fxa-content-server/commit/b513701))
+* **client:** Expand the permissions screen. ([851446a](https://github.com/mozilla/fxa-content-server/commit/851446a)), closes [#2477](https://github.com/mozilla/fxa-content-server/issues/2477)
+* **cwts:** enable choose what to sync in fx-firstrun-v2 and refactor other cwts auth_broker ([c5d28cc](https://github.com/mozilla/fxa-content-server/commit/c5d28cc)), closes [#3365](https://github.com/mozilla/fxa-content-server/issues/3365)
+* **sass:** add hover and active states for avatar upload dialog buttons ([fca16ac](https://github.com/mozilla/fxa-content-server/commit/fca16ac))
+
+### Refactor
+
+* **test:** Image uploader functional tests upload images. ([859b7c0](https://github.com/mozilla/fxa-content-server/commit/859b7c0))
+
+
+
+<a name="0.56.0"></a>
+# 0.56.0 (2016-02-10)
+
+
+### Bug Fixes
+
+* **client:** Do not sign out of Sync when visiting /force_auth ([f96672c](https://github.com/mozilla/fxa-content-server/commit/f96672c)), closes [#3431](https://github.com/mozilla/fxa-content-server/issues/3431)
+* **client:** Ensure status messages are shown on the signup page. ([dfeb53b](https://github.com/mozilla/fxa-content-server/commit/dfeb53b))
+* **client:** Ignore postMessages from `chrome://browser` ([7010bbd](https://github.com/mozilla/fxa-content-server/commit/7010bbd))
+* **client:** No more redirect to `signin_complete` w/ fx_desktop_v2 ([723da2b](https://github.com/mozilla/fxa-content-server/commit/723da2b)), closes [#3330](https://github.com/mozilla/fxa-content-server/issues/3330) [#3353](https://github.com/mozilla/fxa-content-server/issues/3353)
+* **client:** Update the `_redirectTo` stragglers, add tests. ([da5fbfe](https://github.com/mozilla/fxa-content-server/commit/da5fbfe))
+* **confirm:** fix openGmail button visibility ([aa122cb](https://github.com/mozilla/fxa-content-server/commit/aa122cb)), closes [#3487](https://github.com/mozilla/fxa-content-server/issues/3487)
+* **experiments:** update to train-55 experiments ([01459b6](https://github.com/mozilla/fxa-content-server/commit/01459b6))
+* **metrics:** Filter obviously invalid StatsD timings ([cdeac93](https://github.com/mozilla/fxa-content-server/commit/cdeac93))
+* **metrics:** Send an error's context as a Sentry report tag. ([8bdfd57](https://github.com/mozilla/fxa-content-server/commit/8bdfd57)), closes [#3470](https://github.com/mozilla/fxa-content-server/issues/3470)
+* **spelling:** fix a few typos ([8394a57](https://github.com/mozilla/fxa-content-server/commit/8394a57))
+* **teamcity:** record content,oauth,profile,auth __version__ ([f2672a0](https://github.com/mozilla/fxa-content-server/commit/f2672a0))
+* **test:** Fix the `attempt to use webcam for avatar` functional test. ([18b0c6d](https://github.com/mozilla/fxa-content-server/commit/18b0c6d)), closes [#3455](https://github.com/mozilla/fxa-content-server/issues/3455)
+* **travis:** lock node versions until new versions are supported ([ad92350](https://github.com/mozilla/fxa-content-server/commit/ad92350))
+
+### chore
+
+* **client:** Add a unit test for sign_up.js->onAmoSignIn ([d1364e2](https://github.com/mozilla/fxa-content-server/commit/d1364e2))
+* **client:** Add the AMO migration string to strings.js ([2f8c721](https://github.com/mozilla/fxa-content-server/commit/2f8c721))
+* **client:** Remove `submit` from ForceAuthView. ([d221aed](https://github.com/mozilla/fxa-content-server/commit/d221aed)), closes [#3438](https://github.com/mozilla/fxa-content-server/issues/3438)
+* **client:** Remove the extra mixins from the ForceAuthView. ([6316053](https://github.com/mozilla/fxa-content-server/commit/6316053)), closes [#3437](https://github.com/mozilla/fxa-content-server/issues/3437)
+* **docs:** Add `migration` possible values documentation. ([8d0e17a](https://github.com/mozilla/fxa-content-server/commit/8d0e17a))
+
+### Features
+
+* **client:** Enable "Sync Preferences" from the firstrun flow. ([539ed50](https://github.com/mozilla/fxa-content-server/commit/539ed50)), closes [#3417](https://github.com/mozilla/fxa-content-server/issues/3417)
+* **confirm:** promote "open gmail" to a feature ([833358d](https://github.com/mozilla/fxa-content-server/commit/833358d)), closes [#3368](https://github.com/mozilla/fxa-content-server/issues/3368)
+* **migration:** Updated to support AMO migration through the migration query param ([949f717](https://github.com/mozilla/fxa-content-server/commit/949f717))
+* **sass:** use custom SVGs for avatar upload buttons ([21c2821](https://github.com/mozilla/fxa-content-server/commit/21c2821))
+
+### Refactor
+
+* **client:** Extract `accountKeys`, `relierKeys` to the Account model. ([3fdef3f](https://github.com/mozilla/fxa-content-server/commit/3fdef3f))
+* **relier:** remove isFxDesktop(), it is not used ([888dd3f](https://github.com/mozilla/fxa-content-server/commit/888dd3f))
+
+
+
+<a name="0.55.0"></a>
+# 0.55.0 (2016-01-26)
+
+
+### Bug Fixes
+
+* **client:** enforce validation of notifier event data ([7002c76](https://github.com/mozilla/fxa-content-server/commit/7002c76))
+* **client:** Fix the browser back button in the firstrun flow. ([6c306e0](https://github.com/mozilla/fxa-content-server/commit/6c306e0)), closes [#3296](https://github.com/mozilla/fxa-content-server/issues/3296)
+* **client:** tolerate missing _formPrefill in signed-out-notification-mixin ([cf2c6c7](https://github.com/mozilla/fxa-content-server/commit/cf2c6c7))
+* **config:** switch to readable config values ([d9326cc](https://github.com/mozilla/fxa-content-server/commit/d9326cc)), closes [#2874](https://github.com/mozilla/fxa-content-server/issues/2874)
+* **devices:** format connected date ([20eb09a](https://github.com/mozilla/fxa-content-server/commit/20eb09a)), closes [#3377](https://github.com/mozilla/fxa-content-server/issues/3377)
+* **metrics:** Reduce the number of localStorage errors in Sentry. ([aedb762](https://github.com/mozilla/fxa-content-server/commit/aedb762))
+* **sentry:** adjust cache busting files for Sentry ([2a85d0a](https://github.com/mozilla/fxa-content-server/commit/2a85d0a)), closes [#3420](https://github.com/mozilla/fxa-content-server/issues/3420) [#3363](https://github.com/mozilla/fxa-content-server/issues/3363)
+* **template:** update cookies required message to include local storage ([59672c5](https://github.com/mozilla/fxa-content-server/commit/59672c5)), closes [#3129](https://github.com/mozilla/fxa-content-server/issues/3129)
+* **test:** Fix the 'sign in with a second sign-in tab open' test. ([8fd9ef5](https://github.com/mozilla/fxa-content-server/commit/8fd9ef5)), closes [#3380](https://github.com/mozilla/fxa-content-server/issues/3380)
+
+### chore
+
+* **client:** Remove the unused ConfigLoader dep from cookies disabled. ([5c33eb8](https://github.com/mozilla/fxa-content-server/commit/5c33eb8))
+* **deps:** update to latest fxa changelog ([675a95e](https://github.com/mozilla/fxa-content-server/commit/675a95e))
+* **docs:** update node version ([5a500c5](https://github.com/mozilla/fxa-content-server/commit/5a500c5))
+* **docs:** update servers and selenium version ([bf92684](https://github.com/mozilla/fxa-content-server/commit/bf92684))
+
+### docs
+
+* **contributing:** Mention git commit guidelines ([7f3cfcd](https://github.com/mozilla/fxa-content-server/commit/7f3cfcd))
+
+### Features
+
+* **client:** Log localStorage errors on startup. ([49aedc8](https://github.com/mozilla/fxa-content-server/commit/49aedc8))
+* **client:** Report email opt-in status to firstrun page. ([cd7fa8b](https://github.com/mozilla/fxa-content-server/commit/cd7fa8b)), closes [#3411](https://github.com/mozilla/fxa-content-server/issues/3411)
+* **client:** Support the newest navigator.mediaDevices API for fetching avatars ([3913f55](https://github.com/mozilla/fxa-content-server/commit/3913f55))
+* **docker:** Additional Dockerfile for self-hosting ([2db851c](https://github.com/mozilla/fxa-content-server/commit/2db851c))
+* **metric:** Add metric to track when user successfully changes their password ([14c3344](https://github.com/mozilla/fxa-content-server/commit/14c3344))
+* **sass:** Show a spinner while loading a ProfileImage. ([f360c9c](https://github.com/mozilla/fxa-content-server/commit/f360c9c))
+
+### Refactor
+
+* **client:** Better Account field sandboxing ([d432199](https://github.com/mozilla/fxa-content-server/commit/d432199))
+* **client:** Further data sandboxing ([afe52ee](https://github.com/mozilla/fxa-content-server/commit/afe52ee))
+* **client:** Simplify the _isEmailFirefoxDomain function. ([ea29e57](https://github.com/mozilla/fxa-content-server/commit/ea29e57))
+
+
+
+<a name="0.54.0"></a>
+# 0.54.0 (2016-01-12)
+
+
+### Bug Fixes
+
+* **client:** fx-desktop-v2 broker halts before signup confirmation poll. ([34c9728](https://github.com/mozilla/fxa-content-server/commit/34c9728)), closes [#3330](https://github.com/mozilla/fxa-content-server/issues/3330)
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([1e169b8](https://github.com/mozilla/fxa-content-server/commit/1e169b8))
+* **csp:** make CSP reports more detailed, remove sample rate ([41d919c](https://github.com/mozilla/fxa-content-server/commit/41d919c)), closes [#3297](https://github.com/mozilla/fxa-content-server/issues/3297)
+>>>>>>> master
 * **docs:** remove outdated Docker docs ([4487573](https://github.com/mozilla/fxa-content-server/commit/4487573))
 * **metrics:** optimize StatsD tags for performance ([207556a](https://github.com/mozilla/fxa-content-server/commit/207556a)), closes [#3349](https://github.com/mozilla/fxa-content-server/issues/3349)
 * **signup:** disallow @firefox email field during sign up ([56465b2](https://github.com/mozilla/fxa-content-server/commit/56465b2)), closes [#3332](https://github.com/mozilla/fxa-content-server/issues/3332)
 * **sourcemap:** add head.js sourcemap ([fdb822c](https://github.com/mozilla/fxa-content-server/commit/fdb822c)), closes [#3355](https://github.com/mozilla/fxa-content-server/issues/3355)
+<<<<<<< HEAD
 * **styles:** update age styles to work properly in latest Firefox ([c6da26c](https://github.com/mozilla/fxa-content-server/commit/c6da26c))
 
 ### Refactor
 
+=======
+* **styles:** fixes avatar styling to be consistent with fx desktop, fixes #3276 ([e3bd998](https://github.com/mozilla/fxa-content-server/commit/e3bd998)), closes [#3276](https://github.com/mozilla/fxa-content-server/issues/3276)
+* **styles:** update age styles to work properly in latest Firefox ([c6da26c](https://github.com/mozilla/fxa-content-server/commit/c6da26c))
+* **teamcity:** allow GIT_COMMIT to be set via environment ([d2147c7](https://github.com/mozilla/fxa-content-server/commit/d2147c7))
+* **tests:** allow unset value of GIT_COMMIT ([1dd0fd7](https://github.com/mozilla/fxa-content-server/commit/1dd0fd7))
+* **tests:** Fix the communication preferences tests. ([ae1104f](https://github.com/mozilla/fxa-content-server/commit/ae1104f)), closes [#3357](https://github.com/mozilla/fxa-content-server/issues/3357)
+* **tests:** improve iframe functional tests ([969b0b9](https://github.com/mozilla/fxa-content-server/commit/969b0b9)), closes [#3361](https://github.com/mozilla/fxa-content-server/issues/3361)
+
+### Features
+
+* **client:** Add a "Sync Preferences" button for fx-desktop-v3 broker. ([7fd2855](https://github.com/mozilla/fxa-content-server/commit/7fd2855)), closes [#3079](https://github.com/mozilla/fxa-content-server/issues/3079)
+
+### Refactor
+
+* **client:** Add retrySignUp and verifySignUp to the Account model ([cf6700a](https://github.com/mozilla/fxa-content-server/commit/cf6700a))
+>>>>>>> master
 * **metrics:** remove unused metrics tags ([d086fa0](https://github.com/mozilla/fxa-content-server/commit/d086fa0)), closes [#3346](https://github.com/mozilla/fxa-content-server/issues/3346)
 
 

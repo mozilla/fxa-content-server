@@ -34,9 +34,8 @@ define(function (require, exports, module) {
       var self = this;
       var account = self.getSignedInAccount();
       var password = self.getElementValue('.password');
-      account.set('password', password);
 
-      return self.user.deleteAccount(account)
+      return self.user.deleteAccount(account, password)
         .then(function () {
           Session.clear();
           return self.invokeBrokerMethod('afterDeleteAccount', account);
@@ -46,12 +45,13 @@ define(function (require, exports, module) {
           self.logViewEvent('deleted');
 
           self.navigate('signup', {
-            clearQueryParams: true,
             success: t('Account deleted successfully')
+          }, {
+            clearQueryParams: true,
           });
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            return self.notifyOfLockedAccount(account);
+            return self.notifyOfLockedAccount(account, password);
           }
 
           // re-throw error, it will be handled at a lower level.

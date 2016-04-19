@@ -10,7 +10,10 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
+  var Cocktail = require('cocktail');
+  var LoadingMixin = require('views/mixins/loading-mixin');
   var p = require('lib/promise');
 
   var AppView = BaseView.extend({
@@ -67,18 +70,22 @@ define(function (require, exports, module) {
       var self = this;
 
       return p().then(function () {
+        options.model = options.model || new Backbone.Model();
+
         var currentView = self._currentView;
-        if (currentView) {
-          if (currentView instanceof View) {
-            // if the View to display is the same as the current view, then
-            // the user is navigating from a childView back to the parent view.
-            // No need to re-render, but notify interested parties of the event.
-            self.notifier.trigger('navigate-from-child-view', options);
-            self.setTitle(currentView.titleFromView());
+        if (currentView instanceof View) {
+          // child view->parent view
+          //
+          // No need to re-render, only notify parties of the event.
+          // update the current view's model with data sent from
+          // the child view.
+          currentView.model.set(options.model.toJSON());
 
-            return currentView;
-          }
+          self.notifier.trigger('navigate-from-child-view', options);
+          self.setTitle(currentView.titleFromView());
 
+          return currentView;
+        } else if (currentView) {
           currentView.destroy();
         }
 
@@ -108,17 +115,9 @@ define(function (require, exports, module) {
 
             self.setTitle(viewToShow.titleFromView());
 
-            // Render the new view while stage is invisible then fade it in
-            // using css animations to catch problems with an explicit
-            // opacity rule after class is added.
-            $('#stage').html(viewToShow.el).addClass('fade-in-forward').css('opacity', 1);
+            self.writeToDOM(viewToShow.el);
+
             viewToShow.afterVisible();
-
-            // The user may be scrolled part way down the page
-            // on view transition. Force them to the top of the page.
-            self.window.scrollTo(0, 0);
-
-            $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
 
             self.notifier.trigger('view-shown', viewToShow);
 
@@ -160,6 +159,12 @@ define(function (require, exports, module) {
         self.setTitle(title);
         childView.logView();
 
+        // The child view has its own model. Import the passed in
+        // model data to the child's model and display any
+        // necessary status messages.
+        childView.model.set(options.model.toJSON());
+        childView.displayStatusMessages();
+
         return childView;
       });
     },
@@ -174,6 +179,11 @@ define(function (require, exports, module) {
     }
 
   });
+
+  Cocktail.mixin(
+    AppView,
+    LoadingMixin
+  );
 
   module.exports = AppView;
 });

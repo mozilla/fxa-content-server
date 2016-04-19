@@ -124,10 +124,10 @@ define([
               .click()
             .end()
 
-            .then(FunctionalHelpers.visibleByQSA('#splash .signin'))
+            .then(FunctionalHelpers.visibleByQSA('.ready #splash .signin'))
             .end()
 
-            .findByCssSelector('#splash .signin')
+            .findByCssSelector('.ready #splash .signin')
               .click()
             .end()
 
@@ -149,7 +149,7 @@ define([
               return FunctionalHelpers.openFxaFromRp(self, 'signin');
             })
 
-            .findByCssSelector('.prefill')
+            .findByCssSelector('.prefillEmail')
               .getVisibleText()
               .then(function (text) {
                 // We should see the email we signed up for Sync with

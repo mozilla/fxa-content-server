@@ -24,12 +24,6 @@ define(function (require, exports, module) {
     className: 'change-password',
     viewName: 'settings.change-password',
 
-    context: function () {
-      return {
-        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
-      };
-    },
-
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
@@ -45,6 +39,7 @@ define(function (require, exports, module) {
           self.relier
         )
         .then(function () {
+          self.logViewEvent('success');
           return self.invokeBrokerMethod('afterChangePassword', account);
         })
         .then(function () {
@@ -54,10 +49,7 @@ define(function (require, exports, module) {
           return self.render();
         }, function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
-            // the password is needed to poll whether the account has
-            // been unlocked.
-            account.set('password', oldPassword);
-            return self.notifyOfLockedAccount(account);
+            return self.notifyOfLockedAccount(account, oldPassword);
           }
 
           throw err;

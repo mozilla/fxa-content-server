@@ -22,6 +22,11 @@ module.exports = function (grunt) {
   var templateSrc;
   var templateDest;
 
+  var PROPAGATED_TEMPLATE_FIELDS = [
+    'flowBeginTime',
+    'message'
+  ];
+
   // Legal templates for each locale, key'ed by languages, e.g.
   // templates['en'] = { terms: ..., privacy: ... }
   var legalTemplates = {
@@ -37,7 +42,6 @@ module.exports = function (grunt) {
     } else {
       return this.l10n.format(this.l10n.gettext(string), this);
     }
-    return string;
   });
 
   grunt.registerTask('l10n-generate-pages', ['l10n-create-json', 'l10n-generate-tos-pp', 'l10n-compile-templates']);
@@ -91,11 +95,16 @@ module.exports = function (grunt) {
     var destRoot = path.join(templateDest, locale);
     var context = i18n.localizationContext(language);
 
-    grunt.file.recurse(templateSrc,
-                    function (srcPath, rootDir, subDir, fileName) {
-                      var destPath = path.join(destRoot, (subDir || ''), fileName);
-                      generatePage(srcPath, destPath, context);
-                    });
+    // only worry about html files. Things like .swp files
+    // for editors should be ignored.
+    var templates = grunt.file.expand({
+      cwd: templateSrc
+    }, '**/*.html');
+    templates.forEach(function (fileName) {
+      var srcPath = path.join(templateSrc, fileName);
+      var destPath = path.join(destRoot, fileName);
+      generatePage(srcPath, destPath, context);
+    });
   }
 
   function generatePage(srcPath, destPath, context) {
@@ -106,7 +115,7 @@ module.exports = function (grunt) {
         var terms = legalTemplates[context.lang].terms || legalTemplates[defaultLegalLang].terms;
         var privacy = legalTemplates[context.lang].privacy || legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
-        var out = template({
+        var data = {
           fontSupportDisabled: context.fontSupportDisabled,
           l10n: context,
           lang: context.lang,
@@ -114,8 +123,13 @@ module.exports = function (grunt) {
           locale: context.locale,
           privacy: privacy,
           terms: terms
+        };
+        // Propagate any tags that are required for data
+        // to be rendered dynamically by the server.
+        PROPAGATED_TEMPLATE_FIELDS.forEach(function (field) {
+          data[field] = '{{' + field + '}}';
         });
-        return out;
+        return template(data);
       }
     });
   }

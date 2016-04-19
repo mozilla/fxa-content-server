@@ -22,10 +22,10 @@ define(function (require, exports, module) {
     var user;
     var windowMock;
 
-    before(function () {
+    beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      channelMock.send = sinon.spy(function () {
+      sinon.stub(channelMock, 'send', function () {
         return p();
       });
 
@@ -42,19 +42,19 @@ define(function (require, exports, module) {
       });
     });
 
-    it('has the `signup` capability by default', function () {
+    it('has the `signup` capability', function () {
       assert.isTrue(broker.hasCapability('signup'));
     });
 
-    it('has the `handleSignedInNotification` capability by default', function () {
+    it('has the `handleSignedInNotification` capability', function () {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     });
 
-    it('has the `emailVerificationMarketingSnippet` capability by default', function () {
+    it('has the `emailVerificationMarketingSnippet` capability', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
+    it('does not have the `syncPreferencesNotification` capability', function () {
       assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
@@ -73,33 +73,69 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterForceAuth', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
+        return broker.afterForceAuth(account)
+          .then(function (result) {
+            assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+            assert.isTrue(result.halt);
+          });
+      });
+    });
+
     describe('afterSignIn', function () {
-      it('notifies the channel with `fxaccounts:login`, does not halt', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
         return broker.afterSignIn(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, does not halt', function () {
+      it('notifies the channel with `fxaccounts:login`, halts', function () {
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function (result) {
             assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+            assert.isTrue(result.halt);
           });
       });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('notifies the channel with `fxaccounts:login`, halts by default', function () {
+      var result;
+      beforeEach(function () {
         return broker.afterResetPasswordConfirmationPoll(account)
-          .then(function (result) {
-            assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-            assert.isUndefined(result.halt);
+          .then(function (_result) {
+            result = _result;
           });
+      });
+
+      it('does not notify the channel', function () {
+        assert.isFalse(channelMock.send.called);
+      });
+
+      it('halts', function () {
+        assert.isTrue(result.halt);
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      var result;
+      beforeEach(function () {
+        return broker.afterCompleteResetPassword(account)
+          .then(function (_result) {
+            result = _result;
+          });
+      });
+
+      it('notifies the channel with `fxaccounts:login`', function () {
+        assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+      });
+
+      it('does not halt', function () {
+        assert.isFalse(!! result.halt);
       });
     });
 
@@ -128,34 +164,6 @@ define(function (require, exports, module) {
         .then(function () {
           assert.isFalse(broker.hasCapability('chooseWhatToSyncCheckbox'));
         });
-    });
-
-    describe('afterSignUp', function () {
-      afterEach(function () {
-        broker.hasCapability.restore();
-      });
-
-      it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
-        sinon.stub(broker, 'hasCapability', function (capabilityName) {
-          return capabilityName === 'chooseWhatToSyncWebV1';
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'choose_what_to_sync');
-          });
-      });
-
-      it('does nothing if `chooseWhatToSyncWebV1` capability is unsupported', function () {
-        sinon.stub(broker, 'hasCapability', function () {
-          return false;
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.isUndefined(behavior);
-          });
-      });
     });
   });
 });

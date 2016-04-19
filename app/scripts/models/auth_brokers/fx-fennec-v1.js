@@ -11,61 +11,29 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var Constants = require('lib/constants');
+  var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   var NavigateBehavior = require('views/behaviors/navigate');
-  var p = require('lib/promise');
 
-  var proto = FxDesktopV2AuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FxFennecV1AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
-    type: 'fx-fennec-v1',
-
-    commands: _.extend({}, proto.commands, {
-      SYNC_PREFERENCES: 'fxaccounts:sync_preferences'
-    }),
-
-    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: {
-        engines: [
-          'bookmarks',
-          'history',
-          'passwords',
-          'tabs'
-        ]
-      },
-      emailVerificationMarketingSnippet: false,
-      syncPreferencesNotification: true
-    }),
-
+  var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       afterForceAuth: new NavigateBehavior('force_auth_complete'),
       afterSignIn: new NavigateBehavior('signin_complete'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
     }),
 
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            data: {
-              account: account
-            }
-          });
-        }
-      });
-    },
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      chooseWhatToSyncCheckbox: false,
+      chooseWhatToSyncWebV1: {
+        engines: Constants.DEFAULT_DECLINED_ENGINES
+      },
+      emailVerificationMarketingSnippet: false,
+      syncPreferencesNotification: true
+    }),
 
-    /**
-     * Notify the browser that it should open sync preferences
-     *
-     * @method openSyncPreferences
-     * @returns {promise} resolves when notification is sent.
-     */
-    openSyncPreferences: function () {
-      return this.send(this.getCommand('SYNC_PREFERENCES'));
-    }
+    type: 'fx-fennec-v1'
   });
 
   module.exports = FxFennecV1AuthenticationBroker;

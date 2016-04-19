@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Backbone = require('backbone');
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
@@ -26,13 +27,16 @@ define(function (require, exports, module) {
     });
 
     describe('new View', function () {
+      var model;
       var notifier;
       var view;
 
       before(function () {
+        model = new Backbone.Model();
         notifier = new Notifier();
         notifier.on = sinon.spy();
         view = new View({
+          model: model,
           notifier: notifier
         });
       });
@@ -45,7 +49,7 @@ define(function (require, exports, module) {
         assert.equal(notifier.on.callCount, 1);
         var args = notifier.on.args[0];
         assert.lengthOf(args, 2);
-        assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+        assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
         assert.isFunction(args[1]);
       });
 
@@ -57,14 +61,14 @@ define(function (require, exports, module) {
             })
           };
           view.user = {
-            setSignedInAccount: sinon.spy(function () {
+            setSignedInAccountByUid: sinon.spy(function () {
               return p();
             })
           };
           view.navigate = sinon.spy();
           notifier.triggerAll = sinon.spy();
           return notifier.on.args[0][1]({
-            data: 'foo'
+            uid: 'uid'
           });
         });
 
@@ -76,18 +80,16 @@ define(function (require, exports, module) {
           assert.equal(args[0], 'handleSignedInNotification');
         });
 
-        it('calls user.setSignedInAccount correctly', function () {
-          assert.equal(view.user.setSignedInAccount.callCount, 1);
-          assert.isTrue(view.user.setSignedInAccount.alwaysCalledOn(view.user));
-          var args = view.user.setSignedInAccount.args[0];
-          assert.lengthOf(args, 1);
-          assert.deepEqual(args[0], { data: 'foo' });
+        it('calls user.setSignedInAccountByUid correctly', function () {
+          assert.equal(view.user.setSignedInAccountByUid.callCount, 1);
+          assert.isTrue(view.user.setSignedInAccountByUid.alwaysCalledOn(view.user));
+          assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
         });
 
         it('calls navigate correctly', function () {
           assert.equal(view.navigate.callCount, 1);
           assert.isTrue(view.navigate.alwaysCalledOn(view));
-          assert.isTrue(view.navigate.calledAfter(view.user.setSignedInAccount));
+          assert.isTrue(view.navigate.calledAfter(view.user.setSignedInAccountByUid));
           var args = view.navigate.args[0];
           assert.lengthOf(args, 1);
           assert.equal(args[0], 'settings');
@@ -106,13 +108,13 @@ define(function (require, exports, module) {
             })
           };
           view.user = {
-            setSignedInAccount: sinon.spy(function () {
+            setSignedInAccountByUid: sinon.spy(function () {
               return p();
             })
           };
           view.navigate = sinon.spy();
           notifier.on.args[0][1]({
-            data: 'foo'
+            uid: 'uid'
           });
         });
 
@@ -120,8 +122,8 @@ define(function (require, exports, module) {
           assert.equal(view.broker.hasCapability.callCount, 1);
         });
 
-        it('does not call user.setSignedInAccount', function () {
-          assert.equal(view.user.setSignedInAccount.callCount, 0);
+        it('does not call user.setSignedInAccountByUid', function () {
+          assert.isFalse(view.user.setSignedInAccountByUid.called);
         });
 
         it('does not call navigate', function () {
@@ -130,36 +132,55 @@ define(function (require, exports, module) {
       });
 
       describe('navigateToSignedInView with OAuth redirect URL', function () {
-        before(function () {
+
+        beforeEach(function () {
           view.broker = {
             hasCapability: sinon.spy(function () {
               return true;
             })
           };
           view.user = {
-            setSignedInAccount: sinon.spy(function () {
+            setSignedInAccountByUid: sinon.spy(function () {
               return p();
             })
           };
           view.navigate = sinon.spy();
-          view._redirectTo = 'foo';
-          return notifier.on.args[0][1]({
-            data: 'bar'
+        });
+
+        describe('without model.redirectTo', function () {
+          beforeEach(function () {
+            return notifier.on.args[0][1]({
+              uid: 'uid'
+            });
+          });
+
+          it('calls broker.hasCapability', function () {
+            assert.equal(view.broker.hasCapability.callCount, 1);
+          });
+
+          it('calls user.setSignedInAccountByUid correctly', function () {
+            assert.equal(view.user.setSignedInAccountByUid.callCount, 1);
+            assert.isTrue(view.user.setSignedInAccountByUid.calledWith('uid'));
+          });
+
+          it('calls navigate correctly', function () {
+            assert.equal(view.navigate.callCount, 1);
+            assert.equal(view.navigate.args[0][0], 'settings');
           });
         });
 
-        it('calls broker.hasCapability', function () {
-          assert.equal(view.broker.hasCapability.callCount, 1);
-        });
+        describe('with model.redirectTo', function () {
+          beforeEach(function () {
+            model.set('redirectTo', 'foo');
+            return notifier.on.args[0][1]({
+              uid: 'uid'
+            });
+          });
 
-        it('calls user.setSignedInAccount correctly', function () {
-          assert.equal(view.user.setSignedInAccount.callCount, 1);
-          assert.deepEqual(view.user.setSignedInAccount.args[0][0], { data: 'bar' });
-        });
-
-        it('calls navigate correctly', function () {
-          assert.equal(view.navigate.callCount, 1);
-          assert.equal(view.navigate.args[0][0], 'foo');
+          it('calls navigate correctly', function () {
+            assert.equal(view.navigate.callCount, 1);
+            assert.equal(view.navigate.args[0][0], 'foo');
+          });
         });
       });
 
@@ -173,7 +194,7 @@ define(function (require, exports, module) {
           assert.equal(notifier.off.callCount, 1);
           var args = notifier.off.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], notifier.EVENTS.SIGNED_IN);
+          assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
           assert.equal(args[1], notifier.on.args[0][1]);
         });
       });

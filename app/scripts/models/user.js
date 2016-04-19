@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
   var Storage = require('lib/storage');
@@ -78,13 +79,16 @@ define(function (require, exports, module) {
     },
 
     // persists account data
-    _persistAccount: function (account) {
+    _persistAccount: function (accountData) {
+      var account = this.initAccount(accountData);
+
       var accounts = this._accounts();
-      accounts[account.uid] = account;
+      accounts[account.get('uid')] = account.toPersistentJSON();
+
       this._storage.set('accounts', accounts);
     },
 
-    // A conveinience method that initializes an account instance from
+    // A convenience method that initializes an account instance from
     // raw account data.
     initAccount: function (accountData) {
       if (accountData instanceof Account) {
@@ -92,8 +96,7 @@ define(function (require, exports, module) {
         return accountData;
       }
 
-      return new Account({
-        accountData: accountData,
+      return new Account(accountData, {
         assertion: this._assertion,
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,
@@ -159,7 +162,7 @@ define(function (require, exports, module) {
     clearSignedInAccount: function () {
       var uid = this.getSignedInAccount().get('uid');
       this.clearSignedInAccountUid();
-      this._notifier.triggerRemote(this._notifier.EVENTS.SIGNED_OUT, {
+      this._notifier.triggerRemote(this._notifier.COMMANDS.SIGNED_OUT, {
         uid: uid
       });
     },
@@ -169,7 +172,13 @@ define(function (require, exports, module) {
       this._storage.remove('accounts');
     },
 
-    // Delete the account from storage
+    /**
+     * Remove the account from storage. If account is the "signed in account",
+     * the signed in account field will be cleared.
+     *
+     * @param {object} accountData - Account model or object representing
+     *   account data.
+     */
     removeAccount: function (accountData) {
       var account = this.initAccount(accountData);
 
@@ -188,16 +197,17 @@ define(function (require, exports, module) {
      * delete the account from storage.
      *
      * @param {object} accountData
-     * @return {promise}
+     * @param {string} password - the user's password
+     * @return {promise} - resolves when complete
      */
-    deleteAccount: function (accountData) {
+    deleteAccount: function (accountData, password) {
       var self = this;
       var account = self.initAccount(accountData);
 
-      return account.destroy()
+      return account.destroy(password)
         .then(function () {
           self.removeAccount(account);
-          self._notifier.triggerAll(self._notifier.EVENTS.DELETE, {
+          self._notifier.triggerAll(self._notifier.COMMANDS.DELETE, {
             uid: account.get('uid')
           });
         });
@@ -224,7 +234,7 @@ define(function (require, exports, module) {
       var account = self.initAccount(accountData);
       return account.fetch()
         .then(function () {
-          self._persistAccount(account.toPersistentJSON());
+          self._persistAccount(account);
           return account;
         });
     },
@@ -280,17 +290,48 @@ define(function (require, exports, module) {
         });
     },
 
-    // Add the last signed in account (if it's different from the Sync account).
-    // If the email is the same we assume it's the same account since users can't change email yet.
+    // Before a13f05f2 (18 Dec 2014), all kinds of extra
+    // data was written to the Account. This extra data hung
+    // arround even if the user signed in again. After d4321990
+    // (12 Jan 2016), only allowed fields are allowed to be
+    // set on an account, unexpected fields cause an error.
+    // Update any accounts with unexpected data.
+    upgradeFromUnfilteredAccountData: function () {
+      var self = this;
+      return p().then(function () {
+        var accountData = self._accounts();
+        for (var userid in accountData) {
+          var unfiltered = accountData[userid];
+          var filtered = _.pick(unfiltered, Account.ALLOWED_KEYS);
+
+          if (! _.isEqual(unfiltered, filtered)) {
+            self._persistAccount(filtered);
+          }
+        }
+      });
+    },
+
+    // Add the last signed in account (if it's different from the
+    // Sync account). If the email is the same we assume it's the
+    // same account since users can't change email yet.
     _shouldAddOldSessionAccount: function (Session) {
       return (Session.email && Session.sessionToken &&
         (! Session.cachedCredentials ||
         Session.cachedCredentials.email !== Session.email));
     },
 
-    signInAccount: function (account, relier, options) {
+    /**
+     * Sign in an account. Notifies other tabs of signin on success.
+     *
+     * @param {object} account - account to sign in
+     * @param {string} password - the user's password
+     * @param {object} relier - relier being signed in to
+     * @param {object} [options] - options
+     * @returns {promise} - resolves when complete
+     */
+    signInAccount: function (account, password, relier, options) {
       var self = this;
-      return account.signIn(relier, options)
+      return account.signIn(password, relier, options)
         .then(function () {
           // If there's an account with the same uid in localStorage we merge
           // its attributes with the new account instance to retain state
@@ -303,17 +344,24 @@ define(function (require, exports, module) {
             }));
             account = oldAccount;
           }
-          return self.setSignedInAccount(account)
-            .then(function (account) {
-              self._notifier.triggerRemote(self._notifier.EVENTS.SIGNED_IN, account.toJSON());
-              return account;
-            });
+
+          self._notifyOfAccountSignIn(account);
+          return self.setSignedInAccount(account);
         });
     },
 
-    signUpAccount: function (account, relier, options) {
+    /**
+     * Sign up a new account
+     *
+     * @param {object} account - account to sign up
+     * @param {string} password - the user's password
+     * @param {object} relier - relier being signed in to
+     * @param {object} [options] - options
+     * @returns {promise} - resolves when complete
+     */
+    signUpAccount: function (account, password, relier, options) {
       var self = this;
-      return account.signUp(relier, options)
+      return account.signUp(password, relier, options)
         .then(function () {
           return self.setSignedInAccount(account);
         });
@@ -332,6 +380,45 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Complete signup for the account. Notifies other tabs of signin
+     * if the account has a sessionToken and verification successfully
+     * completes.
+     *
+     * @param {object} account - account to verify
+     * @param {string} code - verification code
+     * @returns {promise} - resolves with the account when complete
+     */
+    completeAccountSignUp: function (account, code) {
+      var self = this;
+
+      // The original tab may no longer be open to notify other
+      // windows the user is signed in. If the account has a `sessionToken`,
+      // the user verified in the same browser. Notify any tabs that care.
+      function notifyIfSignedIn(account) {
+        if (account.has('sessionToken')) {
+          self._notifyOfAccountSignIn(account);
+        }
+      }
+
+      return account.verifySignUp(code)
+        .fail(function (err) {
+          if (MarketingEmailErrors.created(err)) {
+            // A MarketingEmailError doesn't prevent a user from
+            // completing the signup. If we receive a MarketingEmailError,
+            // notify other tabs of the sign in, and re-throw the error
+            // so it can be logged at a higher level.
+            notifyIfSignedIn(account);
+          }
+          throw err;
+        })
+        .then(function () {
+          notifyIfSignedIn(account);
+
+          return account;
+        });
+    },
+
     changeAccountPassword: function (account, oldPassword, newPassword, relier) {
       var self = this;
       return account.changePassword(oldPassword, newPassword, relier)
@@ -340,10 +427,35 @@ define(function (require, exports, module) {
         });
     },
 
-    completeAccountPasswordReset: function (account, token, code, relier) {
+    /**
+     * Notify other tabs of account sign in
+     *
+     * @private
+     * @param {object} account
+     */
+    _notifyOfAccountSignIn: function (account) {
+      // Other tabs only need to know the account `uid` to load any
+      // necessary info from localStorage
+      this._notifier.triggerRemote(
+        this._notifier.COMMANDS.SIGNED_IN, account.pick('uid', 'unwrapBKey', 'keyFetchToken'));
+    },
+
+    /**
+     * Complete a password reset for the account. Notifies other tabs
+     * of signin on success.
+     *
+     * @param {object} account - account to sign up
+     * @param {string} password - the user's new password
+     * @param {string} token - email verification token
+     * @param {string} code - email verification code
+     * @param {object} relier - relier being signed in to
+     * @returns {promise} - resolves when complete
+     */
+    completeAccountPasswordReset: function (account, password, token, code, relier) {
       var self = this;
-      return account.completePasswordReset(token, code, relier)
+      return account.completePasswordReset(password, token, code, relier)
         .then(function () {
+          self._notifyOfAccountSignIn(account);
           return self.setSignedInAccount(account);
         });
     },
@@ -375,6 +487,42 @@ define(function (require, exports, module) {
           if (self.isSignedInAccount(account) && device.get('isCurrentDevice')) {
             self.clearSignedInAccount();
           }
+        });
+    },
+
+    /**
+     * Check whether an Account's `uid` is registered. Removes the account
+     * from storage if account no longer exists on the server.
+     *
+     * @param {object} account - account to check
+     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     */
+    checkAccountUidExists: function (account) {
+      var self = this;
+      return account.checkUidExists()
+        .then(function (exists) {
+          if (! exists) {
+            self.removeAccount(account);
+          }
+          return exists;
+        });
+    },
+
+    /**
+     * Check whether an Account's `email` is registered. Removes the account
+     * from storage if account no longer exists on the server.
+     *
+     * @param {object} account - account to check
+     * @returns {promise} resolves to `true` if an account exists, `false` otw.
+     */
+    checkAccountEmailExists: function (account) {
+      var self = this;
+      return account.checkEmailExists()
+        .then(function (exists) {
+          if (! exists) {
+            self.removeAccount(account);
+          }
+          return exists;
         });
     }
   });

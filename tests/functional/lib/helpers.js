@@ -11,21 +11,25 @@ define([
   'intern/node_modules/dojo/lang',
   'intern/node_modules/dojo/node!url',
   'intern/node_modules/dojo/node!querystring',
-  'intern/chai!assert'
+  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/chai!assert',
+  'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, assert) {
+  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
   var config = intern.config;
+
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var CONTENT_SERVER = config.fxaContentRoot;
-  var OAUTH_APP = config.fxaOauthApp;
-  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
-  var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var SIGNUP_URL = config.fxaContentRoot + 'signup';
+  var EXTERNAL_SITE_LINK_TEXT = 'More information';
+  var EXTERNAL_SITE_URL = 'http://example.com';
+  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
+  var OAUTH_APP = config.fxaOauthApp;
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
-
-  var EXTERNAL_SITE_URL = 'http://example.com';
-  var EXTERNAL_SITE_LINK_TEXT = 'More information';
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var SIGNUP_URL = config.fxaContentRoot + 'signup';
+  var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -173,19 +177,28 @@ define([
    *
    * @param {String} selector
    *        QSA compatible selector string
+   * @param {Object} options
+   *        options include polling `timeout`, element `offsetWidth` and element `offsetHeight`
    */
-  function visibleByQSA(selector, timeout) {
-    timeout = timeout || 10000;
+  function visibleByQSA(selector, options) {
+    options = options || {};
+    var timeout = options.timeout || 10000;
 
-    return pollUntil(function (selector) {
+    return pollUntil(function (selector, options) {
+      var offsetHeight = options.offsetHeight || 0;
+      var offsetWidth = options.offsetWidth || 0;
       var match = document.querySelectorAll(selector);
 
       if (match.length > 1) {
         throw new Error('Multiple elements matched. Make a more precise selector');
       }
 
-      return match[0] && match[0].offsetWidth > 0 ? true : null;
-    }, [ selector ], timeout);
+      return match[0] && (match[0].offsetWidth > offsetWidth && match[0].offsetHeight > offsetHeight) ? true : null;
+    }, [ selector, options ], timeout);
+  }
+
+  function visibleByQSAErrorHeight(selector) {
+    return visibleByQSA(selector, {offsetHeight: 10});
   }
 
   function noSuchElement(context, selector) {
@@ -207,6 +220,24 @@ define([
         .end()
 
         .setFindTimeout(config.pageLoadTimeout);
+    };
+  }
+
+  /**
+   * Get the value of a query parameter
+   *
+   * @param {paramName}
+   * @returns {promise} that resolves to the query parameter's value
+   */
+  function getQueryParamValue(paramName) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+        .then(function (url) {
+          var parsedUrl = Url.parse(url);
+          var parsedQueryString = Querystring.parse(parsedUrl.query);
+          return parsedQueryString[paramName];
+        });
     };
   }
 
@@ -259,32 +290,50 @@ define([
     // XXX TODO: this is pretty gross to do universally like this...
     // XXX TODO: it will go away if we can make the original tab
     //           reliably be the one to complete the oauth flow.
-    newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
-      var command = e.detail.message.command;
-      var data = e.detail.message.data;
-      var element = newWindow.document.createElement('div');
-      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-      element.innerText = JSON.stringify(data);
-      newWindow.document.body.appendChild(element);
-    });
+    // We start listening for web channel messages as soon as
+    // openPage is called, before the page is ready. Wait for
+    // the prerequisites, then attach.
+    function startListening() {
+      try {
+        newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
+          var command = e.detail.message.command;
+          var data = e.detail.message.data;
 
-    // from http://dev.w3.org/html5/webstorage/
-    // When a new top-level browsing context is created by a script in
-    // an existing browsing context, then the session storage area of
-    // the origin of that Document must be copied into the new
-    // browsing context when it is created. From that point on,
-    // however, the two session storage areas must be considered
-    // separate, not affecting each other in any way.
-    //
-    // We want to pretend this is a new tab that the user opened using
-    // CTRL-T, which does NOT copy sessionStorage over. Wipe
-    // sessionStorage in this new context;
-    newWindow.sessionStorage.clear();
+          var element = document.createElement('div');
+          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+          element.innerText = JSON.stringify(data);
+          newWindow.document.body.appendChild(element);
+        });
 
-    return true;
+        // from http://dev.w3.org/html5/webstorage/
+        // When a new top-level browsing context is created by a script in
+        // an existing browsing context, then the session storage area of
+        // the origin of that Document must be copied into the new
+        // browsing context when it is created. From that point on,
+        // however, the two session storage areas must be considered
+        // separate, not affecting each other in any way.
+        //
+        // We want to pretend this is a new tab that the user opened using
+        // CTRL-T, which does NOT copy sessionStorage over. Wipe
+        // sessionStorage in this new context;
+        newWindow.sessionStorage.clear();
+      } catch (e) {
+        // problem adding the listener, window may not be ready, try again.
+        setTimeout(startListening, 0);
+      }
+    }
+
+    startListening();
   }
 
   function openVerificationLinkDifferentBrowser(client, email) {
+    if (typeof client === 'string') {
+      email = client;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+
     var user = TestHelpers.emailToUser(email);
 
     return getVerificationHeaders(user, 0)
@@ -297,6 +346,14 @@ define([
   }
 
   function openPasswordResetLinkDifferentBrowser(client, email, password) {
+    if (typeof client === 'string') {
+      password = email;
+      email = client;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+    }
+
     var user = TestHelpers.emailToUser(email);
 
     return getVerificationHeaders(user, 0)
@@ -316,8 +373,12 @@ define([
       });
   }
 
-  function openSettingsInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SETTINGS_URL, windowName ]);
+  function openSettingsInNewTab(context, windowName, panel) {
+    var url = SETTINGS_URL;
+    if (panel) {
+      url += '/' + panel;
+    }
+    return context.remote.execute(openWindow, [ url, windowName ]);
   }
 
   function openSignInInNewTab(context, windowName) {
@@ -340,12 +401,26 @@ define([
       });
   }
 
-  function openFxaFromUntrustedRp(context, page, urlSuffix) {
-    return openFxaFromRp(context, page, urlSuffix, true);
+  /**
+   * Open the force auth page
+   *
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openForceAuth(options) {
+    return function () {
+      options = options || {};
+
+      var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
+      return openPage(this.parent, urlToOpen, options.header || '#fxa-force-auth-header');
+    };
   }
 
   function reOpenWithAdditionalQueryParams(context, additionalQueryParams, waitForSelector) {
-    return context.remote
+    var remote = context.getCurrentUrl ? context : context.remote;
+    return remote
       .getCurrentUrl()
       .then(function (url) {
         var parsedUrl = Url.parse(url);
@@ -357,40 +432,66 @@ define([
       });
   }
 
-  function openFxaFromRp(context, page, urlSuffix, untrusted) {
-    var app = untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+  /**
+   * Open FxA from the untrusted OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openFxaFromUntrustedRp(context, page, options) {
+    options = options || {};
+    options.untrusted = true;
+    return openFxaFromRp(context, page, options);
+  }
 
-    var additionalQueryParams;
-    if (urlSuffix) {
-      additionalQueryParams = Querystring.parse(urlSuffix.replace(/^\?/, ''));
-    }
+  /**
+   * Open FxA from an OAuth relier.
+   *
+   * @param {object} context
+   * @param {string} page - page to open
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-force-auth-header`
+   * @param {object} [options.query] - query strings to open page with
+   * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
+   * relier. Defaults to `true`
+   */
+  function openFxaFromRp(context, page, options) {
+    options = options || {};
+    var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
+    var expectedHeader = options.header || '#fxa-' + page.replace('_', '-') + '-header';
+    var queryParams = options.query || {};
 
     // force_auth does not have a button on 123done, instead this is
     // only available programatically. Load the force_auth page
     // with only the email initially, then reload with the full passed
     // in urlSuffix so things like the webChannelId are correctly passed.
+
     if (page === 'force_auth') {
-      var email = additionalQueryParams.email;
-      var emailSearchString = '?' + Querystring.stringify({ email: email });
-      return openPage(context, app + 'api/force_auth' + emailSearchString, '#fxa-force-auth-header')
+      var emailSearchString = '?' + Querystring.stringify({ email: queryParams.email });
+      var endpoint = app + 'api/force_auth' + emailSearchString;
+      return openPage(context, endpoint, expectedHeader)
         .then(function () {
-          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-force-auth-header');
+          if (Object.keys(queryParams).length > 1) {
+            return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
+          }
         });
     }
 
-    return openPage(context, app, '#splash .' + page)
-      .findByCssSelector('#splash .' + page)
-        .click()
-      .end()
+    return openPage(context, app, '.ready #splash .' + page)
+      .then(click('.ready #splash .' + page))
 
       // wait until the page fully loads or else the re-load with
       // the suffix will blow its lid when run against latest.
-      .findByCssSelector('#fxa-' + page + '-header')
-      .end()
+      .then(testElementExists(expectedHeader))
 
       .then(function () {
-        if (additionalQueryParams) {
-          return reOpenWithAdditionalQueryParams(context, additionalQueryParams, '#fxa-' + page + '-header');
+        if (Object.keys(queryParams).length) {
+          return reOpenWithAdditionalQueryParams(context, queryParams, expectedHeader);
         }
       });
   }
@@ -409,27 +510,16 @@ define([
         }
       })
 
-      .findByCssSelector('form input.email')
-        .click()
-        .clearValue()
-        .type(email)
-      .end()
-
-      .findByCssSelector('form input.password')
-        .click()
-        .clearValue()
-        .type(password)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+      .then(type('input[type=email]', email))
+      .then(type('input[type=password]', password))
+      .then(click('button[type="submit"]'));
   }
 
   function fillOutSignUp(context, email, password, options) {
     options = options || {};
 
     var customizeSync = options.customizeSync || false;
+    var enterEmail = options.enterEmail !== false;
     var optInToMarketingEmail = options.optInToMarketingEmail || false;
     var age = options.age || 24;
     var submit = options.submit !== false;
@@ -447,67 +537,29 @@ define([
         }
       })
 
-      .findByCssSelector('form input.email')
-        .click()
-        .clearValue()
-        .type(email)
-      .end()
-
-      .findByCssSelector('form input.password')
-        .click()
-        .clearValue()
-        .type(password)
-      .end()
-
-
       .then(function () {
-        // XXX: Bug in Selenium 2.47.1, if Firefox is out of focus it will just type 1 number,
-        // split the type commands for each character to avoid issues with the test runner
-        age = String(age || '24');
-        var index = 0;
-
-        function typeNext() {
-          if (index >= age.length) {
-            return;
-          }
-          var charToType = age.charAt(index);
-          index++;
-
-          return context.remote
-            .findByCssSelector('#age')
-              .type(charToType)
-            .end()
-
-            .then(typeNext);
+        if (enterEmail) {
+          return type('input[type=email]', email).call(this);
         }
-
-        return typeNext();
       })
+      .then(type('input[type=password]', password))
+      .then(type('#age', age || '24'))
 
       .then(function () {
         if (customizeSync) {
-          return context.remote
-            .findByCssSelector('form input.customize-sync')
-              .click()
-            .end();
+          return click('form input.customize-sync').call(this);
         }
       })
 
       .then(function () {
         if (optInToMarketingEmail) {
-          return context.remote
-            .findByCssSelector('form input.marketing-email-optin')
-              .click()
-            .end();
+          return click('form input.marketing-email-optin').call(this);
         }
       })
 
       .then(function () {
         if (submit) {
-          return context.remote
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end();
+          return click('button[type="submit"]').call(this);
         }
       });
   }
@@ -543,21 +595,19 @@ define([
       .end();
   }
 
-  function fillOutForceAuth(context, password) {
-    return context.remote
-      .setFindTimeout(intern.config.pageLoadTimeout)
-
-      .findByCssSelector('#fxa-force-auth-header')
-      .end()
-
-      .findByCssSelector('input[type=password]')
-        .click()
-        .type(password)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+  /**
+   * Fill out and submit the force auth page.
+   *
+   * @param {string} password
+   */
+  function fillOutForceAuth(password) {
+    return function () {
+      return this.parent
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .then(testElementExists('#fxa-force-auth-header'))
+        .then(type('input[type=password]', password))
+        .then(click('button[type=submit]'));
+    };
   }
 
 
@@ -616,47 +666,63 @@ define([
   }
 
   function listenForWebChannelMessage() {
-    // this event will fire once the account is confirmed, helping it
-    // redirect to the application. If the window redirect does not
-    // happen then the sign in page will hang on the confirmation screen
-    addEventListener('WebChannelMessageToChrome', function (e) {
-      var command = e.detail.message.command;
-      var data = e.detail.message.data;
+    // We start listening for web channel messages as soon as
+    // openPage is called, before the page is ready. Wait for
+    // the prerequisites, then attach.
+    function startListening() {
+      try {
+        addEventListener('WebChannelMessageToChrome', function (e) {
+          var command = e.detail.message.command;
+          var data = e.detail.message.data;
 
-      var element = document.createElement('div');
-      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-      element.innerText = JSON.stringify(data);
-      document.body.appendChild(element);
-    });
+          var element = document.createElement('div');
+          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+          element.innerText = JSON.stringify(data);
+          document.body.appendChild(element);
+        });
+      } catch(e) {
+        // problem adding the listener, window may not be ready, try again.
+        setTimeout(startListening, 0);
+      }
+    }
 
-    return true;
+    startListening();
   }
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
     return function () {
       return context.remote
         .execute(function (expectedCommand, response) {
-          addEventListener('WebChannelMessageToChrome', function listener(e) {
-            removeEventListener('WebChannelMessageToChrome', listener);
+          function startListening() {
+            try {
+              addEventListener('WebChannelMessageToChrome', function listener(e) {
+                var command = e.detail.message.command;
+                var messageId = e.detail.message.messageId;
 
-            var command = e.detail.message.command;
-            var messageId = e.detail.message.messageId;
+                if (command === expectedCommand) {
+                  removeEventListener('WebChannelMessageToChrome', listener);
+                  var event = new CustomEvent('WebChannelMessageToContent', {
+                    detail: {
+                      id: 'account_updates',
+                      message: {
+                        command: command,
+                        data: response,
+                        messageId: messageId
+                      }
+                    }
+                  });
 
-            if (command === expectedCommand) {
-              var event = new CustomEvent('WebChannelMessageToContent', {
-                detail: {
-                  id: 'account_updates',
-                  message: {
-                    command: command,
-                    data: response,
-                    messageId: messageId
-                  }
+                  dispatchEvent(event);
                 }
               });
-
-              dispatchEvent(event);
+            } catch (e) {
+              // problem adding the listener, window may not be
+              // ready, try again.
+              setTimeout(startListening, 0);
             }
-          });
+          }
+
+          startListening();
         }, [ expectedCommand, response ]);
     };
   }
@@ -680,18 +746,42 @@ define([
     };
   }
 
-  function noSuchBrowserNotification(context, command, cb) {
+  function noSuchBrowserNotification(context, command) {
     return noSuchElement(context, commandToCssSelector(command));
   }
 
   function openPage(context, url, readySelector) {
-    return context.remote
+    var remote = context.get ? context : context.remote;
+    return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
 
+      // WebChannel Messages can sometimes be sent before the page
+      // is rendered. Try to attach a listener as early as possible.
+      .execute(listenForWebChannelMessage)
+
       // Wait until the `readySelector` element is found to return.
       .findByCssSelector(readySelector)
-      .end();
+      .end()
+
+      .then(null, function (err) {
+        return remote
+          .getCurrentUrl()
+            .then(function (resultUrl) {
+              console.log('Error fetching %s, now at %s', url, resultUrl);
+            })
+          .end()
+
+          .then(function () {
+            return remote.takeScreenshot();
+          })
+          .then(function (buffer) {
+            console.error('Error occurred, capturing base64 screenshot:');
+            console.error(buffer.toString('base64'));
+
+            throw err;
+          });
+      });
   }
 
   function fetchAllMetrics(context) {
@@ -750,6 +840,78 @@ define([
     return testElementWasShown(context, selector);
   }
 
+  /**
+   * Check to ensure an element has a `disabled` attribute.
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if test fails
+   */
+  function testElementDisabled(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .getAttribute('disabled')
+          .then(function (disabledValue) {
+            // attribute value is null if it does not exist
+            assert.notStrictEqual(disabledValue, null);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Check to ensure an element exists
+   *
+   * @param {string} selector
+   * @returns {promise} rejects if element does not exist
+   */
+  function testElementExists(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .end();
+    };
+  }
+
+  /**
+   * Check whether an input element's text includes the expected value.
+   * Comparison is case insensitive
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testElementTextInclude(selector, expected) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .getVisibleText()
+        .then(function (resultText) {
+          assert.include(resultText.toLowerCase(), expected.toLowerCase());
+        })
+        .end();
+    };
+  }
+
+  /**
+   * Check whether an input element's value equals the expected value
+   *
+   * @param {string} selector
+   * @param {string} expected
+   * @returns {promise} rejects if test fails.
+   */
+  function testElementValueEquals(selector, expected) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+        .getProperty('value')
+        .then(function (resultText) {
+          assert.equal(resultText, expected);
+        })
+        .end();
+    };
+  }
+
   function testElementWasShown(context, selector) {
     return function () {
       return context.remote
@@ -766,9 +928,209 @@ define([
     };
   }
 
+  /**
+   * Check whether the current URL matches the expected value
+   *
+   * @param {string} expected
+   * @returns {promise} fails if url does not equal expected value
+   */
+  function testUrlEquals(expected) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.equal(url, expected);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Check whether the current URL's pathname matches the expected value
+   *
+   * @param {string} expected
+   * @returns {promise} fails if url pathname does not equal expected value
+   */
+  function testUrlPathnameEquals(expected) {
+    return function () {
+      return this.parent
+        .getCurrentUrl()
+          .then(function (url) {
+            assert.equal(Url.parse(url).pathname, expected);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Create a user on the backend
+   *
+   * @param {string} email
+   * @param {string} password
+   * @param {object} [options]
+   * @param {object} [options.preVerified] pre-verify the user?
+   *   Defaults to false.
+   * @returns {promise} resolves with account info when complete.
+   */
+  function createUser (email, password, options) {
+    options = options || {};
+    return function () {
+      return this.parent.then(function () {
+        var client = new FxaClient(AUTH_SERVER_ROOT, {
+          xhr: nodeXMLHttpRequest.XMLHttpRequest
+        });
+
+        return client.signUp(
+            email, password, { preVerified: options.preVerified });
+      });
+    };
+  }
+
+  /**
+   * Convert a function to a form that can be used as a `then` callback.
+   *
+   * Example usage:
+   *
+   * var fillOutSignUp = FunctionalHelpers.thenify(FunctionalHelpers.fillOutSignUp)
+   *
+   * ...
+   * .then(fillOutSignUp(this, email, password))
+   * ...
+   *
+   * @param {function} callback - Function to convert
+   * @param {object} [context] - in which to call callback
+   * @returns {function} that can be used in a promise
+   */
+  function thenify(callback, context) {
+    return function () {
+      var args = arguments;
+      return function () {
+        return callback.apply(context || this, args);
+      };
+    };
+  }
+
+  /**
+   * Type text into an input element
+   *
+   * @param {string} selector
+   * @param {string} text
+   * @returns {promise}
+   */
+  function type(selector, text) {
+    return function () {
+      text = String(text);
+
+      return this.parent
+        .findByCssSelector(selector)
+          .click()
+          .clearValue()
+
+          .getAttribute('type')
+          .then(function (type) {
+            // xxx: bug in selenium 2.47.1, if firefox is out of
+            // focus it will just type 1 number, split the type
+            // commands for each character to avoid issues with the
+            // test runner
+            if (type === 'number') {
+              var index = 0;
+              var parent = this.parent;
+
+              var typeNext = function () {
+                if (index >= text.length) {
+                  return;
+                }
+                var charToType = text.charAt(index);
+                index++;
+
+                return parent
+                  .type(charToType)
+                  .then(typeNext);
+              };
+
+              return typeNext.call(this);
+            } else {
+              return this.parent.type(text);
+            }
+          })
+
+        .end();
+    };
+  }
+
+  /**
+   * Click an element
+   *
+   * @param {string} selector
+   * @returns {promise}
+   */
+  function click(selector) {
+    return function () {
+      return this.parent
+        .findByCssSelector(selector)
+          .click()
+        .end();
+    };
+  }
+
+  /**
+   * Assert the value of an attribute
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} assertion Name of the chai assertion to invoke
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttribute (elementSelector, attributeName, assertion, value) {
+    return function () {
+      return this.parent
+        .findByCssSelector(elementSelector)
+          .getAtribute(attributeName)
+          .then(function (attributeValue) {
+            assert[assertion](attributeValue, value);
+          })
+        .end();
+    };
+  }
+
+  /**
+   * Assert that an attribute value === expected value
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {string} value Expected value of the attribute
+   * @returns {promise}
+   */
+  function testAttributeEquals (elementSelector, attributeName, value) {
+    return testAttribute(elementSelector, attributeName, 'strictEqual', value);
+  }
+
+  /**
+   * Assert that an attribute value matches a regex
+   *
+   * @param {string} elementSelector CSS selector for the element
+   * @param {string} attributeName Name of attribute
+   * @param {regex} regex Expression for the attribute value to be matched against
+   * @returns {promise}
+   */
+  function testAttributeMatches (elementSelector, attributeName, regex) {
+    return testAttribute(elementSelector, attributeName, 'match', regex);
+  }
+
+  function verifyUser(user, index, client, accountData) {
+    return getVerificationHeaders(user, index)
+      .then(function (headers) {
+        var code = headers['x-verify-code'];
+        return client.verifyCode(accountData.uid, code);
+      });
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
+    click: click,
+    createUser: createUser,
     fetchAllMetrics: fetchAllMetrics,
     fillOutChangePassword: fillOutChangePassword,
     fillOutCompleteResetPassword: fillOutCompleteResetPassword,
@@ -777,6 +1139,7 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
+    getQueryParamValue: getQueryParamValue,
     getVerificationHeaders: getVerificationHeaders,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
@@ -784,6 +1147,7 @@ define([
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
     openExternalSite: openExternalSite,
+    openForceAuth: openForceAuth,
     openFxaFromRp: openFxaFromRp,
     openFxaFromUntrustedRp: openFxaFromUntrustedRp,
     openPage: openPage,
@@ -797,10 +1161,23 @@ define([
     pollUntil: pollUntil,
     respondToWebChannelMessage: respondToWebChannelMessage,
     testAreEventsLogged: testAreEventsLogged,
+    testAttribute: testAttribute,
+    testAttributeEquals: testAttributeEquals,
+    testAttributeMatches: testAttributeMatches,
+    testElementDisabled: testElementDisabled,
+    testElementExists: testElementExists,
+    testElementTextInclude: testElementTextInclude,
+    testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
     testIsEventLogged: testIsEventLogged,
     testSuccessWasShown: testSuccessWasShown,
-    visibleByQSA: visibleByQSA
+    testUrlEquals: testUrlEquals,
+    testUrlPathnameEquals: testUrlPathnameEquals,
+    thenify: thenify,
+    type: type,
+    verifyUser: verifyUser,
+    visibleByQSA: visibleByQSA,
+    visibleByQSAErrorHeight: visibleByQSAErrorHeight
   };
 });

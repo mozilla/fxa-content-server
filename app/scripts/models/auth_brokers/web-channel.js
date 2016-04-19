@@ -11,12 +11,19 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Cocktail = require('cocktail');
+  var OAuthErrors = require('lib/oauth-errors');
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
   var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
+  var Vat = require('lib/vat');
   var WebChannel = require('lib/channels/web');
 
   var proto = OAuthAuthenticationBroker.prototype;
+
+  var QUERY_PARAMETER_SCHEMA = {
+    webChannelId: Vat.string()
+  };
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'web-channel',
@@ -27,7 +34,6 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
-      this._fxaClient = options.fxaClient;
       // channel can be passed in for testing.
       this._channel = options.channel;
 
@@ -75,19 +81,10 @@ define(function (require, exports, module) {
           if (! self.relier.wantsKeys()) {
             return result;
           }
-          var uid = account.get('uid');
-          var keyFetchToken = account.get('keyFetchToken');
-          var unwrapBKey = account.get('unwrapBKey');
-          if (! keyFetchToken || ! unwrapBKey) {
-            result.keys = null;
-            return result;
-          }
-          return self._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
-            .then(function (keys) {
-              return self.relier.deriveRelierKeys(keys, uid);
-            })
-            .then(function (keys) {
-              result.keys = keys;
+
+          return account.relierKeys(self.relier)
+            .then(function (relierKeys) {
+              result.keys = relierKeys;
               return result;
             });
         });
@@ -217,7 +214,7 @@ define(function (require, exports, module) {
     },
 
     _setupSigninSignupFlow: function () {
-      this.importSearchParam('webChannelId');
+      this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, OAuthErrors);
     },
 
     _setupVerificationFlow: function () {
@@ -233,6 +230,10 @@ define(function (require, exports, module) {
     }
   });
 
-  _.extend(WebChannelAuthenticationBroker.prototype, ChannelMixin);
+  Cocktail.mixin(
+    WebChannelAuthenticationBroker,
+    ChannelMixin
+  );
+
   module.exports = WebChannelAuthenticationBroker;
 });

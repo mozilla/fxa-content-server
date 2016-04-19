@@ -25,7 +25,7 @@ var conf = module.exports = convict({
       format: String
     },
     api_timeout: {
-      default: 5 * 1000,  // 5 seconds
+      default: '5 seconds',
       doc: 'Timeout for talking to the Basket API server, in ms',
       format: Number
     },
@@ -72,10 +72,6 @@ var conf = module.exports = convict({
       default: false,
       doc: 'Only send the "Content-Security-Policy-Report-Only" header'
     },
-    reportSampleRate: {
-      default: 10,
-      doc: 'Sample rate at which CSP violation reports should be logged'
-    },
     reportUri: {
       default: '/_/csp-violation',
       doc: 'Location of "report-uri"'
@@ -115,7 +111,7 @@ var conf = module.exports = convict({
   },
   fxaccount_url: {
     default: 'http://127.0.0.1:9000',
-    doc: 'The url of the Firefox Account server',
+    doc: 'The url of the Firefox Account auth server',
     env: 'FXA_URL',
     format: 'url'
   },
@@ -455,9 +451,15 @@ var conf = module.exports = convict({
     format: String
   },
   static_max_age: {
-    default: 10 * 60 * 1000,  // 10 minutes
+    default: '10 minutes',
     doc: 'Cache max age for static assets, in ms',
     format: Number
+  },
+  static_resource_url: {
+    default: undefined,
+    doc: 'The origin of the static resources',
+    env: 'STATIC_RESOURCE_URL',
+    format: 'url'
   },
   statsd: {
     enabled: {
@@ -530,6 +532,9 @@ if (! conf.has('public_url')) {
   conf.set('public_url', 'https://' + conf.get('issuer'));
 }
 
+if (! conf.has('static_resource_url')) {
+  conf.set('static_resource_url', conf.get('public_url'));
+}
 
 // For ops consistency with Browserid, we support HTTP_PROXY
 // special handling of HTTP_PROXY env var

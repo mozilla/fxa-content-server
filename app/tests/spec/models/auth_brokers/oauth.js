@@ -147,30 +147,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterSignUp', function () {
-      it('causes a redirect to `signup_permissions` if the user needs to add permissions', function () {
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return true;
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'signup_permissions');
-          });
-      });
-
-      it('does nothing if the user does not need to add permissions', function () {
-        sinon.stub(relier, 'accountNeedsPermissions', function () {
-          return false;
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.isUndefined(behavior);
-          });
-      });
-    });
-
     describe('afterSignUpConfirmationPoll', function () {
       it('calls sendOAuthResultToRelier with the correct options', function () {
         sinon.stub(broker, 'sendOAuthResultToRelier', function () {
@@ -304,6 +280,11 @@ define(function (require, exports, module) {
     describe('transformLink', function () {
       it('prepends `/oauth` to the link', function () {
         var transformed = broker.transformLink('/signin');
+        assert.equal(transformed, '/oauth/signin');
+      });
+
+      it('adds necessary separator', function () {
+        var transformed = broker.transformLink('signin');
         assert.equal(transformed, '/oauth/signin');
       });
     });

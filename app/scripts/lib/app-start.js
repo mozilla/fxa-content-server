@@ -29,16 +29,18 @@ define(function (require, exports, module) {
   var ConfigLoader = require('lib/config-loader');
   var Constants = require('lib/constants');
   var Environment = require('lib/environment');
-  var FirstRunAuthenticationBroker = require('models/auth_brokers/first-run');
+  var ErrorUtils = require('lib/error-utils');
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
   var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
+  var FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
+  var FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
   var FxiOSV1AuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2AuthenticationBroker = require('models/auth_brokers/fx-ios-v2');
   var HeightObserver = require('lib/height-observer');
-  var IframeAuthenticationBroker = require('models/auth_brokers/iframe');
   var IframeChannel = require('lib/channels/iframe');
   var InterTabChannel = require('lib/channels/inter-tab');
   var MarketingEmailClient = require('lib/marketing-email-client');
@@ -46,7 +48,6 @@ define(function (require, exports, module) {
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
   var OAuthClient = require('lib/oauth-client');
-  var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
   var OriginCheck = require('lib/origin-check');
   var p = require('lib/promise');
@@ -75,61 +76,28 @@ define(function (require, exports, module) {
     this._authenticationBroker = options.broker;
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
+    this._metrics = options.metrics;
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
     this._router = options.router;
+    this._sentryMetrics = options.sentryMetrics;
     this._storage = options.storage || Storage;
     this._user = options.user;
     this._window = options.window || window;
   }
 
   Start.prototype = {
-    // delay before redirecting to the error page to
-    // ensure metrics are reported to the backend.
-    ERROR_REDIRECT_TIMEOUT_MS: 1000,
     startApp: function () {
-      var self = this;
-
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
         this.initializeL10n(),
         this.initializeInterTabChannel()
       ])
-      .then(_.bind(this.allResourcesReady, this))
-      .fail(function (err) {
-        if (console && console.error) {
-          console.error('Critical error:');
-          console.error(String(err));
-        }
-
-        // if there is no error metrics set that means there was probably an error with app start
-        // therefore force error reporting to get error information
-        if (! self._sentryMetrics) {
-          self.enableSentryMetrics();
-        }
-
-        self._sentryMetrics.captureException(err);
-
-        if (self._metrics) {
-          self._metrics.logError(err);
-        }
-
-        // give a bit of time to flush the Sentry error logs,
-        // otherwise Safari Mobile redirects too quickly.
-        return p().delay(self.ERROR_REDIRECT_TIMEOUT_MS)
-          .then(function () {
-            if (self._metrics) {
-              return self._metrics.flush();
-            }
-          })
-          .then(function () {
-            //Something terrible happened. Let's bail.
-            var redirectTo = self._getErrorPage(err);
-            self._window.location.href = redirectTo;
-          });
-      });
+      .then(this.testLocalStorage.bind(this))
+      .then(this.allResourcesReady.bind(this))
+      .fail(this.fatalError.bind(this));
     },
 
     initializeInterTabChannel: function () {
@@ -254,9 +222,6 @@ define(function (require, exports, module) {
         // If in an iframe for sync, the origin is checked against
         // a pre-defined set of origins sent from the server.
         return this._config.allowedParentOrigins;
-      } else if (this._isOAuth()) {
-        // If in oauth, the relier has the allowed parent origin.
-        return [this._relier.get('origin')];
       }
 
       return [];
@@ -276,7 +241,7 @@ define(function (require, exports, module) {
       var self = this;
       if (! self._isInAnIframe()) {
         // Create a NullChannel in case any dependencies require it, such
-        // as when the FirstRunAuthenticationBroker is used in functional
+        // as when the FxFirstrunV1AuthenticationBroker is used in functional
         // tests. The firstrun tests don't actually use an iframe, so the
         // real IframeChannel is not created.
         self._iframeChannel = new NullChannel();
@@ -361,14 +326,25 @@ define(function (require, exports, module) {
 
     initializeAuthenticationBroker: function () {
       if (! this._authenticationBroker) {
-        if (this._isFirstRun()) {
-          this._authenticationBroker = new FirstRunAuthenticationBroker({
+        if (this._isFxFirstrunV2()) {
+          this._authenticationBroker = new FxFirstrunV2AuthenticationBroker({
+            iframeChannel: this._iframeChannel,
+            relier: this._relier,
+            window: this._window
+          });
+        } else if (this._isFxFirstrunV1()) {
+          this._authenticationBroker = new FxFirstrunV1AuthenticationBroker({
             iframeChannel: this._iframeChannel,
             relier: this._relier,
             window: this._window
           });
         } else if (this._isFxFennecV1()) {
           this._authenticationBroker = new FxFennecV1AuthenticationBroker({
+            relier: this._relier,
+            window: this._window
+          });
+        } else if (this._isFxDesktopV3()) {
+          this._authenticationBroker = new FxDesktopV3AuthenticationBroker({
             relier: this._relier,
             window: this._window
           });
@@ -395,17 +371,6 @@ define(function (require, exports, module) {
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             assertionLibrary: this._assertionLibrary,
-            fxaClient: this._fxaClient,
-            oAuthClient: this._oAuthClient,
-            relier: this._relier,
-            session: Session,
-            window: this._window
-          });
-        } else if (this._isIframe()) {
-          this._authenticationBroker = new IframeAuthenticationBroker({
-            assertionLibrary: this._assertionLibrary,
-            channel: this._iframeChannel,
-            metrics: this._metrics,
             oAuthClient: this._oAuthClient,
             relier: this._relier,
             session: Session,
@@ -426,15 +391,9 @@ define(function (require, exports, module) {
           });
         }
 
-        var metrics = this._metrics;
-        var win = this._window;
+        this._authenticationBroker.on('error', this.captureError.bind(this));
 
-        this._authenticationBroker.on('error', function (err) {
-          win.console.error('broker error', String(err));
-          metrics.logError(err);
-        });
-
-        metrics.setBrokerType(this._authenticationBroker.type);
+        this._metrics.setBrokerType(this._authenticationBroker.type);
 
         return this._authenticationBroker.fetch();
       }
@@ -531,7 +490,14 @@ define(function (require, exports, module) {
     },
 
     upgradeStorageFormats: function () {
-      return this._user.upgradeFromSession(Session, this._fxaClient);
+      var user = this._user;
+
+      // upgradeFromUnfilteredAccountData comes first
+      // otherwise upgradeFromSession fails because it tries
+      // to read and create Accounts for unfiltered data.
+      // upgradeFromSession writes the new format, so this is safe.
+      return user.upgradeFromUnfilteredAccountData()
+        .then(user.upgradeFromSession.bind(user, Session, this._fxaClient));
     },
 
     createView: function (Constructor, options) {
@@ -548,6 +514,7 @@ define(function (require, exports, module) {
         notifier: self._notifier,
         relier: self._relier,
         sentryMetrics: self._sentryMetrics,
+        session: Session,
         user: self._user,
         window: self._window
       }, self._router.getViewOptions(options || {}));
@@ -582,45 +549,69 @@ define(function (require, exports, module) {
       }
     },
 
-    allResourcesReady: function () {
-      // The IFrame cannot use pushState or else a page transition
-      // would cause the parent frame to redirect.
-      var usePushState = ! this._isInAnIframe();
+    /**
+     * Check whether there are any problems accessing localStorage.
+     * Errors are logged to Sentry and internal metrics.
+     *
+     * If there is a problem accessing localStorage, the user
+     * will be redirected to `/cookies_disabled` from _selectStartPage
+     */
+    testLocalStorage: function () {
+      var self = this;
+      return p().then(function () {
+        // only test localStorage if the user is not already at
+        // the cookies_disabled screen.
+        if (! self._isAtCookiesDisabled()) {
+          self._storage.testLocalStorage(self._window);
+        }
+      }).fail(self.captureError.bind(self));
+    },
 
-      if (! usePushState) {
-        // If pushState cannot be used, Backbone falls back to using
-        // the hashchange. Put the initial pathname onto the hash
-        // so the correct page loads.
-        this._window.location.hash = this._window.location.pathname;
+    /**
+     * Handle a fatal error. Logs and reports the error, then redirects
+     * to the appropriate error page.
+     *
+     * @param {Error} error
+     * @returns {promise}
+     */
+    fatalError: function (error) {
+      var self = this;
+      if (! self._sentryMetrics) {
+        self.enableSentryMetrics();
       }
 
+      return ErrorUtils.fatalError(error,
+        self._sentryMetrics, self._metrics, self._window, self._translator);
+    },
+
+    /**
+     * Report an error to metrics. Send metrics report.
+     *
+     * @param {object} error
+     * @return {promise} resolves when complete
+     */
+    captureError: function (error) {
+      var self = this;
+
+      if (! self._sentryMetrics) {
+        self.enableSentryMetrics();
+      }
+
+      return ErrorUtils.captureAndFlushError(
+        error, self._sentryMetrics, self._metrics, self._window);
+    },
+
+    allResourcesReady: function () {
       // If a new start page is specified, do not attempt to render
       // the route displayed in the URL because the user is
       // immediately redirected
       var startPage = this._selectStartPage();
       var isSilent = !! startPage;
-      this._history.start({ pushState: usePushState, silent: isSilent });
+      // pushState must be specified or else no screen transitions occur.
+      this._history.start({ pushState: true, silent: isSilent });
       if (startPage) {
         this._router.navigate(startPage);
       }
-    },
-
-    _getErrorPage: function (err) {
-      if (OAuthErrors.is(err, 'MISSING_PARAMETER') ||
-          OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
-        var queryString = Url.objToSearchString({
-          client_id: err.client_id, //eslint-disable-line camelcase
-          context: err.context,
-          errno: err.errno,
-          message: OAuthErrors.toInterpolatedMessage(err, this._translator),
-          namespace: err.namespace,
-          param: err.param
-        });
-
-        return Constants.BAD_REQUEST_PAGE + queryString;
-      }
-
-      return Constants.INTERNAL_ERROR_PAGE;
     },
 
     _getStorageInstance: function () {
@@ -649,6 +640,10 @@ define(function (require, exports, module) {
 
     _isFxDesktopV1: function () {
       return this._isContext(Constants.FX_DESKTOP_V1_CONTEXT);
+    },
+
+    _isFxDesktopV3: function () {
+      return this._isContext(Constants.FX_DESKTOP_V3_CONTEXT);
     },
 
     _isFxDesktopV2: function () {
@@ -720,8 +715,12 @@ define(function (require, exports, module) {
              this._isPasswordResetVerification();
     },
 
-    _isFirstRun: function () {
+    _isFxFirstrunV1: function () {
       return this._isFxDesktopV2() && this._isIframeContext();
+    },
+
+    _isFxFirstrunV2: function () {
+      return this._isContext(Constants.FX_FIRSTRUN_V2_CONTEXT);
     },
 
     _isWebChannel: function () {
@@ -738,10 +737,6 @@ define(function (require, exports, module) {
       return this._isContext(Constants.IFRAME_CONTEXT);
     },
 
-    _isIframe: function () {
-      return this._isInAnIframe() && this._isIframeContext();
-    },
-
     _isOAuth: function () {
       // signin/signup/force_auth
       return !! (this._searchParam('client_id') ||
@@ -750,6 +745,10 @@ define(function (require, exports, module) {
                  this._isOAuthVerificationDifferentBrowser() ||
                  // any URL with oauth in it
                  /oauth/.test(this._window.location.href);
+    },
+
+    _isAtCookiesDisabled: function () {
+      return this._window.location.pathname === '/cookies_disabled';
     },
 
     _getSavedClientId: function () {
@@ -770,7 +769,7 @@ define(function (require, exports, module) {
     },
 
     _selectStartPage: function () {
-      if (this._window.location.pathname !== '/cookies_disabled' &&
+      if (! this._isAtCookiesDisabled() &&
         ! this._storage.isLocalStorageEnabled(this._window)) {
         return 'cookies_disabled';
       }

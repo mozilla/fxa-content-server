@@ -7,8 +7,10 @@ define(function (require, exports, module) {
 
   var $ = require('jquery');
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var chai = require('chai');
   var Constants = require('lib/constants');
+  var Duration = require('duration');
   var FormView = require('views/form');
   var HaltBehavior = require('views/behaviors/halt');
   var Metrics = require('lib/metrics');
@@ -19,73 +21,71 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
+  var View = FormView.extend({
+    template: Template,
+
+    // overridden in tests.
+    formIsValid: false,
+    isFormSubmitted: false,
+
+    isValid: function () {
+      return this.formIsValid;
+    },
+
+    showValidationErrors: function () {
+      return this.showValidationError('body', 'invalid form');
+    },
+
+    submit: function () {
+      this.isFormSubmitted = true;
+    }
+  });
+
   describe('views/form', function () {
-    var view, metrics;
-
-    var View = FormView.extend({
-      template: Template,
-
-      // overridden in tests.
-      formIsValid: false,
-      isFormSubmitted: false,
-
-      isValid: function () {
-        return this.formIsValid;
-      },
-
-      showValidationErrors: function () {
-        return this.showValidationError('body', 'invalid form');
-      },
-
-      submit: function () {
-        this.isFormSubmitted = true;
-      }
-    });
+    var metrics;
+    var model;
+    var view;
 
     function testErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
-          .then(function () {
-            // success callback should not be called on failure.
-            assert.fail('unexpected success');
-          }, function (err) {
-            assert.equal(err, expectedMessage);
-            assert.isTrue(view.isErrorVisible());
-          });
+        .then(assert.fail, function (err) {
+          assert.equal(err, expectedMessage);
+          assert.isTrue(view.isErrorVisible());
+        });
     }
 
     function testValidationErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
-          .then(function () {
-            // success callback should not be called on failure.
-            assert(false, 'unexpected success');
-          }, function (err) {
-            assert.equal(err, expectedMessage);
-          });
+        .then(assert.fail, function (err) {
+          assert.equal(err, expectedMessage);
+        });
     }
 
     function testFormSubmitted() {
       return view.validateAndSubmit()
-                  .then(function () {
-                    assert.isTrue(view.isFormSubmitted);
-                  });
+        .then(function () {
+          assert.isTrue(view.isFormSubmitted);
+        });
     }
 
     beforeEach(function () {
       metrics = new Metrics();
+      model = new Backbone.Model({});
       view = new View({
-        metrics: metrics
+        metrics: metrics,
+        model: model
       });
 
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {
       if (view) {
+        view.remove();
         view.destroy();
-        $(view.el).remove();
         view = null;
       }
     });
@@ -102,6 +102,20 @@ define(function (require, exports, module) {
         view.formIsValid = true;
         view.enableSubmitIfValid();
         assert.isFalse(view.isErrorVisible());
+      });
+
+      it('hides messages when input value is changed', function () {
+        view.displayError('this is an error');
+        assert.isTrue(view.isErrorVisible());
+        view.$('#email').val('some@email.com');
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isErrorVisible());
+
+        view.displaySuccess('the success message');
+        assert.isTrue(view.isSuccessVisible());
+        view.$('#email').val('some@email.com');
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isSuccessVisible());
       });
 
       it('disabled submit button if isValid returns false', function () {
@@ -561,7 +575,7 @@ define(function (require, exports, module) {
     describe('notifyDelayedRequest', function () {
       it('shows a notification when the response takes too long then hides it', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = 200;
+        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
         view.formIsValid = true;
         view.enableSubmitIfValid();
 
@@ -588,7 +602,7 @@ define(function (require, exports, module) {
 
       it('shows a notification when the response takes too long, switches when an error is thrown', function () {
         // override expectation
-        view.LONGER_THAN_EXPECTED = 200;
+        view.LONGER_THAN_EXPECTED = new Duration('200ms').milliseconds();
         view.formIsValid = true;
         view.enableSubmitIfValid();
 
@@ -708,6 +722,20 @@ define(function (require, exports, module) {
         });
 
         assert.isFalse(view.isValid());
+      });
+    });
+
+    describe('render with errors', function () {
+      beforeEach(function () {
+        model.set('error', AuthErrors.toError('INVALID_PASSWORD'));
+
+        sinon.spy(view, 'enableSubmitIfValid');
+
+        return view.render();
+      });
+
+      it('does not enable submit', function () {
+        assert.isFalse(view.enableSubmitIfValid.called);
       });
     });
   });

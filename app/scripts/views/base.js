@@ -10,19 +10,16 @@ define(function (require, exports, module) {
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
-  var EphemeralMessages = require('lib/ephemeral-messages');
+  var ErrorUtils = require('lib/error-utils');
   var NotifierMixin = require('views/mixins/notifier-mixin');
   var NullMetrics = require('lib/null-metrics');
+  var Logger = require('lib/logger');
   var p = require('lib/promise');
   var Raven = require('raven');
   var TimerMixin = require('views/mixins/timer-mixin');
 
   var DEFAULT_TITLE = window.document.title;
-  var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
-
-  // Share one ephemeral messages across all views. View can be
-  // intialized with an ephemeralMessages for testing.
-  var ephemeralMessages = new EphemeralMessages();
+  var STATUS_MESSAGE_ANIMATION_MS = 150;
 
   // A null metrics instance is created for unit tests. In the app,
   // when a view is initialized, an initialized Metrics instance
@@ -43,7 +40,7 @@ define(function (require, exports, module) {
     // testSuccessWasShown removes the attribute so multiple checks for the
     // element can take place in the same test.
     $success
-      .slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS)
+      .slideDown(STATUS_MESSAGE_ANIMATION_MS)
       .attr('data-shown', 'true');
 
     this.trigger('success', msg);
@@ -54,7 +51,7 @@ define(function (require, exports, module) {
     // Errors are disabled on page unload to supress errors
     // caused by aborted XHR requests.
     if (! this._areErrorsEnabled) {
-      console.error('Error ignored: %s', JSON.stringify(err));
+      this.logger.error('Error ignored: %s', JSON.stringify(err));
       return;
     }
 
@@ -76,7 +73,7 @@ define(function (require, exports, module) {
     // testErrorWasShown removes the attribute so multiple checks for the
     // element can take place in the same test.
     $error
-      .slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS)
+      .slideDown(STATUS_MESSAGE_ANIMATION_MS)
       .attr('data-shown', 'true');
 
     this.trigger('error', translated);
@@ -120,7 +117,7 @@ define(function (require, exports, module) {
 
       this.broker = options.broker;
       this.currentPage = options.currentPage;
-      this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
+      this.model = options.model || new Backbone.Model();
       this.fxaClient = options.fxaClient;
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
@@ -128,6 +125,7 @@ define(function (require, exports, module) {
       this.childViews = [];
       this.user = options.user;
       this.window = options.window || window;
+      this.logger = new Logger(this.window);
 
       this.navigator = options.navigator || this.window.navigator || navigator;
       this.translator = options.translator || this.window.translator;
@@ -197,12 +195,37 @@ define(function (require, exports, module) {
           })
           .then(_.bind(self.afterRender, self))
           .then(function () {
-            self.showEphemeralMessages();
+            self.displayStatusMessages();
             self.trigger('rendered');
 
             return true;
           });
         });
+    },
+
+
+    /**
+     * Write content to the DOM
+     *
+     * @param {string || element} content
+     */
+    writeToDOM: function (content) {
+      $('#loading-spinner').hide();
+
+      // Two notes:
+      // 1. Render the new view while stage is invisible then fade it in
+      // using css animations to catch problems with an explicit
+      // opacity rule after class is added.
+      // 2. The html is written directly into #stage instead
+      // of this.$el because overwriting this.$el has a nasty side effect
+      // where the view's DOM event handlers do hook up properly.
+      $('#stage').html(content).addClass('fade-in-forward').css('opacity', 1);
+
+      // The user may be scrolled part way down the page
+      // on view transition. Force them to the top of the page.
+      this.window.scrollTo(0, 0);
+
+      $('#fox-logo').addClass('fade-in-forward').css('opacity', 1);
     },
 
     // Checks that the user's current account exists and is
@@ -216,8 +239,8 @@ define(function (require, exports, module) {
             // user is not authorized, make them sign in.
             var err = AuthErrors.toError('SESSION_EXPIRED');
             self.navigate(self._reAuthPage(), {
-              data: { redirectTo: self.currentPage },
-              error: err
+              error: err,
+              redirectTo: self.currentPage
             });
             return false;
           }
@@ -228,9 +251,7 @@ define(function (require, exports, module) {
                 if (! isUserVerified) {
                   // user is not verified, prompt them to verify.
                   self.navigate('confirm', {
-                    data: {
-                      account: self.getSignedInAccount()
-                    }
+                    account: self.getSignedInAccount()
                   });
                 }
 
@@ -253,25 +274,24 @@ define(function (require, exports, module) {
       return 'signin';
     },
 
-    showEphemeralMessages: function () {
-      var success = this.ephemeralMessages.get('success');
+    displayStatusMessages: function () {
+      var success = this.model.get('success');
       if (success) {
         this.displaySuccess(success);
+        this.model.unset('success');
       }
 
-      var successUnsafe = this.ephemeralMessages.get('successUnsafe');
+      var successUnsafe = this.model.get('successUnsafe');
       if (successUnsafe) {
         this.displaySuccessUnsafe(successUnsafe);
+        this.model.unset('successUnsafe');
       }
 
-      var error = this.ephemeralMessages.get('error');
+      var error = this.model.get('error');
       if (error) {
         this.displayError(error);
+        this.model.unset('error');
       }
-    },
-
-    ephemeralData: function () {
-      return this.ephemeralMessages.get('data') || {};
     },
 
     /**
@@ -482,7 +502,7 @@ define(function (require, exports, module) {
     displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
     hideSuccess: function () {
-      this.$('.success').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
+      this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isSuccessVisible = false;
     },
 
@@ -559,11 +579,20 @@ define(function (require, exports, module) {
       }
       err.logged = true;
 
-      if (typeof console !== 'undefined' && console) {
-        console.error(err.message || err);
-      }
-      this.sentryMetrics.captureException(err);
-      this.metrics.logError(err);
+      ErrorUtils.captureError(err, this.sentryMetrics, this.metrics);
+    },
+
+
+    /**
+     * Handle a fatal error. Logs and reports the error, then redirects
+     * to the appropriate error page.
+     *
+     * @param {Error} error
+     * @returns {promise}
+     */
+    fatalError: function (err) {
+      return ErrorUtils.fatalError(
+        err, this.sentryMetrics, this.metrics, this.window, this.translator);
     },
 
     /**
@@ -582,9 +611,7 @@ define(function (require, exports, module) {
         // user and show a console trace to help us debug.
         err = errors.toError('UNEXPECTED_ERROR');
 
-        if (this.window.console && this.window.console.trace) {
-          this.window.console.trace();
-        }
+        this.logger.trace();
       }
 
       if (_.isString(err)) {
@@ -622,7 +649,7 @@ define(function (require, exports, module) {
     },
 
     hideError: function () {
-      this.$('.error').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
+      this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;
     },
 
@@ -631,31 +658,26 @@ define(function (require, exports, module) {
     },
 
     /**
-     * navigate to another view
+     * navigate to another screen
+     *
+     * @param {string} url - url of screen
+     * @param {object} [nextViewData] - data to pass to the next view
+     * @param {routerOptions} [routerOptions] - options to pass to the router
      */
-    navigate: function (page, options) {
-      options = options || {};
-      if (options.success) {
-        this.ephemeralMessages.set('success', options.success);
-      }
-      if (options.successUnsafe) {
-        this.ephemeralMessages.set('successUnsafe', options.successUnsafe);
-      }
+    navigate: function (url, nextViewData, routerOptions) {
+      nextViewData = nextViewData || {};
+      routerOptions = routerOptions || {};
 
-      if (options.error) {
+      if (nextViewData.error) {
         // log the error entry before the new view is rendered so events
         // stay in the correct order.
-        this.logError(options.error);
-        this.ephemeralMessages.set('error', options.error);
-      }
-
-      if (options.data) {
-        this.ephemeralMessages.set('data', options.data);
+        this.logError(nextViewData.error);
       }
 
       this.notifier.trigger('navigate', {
-        clearQueryParams: options.clearQueryParams,
-        url: page
+        nextViewData: nextViewData,
+        routerOptions: routerOptions,
+        url: url
       });
     },
 
@@ -729,9 +751,14 @@ define(function (require, exports, module) {
 
     /**
      * Shows the ChildView, creating and rendering it if needed.
+     *
+     * @param {function} ChildView - child view's constructor
+     * @param {object} [options] - options to send.
+     * @return {promise} resolves when complete
      */
-    showChildView: function (/* ChildView */) {
+    showChildView: function (/* ChildView, options */) {
       // Implement in subclasses
+      return p();
     },
 
     /**

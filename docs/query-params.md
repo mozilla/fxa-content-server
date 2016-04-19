@@ -13,6 +13,17 @@ When authenticating a user for OAuth.
 * /oauth/signup
 * /oauth/force_auth
 
+### `migration`
+If the user is migrating their account, specify which service they are migrating from.
+
+#### When to specify
+When signing up a user.
+
+* /signup
+
+#### Options
+* `amo`
+
 ### `keys`
 Set to true to receive derived kA and kB keys that can be used to encrypt data.
 
@@ -26,6 +37,23 @@ When authenticating a user for OAuth.
 * /oauth/signin
 * /oauth/signup
 * /oauth/force_auth
+
+### `prompt`
+Specifies whether the content server prompts for permissions consent. Only applicable for `trusted` reliers.
+Untrusted reliers always show the prompt.
+
+#### Options
+* `consent` - Show the permissions prompt if any additional
+  permissions are required.
+
+#### When to specify
+When authenticating a user for OAuth. Only applicable for `trusted` reliers.
+Untrusted reliers always show the prompt.
+
+* /oauth/signin
+* /oauth/signup
+* /oauth/force_auth
+
 
 ### `redirect_uri`
 Which URI should a user be redirected back to upon completion of the OAuth transaction.
@@ -80,6 +108,7 @@ The button provides a link to the relier using the `redirect_uri` without extra 
 #### When to specify
 When the relier supports being linked to its `redirect_uri` without extra OAuth parameters.
 
+
 ## Firefox/Sync parameters
 
 ### `campaign`
@@ -100,7 +129,7 @@ Set the default value of the "Customize which values to sync" checkbox.
 * `false` (default)
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_fennec_v1`, `fx_ios_v1`, or `iframe` and `service` equals `sync`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_fennec_v1`, `fx_firstrun_v2`, `fx_ios_v1`, or `iframe` and `service` equals `sync`.
 
 * /signup
 
@@ -116,7 +145,7 @@ If they user arrived at Firefox Accounts from within Firefox browser chrome, spe
 ### `haltAfterSignIn`
 Halt after the user signs in, do not redirect to the settings page.
 
-#### When to specify (must specify context=iframe&service=sync)
+#### When to specify (must specify context=iframe&service=sync or context=fx_firstrun_v2)
 * /signin
 * /signup
 * /force_auth
@@ -125,10 +154,13 @@ Halt after the user signs in, do not redirect to the settings page.
 If the user is migrating their Sync account from "old sync" to "new sync", specify which sync they are migrating from.
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_fennec_v1`, `fx_ios_v1`, or `iframe`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_desktop_v3`, `fx_fennec_v1`, `fx_firstrun_v2`, `fx_ios_v1`, or `iframe`.
 
 * /signin
 * /signup
+
+#### Options
+* `sync11`
 
 ### `service`
 Specify which non-OAuth service a user is signing in to.
@@ -137,7 +169,7 @@ Specify which non-OAuth service a user is signing in to.
 * `sync`
 
 #### When to specify
-Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_fennec_v1`, `fx_ios_v1`, or `iframe`.
+Only available if `context` equals `fx_desktop_v1`, `fx_desktop_v2`, `fx_desktop_v3`, `fx_fennec_v1`, `fx_firstrun_v2`, `fx_ios_v1`, or `iframe`.
 
 * /signin
 * /signup
@@ -164,11 +196,21 @@ Specify an alternate context in which Firefox Accounts is being run, if not as a
    Firefox Desktop using CustomEvents.
 * `fx_desktop_v2` - Firefox Accounts is being used to sign in to Sync on
    Firefox Desktop using WebChannels.
+* `fx_desktop_v3` - Firefox Accounts is being used to sign in to Sync on
+   Firefox Desktop using WebChannels. Adds the `syncPreferencesNotification`
+   capability
 * `fx_fennec_v1` - Firefox Accounts is being used to sign in to Sync on
-   Firefox for Android using CustomEvents.
+   Firefox for Android using WebChannels.
+* `fx_firstrun_v2` - Firefox Accounts is being used to sign in to Sync
+   on the Firefox Desktop firstrun page. Adds the
+   `syncPreferencesNotification` capability
 * `fx_ios_v1` - Firefox Accounts is being used to sign in to Sync on Firefox
    for iOS using CustomEvents.
-* `iframe` - Firefox Accounts is displayed in an iframe.
+* `fx_ios_v2` - Firefox Accounts is being used to sign in to Sync on Firefox
+   for iOS using CustomEvents. Adds `chooseWhatToSyncWebV1` and
+   `syncPreferencesNotification` capabilities.
+* `iframe` - Firefox Accounts is being used to sign in to Sync on Firefox
+    Desktop firstrun page. Misnamed and should be called `fx_firstrun_v1`.
 
 ### `email`
 When used on /signin, /oauth/signin, /signup, or /oauth/signup, suggest a user to sign in. If set to the string `blank`, an empty sign in form will be displayed and no suggested accounts will appear.
@@ -302,6 +344,16 @@ If the "mailcheck" feature should be used.
 * /signup
 * /oauth/signup
 
+## Reset Password parameters
 
+### `reset_password_confirm`
+Used to skip the confirmation form to reset a password
 
+#### Options
+* `true` (default)
+* `false`
+
+#### When to use
+Should not be used by reliers.
+Should only be used for accounts that must be reset.
 

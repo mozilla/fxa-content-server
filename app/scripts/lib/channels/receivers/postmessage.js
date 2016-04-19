@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
-
+  var Logger = require('lib/logger');
 
   function PostMessageReceiver() {
     // nothing to do
@@ -26,6 +26,14 @@ define(function (require, exports, module) {
 
       this._boundReceiveEvent = this.receiveEvent.bind(this);
       this._window.addEventListener('message', this._boundReceiveEvent, false);
+      this._logger = new Logger(this._window);
+    },
+
+    isOriginIgnored: function (origin) {
+      // A lot of messages are sent with the origin `chrome://browser`, whether
+      // these are from Firefox or addons, we are not sure. Completely ignore
+      // these messages. See #3465
+      return origin === 'chrome://browser';
     },
 
     isOriginTrusted: function (origin) {
@@ -50,9 +58,10 @@ define(function (require, exports, module) {
       }
 
       var origin = event.origin;
-      if (! this.isOriginTrusted(origin)) {
-        this._window.console.error(
-          'postMessage received from %s, expected %s', origin, this._origin);
+      if (this.isOriginIgnored(origin)) {
+        this._logger.error('postMessage received from %s, ignoring', origin);
+      } else if (! this.isOriginTrusted(origin)) {
+        this._logger.error('postMessage received from %s, expected %s', origin, this._origin);
 
         // from an unexpected origin, drop it on the ground.
         var err = AuthErrors.toError('UNEXPECTED_POSTMESSAGE_ORIGIN');
@@ -60,14 +69,11 @@ define(function (require, exports, module) {
         err.context = origin;
 
         this.trigger('error', err);
-        return;
+      } else if (! event.data) {
+        this.trigger('error', new Error('malformed event'));
+      } else {
+        this.trigger('message', event.data);
       }
-
-      if (! event.data) {
-        return this.trigger('error', new Error('malformed event'));
-      }
-
-      this.trigger('message', event.data);
     },
 
     teardown: function () {

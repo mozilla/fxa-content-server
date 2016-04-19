@@ -28,12 +28,23 @@ define(function (require, exports, module) {
       var notifier;
       var view;
 
-      before(function () {
+      beforeEach(function () {
         notifier = new Notifier();
         notifier.on = sinon.spy();
         view = new View({
           notifier: notifier
         });
+        view.relier = {
+          unset: sinon.spy()
+        };
+        view.user = {
+          clearSignedInAccountUid: sinon.spy()
+        };
+        view._formPrefill = {
+          clear: sinon.spy()
+        };
+        view.navigate = sinon.spy();
+        notifier.triggerAll = sinon.spy();
       });
 
       afterEach(function () {
@@ -49,18 +60,7 @@ define(function (require, exports, module) {
       });
 
       describe('clearSessionAndNavigateToSignIn', function () {
-        before(function () {
-          view.relier = {
-            unset: sinon.spy()
-          };
-          view.user = {
-            clearSignedInAccountUid: sinon.spy()
-          };
-          view._formPrefill = {
-            clear: sinon.spy()
-          };
-          view.navigate = sinon.spy();
-          notifier.triggerAll = sinon.spy();
+        beforeEach(function () {
           notifier.on.args[0][1]();
         });
 
@@ -92,16 +92,29 @@ define(function (require, exports, module) {
           assert.isTrue(view.navigate.calledAfter(view.user.clearSignedInAccountUid));
           assert.isTrue(view.navigate.calledAfter(view._formPrefill.clear));
           var args = view.navigate.args[0];
-          assert.lengthOf(args, 2);
+          assert.lengthOf(args, 3);
           assert.equal(args[0], 'signin');
           assert.isObject(args[1]);
-          assert.lengthOf(Object.keys(args[1]), 2);
-          assert.isTrue(args[1].clearQueryParams);
+          assert.lengthOf(Object.keys(args[1]), 1);
           assert.equal(args[1].success, 'Signed out successfully');
+          assert.lengthOf(Object.keys(args[2]), 1);
+          assert.isTrue(args[2].clearQueryParams);
         });
 
         it('does not call notifier.triggerAll', function () {
           assert.equal(notifier.triggerAll.callCount, 0);
+        });
+      });
+
+      describe('delete _formPrefill', function () {
+        beforeEach(function () {
+          view._formPrefill = null;
+        });
+
+        it('clearSessionAndNavigateToSignIn does not throw', function () {
+          assert.doesNotThrow(function () {
+            notifier.on.args[0][1]();
+          });
         });
       });
     });

@@ -6,9 +6,10 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var BaseBroker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
+  var Duration = require('duration');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -26,9 +27,9 @@ define(function (require, exports, module) {
   describe('views/confirm', function () {
     var account;
     var broker;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -36,11 +37,13 @@ define(function (require, exports, module) {
     var windowMock;
 
     beforeEach(function () {
-      ephemeralMessages = new EphemeralMessages();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
       windowMock = new WindowMock();
 
       relier = new Relier({
@@ -60,7 +63,7 @@ define(function (require, exports, module) {
         uid: 'uid'
       });
 
-      ephemeralMessages.set('data', {
+      model.set({
         account: account
       });
 
@@ -70,9 +73,9 @@ define(function (require, exports, module) {
 
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -101,11 +104,11 @@ define(function (require, exports, module) {
       });
 
       it('redirects to /signup if no account sessionToken', function () {
-        ephemeralMessages.set('data', {
+        model.set({
           account: user.initAccount()
         });
         view = new View({
-          ephemeralMessages: ephemeralMessages,
+          model: model,
           notifier: notifier,
           user: user,
           window: windowMock
@@ -114,18 +117,6 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.isTrue(view.navigate.calledWith('signup'));
-          });
-      });
-
-      it('triggers the experiment', function () {
-        sinon.spy(view.notifier, 'trigger');
-        view.isInExperiment = function () {
-          return true;
-        };
-
-        return view.render()
-          .then(function () {
-            assert.isTrue(view.notifier.trigger.called);
           });
       });
     });
@@ -174,7 +165,7 @@ define(function (require, exports, module) {
           callback();
         });
 
-        view.VERIFICATION_POLL_IN_MS = 100;
+        view.VERIFICATION_POLL_IN_MS = new Duration('100ms').milliseconds();
         return view.afterVisible()
           .then(function () {
             assert.isTrue(user.setAccount.called);
@@ -194,17 +185,75 @@ define(function (require, exports, module) {
         sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup'));
+            assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
-            assert.equal(
-                ephemeralMessages.get('bouncedEmail'), 'a@a.com');
           });
+      });
+
+      it('displays an error when an unknown error occurs', function () {
+        var unknownError = 'Something failed';
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(new Error(unknownError));
+        });
+
+        sinon.spy(view, 'navigate');
+        return view.afterVisible()
+          .then(function () {
+            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.equal(view.$('.error').text(), unknownError);
+          });
+      });
+
+      describe('with an unexpected error', function () {
+        var sandbox;
+
+        beforeEach(function () {
+          sandbox = sinon.sandbox.create();
+          sandbox.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+            var callCount = view.fxaClient.recoveryEmailStatus.callCount;
+            if (callCount < 2) {
+              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            } else {
+              return p({ verified: true });
+            }
+          });
+
+          sandbox.spy(view, 'navigate');
+          sandbox.spy(view.sentryMetrics, 'captureException');
+          sandbox.spy(view, '_startPolling');
+
+          sandbox.stub(view, 'setTimeout', function (callback) {
+            callback();
+          });
+
+          return view.afterVisible();
+        });
+
+        afterEach(function () {
+          sandbox.restore();
+        });
+
+        it('polls the auth server', function () {
+          assert.equal(view.fxaClient.recoveryEmailStatus.callCount, 2);
+        });
+
+        it('captures the exception to Sentry', function () {
+          assert.isTrue(view.sentryMetrics.captureException.called);
+        });
+
+        it('does not display an error to the user when unexpected error occurs', function () {
+          assert.equal(view.$('.error').text(), '');
+        });
+
+        it('restarts polling when an unexpected error occurs', function () {
+          assert.equal(view._startPolling.callCount, 2);
+        });
       });
     });
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message, logs the event', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
         sinon.stub(view, 'getStringifiedResumeToken', function () {
@@ -217,9 +266,8 @@ define(function (require, exports, module) {
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'confirm.resend'));
 
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(
+            assert.isTrue(account.retrySignUp.calledWith(
               relier,
-              account.get('sessionToken'),
               {
                 resume: 'resume token'
               }
@@ -227,31 +275,44 @@ define(function (require, exports, module) {
           });
       });
 
-      it('redirects to `/signup` if the resend token is invalid', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      describe('with an invalid resend token', function () {
+        beforeEach(function () {
+          sinon.stub(account, 'retrySignUp', function () {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          sinon.spy(view, 'navigate');
+
+          return view.submit();
         });
 
-        sinon.spy(view, 'navigate');
+        it('redirects to /signup', function () {
+          assert.isTrue(view.navigate.calledWith('signup'));
+        });
 
-        return view.submit()
-              .then(function () {
-                assert.isTrue(view.navigate.calledWith('signup'));
-
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.resend'));
-              });
+        it('logs an event', function () {
+          assert.isTrue(TestHelpers.isEventLogged(metrics,
+                            'confirm.resend'));
+        });
       });
 
-      it('displays other error messages if there is a problem', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p.reject(new Error('synthesized error from auth server'));
+      describe('that causes other errors', function () {
+        var error;
+
+        beforeEach(function () {
+          sinon.stub(account, 'retrySignUp', function () {
+            return p.reject(new Error('synthesized error from auth server'));
+          });
+
+          return view.submit()
+            .then(assert.fail, function (err) {
+              error = err;
+            });
         });
 
-        return view.submit()
-              .then(assert.fail, function (err) {
-                assert.equal(err.message, 'synthesized error from auth server');
-              });
+        it('displays the error', function () {
+          assert.equal(error.message, 'synthesized error from auth server');
+        });
       });
     });
 
@@ -262,7 +323,7 @@ define(function (require, exports, module) {
           count++;
         };
 
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
 
@@ -276,7 +337,7 @@ define(function (require, exports, module) {
       it('debounces resend calls - submit on first and forth attempt', function () {
         var count = 0;
 
-        sinon.stub(fxaClient, 'signUpResend', function () {
+        sinon.stub(account, 'retrySignUp', function () {
           count++;
           return p(true);
         });
@@ -347,11 +408,43 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_gmailTabOpened', function () {
-      it('triggers gmail tab opening', function () {
-        sinon.spy(view.notifier, 'trigger');
-        view._gmailTabOpened();
-        assert.isTrue(view.notifier.trigger.called);
+    describe('openGmail feature', function () {
+      it('it is not visible in basic contexts', function () {
+        assert.notOk($('#open-gmail').length);
+      });
+
+
+      it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
+        broker.setCapability('openGmailButtonVisible', true);
+
+        account = user.initAccount({
+          customizeSync: true,
+          email: 'a@gmail.com',
+          sessionToken: 'fake session token',
+          uid: 'uid'
+        });
+
+        model.set({
+          account: account
+        });
+
+        view = new View({
+          broker: broker,
+          fxaClient: fxaClient,
+          metrics: metrics,
+          model: model,
+          notifier: notifier,
+          relier: relier,
+          user: user,
+          viewName: 'confirm',
+          window: windowMock
+        });
+
+        return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.lengthOf(view.$('#open-gmail'), 1);
+          });
       });
     });
   });

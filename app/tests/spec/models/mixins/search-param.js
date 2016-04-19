@@ -5,11 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var AuthErrors = require('lib/auth-errors');
   var Backbone = require('backbone');
   var chai = require('chai');
   var Cocktail = require('cocktail');
   var SearchParamMixin = require('models/mixins/search-param');
   var TestHelpers = require('../../../lib/helpers');
+  var Vat = require('vat');
   var WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
@@ -44,47 +46,69 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('importSearchParam', function () {
-      it('imports the value of a search parameter, onto the model', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          searchParam: 'value'
+    describe('importSearchParamsUsingSchema', function () {
+      var schema = {
+        optional: Vat.string().optional(),
+        required: Vat.string().valid('value').required()
+      };
+
+      describe('passes validation', function () {
+        beforeEach(function () {
+          windowMock.location.search =
+            TestHelpers.toSearchString({ ignored: true, required: 'value' });
+          model.importSearchParamsUsingSchema(schema, AuthErrors);
         });
 
-        model.importSearchParam('searchParam');
-        assert.equal(model.get('searchParam'), 'value');
-
-        model.importSearchParam('notAvailable');
-        assert.isUndefined(model.get('notAvailable'));
-      });
-    });
-
-    describe('importBooleanSearchParam', function () {
-      it('sets value to the boolean `true` if search param is `true`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          expectBoolean: true
+        it('imports fields in the schema that have values', function () {
+          assert.equal(model.get('required'), 'value');
         });
 
-        model.importBooleanSearchParam('expectBoolean');
-        assert.isTrue(model.get('expectBoolean'));
-      });
-
-      it('sets value to the boolean `false` if search param is `false`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          expectBoolean: false
+        it('does not import optional fields in the schema w/o values', function () {
+          assert.isFalse(model.has('optional'));
         });
 
-        model.importBooleanSearchParam('expectBoolean');
-        assert.isFalse(model.get('expectBoolean'));
+        it('ignores fields not in the schema', function () {
+          assert.isFalse(model.has('ignored'));
+        });
       });
 
-      it('throws if value is neither `true` nor `false`', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          expectBoolean: 'not a boolean'
+      describe('does not pass validation', function () {
+        var err;
+
+        describe('missing data', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({});
+            try {
+              model.importSearchParamsUsingSchema(schema, AuthErrors);
+            } catch (e) {
+              err = e;
+            }
+          });
+
+          it('throws a MISSING_PARAMETER error', function () {
+            assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+            assert.equal(err.param, 'required');
+          });
         });
 
-        assert.throws(function () {
-          model.importBooleanSearchParam('expectBoolean');
-        }, 'expectBoolean must be `true` or `false`');
+        describe('invalid data', function () {
+          beforeEach(function () {
+            windowMock.location.search = TestHelpers.toSearchString({
+              required: 'invalid'
+            });
+
+            try {
+              model.importSearchParamsUsingSchema(schema, AuthErrors);
+            } catch (e) {
+              err = e;
+            }
+          });
+
+          it('throws a INVALID_PARAMETER', function () {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+            assert.equal(err.param, 'required');
+          });
+        });
       });
     });
   });

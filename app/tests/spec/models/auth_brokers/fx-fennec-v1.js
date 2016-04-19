@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var chai = require('chai');
+  var Constants = require('lib/constants');
   var FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
   var NullChannel = require('lib/channels/null');
   var Relier = require('models/reliers/relier');
@@ -52,12 +53,20 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('handleSignedInNotification'));
     });
 
+    it('has the `chooseWhatToSyncWebV1` capability by default', function () {
+      assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
+    });
+
     it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
     it('has the `syncPreferencesNotification` capability by default', function () {
       assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
+    });
+
+    it('has all sync content types', function () {
+      assert.equal(broker.defaultCapabilities.chooseWhatToSyncWebV1.engines, Constants.DEFAULT_DECLINED_ENGINES);
     });
 
     it('disables the `chooseWhatToSyncCheckbox` capability', function () {
@@ -87,29 +96,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterSignUp', function () {
-      it('causes a redirect to `/choose_what_to_sync` if `chooseWhatToSyncWebV1` capability is supported', function () {
-        sinon.stub(broker, 'hasCapability', function (capabilityName) {
-          return capabilityName === 'chooseWhatToSyncWebV1';
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'choose_what_to_sync');
-          });
-      });
-
-      it('does nothing if `chooseWhatToSyncWebV1` capability is unsupported', function () {
-        sinon.stub(broker, 'hasCapability', function (capabilityName) {
-          return false;
-        });
-
-        return broker.afterSignUp(account)
-          .then(function (behavior) {
-            assert.isUndefined(behavior);
-          });
-      });
-    });
 
     describe('afterSignUpConfirmationPoll', function () {
       it('redirects to `/signup_complete`', function () {
@@ -126,15 +112,6 @@ define(function (require, exports, module) {
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
             assert.isUndefined(behavior.halt);
-          });
-      });
-    });
-
-    describe('openSyncPreferences', function () {
-      it('sends the `fxaccounts:sync_preferences` message', function () {
-        return broker.openSyncPreferences()
-          .then(function () {
-            assert.isTrue(broker.send.calledWith('fxaccounts:sync_preferences'));
           });
       });
     });

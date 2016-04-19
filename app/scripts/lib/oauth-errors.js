@@ -9,6 +9,8 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Errors = require('lib/errors');
+  var Logger = require('lib/logger');
+  var logger = new Logger();
   var Strings = require('lib/strings');
 
   var t = function (msg) {
@@ -47,7 +49,7 @@ define(function (require, exports, module) {
       errno: 108,
       message: t('Invalid token')
     },
-    INVALID_REQUEST_PARAMETER: {
+    INVALID_PARAMETER: {
       errno: 109,
       message: t('Invalid OAuth parameter: %(param)s')
     },
@@ -123,16 +125,14 @@ define(function (require, exports, module) {
           return {
             param: err.param
           };
-        } else if (this.is(err, 'INVALID_REQUEST_PARAMETER')) {
+        } else if (this.is(err, 'INVALID_PARAMETER')) {
           return {
-            param: err.validation.keys.join(',')
+            param: err.param || err.validation.keys.join(',')
           };
         }
       } catch (e) {
         // handle invalid/unexpected data from the backend.
-        if (window.console && console.error) {
-          console.error('Error in oauth-errors.js->toInterpolationContext: %s', String(e));
-        }
+        logger.error('Error in oauth-errors.js->toInterpolationContext: %s', String(e));
       }
 
       return {};

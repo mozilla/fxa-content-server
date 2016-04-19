@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var ExperimentMixin = require('views/mixins/experiment-mixin');
   var FormView = require('views/form');
+  var OpenGmailMixin = require('views/mixins/open-gmail-mixin');
   var p = require('lib/promise');
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
@@ -31,8 +32,7 @@ define(function (require, exports, module) {
       // It's important for Sync flows where account data holds
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
-      var data = this.ephemeralData();
-      this._account = data && this.user.initAccount(data.account);
+      this._account = this.user.initAccount(this.model.get('account'));
     },
 
     getAccount: function () {
@@ -40,36 +40,28 @@ define(function (require, exports, module) {
     },
 
     context: function () {
-      if (this.isInExperiment('openGmail')) {
-        this.notifier.trigger('openGmail.triggered');
-      }
-
       var email = this.getAccount().get('email');
 
       return {
         email: email,
-        isOpenGmailButtonVisible: this._isOpenGmailButtonVisible(),
-        safeEmail: encodeURIComponent(email)
+        gmailLink: this.getGmailUrl(email),
+        isOpenGmailButtonVisible: this.isOpenGmailButtonVisible(email)
       };
     },
 
-    _isOpenGmailButtonVisible: function () {
-      return this.isInExperimentGroup('openGmail', 'treatment');
-    },
-
     events: {
-      'click #open-gmail': '_gmailTabOpened',
       // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
     _bouncedEmailSignup: function () {
-      this.ephemeralMessages.set('bouncedEmail', this.getAccount().get('email'));
-      this.navigate('signup');
+      this.navigate('signup', {
+        bouncedEmail: this.getAccount().get('email')
+      });
     },
 
     _gmailTabOpened: function () {
-      this.notifier.trigger('openGmail.clicked');
+      this.logViewEvent('openGmail.clicked');
     },
 
     beforeRender: function () {
@@ -100,13 +92,19 @@ define(function (require, exports, module) {
                     'beforeSignUpConfirmationPoll', self.getAccount());
         })
         .then(function () {
-          return self._waitForConfirmation()
-            .then(function () {
-              self.logViewEvent('verification.success');
-              self.notifier.trigger('verification.success');
-              return self.invokeBrokerMethod(
-                        'afterSignUpConfirmationPoll', self.getAccount());
-            })
+          return self._startPolling();
+        });
+    },
+
+    _startPolling: function () {
+      var self = this;
+
+      return self._waitForConfirmation()
+        .then(function () {
+          self.logViewEvent('verification.success');
+          self.notifier.trigger('verification.success');
+          return self.invokeBrokerMethod(
+            'afterSignUpConfirmationPoll', self.getAccount())
             .then(function () {
               // the user is definitely authenticated here.
               if (self.relier.isDirectAccess()) {
@@ -116,15 +114,28 @@ define(function (require, exports, module) {
               } else {
                 self.navigate('signup_complete');
               }
-            }, function (err) {
-              // The user's email may have bounced because it was invalid.
-              // Redirect them to the sign up page with an error notice.
-              if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-                self._bouncedEmailSignup();
-              } else {
-                self.displayError(err);
-              }
             });
+        }, function (err) {
+          // The user's email may have bounced because it was invalid.
+          // Redirect them to the sign up page with an error notice.
+          if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+            self._bouncedEmailSignup();
+          } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
+            // Hide the error from the user if it is an unexpected error.
+            // an error may happen here if the status api is overloaded or if the user is switching networks.
+            // Report errors to Sentry, but not the user.
+            // Details: github.com/mozilla/fxa-content-server/issues/2638.
+            self.sentryMetrics.captureException(err);
+            var deferred = p.defer();
+
+            self.setTimeout(function () {
+              deferred.resolve(self._startPolling());
+            }, self.VERIFICATION_POLL_IN_MS);
+
+            return deferred.promise;
+          } else {
+            self.displayError(err);
+          }
         });
     },
 
@@ -156,9 +167,9 @@ define(function (require, exports, module) {
       var self = this;
 
       self.logViewEvent('resend');
-      return self.fxaClient.signUpResend(
+
+      return self.getAccount().retrySignUp(
         self.relier,
-        self.getAccount().get('sessionToken'),
         {
           resume: self.getStringifiedResumeToken()
         }
@@ -186,6 +197,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ExperimentMixin,
+    OpenGmailMixin,
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin

@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var Logger = require('lib/logger');
   var Raven = require('raven');
   var Url = require('lib/url');
 
@@ -43,6 +44,22 @@ define(function (require, exports, module) {
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }
+
+      // in production we remove cache busting file names from js files.
+      // replace any 'scripts/1a22742b.head.js' with 'scripts/head.js'
+      // this helps errors stay consistent across deploys
+      var removeRegex = /\/[0-9a-f]{8}\./gi;
+      var addPart = '/';
+      if (data.stacktrace && data.stacktrace.frames) {
+        _.each(data.stacktrace.frames, function (frame) {
+          frame.filename = frame.filename.replace(removeRegex, addPart);
+        });
+      }
+
+      if (data.culprit) {
+        data.culprit = data.culprit.replace(removeRegex, addPart);
+      }
+
     }
 
     return data;
@@ -90,6 +107,8 @@ define(function (require, exports, module) {
    * @constructor
    */
   function SentryMetrics (host) {
+    this._logger = new Logger();
+
     if (host) {
       // use __API_KEY__ instead of the real API key because raven.js requires it
       // we can configure the real API key on the server using our local endpoint instead.
@@ -97,7 +116,7 @@ define(function (require, exports, module) {
 
       this._endpoint = '//__API_KEY__@' + host + '/metrics-errors';
     } else {
-      console.error('No Sentry host provided');
+      this._logger.error('No Sentry host provided');
       return;
     }
 
@@ -106,7 +125,7 @@ define(function (require, exports, module) {
       Raven.debug = false;
     } catch (e) {
       Raven.uninstall();
-      console.error(e);
+      this._logger.error(e);
     }
   }
 
@@ -131,6 +150,7 @@ define(function (require, exports, module) {
      */
     _exceptionTags: [
       'code',
+      'context',
       'errno',
       'namespace',
       'status'

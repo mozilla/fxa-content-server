@@ -21,12 +21,10 @@ define([
   var accountData;
   var client;
 
+  var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
+
   function verifyUser(user, index) {
-    return FunctionalHelpers.getVerificationHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
+    return FunctionalHelpers.verifyUser(user,  index, client, accountData);
   }
 
   function fillOutSignIn(context, email, password) {
@@ -113,7 +111,7 @@ define([
       var email = TestHelpers.createEmail();
       return fillOutSignIn(this, email, PASSWORD)
         // The error area shows a link to /signup
-        .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
+        .then(FunctionalHelpers.visibleByQSAErrorHeight('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
           .click()
         .end()
@@ -224,6 +222,9 @@ define([
       var self = this;
       return verifyUser(email, 0)
         .then(function () {
+          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header');
+        })
+        .then(function () {
           return FunctionalHelpers.openSignInInNewTab(self, windowName);
         })
         .then(function () {
@@ -280,6 +281,11 @@ define([
             .findById('fxa-settings-header')
             .end();
         });
+    },
+
+    'data-flow-begin attribute is set': function () {
+      this.remote
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{13,}$/));
     }
   });
 

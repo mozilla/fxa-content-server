@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
-  var EphemeralMessages = require('lib/ephemeral-messages');
   var FxaClient = require('../../mocks/fxa-client');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
@@ -30,9 +30,9 @@ define(function (require, exports, module) {
     var VERIFICATION_POLL_TIMEOUT_MS = 100;
 
     var broker;
-    var ephemeralMessages;
     var fxaClient;
     var metrics;
+    var model;
     var notifier;
     var relier;
     var user;
@@ -44,6 +44,7 @@ define(function (require, exports, module) {
 
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -55,7 +56,6 @@ define(function (require, exports, module) {
         relier: relier
       });
 
-      ephemeralMessages = new EphemeralMessages();
       user = new User({
         storage: Storage.factory('localStorage')
       });
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
         return p(true);
       });
 
-      ephemeralMessages.set('data', {
+      model.set({
         email: EMAIL,
         passwordForgotToken: PASSWORD_FORGOT_TOKEN
       });
@@ -75,10 +75,10 @@ define(function (require, exports, module) {
     function createView () {
       view = new View({
         broker: broker,
-        ephemeralMessages: ephemeralMessages,
         fxaClient: fxaClient,
         loginMessageTimeoutMS: LOGIN_MESSAGE_TIMEOUT_MS,
         metrics: metrics,
+        model: model,
         notifier: notifier,
         relier: relier,
         user: user,
@@ -120,9 +120,7 @@ define(function (require, exports, module) {
       });
 
       it('redirects to /reset_password if no passwordForgotToken', function () {
-        ephemeralMessages.set('data', {
-          email: EMAIL
-        });
+        model.unset('passwordForgotToken');
 
         createView();
 
@@ -166,7 +164,7 @@ define(function (require, exports, module) {
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
 
-        ephemeralMessages.set('data', {
+        model.set({
           email: xssEmail,
           passwordForgotToken: PASSWORD_FORGOT_TOKEN
         });
@@ -178,6 +176,30 @@ define(function (require, exports, module) {
             assert.equal(view.$('a.sign-in').attr('href'), '/force_auth?email=' + encodeURIComponent(xssEmail));
             assert.isFalse(!! view.$('a.sign-in').attr('onclick'));
           });
+      });
+
+      describe('sign-in button', function () {
+        describe('with relier.resetPasswordConfirm===true', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', true);
+            return view.render();
+          });
+
+          it('is visible', function () {
+            assert.ok(view.$('.sign-in').length);
+          });
+        });
+
+        describe('with relier.resetPasswordConfirm===false', function () {
+          beforeEach(function () {
+            relier.set('resetPasswordConfirm', false);
+            return view.render();
+          });
+
+          it('is not visible', function () {
+            assert.equal(view.$('.sign-in').length, 0);
+          });
+        });
       });
     });
 
@@ -228,6 +250,25 @@ define(function (require, exports, module) {
             assert.isTrue(broker.persistVerificationData.called);
             assert.isTrue(
               view._finishPasswordResetDifferentBrowser.called);
+            assert.isTrue(TestHelpers.isEventLogged(
+              metrics, 'confirm_reset_password.verification.success'));
+          });
+      });
+
+      it('sets the `resetPasswordConfirm` flag back to `true` after the reset completes', function () {
+        sinon.stub(view, '_waitForConfirmation', function () {
+          return p(null);
+        });
+
+        sinon.stub(view, '_finishPasswordResetDifferentBrowser', function () {
+          return p();
+        });
+
+        relier.set('resetPasswordConfirm', false);
+
+        return view.afterVisible()
+          .then(function () {
+            assert.equal(relier.get('resetPasswordConfirm'), true);
             assert.isTrue(TestHelpers.isEventLogged(
               metrics, 'confirm_reset_password.verification.success'));
           });
@@ -365,60 +406,101 @@ define(function (require, exports, module) {
     describe('_finishPasswordResetSameBrowser', function () {
       beforeEach(function () {
         createDeps();
+
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+          return p();
+        });
+
+        sinon.stub(user, 'setSignedInAccount', function (account) {
+          return p(account);
+        });
+
+        sinon.stub(view, 'navigate', function () {
+          // nothing to do
+        });
+
+        var account = user.initAccount({
+          uid: 'uid'
+        });
+
+        return user.setAccount(account);
       });
 
       afterEach(function () {
         destroyView();
       });
 
-      it('Non direct access redirects to `/reset_password_complete`', function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p();
+      describe('with an unknown account uid', function () {
+        var err;
+
+        beforeEach(function () {
+          return view._finishPasswordResetSameBrowser({ uid: 'unknown uid' })
+            .then(assert.fail, function (_err) {
+              err = _err;
+            });
         });
 
-        sinon.stub(user, 'setSignedInAccount', function (account) {
-          return p();
+        it('throws', function () {
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
-
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return false;
-        });
-
-        sinon.stub(view, 'navigate', function () {
-          // nothing to do
-        });
-
-        return view._finishPasswordResetSameBrowser()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('reset_password_complete'));
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
-          });
       });
 
-      it('direct access redirects to `/settings`', function () {
-        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
-          return p();
-        });
-
-        sinon.stub(user, 'setSignedInAccount', function (account) {
-          return p();
-        });
-
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'navigate', function () {
-          // nothing to do
-        });
-
-        return view._finishPasswordResetSameBrowser()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
-            assert.isTrue(user.setSignedInAccount.called);
-            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
+      describe('non direct access', function () {
+        beforeEach(function () {
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return false;
           });
+
+          user._persistAccount({
+            displayName: 'fx user',
+            email: 'a@a.com',
+            uid: 'uid'
+          });
+
+          return view._finishPasswordResetSameBrowser({
+            keyFetchToken: 'keyfetchtoken',
+            uid: 'uid',
+            unwrapBKey: 'unwrapbkey'
+          });
+        });
+
+        it('notifies the user model with the updated signed in account', function () {
+          assert.isTrue(user.setSignedInAccount.called);
+          var account = user.setSignedInAccount.args[0][0];
+
+          assert.deepEqual(
+            account.pick('displayName', 'email', 'keyFetchToken', 'uid', 'unwrapBKey'),
+            {
+              displayName: 'fx user',
+              email: 'a@a.com',
+              keyFetchToken: 'keyfetchtoken',
+              uid: 'uid',
+              unwrapBKey: 'unwrapbkey'
+            }
+          );
+        });
+
+        it('notifies the broker', function () {
+          assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
+        });
+
+        it('redirects to `/reset_password_complete`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        });
+      });
+
+      describe('direct access', function () {
+        beforeEach(function () {
+          sinon.stub(relier, 'isDirectAccess', function () {
+            return true;
+          });
+
+          return view._finishPasswordResetSameBrowser({ uid: 'uid' });
+        });
+
+        it('redirects to `/settings`', function () {
+          assert.isTrue(view.navigate.calledWith('settings'));
+        });
       });
     });
 

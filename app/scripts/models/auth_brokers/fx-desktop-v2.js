@@ -15,58 +15,55 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var Constants = require('lib/constants');
-  var FxSyncAuthenticationBroker = require('./fx-sync');
-  var NavigateBehavior = require('views/behaviors/navigate');
+  var FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
+  var HaltBehavior = require('views/behaviors/halt');
   var p = require('lib/promise');
-  var WebChannel = require('lib/channels/web');
 
-  var proto = FxSyncAuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FxDesktopV2AuthenticationBroker = FxSyncAuthenticationBroker.extend({
-    afterSignUp: function (account) {
-      var self = this;
-      return p().then(function () {
-        if (self.hasCapability('chooseWhatToSyncWebV1')) {
-          return new NavigateBehavior('choose_what_to_sync', {
-            data: {
-              account: account
-            }
-          });
-        }
-      });
-    },
+  var FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterForceAuth: new HaltBehavior(),
+      // about:accounts displays its own screen after password reset, no
+      // need to show anything.
+      afterResetPasswordConfirmationPoll: new HaltBehavior(),
+      // about:accounts displays its own screen after sign in, no need
+      // to show anything.
+      afterSignIn: new HaltBehavior(),
+      // the browser is already polling, no need for the content server
+      // code to poll as well, otherwise two sets of polls are going on
+      // for the same user.
+      beforeSignUpConfirmationPoll: new HaltBehavior()
+    }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       chooseWhatToSyncWebV1: {
-        engines: [
-          'bookmarks',
-          'history',
-          'passwords',
-          'tabs',
-          'desktop-addons',
-          'desktop-preferences'
-        ]
-      }
+        engines: Constants.DEFAULT_DECLINED_ENGINES
+      },
+      openGmailButtonVisible: true
     }),
 
     type: 'fx-desktop-v2',
 
-    commands: {
-      CAN_LINK_ACCOUNT: 'fxaccounts:can_link_account',
-      CHANGE_PASSWORD: 'fxaccounts:change_password',
-      DELETE_ACCOUNT: 'fxaccounts:delete_account',
-      LOADED: 'fxaccounts:loaded',
-      LOGIN: 'fxaccounts:login'
+    afterResetPasswordConfirmationPoll: function (/*account*/) {
+      // this is only called if the user verifies in the same browser.
+      // With Fx's E10s enabled, the account data only contains an
+      // unwrapBKey and keyFetchToken, not enough to sign in the user.
+      // Luckily, with WebChannels, the verification page can send
+      // the data to the browser and everybody is happy
+      return p(new HaltBehavior());
     },
 
-    createChannel: function () {
-      var channel = new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-      channel.initialize({
-        window: this.window
-      });
-
-      return channel;
+    afterCompleteResetPassword: function (account) {
+      var self = this;
+      // See the note in afterResetPasswordConfirmationPoll
+      return self._notifyRelierOfLogin(account)
+        .then(function () {
+          return proto.afterCompleteResetPassword.call(self, account);
+        });
     }
   });
 

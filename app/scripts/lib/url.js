@@ -9,7 +9,7 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
 
-  function searchParams (str, whitelist) {
+  function searchParams (str, allowedFields) {
     var search = (typeof str === 'string' ? str : window.location.search).replace(/^\?/, '');
     if (! search) {
       return {};
@@ -20,23 +20,14 @@ define(function (require, exports, module) {
 
     _.each(pairs, function (pair) {
       var keyValue = pair.split('=');
-      terms[keyValue[0]] = decodeURIComponent(keyValue[1]);
+      terms[keyValue[0]] = decodeURIComponent(keyValue[1]).trim();
     });
 
-    if (! whitelist) {
+    if (! allowedFields) {
       return terms;
     }
 
-    // whitelist is in effect.
-    var allowedTerms = {};
-
-    _.each(whitelist, function (allowedTerm) {
-      if (allowedTerm in terms) {
-        allowedTerms[allowedTerm] = terms[allowedTerm];
-      }
-    });
-
-    return allowedTerms;
+    return _.pick(terms, allowedFields);
   }
 
   module.exports = {
@@ -63,6 +54,10 @@ define(function (require, exports, module) {
     },
 
     getOrigin: function (url) {
+      if (! url) {
+        return '';
+      }
+
       // The URL API is only supported by new browsers, a workaround is used.
       var anchor = document.createElement('a');
 

@@ -24,8 +24,16 @@ define(function (require, exports, module) {
             BaseView.preventDefaultThen('sendAccountLockedEmail')
     },
 
-    notifyOfLockedAccount: function (account) {
+    /**
+     * Notify the user their account has been locked
+     *
+     * @param {object} account - account that has been locked
+     * @param {string} password - the user's password, used to poll if the
+     *   account has been unlocked
+     */
+    notifyOfLockedAccount: function (account, password) {
       this._lockedAccount = account;
+      this._password = password;
 
       var err = AuthErrors.toError('ACCOUNT_LOCKED');
       err.forceMessage = t('Account locked. <a href="/confirm_account_unlock">Send unlock email</a>');
@@ -33,9 +41,16 @@ define(function (require, exports, module) {
       return this.displayErrorUnsafe(err);
     },
 
+    /**
+     * Send the account locked email
+     *
+     * @returns {promise} - resolves when complete
+     */
     sendAccountLockedEmail: function () {
       var self = this;
       var account = self._lockedAccount;
+      var password = self._password;
+
       var email = account.get('email');
       self.logViewEvent('unlock-email.send');
       return self.fxaClient.sendAccountUnlockEmail(
@@ -48,10 +63,11 @@ define(function (require, exports, module) {
       .then(function () {
         self.logViewEvent('unlock-email.send.success');
         self.navigate('confirm_account_unlock', {
-          data: {
-            account: account,
-            lockoutSource: self.getViewName()
-          }
+          account: account,
+          lockoutSource: self.getViewName(),
+          // the password is used by the confirm_account_unlock screen
+          // to determine whether the account has been unlocked.
+          password: password
         });
       }, function (err) {
         if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {

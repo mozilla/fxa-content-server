@@ -34,7 +34,8 @@ define(function (require, exports, module) {
           CHANGE_PASSWORD: 'change_password',
           DELETE_ACCOUNT: 'delete_account',
           LOADED: 'loaded',
-          LOGIN: 'login'
+          LOGIN: 'login',
+          SYNC_PREFERENCES: 'sync_preferences'
         },
         window: windowMock
       }, options));
@@ -122,20 +123,17 @@ define(function (require, exports, module) {
     });
 
     describe('_notifyRelierOfLogin', function () {
-      it('does not send a `login` message to the channel if the account does not have a `keyFetchToken`', function () {
-        account.unset('keyFetchToken');
-        return broker._notifyRelierOfLogin(account)
-          .then(function () {
-            assert.isFalse(channelMock.send.called);
-          });
-      });
+      // verified will be auto-populated if not in the account.
+      var requiredAccountFields = _.without(FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
 
-      it('does not send a `login` message to the channel if the account does not have a `unwrapBKey`', function () {
-        account.unset('unwrapBKey');
-        return broker._notifyRelierOfLogin(account)
-          .then(function () {
-            assert.isFalse(channelMock.send.called);
-          });
+      requiredAccountFields.forEach(function (fieldName) {
+        it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', function () {
+          account.unset(fieldName);
+          return broker._notifyRelierOfLogin(account)
+            .then(function () {
+              assert.isFalse(channelMock.send.called);
+            });
+        });
       });
 
       it('sends a `login` message to the channel using current account data', function () {
@@ -204,7 +202,6 @@ define(function (require, exports, module) {
           customizeSync: true,
           declinedSyncEngines: ['bookmarks', 'passwords'],
           keyFetchToken: 'key_fetch_token',
-          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
           uid: 'uid',
@@ -257,7 +254,6 @@ define(function (require, exports, module) {
         account.set({
           customizeSync: true,
           keyFetchToken: 'key_fetch_token',
-          notSent: 'not_sent',
           sessionToken: 'session_token',
           sessionTokenContext: 'sync',
           uid: 'uid',
@@ -275,7 +271,6 @@ define(function (require, exports, module) {
             assert.equal(args[1].unwrapBKey, 'unwrap_b_key');
             assert.equal(args[1].customizeSync, true);
             assert.equal(args[1].verified, true);
-            assert.isFalse('notSent' in args[1]);
             assert.isUndefined(args[1].sessionTokenContext);
           });
       });
@@ -326,6 +321,40 @@ define(function (require, exports, module) {
 
       it('returns a command specified', function () {
         assert.equal(broker.getCommand('LOGIN'), 'login');
+      });
+    });
+
+    describe('openSyncPreferences', function () {
+      beforeEach(function () {
+        broker.unsetCapability('syncPreferencesNotification');
+        sinon.spy(broker, 'send');
+      });
+
+      describe('without the `syncPreferencesNotification` capability', function () {
+        beforeEach(function () {
+          return broker.openSyncPreferences('fxa:signup-complete');
+        });
+
+        it('does not send the `sync_preferences` message', function () {
+          assert.isFalse(broker.send.calledWith('sync_preferences'));
+        });
+      });
+
+      describe('with the `syncPreferencesNotification` capability', function () {
+        beforeEach(function () {
+          broker.setCapability('syncPreferencesNotification', true);
+
+          return broker.openSyncPreferences('fxa:signup-complete');
+        });
+
+        it('sends the `sync_preferences` message', function () {
+          assert.isTrue(broker.send.calledWith(
+            'sync_preferences',
+            {
+              entryPoint: 'fxa:signup-complete'
+            }
+          ));
+        });
       });
     });
   });

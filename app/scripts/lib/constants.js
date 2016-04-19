@@ -30,13 +30,19 @@ define(function (require, exports, module) {
     DIRECT_CONTEXT: 'direct',
     FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
+    FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',
     FX_FENNEC_V1_CONTEXT: 'fx_fennec_v1',
+    // The equivalent of FX_FIRSTRUN_V1 is a combination
+    // of service=sync&context=iframe
+    FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
     FX_IOS_V1_CONTEXT: 'fx_ios_v1',
     FX_IOS_V2_CONTEXT: 'fx_ios_v2',
     IFRAME_CONTEXT: 'iframe',
 
     SYNC_SERVICE: 'sync',
 
+    SYNC11_MIGRATION: 'sync11',
+    AMO_MIGRATION: 'amo',
 
     VERIFICATION_POLL_IN_MS: 4000,
 
@@ -48,6 +54,17 @@ define(function (require, exports, module) {
     OAUTH_CODE_LENGTH: 64,
     OAUTH_ACTION_SIGNIN: 'signin',
     OAUTH_ACTION_SIGNUP: 'signup',
+
+    OAUTH_PROMPT_CONSENT: 'consent',
+    OAUTH_TRUSTED_PROFILE_SCOPE: 'profile',
+    OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION: ['profile:uid', 'profile:email', 'profile:display_name', 'profile:avatar'],
+    // We only grant permissions that our UI currently prompts for. Others
+    // will be stripped.
+    OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS: [
+      'profile:display_name',
+      'profile:email',
+      'profile:uid'
+    ],
 
     RELIER_KEYS_LENGTH: 32,
     RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
@@ -63,6 +80,9 @@ define(function (require, exports, module) {
 
     INTERNAL_ERROR_PAGE: '/500.html',
     BAD_REQUEST_PAGE: '/400.html',
+    // delay before redirecting to the error page to
+    // ensure metrics are reported to the backend.
+    ERROR_REDIRECT_TIMEOUT_MS: 1000,
 
     // A relier can indicate they do not want to allow
     // cached credentials if they set email === 'blank'
@@ -80,7 +100,15 @@ define(function (require, exports, module) {
     ACCESS_TYPE_ONLINE: 'online',
     ACCESS_TYPE_OFFLINE: 'offline',
 
-    DEFAULT_XHR_TIMEOUT_MS: 2500
+    DEFAULT_XHR_TIMEOUT_MS: 2500,
+    DEFAULT_DECLINED_ENGINES: [
+      'bookmarks',
+      'history',
+      'passwords',
+      'tabs',
+      'desktop-addons',
+      'desktop-preferences'
+    ],
   };
   /*eslint-enable sorting/sort-object-props*/
 });

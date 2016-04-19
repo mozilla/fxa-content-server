@@ -27,10 +27,6 @@ define(function (require, exports, module) {
       options = options || {};
       this._verificationPollMS = options.verificationPollMS ||
               this.VERIFICATION_POLL_IN_MS;
-
-      var data = this.ephemeralData();
-      this._email = data.email;
-      this._passwordForgotToken = data.passwordForgotToken;
     },
 
     events: {
@@ -38,16 +34,20 @@ define(function (require, exports, module) {
     },
 
     context: function () {
+      var email = this.model.get('email');
+      var isSignInEnabled = this.relier.get('resetPasswordConfirm');
+
       return {
-        email: this._email,
-        encodedEmail: encodeURIComponent(this._email),
-        forceAuth: this.broker.isForceAuth()
+        email: email,
+        encodedEmail: encodeURIComponent(email),
+        forceAuth: this.broker.isForceAuth(),
+        isSignInEnabled: isSignInEnabled
       };
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a reset password
-      if (! this._passwordForgotToken) {
+      if (! this.model.has('passwordForgotToken')) {
         this.navigate('reset_password');
         return false;
       }
@@ -56,11 +56,14 @@ define(function (require, exports, module) {
     afterVisible: function () {
       var self = this;
 
-      return self.broker.persistVerificationData(this.user.initAccount({ email: this._email }))
+      var account = this.user.initAccount({ email: this.model.get('email') });
+      return self.broker.persistVerificationData(account)
         .then(function () {
           return self._waitForConfirmation()
             .then(function (sessionInfo) {
               self.logViewEvent('verification.success');
+              // The password was reset, future attempts should ask confirmation.
+              self.relier.set('resetPasswordConfirm', true);
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.
@@ -145,7 +148,25 @@ define(function (require, exports, module) {
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
       var self = this;
-      var account = self.user.initAccount(sessionInfo);
+      // Only the account UID, unwrapBKey and keyFetchToken are passed
+      // from the verification tab. Load other from localStorage
+      var account = self.user.getAccountByUid(sessionInfo.uid);
+
+      // keyFetchToken and unwrapBKey are sent from the verification tab,
+      // this tab has no idea what they are. The keyFetchToken and
+      // unwrapBKey are used to generate encryption keys for Hello
+      // that must be sent from this tab, otherwise Hello gets
+      // confused on where it should update it's UI.
+      if (sessionInfo.keyFetchToken && sessionInfo.unwrapBKey) {
+        account.set({
+          keyFetchToken: sessionInfo.keyFetchToken,
+          unwrapBKey: sessionInfo.unwrapBKey
+        });
+      }
+
+      if (account.isDefault()) {
+        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+      }
 
       // The OAuth flow needs the sessionToken to finish the flow.
       return self.user.setSignedInAccount(account)
@@ -188,7 +209,7 @@ define(function (require, exports, module) {
       var self = this;
       // only check if still waiting.
       this._isWaitingForServerConfirmation = true;
-      return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
+      return self.fxaClient.isPasswordResetComplete(self.model.get('passwordForgotToken'))
         .then(function (isComplete) {
           if (! self._isWaitingForServerConfirmation) {
             // we no longer care about the response, the other tab has opened.
@@ -245,8 +266,8 @@ define(function (require, exports, module) {
       self.logViewEvent('resend');
 
       return self.retryResetPassword(
-        self._email,
-        self._passwordForgotToken
+        self.model.get('email'),
+        self.model.get('passwordForgotToken')
       )
       .then(function () {
         self.displaySuccess();

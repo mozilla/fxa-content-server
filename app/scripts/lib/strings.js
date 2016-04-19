@@ -18,20 +18,33 @@ define(function (require, exports, module) {
   t('By proceeding, you agree to the <a id="service-tos" href="%(termsUri)s">Terms of Service</a> and' +
     '<a id="service-pp" href="%(privacyUri)s">Privacy Notice</a> of %(serviceName)s (%(serviceUri)s).');
 
-  // Needed for #2757
-  t('Bookmarks');
-  t('History');
-  t('Tabs');
-  t('Passwords');
-  t('Desktop Add-ons');
-  t('Desktop Preferences');
-
   // Allow translators to include "help" links in additional contexts.
   // Including the string here means translators are free to use it
   // without triggering errors from our l10n linting procedure.
   // See e.g. https://bugzilla.mozilla.org/show_bug.cgi?id=1131472
   // for why this could be necessary.
   t('<a href="https://support.mozilla.org/kb/im-having-problems-with-my-firefox-account">Help</a>');
+
+  // Strings for "reconfirm your email", fxa-83
+  t('Confirm new sign-in to Firefox');
+  t('You signed in to Firefox from %(device)s, %(location)s.');
+  t('You signed in to Firefox from %(device)s.');
+  t('For added security, please confirm this sign-in to begin syncing with %(device)s.');
+  t('Alternatively:');
+  t('This is an automated email; if you received it in error, no action is required.');
+  t('For more information, please visit <a %(supportLinkAttributes)s>Mozilla Support</a>');
+  t('Verify Email');
+  t('Verify your email to finish your Firefox Account sign-in');
+  t('Confirm sign-in');
+  t('Confirm this sign-in');
+  t('Email resent');
+  t('Email Sent');
+  t('To better protect your Firefox data, we\'ve emailed a confirmation link to %(email)s');
+  t('Open Gmail');
+  t('Resend email');
+  t('Back');
+  t('Sign-in confirmed');
+  t('You are now ready to use %(serviceName)s');
 
   /**
    * Replace instances of %s and %(name)s with their corresponding values in

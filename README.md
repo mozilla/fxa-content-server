@@ -3,16 +3,16 @@
 [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
 
-Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
+Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
 
 Follow the instructions on:
-	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev)
+	[fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a local version running.
 	
 The above link helps to install the following pre-requisites, and set up a development environment.
 
 ## Prerequisites
-* node 0.10.x
+* node 0.10.x or 4.2.3+
 * npm
 * Grunt
 * libgmp
@@ -29,7 +29,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server 2.46.0 ([Download](http://selenium-release.storage.googleapis.com/2.46/selenium-server-standalone-2.46.0.jar))
+  * Selenium Server 2.48.2 ([Download](http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar))
 
 ### Setup
 
@@ -38,7 +38,7 @@ Note: If you have issues with `npm install` please update to npm 2.0+ using `npm
 e.g. in shell form:
 
 ```sh
-java -jar selenium-server-standalone-2.46.0.jar 
+java -jar selenium-server-standalone-2.48.2.jar 
 ```
 
 To run tests locally with Selenium:
@@ -75,7 +75,7 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 ## Servers
 
 * latest development - https://latest.dev.lcip.org/
-* testing - https://nightly.dev.lcip.org/
+* stable - https://stable.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
 

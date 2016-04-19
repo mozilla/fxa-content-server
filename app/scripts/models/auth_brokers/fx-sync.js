@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var ChannelMixin = require('models/auth_brokers/mixins/channel');
   var Cocktail = require('cocktail');
   var p = require('lib/promise');
+  var Logger = require('lib/logger');
 
   var proto = BaseAuthenticationBroker.prototype;
 
@@ -62,6 +63,8 @@ define(function (require, exports, module) {
       options = options || {};
       var self = this;
 
+      self._logger = new Logger();
+
       // channel can be passed in for testing.
       self._channel = options.channel;
 
@@ -95,7 +98,7 @@ define(function (require, exports, module) {
           self._verifiedCanLinkAccount = true;
           return proto.beforeSignIn.call(self, email);
         }, function (err) {
-          console.error('beforeSignIn failed with', err);
+          self._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.
           // This can likely be changed to 'reject' after Fx31 hits nightly,
@@ -195,13 +198,26 @@ define(function (require, exports, module) {
        * login. Since `unwrapBKey` and `keyFetchToken` are not persisted to
        * disk, the passed in account lacks these items. The browser can't
        * do anything without this data, so don't actually send the message.
+       *
+       * Also works around #3514. With e10s enabled, localStorage in
+       * about:accounts and localStorage in the verification page are not
+       * shared. This lack of shared state causes the original tab of
+       * a password reset from about:accounts to not have all the
+       * required data. The verification tab sends a WebChannel message
+       * already, so no need here too.
        */
-      if (! account.get('keyFetchToken') ||
-          ! account.get('unwrapBKey')) {
+      var loginData = this._getLoginData(account);
+      if (! this._hasRequiredLoginFields(loginData)) {
         return p();
       }
 
-      return this.send(this.getCommand('LOGIN'), this._getLoginData(account));
+      return this.send(this.getCommand('LOGIN'), loginData);
+    },
+
+    _hasRequiredLoginFields: function (loginData) {
+      var requiredFields = FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
+      var loginFields = Object.keys(loginData);
+      return ! _.difference(requiredFields, loginFields).length;
     },
 
     _getLoginData: function (account) {
@@ -216,15 +232,36 @@ define(function (require, exports, module) {
         'verified'
       ];
 
-      var loginData = {};
-      _.each(ALLOWED_FIELDS, function (field) {
-        loginData[field] = account.get(field);
-      });
-
+      var loginData = account.pick(ALLOWED_FIELDS);
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;
       return loginData;
+    },
+
+    /**
+     * Notify the browser that it should open sync preferences
+     *
+     * @method openSyncPreferences
+     * @param {string} entryPoint - where Sync Preferences is opened from
+     * @returns {promise} resolves when notification is sent.
+     */
+    openSyncPreferences: function (entryPoint) {
+      if (this.hasCapability('syncPreferencesNotification')) {
+        return this.send(this.getCommand('SYNC_PREFERENCES'), {
+          entryPoint: entryPoint
+        });
+      }
     }
+  }, {
+    REQUIRED_LOGIN_FIELDS: [
+      'customizeSync',
+      'email',
+      'keyFetchToken',
+      'sessionToken',
+      'uid',
+      'unwrapBKey',
+      'verified'
+    ]
   });
 
   Cocktail.mixin(

@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = require('models/auth_brokers/base');
   var Constants = require('lib/constants');
   var HaltBehavior = require('views/behaviors/halt');
-  var NavigateBehavior = require('views/behaviors/navigate');
   var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
   var Url = require('lib/url');
@@ -170,19 +169,6 @@ define(function (require, exports, module) {
         });
     },
 
-    afterSignUp: function (account) {
-      var relier = this.relier;
-      return p().then(function () {
-        if (relier.accountNeedsPermissions(account)) {
-          return new NavigateBehavior('signup_permissions', {
-            data: {
-              account: account
-            }
-          });
-        }
-      });
-    },
-
     afterSignUpConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
       return this.finishOAuthSignUpFlow(account);
@@ -193,6 +179,10 @@ define(function (require, exports, module) {
     },
 
     transformLink: function (link) {
+      if (link[0] !== '/') {
+        link = '/' + link;
+      }
+
       return '/oauth' + link;
     }
   });

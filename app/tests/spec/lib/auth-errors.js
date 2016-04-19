@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var MarketingEmailErrors = require('lib/marketing-email-errors');
   var chai = require('chai');
 
   var assert = chai.assert;
@@ -30,6 +31,33 @@ define(function (require, exports, module) {
         assert.equal(err.context, 'the context');
       });
     });
+
+    describe('toInvalidParameterError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toInvalidParameterError('param name', AuthErrors);
+      });
+
+      it('creates an INVALID_PARAMTER Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+        assert.equal(err.param, 'param name');
+      });
+    });
+
+    describe('toMissingParameterError', function () {
+      var err;
+
+      before(function () {
+        err = AuthErrors.toMissingParameterError('param name', AuthErrors);
+      });
+
+      it('creates an MISSING_PARAMTER Error', function () {
+        assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
+        assert.equal(err.param, 'param name');
+      });
+    });
+
 
     describe('toMessage', function () {
       it('converts a code to a message', function () {
@@ -135,6 +163,22 @@ define(function (require, exports, module) {
             assert.isTrue(AuthErrors.is({ errno: 102 }, 'UNKNOWN_ACCOUNT'));
             assert.isFalse(AuthErrors.is({ errno: 103 }, 'UNKNOWN_ACCOUNT'));
           });
+    });
+
+    describe('created', function () {
+      describe('if module created error', function () {
+        it('returns true', function () {
+          var error = AuthErrors.toError('UNKNOWN_ACCONT');
+          assert.isTrue(AuthErrors.created(error));
+        });
+      });
+
+      describe('if module did not create error', function () {
+        it('returns false', function () {
+          var error = MarketingEmailErrors.toError('INVALID_NEWSLETTER');
+          assert.isFalse(AuthErrors.created(error));
+        });
+      });
     });
 
     describe('normalizeXHRError', function () {

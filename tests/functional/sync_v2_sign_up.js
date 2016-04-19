@@ -82,12 +82,13 @@ define([
           })
         .end()
 
-        // uncheck the passwords and history engines
-        .findByCssSelector('input[value="passwords"]')
+        // uncheck the passwords and addons engines.
+        // cannot use input selectors here because labels overlay them.
+        .findByCssSelector('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)')
           .click()
         .end()
 
-        .findByCssSelector('input[value="addons"]')
+        .findByCssSelector('div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)')
           .click()
         .end()
 
@@ -139,7 +140,12 @@ define([
         .switchToWindow('')
         .end()
 
-        .findByCssSelector('#fxa-confirm-header')
+        // We do not expect the verification poll to occur. The poll
+        // will take a few seconds to complete if it erroneously occurs.
+        // Add an affordance just in case the poll happens unexpectedly.
+        .sleep(5000)
+
+        .then(FunctionalHelpers.visibleByQSA('#fxa-confirm-header'))
         .end();
     }
   });

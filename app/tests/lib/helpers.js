@@ -5,6 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
+  var Constants = require('lib/constants');
   var p = require('lib/promise');
   var ProfileMock = require('../mocks/profile.js');
   var sinon = require('sinon');
@@ -80,12 +82,28 @@ define(function (require, exports, module) {
     return str;
   }
 
+  function createUid() {
+    return createRandomHexString(Constants.UID_LENGTH);
+  }
+
   function createEmail() {
     return 'signin' + Math.random() + '@restmail.net';
   }
 
   function emailToUser(email) {
     return email.split('@')[0];
+  }
+
+  function getValueLabel(value) {
+    if (_.isUndefined(value)) {
+      return 'not set';
+    } else if (value === '') {
+      return 'empty';
+    } else if (/^\s+$/.test(value)) {
+      return 'whitespace only';
+    }
+
+    return value;
   }
 
   function indexOfEvent(metrics, eventName) {
@@ -120,7 +138,10 @@ define(function (require, exports, module) {
     var pairs = [];
 
     for (var key in obj) {
-      pairs.push(key + '=' + encodeURIComponent(obj[key]));
+      var value = obj[key];
+      if (! _.isUndefined(value)) {
+        pairs.push(key + '=' + encodeURIComponent(value));
+      }
     }
 
     return searchString + pairs.join('&');
@@ -140,7 +161,9 @@ define(function (require, exports, module) {
     addFxaClientSpy: addFxaClientSpy,
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,
+    createUid: createUid,
     emailToUser: emailToUser,
+    getValueLabel: getValueLabel,
     indexOfEvent: indexOfEvent,
     isErrorLogged: isErrorLogged,
     isEventLogged: isEventLogged,

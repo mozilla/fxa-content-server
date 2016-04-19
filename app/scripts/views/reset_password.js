@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
-  var BackMixin = require('views/mixins/back-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
+  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
   var FormView = require('views/form');
   var PasswordResetMixin = require('views/mixins/password-reset-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
@@ -27,22 +27,28 @@ define(function (require, exports, module) {
       this._formPrefill = options.formPrefill;
     },
 
-    _getPrefillEmail: function () {
-      return this.relier.get('email') || this._formPrefill.get('email') || '';
-    },
-
     context: function () {
       return {
-        email: this._getPrefillEmail()
+        forceEmail: this.model.get('forceEmail')
       };
     },
 
-    afterRender: function () {
-      var value = this.$('.email').val();
-      if (value) {
-        this.focus('.email');
+    beforeRender: function () {
+      var email = this.relier.get('email');
+      var canSkip = this.relier.get('resetPasswordConfirm') === false;
+      if (canSkip && email) {
+        var self = this;
+        return this._resetPassword(email)
+          .then(function () { return false; })
+          .fail(function (err) {
+            self.model.set('error', err);
+          });
       }
 
+      return FormView.prototype.beforeRender.call(this);
+    },
+
+    afterRender: function () {
       if (this.relier.isOAuth()) {
         this.transformLinks();
       }
@@ -55,8 +61,10 @@ define(function (require, exports, module) {
     },
 
     submit: function () {
-      var email = this.getElementValue('.email');
+      return this._resetPassword(this.getElementValue('.email'));
+    },
 
+    _resetPassword: function (email) {
       var self = this;
       return self.resetPassword(email)
         .fail(function (err) {
@@ -78,7 +86,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    BackMixin,
+    ExternalLinksMixin,
     PasswordResetMixin,
     ServiceMixin
   );

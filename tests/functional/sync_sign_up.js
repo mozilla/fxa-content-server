@@ -16,7 +16,7 @@ define([
         FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
-  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=wibble';
+  var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
@@ -110,7 +110,12 @@ define([
         .switchToWindow('')
         .end()
 
-        .findByCssSelector('#fxa-confirm-header')
+        // We do not expect the verification poll to occur. The poll
+        // will take a few seconds to complete if it erroneously occurs.
+        // Add an affordance just in case the poll happens unexpectedly.
+        .sleep(5000)
+
+        .then(FunctionalHelpers.visibleByQSA('#fxa-confirm-header'))
         .end();
     },
 

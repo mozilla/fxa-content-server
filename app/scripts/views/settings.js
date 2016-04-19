@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var DeleteAccountView = require('views/settings/delete_account');
   var DevicesView = require('views/settings/devices');
   var DisplayNameView = require('views/settings/display_name');
+  var Duration = require('duration');
   var GravatarPermissionsView = require('views/settings/gravatar_permissions');
   var GravatarView = require('views/settings/avatar_gravatar');
   var LoadingMixin = require('views/mixins/loading-mixin');
@@ -104,8 +105,8 @@ define(function (require, exports, module) {
       this._showAvatar();
     },
 
-    showChildView: function (ChildView) {
-      return this._subPanels.showChildView(ChildView);
+    showChildView: function (ChildView, options) {
+      return this._subPanels.showChildView(ChildView, options);
     },
 
     // When we navigate to settings from a childView
@@ -114,7 +115,8 @@ define(function (require, exports, module) {
       if ($.modal.isActive()) {
         $.modal.close();
       }
-      this.showEphemeralMessages();
+      this.displayStatusMessages();
+
       this.logView();
       this._swapDisplayName();
     },
@@ -203,7 +205,7 @@ define(function (require, exports, module) {
         });
     }),
 
-    SUCCESS_MESSAGE_DELAY_MS: 5000, // show success message for 5 seconds
+    SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
     displaySuccess: function () {
       var self = this;

@@ -11,12 +11,14 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var FxDesktopV2AuthenticationBroker = require('models/auth_brokers/fx-desktop-v2');
+  var FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   var HaltBehavior = require('views/behaviors/halt');
 
-  var proto = FxDesktopV2AuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-  var FirstRunAuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
+  var FxFirstrunV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
+    type: 'fx-firstrun-v1',
+
     _iframeCommands: {
       LOADED: 'loaded',
       LOGIN: 'login',
@@ -26,7 +28,8 @@ define(function (require, exports, module) {
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: true,
-      chooseWhatToSyncWebV1: false
+      chooseWhatToSyncWebV1: false,
+      openGmailButtonVisible: true
     }),
 
     initialize: function (options) {
@@ -69,8 +72,10 @@ define(function (require, exports, module) {
       return proto.afterResetPasswordConfirmationPoll.apply(this, arguments);
     },
 
-    beforeSignUpConfirmationPoll: function () {
-      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY);
+    beforeSignUpConfirmationPoll: function (account) {
+      this._iframeChannel.send(this._iframeCommands.SIGNUP_MUST_VERIFY, {
+        emailOptIn: !! account.get('needsOptedInToMarketingEmail')
+      });
 
       return proto.beforeSignUpConfirmationPoll.apply(this, arguments);
     },
@@ -82,5 +87,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FirstRunAuthenticationBroker;
+  module.exports = FxFirstrunV1AuthenticationBroker;
 });

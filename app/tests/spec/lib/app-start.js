@@ -11,18 +11,17 @@ define(function (require, exports, module) {
   var BaseRelier = require('models/reliers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
-  var FirstrunBroker = require('models/auth_brokers/first-run');
   var FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
   var FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
   var FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
+  var FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
+  var FxFirstrunV2Broker = require('models/auth_brokers/fx-firstrun-v2');
   var FxiOSV1Broker = require('models/auth_brokers/fx-ios-v1');
   var FxiOSV2Broker = require('models/auth_brokers/fx-ios-v2');
   var HistoryMock = require('../../mocks/history');
-  var IframeBroker = require('models/auth_brokers/iframe');
   var Metrics = require('lib/metrics');
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
-  var OAuthErrors = require('lib/oauth-errors');
   var OAuthRelier = require('models/reliers/oauth');
   var p = require('lib/promise');
   var Raven = require('raven');
@@ -43,7 +42,6 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
   var FIRSTRUN_ORIGIN = 'https://firstrun.firefox.com';
-  var HELLO_ORIGIN = 'https://hello.firefox.com';
 
   describe('lib/app-start', function () {
     var appStart;
@@ -105,8 +103,6 @@ define(function (require, exports, module) {
           return p.reject(new Error('boom!'));
         });
 
-        appStart.ERROR_REDIRECT_TIMEOUT_MS = 10;
-
         return appStart.startApp()
           .then(function () {
             assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
@@ -114,14 +110,15 @@ define(function (require, exports, module) {
           });
       });
 
-      it('updates old sessions', function () {
-        sinon.stub(userMock, 'upgradeFromSession', function () {
+      it('updates old storage formats', function () {
+        sinon.stub(appStart, 'upgradeStorageFormats', function () {
+          return p();
         });
 
         return appStart.startApp()
-                    .then(function () {
-                      assert.isTrue(userMock.upgradeFromSession.calledOnce);
-                    });
+          .then(function () {
+            assert.isTrue(appStart.upgradeStorageFormats.calledOnce);
+          });
       });
 
       it('uses storage metrics when an automated browser is detected', function () {
@@ -184,14 +181,25 @@ define(function (require, exports, module) {
         appStart._metrics = new Metrics();
       });
 
-      describe('firstrun', function () {
-        it('returns a Firstrun broker if `service=sync&context=iframe`', function () {
+      describe('fx-firstrun-v1', function () {
+        it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', function () {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.IFRAME_CONTEXT,
             service: Constants.SYNC_SERVICE
           });
 
-          return testExpectedBrokerCreated(FirstrunBroker);
+          return testExpectedBrokerCreated(FxFirstrunV1Broker);
+        });
+      });
+
+      describe('fx-firstrun-v2', function () {
+        it('returns a FxFirstrunV2 broker if `service=sync&context=fx_firstrun_v2`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_FIRSTRUN_V2_CONTEXT,
+            service: Constants.SYNC_SERVICE
+          });
+
+          return testExpectedBrokerCreated(FxFirstrunV2Broker);
         });
       });
 
@@ -270,15 +278,15 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('iframe', function () {
-        it('returns an Iframe broker if `context=iframe` is present and in an iframe', function () {
+      describe('deprecated oauth iframe support', function () {
+        it('returns an Redirect broker if `context=iframe` is present and in an iframe', function () {
           windowMock.top = new WindowMock();
           windowMock.location.search = Url.objToSearchString({
             client_id: 'client id', //eslint-disable-line camelcase
             context: Constants.IFRAME_CONTEXT
           });
 
-          return testExpectedBrokerCreated(IframeBroker);
+          return testExpectedBrokerCreated(RedirectBroker);
         });
 
         it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
@@ -343,12 +351,13 @@ define(function (require, exports, module) {
 
       describe('broker errors', function () {
         it('are logged to metrics', function () {
-          sinon.spy(appStart._metrics, 'logError');
+          sinon.stub(appStart, 'captureError', sinon.spy());
+
           return appStart.initializeAuthenticationBroker()
             .then(function () {
               var err = new Error('test error');
               appStart._authenticationBroker.trigger('error', err);
-              assert.isTrue(appStart._metrics.logError.calledWith(err));
+              assert.isTrue(appStart.captureError.called);
             });
         });
       });
@@ -521,23 +530,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_getErrorPage', function () {
-      it('returns BAD_REQUEST_PAGE for a missing OAuth parameter', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('MISSING_PARAMETER'));
-        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
-      });
-
-      it('returns BAD_REQUEST_PAGE for an unknown OAuth client', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('UNKNOWN_CLIENT'));
-        assert.include(errorUrl, Constants.BAD_REQUEST_PAGE);
-      });
-
-      it('returns INTERNAL_ERROR_PAGE by default', function () {
-        var errorUrl = appStart._getErrorPage(OAuthErrors.toError('INVALID_ASSERTION'));
-        assert.include(errorUrl, Constants.INTERNAL_ERROR_PAGE);
-      });
-    });
-
     describe('initializeIframeChannel', function () {
       beforeEach(function () {
         appStart = new AppStart({
@@ -638,21 +630,6 @@ define(function (require, exports, module) {
         assert.equal(allowedOrigins[0], FIRSTRUN_ORIGIN);
       });
 
-      it('returns the relier\'s origin if an oauth flow', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-
-        sinon.stub(appStart, '_isOAuth', function () {
-          return true;
-        });
-
-        relierMock.set('origin', HELLO_ORIGIN);
-        var allowedOrigins = appStart._getAllowedParentOrigins();
-        assert.equal(allowedOrigins.length, 1);
-        assert.equal(allowedOrigins[0], HELLO_ORIGIN);
-      });
-
       it('returns an empty array otherwise', function () {
         sinon.stub(appStart, '_isInAnIframe', function () {
           return true;
@@ -738,8 +715,81 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('testLocalStorage', function () {
+      describe('with localStorage disabled', function () {
+        var err;
+
+        beforeEach(function () {
+          err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
+
+          appStart = new AppStart({
+            storage: {
+              testLocalStorage: sinon.spy(function () {
+                throw err;
+              })
+            }
+          });
+
+          sinon.stub(appStart, 'captureError', sinon.spy());
+
+          return appStart.testLocalStorage();
+        });
+
+        it('logs the error', function () {
+          assert.isTrue(appStart.captureError.calledWith(err));
+        });
+      });
+    });
+
+    describe('captureError', function () {
+      var err;
+      var metricsMock;
+      var sentryMock;
+
+      beforeEach(function () {
+        sinon.spy(historyMock, 'start');
+
+        err = new Error('NS_ERROR_FILE_ACCESS_DENIED');
+
+        metricsMock = {
+          flush: sinon.spy(function () {
+            return p();
+          }),
+          logError: sinon.spy()
+        };
+
+        sentryMock = {
+          captureException: sinon.spy()
+        };
+
+
+        appStart = new AppStart({
+          metrics: metricsMock,
+          sentryMetrics: sentryMock,
+          storage: {
+            testLocalStorage: sinon.spy(function () {
+              throw err;
+            })
+          }
+        });
+
+        return appStart.captureError(err);
+      });
+
+      it('logs the error to sentry', function () {
+        assert.isTrue(sentryMock.captureException.calledWith(err));
+      });
+
+      it('logs the error to metrics', function () {
+        assert.isTrue(metricsMock.logError.calledWith(err));
+        assert.isTrue(metricsMock.flush.called);
+      });
+    });
+
     describe('allResourcesReady', function () {
       beforeEach(function () {
+        sinon.spy(historyMock, 'start');
+
         appStart = new AppStart({
           broker: brokerMock,
           history: historyMock,
@@ -747,15 +797,15 @@ define(function (require, exports, module) {
           user: userMock,
           window: windowMock
         });
+
+        appStart.allResourcesReady();
       });
 
-      it('should set the window hash if in an iframe', function () {
-        sinon.stub(appStart, '_isInAnIframe', function () {
-          return true;
-        });
-        windowMock.location.pathname = 'signup';
-        appStart.allResourcesReady();
-        assert.equal(windowMock.location.hash, 'signup');
+      it('should start history', function () {
+        assert.isTrue(historyMock.start.calledWith({
+          pushState: true,
+          silent: false
+        }));
       });
     });
 
@@ -887,6 +937,28 @@ define(function (require, exports, module) {
           appStart._getSameBrowserVerificationModel('context'),
           SameBrowserVerificationModel
         );
+      });
+    });
+
+    describe('upgradeStorageFormats', function () {
+      beforeEach(function () {
+        appStart = new AppStart({
+          user: userMock,
+          window: windowMock
+        });
+
+        sinon.spy(userMock, 'upgradeFromUnfilteredAccountData');
+        sinon.spy(userMock, 'upgradeFromSession');
+
+        return appStart.upgradeStorageFormats();
+      });
+
+      it('upgrades unfiltered account data', function () {
+        assert.isTrue(userMock.upgradeFromUnfilteredAccountData.called);
+      });
+
+      it('upgrades from Session data', function () {
+        assert.isTrue(userMock.upgradeFromSession.called);
       });
     });
   });
