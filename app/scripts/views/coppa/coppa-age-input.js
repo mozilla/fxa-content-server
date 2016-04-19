@@ -59,18 +59,15 @@ define(function (require, exports, module) {
     onKeyDown: function (event) {
       // helper function to check for digit
       function isKeyADigit (keyCode) {
-        if ((keyCode > 8 && keyCode < 48) || (keyCode > 57 && keyCode < 96) || keyCode > 105) {
-          return false;
-        } else {
-          return true;
-        }
+        return ((keyCode == 8) || // backspace
+        (keyCode >= 48 && keyCode <= 57) || // digit row
+        (keyCode >= 96 && keyCode <= 105)); // keypad
       }
 
       // submit on enter, force digit input
       if (event.which === KeyCodes.ENTER) {
         this.trigger('submit');
-      } else if (! isKeyADigit(event.which)) {
-        console.log("caught");
+      } else if (! isKeyADigitOrBackSpace(event.which)) {
         event.preventDefault();
       }
     },
