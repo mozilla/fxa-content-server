@@ -63,6 +63,11 @@ var conf = module.exports = convict({
     },
     secret: 'YOU MUST CHANGE ME'
   },
+  content_token_key: {
+    default: 'YOU MUST CHANGE ME',
+    doc: 'Content Token used with the auth server',
+    format: String
+  },
   csp: {
     enabled: {
       default: false,

@@ -44,6 +44,10 @@ define(function (require, exports, module) {
       errno: 102,
       message: t('Unknown account')
     },
+    UNKNOWN_CONTENT_TOKEN: {
+      errno: 125,
+      message: UNEXPECTED_ERROR_MESSAGE
+    },
     INCORRECT_EMAIL_CASE: {
       errno: 120,
       message: t('Incorrect email case')
