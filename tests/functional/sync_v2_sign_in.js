@@ -19,8 +19,6 @@ define([
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -28,15 +26,17 @@ define([
 
   var setupTest = thenify(function (context, isUserVerified) {
     return this.parent
-      .then(clearBrowserState(context))
+      .then(clearBrowserState(context, { force: true }))
       .then(createUser(email, PASSWORD, { preVerified: isUserVerified }))
       .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
-      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(context, email, PASSWORD))
 
       .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
+      .then(testIsBrowserNotified(context, 'fxaccounts:login'))
+
+      // Sync users must always re-verify their email
+      .then(testElementExists(isUserVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
   });
 
   registerSuite({
@@ -48,16 +48,22 @@ define([
 
     'verified': function () {
       return this.remote
-        .then(setupTest(this, true))
+        .then(setupTest(this, true));
 
-        .then(noPageTransition('#fxa-signin-header'));
+      /*
+         TODO - add tests to re-verify email
+      .then(noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
+      // user should be able to click on a sync preferences button.
+      .then(click('#sync-preferences'))
+
+      // browser is notified of desire to open Sync preferences
+      .then(testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
+      */
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
-
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(setupTest(this, false));
     }
   });
 });

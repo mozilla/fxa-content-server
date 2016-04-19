@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var MarketingMixin = require('views/mixins/marketing-mixin');
   var Template = require('stache!templates/marketing_snippet');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var View = BaseView.extend({
     template: Template,
@@ -37,13 +38,15 @@ define(function (require, exports, module) {
     },
 
     _shouldShowSignUpMarketing: function () {
-      var isSignUp = this._type === 'sign_up';
-      var isSync = this._service === Constants.SYNC_SERVICE;
       var isFirefoxMobile = this._isFirefoxMobile();
+      var isSignUp = this._type === VerificationReasons.SIGN_UP;
+      var isSignIn = this._type === VerificationReasons.SIGN_IN;
 
-      // If the user is completing a signup for sync and ALWAYS
+      var isSync = this._service === Constants.SYNC_SERVICE;
+
+      // If the user is completing a signup or signin for sync, ALWAYS
       // show the marketing snippet.
-      return isSignUp && isSync && ! isFirefoxMobile;
+      return (isSignUp || isSignIn) && isSync && ! isFirefoxMobile;
     },
 
     _isFirefoxMobile: function () {

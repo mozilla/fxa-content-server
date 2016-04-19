@@ -17,6 +17,8 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var Session = require('lib/session');
   var SignInReasons = require('lib/sign-in-reasons');
+  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationMethods = require('lib/verification-methods');
 
   function trim(str) {
     return $.trim(str);
@@ -138,6 +140,8 @@ define(function (require, exports, module) {
         sessionToken: accountData.sessionToken,
         sessionTokenContext: sessionTokenContext,
         uid: accountData.uid,
+        verificationMethod: accountData.verificationMethod,
+        verificationReason: accountData.verificationReason,
         verified: accountData.verified || false
       };
 
@@ -162,6 +166,8 @@ define(function (require, exports, module) {
      * @param {Object} [options]
      *   @param {String} [options.reason] - Reason for the sign in. See definitons
      *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
@@ -189,11 +195,29 @@ define(function (require, exports, module) {
             signInOptions.service = relier.get('service');
           }
 
+          if (relier.has('redirectTo')) {
+            signInOptions.redirectTo = relier.get('redirectTo');
+          }
+
+          if (options.resume) {
+            signInOptions.resume = options.resume;
+          }
+
           setMetricsContext(signInOptions, options);
 
           return client.signIn(email, password, signInOptions);
         })
         .then(function (accountData) {
+          if (! accountData.verified &&
+              ! accountData.hasOwnProperty('verificationReason')) {
+            // Set a default verificationReason to `SIGN_UP` to allow
+            // staged rollouts of servers. To handle calls to the
+            // legacy /account/login that lacks a verificationReason,
+            // assume SIGN_UP if the account is not verified.
+            accountData.verificationReason = VerificationReasons.SIGN_UP;
+            accountData.verificationMethod = VerificationMethods.EMAIL;
+          }
+
           return self._getUpdatedSessionData(email, relier, accountData, options);
         });
     },

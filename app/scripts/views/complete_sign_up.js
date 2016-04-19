@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Complete sign up is used to complete the email verification for one
+ * of three types of users:
+ *
+ * 1. New users that just signed up.
+ * 2. Existing users that have signed in with an unverified account.
+ * 3. Existing users that are signing into Sync and
+ *    must re-confirm their account.
+ *
+ * The auth server endpoints that are called are the same in all cases.
+ */
+
 define(function (require, exports, module) {
   'use strict';
 
@@ -16,6 +28,7 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var Url = require('lib/url');
   var VerificationInfo = require('models/verification/sign-up');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var t = BaseView.t;
 
@@ -48,10 +61,24 @@ define(function (require, exports, module) {
       // cache the email in case we need to attempt to resend the
       // verification link
       this._email = this._account.get('email');
+
+      this.model.set('type', options.type || VerificationReasons.SIGN_UP);
     },
 
     getAccount: function () {
       return this._account;
+    },
+
+    _isSignUp: function () {
+      return this.model.get('type') === VerificationReasons.SIGN_UP;
+    },
+
+    _navigateToCompleteScreen: function () {
+      if (this._isSignUp()) {
+        this.navigate('signup_complete');
+      } else {
+        this.navigate('signin_complete');
+      }
     },
 
     beforeRender: function () {
@@ -94,7 +121,7 @@ define(function (require, exports, module) {
             var account = self.getAccount();
 
             if (! self.relier.isDirectAccess()) {
-              self.navigate('signup_complete');
+              self._navigateToCompleteScreen();
               return false;
             }
 
@@ -105,7 +132,7 @@ define(function (require, exports, module) {
                     success: t('Account verified successfully')
                   });
                 } else {
-                  self.navigate('signup_complete');
+                  self._navigateToCompleteScreen();
                 }
                 return false;
               });

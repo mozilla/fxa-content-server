@@ -20,8 +20,11 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -33,7 +36,9 @@ define([
       .then(openPage(context, PAGE_URL, '#fxa-signin-header'))
       .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignIn(context, email, PASSWORD));
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified(context, 'fxaccounts:login'));
   });
 
   registerSuite({
@@ -43,13 +48,26 @@ define([
       email = TestHelpers.createEmail();
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
+          // user wants to open sync preferences.
+          .then(click('#sync-preferences'))
+
+          // browser is notified of desire to open Sync preferences
+          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'))
 
         .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
         // user wants to open sync preferences.
@@ -59,13 +77,21 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'));
     },
 
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false))
 
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testElementExists('#fxa-confirm-header'));
     }
   });
 });

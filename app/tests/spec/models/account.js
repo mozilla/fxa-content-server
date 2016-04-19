@@ -22,6 +22,8 @@ define(function (require, exports, module) {
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
   var SignInReasons = require('lib/sign-in-reasons');
+  var VerificationMethods = require('lib/verification-methods');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -227,7 +229,12 @@ define(function (require, exports, module) {
         describe('unverified, reason === undefined', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn', function () {
-              return p({ sessionToken: SESSION_TOKEN, verified: false });
+              return p({
+                sessionToken: SESSION_TOKEN,
+                verificationMethod: VerificationMethods.EMAIL,
+                verificationReason: VerificationReasons.SIGN_UP,
+                verified: false
+              });
             });
 
             sinon.stub(fxaClient, 'signUpResend', function () {
@@ -243,7 +250,8 @@ define(function (require, exports, module) {
                 baz: 'qux',
                 foo: 'bar'
               },
-              reason: undefined
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token'
             }));
           });
 
@@ -260,7 +268,12 @@ define(function (require, exports, module) {
         describe('unverified, reason === ACCOUNT_UNLOCK', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn', function () {
-              return p({ sessionToken: SESSION_TOKEN, verified: false });
+              return p({
+                sessionToken: SESSION_TOKEN,
+                verificationMethod: VerificationMethods.EMAIL,
+                verificationReason: VerificationReasons.SIGN_UP,
+                verified: false
+              });
             });
 
             sinon.stub(fxaClient, 'signUpResend', function () {
@@ -284,16 +297,52 @@ define(function (require, exports, module) {
           it('updates the account with the returned data', function () {
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.isFalse(account.get('verified'));
+            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
+            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_UP);
           });
         });
 
-        describe('verified', function () {
+        describe('verified account, unverified session', function () {
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'signIn', function () {
+              return p({
+                sessionToken: SESSION_TOKEN,
+                verificationMethod: VerificationMethods.EMAIL,
+                verificationReason: VerificationReasons.SIGN_IN,
+                verified: false
+              });
+            });
+
+            sinon.stub(fxaClient, 'signUpResend', function () {
+              return p();
+            });
+
+            return account.signIn(PASSWORD, relier, { resume: 'resume token' });
+          });
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+          });
+
+          it('does not delegate to the fxaClient to send re-confirmation email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
+            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.isFalse(account.get('verified'));
+          });
+        });
+
+        describe('verified account, verified session', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn', function () {
               return p({ sessionToken: SESSION_TOKEN, verified: true });
             });
 
-            return account.signIn(PASSWORD, relier);
+            return account.signIn(PASSWORD, relier, { resume: 'resume token' });
           });
 
           it('delegates to the fxaClient', function () {
@@ -302,7 +351,8 @@ define(function (require, exports, module) {
                 baz: 'qux',
                 foo: 'bar'
               },
-              reason: undefined
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token'
             }));
           });
 
@@ -340,12 +390,12 @@ define(function (require, exports, module) {
       });
 
       describe('with a sessionToken', function () {
-        describe('unverified', function () {
+        describe('unverified email', function () {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
 
             sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-              return p({ verified: false });
+              return p({ emailVerified: false, verified: false });
             });
 
             sinon.stub(fxaClient, 'signUpResend', function () {
@@ -367,6 +417,40 @@ define(function (require, exports, module) {
           it('updates the account with the returned data', function () {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_UP);
+            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
+          });
+        });
+
+        describe('unverified session', function () {
+          beforeEach(function () {
+            account.set('sessionToken', SESSION_TOKEN);
+
+            sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+              return p({ emailVerified: true, sessionVerified: false, verified: false });
+            });
+
+            sinon.stub(fxaClient, 'signUpResend', function () {
+              return p();
+            });
+
+            return account.signIn(null, relier);
+          });
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(
+              fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
+          });
+
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
+            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
           });
         });
 
@@ -374,7 +458,7 @@ define(function (require, exports, module) {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
             sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-              return p({ verified: true });
+              return p({ emailVerified: true, sessionVerified: true, verified: true });
             });
 
             return account.signIn(null, relier);

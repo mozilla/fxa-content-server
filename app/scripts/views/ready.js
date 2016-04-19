@@ -10,6 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var _ = require('underscore');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
   var FormView = require('views/form');
@@ -18,6 +19,7 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/ready');
   var Url = require('lib/url');
+  var VerificationReasons = require('lib/verification-reasons');
 
   function t(msg) {
     return msg;
@@ -33,28 +35,28 @@ define(function (require, exports, module) {
    * the template marginally cleaner and easier to read.
    */
   var TEMPLATE_INFO = {
-    account_unlock: {
+    ACCOUNT_UNLOCK: {
       headerId: 'fxa-account-unlock-complete-header',
       headerTitle: t('Account unlocked'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    force_auth: {
+    FORCE_AUTH: {
       headerId: 'fxa-force-auth-complete-header',
       headerTitle: t('Welcome back'),
       readyToSyncText: t('Firefox Sync will resume momentarily'),
     },
-    reset_password: {
+    PASSWORD_RESET: {
       headerId: 'fxa-reset-password-complete-header',
       headerTitle: t('Password reset'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    // sign_in_complete is only shown to sync for now.
-    sign_in: {
+    // signin_complete is only shown to Sync for now.
+    SIGN_IN: {
       headerId: 'fxa-sign-in-complete-header',
-      headerTitle: t('Welcome to Sync'),
-      readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
+      headerTitle: t('Sign-in confirmed'),
+      readyToSyncText: t('You are now ready to use %(serviceName)s')
     },
-    sign_up: {
+    SIGN_UP: {
       headerId: 'fxa-sign-up-complete-header',
       headerTitle: t('Account verified'),
       readyToSyncText: t('You are now ready to use %(serviceName)s')
@@ -62,6 +64,12 @@ define(function (require, exports, module) {
   };
 
   /*eslint-enable camelcase*/
+
+  function findKey(haystack, needle) {
+    return _.findKey(haystack, function (value) {
+      return value === needle;
+    });
+  }
 
   var View = FormView.extend({
     template: Template,
@@ -71,9 +79,9 @@ define(function (require, exports, module) {
       options = options || {};
 
       this._able = options.able;
-
-      this.type = options.type;
-      this.language = options.language;
+      this._language = options.language;
+      this._templateInfo = TEMPLATE_INFO[findKey(VerificationReasons, options.type)];//.keyOf(options.type)];
+      this._type = options.type;
 
       if (this._shouldShowProceedButton()) {
         this.submit = this._submitForProceed.bind(this);
@@ -97,16 +105,16 @@ define(function (require, exports, module) {
     },
 
     _getHeaderId: function () {
-      return TEMPLATE_INFO[this.type].headerId;
+      return this._templateInfo.headerId;
     },
 
     _getHeaderTitle: function () {
-      var title = TEMPLATE_INFO[this.type].headerTitle;
+      var title = this._templateInfo.headerTitle;
       return this.translateInTemplate(title);
     },
 
     _getReadyToSyncText: function () {
-      var readyToSyncText = TEMPLATE_INFO[this.type].readyToSyncText;
+      var readyToSyncText = this._templateInfo.readyToSyncText;
       return this.translateInTemplate(readyToSyncText);
     },
 
@@ -137,7 +145,7 @@ define(function (require, exports, module) {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
-      return !! (this.is('sign_up') &&
+      return !! (this._type === VerificationReasons.SIGN_UP &&
                  redirectUri &&
                  Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
@@ -168,10 +176,10 @@ define(function (require, exports, module) {
 
       var marketingSnippetOpts = {
         el: this.$('.marketing-area'),
-        language: this.language,
+        language: this._language,
         metrics: this.metrics,
         service: this.relier.get('service'),
-        type: this.type
+        type: this._type
       };
 
       var marketingSnippet;
@@ -184,10 +192,6 @@ define(function (require, exports, module) {
       this.trackChildView(marketingSnippet);
 
       return marketingSnippet.render();
-    },
-
-    is: function (type) {
-      return this.type === type;
     }
   });
 

@@ -16,6 +16,8 @@ define([
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var openForceAuth = FunctionalHelpers.openForceAuth;
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
@@ -35,7 +37,9 @@ define([
       .execute(listenForFxaCommands)
       .then(fillOutForceAuth(PASSWORD))
       .then(testIsBrowserNotified(context, 'can_link_account'))
-      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: isUserVerified }));
+      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: false }))
+        // for sync, a user must confirm or re-confirm their email address.
+      .then(testElementExists(isUserVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
   });
 
   registerSuite({
@@ -45,18 +49,33 @@ define([
       email = TestHelpers.createEmail();
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
 
-        .then(noPageTransition('#fxa-force-auth-header'));
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
     'unverified': function () {
       return this.remote
-        .then(setupTest(this, false))
-
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(setupTest(this, false));
     }
   });
 });

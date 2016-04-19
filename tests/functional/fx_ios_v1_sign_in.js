@@ -23,7 +23,6 @@ define([
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -56,8 +55,12 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
-        .then(noPageTransition('#fxa-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
+        // for sync, a user must re-confirm their email address.
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
+        .then(testIsBrowserNotifiedOfLogin(this, email));
+
+      // TODO - test email verification loop
     },
 
     'unverified': function () {

@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var BackMixin = require('views/mixins/back-mixin');
   var BaseView = require('views/base');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
@@ -17,6 +18,7 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/confirm');
+  var VerificationReasons = require('lib/verification-reasons');
 
   var t = BaseView.t;
 
@@ -33,6 +35,10 @@ define(function (require, exports, module) {
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
       this._account = this.user.initAccount(this.model.get('account'));
+
+      if (! this.model.has('type')) {
+        this.model.set('type', VerificationReasons.SIGN_UP);
+      }
     },
 
     getAccount: function () {
@@ -41,11 +47,21 @@ define(function (require, exports, module) {
 
     context: function () {
       var email = this.getAccount().get('email');
+      var isSignIn = this._isSignIn();
+      var isSignUp = this._isSignUp();
 
       return {
+        // Back button is only available for signin for now. We haven't fully
+        // figured out whether re-signing up a user and sending a new
+        // email/sessionToken to the browser will cause problems. I don't think
+        // it will since that's what happens on a bounced email, but that's
+        // a discussion for another time.
+        canGoBack: isSignIn && this.canGoBack(),
         email: email,
         gmailLink: this.getGmailUrl(email),
-        isOpenGmailButtonVisible: this.isOpenGmailButtonVisible(email)
+        isOpenGmailButtonVisible: this.isOpenGmailButtonVisible(email),
+        isSignIn: isSignIn,
+        isSignUp: isSignUp
       };
     },
 
@@ -60,14 +76,31 @@ define(function (require, exports, module) {
       });
     },
 
-    _gmailTabOpened: function () {
-      this.logViewEvent('openGmail.clicked');
+    _getMissingSessionTokenScreen: function () {
+      var screenUrl = this._isSignUp() ? 'signup' : 'signin';
+      return this.broker.transformLink(screenUrl);
+    },
+
+    _isSignUp: function () {
+      return this.model.get('type') === VerificationReasons.SIGN_UP;
+    },
+
+    _isSignIn: function () {
+      return this.model.get('type') === VerificationReasons.SIGN_IN;
+    },
+
+    _navigateToCompleteScreen: function () {
+      if (this._isSignUp()) {
+        this.navigate('signup_complete');
+      } else {
+        this.navigate('signin_complete');
+      }
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
       if (! this.getAccount().get('sessionToken')) {
-        this.navigate('signup');
+        this.navigate(this._getMissingSessionTokenScreen());
         return false;
       }
     },
@@ -103,19 +136,25 @@ define(function (require, exports, module) {
         .then(function () {
           self.logViewEvent('verification.success');
           self.notifier.trigger('verification.success');
-          return self.invokeBrokerMethod(
-            'afterSignUpConfirmationPoll', self.getAccount())
-            .then(function () {
-              // the user is definitely authenticated here.
-              if (self.relier.isDirectAccess()) {
-                self.navigate('settings', {
-                  success: t('Account verified successfully')
-                });
-              } else {
-                self.navigate('signup_complete');
-              }
+
+          var brokerMethod =
+            self._isSignUp() ?
+            'afterSignUpConfirmationPoll' :
+            'afterSignIn';
+
+          return self.invokeBrokerMethod(brokerMethod, self.getAccount());
+        })
+        .then(function () {
+          // the user is definitely authenticated here.
+          if (self.relier.isDirectAccess()) {
+            self.navigate('settings', {
+              success: t('Account verified successfully')
             });
-        }, function (err) {
+          } else {
+            return self._navigateToCompleteScreen();
+          }
+        })
+        .fail(function (err) {
           // The user's email may have bounced because it was invalid.
           // Redirect them to the sign up page with an error notice.
           if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
@@ -197,6 +236,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    BackMixin,
     ExperimentMixin,
     OpenGmailMixin,
     ResendMixin,
