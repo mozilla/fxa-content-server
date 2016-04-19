@@ -18,10 +18,12 @@ define(function (require, exports, module) {
   var CommunicationPreferencesView = require('../views/settings/communication_preferences');
   var CompleteAccountUnlockView = require('../views/complete_account_unlock');
   var CompleteResetPasswordView = require('../views/complete_reset_password');
+  var CompleteSignInView = require('../views/complete_sign_in');
   var CompleteSignUpView = require('../views/complete_sign_up');
   var ConfirmAccountUnlockView = require('../views/confirm_account_unlock');
   var ConfirmResetPasswordView = require('../views/confirm_reset_password');
   var ConfirmView = require('../views/confirm');
+  var ConfirmSignInView = require('../views/confirm_sign_in');
   var CookiesDisabledView = require('../views/cookies_disabled');
   var DeleteAccountView = require('../views/settings/delete_account');
   var DevicesView = require('../views/settings/devices');
@@ -67,10 +69,12 @@ define(function (require, exports, module) {
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
+      'complete_signin(/)': createViewHandler(CompleteSignInView),
       'complete_unlock_account(/)': createViewHandler(CompleteAccountUnlockView),
       'confirm(/)': createViewHandler(ConfirmView),
       'confirm_account_unlock(/)': createViewHandler(ConfirmAccountUnlockView),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
+      'confirm_signin(/)': createViewHandler(ConfirmSignInView),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
       'force_auth_complete(/)': createViewHandler(ReadyView, { type: 'force_auth' }),
@@ -98,6 +102,7 @@ define(function (require, exports, module) {
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: 'sign_in' }),
+      'signin_confirmed(/)': createViewHandler(ReadyView, { type: 'sign_in_confirmed' }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_in' }),
       'signup(/)': createViewHandler(SignUpView),
       'signup_complete(/)': createViewHandler(ReadyView, { type: 'sign_up' }),

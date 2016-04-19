@@ -90,6 +90,7 @@ module.exports = function (config, i18n) {
       '/choose_what_to_sync',
       '/clear',
       '/complete_reset_password',
+      '/complete_signin',
       '/complete_unlock_account',
       '/confirm',
       '/confirm_account_unlock',
@@ -118,12 +119,14 @@ module.exports = function (config, i18n) {
       '/settings/display_name',
       '/signin',
       '/signin_complete',
+      '/signin_confirmed',
       '/signin_permissions',
       '/signup',
       '/signup_complete',
       '/signup_permissions',
       '/unexpected_error',
-      '/verify_email'
+      '/verify_email',
+      '/verify_signin',
     ];
 
     var ALLOWED_TO_FRAME = {

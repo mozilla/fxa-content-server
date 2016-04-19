@@ -55,7 +55,14 @@ define(function (require, exports, module) {
     },
 
     onSignInSuccess: function (account) {
-      if (! account.get('verified')) {
+      var challengeMethod = account.get('challengeMethod');
+      var challengeReason = account.get('challengeReason');
+
+      if (challengeReason === 'signin' && challengeMethod === 'email') {
+        return this.navigate('confirm_signin', {
+          account: account
+        });
+      } else if (! account.get('verified')) {
         return this.navigate('confirm', {
           account: account
         });

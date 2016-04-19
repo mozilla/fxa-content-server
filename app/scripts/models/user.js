@@ -381,9 +381,9 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Complete signup for the account. Notifies other tabs of signin
-     * if the account has a sessionToken and verification successfully
-     * completes.
+     * Complete signup verification for the account. Notifies other tabs
+     * of signin if the account has a sessionToken and verification
+     * successfully completes.
      *
      * @param {object} account - account to verify
      * @param {string} code - verification code
@@ -414,6 +414,32 @@ define(function (require, exports, module) {
         })
         .then(function () {
           notifyIfSignedIn(account);
+
+          return account;
+        });
+    },
+
+    /**
+     * Complete signin verification for the account. Notifies other tabs
+     * of signin if the account has a sessionToken and verification
+     * successfully completes.
+     *
+     * @param {object} account - account to verify
+     * @param {string} code - verification code
+     * @returns {promise} - resolves with the account when complete
+     */
+    completeAccountSignIn: function (account, code) {
+      var self = this;
+
+      return account.verifySignIn(code)
+        .then(function () {
+          // The original tab may no longer be open to notify other
+          // windows the user is signed in. If the account has a
+          // `sessionToken`, the user verified in the same browser.
+          // Notify any tabs that care.
+          if (account.has('sessionToken')) {
+            self._notifyOfAccountSignIn(account);
+          }
 
           return account;
         });

@@ -50,6 +50,8 @@ define(function (require, exports, module) {
 
   var DEFAULTS = _.extend({
     accessToken: undefined,
+    challengeMethod: undefined,
+    challengeReason: undefined,
     customizeSync: undefined,
     declinedSyncEngines: undefined,
     keyFetchToken: undefined,
@@ -332,6 +334,43 @@ define(function (require, exports, module) {
             }
           );
         }
+      });
+    },
+
+    /**
+     * Retry sending a sign in verification code
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise} - resolves when complete
+     */
+    retrySendVerifyToken: function (relier, options) {
+      options = options || {};
+
+      return this._fxaClient.verifyTokenResendCode(
+        relier,
+        this.get('sessionToken'),
+        {
+          resume: options.resume
+        }
+      );
+    },
+
+    /**
+     * Verify the signin using the verification code
+     *
+     * @param {string} code - the verification code
+     * @returns {promise} - resolves when complete
+     */
+    verifySignIn: function (code) {
+      var self = this;
+      return self._fxaClient.verifyCode(
+        self.get('uid'),
+        code
+      )
+      .then(function () {
+        self.set('verified', true);
       });
     },
 
