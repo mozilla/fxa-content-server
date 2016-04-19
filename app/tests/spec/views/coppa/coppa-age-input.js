@@ -68,20 +68,25 @@ define(function (require, exports, module) {
     });
 
     describe('onKeyDown', function () {
-      function testForceNumericInput(element, done) {
-        view.on('preventDefault', function () {
+      it('force digit input', function () {
+        var age = $('#age');
+        age.val('1.1');
+        view.onInput();
+        assert.equal(age.val(), '11');
+      });
+
+      function testEnterKeyTriggersSubmit(element, done) {
+        view.on('submit', function () {
           done();
         });
 
-        // non-numeric input
-        var e1 = jQuery.Event('keydown', { which: 49 });
-        var e2 = jQuery.Event('keydown', { which: 190 });
-        $(element).trigger(e1);
-        $(element).trigger(e2);
+        // submit using the enter key
+        var e = jQuery.Event('keydown', { which: 13 });
+        $(element).trigger(e);
       }
 
-      it('preventDefault if input is non-numeric', function (done) {
-        testForceNumericInput('#age', done);
+      it('submits form if user presses enter on the age', function (done) {
+        testEnterKeyTriggersSubmit('#age', done);
       });
     });
 
@@ -115,22 +120,6 @@ define(function (require, exports, module) {
 
         view.showValidationErrorsEnd();
         assert.isFalse(view.showValidationError.called);
-      });
-    });
-
-    describe('submitOnEnter', function () {
-      function testEnterKeyTriggersSubmit(element, done) {
-        view.on('submit', function () {
-          done();
-        });
-
-        // submit using the enter key
-        var e = jQuery.Event('keydown', { which: 13 });
-        $(element).trigger(e);
-      }
-
-      it('submits form if user presses enter on the age', function (done) {
-        testEnterKeyTriggersSubmit('#age', done);
       });
     });
 
