@@ -1,3 +1,13 @@
+<a name="0.60.1"></a>
+## 0.60.1 (2016-04-19)
+
+
+### Features
+
+* **content:** add initial content token generation  ([137b3b6](https://github.com/mozilla/fxa-content-server/commit/137b3b6))
+
+
+
 <a name="0.60.0"></a>
 # 0.60.0 (2016-04-19)
 
@@ -294,6 +304,17 @@
 ### Features
 
 * **client:** Add a "Sync Preferences" button for fx-desktop-v3 broker. ([7fd2855](https://github.com/mozilla/fxa-content-server/commit/7fd2855)), closes [#3079](https://github.com/mozilla/fxa-content-server/issues/3079)
+
+
+<a name="0.53.1"></a>
+## 0.53.1 (2016-01-05)
+
+
+### Bug Fixes
+
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([09d8533](https://github.com/mozilla/fxa-content-server/commit/09d8533))
+
+
 
 
 <a name="0.53.0"></a>
