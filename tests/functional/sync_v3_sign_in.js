@@ -3,15 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/functional/templates/sync_force_auth'
-], function (syncForceAuthTemplate) {
+  'tests/functional/templates/sync_sign_in'
+], function (syncSignInTemplate) {
 
-  syncForceAuthTemplate({
+  syncSignInTemplate({
     canLinkAccountMessage: 'fxaccounts:can_link_account',
-    context: 'fx_fennec_v1',
+    context: 'fx_desktop_v3',
     loginMessage: 'fxaccounts:login',
-    name: 'Fx Fennec Sync v1 force_auth',
-    syncPreferencesCommand: 'fxaccounts:sync_preferences',
+    name: 'Firefox Desktop Sync v3 sign_in',
     useWebChannelCommands: true
   });
 });

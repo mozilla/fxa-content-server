@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/templates/sync_force_auth'
+], function (TestHelpers, FunctionalHelpers, syncForceAuthTemplate) {
   var email;
   var PASSWORD = '12345678';
   var POST_SIGNIN_DELAY = 2000;
@@ -27,36 +27,20 @@ define([
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-  registerSuite({
+  syncForceAuthTemplate({
+    canLinkAccountMessage: 'fxaccounts:can_link_account',
+    context: 'fx_desktop_v3',
+    loginMessage: 'fxaccounts:login',
     name: 'Firefox Desktop Sync v3 force_auth',
-
+    useWebChannelCommands: true
+  }, {
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'with a registered email, no uid': function () {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openForceAuth( {
-          query: {
-            context: 'fx_desktop_v3',
-            email: email,
-            service: 'sync'
-          }
-        }))
-        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutForceAuth(PASSWORD))
-        // add a slight delay to ensure the page does not transition
-        .sleep(POST_SIGNIN_DELAY)
-        // the page does not transition.
-        .then(testElementExists('#fxa-force-auth-header'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
-    },
-
-    'with a registered email, registered uid': function () {
+    'registered email, registered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(function (accountInfo) {
@@ -79,7 +63,7 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
 
-    'with a registered email, unregistered uid': function () {
+    'registered email, unregistered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openForceAuth({
@@ -102,7 +86,7 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
 
-    'with an unregistered email, no uid': function () {
+    'unregistered email, no uid': function () {
       return this.remote
         .then(openForceAuth({
           // user should be automatically redirected to the
@@ -135,7 +119,7 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
 
-    'with an unregistered email, registered uid': function () {
+    'unregistered email, registered uid': function () {
       var unregisteredEmail = 'a' + email;
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -160,7 +144,7 @@ define([
         .then(testElementDisabled('input[type=email]'));
     },
 
-    'with an unregistered email, unregistered uid': function () {
+    'unregistered email, unregistered uid': function () {
       return this.remote
         .then(openForceAuth({
           // user should be automatically redirected to the
