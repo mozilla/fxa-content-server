@@ -14,8 +14,10 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
+  'tests/functional/lib/fx-desktop',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
+  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient,
+  FxDesktopHelpers) {
   var config = intern.config;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -30,6 +32,16 @@ define([
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
+
+  function getRemote(context) {
+    if (context.remote) {
+      return context.remote;
+    } else if (context.parent) {
+      return context.parent;
+    } else {
+      return context;
+    }
+  }
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -46,7 +58,7 @@ define([
       options['321done'] = false;
     }
 
-    return context.remote
+    return getRemote(context)
       .then(function () {
         if (options.contentServer) {
           return clearContentServerState(context);
@@ -66,7 +78,7 @@ define([
 
   function clearContentServerState(context) {
     // clear localStorage to avoid polluting other tests.
-    return context.remote
+    return getRemote(context)
       // always go to the content server so the browser state is cleared,
       // switch to the top level frame, if we aren't already. This fixes the
       // iframe flow.
@@ -77,7 +89,7 @@ define([
         // only load up the content server if we aren't
         // already at the content server.
         if (url.indexOf(CONTENT_SERVER) === -1) {
-          return context.remote.get(require.toUrl(CONTENT_SERVER + 'clear'))
+          return getRemote(context).get(require.toUrl(CONTENT_SERVER + 'clear'))
                     .setFindTimeout(config.pageLoadTimeout)
                     .findById('fxa-clear-storage-header');
         }
@@ -111,7 +123,7 @@ define([
      * completes by adding an element to the DOM. Selenium will look for
      * the added element.
      */
-    return context.remote
+    return getRemote(context)
       // switch to the top level frame, if we aren't already. This fixes the
       // iframe flow.
       .switchToFrame(null)
@@ -134,7 +146,7 @@ define([
 
   function clearSessionStorage(context) {
     // clear localStorage to avoid polluting other tests.
-    return context.remote
+    return getRemote(context)
       .execute(function () {
         try {
           sessionStorage.clear();
@@ -203,7 +215,7 @@ define([
 
   function noSuchElement(context, selector) {
     return function () {
-      return context.remote
+      return this.parent
         .setFindTimeout(0)
 
         .findByCssSelector(selector)
@@ -266,7 +278,7 @@ define([
 
   function openExternalSite(context) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .get(require.toUrl(EXTERNAL_SITE_URL))
           .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
         .end();
@@ -279,7 +291,7 @@ define([
 
     return getVerificationLink(user, index)
       .then(function (verificationLink) {
-        return context.remote.execute(openWindow, [ verificationLink, windowName ]);
+        return getRemote(context).execute(openWindow, [ verificationLink, windowName ]);
       });
   }
 
@@ -378,15 +390,32 @@ define([
     if (panel) {
       url += '/' + panel;
     }
-    return context.remote.execute(openWindow, [ url, windowName ]);
+    return getRemote(context).execute(openWindow, [ url, windowName ]);
+  }
+
+  /**
+   * Open the sign in page
+   *
+   * @param {object} [options]
+   * @param {string} [options.header] - element selector that indicates
+   *  "page is loaded". Defaults to `#fxa-signin-header`
+   * @param {object} [options.query] - query strings to open page with
+   */
+  function openSignIn(options) {
+    return function () {
+      options = options || {};
+
+      var urlToOpen = SIGNIN_URL + '?' + Querystring.stringify(options.query || {});
+      return openPage(this.parent, urlToOpen, options.header || '#fxa-signin-header');
+    };
   }
 
   function openSignInInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SIGNIN_URL, windowName ]);
+    return getRemote(context).execute(openWindow, [ SIGNIN_URL, windowName ]);
   }
 
   function openSignUpInNewTab(context, windowName) {
-    return context.remote.execute(openWindow, [ SIGNUP_URL, windowName ]);
+    return getRemote(context).execute(openWindow, [ SIGNUP_URL, windowName ]);
   }
 
   function openUnlockLinkDifferentBrowser(client, email) {
@@ -497,14 +526,14 @@ define([
   }
 
   function fillOutSignIn(context, email, password, alwaysLoad) {
-    return context.remote
+    return getRemote(context)
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signin page if not already at a signin page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
-          return context.remote
+          return getRemote(context)
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -524,14 +553,14 @@ define([
     var age = options.age || 24;
     var submit = options.submit !== false;
 
-    return context.remote
+    return getRemote(context)
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signup page if not already at a signup page.
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
-          return context.remote
+          return getRemote(context)
             .get(require.toUrl(SIGNUP_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -567,7 +596,7 @@ define([
   function fillOutResetPassword(context, email, options) {
     options = options || {};
 
-    return context.remote
+    return getRemote(context)
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the reset_password page if not already at
@@ -575,7 +604,7 @@ define([
         // the leading [\/#] allows for either the standard redirect or iframe
         // flow. The iframe flow must use the window hash for routing.
         if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
-          return context.remote
+          return getRemote(context)
             .get(require.toUrl(RESET_PASSWORD_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
         }
@@ -612,7 +641,7 @@ define([
 
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#fxa-complete-reset-password-header')
@@ -632,7 +661,7 @@ define([
   }
 
   function fillOutChangePassword(context, oldPassword, newPassword) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#old_password')
@@ -651,7 +680,7 @@ define([
   }
 
   function fillOutDeleteAccount(context, password) {
-    return context.remote
+    return getRemote(context)
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#delete-account form input.password')
@@ -663,6 +692,24 @@ define([
       .findByCssSelector('#delete-account button[type="submit"]')
         .click()
       .end();
+  }
+
+  /**
+   * Listen for Sync commands sent to the browser, respond where appropriate.
+   *
+   * @param {string} channelType
+   * @returns {promise}
+   */
+  function listenForSyncCommands (channelType) {
+    return function () {
+      if (channelType === 'web_channel') {
+        return this.parent
+          .then(respondToWebChannelMessage(
+                this, 'fxaccounts:can_link_account', { ok: true } ));
+      } else {
+        return this.parent.execute(FxDesktopHelpers.listenForFxaCommands);
+      }
+    };
   }
 
   function listenForWebChannelMessage() {
@@ -691,7 +738,7 @@ define([
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
     return function () {
-      return context.remote
+      return getRemote(context)
         .execute(function (expectedCommand, response) {
           function startListening() {
             try {
@@ -733,7 +780,7 @@ define([
 
   function testIsBrowserNotified(context, command, cb) {
     return function () {
-      return context.remote
+      return this.parent
         .findByCssSelector(commandToCssSelector(command))
           .getProperty('innerText')
           .then(function (innerText) {
@@ -750,8 +797,29 @@ define([
     return noSuchElement(context, commandToCssSelector(command));
   }
 
+  /**
+   * Check if the browser is notified of the login. Two messages are checked:
+   * `can_link_account` and `login`. The test fails if either message has
+   * not been received.
+   *
+   * @param {string} canLinkAccountMessage - environment specific
+   * `can_link_account` message to listen for.
+   * @param {string} loginMessage - environment specific `login`
+   * message to listen for.
+   *
+   * @returns {promise} resolves to true if both messages
+   * have been triggered, false otw.
+   */
+  function testIsBrowserNotifiedOfLogin(canLinkAccountMessage, loginMessage) {
+    return function () {
+      return this.parent
+        .then(testIsBrowserNotified(this, canLinkAccountMessage))
+        .then(testIsBrowserNotified(this, loginMessage));
+    };
+  }
+
   function openPage(context, url, readySelector) {
-    var remote = context.get ? context : context.remote;
+    var remote = getRemote(context);
     return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
@@ -785,7 +853,7 @@ define([
   }
 
   function fetchAllMetrics(context) {
-    return context.remote
+    return getRemote(context)
       .execute(function () {
         var key = '__fxa_storage.metrics_all';
         var item;
@@ -811,7 +879,7 @@ define([
           return evts.concat(evtsNames);
         }, []);
 
-        return context.remote
+        return getRemote(context)
           .execute(function (eventsNames, events) {
             var toFindAll = eventsNames.slice().reverse();
             var toFind = toFindAll.pop();
@@ -914,7 +982,7 @@ define([
 
   function testElementWasShown(context, selector) {
     return function () {
-      return context.remote
+      return this.parent
         .findByCssSelector(selector)
         .end()
 
@@ -959,6 +1027,43 @@ define([
             assert.equal(Url.parse(url).pathname, expected);
           })
         .end();
+    };
+  }
+
+  /**
+   * Check whether the screen transitioned after waiting a short delay.
+   *
+   * @param {string} selector - selector to search for that indicates success
+   * @param {number} [delayMS] - delay in ms, defaults to 2000
+   * @returns {promise} fails if element is not found, true otherwise.
+   */
+  function testNoScreenTransition(selector, delayMS) {
+    return function () {
+      return this.parent
+        // add a slight delay to ensure the page does not transition
+        .sleep(delayMS || 2000)
+
+        // the page does not transition.
+        .then(testElementExists(selector));
+    };
+  }
+
+  /**
+   * Test a sync preferences button click, check to ensure expected
+   * `syncPreferencesCommand` is sent to the browser.
+   *
+   * @param {string} syncPreferencesCommand - command to check
+   * @returns {promse} fails if `syncPreferencesCommand` is not triggered.
+   */
+  function testSyncPreferencesButtonClick(syncPreferencesCommand) {
+    return function () {
+      return this.parent
+        .then(noSuchBrowserNotification(this, syncPreferencesCommand))
+        // user wants to open sync preferences.
+        .then(click('#sync-preferences'))
+
+        // browser is notified of desire to open Sync preferences
+        .then(testIsBrowserNotified(this, syncPreferencesCommand));
     };
   }
 
@@ -1143,6 +1248,7 @@ define([
     getVerificationHeaders: getVerificationHeaders,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
+    listenForSyncCommands: listenForSyncCommands,
     listenForWebChannelMessage: listenForWebChannelMessage,
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
@@ -1153,6 +1259,7 @@ define([
     openPage: openPage,
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
     openSettingsInNewTab: openSettingsInNewTab,
+    openSignIn: openSignIn,
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
@@ -1170,8 +1277,11 @@ define([
     testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
+    testIsBrowserNotifiedOfLogin: testIsBrowserNotifiedOfLogin,
     testIsEventLogged: testIsEventLogged,
+    testNoScreenTransition: testNoScreenTransition,
     testSuccessWasShown: testSuccessWasShown,
+    testSyncPreferencesButtonClick: testSyncPreferencesButtonClick,
     testUrlEquals: testUrlEquals,
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,

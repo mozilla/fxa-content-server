@@ -8,9 +8,9 @@ define([
 
   syncForceAuthTemplate({
     canLinkAccountMessage: 'can_link_account',
-    context: 'fx_desktop_v1',
+    context: 'fx_ios_v2',
     loginMessage: 'login',
-    name: 'Firefox Desktop Sync v1 force_auth',
+    name: 'FxiOS v2 force_auth',
     useFxAccountsCommands: true
   });
 });
