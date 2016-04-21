@@ -14,8 +14,10 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
+  'tests/functional/lib/fx-desktop',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
+  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient,
+  FxDesktopHelpers) {
   var config = intern.config;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -692,6 +694,24 @@ define([
       .end();
   }
 
+  /**
+   * Listen for Sync commands sent to the browser, respond where appropriate.
+   *
+   * @param {string} channelType
+   * @returns {promise}
+   */
+  function listenForSyncCommands (channelType) {
+    return function () {
+      if (channelType === 'web_channel') {
+        return this.parent
+          .then(respondToWebChannelMessage(
+                this, 'fxaccounts:can_link_account', { ok: true } ));
+      } else {
+        return this.parent.execute(FxDesktopHelpers.listenForFxaCommands);
+      }
+    };
+  }
+
   function listenForWebChannelMessage() {
     // We start listening for web channel messages as soon as
     // openPage is called, before the page is ready. Wait for
@@ -775,6 +795,27 @@ define([
 
   function noSuchBrowserNotification(context, command) {
     return noSuchElement(context, commandToCssSelector(command));
+  }
+
+  /**
+   * Check if the browser is notified of the login. Two messages are checked:
+   * `can_link_account` and `login`. The test fails if either message has
+   * not been received.
+   *
+   * @param {string} canLinkAccountMessage - environment specific
+   * `can_link_account` message to listen for.
+   * @param {string} loginMessage - environment specific `login`
+   * message to listen for.
+   *
+   * @returns {promise} resolves to true if both messages
+   * have been triggered, false otw.
+   */
+  function testIsBrowserNotifiedOfLogin(canLinkAccountMessage, loginMessage) {
+    return function () {
+      return this.parent
+        .then(testIsBrowserNotified(this, canLinkAccountMessage))
+        .then(testIsBrowserNotified(this, loginMessage));
+    };
   }
 
   function openPage(context, url, readySelector) {
@@ -990,6 +1031,43 @@ define([
   }
 
   /**
+   * Check whether the screen transitioned after waiting a short delay.
+   *
+   * @param {string} selector - selector to search for that indicates success
+   * @param {number} [delayMS] - delay in ms, defaults to 2000
+   * @returns {promise} fails if element is not found, true otherwise.
+   */
+  function testNoScreenTransition(selector, delayMS) {
+    return function () {
+      return this.parent
+        // add a slight delay to ensure the page does not transition
+        .sleep(delayMS || 2000)
+
+        // the page does not transition.
+        .then(testElementExists(selector));
+    };
+  }
+
+  /**
+   * Test a sync preferences button click, check to ensure expected
+   * `syncPreferencesCommand` is sent to the browser.
+   *
+   * @param {string} syncPreferencesCommand - command to check
+   * @returns {promse} fails if `syncPreferencesCommand` is not triggered.
+   */
+  function testSyncPreferencesButtonClick(syncPreferencesCommand) {
+    return function () {
+      return this.parent
+        .then(noSuchBrowserNotification(this, syncPreferencesCommand))
+        // user wants to open sync preferences.
+        .then(click('#sync-preferences'))
+
+        // browser is notified of desire to open Sync preferences
+        .then(testIsBrowserNotified(this, syncPreferencesCommand));
+    };
+  }
+
+  /**
    * Create a user on the backend
    *
    * @param {string} email
@@ -1170,6 +1248,7 @@ define([
     getVerificationHeaders: getVerificationHeaders,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
+    listenForSyncCommands: listenForSyncCommands,
     listenForWebChannelMessage: listenForWebChannelMessage,
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
@@ -1198,8 +1277,11 @@ define([
     testElementValueEquals: testElementValueEquals,
     testErrorWasShown: testErrorWasShown,
     testIsBrowserNotified: testIsBrowserNotified,
+    testIsBrowserNotifiedOfLogin: testIsBrowserNotifiedOfLogin,
     testIsEventLogged: testIsEventLogged,
+    testNoScreenTransition: testNoScreenTransition,
     testSuccessWasShown: testSuccessWasShown,
+    testSyncPreferencesButtonClick: testSyncPreferencesButtonClick,
     testUrlEquals: testUrlEquals,
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
