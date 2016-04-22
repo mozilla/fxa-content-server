@@ -53,4 +53,24 @@ define(function (require, exports, module) {
       self.closePanel();
     }
   };
+  if (window.history && window.history.pushState) {
+    $(window).on('popstate', function() {
+      var hashLocation = location.hash;
+      var hashSplit = hashLocation.split('#!/');
+      var hashName = hashSplit[1];
+
+      if (hashName !== '') {
+        var hash = window.location.hash;
+        if (hash === '') {
+          var openElements = $('.settings-child-view').find('.open');
+          if(openElements !== '' || openElements !== undefined){
+            for(var i = 0 ; i < openElements.length; i++){
+              $(openElements[i]).removeClass('open');
+            }
+          }
+        }
+      }
+    });
+  }
+
 });
