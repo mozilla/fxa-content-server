@@ -802,9 +802,16 @@ define(function (require, exports, module) {
             return profileClient[method].apply(profileClient, [accessToken].concat(args));
           })
           .fail(function (err) {
-            // If no oauth token existed, or it has gone stale,
-            // get a new one and retry.
-            if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+            if (ProfileClient.Errors.is(err, 'INVALID_TOKEN')) {
+              // invalid token can happen if user uses 'Disconnect' in Firefox Desktop.
+              // Only 'set' will trigger model change, using 'unset' will not.
+              // Details: github.com/jashkenas/backbone/issues/949
+              self.set('accessToken', null);
+              self.set('sessionToken', null);
+              self.set('sessionTokenContext', null);
+            } else if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+              // If no oauth token existed, or it has gone stale,
+              // get a new one and retry.
               return self._fetchProfileOAuthToken()
                 .then(function () {
                   var accessToken = self.get('accessToken');
