@@ -260,18 +260,7 @@ define([
         .click()
         .end()
 
-        .findByCssSelector('.use-logged-in')
-        .click()
-        .end()
-
-        // Session expired error should show.
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-
-        .findByCssSelector('.error').isDisplayed()
-        .then(function (isDisplayed) {
-          assert.isTrue(isDisplayed);
-        })
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('form input.password'))
 
         .findByCssSelector('form input.password')
         .click()
