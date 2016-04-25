@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var $ = require('jquery');
+  var AuthErrors = require('lib/auth-errors');
 
   module.exports = {
     afterRender: function () {
@@ -16,7 +17,7 @@ define(function (require, exports, module) {
 
       if (! flowBeginTime) {
         flowBeginTime = undefined;
-        this.sentryMetrics.captureException(new Error('Invalid data-flow-begin attribute'));
+        this.sentryMetrics.captureException(AuthErrors.toError('INVALID_DATA_FLOW_BEGIN_ATTR'));
       }
 
       this.metrics.logFlowBegin(flowId, flowBeginTime);
