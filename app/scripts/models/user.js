@@ -78,6 +78,8 @@ define(function (require, exports, module) {
         .then(function () {
           self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
           if (! self.has('flowId')) {
+            // Only create a new flowId if one hasn't
+            // been passed to us in the resume token.
             self.set('flowId', createHex32());
           }
         });
