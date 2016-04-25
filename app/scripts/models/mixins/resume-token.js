@@ -64,37 +64,34 @@ define(function (require, exports, module) {
       if (this.resumeTokenFields) {
         var pickedResumeToken = resumeToken.pick(this.resumeTokenFields);
 
-        if (isResumeTokenValid.call(this, pickedResumeToken)) {
-          this.set(pickedResumeToken);
+        var error = validateResumeToken.call(this, pickedResumeToken);
+        if (error) {
+          return reportValidationError.call(this, error);
         }
+
+        this.set(pickedResumeToken);
       }
     }
   };
 
-  function isResumeTokenValid (resumeToken) {
+  function validateResumeToken (resumeToken) {
     if (this.resumeTokenSchema) {
-      var error = vat.validate(resumeToken, this.resumeTokenSchema).error;
+      return vat.validate(resumeToken, this.resumeTokenSchema).error;
+    }
+  }
 
-      if (error) {
-        if (this.sentryMetrics) {
-          if (error instanceof ReferenceError) {
-            error = authErrors.toMissingResumeTokenPropertyError(error.key);
-          } else {
-            error = authErrors.toInvalidResumeTokenPropertyError(error.key);
-          }
-
-          // HACK: Interpolate the invalid property name into the error
-          //       message. One day this will be handled automagically.
-          error.message = authErrors.toInterpolatedMessage(error);
-
-          this.sentryMetrics.captureException(error);
-        }
-
-        return false;
-      }
+  function reportValidationError (error) {
+    if (error instanceof ReferenceError) {
+      error = authErrors.toMissingResumeTokenPropertyError(error.key);
+    } else {
+      error = authErrors.toInvalidResumeTokenPropertyError(error.key);
     }
 
-    return true;
+    // HACK: Interpolate the invalid property name into the error
+    //       message. One day this will be handled automagically.
+    error.message = authErrors.toInterpolatedMessage(error);
+
+    this.sentryMetrics.captureException(error);
   }
 });
 
