@@ -107,22 +107,6 @@ define(function (require, exports, module) {
         assert.instanceOf(args[0], Error);
         assert.strictEqual(args[0].message, 'Missing property in resume token: campaign');
       });
-
-      it('does not call sentryMetrics.captureException', function () {
-        assert.strictEqual(sentryMetrics.captureException.callCount, 0);
-      });
-    });
-
-    describe('populateFromStringifiedResumeToken with valid data', function () {
-      beforeEach(function () {
-        var stringifiedResumeToken = ResumeToken.stringify(VALID_RESUME_DATA);
-        model.populateFromStringifiedResumeToken(stringifiedResumeToken);
-      });
-
-      it('parses the resume param into an object', function () {
-        assert.equal(model.get('campaign'), CAMPAIGN);
-        assert.isFalse(model.has('notResumeable'), 'only allow specific resume token values');
-      });
     });
   });
 });
