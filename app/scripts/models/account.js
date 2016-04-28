@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   var p = require('lib/promise');
   var ProfileClient = require('lib/profile-client');
   var ProfileImage = require('models/profile-image');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -325,7 +326,7 @@ define(function (require, exports, module) {
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
 
-        if (options.reason === self._fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK) {
+        if (options.reason === SIGN_IN_REASONS.ACCOUNT_UNLOCK) {
           return updatedSessionData;
         }
 
@@ -339,10 +340,6 @@ define(function (require, exports, module) {
           );
         }
       });
-    },
-
-    signInReason: function (key) {
-      return this._fxaClient.SIGNIN_REASON[key];
     },
 
     /**
@@ -618,7 +615,7 @@ define(function (require, exports, module) {
             newPassword,
             relier,
             {
-              reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+              reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
               sessionTokenContext: self.get('sessionTokenContext')
             }
           );
@@ -675,7 +672,7 @@ define(function (require, exports, module) {
             password,
             relier,
             {
-              reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+              reason: SIGN_IN_REASONS.PASSWORD_RESET
             }
           );
         })

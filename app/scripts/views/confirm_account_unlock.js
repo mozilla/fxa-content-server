@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var ResendMixin = require('views/mixins/resend-mixin');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
   var Template = require('stache!templates/confirm_account_unlock');
 
   var t = BaseView.t;
@@ -116,7 +117,7 @@ define(function (require, exports, module) {
       // their address, the sign in call will fail with the ACCOUNT_LOCKED
       // error, and we poll again.
       return account.signIn(password, self.relier, {
-        reason: account.signInReason('ACCOUNT_UNLOCK')
+        reason: SIGN_IN_REASONS.ACCOUNT_UNLOCK
       })
         .fail(function (err) {
           if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {

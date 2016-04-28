@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   var ProfileErrors = require('lib/profile-errors');
   var Relier = require('models/reliers/relier');
   var sinon = require('sinon');
+  var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
   var assert = chai.assert;
 
@@ -236,7 +237,7 @@ define(function (require, exports, module) {
             });
 
             return account.signIn(PASSWORD, relier, {
-              reason: fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK,
+              reason: SIGN_IN_REASONS.ACCOUNT_UNLOCK,
               resume: 'resume token'
             });
           });
@@ -398,17 +399,6 @@ define(function (require, exports, module) {
             assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           });
         });
-      });
-    });
-
-    describe('signInReason', function () {
-      it('returns expected strings', function () {
-        assert.equal(account.signInReason('ACCOUNT_UNLOCK'), fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK);
-        assert.equal(account.signInReason('PASSWORD_CHANGE'), fxaClient.SIGNIN_REASON.PASSWORD_CHANGE);
-        assert.equal(account.signInReason('PASSWORD_CHECK'), fxaClient.SIGNIN_REASON.PASSWORD_CHECK);
-        assert.equal(account.signInReason('PASSWORD_RESET'), fxaClient.SIGNIN_REASON.PASSWORD_RESET);
-        assert.equal(account.signInReason('SIGN_IN'), fxaClient.SIGNIN_REASON.SIGN_IN);
-        assert.isUndefined(account.signInReason('foo'));
       });
     });
 
@@ -1245,7 +1235,7 @@ define(function (require, exports, module) {
               newPassword,
               relier,
               {
-                reason: fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
                 sessionTokenContext: 'foo'
               }
             ));
@@ -1277,7 +1267,7 @@ define(function (require, exports, module) {
               PASSWORD,
               relier,
               {
-                reason: fxaClient.SIGNIN_REASON.PASSWORD_RESET
+                reason: SIGN_IN_REASONS.PASSWORD_RESET
               }
             ));
             // ensure data returned from fxaClient.signIn updates the account
