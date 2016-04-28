@@ -64,7 +64,9 @@ define(function (require, exports, module) {
         session: Session,
         window: windowMock
       });
-      user = new User();
+      user = new User({
+        fxaClient: fxaClient
+      });
 
       account = user.initAccount({
         email: EMAIL

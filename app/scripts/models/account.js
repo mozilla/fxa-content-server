@@ -311,7 +311,9 @@ define(function (require, exports, module) {
         var sessionToken = self.get('sessionToken');
 
         if (password) {
-          return self._fxaClient.signIn(email, password, relier);
+          return self._fxaClient.signIn(email, password, relier, {
+            reason: options.reason
+          });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
@@ -323,6 +325,10 @@ define(function (require, exports, module) {
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
 
+        if (options.reason === self._fxaClient.SIGNIN_REASON.ACCOUNT_UNLOCK) {
+          return updatedSessionData;
+        }
+
         if (! self.get('verified')) {
           return self._fxaClient.signUpResend(
             relier,
@@ -333,6 +339,10 @@ define(function (require, exports, module) {
           );
         }
       });
+    },
+
+    signInReason: function (key) {
+      return this._fxaClient.SIGNIN_REASON[key];
     },
 
     /**
