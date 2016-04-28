@@ -325,20 +325,7 @@ define(function (require, exports, module) {
       })
       .then(function (updatedSessionData) {
         self.set(updatedSessionData);
-
-        if (options.reason === SIGN_IN_REASONS.ACCOUNT_UNLOCK) {
-          return updatedSessionData;
-        }
-
-        if (! self.get('verified')) {
-          return self._fxaClient.signUpResend(
-            relier,
-            self.get('sessionToken'),
-            {
-              resume: options.resume
-            }
-          );
-        }
+        return updatedSessionData;
       });
     },
 

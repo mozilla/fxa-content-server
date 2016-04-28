@@ -210,14 +210,8 @@ define(function (require, exports, module) {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
           });
 
-          it('delegates to the fxaClient to resend a signUp email', function () {
-            assert.isTrue(fxaClient.signUpResend.calledWith(
-              relier,
-              SESSION_TOKEN,
-              {
-                resume: 'resume token'
-              }
-            ));
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
           });
 
           it('updates the account with the returned data', function () {
@@ -323,9 +317,8 @@ define(function (require, exports, module) {
               fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
           });
 
-          it('delegates to the fxaClient to resend a signUp email', function () {
-            assert.isTrue(
-              fxaClient.signUpResend.calledWith(relier, SESSION_TOKEN));
+          it('does not resend a signUp email', function () {
+            assert.isFalse(fxaClient.signUpResend.called);
           });
 
           it('updates the account with the returned data', function () {
