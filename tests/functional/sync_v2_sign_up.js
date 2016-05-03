@@ -66,20 +66,9 @@ define([
         .findByCssSelector('#fxa-choose-what-to-sync-header')
         .end()
 
-        // test that autofocus attribute has been applied sanely
-        .findByTagName('input')
+        // test that autofocus attribute has been applied to submit button
+        .findById('submit-btn')
           .getAttribute('autofocus')
-          .then(function (value) {
-            assert.strictEqual(value, '');
-          })
-        .end()
-        .findAllByXpath('(//input)[position()>1]')
-          .getAttribute('autofocus')
-          .then(function (values) {
-            values.forEach(function (value) {
-              assert.isNull(value);
-            });
-          })
         .end()
 
         // uncheck the passwords and addons engines.
