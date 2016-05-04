@@ -353,6 +353,7 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              contentToken: undefined,
               keys: true,
               reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'sync'
@@ -376,6 +377,7 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              contentToken: undefined,
               keys: false,
               reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'chronicle'
@@ -403,6 +405,7 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              contentToken: undefined,
               keys: true,
               reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'chronicle'
@@ -431,6 +434,7 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (result) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              contentToken: undefined,
               keys: true,
               reason: SIGN_IN_REASONS.SIGN_IN,
               service: 'sync'
@@ -452,6 +456,7 @@ define(function (require, exports, module) {
         return client.signIn(email, password, relier, { reason: SIGN_IN_REASONS.PASSWORD_CHANGE })
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              contentToken: undefined,
               keys: true,
               reason: SIGN_IN_REASONS.PASSWORD_CHANGE,
               service: 'sync'
@@ -607,6 +612,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
+                contentToken: undefined,
                 reason: SIGN_IN_REASONS.PASSWORD_CHECK
               }
             ));
@@ -633,6 +639,7 @@ define(function (require, exports, module) {
               email,
               password,
               {
+                contentToken: undefined,
                 reason: SIGN_IN_REASONS.PASSWORD_CHECK
               }
             ));
