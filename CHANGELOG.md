@@ -1,3 +1,37 @@
+<a name="0.61.1"></a>
+## 0.61.1 (2016-05-04)
+
+
+
+
+<a name="0.60.1"></a>
+## 0.60.1 (2016-04-19)
+
+
+### Bug Fixes
+
+* **client:** Clear `resetPasswordConfirm` flag after successful reset. ([1ffca78](https://github.com/mozilla/fxa-content-server/commit/1ffca78))
+
+### Features
+
+* **client:** Smooth out fo the ACCOUNT_RESET flow. ([c27cbd5](https://github.com/mozilla/fxa-content-server/commit/c27cbd5))
+* **client:** Smooth out the "reset_password_confirm=false" flow. ([03a7821](https://github.com/mozilla/fxa-content-server/commit/03a7821))
+* **content:** add initial content token generation  ([137b3b6](https://github.com/mozilla/fxa-content-server/commit/137b3b6))
+* **reset:** add reset_password_confirm parameter to allow auto submit ([219b3d0](https://github.com/mozilla/fxa-content-server/commit/219b3d0))
+* **signin:** handle new account must reset error (126) ([026db71](https://github.com/mozilla/fxa-content-server/commit/026db71))
+
+
+
+<a name="0.53.1"></a>
+## 0.53.1 (2016-01-05)
+
+
+### Bug Fixes
+
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([09d8533](https://github.com/mozilla/fxa-content-server/commit/09d8533))
+
+
+
 <a name="0.61.0"></a>
 # 0.61.0 (2016-05-03)
 
