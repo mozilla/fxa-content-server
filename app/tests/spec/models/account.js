@@ -848,7 +848,6 @@ define(function (require, exports, module) {
           var sessionTokenContextChangeSpy;
 
           beforeEach(function () {
-            var tokens = 0;
             sinon.stub(account, 'fetch', function () {
               return p();
             });
@@ -889,6 +888,10 @@ define(function (require, exports, module) {
             assert.isTrue(accessTokenChangeSpy.called);
             assert.isTrue(sessionTokenChangeSpy.called);
             assert.isTrue(sessionTokenContextChangeSpy.called);
+          });
+
+          it('rejects with the correct error', function () {
+            assert.isTrue(ProfileErrors.is(err, 'INVALID_TOKEN'));
           });
         });
       });
