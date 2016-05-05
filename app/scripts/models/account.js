@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   var MarketingEmailPrefs = require('models/marketing-email-prefs');
   var OAuthToken = require('models/oauth-token');
   var p = require('lib/promise');
-  var ProfileClient = require('lib/profile-client');
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
   var SIGN_IN_REASONS = require('lib/sign-in-reasons');

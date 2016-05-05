@@ -150,11 +150,11 @@ define(function (require, exports, module) {
           initView();
 
           var account = user.initAccount({
-              accessToken: 'access token',
-              email: 'a@a.com',
-              sessionToken: 'session token',
-              sessionTokenContext: Constants.SYNC_SERVICE
-            });
+            accessToken: 'access token',
+            email: 'a@a.com',
+            sessionToken: 'session token',
+            sessionTokenContext: Constants.SYNC_SERVICE
+          });
 
           sinon.stub(view, '_suggestedAccount', function () {
             return account;

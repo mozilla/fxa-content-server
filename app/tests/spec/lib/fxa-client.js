@@ -360,7 +360,7 @@ define(function (require, exports, module) {
 
           describe('account exists', function () {
             beforeEach(function () {
-              sinon.stub(clientMock, 'accountStatus', function() {
+              sinon.stub(clientMock, 'accountStatus', function () {
                 return p({ exists: true });
               });
 
@@ -381,7 +381,7 @@ define(function (require, exports, module) {
 
           describe('account does not exist', function () {
             beforeEach(function () {
-              sinon.stub(clientMock, 'accountStatus', function() {
+              sinon.stub(clientMock, 'accountStatus', function () {
                 return p({ exists: false });
               });
 
