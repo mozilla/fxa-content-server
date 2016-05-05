@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   var OAuthToken = require('models/oauth-token');
   var p = require('lib/promise');
   var ProfileClient = require('lib/profile-client');
+  var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
   var SIGN_IN_REASONS = require('lib/sign-in-reasons');
 
@@ -112,12 +113,30 @@ define(function (require, exports, module) {
         promise = self.isVerified()
           .then(function (verified) {
             self.set('verified', verified);
-          }, function () {
-            // Ignore errors; we'll just fetch again when needed
+          }, function (err) {
+            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+              self._invalidateSession();
+            }
+            // Ignore other errors; we'll just fetch again when needed
           }); /* HACK: See eslint/eslint#1801 */ // eslint-disable-line indent
       }
 
       return promise;
+    },
+
+    _invalidateSession: function () {
+      // Invalid token can happen if user uses 'Disconnect'
+      // in Firefox Desktop. Only 'set' will trigger model
+      // change, using 'unset' will not.
+      //
+      // Details:
+      // github.com/jashkenas/backbone/issues/949 and
+      // github.com/jashkenas/backbone/issues/946
+      this.set({
+        accessToken: null,
+        sessionToken: null,
+        sessionTokenContext: null
+      });
     },
 
     _fetchProfileOAuthToken: function () {
@@ -802,14 +821,9 @@ define(function (require, exports, module) {
             return profileClient[method].apply(profileClient, [accessToken].concat(args));
           })
           .fail(function (err) {
-            if (ProfileClient.Errors.is(err, 'INVALID_TOKEN')) {
-              // invalid token can happen if user uses 'Disconnect' in Firefox Desktop.
-              // Only 'set' will trigger model change, using 'unset' will not.
-              // Details: github.com/jashkenas/backbone/issues/949
-              self.set('accessToken', null);
-              self.set('sessionToken', null);
-              self.set('sessionTokenContext', null);
-            } else if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+            if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
+              self._invalidateSession();
+            } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
               // If no oauth token existed, or it has gone stale,
               // get a new one and retry.
               return self._fetchProfileOAuthToken()
@@ -818,7 +832,7 @@ define(function (require, exports, module) {
                   return profileClient[method].apply(profileClient, [accessToken].concat(args));
                 })
                 .fail(function (err) {
-                  if (ProfileClient.Errors.is(err, 'UNAUTHORIZED')) {
+                  if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
                     self.unset('accessToken');
                   }
                   throw err;
