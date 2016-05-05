@@ -20,6 +20,7 @@ define([
 
   var listenForFxaCommands = FunctionalHelpers.listenForWebChannelMessage;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  var testAttributeExists = FunctionalHelpers.testAttributeExists;
 
   registerSuite({
     name: 'Firefox Desktop Sync v2 sign_up',
@@ -36,7 +37,7 @@ define([
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the
-          // bounced_email tests try to sign up using the Sync broker,
+          // bounced_email tests try to signup using the Sync broker,
           // resulting in a channel timeout.
           return self.remote
             .get(require.toUrl(SIGNIN_URL))
@@ -46,7 +47,7 @@ define([
         });
     },
 
-    'sign up, verify same browser': function () {
+    'signup, verify same browser': function () {
       var self = this;
 
       return FunctionalHelpers.openPage(this, PAGE_URL, '#fxa-signup-header')
@@ -67,9 +68,7 @@ define([
         .end()
 
         // test that autofocus attribute has been applied to submit button
-        .findById('submit-btn')
-          .getAttribute('autofocus')
-        .end()
+        .then(testAttributeExists('#submit-btn', 'autofocus'))
 
         // uncheck the passwords and addons engines.
         // cannot use input selectors here because labels overlay them.
