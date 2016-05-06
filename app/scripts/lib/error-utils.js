@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   var Logger = require('lib/logger');
   var OAuthErrors = require('lib/oauth-errors');
   var p = require('lib/promise');
-  var Url = require('lib/url');
 
   var ERROR_REDIRECT_TIMEOUT_MS = Constants.ERROR_REDIRECT_TIMEOUT_MS;
 
@@ -25,28 +24,33 @@ define(function (require, exports, module) {
      * Get the URL of the error page to which an error should redirect.
      *
      * @param {Error} error - error for which to get error page URL
-     * @param {Object} translator - translator to translate error
      * @returns {String}
      */
-    getErrorPageUrl: function (error, translator) {
+    getErrorPageUrl: function (error) {
       if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
           AuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'INVALID_PARAMETER') ||
           OAuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'UNKNOWN_CLIENT')) {
-        var queryString = Url.objToSearchString({
-          client_id: error.client_id, //eslint-disable-line camelcase
-          context: error.context,
-          errno: error.errno,
-          message: error.errorModule.toInterpolatedMessage(error, translator),
-          namespace: error.namespace,
-          param: error.param
-        });
-
-        return Constants.BAD_REQUEST_PAGE + queryString;
+        return Constants.BAD_REQUEST_PAGE;
       }
 
       return Constants.INTERNAL_ERROR_PAGE;
+    },
+
+    /**
+     * Get an interpolated and translated error message.
+     *
+     * @param {Error} error - error to convert
+     * @param {Object} translator - translator to translate error
+     * @returns {String}
+     */
+    getDisplayedErrorMessage: function (error, translator) {
+      if (error.errorModule) {
+        return error.errorModule.toInterpolatedMessage(error, translator);
+      } else {
+        return error.message;
+      }
     },
 
     /**
@@ -108,7 +112,14 @@ define(function (require, exports, module) {
         // otherwise Safari Mobile redirects too quickly.
         .delay(self.ERROR_REDIRECT_TIMEOUT_MS)
         .then(function () {
-          var errorPageUrl = self.getErrorPageUrl(error, translator);
+          var errorMessage = self.getDisplayedErrorMessage(error, translator);
+          var errorPageUrl = self.getErrorPageUrl(error);
+
+          // Pass the error message in a session cookie to prevent messages
+          // from being tampered with. The cookie is immediately cleared
+          // by the server.
+          win.document.cookie = 'message=' + errorMessage + '; path=' + errorPageUrl + ';';
+
           win.location.href = errorPageUrl;
         });
     },

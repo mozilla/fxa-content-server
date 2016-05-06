@@ -65,6 +65,22 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('getDisplayedErrorMessage', function () {
+      describe('with an internal error', function () {
+        it('returns the interpolated message', function () {
+          var err = AuthErrors.toInvalidParameterError('email');
+          assert.equal(ErrorUtils.getDisplayedErrorMessage(err), 'Invalid parameter: email');
+        });
+      });
+
+      describe('with a normal exception', function () {
+        it('returns the exceptions `message`', function () {
+          var err = new Error('boom');
+          assert.equal(ErrorUtils.getDisplayedErrorMessage(err), 'boom');
+        });
+      });
+    });
+
     describe('captureError', function () {
       var origMessage;
 
@@ -160,6 +176,11 @@ define(function (require, exports, module) {
 
       it('flushes metrics', function () {
         assert.isTrue(metrics.flush.called);
+      });
+
+      it('sets `cookie.message` for display on the error page', function () {
+        assert.equal(
+          windowMock.document.cookie, 'message=Unexpected error; path=/500.html;');
       });
 
       it('redirects the user to the error page', function () {
