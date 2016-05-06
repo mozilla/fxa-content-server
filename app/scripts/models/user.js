@@ -37,7 +37,7 @@ define(function (require, exports, module) {
       this._profileClient = options.profileClient;
       this._fxaClient = options.fxaClient;
       this._marketingEmailClient = options.marketingEmailClient;
-      this._metricsContext = options.metricsContext;
+      this._metrics = options.metrics;
       this._assertion = options.assertion;
       this._notifier = options.notifier;
       this._storage = options.storage || Storage.factory();
@@ -83,7 +83,7 @@ define(function (require, exports, module) {
             // been passed to us in the resume token.
             self.set('flowId', createHex32());
           }
-          self._metricsContext.set('flowId', self.get('flowId'));
+          self._metrics.setActivityEventMetadata('flowId', self.get('flowId'));
         });
     },
 
@@ -138,7 +138,7 @@ define(function (require, exports, module) {
         assertion: this._assertion,
         fxaClient: this._fxaClient,
         marketingEmailClient: this._marketingEmailClient,
-        metricsContext: this._metricsContext,
+        metrics: this._metrics,
         oAuthClient: this._oAuthClient,
         oAuthClientId: this._oAuthClientId,
         profileClient: this._profileClient

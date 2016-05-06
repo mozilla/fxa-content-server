@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   var Duration = require('duration');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
-  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var p = require('lib/promise');
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
     var broker;
     var fxaClient;
     var metrics;
-    var metricsContext;
     var model;
     var notifier;
     var relier;
@@ -45,7 +43,6 @@ define(function (require, exports, module) {
         broker: broker,
         fxaClient: fxaClient,
         metrics: metrics,
-        metricsContext: metricsContext,
         model: model,
         notifier: notifier,
         relier: relier,
@@ -59,7 +56,6 @@ define(function (require, exports, module) {
     beforeEach(function () {
       fxaClient = new FxaClient();
       metrics = new Metrics();
-      metricsContext = new MetricsContext();
       notifier = new Notifier();
       relier = new Relier();
       windowMock = new WindowMock();
@@ -71,7 +67,7 @@ define(function (require, exports, module) {
       });
       user = new User({
         fxaClient: fxaClient,
-        metricsContext: metricsContext
+        metrics: metrics
       });
 
       account = user.initAccount({
@@ -260,14 +256,14 @@ define(function (require, exports, module) {
           return 'mock ' + attribute;
         });
         $('body').attr('data-flow-begin', '3.14159265');
-        sinon.spy(metricsContext, 'set');
+        sinon.spy(metrics, 'setActivityEventMetadata');
         sinon.spy(metrics, 'logFlowBegin');
         return view.afterRender();
       });
 
-      it('called metricsContext.set correctly', function () {
-        assert.equal(metricsContext.set.callCount, 1);
-        var args = metricsContext.set.args[0];
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.equal(metrics.setActivityEventMetadata.callCount, 1);
+        var args = metrics.setActivityEventMetadata.args[0];
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'flowBeginTime');
         assert.equal(args[1], 3);

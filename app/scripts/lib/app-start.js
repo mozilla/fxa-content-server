@@ -45,7 +45,6 @@ define(function (require, exports, module) {
   var InterTabChannel = require('lib/channels/inter-tab');
   var MarketingEmailClient = require('lib/marketing-email-client');
   var Metrics = require('lib/metrics');
-  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var NullChannel = require('lib/channels/null');
   var OAuthClient = require('lib/oauth-client');
@@ -214,10 +213,6 @@ define(function (require, exports, module) {
         utmTerm: relier.get('utmTerm')
       });
       this._metrics.init();
-
-      this._metricsContext = new MetricsContext({
-        relier: this._relier
-      });
     },
 
     _getAllowedParentOrigins: function () {
@@ -450,7 +445,7 @@ define(function (require, exports, module) {
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
-          metricsContext: this._metricsContext,
+          metrics: this._metrics,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
@@ -525,7 +520,6 @@ define(function (require, exports, module) {
         interTabChannel: self._interTabChannel,
         language: self._config.language,
         metrics: self._metrics,
-        metricsContext: self._metricsContext,
         notifier: self._notifier,
         relier: self._relier,
         sentryMetrics: self._sentryMetrics,

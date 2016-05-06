@@ -22,10 +22,8 @@ define(function (require, exports, module) {
     describe('afterRender', function () {
       beforeEach(function () {
         flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
-        };
-        flowBeginMixin.metricsContext = {
-          set: sinon.spy()
+          logFlowBegin: sinon.spy(),
+          setActivityEventMetadata: sinon.spy()
         };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
@@ -46,9 +44,9 @@ define(function (require, exports, module) {
         assert.strictEqual(args[0], 'flowId');
       });
 
-      it('called metricsContext.set correctly', function () {
-        assert.strictEqual(flowBeginMixin.metricsContext.set.callCount, 1);
-        var args = flowBeginMixin.metricsContext.set.args[0];
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
+        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
         assert.lengthOf(args, 2);
         assert.strictEqual(args[0], 'flowBeginTime');
         assert.strictEqual(args[1], 42);
@@ -70,10 +68,8 @@ define(function (require, exports, module) {
     describe('afterRender with invalid data-flow-begin attribute', function () {
       beforeEach(function () {
         flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
-        };
-        flowBeginMixin.metricsContext = {
-          set: sinon.spy()
+          logFlowBegin: sinon.spy(),
+          setActivityEventMetadata: sinon.spy()
         };
         flowBeginMixin.user = {
           get: sinon.spy(function () {
@@ -94,9 +90,9 @@ define(function (require, exports, module) {
         assert.strictEqual(args[0], 'flowId');
       });
 
-      it('called metricsContext.set correctly', function () {
-        assert.strictEqual(flowBeginMixin.metricsContext.set.callCount, 1);
-        var args = flowBeginMixin.metricsContext.set.args[0];
+      it('called metrics.set correctly', function () {
+        assert.strictEqual(flowBeginMixin.metrics.setActivityEventMetadata.callCount, 1);
+        var args = flowBeginMixin.metrics.setActivityEventMetadata.args[0];
         assert.lengthOf(args, 2);
         assert.strictEqual(args[0], 'flowBeginTime');
         assert.isUndefined(args[1]);

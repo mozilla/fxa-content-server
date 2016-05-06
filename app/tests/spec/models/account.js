@@ -30,7 +30,7 @@ define(function (require, exports, module) {
     var assertion;
     var fxaClient;
     var marketingEmailClient;
-    var metricsContext;
+    var metrics;
     var oAuthClient;
     var profileClient;
     var relier;
@@ -54,10 +54,12 @@ define(function (require, exports, module) {
       assertion = new Assertion();
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
-      metricsContext = {
-        attributes: {
-          baz: 'qux',
-          foo: 'bar'
+      metrics = {
+        getActivityEventMetadata: function () {
+          return {
+            baz: 'qux',
+            foo: 'bar'
+          };
         }
       };
       oAuthClient = new OAuthClient();
@@ -71,7 +73,7 @@ define(function (require, exports, module) {
         assertion: assertion,
         fxaClient: fxaClient,
         marketingEmailClient: marketingEmailClient,
-        metricsContext: metricsContext,
+        metrics: metrics,
         oAuthClient: oAuthClient,
         oAuthClientId: CLIENT_ID,
         profileClient: profileClient

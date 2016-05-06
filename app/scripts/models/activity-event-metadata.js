@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Model for metrics context metadata
- * emitted with activity events.
+ * Model for activity event metadata.
  *
  * Attributes:
  *
@@ -27,7 +26,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var Backbone = require('backbone');
 
-  var RELIER_KEYS = [
+  var INITIAL_ATTRIBUTES = [
     'context',
     'entrypoint',
     'migration',
@@ -39,7 +38,7 @@ define(function (require, exports, module) {
     'utmTerm'
   ];
 
-  var DEFAULTS = _.reduce(RELIER_KEYS, function (defaults, key) {
+  var DEFAULTS = _.reduce(INITIAL_ATTRIBUTES, function (defaults, key) {
     defaults[key] = undefined;
     return defaults;
   }, {
@@ -48,11 +47,14 @@ define(function (require, exports, module) {
   });
 
   module.exports = Backbone.Model.extend({
-    initialize: function (options) {
-      options = options || {};
+    constructor: function (options) {
+      Backbone.Model.call(this);
+      this.initialize(options);
+    },
 
-      if (options.relier) {
-        this.set(_.pick(options.relier.attributes, RELIER_KEYS));
+    initialize: function (options) {
+      if (options) {
+        this.set(_.pick(options, INITIAL_ATTRIBUTES));
       }
     },
 

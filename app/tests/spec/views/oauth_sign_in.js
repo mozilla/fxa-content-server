@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
-  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var OAuthBroker = require('models/auth_brokers/oauth');
   var OAuthRelier = require('models/reliers/oauth');
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
     var fxaClient;
     var relier;
     var metrics;
-    var metricsContext;
     var broker;
     var profileClientMock;
     var user;
@@ -62,7 +60,6 @@ define(function (require, exports, module) {
         notifier: notifier
       });
       metrics = new Metrics();
-      metricsContext = new MetricsContext();
       profileClientMock = TestHelpers.stubbedProfileClient();
       formPrefill = new FormPrefill();
       notifier = new Notifier();
@@ -86,7 +83,6 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        metricsContext: metricsContext,
         notifier: notifier,
         profileClient: profileClientMock,
         relier: relier,

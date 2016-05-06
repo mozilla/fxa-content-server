@@ -120,7 +120,6 @@ define(function (require, exports, module) {
       this.model = options.model || new Backbone.Model();
       this.fxaClient = options.fxaClient;
       this.metrics = options.metrics || nullMetrics;
-      this.metricsContext = options.metricsContext;
       this.relier = options.relier;
       this.sentryMetrics = options.sentryMetrics || Raven;
       this.childViews = [];

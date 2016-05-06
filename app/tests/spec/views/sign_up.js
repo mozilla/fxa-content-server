@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   var FormPrefill = require('models/form-prefill');
   var FxaClient = require('lib/fxa-client');
   var Metrics = require('lib/metrics');
-  var MetricsContext = require('models/metrics-context');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var Relier = require('models/reliers/sync');
@@ -38,7 +37,6 @@ define(function (require, exports, module) {
     var formPrefill;
     var fxaClient;
     var metrics;
-    var metricsContext;
     var model;
     var notifier;
     var relier;
@@ -62,7 +60,6 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         fxaClient: fxaClient,
         metrics: metrics,
-        metricsContext: metricsContext,
         model: model,
         notifier: notifier,
         relier: relier,
@@ -85,7 +82,6 @@ define(function (require, exports, module) {
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
       metrics = new Metrics();
-      metricsContext = new MetricsContext();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
@@ -380,14 +376,14 @@ define(function (require, exports, module) {
           return 'mock ' + attribute;
         });
         $('body').attr('data-flow-begin', '3.14159265');
-        sinon.spy(metricsContext, 'set');
+        sinon.spy(metrics, 'setActivityEventMetadata');
         sinon.spy(metrics, 'logFlowBegin');
         return view.afterRender();
       });
 
-      it('called metricsContext.set correctly', function () {
-        assert.equal(metricsContext.set.callCount, 1);
-        var args = metricsContext.set.args[0];
+      it('called metrics.setActivityEventMetadata correctly', function () {
+        assert.equal(metrics.setActivityEventMetadata.callCount, 1);
+        var args = metrics.setActivityEventMetadata.args[0];
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'flowBeginTime');
         assert.equal(args[1], 3);
