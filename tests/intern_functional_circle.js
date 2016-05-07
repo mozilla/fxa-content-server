@@ -7,7 +7,7 @@ define([
 ], function (intern) {
 
   intern.functionalSuites = [
-    'tests/functional'
+    'tests/circle_tests'
   ];
 
   return intern;
