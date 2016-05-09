@@ -25,7 +25,7 @@ body {
   @include font();
   color: $text-color;
   font-size: $base-font;
-  font-weight: 200;
+  font-weight: 300;
 
   @include respond-to('reasonableUI') {
     padding-bottom: 20px;
@@ -140,7 +140,7 @@ header {
 button,
 input {
   @include font();
-  font-weight: inherit;
+  font-weight: 400;
 }
 
 section p {
