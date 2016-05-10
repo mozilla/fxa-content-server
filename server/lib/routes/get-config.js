@@ -13,6 +13,7 @@ var profileServerUrl = config.get('profile_url');
 var allowedParentOrigins = config.get('allowed_parent_origins');
 var marketingEmailApiServerUrl = config.get('marketing_email.api_url');
 var marketingEmailPreferencesUrl = config.get('marketing_email.preferences_url');
+var recaptchaSiteKey = config.get('recaptcha.siteKey');
 
 module.exports = function () {
   var route = {};
@@ -46,7 +47,8 @@ module.exports = function () {
       marketingEmailServerUrl: marketingEmailApiServerUrl,
       oAuthClientId: clientId,
       oAuthUrl: oauthServerUrl,
-      profileUrl: profileServerUrl
+      profileUrl: profileServerUrl,
+      recaptchaSiteKey: recaptchaSiteKey
     });
   };
 

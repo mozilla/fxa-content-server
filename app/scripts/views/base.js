@@ -117,6 +117,7 @@ define(function (require, exports, module) {
       options = options || {};
 
       this.broker = options.broker;
+      this.config = options.config || {};
       this.currentPage = options.currentPage;
       this.model = options.model || new Backbone.Model();
       this.fxaClient = options.fxaClient;

@@ -431,6 +431,13 @@ var conf = module.exports = convict({
     doc: 'The publically visible URL of the deployment',
     env: 'PUBLIC_URL'
   },
+  recaptcha: {
+    siteKey: {
+      default: undefined,
+      doc: 'ReCAPTCHA Site Key',
+      format: String
+    }
+  },
   redirect_port: {
     default: 80,
     doc: 'Redirect port for HTTPS',

@@ -306,6 +306,9 @@ define(function (require, exports, module) {
         return this.notifyOfLockedAccount(account, password);
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
         return this.notifyOfResetAccount(account);
+      } else if (AuthErrors.is(err, 'THROTTLED')) {
+        this.logViewEvent('throttled');
+        return;
       }
 
       // re-throw error, it will be handled at a lower level.

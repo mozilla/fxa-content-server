@@ -25,6 +25,7 @@ module.exports = function (config) {
   var GRAVATAR = 'https://secure.gravatar.com';
   var PUBLIC_URL = config.get('public_url');
   var SELF = "'self'";
+  // ReCAPTCHA CSP reference: https://developers.google.com/recaptcha/docs/faq
 
 
   function addCdnRuleIfRequired(target) {
@@ -47,6 +48,9 @@ module.exports = function (config) {
     fontSrc: addCdnRuleIfRequired([
       SELF
     ]),
+    frameSrc: [
+      'https://www.google.com/recaptcha/'
+    ],
     imgSrc: addCdnRuleIfRequired([
       SELF,
       DATA,
@@ -60,12 +64,14 @@ module.exports = function (config) {
       // allow unsafe-eval for functional tests. A report-only middleware
       // is also added that does not allow 'unsafe-eval' so that we can see
       // if other scripts are being added.
-      SELF, "'unsafe-eval'"
+      SELF,
+      'https://www.google.com/recaptcha/',
+      'https://www.gstatic.com/recaptcha/',
+      "'unsafe-eval'"
     ]),
     styleSrc: addCdnRuleIfRequired([
       SELF,
-      // The sha of the embedded <style> tag in default-profile.svg.
-      "'sha256-9n6ek6ecEYlqel7uDyKLy6fdGNo3vw/uScXSq9ooQlk='"
+      "'unsafe-inline'"
     ])
   };
 };
