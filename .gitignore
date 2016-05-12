@@ -31,6 +31,7 @@ app/bower_components
 !.jshintrc
 !.npmignore
 !.travis.yml
+!.sass-lint.yml
 *~
 
 
