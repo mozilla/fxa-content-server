@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
+var testList = [
   './functional/404',
   './functional/500',
   './functional/alternative_styles',
@@ -53,4 +53,16 @@ define([
   './functional/tos',
   './functional/upgrade_storage_formats',
   './functional/verification_experiments',
-], function () {});
+];
+
+var parallelism = parseInt(process.env['CIRCLE_NODE_TOTAL'], 10);
+var runnerIndex = parseInt(process.env['CIRCLE_NODE_INDEX'], 10);
+console.log('parallelism', parallelism, 'runnerIndex', runnerIndex);
+
+var suitesToRun = testList.filter(function (test, index) {
+  return (index % parallelism) === runnerIndex;
+});
+
+console.log('suites', suitesToRun);
+
+define(suitesToRun, function () {});
