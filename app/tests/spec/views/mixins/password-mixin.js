@@ -21,8 +21,8 @@ define(function (require, exports, module) {
     template: TestTemplate
   });
   Cocktail.mixin(
-  PasswordView,
-  PasswordMixin
+    PasswordView,
+    PasswordMixin
   );
 
   describe('views/mixins/password-mixin', function () {
@@ -128,7 +128,7 @@ define(function (require, exports, module) {
     });
 
     describe('hide passwordHelper', function () {
-      it('set warning opacity to 0 if password length is greater than 8', function () {
+      it('set warning opacity to 0 if password length is greater than or equal 8', function () {
         view.$('.password').val('12344456');
         view.hidePasswordHelper();
         assert.equal(view.$('.input-help').css('opacity'), '0');

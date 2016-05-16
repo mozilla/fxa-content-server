@@ -7,11 +7,12 @@
 define(function (require, exports, module) {
   'use strict';
 
+  var Constants = require('lib/constants');
 
   module.exports = {
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'keyup input.password': 'onPasswordKeyup'
+      'keyup input.password': 'onPasswordKeyUp'
     },
 
     onPasswordVisibilityChange: function (event) {
@@ -56,9 +57,23 @@ define(function (require, exports, module) {
       }
     },
 
-    onPasswordKeyup: function (event) {
-      var val = this.getElementValue('.password').length;
-      if (val < 8) {
+    onPasswordKeyUp: function (event) {
+      var values = [];
+      values.push(this.getElementValue('.password').length);
+
+      // Check to see if change password fields are visible.
+      // If any field does not have 8 chars, display warning.
+      if (this.getElementValue('#new_password') || this.getElementValue('#new_password') === '') {
+        values.push(this.getElementValue('#new_password').length);
+      }
+
+      if (this.getElementValue('#old_password') || this.getElementValue('#old_password') === '') {
+        values.push(this.getElementValue('#old_password').length);
+      }
+
+      var val = Math.min.apply(Math, values);
+
+      if (val < Constants.PASSWORD_MIN_LENGTH) {
         this.showPasswordHelper();
       } else {
         this.hidePasswordHelper();
@@ -70,7 +85,8 @@ define(function (require, exports, module) {
     },
 
     hidePasswordHelper: function () {
-      this.$('.input-help').css('opacity', '0');
+      // Hide all input-help classes except input-help-forgot-pw
+      this.$('.input-help:not(.input-help-forgot-pw)').css('opacity', '0');
     }
   };
 });
