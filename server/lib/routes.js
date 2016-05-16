@@ -25,7 +25,6 @@ module.exports = function (config, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(config),
     require('./routes/get-ver.json'),
-    require('./routes/get-400.js')(config),
     require('./routes/get-client.json')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-metrics-errors')(),
@@ -135,7 +134,6 @@ module.exports = function (config, i18n) {
       '/signup',
       '/signup_complete',
       '/signup_permissions',
-      '/unexpected_error',
       '/verify_email'
     ];
 

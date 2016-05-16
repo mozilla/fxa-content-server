@@ -24,7 +24,6 @@ define([
     'tests/server/configuration',
     'tests/server/statsd-collector',
     'tests/server/activity-event',
-    'tests/server/routes/get-400',
     'tests/server/routes/get-index',
     'tests/server/routes/post-csp',
     'tests/server/routes/post-metrics'
