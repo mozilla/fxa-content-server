@@ -5,117 +5,84 @@
 define([
   'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, nodeXMLHttpRequest, FxaClient,
+], function (intern, registerSuite,
   TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
   var EXCLUDE_SIGNUP_PAGE_URL = PAGE_URL + '&exclude_signup=1';
 
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-
-  var client;
   var email;
   var PASSWORD = '12345678';
 
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  var thenify = FunctionalHelpers.thenify;
 
-  function createUser(isPreVerified) {
-    email = TestHelpers.createEmail();
-    return client.signUp(email, PASSWORD,
-      {
-        preVerified: isPreVerified || false
-      }
-    );
-  }
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var noPageTransition = FunctionalHelpers.noPageTransition;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
+  var openPage = thenify(FunctionalHelpers.openPage);
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'FxiOS v1 sign_in',
 
     beforeEach: function () {
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-      // clear localStorage to avoid pollution from other tests.
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    'signup link is disabled': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(self, EXCLUDE_SIGNUP_PAGE_URL, '#fxa-signin-header')
-        .then(FunctionalHelpers.noSuchElement(self, 'a[href="/signup"]'))
-        .end();
-    },
-
-    'signup link is enabled': function () {
-      var self = this;
-      return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
-
-        .findByCssSelector('a[href="/signup"]')
-        .end();
-    },
-
-    'signin with an unknown account does not allow the user to sign up': function () {
-      var self = this;
       email = TestHelpers.createEmail();
+      return this.remote
+        .then(clearBrowserState(this));
+    },
 
-      return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
+    'verified': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .execute(listenForFxaCommands)
 
-        .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-        })
-
-        // an error is visible
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end();
-    },
-
-    'sign in verified': function () {
-      var self = this;
-      return createUser(true)
-        .then(function () {
-          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
-            .execute(listenForFxaCommands)
-
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
-
-            .then(function () {
-              return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
-            });
-        });
+        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(noPageTransition('#fxa-signin-header'))
+        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
     },
 
     'unverified': function () {
-      var self = this;
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
 
-      return createUser(false)
-        .then(function () {
-          return FunctionalHelpers.openPage(self, PAGE_URL, '#fxa-signin-header')
-            .execute(listenForFxaCommands)
+        .then(fillOutSignIn(this, email, PASSWORD))
 
-            .then(function () {
-              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
-            })
+        .then(testElementExists('#fxa-confirm-header'))
 
-            .findByCssSelector('#fxa-confirm-header')
-            .end()
+        .then(testIsBrowserNotifiedOfLogin(this, email));
+    },
 
-            .then(function () {
-              return testIsBrowserNotifiedOfLogin(self, email);
-            });
-        });
+    'signup link is disabled': function () {
+      return this.remote
+        .then(openPage(this, EXCLUDE_SIGNUP_PAGE_URL, '#fxa-signin-header'))
+        .then(noSuchElement(this, 'a[href="/signup"]'));
+    },
+
+    'signup link is enabled': function () {
+      return this.remote
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .then(testElementExists('a[href="/signup"]'));
+    },
+
+    'signin with an unknown account does not allow the user to sign up': function () {
+      return this.remote
+        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
+
+        .then(fillOutSignIn(this, email, PASSWORD))
+
+        .then(visibleByQSA('.error'));
     }
   });
 });
