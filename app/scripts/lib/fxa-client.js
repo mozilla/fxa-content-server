@@ -366,7 +366,7 @@ define(function (require, exports, module) {
       var email = trim(originalEmail);
       var client;
 
-      return this._getClient()
+      return self._getClient()
               .then(function (_client) {
                 client = _client;
                 return client.passwordForgotVerifyCode(code, token);
@@ -466,7 +466,7 @@ define(function (require, exports, module) {
     changePassword: function (originalEmail, oldPassword, newPassword, sessionToken, sessionTokenContext, relier) {
       var email = trim(originalEmail);
       var self = this;
-      return this._getClient()
+      return self._getClient()
         .then(function (client) {
           return client.passwordChange(
             email,

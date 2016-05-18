@@ -716,10 +716,11 @@ define(function (require, exports, module) {
 
         sinon.stub(realClient, 'accountReset', function () {
           return p({
-            email: trim(email),
+            authAt: Date.now(),
             keyFetchToken: 'new keyFetchToken',
             sessionToken: 'new sessionToken',
             uid: 'uid',
+            unwrapBKey: 'unwrap b key',
             verified: true
           });
         });
@@ -736,6 +737,7 @@ define(function (require, exports, module) {
             assert.equal(sessionData.sessionToken, 'new sessionToken');
             assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
             assert.equal(sessionData.uid, 'uid');
+            assert.equal(sessionData.unwrapBKey, 'unwrap b key');
             assert.isTrue(sessionData.verified);
           });
       });
