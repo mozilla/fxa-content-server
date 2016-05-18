@@ -27,9 +27,14 @@ define([
   var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle';
 
   function testIsBrowserNotifiedOfAvatarChange(context) {
-    return FunctionalHelpers.testIsBrowserNotified(context, 'profile:change', function (data) {
-      assert.ok(data.uid);
-    });
+    return context.remote
+      .findByCssSelector('#message-profile-change')
+      .getProperty('innerText')
+      .then(function (innerText) {
+        var data = JSON.parse(innerText);
+        assert.ok(data.uid);
+      })
+      .end();
   }
 
   function signUp(context, email) {
@@ -159,8 +164,9 @@ define([
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
 
-        .then(testIsBrowserNotifiedOfAvatarChange(self))
-
+        .then(function () {
+          return testIsBrowserNotifiedOfAvatarChange(self);
+        })
         //success is returning to the settings page
         .findById('fxa-settings-header')
         .end()
@@ -253,6 +259,7 @@ define([
     },
 
     'attempt to use webcam for avatar': function () {
+      var self = this;
       return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
@@ -266,7 +273,9 @@ define([
           .click()
         .end()
 
-        .then(testIsBrowserNotifiedOfAvatarChange(this))
+        .then(function () {
+          return testIsBrowserNotifiedOfAvatarChange(self);
+        })
 
         .findById('fxa-settings-header')
         .end()
@@ -296,6 +305,8 @@ define([
     },
 
     'upload a profile image': function () {
+      var self = this;
+
       return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL))
 
@@ -325,7 +336,9 @@ define([
           .click()
         .end()
 
-        .then(testIsBrowserNotifiedOfAvatarChange(this))
+        .then(function () {
+          return testIsBrowserNotifiedOfAvatarChange(self);
+        })
 
         .findById('fxa-settings-header')
         .end()
