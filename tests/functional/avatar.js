@@ -27,14 +27,16 @@ define([
   var CHANGE_AVATAR_BUTTON_SELECTOR = '#change-avatar .settings-unit-toggle';
 
   function testIsBrowserNotifiedOfAvatarChange(context) {
-    return context.remote
-      .findByCssSelector('#message-profile-change')
-      .getProperty('innerText')
-      .then(function (innerText) {
-        var data = JSON.parse(innerText);
-        assert.ok(data.uid);
-      })
-      .end();
+    return function () {
+      return context.remote
+        .findByCssSelector('#message-profile-change')
+        .getProperty('innerText')
+        .then(function (innerText) {
+          var data = JSON.parse(innerText);
+          assert.ok(data.uid);
+        })
+        .end();
+    };
   }
 
   function signUp(context, email) {
@@ -163,10 +165,7 @@ define([
         .end()
 
         .then(FunctionalHelpers.testSuccessWasShown(self))
-
-        .then(function () {
-          return testIsBrowserNotifiedOfAvatarChange(self);
-        })
+        .then(testIsBrowserNotifiedOfAvatarChange(self))
         //success is returning to the settings page
         .findById('fxa-settings-header')
         .end()
@@ -273,9 +272,7 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return testIsBrowserNotifiedOfAvatarChange(self);
-        })
+        .then(testIsBrowserNotifiedOfAvatarChange(self))
 
         .findById('fxa-settings-header')
         .end()
@@ -336,9 +333,7 @@ define([
           .click()
         .end()
 
-        .then(function () {
-          return testIsBrowserNotifiedOfAvatarChange(self);
-        })
+        .then(testIsBrowserNotifiedOfAvatarChange(self))
 
         .findById('fxa-settings-header')
         .end()
