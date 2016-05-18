@@ -258,7 +258,6 @@ define([
     },
 
     'attempt to use webcam for avatar': function () {
-      var self = this;
       return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
@@ -272,7 +271,7 @@ define([
           .click()
         .end()
 
-        .then(testIsBrowserNotifiedOfAvatarChange(self))
+        .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
         .end()
@@ -302,8 +301,6 @@ define([
     },
 
     'upload a profile image': function () {
-      var self = this;
-
       return this.remote
         .get(require.toUrl(AVATAR_CHANGE_URL))
 
@@ -333,7 +330,7 @@ define([
           .click()
         .end()
 
-        .then(testIsBrowserNotifiedOfAvatarChange(self))
+        .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
         .end()
