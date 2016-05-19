@@ -58,10 +58,10 @@ define(function (require, exports, module) {
 
     onKeyDown: function (event) {
       // helper function to check for digit
-      function isKeyADigit (keyCode) {
-        return ((keyCode == 8) || // backspace
-        (keyCode >= 48 && keyCode <= 57) || // digit row
-        (keyCode >= 96 && keyCode <= 105)); // keypad
+      function isKeyADigitOrBackSpace (keyCode) {
+        return ((keyCode === KeyCodes.BACKSPACE) ||
+        (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
+        (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9));
       }
 
       // submit on enter, force digit input

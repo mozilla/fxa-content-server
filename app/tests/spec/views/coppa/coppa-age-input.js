@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var View = require('views/coppa/coppa-age-input');
+  var KeyCodes = require('lib/key-codes');
 
   var assert = chai.assert;
 
@@ -69,10 +70,13 @@ define(function (require, exports, module) {
 
     describe('onKeyDown', function () {
       it('force digit input', function () {
-        var age = $('#age');
-        age.val('1.1');
-        view.onInput();
-        assert.equal(age.val(), '11');
+        var e1 = jQuery.Event('keydown', { which: KeyCodes.NUM_1 });
+        var e2 = jQuery.Event('keydown', { which: KeyCodes.NUM_PERIOD });
+
+        // keydown events: 1.
+        $('#age').trigger(e1);
+        $('#age').trigger(e2);
+        assert.equal(view.$('#age').val(), '1');
       });
 
       function testEnterKeyTriggersSubmit(element, done) {
