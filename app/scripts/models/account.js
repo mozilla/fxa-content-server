@@ -18,8 +18,6 @@ define(function (require, exports, module) {
   var ProfileErrors = require('lib/profile-errors');
   var ProfileImage = require('models/profile-image');
   var SignInReasons = require('lib/sign-in-reasons');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -345,29 +343,7 @@ define(function (require, exports, module) {
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
-          return self._fxaClient.recoveryEmailStatus(sessionToken)
-            .then(function (sessionStatus) {
-              if (! sessionStatus.verified) {
-                // This is a little bit unnatural. /recovery_email/status
-                // returns two fields, `emailVerified` and
-                // `sessionVerified`. The client side depends on a reason
-                // to show the correct UI. Convert `emailVerified` to
-                // a `verificationReason`.
-                var verificationReason = sessionStatus.emailVerified ?
-                                         VerificationReasons.SIGN_IN :
-                                         VerificationReasons.SIGN_UP;
-                return {
-                  email: sessionStatus.email,
-                  verificationMethod: VerificationMethods.EMAIL,
-                  verificationReason: verificationReason,
-                  verified: false
-                };
-              }
-
-              // /recovery_email/status returns `emailVerified` and
-              // `sessionVerified`, we don't want those.
-              return _.pick(sessionStatus, 'email', 'verified');
-            });
+          return self._fxaClient.recoveryEmailStatus(sessionToken);
         } else {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }

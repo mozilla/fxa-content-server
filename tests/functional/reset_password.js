@@ -537,7 +537,9 @@ define([
           return client.signIn(email, PASSWORD);
         })
         .then(function (accountInfo) {
-          return client.passwordChange(email, PASSWORD, 'newpassword', accountInfo.sessionToken);
+          return client.passwordChange(email, PASSWORD, 'newpassword', {
+            sessionToken: accountInfo.sessionToken
+          });
         })
 
         .then(testElementExists('#fxa-signin-header'));

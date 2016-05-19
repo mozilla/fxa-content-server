@@ -13,7 +13,6 @@ define([
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
@@ -34,7 +33,6 @@ define([
         email: email,
         service: 'sync'
       }}))
-      .then(noSuchBrowserNotification(context, 'fxaccounts:logout'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
@@ -66,8 +64,7 @@ define([
           .closeCurrentWindow()
         .switchToWindow('')
 
-        // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'))
+        .then(testElementExists('#fxa-sign-in-complete-header'))
 
         .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
         // user wants to open sync preferences.
@@ -83,8 +80,7 @@ define([
 
         .then(openVerificationLinkDifferentBrowser(email))
 
-        // about:accounts will take over post-verification, no transition
-        .then(noPageTransition('#fxa-confirm-signin-header'));
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     },
 
     'unverified': function () {

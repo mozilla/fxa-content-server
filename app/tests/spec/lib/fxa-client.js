@@ -319,23 +319,120 @@ define(function (require, exports, module) {
 
       describe('with a sessionToken only', function () {
         describe('valid session', function () {
-          beforeEach(function () {
-            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p({ email: 'testuser@testuser.com', emailVerified: true, sessionVerified: true, verified: true });
+          describe('verified', function () {
+            describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    email: 'testuser@testuser.com',
+                    emailVerified: true,
+                    sessionVerified: true,
+                    verified: true
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('filters unexpected fields', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.equal(accountInfo.email, 'testuser@testuser.com');
+                assert.isTrue(accountInfo.verified);
+                assert.notProperty(accountInfo, 'emailVerified');
+                assert.notProperty(accountInfo, 'sessionVerified');
+              });
             });
 
-            return client.recoveryEmailStatus('session token')
-              .then(function (_accountInfo) {
-                accountInfo = _accountInfo;
+            describe('with a legacy auth server that only returns `verified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({ verified: true });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
               });
+
+              it('resolves with the status information', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isTrue(accountInfo.verified);
+              });
+            });
           });
 
-          it('resolves with the status information', function () {
-            assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-            assert.equal(accountInfo.email, 'testuser@testuser.com');
-            assert.isTrue(accountInfo.verified);
-            assert.notProperty(accountInfo, 'emailVerified');
-            assert.notProperty(accountInfo, 'sessionVerified');
+          describe('unverified', function () {
+            describe('with unverified email, unverified session', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    emailVerified: false,
+                    sessionVerified: false,
+                    verified: false
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
+              });
+            });
+
+            describe('with verified email, unverified session', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({
+                    emailVerified: true,
+                    sessionVerified: false,
+                    verified: false
+                  });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_IN);
+              });
+            });
+
+            describe('with legacy auth server that only returns `verified`', function () {
+              beforeEach(function () {
+                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                  return p({ verified: false });
+                });
+
+                return client.recoveryEmailStatus('session token')
+                  .then(function (_accountInfo) {
+                    accountInfo = _accountInfo;
+                  });
+              });
+
+              it('sets `verifiedReason` and `verifiedMethod`', function () {
+                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+                assert.isFalse(accountInfo.verified);
+                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
+              });
+            });
           });
         });
 

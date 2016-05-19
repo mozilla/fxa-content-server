@@ -586,6 +586,26 @@ define(function (require, exports, module) {
           return client.recoveryEmailStatus(sessionToken);
         })
         .then(function (response) {
+          if (! response.verified) {
+            // This is a little bit unnatural. /recovery_email/status
+            // returns two fields, `emailVerified` and
+            // `sessionVerified`. The client side depends on a reason
+            // to show the correct UI. Convert `emailVerified` to
+            // a `verificationReason`. This is backwards compatible
+            // with old auth servers that do not send an emailVerified
+            // field. On old auth servers, if `verified: false`, then
+            // it's always for signup.
+            var verificationReason = response.emailVerified ?
+                                     VerificationReasons.SIGN_IN :
+                                     VerificationReasons.SIGN_UP;
+            return {
+              email: response.email,
+              verificationMethod: VerificationMethods.EMAIL,
+              verificationReason: verificationReason,
+              verified: false
+            };
+          }
+
           // /recovery_email/status returns `emailVerified` and
           // `sessionVerified`, we don't want those.
           return _.pick(response, 'email', 'verified');

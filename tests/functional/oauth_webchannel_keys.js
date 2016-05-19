@@ -320,6 +320,7 @@ define([
         .then(testIsBrowserNotifiedOfSyncLogin(this, email, { checkVerified: false }))
         // User must verify the Sync signin
         .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(openVerificationLinkDifferentBrowser(email, 1))
 
         .then(openFxaFromRp('signin'))
         .then(testElementExists('#fxa-signin-header'))
@@ -332,8 +333,7 @@ define([
         // User must verify the signin because they are requesting keys
         .then(testElementExists('#fxa-confirm-signin-header'))
 
-        .then(openVerificationLinkDifferentBrowser(email, 1))
-
+        .then(openVerificationLinkDifferentBrowser(email, 2))
         .then(testIsBrowserNotifiedOfLogin(this, { shouldCloseTab: true }));
     }
   });
