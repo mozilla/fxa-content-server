@@ -194,11 +194,11 @@ define(function (require, exports, module) {
 
       describe('signup', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, '_isSignUp', function () {
+          sinon.stub(view, 'isSignUp', function () {
             return true;
           });
 
-          sinon.stub(view, '_isSignIn', function () {
+          sinon.stub(view, 'isSignIn', function () {
             return false;
           });
 
@@ -208,11 +208,11 @@ define(function (require, exports, module) {
 
       describe('signin', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, '_isSignUp', function () {
+          sinon.stub(view, 'isSignUp', function () {
             return false;
           });
 
-          sinon.stub(view, '_isSignIn', function () {
+          sinon.stub(view, 'isSignIn', function () {
             return true;
           });
 

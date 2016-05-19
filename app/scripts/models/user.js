@@ -358,7 +358,7 @@ define(function (require, exports, module) {
       return account.signIn(password, relier, options)
         .then(function () {
           var isSignUp =
-            account.get('verificationReasons') !== VerificationReasons.SIGN_IN;
+            account.get('verificationReason') !== VerificationReasons.SIGN_IN;
 
           if (! account.get('verified') && isSignUp) {
             return account.retrySignUp(relier, options);

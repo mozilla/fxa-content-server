@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var MarketingMixin = require('views/mixins/marketing-mixin');
   var Template = require('stache!templates/marketing_snippet');
-  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var View = BaseView.extend({
     template: Template,
@@ -25,7 +25,6 @@ define(function (require, exports, module) {
     initialize: function (options) {
       options = options || {};
 
-      this._type = options.type;
       this._service = options.service;
     },
 
@@ -39,8 +38,8 @@ define(function (require, exports, module) {
 
     _shouldShowSignUpMarketing: function () {
       var isFirefoxMobile = this._isFirefoxMobile();
-      var isSignUp = this._type === VerificationReasons.SIGN_UP;
-      var isSignIn = this._type === VerificationReasons.SIGN_IN;
+      var isSignUp = this.isSignUp();
+      var isSignIn = this.isSignIn();
 
       var isSync = this._service === Constants.SYNC_SERVICE;
 
@@ -65,7 +64,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    MarketingMixin
+    MarketingMixin,
+    VerificationReasonMixin
   );
 
   module.exports = View;

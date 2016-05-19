@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/confirm');
-  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
@@ -35,10 +35,6 @@ define(function (require, exports, module) {
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
       this._account = this.user.initAccount(this.model.get('account'));
-
-      if (! this.model.has('type')) {
-        this.model.set('type', VerificationReasons.SIGN_UP);
-      }
     },
 
     getAccount: function () {
@@ -47,8 +43,8 @@ define(function (require, exports, module) {
 
     context: function () {
       var email = this.getAccount().get('email');
-      var isSignIn = this._isSignIn();
-      var isSignUp = this._isSignUp();
+      var isSignIn = this.isSignIn();
+      var isSignUp = this.isSignUp();
 
       return {
         // Back button is only available for signin for now. We haven't fully
@@ -77,20 +73,12 @@ define(function (require, exports, module) {
     },
 
     _getMissingSessionTokenScreen: function () {
-      var screenUrl = this._isSignUp() ? 'signup' : 'signin';
+      var screenUrl = this.isSignUp() ? 'signup' : 'signin';
       return this.broker.transformLink(screenUrl);
     },
 
-    _isSignUp: function () {
-      return this.model.get('type') === VerificationReasons.SIGN_UP;
-    },
-
-    _isSignIn: function () {
-      return this.model.get('type') === VerificationReasons.SIGN_IN;
-    },
-
     _navigateToCompleteScreen: function () {
-      if (this._isSignUp()) {
+      if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
         this.navigate('signin_complete');
@@ -138,7 +126,7 @@ define(function (require, exports, module) {
           self.notifier.trigger('verification.success');
 
           var brokerMethod =
-            self._isSignUp() ?
+            self.isSignUp() ?
             'afterSignUpConfirmationPoll' :
             'afterSignIn';
 
@@ -241,7 +229,8 @@ define(function (require, exports, module) {
     OpenGmailMixin,
     ResendMixin,
     ResumeTokenMixin,
-    ServiceMixin
+    ServiceMixin,
+    VerificationReasonMixin
   );
 
   module.exports = View;

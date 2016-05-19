@@ -10,7 +10,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
   var Cocktail = require('cocktail');
   var Constants = require('lib/constants');
   var FormView = require('views/form');
@@ -19,7 +18,7 @@ define(function (require, exports, module) {
   var ServiceMixin = require('views/mixins/service-mixin');
   var Template = require('stache!templates/ready');
   var Url = require('lib/url');
-  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   function t(msg) {
     return msg;
@@ -65,12 +64,6 @@ define(function (require, exports, module) {
 
   /*eslint-enable camelcase*/
 
-  function findKey(haystack, needle) {
-    return _.findKey(haystack, function (value) {
-      return value === needle;
-    });
-  }
-
   var View = FormView.extend({
     template: Template,
     className: 'ready',
@@ -80,8 +73,8 @@ define(function (require, exports, module) {
 
       this._able = options.able;
       this._language = options.language;
-      this._templateInfo = TEMPLATE_INFO[findKey(VerificationReasons, options.type)];//.keyOf(options.type)];
-      this._type = options.type;
+
+      this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
 
       if (this._shouldShowProceedButton()) {
         this.submit = this._submitForProceed.bind(this);
@@ -145,7 +138,7 @@ define(function (require, exports, module) {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
-      return !! (this._type === VerificationReasons.SIGN_UP &&
+      return !! (this.isSignUp() &&
                  redirectUri &&
                  Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
@@ -179,7 +172,7 @@ define(function (require, exports, module) {
         language: this._language,
         metrics: this.metrics,
         service: this.relier.get('service'),
-        type: this._type
+        type: this.model.get('type')
       };
 
       var marketingSnippet;
@@ -197,7 +190,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    ServiceMixin
+    ServiceMixin,
+    VerificationReasonMixin
   );
 
   module.exports = View;

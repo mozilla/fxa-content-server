@@ -28,7 +28,7 @@ define(function (require, exports, module) {
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   var Url = require('lib/url');
   var VerificationInfo = require('models/verification/sign-up');
-  var VerificationReasons = require('lib/verification-reasons');
+  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
@@ -61,20 +61,14 @@ define(function (require, exports, module) {
       // cache the email in case we need to attempt to resend the
       // verification link
       this._email = this._account.get('email');
-
-      this.model.set('type', options.type || VerificationReasons.SIGN_UP);
     },
 
     getAccount: function () {
       return this._account;
     },
 
-    _isSignUp: function () {
-      return this.model.get('type') === VerificationReasons.SIGN_UP;
-    },
-
     _navigateToCompleteScreen: function () {
-      if (this._isSignUp()) {
+      if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
         this.navigate('signin_complete');
@@ -221,7 +215,8 @@ define(function (require, exports, module) {
     CompleteSignUpView,
     ExperimentMixin,
     ResendMixin,
-    ResumeTokenMixin
+    ResumeTokenMixin,
+    VerificationReasonMixin
   );
 
   module.exports = CompleteSignUpView;
