@@ -27,40 +27,45 @@ define([
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+  var setupTest = thenify(function (context, preVerified, options) {
+    options = options || {};
+
+    return this.parent
+      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
+      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testIsBrowserNotified(context, 'can_link_account'));
+  });
 
   registerSuite({
     name: 'FxiOS v1 sign_in',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+
       return this.remote
         .then(clearBrowserState(this));
     },
 
     'verified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
+        .then(setupTest(this, true))
 
-        .then(fillOutSignIn(this, email, PASSWORD))
         .then(noPageTransition('#fxa-signin-header'))
         .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: true }));
     },
 
     'unverified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
-
-        .then(fillOutSignIn(this, email, PASSWORD))
+        .then(setupTest(this, false))
 
         .then(testElementExists('#fxa-confirm-header'))
-
-        .then(testIsBrowserNotifiedOfLogin(this, email));
+        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }));
     },
 
     'signup link is disabled': function () {
