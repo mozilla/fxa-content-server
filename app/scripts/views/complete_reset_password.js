@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   var Template = require('stache!templates/complete_reset_password');
   var Url = require('lib/url');
   var VerificationInfo = require('models/verification/reset-password');
-  var VerificationReasons = require('lib/verification-reasons');
 
   var t = BaseView.t;
   var View = FormView.extend({
@@ -126,19 +125,9 @@ define(function (require, exports, module) {
                     'afterCompleteResetPassword', updatedAccount);
         })
         .then(function () {
-          // BEGIN TRANSITION CODE
-          // This is temporary code to force the functional tests to fail
-          // until the auth server is updated
-          if (! account.get('verified')) {
-            return self.navigate('confirm', {
-              account: account,
-              type: VerificationReasons.SIGN_IN
-            });
-          }
-          // END TRANSITION CODE
           // the user is definitively signed in here, otherwise this
           // path would not be taken.
-          else if (self.relier.isDirectAccess()) {
+          if (self.relier.isDirectAccess()) {
             self.navigate('settings', {
               success: t('Account verified successfully')
             });

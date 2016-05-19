@@ -28,8 +28,22 @@ define([
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
+  var testIsBrowserNotified = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfMessage);
   var testIsBrowserNotifiedOfLogin = thenify(FxDesktopHelpers.testIsBrowserNotifiedOfLogin);
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
+
+  var setupTest = thenify(function (context, preVerified, options) {
+    options = options || {};
+
+    return this.parent
+      .then(createUser(email, PASSWORD, { preVerified: preVerified }))
+      .then(openPage(context, options.pageUrl || PAGE_URL, '#fxa-signin-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testIsBrowserNotified(context, 'can_link_account'))
+      .then(testIsBrowserNotifiedOfLogin(context, email, { checkVerified: false }))
+      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'));
+  });
 
   registerSuite({
     name: 'Firefox Desktop Sync v1 sign_in',
@@ -42,14 +56,7 @@ define([
 
     'verified, verify same browser': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
-
-        .then(fillOutSignIn(this, email, PASSWORD))
-        // for sync, a user must re-confirm their email address.
-        .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email))
+        .then(setupTest(this, true))
 
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
@@ -63,13 +70,7 @@ define([
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
-
-        .then(fillOutSignIn(this, email, PASSWORD))
-        .then(testElementExists('#fxa-confirm-signin-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email))
+        .then(setupTest(this, true))
 
         .then(openVerificationLinkDifferentBrowser(email))
 
@@ -79,14 +80,7 @@ define([
 
     'unverified': function () {
       return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
-
-        .then(fillOutSignIn(this, email, PASSWORD))
-
-        .then(testElementExists('#fxa-confirm-header'))
-        .then(testIsBrowserNotifiedOfLogin(this, email));
+        .then(setupTest(this, false));
     },
 
     'as a migrating user': function () {

@@ -28,6 +28,7 @@ define([
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var setupTest = thenify(function (context, isUserVerified) {
     return this.parent
@@ -66,6 +67,24 @@ define([
           .then(click('#sync-preferences'))
           // browser is notified of desire to open Sync preferences
           .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
+    'verified, resend email, verify same browser': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(click('#resend'))
+        .then(visibleByQSA('.success'))
+
+        // email 0 is the original signin email, open the resent email instead
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
           .closeCurrentWindow()
         .switchToWindow('')
 

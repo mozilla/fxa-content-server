@@ -19,7 +19,10 @@ define([
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var noPageTransition = FunctionalHelpers.noPageTransition;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
+  var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -46,19 +49,28 @@ define([
       email = TestHelpers.createEmail();
     },
 
-    'verified': function () {
+    'verified, verify same browser': function () {
       return this.remote
-        .then(setupTest(this, true));
+        .then(setupTest(this, true))
 
-      /*
-         TODO - add tests to re-verify email
-      .then(noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
-      // user should be able to click on a sync preferences button.
-      .then(click('#sync-preferences'))
+        .then(openVerificationLinkInNewTab(this, email, 0))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
 
-      // browser is notified of desire to open Sync preferences
-      .then(testIsBrowserNotified(self, 'fxaccounts:sync_preferences'));
-      */
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
     'unverified': function () {
