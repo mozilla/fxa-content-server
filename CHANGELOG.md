@@ -1,3 +1,66 @@
+<a name="0.62.1"></a>
+## 0.62.1 (2016-05-20)
+
+
+
+
+<a name="0.61.2"></a>
+## 0.61.2 (2016-05-09)
+
+
+
+
+<a name="0.61.1"></a>
+## 0.61.1 (2016-05-04)
+
+
+### Bug Fixes
+
+* **contentToken:** new fxa-js-client-0.1.37 (#9) ([b90e45c](https://github.com/mozilla/fxa-content-server/commit/b90e45c))
+
+
+
+<a name="0.60.1"></a>
+## 0.60.1 (2016-04-19)
+
+
+### Bug Fixes
+
+* **client:** Clear `resetPasswordConfirm` flag after successful reset. ([1ffca78](https://github.com/mozilla/fxa-content-server/commit/1ffca78))
+* **contentToken:** fix change password ([b314c55](https://github.com/mozilla/fxa-content-server/commit/b314c55))
+* **contentToken:** move token logic back to client ([7a5107f](https://github.com/mozilla/fxa-content-server/commit/7a5107f))
+* **contentToken:** new fxa-js-client url. ([4cc1900](https://github.com/mozilla/fxa-content-server/commit/4cc1900))
+* **contentToken:** set bower fxa-js-client path ([7d66c24](https://github.com/mozilla/fxa-content-server/commit/7d66c24))
+* **models:** remove unused contentToken in model ([0937c35](https://github.com/mozilla/fxa-content-server/commit/0937c35))
+* **server:** fix server runner ([c668c7e](https://github.com/mozilla/fxa-content-server/commit/c668c7e))
+* **signup:** fix signin from signup content token ([5985cfc](https://github.com/mozilla/fxa-content-server/commit/5985cfc))
+* **templates:** make sure contentToken is available in prod build ([cb75ecc](https://github.com/mozilla/fxa-content-server/commit/cb75ecc))
+* **tests:** test fixes to support contentToken ([6329216](https://github.com/mozilla/fxa-content-server/commit/6329216))
+
+### Features
+
+* **client:** Smooth out fo the ACCOUNT_RESET flow. ([c27cbd5](https://github.com/mozilla/fxa-content-server/commit/c27cbd5))
+* **client:** Smooth out the "reset_password_confirm=false" flow. ([03a7821](https://github.com/mozilla/fxa-content-server/commit/03a7821))
+* **content:** add init content token generation ([39ec1a0](https://github.com/mozilla/fxa-content-server/commit/39ec1a0))
+* **content:** add initial content token generation  ([137b3b6](https://github.com/mozilla/fxa-content-server/commit/137b3b6))
+* **contentToken:** fix tests, add new error message ([410c0a7](https://github.com/mozilla/fxa-content-server/commit/410c0a7))
+* **contentToken:** remove ip hmac ([6400702](https://github.com/mozilla/fxa-content-server/commit/6400702))
+* **contentToken:** updates to token generation, new fxa-js-client ([07fe141](https://github.com/mozilla/fxa-content-server/commit/07fe141))
+* **reset:** add reset_password_confirm parameter to allow auto submit ([219b3d0](https://github.com/mozilla/fxa-content-server/commit/219b3d0))
+* **signin:** handle new account must reset error (126) ([026db71](https://github.com/mozilla/fxa-content-server/commit/026db71))
+
+
+
+<a name="0.53.1"></a>
+## 0.53.1 (2016-01-05)
+
+
+### Bug Fixes
+
+* **client:** Only send `internal:*` messages across the InterTabChannel. ([09d8533](https://github.com/mozilla/fxa-content-server/commit/09d8533))
+
+
+
 <a name="0.62.0"></a>
 # 0.62.0 (2016-05-18)
 
