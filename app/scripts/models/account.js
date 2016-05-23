@@ -19,6 +19,7 @@ define(function (require, exports, module) {
   var ProfileImage = require('models/profile-image');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
+  var SMS_INSTALL_LINK_ID = Constants.SMS_INSTALL_LINK_ID;
 
   // Account attributes that can be persisted
   var PERSISTENT = {
@@ -439,6 +440,18 @@ define(function (require, exports, module) {
      */
     checkUidExists: function () {
       return this._fxaClient.checkAccountExists(this.get('uid'));
+    },
+
+    /**
+     * Send an installation link for Firefox Mobile via SMS to a
+     * specific phone number.
+     *
+     * @param {string} phoneNumber - a US phone number to send to
+     * @returns {promise} - resolves when complete
+     */
+    sendSmsInstallLink: function (phoneNumber) {
+      return this.getMarketingEmailPrefs()
+        .sendSms(phoneNumber, SMS_INSTALL_LINK_ID);
     },
 
     /**

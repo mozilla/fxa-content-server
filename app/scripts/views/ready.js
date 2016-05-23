@@ -171,7 +171,8 @@ define(function (require, exports, module) {
         language: this.language,
         metrics: this.metrics,
         service: this.relier.get('service'),
-        type: this.type
+        type: this.type,
+        user: this.user
       };
 
       var marketingSnippet;

@@ -8,7 +8,10 @@ define(function (require, exports, module) {
   var Able = require('lib/able');
   var chai = require('chai');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
+  var p = require('lib/promise');
   var sinon = require('sinon');
+  var User = require('models/user');
   var View = require('views/marketing_snippet_ios');
   var WindowMock = require('../../mocks/window');
 
@@ -30,6 +33,14 @@ define(function (require, exports, module) {
       options.metrics = metrics;
 
       options.able = new Able();
+
+
+      var notifier = new Notifier();
+      var user = new User({
+        notifier: notifier
+      });
+      options.user = user;
+
 
       view = new View(options);
     }
@@ -65,6 +76,7 @@ define(function (require, exports, module) {
             .then(function () {
               assert.equal(view.$('.marketing-link-ios').length, 1);
               assert.equal(view.$('.marketing-link-android').length, 0);
+              assert.equal(view.$('.marketing-sms-link').length, 0);
             });
       });
 
@@ -77,10 +89,11 @@ define(function (require, exports, module) {
             .then(function () {
               assert.equal(view.$('.marketing-link-ios').length, 0);
               assert.equal(view.$('.marketing-link-android').length, 1);
+              assert.equal(view.$('.marketing-sms-link').length, 0);
             });
       });
 
-      it('shows iOS and Android buttons to non-iOS, non-Android users', function () {
+      it('shows iOS, Android buttons, and SMS form to non-iOS, non-Android users', function () {
         windowMock.navigator.userAgent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)';
 
         createView();
@@ -89,6 +102,7 @@ define(function (require, exports, module) {
             .then(function () {
               assert.equal(view.$('.marketing-link-ios').length, 1);
               assert.equal(view.$('.marketing-link-android').length, 1);
+              assert.equal(view.$('.marketing-sms-link').length, 1);
             });
       });
 
@@ -144,6 +158,33 @@ define(function (require, exports, module) {
               var impression = filteredData.marketing[0];
               assert.isTrue(impression.clicked);
             });
+      });
+    });
+
+    describe('submitting sms form', function () {
+      it('sends sms request to basket', function () {
+        createView();
+
+        sinon.stub(view._account, 'sendSmsInstallLink', function () {
+          return p();
+        });
+
+        return view.render()
+          .then(function () {
+            view.$('#phone-number').val('555-555-1234');
+            view.submit()
+            .then(function () {
+              var spy = view._account.sendSmsInstallLink;
+              assert.isTrue(spy.calledOnce);
+              var args = spy.args[0];
+              assert.isEqual(args[0], '555-555-1234');
+
+              var filteredData = metrics.getFilteredData();
+              var ev = filteredData.events.pop();
+              assert.isEqual(ev.type, 'marketing_snippet_ios.submit');
+            });
+          });
+
       });
     });
   });
