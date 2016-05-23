@@ -75,12 +75,6 @@ define(function (require, exports, module) {
       this._language = options.language;
 
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
-
-      if (this._shouldShowProceedButton()) {
-        this.submit = this._submitForProceed.bind(this);
-      } else if (this._shouldShowSyncPreferencesButton()) {
-        this.submit = this._submitForSyncPreferences.bind(this);
-      }
     },
 
     context: function () {
@@ -116,6 +110,14 @@ define(function (require, exports, module) {
       return this.metrics.flush().then(function () {
         self.window.location.href = self.relier.get('redirectUri');
       });
+    },
+
+    submit: function () {
+      if (this._shouldShowProceedButton()) {
+        return this._submitForProceed();
+      } else if (this._shouldShowSyncPreferencesButton()) {
+        return this._submitForSyncPreferences();
+      }
     },
 
     _submitForSyncPreferences: function () {
