@@ -1,3 +1,13 @@
+<a name="0.62.2"></a>
+## 0.62.2 (2016-05-23)
+
+
+### Features
+
+* **client:** Handle the upcoming /complete_signin route. (#3758) ([9deb4ad](https://github.com/mozilla/fxa-content-server/commit/9deb4ad))
+
+
+
 <a name="0.62.1"></a>
 ## 0.62.1 (2016-05-20)
 
