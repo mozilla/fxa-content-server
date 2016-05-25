@@ -189,7 +189,6 @@ define(function (require, exports, module) {
           assert.lengthOf(args, 2);
           assert.equal(args[0], 'confirm');
           assert.strictEqual(args[1].account, account);
-          assert.equal(args[1].type, VerificationReasons.SIGN_UP);
         });
       });
 
@@ -214,9 +213,8 @@ define(function (require, exports, module) {
           assert.equal(view.navigate.callCount, 1);
           var args = view.navigate.args[0];
           assert.lengthOf(args, 2);
-          assert.equal(args[0], 'confirm');
+          assert.equal(args[0], 'confirm_signin');
           assert.strictEqual(args[1].account, account);
-          assert.equal(args[1].type, VerificationReasons.SIGN_IN);
         });
       });
 

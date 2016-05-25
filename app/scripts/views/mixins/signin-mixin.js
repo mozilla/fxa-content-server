@@ -65,14 +65,12 @@ define(function (require, exports, module) {
 
         if (verificationReason === VerificationReasons.SIGN_IN &&
             verificationMethod === VerificationMethods.EMAIL) {
-          return this.navigate('confirm', {
-            account: account,
-            type: VerificationReasons.SIGN_IN
+          return this.navigate('confirm_signin', {
+            account: account
           });
         } else {
           return this.navigate('confirm', {
-            account: account,
-            type: VerificationReasons.SIGN_UP
+            account: account
           });
         }
       }
