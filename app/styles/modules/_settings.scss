@@ -38,29 +38,52 @@ body.settings #main-content.card {
   #fxa-manage-account {
     @include hidpi-background-image('firefox', 80px 85px);
     background-repeat: no-repeat;
-    float: left;
+    html[dir=ltr] & {
+    	 float: left;
+     	}
+    html[dir=rtl] & {
+     	 float: right;
+     	}
     margin: 0;
 
     @include respond-to('big') {
-      background-position: left 11px;
       background-size: 36px auto;
       height: 64px;
       line-height: 63px;
-      padding-left: 48px;
+      html[dir=ltr] & {
+    	 background-position: left 11px;
+    	 padding-left: 48px;
+     	}
+    	html[dir=rtl] & {
+     	 background-position: right 11px;
+    	 padding-right: 48px;
+     	}
     }
 
     @include respond-to('small') {
-      background-position: left 8px;
       background-size: 32px auto;
       height: 48px;
       line-height: 50px;
-      padding-left: 36px;
+      html[dir=ltr] & {
+    	 background-position: left 8px;
+    	 padding-left: 36px;
+     	}
+    	html[dir=rtl] & {
+     	 background-position: right 8px;
+    	 padding-right: 36px;
+     	}
+     	
     }
   }
 
   .settings-button {
     display: block;
-    float: right;
+    html[dir=ltr] & {
+    	 float: right;
+     	}
+    html[dir=rtl] & {
+     	 float: left;
+     	}
     height: 30px;
 
     @include respond-to('big') {
@@ -70,7 +93,10 @@ body.settings #main-content.card {
 
     @include respond-to('small') {
       margin-top: 9px;
-      width: 29%;
+      html[dir=ltr] & {
+    	 width: 29%;
+     	}
+    
     }
   }
 
@@ -145,8 +171,12 @@ body.settings #main-content.card {
     }
 
     &:last-child {
-      float: right;
-
+      html[dir=ltr] & {
+    	 float: right;
+     	}
+    	html[dir=rtl] & {
+     	 float: left;
+     	}
       &.unpaired {
         float: none;
       }
@@ -296,17 +326,32 @@ body.settings #main-content.card {
 
   .settings-unit-summary {
     display: inline-block;
-    float: left;
+    html[dir=ltr] & {
+    	 float: left;
+     	}
+    html[dir=rtl] & {
+     	 float: right;
+     	}
     margin-top: 2px;
     overflow: hidden;
 
     @include respond-to('big') {
-      margin-right: 10px;
+      html[dir=ltr] & {
+    	 margin-right: 10px;
+     	}
+    	html[dir=rtl] & {
+     	 margin-left: 10px;
+     	}
       width: 350px;
     }
 
     @include respond-to('small') {
-      margin-right: 1%;
+      html[dir=ltr] & {
+    	 margin-right: 1%;
+     	}
+    	html[dir=rtl] & {
+     	 margin-left: 1%;
+     	}
       width: 70%;
     }
   }
