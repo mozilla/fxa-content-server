@@ -2,12 +2,14 @@
   background: $error-background-color;
   border-radius: $small-border-radius;
   color: $message-text-color;
+  
   html[dir=ltr] & {
   	left: 3px;
-  	}
+  }
+  
   html[dir=rtl] & {
   	right: 3px;
-  	}
+  }
   padding: 5px 12px;
   position: absolute;
   top: -32px;
@@ -20,12 +22,14 @@
     bottom: -8px;
     content: '.';
     height: 16px;
+    
     html[dir=ltr] & {
-    	left: 12px;
-    	}
+      left: 12px;
+    }
+    
     html[dir=rtl] & {
-  		right: 12px;
-  		}
+  	  right: 12px;
+  	}
     position: absolute;
     text-indent: -999px;
     transform: rotate(45deg);
