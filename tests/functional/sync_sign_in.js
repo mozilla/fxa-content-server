@@ -20,6 +20,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
@@ -73,6 +74,24 @@ define([
         .then(setupTest(this, true))
 
         .then(openVerificationLinkDifferentBrowser(email))
+
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
+
+    'verified, resend email, verify same browser': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(click('#resend'))
+        .then(visibleByQSA('.success'))
+
+        // email 0 is the original signin email, open the resent email instead
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-in-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
 
         // about:accounts will take over post-verification, no transition
         .then(noPageTransition('#fxa-confirm-signin-header'));

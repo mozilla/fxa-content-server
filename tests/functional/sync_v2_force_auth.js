@@ -44,7 +44,7 @@ define([
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutForceAuth(PASSWORD))
 
-      .then(testElementExists(preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'))
+      .then(testElementExists(options.preVerified ? '#fxa-confirm-signin-header' : '#fxa-confirm-header'))
       .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'))
       .then(testIsBrowserNotified(context, 'fxaccounts:login'));
   });
@@ -73,7 +73,7 @@ define([
         .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
-    'verified - about:acocunts, verify different browser - from original tab\'s P.O.V.': function () {
+    'verified - about:accounts, verify, from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest(this, {
           forceAboutAccounts: true,
@@ -96,22 +96,28 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:login'));
     },
 
-    'verified - web flow': function () {
+    'verified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest(this, {
           preVerified: true
         }))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(openVerificationLinkDifferentBrowser(email))
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     },
 
-    'unverified - web flow': function () {
+    'unverified - web flow, verify, from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest(this,  {
           preVerified: false
         }))
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified(this, 'fxaccounts:login'));
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        .then(openVerificationLinkDifferentBrowser(email, 1))
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     }
   });
 });
