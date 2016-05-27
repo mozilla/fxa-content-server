@@ -38,52 +38,60 @@ body.settings #main-content.card {
   #fxa-manage-account {
     @include hidpi-background-image('firefox', 80px 85px);
     background-repeat: no-repeat;
+    
     html[dir=ltr] & {
-    	 float: left;
-     	}
+      float: left;
+    }
+    
     html[dir=rtl] & {
-     	 float: right;
-     	}
+      float: right;
+    }
     margin: 0;
 
     @include respond-to('big') {
       background-size: 36px auto;
       height: 64px;
       line-height: 63px;
+      
       html[dir=ltr] & {
-    	 background-position: left 11px;
+        background-position: left 11px;
     	 padding-left: 48px;
-     	}
-    	html[dir=rtl] & {
-     	 background-position: right 11px;
-    	 padding-right: 48px;
-     	}
+      }
+      
+      html[dir=rtl] & {
+        background-position: right 11px;
+        padding-right: 48px;
+      }
     }
 
     @include respond-to('small') {
       background-size: 32px auto;
       height: 48px;
       line-height: 50px;
+      
       html[dir=ltr] & {
-    	 background-position: left 8px;
-    	 padding-left: 36px;
-     	}
-    	html[dir=rtl] & {
-     	 background-position: right 8px;
-    	 padding-right: 36px;
-     	}
+        background-position: left 8px;
+    	padding-left: 36px;
+      }
+      
+      html[dir=rtl] & {
+        background-position: right 8px;
+    	padding-right: 36px;
+      }
      	
     }
   }
 
   .settings-button {
     display: block;
+    
     html[dir=ltr] & {
-    	 float: right;
-     	}
+      float: right;
+    }
+    
     html[dir=rtl] & {
-     	 float: left;
-     	}
+      float: left;
+    }
     height: 30px;
 
     @include respond-to('big') {
@@ -171,12 +179,14 @@ body.settings #main-content.card {
     }
 
     &:last-child {
+    
       html[dir=ltr] & {
-    	 float: right;
-     	}
-    	html[dir=rtl] & {
-     	 float: left;
-     	}
+        float: right;
+      }
+      html[dir=rtl] & {
+        float: left;
+      }
+      
       &.unpaired {
         float: none;
       }
