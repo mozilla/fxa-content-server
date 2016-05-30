@@ -101,11 +101,7 @@ body.settings #main-content.card {
 
     @include respond-to('small') {
       margin-top: 9px;
-      
-      html[dir=ltr] & {
-        width: 29%;
-      }
-    
+      min-width: 29%;
     }
   }
 
