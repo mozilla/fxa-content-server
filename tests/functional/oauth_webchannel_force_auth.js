@@ -26,6 +26,7 @@ define([
 
       return FunctionalHelpers.clearBrowserState(this);
     },
+
     'verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
