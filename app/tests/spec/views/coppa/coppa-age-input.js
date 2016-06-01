@@ -69,14 +69,18 @@ define(function (require, exports, module) {
     });
 
     describe('onKeyDown', function () {
-      it('force digit input', function () {
-        var e1 = jQuery.Event('keydown', { which: KeyCodes.NUM_1 });
-        var e2 = jQuery.Event('keydown', { which: KeyCodes.NUM_PERIOD });
+      it('accept digits', function () {
+        var event = jQuery.Event('keydown', { which: KeyCodes.NUM_1 });
+        sinon.spy(event, 'preventDefault');
+        view.onKeyDown(event);
+        assert.isFalse(event.preventDefault.called);
+      });
 
-        // keydown events: 1.
-        $('#age').trigger(e1);
-        $('#age').trigger(e2);
-        assert.equal(view.$('#age').val(), '1');
+      it('does not allow non-digits', function () {
+        var event = jQuery.Event('keydown', {which: KeyCodes.NUM_PERIOD});
+        sinon.spy(event, 'preventDefault');
+        view.onKeyDown(event);
+        assert.isTrue(event.preventDefault.called);
       });
 
       function testEnterKeyTriggersSubmit(element, done) {
@@ -89,7 +93,7 @@ define(function (require, exports, module) {
         $(element).trigger(e);
       }
 
-      it('submits form if user presses enter on the age', function (done) {
+      it('submits on enter', function (done) {
         testEnterKeyTriggersSubmit('#age', done);
       });
     });
