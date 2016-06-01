@@ -18,16 +18,14 @@ define(function (require, exports, module) {
         window: self.window
       });
 
-      return self.flow.fetch().then(function () {
-        var flowId = self.flow.get('flowId');
-        var flowBegin = self.flow.get('flowBegin');
+      var flowId = self.flow.get('flowId');
+      var flowBegin = self.flow.get('flowBegin');
 
-        self.metrics.setActivityEventMetadata({
-          flowBeginTime: flowBegin,
-          flowId: flowId
-        });
-        self.metrics.logFlowBegin(flowId, flowBegin);
+      self.metrics.setActivityEventMetadata({
+        flowBeginTime: flowBegin,
+        flowId: flowId
       });
+      self.metrics.logFlowBegin(flowId, flowBegin);
     }
   };
 });

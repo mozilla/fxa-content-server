@@ -30,7 +30,7 @@ define(function (require, exports, module) {
         flowBeginMixin.logError = sinon.spy();
         $('body').data('flowId', FLOW_ID);
         $('body').data('flowBegin', 42);
-        return flowBeginMixin.afterRender();
+        flowBeginMixin.afterRender();
       });
 
       it('correctly created a Flow model instance', function () {

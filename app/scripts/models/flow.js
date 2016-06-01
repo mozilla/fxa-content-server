@@ -19,7 +19,6 @@ define(function (require, exports, module) {
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
   var ErrorUtils = require('lib/error-utils');
-  var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
   var SearchParamMixin = require('models/mixins/search-param');
   var vat = require('lib/vat');
@@ -30,31 +29,25 @@ define(function (require, exports, module) {
 
       this.sentryMetrics = options.sentryMetrics;
       this.window = options.window || window;
+
+      // We should either get both fields from the resume token, or neither.
+      // Getting one without the other is an error.
+      this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+      if (this.has('flowId')) {
+        if (! this.has('flowBegin')) {
+          this.logError(AuthErrors.toMissingResumeTokenPropertyError('flowBegin'));
+        }
+      } else if (this.has('flowBegin')) {
+        this.logError(AuthErrors.toMissingResumeTokenPropertyError('flowId'));
+      } else {
+        this.populateFromDataAttribute('flowId');
+        this.populateFromDataAttribute('flowBegin');
+      }
     },
 
     defaults: {
       flowBegin: null,
       flowId: null
-    },
-
-    fetch: function () {
-      var self = this;
-      return p()
-        .then(function () {
-          // We should either get both fields from the resume token, or neither.
-          // Getting one without the other is an error.
-          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
-          if (self.has('flowId')) {
-            if (! self.has('flowBegin')) {
-              self.logError(AuthErrors.toMissingResumeTokenPropertyError('flowBegin'));
-            }
-          } else if (self.has('flowBegin')) {
-            self.logError(AuthErrors.toMissingResumeTokenPropertyError('flowId'));
-          } else {
-            self.populateFromDataAttribute('flowId');
-            self.populateFromDataAttribute('flowBegin');
-          }
-        });
     },
 
     populateFromDataAttribute: function (attribute) {
