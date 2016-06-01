@@ -36,28 +36,36 @@ define([
   var email;
 
 
+  var setupTest = thenify(function (shouldVerifySignin) {
+    return this.parent
+      .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+      .then(clearBrowserState(this.parent))
+      .then(openPage(this.parent, SIGNIN_URL, '#fxa-signin-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutSignIn(this.parent, email, FIRST_PASSWORD))
+      .then(testIsBrowserNotifiedOfLogin(this.parent, email, { checkVerified: false }))
+
+      .then(function () {
+        if (shouldVerifySignin) {
+          return this.parent
+            .then(openVerificationLinkDifferentBrowser(email))
+
+            .then(openPage(this.parent, SETTINGS_URL, '#fxa-settings-header'))
+            .execute(listenForFxaCommands);
+        }
+      });
+  });
+
   registerSuite({
     name: 'Firefox Desktop Sync v1 settings',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-
-      return this.remote
-        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this))
-        .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
-        .then(testIsBrowserNotifiedOfLogin(this, email, { checkVerified: false }))
-        .then(openVerificationLinkDifferentBrowser(email))
-
-        .then(openPage(this, SETTINGS_URL, '#fxa-settings-header'))
-        .execute(listenForFxaCommands);
     },
-
 
     'sign in, change the password': function () {
       return this.remote
+        .then(setupTest(true))
         .then(click('#change-password .settings-unit-toggle'))
         .then(visibleByQSA('#change-password .settings-unit-details'))
 
@@ -67,6 +75,7 @@ define([
 
     'sign in, delete the account': function () {
       return this.remote
+        .then(setupTest(true))
         .then(click('#delete-account .settings-unit-toggle'))
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
@@ -78,8 +87,16 @@ define([
 
     'sign in, no way to sign out': function () {
       return this.remote
+        .then(setupTest(true))
         // make sure the sign out element doesn't exist
         .then(noSuchElement(this, '#signout'));
+    },
+
+    'sign in, do not confirm signin, load settings': function () {
+      return this.remote
+        .then(setupTest(false))
+        // the user did not confirm signin and must do so
+        .then(openPage(this, SETTINGS_URL, '#fxa-confirm-signin-header'));
     }
   });
 });
