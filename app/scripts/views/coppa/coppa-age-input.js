@@ -28,7 +28,7 @@ define(function (require, exports, module) {
 
     events: {
       'input': 'onInput',
-      'keydown': 'submitOnEnter',
+      'keydown': 'onKeyDown',
       'keyup': 'onInput'
     },
 
@@ -54,6 +54,22 @@ define(function (require, exports, module) {
       // limit age to only 3 characters
       var age = this.$(AGE_ELEMENT);
       age.val(age.val().substr(0, 3));
+    },
+
+    onKeyDown: function (event) {
+      // helper function to check for digit
+      function isKeyADigitOrBackSpace (keyCode) {
+        return ((keyCode === KeyCodes.BACKSPACE) ||
+        (keyCode >= KeyCodes.NUM_0 && keyCode <= KeyCodes.NUM_9) ||
+        (keyCode >= KeyCodes.NUMPAD_0 && keyCode <= KeyCodes.NUMPAD_9));
+      }
+
+      // submit on enter, force digit input
+      if (event.which === KeyCodes.ENTER) {
+        this.trigger('submit');
+      } else if (! isKeyADigitOrBackSpace(event.which)) {
+        event.preventDefault();
+      }
     },
 
     afterRender: function () {
@@ -82,12 +98,6 @@ define(function (require, exports, module) {
 
     _validateAge: function () {
       return ! isNaN(this._getAge());
-    },
-
-    submitOnEnter: function (event) {
-      if (event.which === KeyCodes.ENTER) {
-        this.trigger('submit');
-      }
     },
 
     _getAge: function () {
