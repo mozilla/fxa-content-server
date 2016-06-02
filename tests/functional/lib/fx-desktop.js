@@ -8,7 +8,7 @@ define([
 ], function (assert) {
 
   function getRemote(context) {
-    return context.get ? context : context.remote;
+    return context.remote || context.parent || context;
   }
 
   /**

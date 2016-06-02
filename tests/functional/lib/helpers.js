@@ -32,7 +32,7 @@ define([
   var UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 
   function getRemote(context) {
-    return context.get ? context : context.remote;
+    return context.remote || context.parent || context;
   }
 
   function clearBrowserState(context, options) {
@@ -445,7 +445,7 @@ define([
       options = options || {};
 
       var urlToOpen = FORCE_AUTH_URL + '?' + Querystring.stringify(options.query || {});
-      return openPage(this.parent, urlToOpen, options.header || '#fxa-force-auth-header');
+      return openPage(this, urlToOpen, options.header || '#fxa-force-auth-header');
     };
   }
 
