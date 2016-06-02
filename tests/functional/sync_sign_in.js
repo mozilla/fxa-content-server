@@ -11,6 +11,7 @@ define([
 ], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
   FxDesktopHelpers) {
   var config = intern.config;
+  var ROOT_URL = config.fxaContentRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
   var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 
@@ -97,9 +98,23 @@ define([
         .then(noPageTransition('#fxa-confirm-signin-header'));
     },
 
+    'verified, do not confirm signin, load root': function () {
+      return this.remote
+        .then(setupTest(this, true))
+
+        .then(openPage(this, ROOT_URL, '#fxa-confirm-signin-header'));
+    },
+
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false));
+    },
+
+    'unverified, do not confirm signin, load root': function () {
+      return this.remote
+        .then(setupTest(this, false))
+
+        .then(openPage(this, ROOT_URL, '#fxa-confirm-header'));
     },
 
     'as a migrating user': function () {

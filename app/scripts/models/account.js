@@ -223,6 +223,22 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     * Check the status of the account's current session
+     *
+     * @returns {promise} resolves with the account's current session
+     * information if session is valid. Rejects with an INVALID_TOKEN error
+     * if session is invalid.
+     */
+    sessionStatus: function () {
+      var sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return this._fxaClient.recoveryEmailStatus(sessionToken);
+    },
+
     isVerified: function () {
       return this._fxaClient.recoveryEmailStatus(this.get('sessionToken'))
         .then(function (results) {

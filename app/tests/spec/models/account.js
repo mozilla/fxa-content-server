@@ -183,6 +183,47 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('sessionStatus', function () {
+      describe('account does not have a sessionToken', function () {
+        var err;
+
+        beforeEach(function () {
+          account.unset('sessionToken');
+          return account.sessionStatus()
+            .then(assert.fail, function (_err) {
+              err = _err;
+            });
+        });
+
+        it('rejects with INVALID_TOKEN', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
+      });
+
+      describe('account has a sessionToken', function () {
+        var resp;
+
+        beforeEach(function () {
+          account.set('sessionToken', 'session token');
+
+          sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
+            return p({
+              verified: true
+            });
+          });
+
+          return account.sessionStatus()
+            .then(function (_resp) {
+              resp = _resp;
+            });
+        });
+
+        it('resolves with the session information', function () {
+          assert.isTrue(resp.verified);
+        });
+      });
+    });
+
     describe('isVerified', function () {
       it('isVerified returns false if account is unverified', function () {
         account.set('sessionToken', SESSION_TOKEN);
