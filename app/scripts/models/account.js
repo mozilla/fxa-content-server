@@ -224,11 +224,20 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Check the status of the account's current session
+     * Check the status of the account's current session. Status information
+     * includes whether the session is verified, and if not, the reason
+     * it must be verified and by which method.
      *
      * @returns {promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
+     *
+     * Session information:
+     * {
+     *   verified: <boolean>
+     *   verificationMethod: <see lib/verification-methods.js>
+     *   verificationReason: <see lib/verification-reasons.js>
+     * }
      */
     sessionStatus: function () {
       var sessionToken = this.get('sessionToken');
