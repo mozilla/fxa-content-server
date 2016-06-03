@@ -16,7 +16,7 @@ define([
    *   @param {number} [options.minAttemptsBeforeLog] - Minimum number of
    *   attempts before attempts are logged. Defaults to 2.
    *   @param {number} [options.maxAttempts] - number of email fetch attempts
-   *   to make. Defaults to Infinity.
+   *   to make. Defaults to 10.
    */
   function waitForEmail(uri, number, options) {
     options = options || {};
@@ -25,7 +25,7 @@ define([
       number = 1;
     }
 
-    var maxAttempts = options.maxAttempts || Infinity;
+    var maxAttempts = options.maxAttempts || 10;
     var minAttemptsBeforeLog = options.minAttemptsBeforeLog ||
                                options.maxAttempts ||
                                2;

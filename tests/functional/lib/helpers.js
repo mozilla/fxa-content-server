@@ -274,7 +274,8 @@ define([
    * @param {string} user - username or email address
    * @param {number} index - email index.
    * @param {object} [options]
-   *   @param {number} [options.maxAttempts] - number of email fetch attempts to make. Defaults to Infinity
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
    * @returns {promise} resolves with the email headers if email is found.
    */
   function getEmailHeaders(user, index, options) {
@@ -301,12 +302,6 @@ define([
    */
   function testEmailExpected(user, index, options) {
     return function () {
-      options = options || {};
-
-      if (! options.maxAttempts) {
-        options.maxAttempts = 10;
-      }
-
       return getEmailHeaders(user, index, options)
         .then(function () {
           return true;
@@ -326,17 +321,11 @@ define([
    * @param {string} user - username or email address
    * @param {number} index - email index.
    * @param {object} [options]
-   *   @param {number} [options.maxAttempts] - number of email fetch attempts to make.
-   *   Defaults to 10.
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
    */
   function noEmailExpected(user, index, options) {
     return function () {
-      options = options || {};
-
-      if (! options.maxAttempts) {
-        options.maxAttempts = 10;
-      }
-
       return getEmailHeaders(user, index, options)
         .then(function () {
           throw new Error('NoEmailExpected');
