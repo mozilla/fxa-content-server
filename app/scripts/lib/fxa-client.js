@@ -164,15 +164,15 @@ define(function (require, exports, module) {
      * @param {String} password
      * @param {Relier} relier
      * @param {Object} [options]
-     *   @param {String} [options.reason] - Reason for the sign in. See definitons
-     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
-     *   @param {String} [options.resume] - Resume token, passed in the
-     *                   verification link if the user must verify their email.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
      *                   whether the user wants to customize which items will
      *                   be synced. Defaults to `false`
      *   @param {String} [options.metricsContext] - context metadata for use in
      *                   activity events
+     *   @param {String} [options.reason] - Reason for the sign in. See definitons
+     *                   in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify their email.
      *   @param {String} [options.sessionTokenContext] - The context for which
      *                   the session token is being created. Defaults to the
      *                   relier's context.
@@ -230,16 +230,17 @@ define(function (require, exports, module) {
      * @param {String} password
      * @param {Relier} relier
      * @param {Object} [options]
-     *   @param {Boolean}[options.preVerified] - is the user preVerified
-     *   @param {String} [options.resume] - Resume token, passed in the
-     *                   verification link if the user must verify their email.
      *   @param {Boolean} [options.customizeSync] - If the relier is Sync,
-     *                   whether the user wants to customize which items will
-     *                   be synced. Defaults to `false`
+     *                    whether the user wants to customize which items
+     *                    will be synced. Defaults to `false`
      *   @param {String} [options.metricsContext] - Metrics context metadata
-     *   @param {String} [options.sessionTokenContext] - The context for which
-     *                   the session token is being created. Defaults to the
-     *                   relier's context.
+     *   @param {Boolean} [options.preVerified] - is the user preVerified
+     *   @param {String} [options.resume] - Resume token, passed in the
+     *                   verification link if the user must verify
+     *                   their email.
+     *   @param {String} [options.sessionTokenContext] - The context for
+     *                   which the session token is being created.
+     *                   Defaults to the relier's context.
      */
     signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);

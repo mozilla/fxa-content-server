@@ -100,10 +100,10 @@ define(function (require, exports, module) {
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
-      'signin_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_in' }),
+      'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signup(/)': createViewHandler(SignUpView),
       'signup_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_UP }),
-      'signup_permissions(/)': createViewHandler(PermissionsView, { type: 'sign_up' }),
+      'signup_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_UP }),
       'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
     },
 
