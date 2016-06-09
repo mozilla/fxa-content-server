@@ -12,10 +12,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  var Cocktail = require('cocktail');
   var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
-  module.exports = _.extend({
+  module.exports = Cocktail.mixin({
     /**
      * Initiate a password reset. If successful, redirects to
      * `confirm_reset_password`.
