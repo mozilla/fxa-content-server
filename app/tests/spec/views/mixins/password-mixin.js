@@ -9,9 +9,12 @@ define(function (require, exports, module) {
   var BaseView = require('views/base');
   var chai = require('chai');
   var Cocktail = require('cocktail');
+  var ExperimentMixin = require('views/mixins/experiment-mixin');
   var Metrics = require('lib/metrics');
+  var Notifier = require('lib/channels/notifier');
   var PasswordMixin = require('views/mixins/password-mixin');
   var Relier = require('models/reliers/relier');
+  var sinon = require('sinon');
   var TestHelpers = require('../../../lib/helpers');
   var TestTemplate = require('stache!templates/test_template');
 
@@ -22,7 +25,8 @@ define(function (require, exports, module) {
   });
   Cocktail.mixin(
     PasswordView,
-    PasswordMixin
+    PasswordMixin,
+    ExperimentMixin
   );
 
   describe('views/mixins/password-mixin', function () {
@@ -36,6 +40,7 @@ define(function (require, exports, module) {
 
       view = new PasswordView({
         metrics: metrics,
+        notifier: new Notifier(),
         relier: relier,
         viewName: 'password-view'
       });
@@ -48,6 +53,65 @@ define(function (require, exports, module) {
 
     afterEach(function () {
       $('#container').empty();
+    });
+
+    describe('afterVisible', function () {
+      it('notifier not called by default', function () {
+        sinon.spy(view.notifier, 'trigger');
+        view.afterVisible();
+        assert.isFalse(view.notifier.trigger.called);
+      });
+
+      it('notifier called if part of an experiment', function () {
+        sinon.spy(view.notifier, 'trigger');
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+        view.afterVisible();
+        assert.isTrue(view.notifier.trigger.called);
+      });
+
+      it('hides show password button if part of an experiment', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+        view.afterVisible();
+        assert.isTrue(view.$('.show-password-label').is(':hidden'));
+      });
+
+      it('shows show password button if part of an experiment control', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return false;
+        });
+        view.afterVisible();
+        assert.isFalse(view.$('.show-password-label').is(':hidden'));
+      });
+
+    });
+
+    describe('onPasswordVisibilityChange', function () {
+      it('tracks the experiment click ', function () {
+        sinon.stub(view, 'isInExperiment', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isInExperimentGroup', function () {
+          return true;
+        });
+        sinon.spy(view.notifier, 'trigger');
+
+        view.afterVisible();
+        view.$('.show-password').trigger('change');
+        assert.isTrue(view.notifier.trigger.calledWith('showPassword.clicked'));
+      });
     });
 
     describe('setPasswordVisibilityFromButton', function () {
@@ -120,18 +184,26 @@ define(function (require, exports, module) {
     });
 
     describe('show passwordHelper', function () {
-      it('set warning opacity to 1 if password length is less than 8', function () {
-        view.$('.password').val('1234');
-        view.showPasswordHelper();
+      it('set warning opacity to 1 if any password length is less than 8', function () {
+        view.$('#password').val('1234');
+        view.$('#vpassword').val('12345678');
+        view.$('#old_password').val('12345678');
+        view.$('#new_password').val('12345678');
+        view.onPasswordKeyUp();
         assert.equal(view.$('.input-help').css('opacity'), '1');
+        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
 
     describe('hide passwordHelper', function () {
-      it('set warning opacity to 0 if password length is greater than or equal 8', function () {
-        view.$('.password').val('12344456');
-        view.hidePasswordHelper();
+      it('set warning opacity to 0 if password length is greater than or equal to 8', function () {
+        view.$('#password').val('12345678');
+        view.$('#vpassword').val('12345678');
+        view.$('#old_password').val('12345678');
+        view.$('#new_password').val('123456789');
+        view.onPasswordKeyUp();
         assert.equal(view.$('.input-help').css('opacity'), '0');
+        assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
   });

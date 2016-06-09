@@ -15,9 +15,23 @@ define(function (require, exports, module) {
       'keyup input.password': 'onPasswordKeyUp'
     },
 
+    afterVisible: function () {
+      if (this.isInExperiment && this.isInExperiment('showPassword')) {
+        this.notifier.trigger('showPassword.triggered');
+
+        if (this.isInExperimentGroup('showPassword', 'treatment')) {
+          this.$el.find('.show-password-label').hide();
+        }
+      }
+    },
+
     onPasswordVisibilityChange: function (event) {
       var target = this.$(event.target);
       this.setPasswordVisibilityFromButton(target);
+
+      if (this.isInExperiment && this.isInExperiment('showPassword')) {
+        this.notifier.trigger('showPassword.clicked');
+      }
 
       // for docs on aria-controls, see
       // http://www.w3.org/TR/wai-aria/states_and_properties#aria-controls
@@ -57,19 +71,13 @@ define(function (require, exports, module) {
       }
     },
 
-    onPasswordKeyUp: function (event) {
+    onPasswordKeyUp: function () {
       var values = [];
-      values.push(this.getElementValue('.password').length);
 
-      // Check to see if change password fields are visible.
-      // If any field does not have 8 chars, display warning.
-      if (this.getElementValue('#new_password') || this.getElementValue('#new_password') === '') {
-        values.push(this.getElementValue('#new_password').length);
-      }
-
-      if (this.getElementValue('#old_password') || this.getElementValue('#old_password') === '') {
-        values.push(this.getElementValue('#old_password').length);
-      }
+      // Values contains all password classes length
+      this.$('.password').each(function (index, el) {
+        values.push($(el).val().length);
+      });
 
       var val = Math.min.apply(Math, values);
 
