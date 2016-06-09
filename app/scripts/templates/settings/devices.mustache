@@ -20,11 +20,16 @@
         {{#devices}}
           <li class="device {{type}}" id="{{id}}">
             <div class="device-name">
-              {{name}} {{#isCurrentDevice}}<span class="device-current">{{#t}}(current){{/t}}</span>{{/isCurrentDevice}}
+              {{name}}
             </div>
+            {{#isCurrentDevice}}
+            <span class="device-current">{{#t}}current device{{/t}}</span>
+            {{/isCurrentDevice}}
+            {{^isCurrentDevice}}
             <div class="last-connected">
               {{lastAccessTime}}
             </div>
+            {{/isCurrentDevice}}
             <button class="settings-button warning device-disconnect" data-id="{{id}}">{{#t}}Disconnect{{/t}}</button>
           </li>
         {{/devices}}
