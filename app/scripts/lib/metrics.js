@@ -65,9 +65,8 @@ define(function (require, exports, module) {
   var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('2m').milliseconds();
   var NOT_REPORTED_VALUE = 'none';
   var UNKNOWN_CAMPAIGN_ID = 'unknown';
-  var UNKNOWN_EXPERIMENT_CHOICE = 'unknown_experiment_choice';
 
-  // convert a hash of marketing impressions into an array of objects.
+  // convert a hash of metrics impressions into an array of objects.
   function flattenHashIntoArrayOfObjects (hashTable) {
     return _.reduce(hashTable, function (memo, key) {
       return memo.concat(_.map(key, function (value) {
@@ -373,9 +372,10 @@ define(function (require, exports, module) {
      * @param {String} choice - type of experiment
      * @param {String} group - the experiment group (treatment or control)
      */
-
     logExperiment: function (choice, group) {
-      choice = choice || UNKNOWN_EXPERIMENT_CHOICE;
+      if (! choice || ! group) {
+        return;
+      }
 
       var experiments = this._activeExperiments;
 
