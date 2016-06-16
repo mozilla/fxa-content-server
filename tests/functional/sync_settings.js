@@ -60,7 +60,7 @@ define([
     name: 'Firefox Desktop Sync v1 settings',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
     'sign in, change the password': function () {

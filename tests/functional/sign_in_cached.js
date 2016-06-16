@@ -48,7 +48,7 @@ define([
     name: 'sign_in cached',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       email2 = TestHelpers.createEmail();
       return this.remote
         .then(clearBrowserState(this, { force: true }))

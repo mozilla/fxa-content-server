@@ -46,7 +46,7 @@ define([
     name: 'Firefox Desktop Sync v1 force_auth',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
     'verified, verify same browser': function () {

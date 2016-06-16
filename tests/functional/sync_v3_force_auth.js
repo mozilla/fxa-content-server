@@ -32,7 +32,7 @@ define([
     name: 'Firefox Desktop Sync v3 force_auth',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
     'with a registered email, no uid, verify same browser': function () {

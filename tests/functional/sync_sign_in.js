@@ -51,7 +51,7 @@ define([
     name: 'Firefox Desktop Sync v1 sign_in',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       return this.remote
         .then(clearBrowserState(this));
     },

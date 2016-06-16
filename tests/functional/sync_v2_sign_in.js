@@ -46,7 +46,7 @@ define([
     name: 'Firefox Desktop Sync v2 sign_in',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
     },
 
     'verified, verify same browser': function () {

@@ -37,7 +37,7 @@ define([
     name: 'Firefox Desktop Sync v3 settings',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
