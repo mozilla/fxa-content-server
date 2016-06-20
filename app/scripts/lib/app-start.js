@@ -514,6 +514,7 @@ define(function (require, exports, module) {
       var viewOptions = _.extend({
         able: self._able,
         broker: self._authenticationBroker,
+        config: self._config,
         createView: self.createView.bind(self),
         formPrefill: self._formPrefill,
         fxaClient: self._fxaClient,

@@ -33,11 +33,38 @@ define(function (require, exports, module) {
       var self = this;
       return self.invokeBrokerMethod('beforeSignIn', account.get('email'))
         .then(function () {
+          if (window.grecaptcha && self._captcha === 0) {
+            // TODO: add promise
+            $.post('http://127.0.0.1:9000/v1/captcha/validate', {
+              email: account.get('email'),
+              recaptchaResponse: window.grecaptcha.getResponse(self._captcha)
+            });
+          }
+        })
+        .then(function () {
           return self.user.signInAccount(account, password, self.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
             resume: self.getStringifiedResumeToken()
+          }).fail(function (err) {
+            if (AuthErrors.is(err, 'THROTTLED')) {
+              if (window.grecaptcha) {
+                window.grecaptcha.reset(self._captcha);
+              } else {
+                window.onloadCallback = function () {
+                  self._captcha = window.grecaptcha.render('recaptcha', {
+                    sitekey: self.config.recaptchaSiteKey
+                  });
+                };
+                var script = document.createElement('script');
+                script.src = 'https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit';
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+              }
+            }
+            throw err;
           });
         })
         .then(function (account) {

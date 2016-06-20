@@ -22,7 +22,6 @@
       {{#isSyncMigration}}
           <div class="info nudge">{{#t}}Migrate your sync data by signing in to your Firefox&nbsp;Account.{{/t}}</div>
       {{/isSyncMigration}}
-
       {{#suggestedAccount}}
           <div class="avatar-wrapper avatar-view">
           </div>
@@ -42,6 +41,8 @@
             </div>
 
             <div class="button-row">
+
+              <div id="recaptcha"></div>
               <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
             </div>
            </form>
@@ -54,6 +55,8 @@
 
         {{^chooserAskForPassword}}
           <div class="button-row">
+
+            <div id="recaptcha"></div>
             <button type="submit" class="use-logged-in">{{#t}}Sign in{{/t}}</button>
           </div>
 
@@ -79,6 +82,7 @@
         </div>
 
         <div class="button-row">
+          <div id="recaptcha"></div>
           <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
         </div>
       </form>

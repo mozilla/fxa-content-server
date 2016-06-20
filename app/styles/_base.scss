@@ -212,3 +212,12 @@ a[data-visible-url^=http]::after {
   content: ' (' attr(href) ') ';
   word-break: break-all;
 }
+
+
+// TEMP
+#recaptcha {
+  margin-bottom: 20px;
+  @include respond-to('small') {
+    margin-bottom: 15px;
+  }
+}
