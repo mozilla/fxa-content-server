@@ -1,3 +1,15 @@
+<a name="0.63.1"></a>
+## 0.63.1 (2016-06-21)
+
+### Bug Fixes
+
+* **client:** Filter unwanted fields in call to /recovery_email/status ([bb04deab](https://github.com/mozilla/fxa-content-server/commit/bb04deab))
+* **tests:** Remove the syncCheckbox functional test. ([f3d0003e](https://github.com/mozilla/fxa-content-server/commit/f3d0003e))
+* **nsp:** update packages to fix nsp warnings ([de169575](https://github.com/mozilla/fxa-content-server/commit/de169575))
+* **nsp:** add to ignore list ([947feaae](https://github.com/mozilla/fxa-content-server/commit/947feaae))
+
+
+
 <a name="0.63.0"></a>
 # 0.63.0 (2016-06-01)
 
