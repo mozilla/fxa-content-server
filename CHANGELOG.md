@@ -1,3 +1,20 @@
+<a name="0.63.2"></a>
+## 0.63.2 (2016-06-21)
+
+
+### Bug Fixes
+
+* **client:** Filter unwanted fields in call to /recovery_email/status (#3839) (#3860) ([00244c4](https://github.com/mozilla/fxa-content-server/commit/00244c4))
+* **tests:** Remove the syncCheckbox functional test. ([7f04397](https://github.com/mozilla/fxa-content-server/commit/7f04397))
+* **train-63:** run grunt nsp --force to avoid noise ([490f658](https://github.com/mozilla/fxa-content-server/commit/490f658))
+* **train-63:** skip grunt lint due to brokenness; lint passes locally ([e0574e4](https://github.com/mozilla/fxa-content-server/commit/e0574e4))
+
+### chore
+
+* **mozlog:** bump mozlog from 2.0.3 to 2.0.4 for a crash fix ([b3cf965](https://github.com/mozilla/fxa-content-server/commit/b3cf965))
+
+
+
 <a name="0.63.0"></a>
 # 0.63.0 (2016-06-01)
 
