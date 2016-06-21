@@ -9,9 +9,7 @@ define([
   'require',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, assert, require, FunctionalHelpers) {
-  var SIGN_UP_URL = intern.config.fxaContentRoot + 'signup';
   var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=mailcheck&automatedBrowser=true';
-  var EXP_SYNCCHECKBOX_URL = intern.config.fxaContentRoot + 'signup?forceExperiment=syncCheckbox&context=fx_desktop_v1&service=sync';
   var EXP_CONTROL = '&forceExperimentGroup=control';
   var EXP_TREATMENT = '&forceExperimentGroup=treatment';
 
@@ -75,40 +73,6 @@ define([
 
         .then(FunctionalHelpers.noSuchElement(self, '.tooltip-suggest'))
         .end();
-    }
-  });
-
-  registerSuite({
-    name: 'verification_experiments - syncCheckbox',
-
-    beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    'treatment works': function () {
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_TREATMENT))
-
-        .findByCssSelector('#customize-sync.customize-sync-top')
-        .end()
-
-        .get(require.toUrl(SIGN_UP_URL));
-    },
-
-    'control works': function () {
-      return this.remote
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(EXP_SYNCCHECKBOX_URL + EXP_CONTROL))
-
-        .findByCssSelector('#customize-sync.customize-sync-bottom')
-        .end()
-
-        .get(require.toUrl(SIGN_UP_URL));
     }
   });
 });
