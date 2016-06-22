@@ -1,3 +1,13 @@
+<a name="0.63.3"></a>
+## 0.63.3 (2016-06-22)
+
+
+### Bug Fixes
+
+* **client:** Show a sensible error message if basket is unavailable. ([11c1c5e](https://github.com/mozilla/fxa-content-server/commit/11c1c5e)), closes [#3866](https://github.com/mozilla/fxa-content-server/issues/3866)
+
+
+
 <a name="0.63.2"></a>
 ## 0.63.2 (2016-06-21)
 
