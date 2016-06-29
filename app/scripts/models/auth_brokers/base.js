@@ -143,7 +143,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Called after sign in confirmation poll. Can be usedc to notify the RP
+     * Called after sign in confirmation poll. Can be used to notify the RP
      * that the user has signed in and confirmed their email address to verify
      * they want to allow the signin.
      */
