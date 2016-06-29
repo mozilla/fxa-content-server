@@ -189,7 +189,7 @@ PublicKey.prototype.deserializeFromObject = function(obj) {
 // ones published by NIST). For sign/verify that is ok: when someone else
 // gives a public key, they're instructing us how to distinguish between good
 // signatures and forgeries, and giving us a corrupt pubkey is their
-// perogative (plus we have no secrets to lose).
+// prerogative (plus we have no secrets to lose).
 //
 // Do not use this approach for DH key agreement. In that world, we *do* have
 // a private key that could be lost, and a maliciously crafted pubkey could

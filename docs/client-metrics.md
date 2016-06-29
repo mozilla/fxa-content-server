@@ -79,7 +79,7 @@ an OAuth relier, this will be the relier's `client_id`. Set to `none` if the use
 
 ## Event stream
 
-The event stream is a log of events and the time they occurred while the user is interacting with Firefox Accounts. The event stream includes which screens are displayed, any success or error messages displayed, any JavaScript errors that occurr, as well as any other information the developers or metrics team feel is important.
+The event stream is a log of events and the time they occurred while the user is interacting with Firefox Accounts. The event stream includes which screens are displayed, any success or error messages displayed, any JavaScript errors that occur, as well as any other information the developers or metrics team feel is important.
 
 ### Generic events
 * tooltip.generic-dismissed - a dismissable tooltip is dismissed

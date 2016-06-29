@@ -308,7 +308,7 @@ define(function (require, exports, module) {
             testInvalidQueryParams('scope', invalidValues);
           });
 
-          describe('trusted reliers that dont ask for consent', function () {
+          describe('trusted reliers that don't ask for consent', function () {
             beforeEach(function () {
               sinon.stub(relier, 'isTrusted', function () {
                 return true;

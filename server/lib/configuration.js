@@ -428,7 +428,7 @@ var conf = module.exports = convict({
   },
   public_url: {
     default: 'http://127.0.0.1:3030',
-    doc: 'The publically visible URL of the deployment',
+    doc: 'The publicly visible URL of the deployment',
     env: 'PUBLIC_URL'
   },
   redirect_port: {

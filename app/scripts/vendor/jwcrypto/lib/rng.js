@@ -32,7 +32,7 @@ function NativeRNG() {
 NativeRNG.prototype = {
   addEntropy: function(/* seed_in */) {
     // Do nothing.  When we have a native RNG (node's),
-    // external entropy isn't neccesary.
+    // external entropy isn't necessary.
   },
   autoseed: function(cb) {
     // yay, don't need to do anything

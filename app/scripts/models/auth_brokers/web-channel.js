@@ -158,7 +158,7 @@ define(function (require, exports, module) {
         .then(function (behavior) {
           if (self.hasPendingOAuthFlow()) {
             // This tab won't have access to key-fetching material, so
-            // retreive it from the session if necessary.
+            // retrieve it from the session if necessary.
             if (self.relier.wantsKeys()) {
               account.set('keyFetchToken', self.session.oauth.keyFetchToken);
               account.set('unwrapBKey', self.session.oauth.unwrapBKey);
