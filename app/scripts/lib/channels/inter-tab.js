@@ -10,7 +10,7 @@
  * The preferred adapter is the BroadcastChannelAdapter. It uses
  * the BroadcastChannel API to communicate between browser tabs. See
  * https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API.
- * The BroadcastChannelAdapter is the prefered way to communicate
+ * The BroadcastChannelAdapter is the preferred way to communicate
  * because it does not write any sensitive data to disk.
  *
  * LocalStorageAdapter uses localStorage and storage events to communicate

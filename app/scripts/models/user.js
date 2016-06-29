@@ -316,7 +316,7 @@ define(function (require, exports, module) {
 
     // Before a13f05f2 (18 Dec 2014), all kinds of extra
     // data was written to the Account. This extra data hung
-    // arround even if the user signed in again. After d4321990
+    // around even if the user signed in again. After d4321990
     // (12 Jan 2016), only allowed fields are allowed to be
     // set on an account, unexpected fields cause an error.
     // Update any accounts with unexpected data.

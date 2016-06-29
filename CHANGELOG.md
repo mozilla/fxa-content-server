@@ -761,7 +761,7 @@
 * **client:** Alphabetize deps and hash keys in metrics.js ([4756620](https://github.com/mozilla/fxa-content-server/commit/4756620))
 * **client:** Alphabetize deps, routes and object keys in router.js ([092f37b](https://github.com/mozilla/fxa-content-server/commit/092f37b))
 * **client:** Rename the FxDesktopRelier to the SyncRelier ([2e11bf0](https://github.com/mozilla/fxa-content-server/commit/2e11bf0))
-* **client:** Tease appart the FxSync and FxDesktopV1 auth brokers. ([cc963ab](https://github.com/mozilla/fxa-content-server/commit/cc963ab))
+* **client:** Tease apart the FxSync and FxDesktopV1 auth brokers. ([cc963ab](https://github.com/mozilla/fxa-content-server/commit/cc963ab))
 * **server:** Alphabetize the FRONTEND_ROUTES array. ([0474246](https://github.com/mozilla/fxa-content-server/commit/0474246))
 * **test:** Alphabetize the routes to test in the pages functional test. ([719c67c](https://github.com/mozilla/fxa-content-server/commit/719c67c))
 
@@ -1234,7 +1234,7 @@ the `api_proxy` configuration parameter.
 * **basket:** add a bit more logging to basket-proxy-server ([2de3d6aa](https://github.com/mozilla/fxa-content-server/commit/2de3d6aa155ba08e1752369dccc1805febd76b61))
 * **build:** revert use script and force it to use function mode ([faa0a02d](https://github.com/mozilla/fxa-content-server/commit/faa0a02d459b7c6c67bc774295700422a1cb3882))
 * **client:**
-  * Supress the malformed WebChannelMessageToContent log for errors ([531a2259](https://github.com/mozilla/fxa-content-server/commit/531a225976155e4a4ffa83d49b7a91452621145e))
+  * Suppress the malformed WebChannelMessageToContent log for errors ([531a2259](https://github.com/mozilla/fxa-content-server/commit/531a225976155e4a4ffa83d49b7a91452621145e))
   * Fix the submit button on communcation preferences page. ([fa0df9c7](https://github.com/mozilla/fxa-content-server/commit/fa0df9c77bfb3cf33ae62c596aa15bc35926c69a))
 * **lint:** remove "use strict" from server code ([745e569b](https://github.com/mozilla/fxa-content-server/commit/745e569b8042858b45f95ebea23f5ae45e91f84f), closes [#2558](https://github.com/mozilla/fxa-content-server/issues/2558))
 * **server:** inconsistent use of 'use strict' ([38ab1c05](https://github.com/mozilla/fxa-content-server/commit/38ab1c0516525274f2cec1fe380516c88545a7b0), closes [#1318](https://github.com/mozilla/fxa-content-server/issues/1318))
