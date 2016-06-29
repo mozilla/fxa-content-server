@@ -36,10 +36,7 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: preVerified }))
       .then(openPage(context, options.pageUrl || PAGE_URL, '.email'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
-      // delay for the webchannel message
-      .sleep(500)
-      .then(fillOutSignIn(context, email, PASSWORD))
-      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'));
+      .then(fillOutSignIn(context, email, PASSWORD));
   });
 
   registerSuite({
@@ -58,6 +55,7 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -76,6 +74,7 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -89,9 +88,23 @@ define([
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+        .then(clearBrowserNotifications())
 
-        .then(testElementExists('#fxa-confirm-header'));
+        .then(testElementExists('#fxa-confirm-header'))
+
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(this, email, 1))
+        .switchToWindow('newwindow')
+          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
     'signin, cancel merge warning': function () {
