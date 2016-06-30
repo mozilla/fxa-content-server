@@ -70,7 +70,7 @@ define(function (require, exports, module) {
         {
           id: 'device-2',
           isCurrentDevice: true,
-          name: 'beta'
+          name: null
         }
       ], {
         notifier: notifier
@@ -110,7 +110,9 @@ define(function (require, exports, module) {
       });
 
       it('renders devices already in the collection', function () {
-        assert.ok(view.$('li.device').length, 2);
+        assert.lengthOf(view.$('li.device'), 2);
+        assert.equal(view.$('#device-1 .device-name').text().trim(), 'alpha');
+        assert.equal(view.$('#device-2 .device-name').text().trim(), 'Unidentified device');
       });
     });
 
