@@ -1,3 +1,14 @@
+<a name="0.64.1"></a>
+## 0.64.1 (2016-06-30)
+
+
+### Bug Fixes
+
+* **client:** Fix sign in from the firstrun flow. (#3889) ([6a1a001](https://github.com/mozilla/fxa-content-server/commit/6a1a001)), closes [(#3889](https://github.com/(/issues/3889)
+* **tests:** no more post-verify email if service is blank ([caa85b1](https://github.com/mozilla/fxa-content-server/commit/caa85b1)), closes [#3879](https://github.com/mozilla/fxa-content-server/issues/3879)
+
+
+
 <a name="0.64.0"></a>
 # 0.64.0 (2016-06-22)
 
