@@ -199,6 +199,10 @@ define(function (require, exports, module) {
 
     _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
       var self = this;
+      // sets all password fields to type=password
+      self.$el.find('.password').each(function (i, el) {
+        el.type = 'password';
+      });
       return p()
           .then(_.bind(self.beforeSubmit, self))
           .then(function (shouldSubmit) {

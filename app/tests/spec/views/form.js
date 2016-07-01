@@ -170,6 +170,20 @@ define(function (require, exports, module) {
         return testFormSubmitted();
       });
 
+      it('sets all password fields to type `password`', function () {
+        view.$('.password').each(function (i, el) {
+          el.type = 'text';
+        });
+        view.formIsValid = true;
+        view.enableSubmitIfValid();
+        return view.validateAndSubmit()
+                  .then(function () {
+                    self.$('.password').each(function (i, el) {
+                      assert.equal(el.type, 'password', 'password fields were not set properly');
+                    });
+                  });
+      });
+
       it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
         view.enableSubmitIfValid();
