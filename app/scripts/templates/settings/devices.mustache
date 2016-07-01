@@ -19,7 +19,10 @@
       <ul class="device-list button-row">
         {{#devices}}
           <li class="device {{type}}" id="{{id}}">
-            <div class="device-name">{{name}}</div>
+            <div class="device-name">
+              {{#name}}{{name}}{{/name}}
+              {{^name}}{{#t}}Unidentified device{{/t}}{{/name}}
+            </div>
             {{#isCurrentDevice}}
             <div class="device-current">{{#t}}current device{{/t}}</div>
             {{/isCurrentDevice}}
