@@ -54,6 +54,7 @@ define([
         }));
     },
 
+/*
     'verified, verify same browser': function () {
       return this.remote
         .then(setupTest(this, true))
@@ -71,7 +72,7 @@ define([
         .then(testElementExists('#fxa-sign-in-complete-header'))
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
-
+*/
     'verified, verify different browser - from original tab\'s P.O.V.': function () {
       return this.remote
         .then(setupTest(this, true))
