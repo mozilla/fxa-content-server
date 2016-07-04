@@ -46,6 +46,8 @@ define(function (require, exports, module) {
 
     VERIFICATION_POLL_IN_MS: 4000,
 
+    ENABLE_SUBMIT_BUTTON_DELAY_IN_MS: 10000,
+
     EMAIL_RESEND_MAX_TRIES: 4,
 
     CODE_LENGTH: 32,

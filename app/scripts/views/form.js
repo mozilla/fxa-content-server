@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   var AuthErrors = require('lib/auth-errors');
   var BaseView = require('views/base');
+  var Constants = require('lib/constants');
   var Duration = require('duration');
   var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
   var p = require('lib/promise');
@@ -49,6 +50,8 @@ define(function (require, exports, module) {
 
     // Time to wait for a request to finish before showing a notice
     LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
+
+    ENABLE_SUBMIT_BUTTON_DELAY_IN_MS: Constants.ENABLE_SUBMIT_BUTTON_DELAY_IN_MS,
 
     constructor: function (options) {
       BaseView.call(this, options);
@@ -465,6 +468,8 @@ define(function (require, exports, module) {
       return message;
     },
 
+    submissionEnablingTimer: undefined,
+
     /**
      * Descendent views can override.
      *
@@ -472,11 +477,21 @@ define(function (require, exports, module) {
      * submissions or to disable form submissions. Return false or a
      * promise that resolves to false to prevent form submission.
      *
+     * Descendent may dismiss timer using timer-mixin function
+     * clearTimeout(arg), where arg is this view submissionEnablingTimer function
+     *
      * @return {promise || boolean || none} Reture a promise if
      *   beforeSubmit is an asynchronous operation.
      */
     beforeSubmit: function () {
       this.disableForm();
+
+      // reevaluates enabling form submission ENABLE_SUBMIT_BUTTON_DELAY_IN_MS
+      // after submission attempt
+      this.submissionEnablingTimer = this.setTimeout(
+        this.enableSubmitIfValid.bind(this),
+        this.ENABLE_SUBMIT_BUTTON_DELAY_IN_MS
+      );
     },
 
     /**
