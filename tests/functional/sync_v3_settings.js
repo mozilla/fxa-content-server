@@ -21,7 +21,7 @@ define([
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testIsBrowserNotified = thenify(FunctionalHelpers.testIsBrowserNotified);
+  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   var config = intern.config;
@@ -74,7 +74,7 @@ define([
         .then(visibleByQSA('#delete-account .settings-unit-details'))
 
         .then(fillOutDeleteAccount(this, FIRST_PASSWORD))
-        .then(testIsBrowserNotified(this, 'delete_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:delete_account'))
 
         .then(testElementExists('#fxa-signup-header'));
     },
