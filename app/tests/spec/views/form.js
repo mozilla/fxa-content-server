@@ -161,6 +161,23 @@ define(function (require, exports, module) {
         assert.isFalse(view.isFormEnabled());
         assert.isTrue(view.$('button').hasClass('disabled'));
       });
+
+      it('checks if enablig timer is set', function () {
+        var clock = sinon.useFakeTimers();
+        view.formIsValid = true;
+
+        assert.isUndefined(view.submissionEnablingTimer);
+
+        view.beforeSubmit();
+
+        assert.isTrue(view.$('button').hasClass('disabled'));
+
+        clock.tick(view.ENABLE_SUBMIT_BUTTON_DELAY_IN_MS);
+        clock.restore();
+
+        assert.isFalse(view.$('button').hasClass('disabled'));
+        assert.isTrue(!! view.submissionEnablingTimer);
+      });
     });
 
     describe('validateAndSubmit', function () {
