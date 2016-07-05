@@ -193,7 +193,6 @@ define(function (require, exports, module) {
       var screenInfo = new ScreenInfo(this._window);
       this._metrics = this._createMetrics({
         able: this._able,
-        campaign: relier.get('campaign'),
         clientHeight: screenInfo.clientHeight,
         clientWidth: screenInfo.clientWidth,
         context: relier.get('context'),
