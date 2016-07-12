@@ -151,8 +151,11 @@ define(function (require, exports, module) {
       NotifierMixin.initialize.call(this, options);
 
       // Prevent errors from being displayed by aborted XHR requests.
-      this._boundDisableErrors = _.bind(this.disableErrors, this);
+      this._boundDisableErrors = this.disableErrors.bind(this);
       $(this.window).on('beforeunload', this._boundDisableErrors);
+
+      this._boundCheckAuthorization = this.checkAuthorization.bind(this);
+      $(this.window).on('focus', this._boundCheckAuthorization);
     },
 
     /**
@@ -174,9 +177,7 @@ define(function (require, exports, module) {
       }
 
       return p()
-        .then(function () {
-          return self.checkAuthorization();
-        })
+        .then(self._boundCheckAuthorization)
         .then(function (isUserAuthorized) {
           return isUserAuthorized && self.beforeRender();
         })
@@ -435,7 +436,8 @@ define(function (require, exports, module) {
         $('body').removeClass(this.layoutClassName);
       }
 
-      this.$(this.window).off('beforeunload', this._boundDisableErrors);
+      $(this.window).off('beforeunload', this._boundDisableErrors);
+      $(this.window).off('focus', this._boundCheckAuthorization);
 
       this.destroyChildViews();
 

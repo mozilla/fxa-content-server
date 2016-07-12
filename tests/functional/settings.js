@@ -6,23 +6,26 @@ define([
   'intern',
   'intern!object',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, nodeXMLHttpRequest,
-      FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, require, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
 
+  var thenify = FunctionalHelpers.thenify;
+
+  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var getFxaClient = FunctionalHelpers.getFxaClient;
+  var openTab = FunctionalHelpers.openTab;
+  var testElementExists = FunctionalHelpers.testElementExists;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
   var FIRST_PASSWORD = 'password';
   var email;
-  var client;
   var accountData;
 
 
@@ -32,16 +35,12 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
-              .then(function (result) {
-                accountData = result;
-                return FunctionalHelpers.clearBrowserState(self);
-              });
+      return this.remote
+        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+        .then(function (result) {
+          accountData = result;
+        })
+        .then(clearBrowserState(this));
     },
 
     afterEach: function () {
@@ -185,15 +184,9 @@ define([
     beforeEach: function () {
       email = TestHelpers.createEmail();
 
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD)
-              .then(function () {
-                return FunctionalHelpers.clearBrowserState(self);
-              });
+      return this.remote
+        .then(createUser(email, FIRST_PASSWORD))
+        .then(clearBrowserState(this));
     },
 
     afterEach: function () {
@@ -212,6 +205,44 @@ define([
         .findById('fxa-confirm-header')
         .end();
     }
+  });
 
+  registerSuite({
+    name: 'settings with expired session',
+
+    beforeEach: function () {
+      email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
+        .then(clearBrowserState(this))
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+        .execute(function () {
+          // get the first (and only) stored account data, we want to destroy
+          // the session.
+          var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {};
+          var firstKey = Object.keys(accounts)[0];
+          return accounts[firstKey];
+        })
+        .then(function (_accountData) {
+          accountData = _accountData;
+        });
+    },
+
+    'click on settings page after session expires redirects to signin': function () {
+      return this.remote
+        // open a new tab so the settings page loses focus
+        .then(openTab('https://www.example.com', '_newtab'))
+        .switchToWindow('_newtab')
+        .then(function () {
+          return getFxaClient().sessionDestroy(accountData.sessionToken);
+        })
+        .closeCurrentWindow()
+        .switchToWindow('')
+        // switching to the window automatically focuses the window, which
+        // causes redirect to the signin page.
+        .then(testElementExists('#fxa-signin-header'));
+    }
   });
 });

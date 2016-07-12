@@ -240,6 +240,17 @@ define([
   }
 
   /**
+   * Get an fxa-js-client instance
+   *
+   * @returns {Object}
+   */
+  function getFxaClient () {
+    return new FxaClient(AUTH_SERVER_ROOT, {
+      xhr: nodeXMLHttpRequest.XMLHttpRequest
+    });
+  }
+
+  /**
    * Get the value of a query parameter
    *
    * @param {paramName}
@@ -372,6 +383,22 @@ define([
     };
   }
 
+  /**
+   * Open a new tab with the given URL and window name.
+   *
+   * @param {string} [url] defaults to `about:blank`
+   * @param {string} [name] defaults to `_newtab`
+   * @returns {promise} resolves when complete
+   */
+  function openTab(url, name) {
+    return function () {
+      return this.parent
+        .execute(function (url, name) {
+          window.open(url, name);
+        }, [url || 'about:blank', name || '_newtab']);
+    };
+  }
+
   function openWindow (url, name) {
     var newWindow = window.open(url, name);
 
@@ -419,9 +446,7 @@ define([
     if (typeof client === 'string') {
       emailNumber = email;
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -439,9 +464,7 @@ define([
     if (typeof client === 'string') {
       password = email;
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -482,9 +505,7 @@ define([
   function openUnlockLinkDifferentBrowser(client, email) {
     if (typeof client === 'string') {
       email = client;
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
+      client = getFxaClient();
     }
 
     var user = TestHelpers.emailToUser(email);
@@ -1072,9 +1093,7 @@ define([
   function lockAccount(email, password) {
     return function () {
       return this.parent.then(function () {
-        var client = new FxaClient(AUTH_SERVER_ROOT, {
-          xhr: nodeXMLHttpRequest.XMLHttpRequest
-        });
+        var client = getFxaClient();
 
         return client.accountLock(email, password);
       });
@@ -1227,9 +1246,7 @@ define([
     options = options || {};
     return function () {
       return this.parent.then(function () {
-        var client = new FxaClient(AUTH_SERVER_ROOT, {
-          xhr: nodeXMLHttpRequest.XMLHttpRequest
-        });
+        var client = getFxaClient();
 
         return client.signUp(
             email, password, { preVerified: options.preVerified });
@@ -1411,6 +1428,7 @@ define([
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
     getEmailHeaders: getEmailHeaders,
+    getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
@@ -1430,6 +1448,7 @@ define([
     openSettingsInNewTab: openSettingsInNewTab,
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
+    openTab: openTab,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
