@@ -177,7 +177,9 @@ define(function (require, exports, module) {
       }
 
       return p()
-        .then(self._boundCheckAuthorization)
+        .then(function () {
+          return self.checkAuthorization();
+        })
         .then(function (isUserAuthorized) {
           return isUserAuthorized && self.beforeRender();
         })

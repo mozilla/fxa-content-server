@@ -280,6 +280,23 @@ define([
   }
 
   /**
+   * Force a focus event to fire on an element.
+   *
+   * @param {string} [selector] - selector of element - defaults to the window.
+   * @returns promise - resolves when complete
+   */
+  function focus (selector) {
+    return function () {
+      return this.parent
+        .execute(function (selector) {
+          var target = selector ? document.querySelector(selector) : window;
+          var event = new FocusEvent('focus');
+          target.dispatchEvent(event);
+        }, [ selector ]);
+    };
+  }
+
+  /**
    * Get the email headers
    *
    * @param {string} user - username or email address
@@ -380,22 +397,6 @@ define([
         .then(function (verificationLink) {
           return this.parent.get(require.toUrl(verificationLink));
         });
-    };
-  }
-
-  /**
-   * Open a new tab with the given URL and window name.
-   *
-   * @param {string} [url] defaults to `about:blank`
-   * @param {string} [name] defaults to `_newtab`
-   * @returns {promise} resolves when complete
-   */
-  function openTab(url, name) {
-    return function () {
-      return this.parent
-        .execute(function (url, name) {
-          window.open(url, name);
-        }, [url || 'about:blank', name || '_newtab']);
     };
   }
 
@@ -730,7 +731,6 @@ define([
         .then(click('button[type=submit]'));
     };
   }
-
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
     return getRemote(context)
@@ -1427,6 +1427,7 @@ define([
     fillOutResetPassword: fillOutResetPassword,
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,
+    focus: focus,
     getEmailHeaders: getEmailHeaders,
     getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
@@ -1448,7 +1449,6 @@ define([
     openSettingsInNewTab: openSettingsInNewTab,
     openSignInInNewTab: openSignInInNewTab,
     openSignUpInNewTab: openSignUpInNewTab,
-    openTab: openTab,
     openUnlockLinkDifferentBrowser: openUnlockLinkDifferentBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,

@@ -5,10 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, require, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -19,15 +18,15 @@ define([
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
+  var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
-  var openTab = FunctionalHelpers.openTab;
+  var openPage = thenify(FunctionalHelpers.openPage);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
   var FIRST_PASSWORD = 'password';
   var email;
   var accountData;
-
 
   registerSuite({
     name: 'settings',
@@ -186,24 +185,15 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD))
-        .then(clearBrowserState(this));
-    },
-
-    afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+        .then(clearBrowserState(this))
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'));
     },
 
     'visit settings page with an unverified account redirects to confirm': function () {
-      var self = this;
-
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD)
-        .findById('fxa-confirm-header')
-        .end()
-
-        .get(require.toUrl(SETTINGS_URL))
+      return this.remote
         // Expect to get redirected to confirm since the account is unverified
-        .findById('fxa-confirm-header')
-        .end();
+        .then(openPage(this, SETTINGS_URL, '#fxa-confirm-header'));
     }
   });
 
@@ -215,7 +205,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this))
+        .then(clearBrowserState(this, { force: true }))
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .execute(function () {
@@ -225,23 +215,21 @@ define([
           var firstKey = Object.keys(accounts)[0];
           return accounts[firstKey];
         })
-        .then(function (_accountData) {
-          accountData = _accountData;
+        .then(function (accountData) {
+          return getFxaClient().sessionDestroy(accountData.sessionToken);
         });
     },
 
-    'click on settings page after session expires redirects to signin': function () {
+    afterEach: function () {
+      // browser state must be cleared or the tests that follow fail.
       return this.remote
-        // open a new tab so the settings page loses focus
-        .then(openTab('https://www.example.com', '_newtab'))
-        .switchToWindow('_newtab')
-        .then(function () {
-          return getFxaClient().sessionDestroy(accountData.sessionToken);
-        })
-        .closeCurrentWindow()
-        .switchToWindow('')
-        // switching to the window automatically focuses the window, which
-        // causes redirect to the signin page.
+        .then(clearBrowserState(this, { force: true }));
+    },
+
+    'a focus on the settings page after session expires redirects to signin': function () {
+      return this.remote
+        .then(focus())
+
         .then(testElementExists('#fxa-signin-header'));
     }
   });
