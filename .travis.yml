@@ -5,7 +5,7 @@ node_js:
   - "4"
 
 addons:
-  firefox: "latest-esr"
+  firefox: "47"
   apt:
     sources:
       - ubuntu-toolchain-r-test
