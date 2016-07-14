@@ -289,6 +289,12 @@ define([
     return function () {
       return this.parent
         .execute(function (selector) {
+          // The only way to reliably cause a Focus Event is to manually create
+          // one. Just clicking or focusing the window does not work if the
+          // Selenium window is not in focus. This does however. BAM! See the
+          // conversation in
+          // https://github.com/seleniumhq/selenium-google-code-issue-archive/issues/1671
+          // The hint is: "... a hack to work around synthesized events not behaving properly"
           var target = selector ? document.querySelector(selector) : window;
           var event = new FocusEvent('focus');
           target.dispatchEvent(event);
