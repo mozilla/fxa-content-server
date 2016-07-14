@@ -24,7 +24,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "babel-middleware": "git://github.com/shane-tomlinson/babel-middleware.git#909c9941",
+    "babel-middleware": "git://github.com/shane-tomlinson/babel-middleware.git#45c06180",
     "babel-preset-es2015-nostrict": "6.6.2",
     "bluebird": "3.3.5",
     "body-parser": "1.15.0",

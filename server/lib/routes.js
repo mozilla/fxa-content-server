@@ -89,8 +89,9 @@ module.exports = function (config, i18n) {
           presets: ['babel-preset-es2015-nostrict'],
           sourceMaps: true
         },
-        debug: false,
+        consoleErrors: true,
         exclude: ['scripts/{head|vendor}/**'],
+        serverConsoleErrors: true,
         srcPath: path.join(__dirname, '..', '..', 'app')
       }));
 

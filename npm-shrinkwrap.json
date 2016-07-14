@@ -4,8 +4,8 @@
   "dependencies": {
     "babel-middleware": {
       "version": "0.3.4",
-      "from": "git://github.com/shane-tomlinson/babel-middleware.git#909c9941",
-      "resolved": "git://github.com/shane-tomlinson/babel-middleware.git#909c994122e0f8b6058c35a47ce6e29323ef3695",
+      "from": "git://github.com/shane-tomlinson/babel-middleware.git#45c06180",
+      "resolved": "git://github.com/shane-tomlinson/babel-middleware.git#45c061806c67cec3325063f3f87d8bcbb5d82aa4",
       "dependencies": {
         "babel-core": {
           "version": "6.10.4",
