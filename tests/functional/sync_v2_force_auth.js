@@ -116,7 +116,9 @@ define([
         .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
 
-        .then(openVerificationLinkDifferentBrowser(email, 1))
+        // There are 1 signup and 2 verification reminder emails before this
+        // email is sent.
+        .then(openVerificationLinkDifferentBrowser(email, 3))
         .then(testElementExists('#fxa-sign-up-complete-header'));
     }
   });

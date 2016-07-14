@@ -19,6 +19,7 @@ define([
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
+  var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementDisabled = FunctionalHelpers.testElementDisabled;
@@ -208,6 +209,28 @@ define([
         // ensure the email is filled in, and not editible.
         .then(testElementValueEquals('input[type=email]', email))
         .then(testElementDisabled('input[type=email]'));
+    },
+
+    'unverified - web flow, verify, from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: false }))
+        .then(openForceAuth({
+          query: {
+            context: 'fx_desktop_v3',
+            email: email,
+            service: 'sync'
+          }
+        }))
+        .then(noSuchBrowserNotification(this, 'fxaccounts:logout'))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutForceAuth(PASSWORD))
+        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified(this, 'fxaccounts:login'))
+
+        // There are 1 signup and 2 verification reminder emails before this
+        // email is sent.
+        .then(openVerificationLinkDifferentBrowser(email, 3))
+        .then(testElementExists('#fxa-sign-up-complete-header'));
     }
   });
 });
