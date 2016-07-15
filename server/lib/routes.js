@@ -89,9 +89,9 @@ module.exports = function (config, i18n) {
           presets: ['babel-preset-es2015-nostrict'],
           sourceMaps: true
         },
+        cachePath: path.join(__dirname, '..', '..', '.es5cache'),
         consoleErrors: true,
         exclude: ['scripts/{head|vendor}/**'],
-        serverConsoleErrors: true,
         srcPath: path.join(__dirname, '..', '..', 'app')
       }));
 

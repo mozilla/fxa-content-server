@@ -23,6 +23,7 @@ app/bower_components
 
 ### Babel compiled scripts ###
 .es5
+.es5cache
 
 ### Linux ###
 .*
