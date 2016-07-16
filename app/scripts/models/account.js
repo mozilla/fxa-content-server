@@ -728,9 +728,6 @@ define(function (require, exports, module) {
      *
      * @param {object} device - Device model to remove
      * @returns {promise} - resolves when complete
-     *
-     * @param {object} devices - Devices collection
-     * @returns {promise} - resolves when complete
      */
     destroyDevice: function (device) {
       var deviceId = device.get('id');

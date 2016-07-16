@@ -89,6 +89,7 @@ define(function (require, exports, module) {
       'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
+      'settings/services(/)': createChildViewHandler(ServicesView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),

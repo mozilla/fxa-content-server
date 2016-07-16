@@ -531,6 +531,12 @@ define(function (require, exports, module) {
       return account.fetchDevices(devices);
     },
 
+    fetchAccountServices: function (account, services) {
+      var accessToken = account.get('accessToken');
+      return this._oAuthClient.fetchServices(accessToken, services)
+        .then(services.set.bind(services));
+    },
+
     /**
      * Destroy a device on the given account. If the current device
      * is destroyed, sign out the user.
@@ -547,6 +553,11 @@ define(function (require, exports, module) {
             self.clearSignedInAccount();
           }
         });
+    },
+
+    destroyAccountService: function (account, serviceId) {
+      var accessToken = account.get('accessToken');
+      return this._oAuthClient.deleteService(accessToken, serviceId);
     },
 
     /**

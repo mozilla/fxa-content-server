@@ -9,6 +9,8 @@ define(function (require, exports, module) {
   var xhr = require('lib/xhr');
 
   var GET_CLIENT = '/v1/client/';
+  var LIST_SERVICES = '/v1/services';
+  var DELETE_SERVICE = '/v1/services/'
   var GET_CODE = '/v1/authorization';
   var DESTROY_TOKEN = '/v1/destroy';
 
@@ -43,6 +45,26 @@ define(function (require, exports, module) {
 
     getClientInfo: function getClientInfo(id) {
       return this._request('get', GET_CLIENT + id);
+    },
+
+    fetchServices: function fetchServices(accessToken) {
+      var request = {
+        accessToken: accessToken,
+        type: 'get',
+        url: this._oAuthUrl + LIST_SERVICES
+      };
+
+      return xhr.oauthAjax(request)
+    },
+
+    deleteService: function deleteService(accessToken, service) {
+      var request = {
+        accessToken: accessToken,
+        type: 'delete',
+        url: this._oAuthUrl + DELETE_SERVICE + service.id
+      };
+
+      return xhr.oauthAjax(request)
     },
 
     // params = { assertion, client_id, scope }
