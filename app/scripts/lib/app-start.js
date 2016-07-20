@@ -706,7 +706,7 @@ define(function (require, exports, module) {
       return verificationInfo;
     },
 
-    _isSignUpOrAccountUnlockVerification () {
+    _isSignUpVerification () {
       return this._searchParam('code') &&
              this._searchParam('uid');
     },
@@ -717,7 +717,7 @@ define(function (require, exports, module) {
     },
 
     _isVerification () {
-      return this._isSignUpOrAccountUnlockVerification() ||
+      return this._isSignUpVerification() ||
              this._isPasswordResetVerification();
     },
 
