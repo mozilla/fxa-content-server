@@ -36,7 +36,10 @@ define([
       .then(createUser(email, PASSWORD, { preVerified: preVerified }))
       .then(openPage(context, options.pageUrl || PAGE_URL, '.email'))
       .then(respondToWebChannelMessage(context, 'fxaccounts:can_link_account', { ok: options.canLinkAccountResponse !== false }))
-      .then(fillOutSignIn(context, email, PASSWORD));
+      // delay for the webchannel message
+      .sleep(500)
+      .then(fillOutSignIn(context, email, PASSWORD))
+      .then(testIsBrowserNotified(context, 'fxaccounts:can_link_account'));
   });
 
   registerSuite({
@@ -55,7 +58,6 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -74,7 +76,6 @@ define([
       return this.remote
         .then(setupTest(this, true))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(clearBrowserNotifications())
         .then(testElementExists('#fxa-confirm-signin-header'))
@@ -88,7 +89,6 @@ define([
     'unverified': function () {
       return this.remote
         .then(setupTest(this, false))
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(testIsBrowserNotified(this, 'fxaccounts:login'))
         .then(clearBrowserNotifications())
 
@@ -111,7 +111,6 @@ define([
       return this.remote
         .then(setupTest(this, true, { canLinkAccountResponse: false }))
 
-        .then(testIsBrowserNotified(this, 'fxaccounts:can_link_account'))
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'))
 
         // user should not transition to the next screen
