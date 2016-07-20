@@ -26,7 +26,9 @@ function isFxOS1x(agent) {
 function isFennecLessThan24(agent) {
   return agent.os.family === 'Android' &&
          agent.ua.family === 'Firefox Mobile' &&
-         (parseInt(agent.ua.major, 10) < 24);
+         // Fennec 25 is the first version w/ the CSP 1.0 parser, see
+         // https://bugzilla.mozilla.org/show_bug.cgi?id=858780
+         (parseInt(agent.ua.major, 10) < 25);
 }
 
 function agentRequiresConnectSrcCopiedToDefaultSrc (uaHeader) {

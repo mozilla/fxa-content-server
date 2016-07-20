@@ -40,12 +40,14 @@ define([
     // FxOS 2.0
     assert.isFalse(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Mobile; rv:32.0) Gecko/32.0 Firefox/32.0'));
 
-    // Fennec 23
-    assert.isTrue(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Android; Mobile; rv:23.0) Gecko/23.0 Firefox/23.0'));
     // Fennec 24
-    assert.isFalse(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Android; Mobile; rv:24.0) Gecko/24.0 Firefox/24.0'));
+    assert.isTrue(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Android; Mobile; rv:24.0) Gecko/24.0 Firefox/24.0'));
+    // Fennec 25 (first version w/ CSP 1.0 - see
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=858780)
+    assert.isFalse(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Android; Mobile; rv:25.0) Gecko/25.0 Firefox/25.0'));
 
-    // FxDesktop on a Mac
+    // FxDesktop on a Mac - Helmet takes care of all
+    // Fx Desktop versions for us.
     assert.isFalse(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:10.0) Gecko/20100101 Firefox/10.0'));
     assert.isFalse(agentRequiresConnectSrcCopiedToDefaultSrc('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:47.0) Gecko/20100101 Firefox/47.0'));
 
