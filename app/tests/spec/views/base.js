@@ -361,7 +361,7 @@ define(function (require, exports, module) {
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
           $('html').addClass('no-touch');
-          // wekbit fails unless focusing another element first.
+          // webkit fails unless focusing another element first.
           $('#otherElement').focus();
 
           var handlerCalled = false;
@@ -592,7 +592,7 @@ define(function (require, exports, module) {
     describe('focus', () => {
       it('focuses an element, sets the cursor position', (done) => {
         requiresFocus(() => {
-          // wekbit fails unless focusing another element first.
+          // webkit fails unless focusing another element first.
           $('#otherElement').focus();
 
           const elText = 'some text';
