@@ -1,3 +1,17 @@
+<a name="0.65.1"></a>
+## 0.65.1 (2016-07-26)
+
+
+### Bug Fixes
+
+* **server:** Ensure CSS for the TOS/PP agreements is served from the CDN. (#3981) r=vladikoff ([4a038a1](https://github.com/mozilla/fxa-content-server/commit/4a038a1)), closes [#3976](https://github.com/mozilla/fxa-content-server/issues/3976)
+
+### Features
+
+* **tests:** Add signin confirmation tests for iOS, Fennec, WebChannel (#3937) ([d44edf5](https://github.com/mozilla/fxa-content-server/commit/d44edf5))
+
+
+
 <a name="0.65.0"></a>
 # 0.65.0 (2016-07-12)
 
