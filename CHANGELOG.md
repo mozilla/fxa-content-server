@@ -1,3 +1,15 @@
+<a name="0.66.1"></a>
+## 0.66.1 (2016-07-29)
+
+
+### Bug Fixes
+
+* **client:** No screen transition post confirm signin for OAuth Webchannel keys (#3998) r=vla ([2817930](https://github.com/mozilla/fxa-content-server/commit/2817930)), closes [#3966](https://github.com/mozilla/fxa-content-server/issues/3966)
+* **client:** OAuth flows that request keys must do signin confirmation. (#3991) ([bb586b6](https://github.com/mozilla/fxa-content-server/commit/bb586b6))
+* **tests:** fix remote tests/server/routes/get-fxa-client-configuration ([16ee320](https://github.com/mozilla/fxa-content-server/commit/16ee320))
+
+
+
 <a name="0.66.0"></a>
 # 0.66.0 (2016-07-26)
 
