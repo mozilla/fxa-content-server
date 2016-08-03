@@ -4,6 +4,8 @@
 
 var UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0';
 
+var path = require('path');
+
 var FirefoxProfile = require('firefox-profile');
 var myProfile = new FirefoxProfile();
 var profile = null;
@@ -41,6 +43,10 @@ if (profile) {
   // disable signed extensions
   // the WebDriver extension will not work where signed extensions are forced
   myProfile.setPreference('xpinstall.signatures.required', false);
+  // Firefox 48+ requires marionette settngs
+  myProfile.setPreference('marionette', true);
+  myProfile.setPreference('webdriver.gecko.driver', path.join(__dirname, 'node_modules', 'geckodriver', 'geckodriver'));
+
   // disable WebDriver extension compat check
   myProfile.setPreference('extensions.checkCompatibility.47.0', false);
   myProfile.setPreference('extensions.checkCompatibility.48.0', false);
