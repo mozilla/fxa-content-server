@@ -574,6 +574,45 @@ define(function (require, exports, module) {
 
     deviceDestroy: withClient((client, sessionToken, deviceId) => {
       return client.deviceDestroy(sessionToken, deviceId);
+    }),
+
+    /**
+     * Send a login authorization email.
+     *
+     * @returns {promise} resolves with response when complete.
+     */
+    sendLoginAuthorizationEmail (email, relier, options = {}) {
+      return this._getClient()
+        .then((client) => {
+          const clientOptions = {};
+
+          // `service` is sent on signIn to notify users when a new service
+          // has been attached to their account.
+          if (relier.has('service')) {
+            clientOptions.service = relier.get('service');
+          }
+
+          if (relier.has('redirectTo')) {
+            clientOptions.redirectTo = relier.get('redirectTo');
+          }
+
+          if (options.resume) {
+            clientOptions.resume = options.resume;
+          }
+
+          return client.sendLoginAuthorizationCode(email, options);
+        });
+    },
+
+    rejectLoginAuthorizationCode (uid, code) {
+      return this._getClient()
+        .then((client) => {
+          return client.rejectLoginAuthorizationCode(uid, code);
+        });
+    },
+
+    verifyLoginAuthorizationCode: withClient((client, uid, code) => {
+      return client.verifyLoginAuthorizationCode(uid, code);
     })
   };
 

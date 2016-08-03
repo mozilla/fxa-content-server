@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
+  var AuthorizeSignInView = require('../views/authorize_signin');
   var AvatarCameraView = require('../views/settings/avatar_camera');
   var AvatarChangeView = require('../views/settings/avatar_change');
   var AvatarCropView = require('../views/settings/avatar_crop');
@@ -19,8 +20,10 @@ define(function (require, exports, module) {
   var ClearStorageView = require('../views/clear_storage');
   var CommunicationPreferencesView = require('../views/settings/communication_preferences');
   var CompleteResetPasswordView = require('../views/complete_reset_password');
+  var CompleteSignInAuthorizationView = require('../views/complete_signin_authorization');
   var CompleteSignUpView = require('../views/complete_sign_up');
   var ConfirmResetPasswordView = require('../views/confirm_reset_password');
+  var ConfirmSignInAuthorizationView = require('../views/confirm_signin_authorization');
   var ConfirmView = require('../views/confirm');
   var CookiesDisabledView = require('../views/cookies_disabled');
   var DeleteAccountView = require('../views/settings/delete_account');
@@ -59,14 +62,17 @@ define(function (require, exports, module) {
   var Router = Backbone.Router.extend({
     routes: {
       '(/)': 'redirectToSignupOrSettings',
+      'authorize_signin(/)': createViewHandler(AuthorizeSignInView),
       'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
       'complete_signin(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_IN }),
+      'complete_signin_authorization(/)': createViewHandler(CompleteSignInAuthorizationView),
       'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),
       'confirm_reset_password(/)': createViewHandler(ConfirmResetPasswordView),
       'confirm_signin(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_IN }),
+      'confirm_signin_authorization(/)': createViewHandler(ConfirmSignInAuthorizationView, { type: VerificationReasons.SIGN_UP }),
       'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
       'force_auth(/)': createViewHandler(ForceAuthView),
       'force_auth_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.FORCE_AUTH }),

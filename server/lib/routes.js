@@ -80,6 +80,7 @@ module.exports = function (config, i18n) {
       // 1. The blanket code coverage tool does not understand ES6, only ES5.
       // 2. It'll give us a better approximation of the code that'll eventually
       //    be run on prod.
+      /*
       app.get('/scripts/*\.(js|map)', babel({
         babelOptions: {
           presets: ['babel-preset-es2015-nostrict'],
@@ -90,6 +91,7 @@ module.exports = function (config, i18n) {
         exclude: ['scripts/{head|vendor}/**'],
         srcPath: path.join(__dirname, '..', '..', 'app')
       }));
+      */
 
       // front end mocha tests
       app.get('/tests/index.html', function (req, res) {
@@ -108,14 +110,17 @@ module.exports = function (config, i18n) {
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
       '/',
+      '/authorize_signin',
       '/cannot_create_account',
       '/choose_what_to_sync',
       '/clear',
       '/complete_reset_password',
       '/complete_signin',
+      '/complete_signin_authorization',
       '/confirm',
       '/confirm_reset_password',
       '/confirm_signin',
+      '/confirm_signin_authorization',
       '/cookies_disabled',
       '/force_auth',
       '/force_auth_complete',

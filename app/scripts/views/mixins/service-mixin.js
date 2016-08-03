@@ -20,11 +20,7 @@ define(function (require, exports, module) {
 
     // override this method so we can fix signup/signin links in errors
     displayErrorUnsafe: function (err) {
-      var result = BaseView.prototype.displayErrorUnsafe.call(this, err);
-
       this.transformLinks();
-
-      return result;
     }
   };
 });

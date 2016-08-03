@@ -131,23 +131,26 @@ define(function (require, exports, module) {
      */
     _signIn: function (account, password) {
       return this.signIn(account, password)
-        .fail(this.onSignInError.bind(this, account, password));
+        .fail((err) => this.onSignInError(account, password, err));
     },
 
-    onSignInError: function (account, password, err) {
-      var self = this;
-
+    onSignInError (account, password, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-        return self._suggestSignUp(err);
+        return this._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-        self.logViewEvent('canceled');
+        this.logViewEvent('canceled');
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
-        return self.notifyOfResetAccount(account);
+        return this.notifyOfResetAccount(account);
       }
+
+      this.trigger('signInError', err, account);
+
       // re-throw error, it will be handled at a lower level.
-      throw err;
+      if (! err.handled) {
+        throw err;
+      }
     },
 
     _suggestSignUp: function (err) {

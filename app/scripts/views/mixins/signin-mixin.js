@@ -7,12 +7,35 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var p = require('lib/promise');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const AuthErrors = require('lib/auth-errors');
+  const p = require('lib/promise');
+  const {preventDefaultThen, t} = require('views/base');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    initialize () {
+      this.on('signInError',
+        this._createErrorHandler('THROTTLED', '_throttledHandler'));
+    },
+
+    _createErrorHandler (type, handler) {
+      return (err, account) => {
+        if (AuthErrors.is(err, type)) {
+          err.handled = true;
+          this.invokeHandler(handler, err, account);
+        }
+      };
+    },
+
+    _throttledHandler (err, account) {
+      this._throttledAccount = account;
+
+      this.navigate('confirm_signin_authorization', {
+        account: account
+      });
+    },
+
     /**
      * Sign in a user
      *

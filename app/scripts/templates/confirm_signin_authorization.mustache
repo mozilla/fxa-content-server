@@ -1,0 +1,25 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-confirm-authorize-signin-header">{{#t}}Uh oh. I'm afraid we can't do that for you just yet.{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success">
+      {{#t}}Email resent{{/t}}
+    </div>
+
+    <div class="graphic graphic-mail">{{#t}}Email Sent{{/t}}</div>
+
+    <p class="verification-email-message">
+    {{#t}}To better protect your Firefox data this sign-in must be authorized. To do this, click the verification link sent to %(email)s{{/t}}
+    </p>
+
+    <p>For authorization to successfully complete, you must keep this window open and check back afterwards.</p>
+
+    <div class="links">
+      <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
+      <a href="https://support.mozilla.org">{{#t}}Why is this happening?{{/t}}</a>
+    </div>
+  </section>
+</div>

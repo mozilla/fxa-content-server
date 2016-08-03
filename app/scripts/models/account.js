@@ -817,6 +817,48 @@ define(function (require, exports, module) {
 
           return relier.deriveRelierKeys(accountKeys, self.get('uid'));
         });
+    },
+
+    /**
+     * Send a login authorization email.
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @returns {promise} resolves when complete
+     */
+    sendLoginAuthorizationEmail (relier, options) {
+      return this._fxaClient.sendLoginAuthorizationEmail(
+        this.get('email'),
+        relier,
+        options
+      );
+    },
+
+    /**
+     * Reject a login authorization code.
+     *
+     * @param {string} code
+     * @returns {promise} resolves when complete
+     */
+    rejectLoginAuthorizationCode (code) {
+      return this._fxaClient.rejectLoginAuthorizationCode(
+        this.get('uid'),
+        code
+      );
+    },
+
+    /**
+     * Verify a login authorization code.
+     *
+     * @param {string} code
+     * @returns {promise} resolves when complete
+     */
+    verifyLoginAuthorizationCode (code, options) {
+      return this._fxaClient.verifyLoginAuthorizationCode(
+        this.get('uid'),
+        code,
+        options
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
