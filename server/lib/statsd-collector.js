@@ -34,18 +34,18 @@ function getGenericTags(body) {
   ];
 
   // Append any utm params
-  var utmParams = []
+  var utmParams = [];
   if (body.utm_content) {
-    utmParams.push('utm_content:' + body.utm_content)
+    utmParams.push('utm_content:' + body.utm_content);
   }
   if (body.utm_campaign) {
-    utmParams.push('utm_campaign:' + body.utm_campaign)
+    utmParams.push('utm_campaign:' + body.utm_campaign);
   }
   if (body.utm_content) {
-    utmParams.push('utm_source:' + body.utm_source)
+    utmParams.push('utm_source:' + body.utm_source);
   }
   if (body.utm_content) {
-    utmParams.push('utm_medium:' + body.utm_medium)
+    utmParams.push('utm_medium:' + body.utm_medium);
   }
   tags = tags.concat(utmParams);
 
