@@ -1346,7 +1346,9 @@ define([
       return this.parent
         .getAllWindowHandles()
         .then(function (handles) {
-          if (handles.length > 1) {
+          if (handles.length <= 1) {
+            throw new Error('LastWindowError');
+          } else {
             return this.parent
               .closeCurrentWindow()
               .switchToWindow(tabName || '');
