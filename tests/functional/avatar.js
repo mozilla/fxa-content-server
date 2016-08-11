@@ -6,10 +6,10 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'intern/node_modules/dojo/node!path',
+  //'intern/node_modules/dojo/node!path',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, path, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, /*path, */TestHelpers, FunctionalHelpers) {
   var config = intern.config;
 
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
@@ -18,7 +18,7 @@ define([
   var PASSWORD = 'password';
   var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
+//  var UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
   var email;
 
@@ -210,7 +210,11 @@ define([
 
         // success is returning to the avatar change page
         .then(testElementExists('#avatar-options'));
-    },
+    }/*,
+
+       These tests are commented out until Marionette/Geckodriver
+       support sending keys to the file type.
+       See https://github.com/mozilla/geckodriver/issues/168
 
     'upload a profile image': function () {
       return this.remote
@@ -251,7 +255,7 @@ define([
         //success is returning to the avatar change page
         .then(testElementExists('#avatar-options'));
     }
-
+   */
   });
 
 });
