@@ -169,24 +169,6 @@ define([
         .end();
     },
 
-    'sign in, go to settings and opening communication_preferences panel autofocuses the first button element': function () {
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
-        .findByCssSelector('[data-href="settings/communication_preferences"]')
-          .click()
-        .end()
-        .findById('marketing-email-optin')
-        .end()
-        .getActiveElement()
-        .then(function (element) {
-          element.getAttribute('class')
-            .then(function (className) {
-              assert.isTrue(className.includes('marketing-email-optin'));
-            });
-        })
-        .end();
-    },
-
     'sign in, open settings in a second tab, sign out': function () {
       var windowName = 'sign-out inter-tab functional test';
       var self = this;
