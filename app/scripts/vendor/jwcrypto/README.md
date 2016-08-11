@@ -1,6 +1,6 @@
 ## build jwcrypto.*.js
 
-jwcrypto.*.js is built from source using browserify:
+jwcrypto.*.js is built from source using browserify 13.1.0:
 
 ```bash
 browserify -s jwcrypto index.ds.js > jwcrypto.ds.js
