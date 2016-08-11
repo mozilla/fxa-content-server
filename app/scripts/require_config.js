@@ -33,6 +33,8 @@ require.config({
     jquery: '../bower_components/jquery/dist/jquery',
     'jquery-simulate': '../bower_components/jquery-simulate/jquery.simulate',
     'jquery-timeago': '../bower_components/jquery-timeago/jquery.timeago',
+    jwcrypto: 'vendor/jwcrypto/jwcrypto.ds',
+    'jwcrypto.rs': 'vendor/jwcrypto/jwcrypto.rs',
     mailcheck: '../bower_components/mailcheck/src/mailcheck',
     md5: '../bower_components/JavaScript-MD5/js/md5',
     modal: '../bower_components/jquery-modal/jquery.modal',
