@@ -157,6 +157,8 @@ define([
         .findByCssSelector('[data-href="settings/display_name"]')
           .click()
         .end()
+        .findByCssSelector('input.display-name')
+        .end()
         .getActiveElement()
         .then(function (element) {
           element.getAttribute('class')
@@ -172,6 +174,8 @@ define([
       return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD, true)
         .findByCssSelector('[data-href="settings/communication_preferences"]')
           .click()
+        .end()
+        .findById('marketing-email-optin')
         .end()
         .getActiveElement()
         .then(function (element) {
