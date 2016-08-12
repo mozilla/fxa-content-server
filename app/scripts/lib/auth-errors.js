@@ -90,15 +90,15 @@ define(function (require, exports, module) {
       message: t('Attempt limit exceeded')
     },
     /*
-    ACCOUNT_LOCKED: {
-      errno: 121,
-      message: t('Your account has been locked for security reasons')
-    },
-    ACCOUNT_NOT_LOCKED: {
-      errno: 122,
-      message: UNEXPECTED_ERROR_MESSAGE
-    },
-    */
+     ACCOUNT_LOCKED: {
+     errno: 121,
+     message: t('Your account has been locked for security reasons')
+     },
+     ACCOUNT_NOT_LOCKED: {
+     errno: 122,
+     message: UNEXPECTED_ERROR_MESSAGE
+     },
+     */
     REQUEST_BLOCKED: {
       errno: 125,
       message: t('The request was blocked for security reasons')
@@ -164,12 +164,12 @@ define(function (require, exports, module) {
       message: t('Valid email required')
     },
     /*
-    Removed in issue #3137
-    YEAR_OF_BIRTH_REQUIRED: {
-      errno: 1012,
-      message: t('Year of birth required')
-    },
-    */
+     Removed in issue #3137
+     YEAR_OF_BIRTH_REQUIRED: {
+     errno: 1012,
+     message: t('Year of birth required')
+     },
+     */
     UNUSABLE_IMAGE: {
       errno: 1013,
       message: t('A usable image was not found')
@@ -183,12 +183,12 @@ define(function (require, exports, module) {
       message: t('Valid URL required')
     },
     /*
-    Removed in issue #3137
-    BIRTHDAY_REQUIRED: {
-      errno: 1016,
-      message: t('Valid birthday required')
-    },
-    */
+     Removed in issue #3137
+     BIRTHDAY_REQUIRED: {
+     errno: 1016,
+     message: t('Valid birthday required')
+     },
+     */
     DESKTOP_CHANNEL_TIMEOUT: {
       errno: 1017,
       message: UNEXPECTED_ERROR_MESSAGE
@@ -218,12 +218,12 @@ define(function (require, exports, module) {
       message: t('Valid email required')
     },
     /*
-    Removed in issue #3040
-    FORCE_AUTH_EMAIL_REQUIRED: {
-      errno: 1024,
-      message: t('/force_auth requires an email')
-    },
-    */
+     Removed in issue #3040
+     FORCE_AUTH_EMAIL_REQUIRED: {
+     errno: 1024,
+     message: t('/force_auth requires an email')
+     },
+     */
     EXPIRED_VERIFICATION_LINK: {
       errno: 1025,
       message: EXPIRED_VERIFICATION_ERROR_MESSAGE
@@ -245,12 +245,12 @@ define(function (require, exports, module) {
       message: t('Signup is coming soon to Firefox for iOS')
     },
     /*
-    Removed in issue #2950
-    SIGNUP_DISABLED_BY_RELIER: {
-      errno: 1030,
-      message: t('Signup has been disabled')
-    },
-    */
+     Removed in issue #2950
+     SIGNUP_DISABLED_BY_RELIER: {
+     errno: 1030,
+     message: t('Signup has been disabled')
+     },
+     */
     AGE_REQUIRED: {
       errno: 1031,
       message: t('You must enter your age to sign up')
@@ -290,6 +290,10 @@ define(function (require, exports, module) {
     },
     UNKNOWN_ACCOUNT_VERIFICATION: {
       errno: 1040,
+      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
+    },
+    REUSED_SIGNIN_VERIFICATION_CODE: {
+      errno: 1041,
       message: EXPIRED_VERIFICATION_ERROR_MESSAGE
     }
   };

@@ -321,6 +321,33 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('REUSED_SIGNIN_VERIFICATION_CODE error', function () {
+        beforeEach(function () {
+          verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+          view = new View({
+            account: account,
+            broker: broker,
+            metrics: metrics,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            viewName: 'complete-signin',
+            window: windowMock
+          });
+
+          return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+            });
+        });
+
+        it('displays the verification link expired screen', function () {
+          testErrorLogged(AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE'));
+        });
+      });
+
       describe('all other server errors', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('UNEXPECTED_ERROR');

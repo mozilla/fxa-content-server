@@ -61,6 +61,8 @@ define(function (require, exports, module) {
       // cache the email in case we need to attempt to resend the
       // verification link
       this._email = this._account.get('email');
+
+      this._showResend = true;
     },
 
     getAccount: function () {
@@ -139,10 +141,21 @@ define(function (require, exports, module) {
             } else if (
                 AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
-              // These server says the verification code or any parameter is
-              // invalid. The entire link is damaged.
-              verificationInfo.markDamaged();
-              err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
+
+              // When coming from sign-in confirmation verification, show a
+              // verification link expired error instead of damaged verification link.
+              // This error is generated because the link has already been used.
+              if (self.viewName === 'complete-signin') {
+                // Disable resending verification, can only be triggered from new sign-in
+                self._showResend = false;
+                verificationInfo.markExpired();
+                err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
+              } else {
+                // These server says the verification code or any parameter is
+                // invalid. The entire link is damaged.
+                verificationInfo.markDamaged();
+                err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
+              }
             } else {
               // all other errors show the standard error box.
               self._error = self.translateError(err);
@@ -158,7 +171,7 @@ define(function (require, exports, module) {
       return {
         // This is only the case if you've signed up in the
         // same browser you opened the verification link in.
-        canResend: this._canResend(),
+        canResend: this._canResend() && this._showResend,
         error: this._error,
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
