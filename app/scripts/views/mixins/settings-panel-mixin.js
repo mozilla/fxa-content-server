@@ -28,7 +28,7 @@ define(function (require, exports, module) {
       // are hidden until opened and focus cannot be set. Instead, set
       // the focus when the panel is opened.
       this.$('[autofocus]')
-        .attr('autofocus-on-panel-open', true)
+        .attr('data-autofocus-on-panel-open', true)
         .removeAttr('autofocus');
     },
 
@@ -64,7 +64,7 @@ define(function (require, exports, module) {
 
     openPanel: function () {
       this.$('.settings-unit').addClass('open');
-      this.focus(this.$('[autofocus-on-panel-open]'));
+      this.focus(this.$('[data-autofocus-on-panel-open]'));
     },
 
     isPanelOpen: function () {
