@@ -44,6 +44,9 @@ if (profile) {
   // disable signed extensions
   // the WebDriver extension will not work where signed extensions are forced
   myProfile.setPreference('xpinstall.signatures.required', false);
+
+  myProfile.setPreference('marionette', true);
+  myProfile.setPreference('marionette.logging', 'TRACE');
   // disable WebDriver extension compat check
   myProfile.setPreference('extensions.checkCompatibility.47.0', false);
   myProfile.setPreference('extensions.checkCompatibility.48.0', false);
