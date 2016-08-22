@@ -35,13 +35,15 @@ define(function (require, exports, module) {
       this.updateFormValueChanges();
     },
 
-    displayPasswordInitialPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE);
+    displayPasswordInitialPrompt: function (inputEl, translator) {
+      var message = TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE;
+      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html((translator ? translator.get(message) : message));
       this._logPromptExperimentEvent('INITIAL_PROMPT_MESSAGE');
     },
 
-    displayPasswordFocusPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE);
+    displayPasswordFocusPrompt: function (inputEl, translator) {
+      var message = TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE;
+      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html((translator ? translator.get(message) : message));
       this._logPromptExperimentEvent('FOCUS_PROMPT_MESSAGE');
     },
 
@@ -56,21 +58,21 @@ define(function (require, exports, module) {
       this._logPromptExperimentEvent('WARNING_PROMPT_MESSAGE');
     },
 
-    showPasswordPrompt: function (inputEl) {
+    showPasswordPrompt: function (inputEl, translator) {
       var length = this.$el.find(inputEl).val().length;
       if (length === 0) {
-        this.displayPasswordInitialPrompt(inputEl);
+        this.displayPasswordInitialPrompt(inputEl, translator);
       } else {
-        this.displayPasswordFocusPrompt(inputEl);
+        this.displayPasswordFocusPrompt(inputEl, translator);
       }
     },
 
     onInputFocus: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+      this.showPasswordPrompt(this.$el.find(event.currentTarget), this.translator);
     },
 
     onInputKeyUp: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+      this.showPasswordPrompt(this.$el.find(event.currentTarget), this.translator);
     },
 
     onPasswordBlur: function () {
