@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var AuthErrors = require('lib/auth-errors');
+  var Backbone = require('backbone');
   var Broker = require('models/auth_brokers/base');
   var chai = require('chai');
   var Constants = require('lib/constants');
@@ -326,14 +327,17 @@ define(function (require, exports, module) {
           verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
 
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+          var model = new Backbone.Model();
+          model.set('type', VerificationReasons.SIGN_IN);
+
           view = new View({
             account: account,
             broker: broker,
             metrics: metrics,
+            model: model,
             notifier: notifier,
             relier: relier,
             user: user,
-            viewName: 'complete-signin',
             window: windowMock
           });
 

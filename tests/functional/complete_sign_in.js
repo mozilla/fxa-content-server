@@ -69,14 +69,12 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(this, url, '#fxa-verification-link-damaged-header'))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.
-        .findById('fxa-verification-link-damaged-header')
-        .then(noSuchElement(this, '#resend'))
-        .end();
-
+        .then(testElementExists('#fxa-verification-link-damaged-header'))
+        .then(noSuchElement(this, '#resend'));
     },
 
     'open verification link with server reported bad code': function () {
@@ -84,13 +82,12 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(this, url, '#fxa-verification-link-expired-header'))
 
         // Ensure that a link expired error message is displayed
-        // rather than a damaged link error,
-        .findById('fxa-verification-link-expired-header')
-        .then(noSuchElement(this, '#resend'))
-        .end();
+        // rather than a damaged link error
+        .then(testElementExists('#fxa-verification-link-expired-header'))
+        .then(noSuchElement(this, '#resend'));
     },
 
     'open verification link with malformed uid': function () {
@@ -98,13 +95,12 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(this, url, '#fxa-verification-link-damaged-header'))
 
         // a successful user is immediately redirected to the
-        // sign-un-complete page.
-        .findById('fxa-verification-link-damaged-header')
-        .then(noSuchElement(this, '#resend'))
-        .end();
+        // sign-in-complete page.
+        .then(testElementExists('#fxa-verification-link-damaged-header'))
+        .then(noSuchElement(this, '#resend'));
     },
 
     'open verification link with server reported bad uid': function () {
@@ -112,25 +108,23 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(this, url, '#fxa-verification-link-expired-header'))
 
-        // a successful user is immediately redirected to the
-        // sign-in-complete page.
-        .findById('fxa-verification-link-expired-header')
-        .then(noSuchElement(this, '#resend'))
-        .end();
+        // Ensure that a link expired error message is displayed
+        // rather than a damaged link error
+        .then(testElementExists('#fxa-verification-link-expired-header'))
+        .then(noSuchElement(this, '#resend'));
     },
 
     'open valid email verification link': function () {
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .get(require.toUrl(url))
+        .then(openPage(this, url, '#fxa-settings-profile-header'))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.
-        .findById('fxa-settings-profile-header')
-        .end();
+        .then(testElementExists('#fxa-settings-profile-header'));
     }
   });
 });
