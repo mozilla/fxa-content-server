@@ -5,13 +5,12 @@
 define([
   'intern',
   'intern!object',
-  'require',
   'app/scripts/lib/constants',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, require, Constants, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+], function (intern, registerSuite, Constants, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   var config = intern.config;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
