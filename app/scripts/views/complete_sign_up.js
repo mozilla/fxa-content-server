@@ -166,9 +166,7 @@ define(function (require, exports, module) {
     context: function () {
       var verificationInfo = this._verificationInfo;
       return {
-        // This is only the case if you've signed up in the
-        // same browser you opened the verification link in.
-        canResend: this._canResend() && this.isSignUp(),
+        canResend: this._canResend(),
         error: this._error,
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
@@ -177,7 +175,9 @@ define(function (require, exports, module) {
     },
 
     _canResend: function () {
-      return !! this._getResendSessionToken();
+      // _getResendSessionToken is only returned if the user signed up in the
+      // same browser in which they opened the verification link.
+      return !! this._getResendSessionToken() && this.isSignUp();
     },
 
     // This returns the latest sessionToken associated with the user's email
