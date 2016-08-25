@@ -156,7 +156,6 @@ The event stream is a log of events and the time they occurred while the user is
 * delete-account.deleted - user successfully deleted an account
 
 #### force_auth
-#### illegal_iframe
 #### legal
 #### pp
 #### ready
