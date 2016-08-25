@@ -8,11 +8,10 @@ define(function (require, exports, module) {
   var OAuthErrors = require('lib/oauth-errors');
   var xhr = require('lib/xhr');
 
-  var GET_CLIENT = '/v1/client/';
-  var LIST_SERVICES = '/v1/services';
-  var DELETE_SERVICE = '/v1/services/'
-  var GET_CODE = '/v1/authorization';
+  var CLIENT_TOKENS_API = '/v1/client-tokens/';
   var DESTROY_TOKEN = '/v1/destroy';
+  var GET_CLIENT = '/v1/client/';
+  var GET_CODE = '/v1/authorization';
 
   function OAuthClient(options) {
     options = options || {};
@@ -46,28 +45,37 @@ define(function (require, exports, module) {
     getClientInfo: function getClientInfo(id) {
       return this._request('get', GET_CLIENT + id);
     },
-
-    fetchServices: function fetchServices(accessToken) {
+    /**
+     * Fetch user's active OAuth clients
+     *
+     * @param {String} accessToken
+     * @returns {Promise}
+     */
+    fetchClients: function fetchClients(accessToken) {
       var request = {
         accessToken: accessToken,
         type: 'get',
-        url: this._oAuthUrl + LIST_SERVICES
+        url: this._oAuthUrl + CLIENT_TOKENS_API
       };
 
-      return xhr.oauthAjax(request)
+      return xhr.oauthAjax(request);
     },
-
-    deleteService: function deleteService(accessToken, service) {
+    /**
+     * Delete all active OAuth tokens for given clientId
+     *
+     * @param {String} accessToken
+     * @param {String} clientId
+     * @returns {Promise}
+     */
+    deleteClient: function deleteClient(accessToken, clientId) {
       var request = {
         accessToken: accessToken,
         type: 'delete',
-        url: this._oAuthUrl + DELETE_SERVICE + service.id
+        url: this._oAuthUrl + CLIENT_TOKENS_API + clientId
       };
 
-      return xhr.oauthAjax(request)
+      return xhr.oauthAjax(request);
     },
-
-    // params = { assertion, client_id, scope }
     /**
      *
      * @param {Object} params

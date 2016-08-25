@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var $ = require('jquery');
   var Cocktail = require('cocktail');
+  var Clients = require('models/clients');
   var Devices = require('models/devices');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
@@ -35,6 +36,7 @@ define(function (require, exports, module) {
     initialize: function (options) {
       this._able = options.able;
       this._devices = options.devices;
+      this._clients = options.clients;
 
       // An empty Devices instance is created to render the initial view.
       // Data is only fetched once the panel has been opened.
@@ -47,6 +49,17 @@ define(function (require, exports, module) {
       var devices = this._devices;
       devices.on('add', this._onDeviceAdded.bind(this));
       devices.on('remove', this._onDeviceRemoved.bind(this));
+
+      // An empty Clients instance is created to render the initial view.
+      // Data is only fetched once the panel has been opened.
+      if (! this._clients) {
+        this._clients = new Clients([], {
+          notifier: options.notifier
+        });
+      }
+
+      this._clients.on('add', this._onClientAdded.bind(this));
+      this._clients.on('remove', this._onClientRemoved.bind(this));
     },
 
     _formatDevicesList: function (devices) {
@@ -64,6 +77,7 @@ define(function (require, exports, module) {
 
     context: function () {
       return {
+        clients: this._clients.toJSON(),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
         devices: this._formatDevicesList(this._devices.toJSON()),
@@ -79,6 +93,7 @@ define(function (require, exports, module) {
     },
 
     events: {
+      'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
       'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList'),
       'click .device-disconnect': preventDefaultThen('_onDisconnectDevice')
     },
@@ -130,9 +145,15 @@ define(function (require, exports, module) {
     },
 
     _onDisconnectDevice: function (event) {
-      this.logViewEvent('disconnect');
+      this.logViewEvent('device.disconnect');
       var deviceId = $(event.currentTarget).attr('data-id');
       this._destroyDevice(deviceId);
+    },
+
+    _onDisconnectClient: function (event) {
+      this.logViewEvent('client.disconnect');
+      var itemId = $(event.currentTarget).attr('data-id');
+      this._destroyService(itemId);
     },
 
     _onRefreshDeviceList: function () {
@@ -150,6 +171,10 @@ define(function (require, exports, module) {
     openPanel: function () {
       this.logViewEvent('open');
       this._fetchDevices();
+
+      if (this._isAppsListVisible()) {
+        this._fetchClients();
+      }
     },
 
     _fetchDevices: function () {
@@ -169,6 +194,19 @@ define(function (require, exports, module) {
               self.navigateToSignIn();
             }
           });
+      }
+    },
+
+    _fetchClients: function () {
+      return this.user.fetchAccountClients(this.getSignedInAccount(), this._clients);
+    },
+
+    _destroyClient: function (clientId) {
+      if (this._clients.get(clientId)) {
+        this.user.destroyAccountClient(this.getSignedInAccount(), clientId).then(() => {
+          this.render();
+        });
+        // TODO: if content-server, logout?
       }
     }
   });

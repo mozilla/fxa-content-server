@@ -531,10 +531,17 @@ define(function (require, exports, module) {
       return account.fetchDevices(devices);
     },
 
-    fetchAccountServices: function (account, services) {
-      var accessToken = account.get('accessToken');
-      return this._oAuthClient.fetchServices(accessToken, services)
-        .then(services.set.bind(services));
+    /**
+     * Fetch the clients for the given account, populated the passed in
+     * Clients collection.
+     *
+     * @param {object} account - account for which device list is requested
+     * @param {object} clients - Clients collection used to store list.
+     * @returns {promise} resolves when the action completes
+     */
+    fetchAccountClients: function (account, clients) {
+      return this._oAuthClient.fetchClients(account.get('accessToken'), clients)
+        .then(clients.set.bind(clients));
     },
 
     /**
@@ -554,10 +561,15 @@ define(function (require, exports, module) {
           }
         });
     },
-
-    destroyAccountService: function (account, serviceId) {
-      var accessToken = account.get('accessToken');
-      return this._oAuthClient.deleteService(accessToken, serviceId);
+    /**
+     * Destroy a client on the given account.
+     *
+     * @param {object} account - account with the device
+     * @param {object} clientId - client to destroy
+     * @returns {promise} resolves when the action completes
+     */
+    destroyAccountClient: function (account, clientId) {
+      return this._oAuthClient.deleteClient(account.get('accessToken'), clientId);
     },
 
     /**

@@ -3,16 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Service information
+ * Client information
  */
-
 define(function (require, exports, module) {
   'use strict';
 
-  module.exports = require('backbone').Model.extend({
+  var Backbone = require('backbone');
+
+  module.exports = Backbone.Model.extend({
     defaults: {
-      name: null,
-      id: null
+      id: null,
+      name: null
     }
   });
 });

@@ -3,18 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A collection of services
+ * A collection of clients
  */
-
-
 define(function (require, exports, module) {
   'use strict';
+  var Backbone = require('backbone');
 
-  module.exports = require('backbone').Collection.extend({
-    model: require('models/service'),
+  module.exports = Backbone.Collection.extend({
+    model: require('models/client'),
 
-    initialize: function (models, options) {
-      options = options || {};
+    initialize: function (models, options = {}) {
     }
   });
 });
