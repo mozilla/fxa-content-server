@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   var OAuthErrors = require('lib/oauth-errors');
   var xhr = require('lib/xhr');
 
-  var CLIENT_TOKENS_API = '/v1/client-tokens/';
+  var CLIENT_TOKENS_API = '/v1/client-tokens';
   var DESTROY_TOKEN = '/v1/destroy';
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
@@ -71,7 +71,7 @@ define(function (require, exports, module) {
       var request = {
         accessToken: accessToken,
         type: 'delete',
-        url: this._oAuthUrl + CLIENT_TOKENS_API + clientId
+        url: this._oAuthUrl + CLIENT_TOKENS_API + '/' + clientId
       };
 
       return xhr.oauthAjax(request);

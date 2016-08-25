@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       }
 
       var devices = this._devices;
-      devices.on('add', this._onDeviceAdded.bind(this));
+      devices.on('add', this._onItemAdded.bind(this));
       devices.on('remove', this._onDeviceRemoved.bind(this));
 
       // An empty Clients instance is created to render the initial view.
@@ -58,29 +58,29 @@ define(function (require, exports, module) {
         });
       }
 
-      this._clients.on('add', this._onClientAdded.bind(this));
+      this._clients.on('add', this._onItemAdded.bind(this));
       this._clients.on('remove', this._onClientRemoved.bind(this));
     },
 
-    _formatDevicesList: function (devices) {
-      return _.map(devices, function (device) {
-        if (device.lastAccessTimeFormatted) {
-          device.lastAccessTime = Strings.interpolate(
-            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: device.lastAccessTimeFormatted });
+    _formatAccessTime: function (items) {
+      return _.map(items, function (item) {
+        if (item.lastAccessTimeFormatted) {
+          item.lastAccessTime = Strings.interpolate(
+            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
           // unknown lastAccessTime or not possible to format.
-          device.lastAccessTime = '';
+          item.lastAccessTime = '';
         }
-        return device;
+        return item;
       });
     },
 
     context: function () {
       return {
-        clients: this._clients.toJSON(),
+        clients: this._formatAccessTime(this._clients.toJSON()),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
-        devices: this._formatDevicesList(this._devices.toJSON()),
+        devices: this._formatAccessTime(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
@@ -94,8 +94,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
-      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList'),
-      'click .device-disconnect': preventDefaultThen('_onDisconnectDevice')
+      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList')
     },
 
     _isPanelEnabled: function () {
@@ -130,7 +129,7 @@ define(function (require, exports, module) {
       });
     },
 
-    _onDeviceAdded: function () {
+    _onItemAdded: function () {
       this.render();
     },
 
@@ -144,16 +143,27 @@ define(function (require, exports, module) {
       });
     },
 
-    _onDisconnectDevice: function (event) {
-      this.logViewEvent('device.disconnect');
-      var deviceId = $(event.currentTarget).attr('data-id');
-      this._destroyDevice(deviceId);
+    _onClientRemoved: function (client) {
+      var id = client.get('id');
+      var self = this;
+      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
+        // re-render in case the last device is removed and the
+        // "no registered devices" message needs to be shown.
+        self.render();
+      });
     },
 
     _onDisconnectClient: function (event) {
-      this.logViewEvent('client.disconnect');
-      var itemId = $(event.currentTarget).attr('data-id');
-      this._destroyService(itemId);
+      var itemId = $(event.currentTarget).data('id');
+      // type of client that was disconnected, can be 'client' or 'device'.
+      var clientType = $(event.currentTarget).data('type');
+
+      this.logViewEvent(clientType + '.disconnect');
+      if (clientType === 'device') {
+        this._destroyDevice(itemId);
+      } else if (clientType === 'client') {
+        this._destroyClient(itemId);
+      }
     },
 
     _onRefreshDeviceList: function () {
