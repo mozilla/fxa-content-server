@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const Constants = require('lib/constants');
   const p = require('lib/promise');
 
   const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
@@ -26,22 +27,13 @@ define(function (require, exports, module) {
     _notifyRelierOfLogin: function (account) {
       /**
        * As a workaround for sign-in/sign-up confirmation view disappearing
-       * on iOS, delay the login message sent via the channel by 5 seconds.
+       * on iOS, delay the login message sent via the channel by LOGIN_MESSAGE_DELAY_MS.
        * This will give the user an indication that they need to verify
        * their email address.
        */
-      const defer = p.defer();
-
-      this.window.setTimeout(() => {
-        var loginData = this._getLoginData(account);
-
-        if (! this._hasRequiredLoginFields(loginData)) {
-          defer.resolve();
-        }
-        this.send(this.getCommand('LOGIN'), loginData);
-      }, 5000);
-
-      return defer.promise;
+      return p().delay(Constants.LOGIN_MESSAGE_DELAY_MS).then(() => {
+        return proto._notifyRelierOfLogin.call(this, account);
+      });
     },
   });
 
