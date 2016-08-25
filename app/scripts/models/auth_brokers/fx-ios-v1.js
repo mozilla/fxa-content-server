@@ -31,7 +31,8 @@ define(function (require, exports, module) {
        * This will give the user an indication that they need to verify
        * their email address.
        */
-      return p().delay(Constants.LOGIN_MESSAGE_DELAY_MS).then(() => {
+      const loginMessageDelayMS = this.attributes.loginMessageDelayMS || Constants.IOS_V1_LOGIN_MESSAGE_DELAY_MS;
+      return p().delay(loginMessageDelayMS).then(() => {
         return proto._notifyRelierOfLogin.call(this, account);
       });
     },
