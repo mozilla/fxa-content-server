@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A collection of clients
+ * A collection of OAuth apps
  */
 define(function (require, exports, module) {
   'use strict';
   var Backbone = require('backbone');
-  var Client = require('models/client');
+  var App = require('models/app');
 
   module.exports = Backbone.Collection.extend({
-    model: Client,
+    model: App,
 
     initialize: function (models, options = {}) {
     }

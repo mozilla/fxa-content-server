@@ -17,23 +17,16 @@
       {{#t}}Firefox is available for <a href="%(linkWindows)s">Windows</a>, <a href="%(linkOSX)s">OS X</a>, <a href="%(linkAndroid)s">Android</a>, <a href="%(linkIOS)s">iOS</a> and <a href="%(linkLinux)s">Linux</a>.{{/t}}
       {{clientsPanelManageString}}
       <ul class="client-list button-row">
-        {{#devices}}
-          <li class="client {{type}}" id="{{id}}">
-            <div class="client-name" title="{{name}}">{{name}}</div>
-            {{#isCurrentDevice}}
-            <div class="device-current">{{#t}}current device{{/t}}</div>
-            {{/isCurrentDevice}}
-            {{^isCurrentDevice}}
-            <div class="last-connected">{{lastAccessTime}}</div>
-            {{/isCurrentDevice}}
-            <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="device">{{#t}}Disconnect{{/t}}</button>
-          </li>
-        {{/devices}}
         {{#clients}}
           <li class="client desktop" id="{{id}}">
             <div class="client-name">{{name}}</div>
-            <div class="last-connected">{{lastAccessTime}}</div>
-            <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="client">{{#t}}Disconnect{{/t}}</button>
+            {{#isCurrentDevice}}
+              <div class="device-current">{{#t}}current device{{/t}}</div>
+            {{/isCurrentDevice}}
+            {{^isCurrentDevice}}
+              <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+            {{/isCurrentDevice}}
+            <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
           </li>
         {{/clients}}
         <a href="{{devicesSupportUrl}}">{{#t}}Missing or duplicate items?{{/t}}</a>

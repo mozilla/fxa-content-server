@@ -8,8 +8,9 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var $ = require('jquery');
   var Cocktail = require('cocktail');
-  var Clients = require('models/clients');
+  var Apps = require('models/apps');
   var Devices = require('models/devices');
+  var AppsAndDevices = require('models/apps-devices');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -37,7 +38,7 @@ define(function (require, exports, module) {
     initialize: function (options) {
       this._able = options.able;
       this._devices = options.devices;
-      this._clients = options.clients;
+      this._apps = options.apps;
 
       // An empty Devices instance is created to render the initial view.
       // Data is only fetched once the panel has been opened.
@@ -51,37 +52,41 @@ define(function (require, exports, module) {
       devices.on('add', this._onItemAdded.bind(this));
       devices.on('remove', this._onItemRemoved.bind(this));
 
-      // An empty Clients instance is created to render the initial view.
-      // Data is only fetched once the panel has been opened.
-      if (! this._clients) {
-        this._clients = new Clients([], {
+      if (! this._apps) {
+        this._apps = new Apps([], {
           notifier: options.notifier
         });
       }
 
-      this._clients.on('add', this._onItemAdded.bind(this));
-      this._clients.on('remove', this._onItemRemoved.bind(this));
+      this._apps.on('add', this._onItemAdded.bind(this));
+      this._apps.on('remove', this._onItemRemoved.bind(this));
     },
 
     _formatAccessTime: function (items) {
       return _.map(items, function (item) {
         if (item.lastAccessTimeFormatted) {
-          item.lastAccessTime = Strings.interpolate(
+          item.lastAccessTimeFormatted = Strings.interpolate(
             t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
-          // unknown lastAccessTime or not possible to format.
-          item.lastAccessTime = '';
+          // unknown lastAccessTimeFormatted or not possible to format.
+          item.lastAccessTimeFormatted = '';
         }
         return item;
       });
     },
 
     context: function () {
+      var appsAndDevicesCollection = new AppsAndDevices();
+      appsAndDevicesCollection.add(this._devices.toJSON(), {silent: true});
+
+      if (this._isAppsListVisible()) {
+        appsAndDevicesCollection.add(this._apps.toJSON(), {silent: true});
+      }
+
       return {
-        clients: this._formatAccessTime(this._clients.toJSON()),
+        clients: this._formatAccessTime(appsAndDevicesCollection.toJSON()),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
-        devices: this._formatAccessTime(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
@@ -146,8 +151,8 @@ define(function (require, exports, module) {
       this.logViewEvent(clientType + '.disconnect');
       if (clientType === 'device') {
         this._destroyDevice(itemId);
-      } else if (clientType === 'client') {
-        this._destroyClient(itemId);
+      } else if (clientType === 'app') {
+        this._destroyApp(itemId);
       }
     },
 
@@ -172,7 +177,7 @@ define(function (require, exports, module) {
       var fetchTypes = [this._fetchDevices()];
 
       if (this._isAppsListVisible()) {
-        fetchTypes.push(this._fetchClients());
+        fetchTypes.push(this._fetchApps());
       }
 
       return P.all(fetchTypes);
@@ -198,14 +203,14 @@ define(function (require, exports, module) {
       }
     },
 
-    _fetchClients: function () {
-      return this.user.fetchAccountClients(this.getSignedInAccount(), this._clients);
+    _fetchApps: function () {
+      return this.user.fetchAccountApps(this.getSignedInAccount(), this._apps);
     },
 
-    _destroyClient: function (clientId) {
-      var client = this._clients.get(clientId);
-      if (client) {
-        this.user.destroyAccountClient(this.getSignedInAccount(), client);
+    _destroyApp: function (appId) {
+      var app = this._apps.get(appId);
+      if (app) {
+        this.user.destroyAccountApp(this.getSignedInAccount(), app);
       }
     }
   });

@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   var Device = Backbone.Model.extend({
     defaults: {
+      clientType: 'device',
       id: null,
       isCurrentDevice: null,
       lastAccessTime: null,

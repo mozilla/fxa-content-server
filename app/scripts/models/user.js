@@ -536,12 +536,12 @@ define(function (require, exports, module) {
      * Clients collection.
      *
      * @param {Object} account - account for which device list is requested
-     * @param {Object} clients - Clients collection used to store list.
+     * @param {Object} apps - Clients collection used to store list.
      * @returns {Promise} resolves when the action completes
      */
-    fetchAccountClients: function (account, clients) {
-      return this._oAuthClient.fetchClients(account.get('accessToken'), clients)
-        .then(clients.set.bind(clients));
+    fetchAccountApps: function (account, apps) {
+      return this._oAuthClient.fetchClients(account.get('accessToken'), apps)
+        .then(apps.set.bind(apps));
     },
 
     /**
@@ -564,15 +564,15 @@ define(function (require, exports, module) {
     /**
      * Destroy a client on the given account.
      *
-     * @param {object} account - account with the device
-     * @param {object} client - client to destroy
+     * @param {object} account - account with the connected app
+     * @param {object} app - app to disconnect
      * @returns {promise} resolves when the action completes
      */
-    destroyAccountClient: function (account, client) {
-      var clientId = client.get('id');
+    destroyAccountApp: function (account, app) {
+      var clientId = app.get('id');
       return this._oAuthClient.deleteClient(account.get('accessToken'), clientId)
         .then(() => {
-          client.destroy();
+          app.destroy();
         });
     },
 
