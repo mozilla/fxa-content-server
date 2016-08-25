@@ -76,6 +76,7 @@ define(function (require, exports, module) {
     },
 
     context: function () {
+      // Create a combined collection to be able to sort apps and devices together.
       var appsAndDevicesCollection = new AppsAndDevices();
       appsAndDevicesCollection.add(this._devices.toJSON(), {silent: true});
 

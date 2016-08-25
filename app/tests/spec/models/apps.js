@@ -6,24 +6,25 @@ define(function (require, exports, module) {
   'use strict';
 
   var assert = require('chai').assert;
-  var Devices = require('models/devices');
+  var Apps = require('models/apps');
   var Notifier = require('lib/channels/notifier');
 
-  describe('models/devices', function () {
-    var devices;
+  describe('models/apps', function () {
+    var apps;
     var notifier;
 
     beforeEach(function () {
       notifier = new Notifier();
 
-      devices = new Devices([], {
+      apps = new Apps([], {
         notifier: notifier
       });
     });
 
-    describe('devices model has devices', function () {
-      assert.ok(devices);
+    describe('lists apps', function () {
+      assert.ok(apps);
     });
+
   });
 });
 

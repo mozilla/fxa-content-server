@@ -110,7 +110,7 @@ define(function (require, exports, module) {
       });
 
       it('renders devices already in the collection', function () {
-        assert.ok(view.$('li.device').length, 2);
+        assert.ok(view.$('li.client').length, 2);
       });
 
       it('renders devices and apps if apps view enabled', function () {
@@ -135,9 +135,9 @@ define(function (require, exports, module) {
       });
 
       it('adds new device to list', function () {
-        assert.lengthOf(view.$('li.device'), 3);
-        assert.include(view.$('#device-3 .device-name').text().trim(), 'delta');
-        assert.include(view.$('#device-3 .device-name').attr('title'), 'delta', 'the title attr is correct');
+        assert.lengthOf(view.$('li.client'), 3);
+        assert.include(view.$('#device-3 .client-name').text().trim(), 'delta');
+        assert.include(view.$('#device-3 .client-name').attr('title'), 'delta', 'the title attr is correct');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active:') === 0, 'formats last active string');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('a few seconds ago') >= 0, 'formats connected date');
       });
@@ -153,7 +153,7 @@ define(function (require, exports, module) {
       });
 
       it('removes device from list', function () {
-        assert.lengthOf(view.$('li.device'), 1);
+        assert.lengthOf(view.$('li.client'), 1);
         assert.lengthOf(view.$('#device-2'), 1);
       });
     });
@@ -188,7 +188,7 @@ define(function (require, exports, module) {
           });
       });
 
-      it('calls `_destroyDevice` with the deviceId', function () {
+      it('calls `_destroyClient` with the deviceId', function () {
         assert.isTrue(view._destroyDevice.calledWith('device-2'));
       });
     });
