@@ -8,9 +8,10 @@
 define(function (require, exports, module) {
   'use strict';
   var Backbone = require('backbone');
+  var Client = require('models/client');
 
   module.exports = Backbone.Collection.extend({
-    model: require('models/client'),
+    model: Client,
 
     initialize: function (models, options = {}) {
     }

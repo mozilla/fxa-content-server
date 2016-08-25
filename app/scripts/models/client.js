@@ -13,7 +13,12 @@ define(function (require, exports, module) {
   module.exports = Backbone.Model.extend({
     defaults: {
       id: null,
+      lastAccessTime: null,
+      lastAccessTimeFormatted: null,
       name: null
+    },
+    destroy: function () {
+      this.trigger('destroy', this);
     }
   });
 });

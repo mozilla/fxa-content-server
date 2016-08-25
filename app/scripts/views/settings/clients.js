@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   var Strings = require('lib/strings');
   var t = require('views/base').t;
+  var P = require('lib/promise');
   var Template = require('stache!templates/settings/clients');
   var Url = require('lib/url');
 
@@ -48,7 +49,7 @@ define(function (require, exports, module) {
 
       var devices = this._devices;
       devices.on('add', this._onItemAdded.bind(this));
-      devices.on('remove', this._onDeviceRemoved.bind(this));
+      devices.on('remove', this._onItemRemoved.bind(this));
 
       // An empty Clients instance is created to render the initial view.
       // Data is only fetched once the panel has been opened.
@@ -59,7 +60,7 @@ define(function (require, exports, module) {
       }
 
       this._clients.on('add', this._onItemAdded.bind(this));
-      this._clients.on('remove', this._onClientRemoved.bind(this));
+      this._clients.on('remove', this._onItemRemoved.bind(this));
     },
 
     _formatAccessTime: function (items) {
@@ -94,7 +95,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
-      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList')
+      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
     },
 
     _isPanelEnabled: function () {
@@ -133,24 +134,8 @@ define(function (require, exports, module) {
       this.render();
     },
 
-    _onDeviceRemoved: function (device) {
-      var id = device.get('id');
-      var self = this;
-      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
-        // re-render in case the last device is removed and the
-        // "no registered devices" message needs to be shown.
-        self.render();
-      });
-    },
-
-    _onClientRemoved: function (client) {
-      var id = client.get('id');
-      var self = this;
-      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
-        // re-render in case the last device is removed and the
-        // "no registered devices" message needs to be shown.
-        self.render();
-      });
+    _onItemRemoved: function (item) {
+      $('#' + item.get('id')).slideUp(DEVICE_REMOVED_ANIMATION_MS);
     },
 
     _onDisconnectClient: function (event) {
@@ -166,13 +151,13 @@ define(function (require, exports, module) {
       }
     },
 
-    _onRefreshDeviceList: function () {
+    _onRefreshClientsList: function () {
       var self = this;
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices
-        this._fetchDevices().then(function () {
+        this._fetchAllClientTypes().then(function () {
           self.render();
         });
       }
@@ -180,11 +165,17 @@ define(function (require, exports, module) {
 
     openPanel: function () {
       this.logViewEvent('open');
-      this._fetchDevices();
+      this._fetchAllClientTypes();
+    },
+
+    _fetchAllClientTypes: function () {
+      var fetchTypes = [this._fetchDevices()];
 
       if (this._isAppsListVisible()) {
-        this._fetchClients();
+        fetchTypes.push(this._fetchClients());
       }
+
+      return P.all(fetchTypes);
     },
 
     _fetchDevices: function () {
@@ -212,11 +203,9 @@ define(function (require, exports, module) {
     },
 
     _destroyClient: function (clientId) {
-      if (this._clients.get(clientId)) {
-        this.user.destroyAccountClient(this.getSignedInAccount(), clientId).then(() => {
-          this.render();
-        });
-        // TODO: if content-server, logout?
+      var client = this._clients.get(clientId);
+      if (client) {
+        this.user.destroyAccountClient(this.getSignedInAccount(), client);
       }
     }
   });

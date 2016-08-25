@@ -535,9 +535,9 @@ define(function (require, exports, module) {
      * Fetch the clients for the given account, populated the passed in
      * Clients collection.
      *
-     * @param {object} account - account for which device list is requested
-     * @param {object} clients - Clients collection used to store list.
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account for which device list is requested
+     * @param {Object} clients - Clients collection used to store list.
+     * @returns {Promise} resolves when the action completes
      */
     fetchAccountClients: function (account, clients) {
       return this._oAuthClient.fetchClients(account.get('accessToken'), clients)
@@ -548,9 +548,9 @@ define(function (require, exports, module) {
      * Destroy a device on the given account. If the current device
      * is destroyed, sign out the user.
      *
-     * @param {object} account - account with the device
-     * @param {object} device - device to destroy
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account with the device
+     * @param {Object} device - device to destroy
+     * @returns {Promise} resolves when the action completes
      */
     destroyAccountDevice: function (account, device) {
       var self = this;
@@ -565,11 +565,15 @@ define(function (require, exports, module) {
      * Destroy a client on the given account.
      *
      * @param {object} account - account with the device
-     * @param {object} clientId - client to destroy
+     * @param {object} client - client to destroy
      * @returns {promise} resolves when the action completes
      */
-    destroyAccountClient: function (account, clientId) {
-      return this._oAuthClient.deleteClient(account.get('accessToken'), clientId);
+    destroyAccountClient: function (account, client) {
+      var clientId = client.get('id');
+      return this._oAuthClient.deleteClient(account.get('accessToken'), clientId)
+        .then(() => {
+          client.destroy();
+        });
     },
 
     /**
