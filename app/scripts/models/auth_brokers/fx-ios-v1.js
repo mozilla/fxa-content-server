@@ -30,18 +30,18 @@ define(function (require, exports, module) {
        * This will give the user an indication that they need to verify
        * their email address.
        */
-      const defer = p.defer()
+      const defer = p.defer();
 
       this.window.setTimeout(() => {
         var loginData = this._getLoginData(account);
 
-        if (!this._hasRequiredLoginFields(loginData)) {
-          defer.resolve()
+        if (! this._hasRequiredLoginFields(loginData)) {
+          defer.resolve();
         }
-      this.send(this.getCommand('LOGIN'), loginData);
-      }, 5000)
+        this.send(this.getCommand('LOGIN'), loginData);
+      }, 5000);
 
-      return defer.promise
+      return defer.promise;
     },
   });
 
