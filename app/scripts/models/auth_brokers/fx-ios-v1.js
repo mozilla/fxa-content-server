@@ -10,16 +10,39 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  const _ = require('underscore');
+  const p = require('lib/promise');
 
-  var proto = FxDesktopV1AuthenticationBroker.prototype;
+  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
 
-  var FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
+  const proto = FxDesktopV1AuthenticationBroker.prototype;
+
+  const FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
       convertExternalLinksToText: true
-    })
+    }),
+
+    _notifyRelierOfLogin: function (account) {
+      /**
+       * As a workaround for sign-in/sign-up confirmation view disappearing
+       * on iOS, delay the login message sent via the channel by 5 seconds.
+       * This will give the user an indication that they need to verify
+       * their email address.
+       */
+      const defer = p.defer()
+
+      this.window.setTimeout(() => {
+        var loginData = this._getLoginData(account);
+
+        if (!this._hasRequiredLoginFields(loginData)) {
+          defer.resolve()
+        }
+      this.send(this.getCommand('LOGIN'), loginData);
+      }, 5000)
+
+      return defer.promise
+    },
   });
 
   module.exports = FxiOSV1AuthenticationBroker;
