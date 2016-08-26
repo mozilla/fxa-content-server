@@ -8,11 +8,11 @@ function buildHPKPHeader(maxAge, pins, includeSubdomain) {
   var hpkpHeader = 'max-age=' + maxAge + '; ';
 
   if (includeSubdomain) {
-    hpkpHeader = hpkpHeader + 'includeSubDomains; '
+    hpkpHeader = hpkpHeader + 'includeSubDomains; ';
   }
 
   pins.forEach(function (pinSha) {
-    hpkpHeader = hpkpHeader + 'pin-sha256=\"' + pinSha + '\"; '
+    hpkpHeader = hpkpHeader + 'pin-sha256=\"' + pinSha + '\"; ';
   });
 
   return hpkpHeader.trim();
