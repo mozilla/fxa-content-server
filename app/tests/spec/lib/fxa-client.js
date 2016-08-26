@@ -1254,6 +1254,77 @@ define(function (require, exports, module) {
           realClient.deviceDestroy.calledWith('session token', 'device id'));
       });
     });
+
+    describe('sendLoginAuthorizationEmail', () => {
+      beforeEach(() => {
+        sinon.stub(realClient, 'sendLoginAuthorizationCode', () => p({}));
+
+        return client.sendLoginAuthorizationEmail(email, relier, {
+          resume: resumeToken,
+        });
+      });
+
+      it('sends a login authorization email', () => {
+        assert.isTrue(
+          realClient.sendLoginAuthorizationCode.calledWith(email, {
+            redirectTo: REDIRECT_TO,
+            resume: resumeToken,
+            service: SYNC_SERVICE
+          })
+        );
+      });
+    });
+
+    describe('checkLoginAuthorizationRequired', () => {
+      function testIsAuthorizationRequired(isAuthorizationRequired) {
+        sinon.stub(realClient, 'checkLoginAuthorizationRequired', () => {
+          return p({
+            authorizationRequired: isAuthorizationRequired
+          });
+        });
+
+        return client.checkLoginAuthorizationRequired()
+          .then((response) => {
+            assert.equal(response, isAuthorizationRequired);
+          });
+      }
+
+      describe('authorization required', () => {
+        it('resolves to true', () => {
+          return testIsAuthorizationRequired(true);
+        });
+      });
+
+      describe('authorization not required', () => {
+        it('resolves to false', () => {
+          return testIsAuthorizationRequired(false);
+        });
+      });
+    });
+
+    describe('rejectLoginAuthorizationCode', () => {
+      beforeEach(() => {
+        sinon.stub(realClient, 'rejectLoginAuthorizationCode', () => p({}));
+
+        return client.rejectLoginAuthorizationCode('uid', 'code');
+      });
+
+      it('rejects the authorization code', () => {
+        assert.isTrue(realClient.rejectLoginAuthorizationCode.calledWith('uid', 'code'));
+      });
+    });
+
+    describe('verifyLoginAuthorizationCode', () => {
+      beforeEach(() => {
+        sinon.stub(realClient, 'verifyLoginAuthorizationCode', () => p({}));
+
+        return client.verifyLoginAuthorizationCode('uid', 'code');
+      });
+
+      it('verifys the authorization code', () => {
+        assert.isTrue(realClient.verifyLoginAuthorizationCode.calledWith('uid', 'code'));
+      });
+    });
   });
 });
 

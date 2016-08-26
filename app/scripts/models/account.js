@@ -824,6 +824,7 @@ define(function (require, exports, module) {
      *
      * @param {object} relier
      * @param {object} [options]
+     * @param {string} [options.resume] resume token
      * @returns {promise} resolves when complete
      */
     sendLoginAuthorizationEmail (relier, options) {
@@ -832,6 +833,15 @@ define(function (require, exports, module) {
         relier,
         options
       );
+    },
+
+    /**
+     * Check whether a login authorization is required.
+     *
+     * @returns {promise} resolves to `true` or `false`
+     */
+    checkLoginAuthorizationRequired () {
+      return this._fxaClient.checkLoginAuthorizationRequired();
     },
 
     /**
@@ -853,11 +863,10 @@ define(function (require, exports, module) {
      * @param {string} code
      * @returns {promise} resolves when complete
      */
-    verifyLoginAuthorizationCode (code, options) {
+    verifyLoginAuthorizationCode (code) {
       return this._fxaClient.verifyLoginAuthorizationCode(
         this.get('uid'),
-        code,
-        options
+        code
       );
     }
   }, {

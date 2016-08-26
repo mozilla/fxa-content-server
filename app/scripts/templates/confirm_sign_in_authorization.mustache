@@ -17,6 +17,12 @@
 
     <p>For authorization to successfully complete, you must keep this window open and check back afterwards.</p>
 
+    {{#openWebmailButtonVisible}}
+      <div class="button-row">
+        <a href="{{{ webmailLink }}}" data-webmail-type="{{{webmailType}}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+      </div>
+    {{/openWebmailButtonVisible}}
+
     <div class="links">
       <a id="resend" class="delayed-fadein" href="#">{{#t}}Didn't arrive? Resend{{/t}}</a>
       <a href="https://support.mozilla.org">{{#t}}Why is this happening?{{/t}}</a>

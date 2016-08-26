@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   var _ = require('underscore');
-  var AuthorizeSignInView = require('../views/authorize_signin');
+  var AuthorizeSignInView = require('../views/authorize_sign_in');
   var AvatarCameraView = require('../views/settings/avatar_camera');
   var AvatarChangeView = require('../views/settings/avatar_change');
   var AvatarCropView = require('../views/settings/avatar_crop');
@@ -20,10 +20,10 @@ define(function (require, exports, module) {
   var ClearStorageView = require('../views/clear_storage');
   var CommunicationPreferencesView = require('../views/settings/communication_preferences');
   var CompleteResetPasswordView = require('../views/complete_reset_password');
-  var CompleteSignInAuthorizationView = require('../views/complete_signin_authorization');
+  var CompleteSignInAuthorizationView = require('../views/complete_sign_in_authorization');
   var CompleteSignUpView = require('../views/complete_sign_up');
   var ConfirmResetPasswordView = require('../views/confirm_reset_password');
-  var ConfirmSignInAuthorizationView = require('../views/confirm_signin_authorization');
+  var ConfirmSignInAuthorizationView = require('../views/confirm_sign_in_authorization');
   var ConfirmView = require('../views/confirm');
   var CookiesDisabledView = require('../views/cookies_disabled');
   var DeleteAccountView = require('../views/settings/delete_account');
@@ -97,6 +97,7 @@ define(function (require, exports, module) {
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
+      'signin_authorized(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN_AUTHORIZATION }),
       'signin_complete(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
       'signup(/)': createViewHandler(SignUpView),

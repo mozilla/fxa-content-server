@@ -115,6 +115,7 @@ function (Translator, Session) {
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/confirm',
     '../tests/spec/views/confirm_reset_password',
+    '../tests/spec/views/confirm_sign_in_authorization',
     '../tests/spec/views/cookies_disabled',
     '../tests/spec/views/coppa/coppa-age-input',
     '../tests/spec/views/decorators/progress_indicator',

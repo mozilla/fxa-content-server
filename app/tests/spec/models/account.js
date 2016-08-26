@@ -1846,5 +1846,71 @@ define(function (require, exports, module) {
             fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
       });
     });
+
+    describe('sendLoginAuthorizationEmail', () => {
+      beforeEach(() => {
+        account.set('email', EMAIL);
+
+        sinon.stub(fxaClient, 'sendLoginAuthorizationEmail', () => p({}));
+        return account.sendLoginAuthorizationEmail(relier, { resume: 'resume token' });
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(
+          fxaClient.sendLoginAuthorizationEmail.calledWith(
+            EMAIL,
+            relier,
+            { resume: 'resume token' }
+          )
+        );
+      });
+    });
+
+    describe('checkLoginAuthorizationRequired', () => {
+      let isAuthorizationRequired;
+
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'checkLoginAuthorizationRequired', () => p(true));
+        return account.checkLoginAuthorizationRequired()
+          .then(_isAuthorizationRequired => {
+            isAuthorizationRequired = _isAuthorizationRequired;
+          });
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(fxaClient.checkLoginAuthorizationRequired.calledOnce);
+        assert.isTrue(isAuthorizationRequired);
+      });
+    });
+
+    describe('rejectLoginAuthorizationCode', () => {
+      beforeEach(() => {
+        account.set('uid', UID);
+
+        sinon.stub(fxaClient, 'rejectLoginAuthorizationCode', () => p({}));
+
+        return account.rejectLoginAuthorizationCode('code');
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(
+          fxaClient.rejectLoginAuthorizationCode.calledWith(UID, 'code'));
+      });
+    });
+
+    describe('verifyLoginAuthorizationCode', () => {
+      beforeEach(() => {
+        account.set('uid', UID);
+
+        sinon.stub(fxaClient, 'verifyLoginAuthorizationCode', () => p({}));
+
+        return account.verifyLoginAuthorizationCode('code');
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(
+          fxaClient.verifyLoginAuthorizationCode.calledWith(UID, 'code'));
+      });
+    });
   });
 });

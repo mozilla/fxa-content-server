@@ -581,36 +581,54 @@ define(function (require, exports, module) {
      *
      * @returns {promise} resolves with response when complete.
      */
-    sendLoginAuthorizationEmail (email, relier, options = {}) {
-      return this._getClient()
-        .then((client) => {
-          const clientOptions = {};
+    sendLoginAuthorizationEmail: withClient((client, email, relier, options = {}) => {
+      const clientOptions = {};
 
-          // `service` is sent on signIn to notify users when a new service
-          // has been attached to their account.
-          if (relier.has('service')) {
-            clientOptions.service = relier.get('service');
-          }
+      // `service` is sent on signIn to notify users when a new service
+      // has been attached to their account.
+      if (relier.has('service')) {
+        clientOptions.service = relier.get('service');
+      }
 
-          if (relier.has('redirectTo')) {
-            clientOptions.redirectTo = relier.get('redirectTo');
-          }
+      if (relier.has('redirectTo')) {
+        clientOptions.redirectTo = relier.get('redirectTo');
+      }
 
-          if (options.resume) {
-            clientOptions.resume = options.resume;
-          }
+      if (options.resume) {
+        clientOptions.resume = options.resume;
+      }
 
-          return client.sendLoginAuthorizationCode(email, options);
-        });
-    },
+      return client.sendLoginAuthorizationCode(email, clientOptions);
+    }),
 
-    rejectLoginAuthorizationCode (uid, code) {
-      return this._getClient()
-        .then((client) => {
-          return client.rejectLoginAuthorizationCode(uid, code);
-        });
-    },
+    /**
+     * Check whether a login authorization is required.
+     *
+     * @returns {promise} resolves with `true` or `false`
+     */
+    checkLoginAuthorizationRequired: withClient((client) => {
+      return client.checkLoginAuthorizationRequired()
+        .then(response => response.authorizationRequired);
+    }),
 
+    /**
+     * Reject a login authorization code.
+     *
+     * @param {string} uid - user id
+     * @param {string} code - login authorization code
+     * @returns {promise} resolves when complete.
+     */
+    rejectLoginAuthorizationCode: withClient((client, uid, code) => {
+      return client.rejectLoginAuthorizationCode(uid, code);
+    }),
+
+    /**
+     * Verify a login authorization code.
+     *
+     * @param {string} uid - user id
+     * @param {string} code - login authorization code
+     * @returns {promise} resolves when complete.
+     */
     verifyLoginAuthorizationCode: withClient((client, uid, code) => {
       return client.verifyLoginAuthorizationCode(uid, code);
     })

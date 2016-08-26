@@ -13,6 +13,7 @@ define(function (require, exports, module) {
     FORCE_AUTH: 'force_auth',
     PASSWORD_RESET: 'reset_password',
     SIGN_IN: 'login',
+    SIGN_IN_AUTHORIZATION: 'signin-authorization',
     SIGN_UP: 'signup'
   };
 });

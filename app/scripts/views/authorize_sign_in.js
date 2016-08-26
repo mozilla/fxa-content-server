@@ -7,14 +7,13 @@ define(function (require, exports, module) {
 
   const BackMixin = require('views/mixins/back-mixin');
   const Cocktail = require('cocktail');
-  const Constants = require('lib/constants');
   const FormView = require('views/form');
-  const Template = require('stache!templates/authorize_signin');
+  const Template = require('stache!templates/authorize_sign_in');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
   const View = FormView.extend({
     template: Template,
-    className: 'authorize_signin',
+    className: 'authorize_sign_in',
 
     initialize () {
       this._account = this.model.get('account');
@@ -34,7 +33,7 @@ define(function (require, exports, module) {
         }
       )
       .then(() => {
-        this.navigate('/confirm_signin_authorization', {
+        this.navigate('confirm_signin_authorization', {
           account: this._account
         });
       });
