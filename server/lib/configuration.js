@@ -154,6 +154,32 @@ var conf = module.exports = convict({
     doc: 'Max age of the STS directive',
     format: 'duration'
   },
+  hpkp_config: {
+    enabled: {
+      doc: 'Feature flag for appending HPKP headers',
+      default: true
+    },
+    max_age: {
+      doc: 'Max age for HPKP headers',
+      default: 0,
+      env: 'HPKP_MAX_AGE'
+    },
+    pin_sha256: {
+      doc: 'Supported pin-sha256s',
+      format: Array,
+      default: [
+        '5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=',
+        'PZXN3lRAy+8tBKk2Ox6F7jIlnzr2Yzmwqc3JnyfXoCw=',
+        'r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E='
+      ],
+      env: 'HPKP_PIN_SHA256'
+    },
+    includeSubDomains: {
+      doc: 'Include Sub-Domains',
+      default: true,
+      env: 'HPKP_INCLUDE_SUBDOMAINS'
+    }
+  },
   http_port: {
     default: 3080,
     doc: 'HTTP port for local dev',

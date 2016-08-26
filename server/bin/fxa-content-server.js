@@ -16,6 +16,7 @@ var https = require('https');
 var path = require('path');
 var serveStatic = require('serve-static');
 var mozlog = require('mozlog');
+var hpkp = require('../lib/hpkp');
 
 var config = require('../lib/configuration');
 
@@ -83,6 +84,11 @@ function makeApp() {
   }
   if (config.get('csp.reportOnlyEnabled')) {
     app.use(csp({ rules: cspRulesReportOnly }));
+  }
+  if (config.get('hpkp_config.enabled')) {
+    app.use(hpkp(config.get('hpkp_config.max_age'),
+      config.get('hpkp_config.pin_sha256'),
+      config.get('hpkp_config.includeSubDomains')));
   }
 
   app.disable('x-powered-by');
