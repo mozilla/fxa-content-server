@@ -204,27 +204,59 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('show passwordHelper', function () {
-      it('set warning opacity to 1 if any password length is less than 8', function () {
+    describe('show passwordHelper', () => {
+      it('set warning opacity to 1 if any password length is less than 8', () => {
         view.$('#password').val('1234');
         view.$('#vpassword').val('12345678');
         view.$('#old_password').val('12345678');
         view.$('#new_password').val('12345678');
-        view.onPasswordKeyUp();
+        const e = $.Event('keyup');
+        e.target = view.$('#password');
+        view.onPasswordKeyUp(e);
         assert.equal(view.$('.input-help').css('opacity'), '1');
         assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
       });
     });
 
-    describe('hide passwordHelper', function () {
-      it('set warning opacity to 0 if password length is greater than or equal to 8', function () {
+    describe('hide passwordHelper', () => {
+      it('set warning opacity to 0 if password length is greater than or equal to 8', () => {
         view.$('#password').val('12345678');
         view.$('#vpassword').val('12345678');
         view.$('#old_password').val('12345678');
         view.$('#new_password').val('123456789');
-        view.onPasswordKeyUp();
+        const e = $.Event('keyup');
+        e.target = view.$('#password');
+        view.onPasswordKeyUp(e);
         assert.equal(view.$('.input-help').css('opacity'), '0');
         assert.equal(view.$('.input-help-forgot-pw').css('opacity'), '1');
+      });
+    });
+
+    describe('updateShowPasswordLabelVisibility', () => {
+      it('hides the show password label if there is no text in the password field', () => {
+        const $passwordField = view.$('#password');
+        const $showPasswordLabel = view.$('#password ~ .show-password-label');
+        let e = $.Event('keyup');
+        e.target = $passwordField;
+
+        $passwordField.val('');
+        // check for keyup
+        $showPasswordLabel.removeClass('hidden');
+        view.onPasswordKeyUp(e);
+        assert.isTrue($showPasswordLabel.hasClass('hidden'));
+      });
+
+      it('shows the show password label if there is text in the password field', () => {
+        const $passwordField = view.$('#password');
+        const $showPasswordLabel = view.$('#password ~ .show-password-label');
+        let e = $.Event('keyup');
+        e.target = $passwordField;
+
+        $passwordField.val('asdf');
+        // check for keyup
+        $showPasswordLabel.removeClass('hidden');
+        view.onPasswordKeyUp(e);
+        assert.isFalse($showPasswordLabel.hasClass('hidden'));
       });
     });
 

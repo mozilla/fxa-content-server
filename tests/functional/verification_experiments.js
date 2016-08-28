@@ -17,6 +17,7 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var type = FunctionalHelpers.type;
 
   registerSuite({
     name: 'verification_experiments - mailcheck',
@@ -37,8 +38,7 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(EXP_MAILCHECK_URL + EXP_TREATMENT))
 
-        .findByCssSelector('.email')
-          .type(BAD_EMAIL)
+        .then(type('.email', BAD_EMAIL))
           .click()
         .end()
 
@@ -62,8 +62,7 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(EXP_MAILCHECK_URL + EXP_CONTROL))
 
-        .findByCssSelector('.email')
-          .type(BAD_EMAIL)
+        .then(type('.email', BAD_EMAIL))
           .click()
         .end()
 
@@ -88,31 +87,25 @@ define([
       return this.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(EXP_SHOWPASSWORD_URL + EXP_TREATMENT))
-        .then(FunctionalHelpers.pollUntil(function () {
-          /* global $ */
-          return $('.show-password-label').is(':hidden') === true ? true : null;
-        }, [], 10000))
-
+        .then(FunctionalHelpers.pollUntilGoneByQSA('.show-password-label'))
         .then(click('.sign-in'))
         .then(testElementExists('#fxa-signin-header'))
-
-        .then(FunctionalHelpers.pollUntil(function () {
-          return $('.show-password-label').is(':hidden') === true ? true : null;
-        }, [], 10000));
-
+        .then(FunctionalHelpers.pollUntilGoneByQSA('.show-password-label'));
     },
 
     'control works': function () {
       return this.remote
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(EXP_SHOWPASSWORD_URL + EXP_CONTROL))
+        .then(type('.password', 'asdf'))
         .then(FunctionalHelpers.pollUntil(function () {
+          /* global $ */
           return $('.show-password-label').is(':hidden') === false ? true : null;
         }, [], 10000))
 
         .then(click('.sign-in'))
         .then(testElementExists('#fxa-signin-header'))
-
+        .then(type('.password', 'asdf'))
         .then(FunctionalHelpers.pollUntil(function () {
           return $('.show-password-label').is(':hidden') === false ? true : null;
         }, [], 10000));
