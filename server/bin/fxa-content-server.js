@@ -86,10 +86,10 @@ function makeApp() {
   }
   if (config.get('hpkp_config.enabled')) {
     app.use(helmet.hpkp({
+      includeSubdomains: config.get('hpkp_config.includeSubDomains'),
       maxAge: config.get('hpkp_config.max_age'),
-      sha256s: config.get('hpkp_config.pin_sha256'),
-      includeSubdomains: config.get('hpkp_config.includeSubDomains')
-    }))
+      sha256s: config.get('hpkp_config.pin_sha256')
+    }));
   }
 
   app.disable('x-powered-by');
