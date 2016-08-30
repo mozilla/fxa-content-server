@@ -713,14 +713,36 @@ define(function (require, exports, module) {
     /**
      * Fetch the account's device list and populate the `devices` collection.
      *
-     * @param {object} devices - Devices collection
+     * @param {object} clients - Devices collection
      * @returns {promise} - resolves when complete
      */
-    fetchDevices: function (devices) {
-      var sessionToken = this.get('sessionToken');
+    fetchDevices: function (clients) {
+      return this._fxaClient.deviceList(this.get('sessionToken'))
+        .then((devices) => {
+          devices.map((item) => {
+            item.clientType = 'device';
+          });
 
-      return this._fxaClient.deviceList(sessionToken)
-        .then(devices.set.bind(devices));
+          return clients.add(devices);
+        });
+    },
+
+    /**
+     * Fetch the OAuth Apps for the given account, populated the passed in
+     * oAuthApps collection.
+     *
+     * @param {Object} clients - Clients collection used to store list.
+     * @returns {Promise} resolves when the action completes
+     */
+    fetchOAuthApps: function (clients) {
+      return this._oAuthClient.fetchClients(this.get('accessToken'))
+        .then((oAuthApps) => {
+          oAuthApps.map((item) => {
+            item.clientType = 'oAuthApp';
+          });
+
+          clients.add(oAuthApps);
+        });
     },
 
     /**

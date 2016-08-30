@@ -8,9 +8,7 @@ define(function (require, exports, module) {
   var _ = require('underscore');
   var $ = require('jquery');
   var Cocktail = require('cocktail');
-  var Apps = require('models/apps');
-  var Devices = require('models/devices');
-  var AppsAndDevices = require('models/apps-devices');
+  var AttachedClients = require('models/attached-clients');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -37,29 +35,13 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       this._able = options.able;
-      this._devices = options.devices;
-      this._apps = options.apps;
 
-      // An empty Devices instance is created to render the initial view.
-      // Data is only fetched once the panel has been opened.
-      if (! this._devices) {
-        this._devices = new Devices([], {
-          notifier: options.notifier
-        });
-      }
+      this._attachedClients = new AttachedClients([], {
+        notifier: options.notifier
+      });
 
-      var devices = this._devices;
-      devices.on('add', this._onItemAdded.bind(this));
-      devices.on('remove', this._onItemRemoved.bind(this));
-
-      if (! this._apps) {
-        this._apps = new Apps([], {
-          notifier: options.notifier
-        });
-      }
-
-      this._apps.on('add', this._onItemAdded.bind(this));
-      this._apps.on('remove', this._onItemRemoved.bind(this));
+      this.listenTo(this._attachedClients, 'add', this._onItemAdded);
+      this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
     _formatAccessTime: function (items) {
@@ -76,16 +58,8 @@ define(function (require, exports, module) {
     },
 
     context: function () {
-      // Create a combined collection to be able to sort apps and devices together.
-      var appsAndDevicesCollection = new AppsAndDevices();
-      appsAndDevicesCollection.add(this._devices.toJSON(), {silent: true});
-
-      if (this._isAppsListVisible()) {
-        appsAndDevicesCollection.add(this._apps.toJSON(), {silent: true});
-      }
-
       return {
-        clients: this._formatAccessTime(appsAndDevicesCollection.toJSON()),
+        clients: this._formatAccessTime(this._attachedClients.toJSON()),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
@@ -131,6 +105,7 @@ define(function (require, exports, module) {
     },
 
     _isAppsListVisible: function () {
+      // OAuth Apps list is visible if `appsListVisible` chooses `true`.
       return this._able.choose('appsListVisible', {
         forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search)
       });
@@ -150,70 +125,42 @@ define(function (require, exports, module) {
       var clientType = $(event.currentTarget).data('type');
 
       this.logViewEvent(clientType + '.disconnect');
-      if (clientType === 'device') {
-        this._destroyDevice(itemId);
-      } else if (clientType === 'app') {
-        this._destroyApp(itemId);
-      }
+      this._attachedClients.removeClient(itemId, this.user, this.getSignedInAccount())
+        .then((client) => {
+          if (client.get('clientType') === 'device' && client.get('isCurrentDevice')) {
+            this.navigateToSignIn();
+          }
+        });
     },
 
     _onRefreshClientsList: function () {
-      var self = this;
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices
-        this._fetchAllClientTypes().then(function () {
-          self.render();
+        this._fetchAttachedClients().then(() => {
+          this.render();
         });
       }
     },
 
     openPanel: function () {
       this.logViewEvent('open');
-      this._fetchAllClientTypes();
+      this._fetchAttachedClients();
     },
 
-    _fetchAllClientTypes: function () {
-      var fetchTypes = [this._fetchDevices()];
+    _fetchAttachedClients: function () {
+      var account = this.getSignedInAccount();
+      var attachedClients = this._attachedClients;
+      var fetchItems = [account.fetchDevices(attachedClients)];
 
       if (this._isAppsListVisible()) {
-        fetchTypes.push(this._fetchApps());
+        fetchItems.push(account.fetchOAuthApps(attachedClients));
       }
 
-      return P.all(fetchTypes);
-    },
-
-    _fetchDevices: function () {
-      var account = this.getSignedInAccount();
-
-      return this.user.fetchAccountDevices(account, this._devices);
-    },
-
-    _destroyDevice: function (deviceId) {
-      var self = this;
-      var account = this.getSignedInAccount();
-      var device = this._devices.get(deviceId);
-      if (device) {
-        this.user.destroyAccountDevice(account, device)
-          .then(function () {
-            if (device.get('isCurrentDevice')) {
-              self.navigateToSignIn();
-            }
-          });
-      }
-    },
-
-    _fetchApps: function () {
-      return this.user.fetchAccountApps(this.getSignedInAccount(), this._apps);
-    },
-
-    _destroyApp: function (appId) {
-      var app = this._apps.get(appId);
-      if (app) {
-        this.user.destroyAccountApp(this.getSignedInAccount(), app);
-      }
+      return P.all(fetchItems);
     }
+
   });
 
   Cocktail.mixin(

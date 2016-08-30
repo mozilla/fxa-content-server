@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * App information
+ * OAuthApp information
  */
 define(function (require, exports, module) {
   'use strict';
@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
   module.exports = Backbone.Model.extend({
     defaults: {
-      clientType: 'app',
+      clientType: 'oAuthApp',
       id: null,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,

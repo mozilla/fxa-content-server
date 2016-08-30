@@ -519,29 +519,12 @@ define(function (require, exports, module) {
         });
     },
 
-    /**
-     * Fetch the devices for the given account, populated the passed in
-     * Devices collection.
-     *
-     * @param {object} account - account for which device list is requested
-     * @param {object} devices - Devices collection used to store list.
-     * @returns {promise} resolves when the action completes
-     */
-    fetchAccountDevices: function (account, devices) {
-      return account.fetchDevices(devices);
-    },
-
-    /**
-     * Fetch the clients for the given account, populated the passed in
-     * Clients collection.
-     *
-     * @param {Object} account - account for which device list is requested
-     * @param {Object} apps - Clients collection used to store list.
-     * @returns {Promise} resolves when the action completes
-     */
-    fetchAccountApps: function (account, apps) {
-      return this._oAuthClient.fetchClients(account.get('accessToken'), apps)
-        .then(apps.set.bind(apps));
+    destroyAccountClient: function (account, client) {
+      if (client.get('clientType') === 'device') {
+        return this.destroyAccountDevice(account, client);
+      } else if (client.get('clientType') === 'oAuthApp') {
+        return this.destroyAccountApp(account, client);
+      }
     },
 
     /**

@@ -46,6 +46,7 @@ define(function (require, exports, module) {
     getClientInfo: function getClientInfo(id) {
       return this._request('get', GET_CLIENT + id);
     },
+
     /**
      * Fetch user's active OAuth clients
      *
@@ -61,6 +62,7 @@ define(function (require, exports, module) {
 
       return xhr.oauthAjax(request);
     },
+
     /**
      * Delete all active OAuth tokens for given clientId
      *
@@ -77,6 +79,7 @@ define(function (require, exports, module) {
 
       return xhr.oauthAjax(request);
     },
+
     /**
      *
      * @param {Object} params

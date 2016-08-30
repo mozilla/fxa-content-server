@@ -9,10 +9,29 @@
  */
 define(function (require, exports, module) {
   'use strict';
+
   var Backbone = require('backbone');
+  var OAuthApp = require('models/oauth-app');
+  var Device = require('models/device');
 
   module.exports = Backbone.Collection.extend({
     initialize: function (models, options = {}) {
+    },
+
+    model: function(attrs, options) {
+      if (attrs.clientType === 'device') {
+        return new Device(attrs, options);
+      } else if (attrs.clientType === 'oAuthApp') {
+        return new OAuthApp(attrs, options);
+      }
+    },
+
+    removeClient: function (itemId, user) {
+      var item = this.get(itemId);
+      return user.destroyAccountClient(user.getSignedInAccount(), item)
+        .then(() => {
+          return item;
+        });
     },
 
     comparator: function (a, b) {
@@ -30,7 +49,7 @@ define(function (require, exports, module) {
       var bLastAccessTime = b.get('lastAccessTime');
 
       if (aLastAccessTime && bLastAccessTime &&
-        aLastAccessTime !== bLastAccessTime) {
+          aLastAccessTime !== bLastAccessTime) {
         return bLastAccessTime - aLastAccessTime;
       } else if (aLastAccessTime && ! bLastAccessTime) {
         return -1;
