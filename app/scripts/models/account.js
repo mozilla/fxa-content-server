@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile profile:write';
+  var PROFILE_SCOPE = 'profile profile:write clients:write';
 
   var PERMISSIONS_TO_KEYS = {
     'profile:avatar': 'profileImageUrl',

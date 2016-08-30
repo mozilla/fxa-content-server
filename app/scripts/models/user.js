@@ -561,6 +561,7 @@ define(function (require, exports, module) {
           }
         });
     },
+
     /**
      * Destroy a client on the given account.
      *

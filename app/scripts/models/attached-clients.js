@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A collection of apps and devices
+ * Attached clients are OAuth apps and devices
  *
  * It sorts items in order that is defined in FxA-89 feature description.
  */
@@ -54,5 +54,3 @@ define(function (require, exports, module) {
     },
   });
 });
-
-

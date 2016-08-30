@@ -3,26 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A collection of devices
+ * App information
  */
-
-
 define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
-  var Device = require('models/device');
 
-  var Devices = Backbone.Collection.extend({
-    model: Device,
+  module.exports = Backbone.Model.extend({
+    defaults: {
+      clientType: 'app',
+      id: null,
+      lastAccessTime: null,
+      lastAccessTimeFormatted: null,
+      name: null
+    },
 
-    initialize: function (models, options) {
-      options = options || {};
+    destroy: function () {
+      this.trigger('destroy', this);
     }
-
   });
-
-  module.exports = Devices;
 });
-
-
