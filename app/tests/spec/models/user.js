@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Device = require('models/device');
-  var Devices = require('models/devices');
+  var AttachedClients = require('models/attached-clients');
   var FxaClient = require('lib/fxa-client');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var Notifier = require('lib/channels/notifier');
@@ -969,7 +969,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        devices = new Devices([], {
+        devices = new AttachedClients([], {
           notifier: {
             on: sinon.spy()
           }

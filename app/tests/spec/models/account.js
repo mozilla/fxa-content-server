@@ -11,7 +11,7 @@ define(function (require, exports, module) {
   var chai = require('chai');
   var Constants = require('lib/constants');
   var Device = require('models/device');
-  var Devices = require('models/devices');
+  var AttachedClients = require('models/attached-clients');
   var FxaClientWrapper = require('lib/fxa-client');
   var MarketingEmailClient = require('lib/marketing-email-client');
   var OAuthClient = require('lib/oauth-client');
@@ -1436,7 +1436,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
 
-        devices = new Devices([], {
+        devices = new AttachedClients([], {
           notifier: {
             on: sinon.spy()
           }

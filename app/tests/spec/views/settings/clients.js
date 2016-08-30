@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   var Able = require('lib/able');
   var assert = require('chai').assert;
   var BaseView = require('views/base');
-  var Devices = require('models/devices');
+  var AttachedClients = require('models/attached-clients');
   var Notifier = require('lib/channels/notifier');
   var p = require('lib/promise');
   var sinon = require('sinon');
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
       parentView = new BaseView();
       user = new User();
 
-      devices = new Devices([
+      devices = new AttachedClients([
         {
           id: 'device-1',
           isCurrentDevice: false,
