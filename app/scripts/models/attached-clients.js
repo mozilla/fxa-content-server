@@ -11,17 +11,18 @@ define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
-  var OAuthApp = require('models/oauth-app');
+  var Constants = require('lib/constants');
   var Device = require('models/device');
+  var OAuthApp = require('models/oauth-app');
 
   module.exports = Backbone.Collection.extend({
     initialize: function (models, options = {}) {
     },
 
     model: function(attrs, options) {
-      if (attrs.clientType === 'device') {
+      if (attrs.clientType === Constants.CLIENT_TYPE_DEVICE) {
         return new Device(attrs, options);
-      } else if (attrs.clientType === 'oAuthApp') {
+      } else if (attrs.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
         return new OAuthApp(attrs, options);
       }
     },
@@ -70,6 +71,7 @@ define(function (require, exports, module) {
       }
 
       return 1;
-    },
+    }
+
   });
 });

@@ -7,8 +7,9 @@ define(function (require, exports, module) {
 
   var _ = require('underscore');
   var $ = require('jquery');
-  var Cocktail = require('cocktail');
   var AttachedClients = require('models/attached-clients');
+  var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
   var FormView = require('views/form');
   var preventDefaultThen = require('views/base').preventDefaultThen;
   var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
@@ -125,7 +126,7 @@ define(function (require, exports, module) {
           var clientType = client.get('clientType');
 
           this.logViewEvent(clientType + '.disconnect');
-          if (clientType === 'device' && client.get('isCurrentDevice')) {
+          if (clientType === Constants.CLIENT_TYPE_DEVICE && client.get('isCurrentDevice')) {
             this.navigateToSignIn();
           }
         });

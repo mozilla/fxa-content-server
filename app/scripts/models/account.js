@@ -720,7 +720,7 @@ define(function (require, exports, module) {
       return this._fxaClient.deviceList(this.get('sessionToken'))
         .then((devices) => {
           devices.map((item) => {
-            item.clientType = 'device';
+            item.clientType = Constants.CLIENT_TYPE_DEVICE;
           });
 
           return clients.add(devices);
@@ -738,7 +738,7 @@ define(function (require, exports, module) {
       return this._oAuthClient.fetchClients(this.get('accessToken'))
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
-            item.clientType = 'oAuthApp';
+            item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
           });
 
           clients.add(oAuthApps);

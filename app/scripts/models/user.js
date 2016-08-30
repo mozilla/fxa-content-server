@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   var Account = require('models/account');
   var Backbone = require('backbone');
   var Cocktail = require('cocktail');
+  var Constants = require('lib/constants');
   var MarketingEmailErrors = require('lib/marketing-email-errors');
   var p = require('lib/promise');
   var ResumeTokenMixin = require('models/mixins/resume-token');
@@ -520,9 +521,9 @@ define(function (require, exports, module) {
     },
 
     destroyAccountClient: function (account, client) {
-      if (client.get('clientType') === 'device') {
+      if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
         return this.destroyAccountDevice(account, client);
-      } else if (client.get('clientType') === 'oAuthApp') {
+      } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
         return this.destroyAccountApp(account, client);
       }
     },

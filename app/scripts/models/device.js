@@ -10,10 +10,11 @@ define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
+  var Constants = require('lib/constants');
 
   var Device = Backbone.Model.extend({
     defaults: {
-      clientType: 'device',
+      clientType: Constants.CLIENT_TYPE_DEVICE,
       id: null,
       isCurrentDevice: null,
       lastAccessTime: null,

@@ -9,10 +9,11 @@ define(function (require, exports, module) {
   'use strict';
 
   var Backbone = require('backbone');
+  var Constants = require('lib/constants');
 
   module.exports = Backbone.Model.extend({
     defaults: {
-      clientType: 'oAuthApp',
+      clientType: Constants.CLIENT_TYPE_OAUTH_APP,
       id: null,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
