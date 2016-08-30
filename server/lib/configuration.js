@@ -160,8 +160,8 @@ var conf = module.exports = convict({
       env: 'HPKP_INCLUDE_SUBDOMAINS'
     },
     max_age: {
-      default: 0,
-      doc: 'Max age for HPKP headers',
+      default: 1,
+      doc: 'Max age for HPKP headers (milliseconds)',
       env: 'HPKP_MAX_AGE'
     },
     pin_sha256: {

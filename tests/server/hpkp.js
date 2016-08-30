@@ -7,9 +7,8 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!../../server/lib/hpkp',
   'intern/dojo/node!request'
-], function (intern, registerSuite, assert, config, hpkp, request) {
+], function (intern, registerSuite, assert, config, request) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
   var suite = {
     name: 'hpkp'
@@ -17,9 +16,10 @@ define([
 
   suite['#get sends hpkp headers'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
-    var headerValue = hpkp.buildHPKPHeader(config.get('hpkp_config.max_age'),
-      config.get('hpkp_config.pin_sha256'),
-      config.get('hpkp_config.includeSubDomains'));
+    var headerValue = 'pin-sha256="5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w="; ' +
+      'pin-sha256="PZXN3lRAy+8tBKk2Ox6F7jIlnzr2Yzmwqc3JnyfXoCw="; ' +
+      'pin-sha256="r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="; ' +
+      'max-age=0; includeSubdomains';
 
     request(serverUrl + '/', {},
     dfd.callback(function (err, res) {
