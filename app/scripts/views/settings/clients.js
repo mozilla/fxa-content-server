@@ -120,14 +120,12 @@ define(function (require, exports, module) {
     },
 
     _onDisconnectClient: function (event) {
-      var itemId = $(event.currentTarget).data('id');
-      // type of client that was disconnected, can be 'client' or 'device'.
-      var clientType = $(event.currentTarget).data('type');
-
-      this.logViewEvent(clientType + '.disconnect');
-      this._attachedClients.removeClient(itemId, this.user, this.getSignedInAccount())
+      this._attachedClients.removeClient($(event.currentTarget).data('id'), this.user)
         .then((client) => {
-          if (client.get('clientType') === 'device' && client.get('isCurrentDevice')) {
+          var clientType = client.get('clientType');
+
+          this.logViewEvent(clientType + '.disconnect');
+          if (clientType === 'device' && client.get('isCurrentDevice')) {
             this.navigateToSignIn();
           }
         });
