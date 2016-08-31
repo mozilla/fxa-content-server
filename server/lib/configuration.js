@@ -149,7 +149,7 @@ var conf = module.exports = convict({
     doc: 'Google Analytics id',
     format: String
   },
-  hpkp_config: {
+  hpkp: {
     enabled: {
       default: true,
       doc: 'Feature flag for appending HPKP headers'
@@ -161,7 +161,7 @@ var conf = module.exports = convict({
     },
     max_age: {
       default: 1,
-      doc: 'Max age for HPKP headers (milliseconds)',
+      doc: 'Max age for HPKP headers (seconds)',
       env: 'HPKP_MAX_AGE'
     },
     pin_sha256: {

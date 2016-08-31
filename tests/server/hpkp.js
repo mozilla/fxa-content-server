@@ -19,7 +19,7 @@ define([
     var headerValue = 'pin-sha256="5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w="; ' +
       'pin-sha256="PZXN3lRAy+8tBKk2Ox6F7jIlnzr2Yzmwqc3JnyfXoCw="; ' +
       'pin-sha256="r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E="; ' +
-      'max-age=0; includeSubdomains';
+      'max-age=1; includeSubdomains';
 
     request(serverUrl + '/', {},
     dfd.callback(function (err, res) {

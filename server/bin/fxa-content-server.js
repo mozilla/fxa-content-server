@@ -84,11 +84,13 @@ function makeApp() {
   if (config.get('csp.reportOnlyEnabled')) {
     app.use(csp({ rules: cspRulesReportOnly }));
   }
-  if (config.get('hpkp_config.enabled')) {
+  if (config.get('hpkp.enabled')) {
+    // Helmet requires maxAge to be in milliseconds and converts it to seconds
+    // when setting header
     app.use(helmet.hpkp({
-      includeSubdomains: config.get('hpkp_config.includeSubDomains'),
-      maxAge: config.get('hpkp_config.max_age'),
-      sha256s: config.get('hpkp_config.pin_sha256')
+      includeSubdomains: config.get('hpkp.includeSubDomains'),
+      maxAge: config.get('hpkp.max_age') * 1000, // Convert to seconds
+      sha256s: config.get('hpkp.pin_sha256')
     }));
   }
 
