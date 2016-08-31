@@ -61,7 +61,7 @@ define([
         .then(FunctionalHelpers.noSuchElement(this, '#devices'));
     },
 
-    'device panel works with query param, same device': function () {
+    'device and apps panel works with query param, same device': function () {
       var self = this;
       self.timeout = 90 * 1000;
       var testDeviceId;
@@ -74,7 +74,7 @@ define([
         .findByCssSelector('#fxa-settings-header')
         .end()
 
-        .findByCssSelector('#devices .settings-unit-stub button')
+        .findByCssSelector('#clients .settings-unit-stub button')
           .click()
         .end()
 

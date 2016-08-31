@@ -160,5 +160,40 @@ define(function (require, exports, module) {
           });
       });
     });
+
+    describe('fetchClients', function () {
+      it('fetches clients', function () {
+        sinon.stub(client._xhr, 'oauthAjax', function () {
+          return p({});
+        });
+
+        return client.fetchClients('token')
+          .then(function () {
+            assert.isTrue(xhr.oauthAjax.calledWith({
+              accessToken: 'token',
+              type: 'get',
+              url: OAUTH_URL + '/v1/client-tokens'
+            }));
+          });
+      });
+    });
+
+    describe('deleteClient', function () {
+      it('deletes clients', function () {
+        sinon.stub(client._xhr, 'oauthAjax', function () {
+          return p({});
+        });
+
+        return client.deleteClient('token', 'id')
+          .then(function () {
+            assert.isTrue(xhr.oauthAjax.calledWith({
+              accessToken: 'token',
+              type: 'delete',
+              url: OAUTH_URL + '/v1/client-tokens/id'
+            }));
+          });
+      });
+    });
+
   });
 });

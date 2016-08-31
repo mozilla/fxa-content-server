@@ -57,10 +57,10 @@ define(function (require, exports, module) {
       const request = {
         accessToken: accessToken,
         type: 'get',
-        url: this._oAuthUrl + CLIENT_TOKENS_API
+        url: `${this._oAuthUrl}${CLIENT_TOKENS_API}`
       };
 
-      return xhr.oauthAjax(request);
+      return this._xhr.oauthAjax(request);
     },
 
     /**
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
         url: `${this._oAuthUrl}${CLIENT_TOKENS_API}/${clientId}`
       };
 
-      return xhr.oauthAjax(request);
+      return this._xhr.oauthAjax(request);
     },
 
     /**
