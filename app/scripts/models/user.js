@@ -573,9 +573,9 @@ define(function (require, exports, module) {
     /**
      * Destroy a client on the given account.
      *
-     * @param {object} account - account with the connected app
-     * @param {object} oAuthApp - app to disconnect
-     * @returns {promise} resolves when the action completes
+     * @param {Object} account - account with the connected app
+     * @param {Object} oAuthApp - OAuth App to disconnect
+     * @returns {Promise} resolves when the action completes
      */
     destroyAccountApp: function (account, oAuthApp) {
       return account.destroyOAuthApp(oAuthApp);

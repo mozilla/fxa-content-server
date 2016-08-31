@@ -157,6 +157,9 @@ define(function (require, exports, module) {
     },
 
     _fetchAttachedClients: function () {
+      // reset the collection for new data.
+      this._attachedClients.reset();
+
       return this._attachedClients.fetchClients({
         devices: true,
         oAuthApps: this._isAppsListVisible()
