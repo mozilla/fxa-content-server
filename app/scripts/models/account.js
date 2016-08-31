@@ -761,6 +761,23 @@ define(function (require, exports, module) {
         });
     },
 
+
+    /**
+     * Delete the device from the account
+     *
+     * @param {object} oAuthApp - OAuthApp model to remove
+     * @returns {promise} - resolves when complete
+     */
+    destroyOAuthApp: function (oAuthApp) {
+      var oAuthAppId = oAuthApp.get('id');
+      var accessToken = this.get('accessToken');
+
+      return this._oAuthClient.deleteClient(accessToken, oAuthAppId)
+        .then(() => {
+          oAuthApp.destroy();
+        });
+    },
+
     /**
      * Initiate a password reset
      *

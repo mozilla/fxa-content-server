@@ -529,6 +529,30 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Fetch the devices for the given account, populated the passed in
+     * Devices collection.
+     *
+     * @param {object} account - account for which device list is requested
+     * @param {object} devices - Devices collection used to store list.
+     * @returns {promise} resolves when the action completes
+     */
+    fetchAccountDevices: function (account, devices) {
+      return account.fetchDevices(devices);
+    },
+
+    /**
+     * Fetch the OAuthApps for the given account, populated into the passed
+     * collection.
+     *
+     * @param {object} account - account for which device list is requested
+     * @param {object} oAuthApps - oAuthApps collection used to store list.
+     * @returns {promise} resolves when the action completes
+     */
+    fetchAccountOAuthApps: function (account, oAuthApps) {
+      return account.fetchOAuthApps(oAuthApps);
+    },
+
+    /**
      * Destroy a device on the given account. If the current device
      * is destroyed, sign out the user.
      *
@@ -550,15 +574,11 @@ define(function (require, exports, module) {
      * Destroy a client on the given account.
      *
      * @param {object} account - account with the connected app
-     * @param {object} app - app to disconnect
+     * @param {object} oAuthApp - app to disconnect
      * @returns {promise} resolves when the action completes
      */
-    destroyAccountApp: function (account, app) {
-      var clientId = app.get('id');
-      return this._oAuthClient.deleteClient(account.get('accessToken'), clientId)
-        .then(() => {
-          app.destroy();
-        });
+    destroyAccountApp: function (account, oAuthApp) {
+      return account.destroyOAuthApp(oAuthApp);
     },
 
     /**

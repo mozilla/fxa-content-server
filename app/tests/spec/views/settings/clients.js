@@ -63,11 +63,13 @@ define(function (require, exports, module) {
 
       devices = new AttachedClients([
         {
+          clientType: 'device',
           id: 'device-1',
           isCurrentDevice: false,
           name: 'alpha'
         },
         {
+          clientType: 'device',
           id: 'device-2',
           isCurrentDevice: true,
           name: 'beta'
@@ -93,8 +95,8 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates a `Devices` instance if one not passed in', function () {
-        assert.ok(view._devices);
+      it('creates an `AttachedClients` instance if one not passed in', function () {
+        assert.ok(view._attachedClients);
       });
     });
 

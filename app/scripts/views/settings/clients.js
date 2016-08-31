@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   var Strings = require('lib/strings');
   var t = require('views/base').t;
-  var P = require('lib/promise');
   var Template = require('stache!templates/settings/clients');
   var Url = require('lib/url');
 
@@ -36,10 +35,13 @@ define(function (require, exports, module) {
 
     initialize: function (options) {
       this._able = options.able;
+      this._attachedClients = options.attachedClients;
 
-      this._attachedClients = new AttachedClients([], {
-        notifier: options.notifier
-      });
+      if (! this._attachedClients) {
+        this._attachedClients = new AttachedClients([], {
+          notifier: options.notifier
+        });
+      }
 
       this.listenTo(this._attachedClients, 'add', this._onItemAdded);
       this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
@@ -149,15 +151,10 @@ define(function (require, exports, module) {
     },
 
     _fetchAttachedClients: function () {
-      var account = this.getSignedInAccount();
-      var attachedClients = this._attachedClients;
-      var fetchItems = [account.fetchDevices(attachedClients)];
-
-      if (this._isAppsListVisible()) {
-        fetchItems.push(account.fetchOAuthApps(attachedClients));
-      }
-
-      return P.all(fetchItems);
+      return this._attachedClients.fetchClients({
+        devices: true,
+        oAuthApps: this._isAppsListVisible()
+      }, this.user);
     }
 
   });

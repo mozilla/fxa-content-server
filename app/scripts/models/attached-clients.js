@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   var Constants = require('lib/constants');
   var Device = require('models/device');
   var OAuthApp = require('models/oauth-app');
+  var P = require('lib/promise');
 
   module.exports = Backbone.Collection.extend({
     initialize: function (models, options = {}) {
@@ -33,6 +34,21 @@ define(function (require, exports, module) {
         .then(() => {
           return item;
         });
+    },
+
+    fetchClients: function (clientTypes = {}, user) {
+      var account = user.getSignedInAccount();
+      var fetchItems = [];
+
+      if (clientTypes.devices) {
+        fetchItems.push(user.fetchAccountDevices(account, this));
+      }
+
+      if (clientTypes.oAuthApps) {
+        fetchItems.push(user.fetchAccountOAuthApps(account, this));
+      }
+
+      return P.all(fetchItems);
     },
 
     comparator: function (a, b) {
