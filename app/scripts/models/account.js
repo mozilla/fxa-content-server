@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile profile:write clients:write';
+  var CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
   var PERMISSIONS_TO_KEYS = {
     'profile:avatar': 'profileImageUrl',
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
 
     _fetchProfileOAuthToken: function () {
       var self = this;
-      return self.createOAuthToken(PROFILE_SCOPE)
+      return self.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
         .then(function (accessToken) {
           self.set('accessToken', accessToken.get('token'));
         });

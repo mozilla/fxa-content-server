@@ -16,7 +16,7 @@ define(function (require, exports, module) {
   var OAuthApp = require('models/oauth-app');
   var P = require('lib/promise');
 
-  module.exports = Backbone.Collection.extend({
+  var AttachedClients = Backbone.Collection.extend({
     initialize: function (models, options = {}) {
     },
 
@@ -90,4 +90,6 @@ define(function (require, exports, module) {
     }
 
   });
+
+  module.exports = AttachedClients;
 });
