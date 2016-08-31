@@ -119,7 +119,13 @@ define(function (require, exports, module) {
     },
 
     _onItemRemoved: function (item) {
-      $('#' + item.get('id')).slideUp(DEVICE_REMOVED_ANIMATION_MS);
+      var id = item.get('id');
+      var self = this;
+      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
+        // re-render in case the last device is removed and the
+        // "no registered devices" message needs to be shown.
+        self.render();
+      });
     },
 
     _onDisconnectClient: function (event) {

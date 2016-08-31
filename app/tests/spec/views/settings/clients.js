@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   var View = require('views/settings/clients');
 
   describe('views/settings/clients', function () {
-    var devices;
+    var attachedClients;
     var notifier;
     var parentView;
     var user;
@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     function initView () {
       view = new View({
         able: able,
-        devices: devices,
+        attachedClients: attachedClients,
         notifier: notifier,
         parentView: parentView,
         user: user
@@ -61,7 +61,7 @@ define(function (require, exports, module) {
       parentView = new BaseView();
       user = new User();
 
-      devices = new AttachedClients([
+      attachedClients = new AttachedClients([
         {
           clientType: 'device',
           id: 'device-1',
@@ -102,32 +102,33 @@ define(function (require, exports, module) {
 
     describe('render', function () {
       beforeEach(function () {
-        sinon.spy(devices, 'fetch');
+        sinon.spy(attachedClients, 'fetch');
 
         return initView();
       });
 
       it('does not fetch the device list immediately to avoid startup XHR requests', function () {
-        assert.isFalse(devices.fetch.called);
+        assert.isFalse(attachedClients.fetch.called);
       });
 
-      it('renders devices already in the collection', function () {
+      it('renders attachedClients already in the collection', function () {
         assert.ok(view.$('li.client').length, 2);
       });
 
-      it('renders devices and apps if apps view enabled', function () {
+      it('renders attachedClients and apps if apps view enabled', function () {
         sinon.stub(view, '_isAppsListVisible', function () {
           return true;
         });
-        assert.equal(view.$('#devices .settings-unit-title').text().trim(), 'Devices & apps');
-        assert.ok(view.$('#devices').text().trim().indexOf('manage your devices and apps below'));
+        assert.equal(view.$('#clients .settings-unit-title').text().trim(), 'Devices & apps');
+        assert.ok(view.$('#clients').text().trim().indexOf('manage your attachedClients and apps below'));
       });
     });
 
     describe('device added to collection', function () {
       beforeEach(function () {
         return setupReRenderTest(function () {
-          devices.add({
+          attachedClients.add({
+            clientType: 'device',
             id: 'device-3',
             lastAccessTime: Date.now(),
             lastAccessTimeFormatted: 'a few seconds ago',
@@ -148,9 +149,9 @@ define(function (require, exports, module) {
     describe('device removed from collection', function () {
       beforeEach(function () {
         return setupReRenderTest(function () {
-          // DOM needs written so that device remove animation completes
+          // DOM needs to be written so that device remove animation completes
           $('#container').html(view.el);
-          devices.get('device-1').destroy();
+          attachedClients.get('device-1').destroy();
         });
       });
 
@@ -164,14 +165,14 @@ define(function (require, exports, module) {
       beforeEach(function () {
         return initView()
           .then(function () {
-            sinon.stub(view, '_fetchDevices', function () {
+            sinon.stub(view, '_fetchAttachedClients', function () {
             });
             return view.openPanel();
           });
       });
 
       it('fetches the device list', function () {
-        assert.isTrue(view._fetchDevices.called);
+        assert.isTrue(view._fetchAttachedClients.called);
       });
     });
 
@@ -182,16 +183,16 @@ define(function (require, exports, module) {
             // click events require the view to be in the DOM
             $('#container').html(view.el);
 
-            sinon.stub(view, '_destroyDevice', function () {
+            sinon.stub(view._attachedClients, 'removeClient', function () {
               return p();
             });
 
-            $('#device-2 .device-disconnect').click();
+            $('#device-2 .client-disconnect').click();
           });
       });
 
-      it('calls `_destroyClient` with the deviceId', function () {
-        assert.isTrue(view._destroyDevice.calledWith('device-2'));
+      it('calls `removeClient` with the deviceId', function () {
+        assert.isTrue(view._attachedClients.removeClient.calledWith('device-2'));
       });
     });
 
@@ -210,7 +211,7 @@ define(function (require, exports, module) {
           return true;
         });
 
-        sinon.stub(view.user, 'fetchAccountDevices', function () {
+        sinon.stub(view, '_fetchAttachedClients', function () {
           return p();
         });
 
@@ -223,58 +224,40 @@ define(function (require, exports, module) {
         }, 150);
       });
 
-      it('calls `_fetchDevices` using a button', function () {
+      it('calls `_fetchAttachedClients` using a button', function () {
         sinon.stub(view, 'isPanelOpen', function () {
           return true;
         });
 
-        sinon.stub(view, '_fetchDevices', function () {
+        sinon.stub(view, '_fetchAttachedClients', function () {
           return p();
         });
 
         $('.clients-refresh').click();
-        assert.isTrue(view._fetchDevices.called);
+        assert.isTrue(view._fetchAttachedClients.called);
       });
 
     });
 
-    describe('_fetchDevices', function () {
+    describe('_fetchAttachedClients', function () {
       beforeEach(function () {
         sinon.stub(user, 'fetchAccountDevices', function () {
           return p();
         });
 
-        return initView()
-          .then(function () {
-            return view._fetchDevices();
-          });
-      });
-
-      it('delegates to the user to fetch the device list', function () {
-        var account = view.getSignedInAccount();
-        assert.isTrue(user.fetchAccountDevices.calledWith(account, devices));
-      });
-    });
-
-    describe('_destroyDevice', function () {
-      var deviceToDestroy;
-
-      beforeEach(function () {
-        sinon.stub(user, 'destroyAccountDevice', function () {
+        sinon.stub(user, 'fetchAccountOAuthApps', function () {
           return p();
         });
 
         return initView()
           .then(function () {
-            deviceToDestroy = devices.get('device-1');
-            return view._destroyDevice('device-1');
+            return view._fetchAttachedClients();
           });
       });
 
-      it('delegates to the user to destroy the device', function () {
+      it('delegates to the user to fetch the device list', function () {
         var account = view.getSignedInAccount();
-        assert.isTrue(
-          user.destroyAccountDevice.calledWith(account, deviceToDestroy));
+        assert.isTrue(user.fetchAccountDevices.calledWith(account, attachedClients));
       });
     });
   });
