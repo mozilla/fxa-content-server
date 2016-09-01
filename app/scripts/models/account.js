@@ -711,10 +711,10 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the account's device list and populate the `devices` collection.
+     * Fetch the account's device list and populate into the collection
      *
-     * @param {object} clients - Devices collection
-     * @returns {promise} - resolves when complete
+     * @param {Object} clients - Clients collection used to store the list
+     * @returns {Promise} - resolves when complete
      */
     fetchDevices: function (clients) {
       return this._fxaClient.deviceList(this.get('sessionToken'))
@@ -728,10 +728,9 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the OAuth Apps for the given account, populated the passed in
-     * oAuthApps collection.
+     * Fetch the account's OAuth Apps and populate into the collection
      *
-     * @param {Object} clients - Clients collection used to store list.
+     * @param {Object} clients - Clients collection used to store the list
      * @returns {Promise} resolves when the action completes
      */
     fetchOAuthApps: function (clients) {
