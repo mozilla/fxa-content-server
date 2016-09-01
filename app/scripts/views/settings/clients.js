@@ -129,12 +129,14 @@ define(function (require, exports, module) {
     },
 
     _onDisconnectClient: function (event) {
-      this._attachedClients.removeClient($(event.currentTarget).data('id'), this.user)
-        .then((client) => {
-          var clientType = client.get('clientType');
+      var item = this._attachedClients.get($(event.currentTarget).data('id'));
+
+      return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
+        .then(() => {
+          var clientType = item.get('clientType');
 
           this.logViewEvent(clientType + '.disconnect');
-          if (clientType === Constants.CLIENT_TYPE_DEVICE && client.get('isCurrentDevice')) {
+          if (clientType === Constants.CLIENT_TYPE_DEVICE && item.get('isCurrentDevice')) {
             this.navigateToSignIn();
           }
         });
@@ -157,9 +159,6 @@ define(function (require, exports, module) {
     },
 
     _fetchAttachedClients: function () {
-      // reset the collection for new data.
-      this._attachedClients.reset();
-
       return this._attachedClients.fetchClients({
         devices: true,
         oAuthApps: this._isAppsListVisible()

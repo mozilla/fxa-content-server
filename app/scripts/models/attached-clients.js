@@ -17,23 +17,12 @@ define(function (require, exports, module) {
   var P = require('lib/promise');
 
   var AttachedClients = Backbone.Collection.extend({
-    initialize: function (models, options = {}) {
-    },
-
     model: function(attrs, options) {
       if (attrs.clientType === Constants.CLIENT_TYPE_DEVICE) {
         return new Device(attrs, options);
       } else if (attrs.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
         return new OAuthApp(attrs, options);
       }
-    },
-
-    removeClient: function (itemId, user) {
-      var item = this.get(itemId);
-      return user.destroyAccountClient(user.getSignedInAccount(), item)
-        .then(() => {
-          return item;
-        });
     },
 
     fetchClients: function (clientTypes = {}, user) {

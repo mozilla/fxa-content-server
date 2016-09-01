@@ -172,52 +172,6 @@ define(function (require, exports, module) {
           });
       });
     });
-
-    describe('removeClient', function () {
-      beforeEach(function () {
-        attachedClients.set([
-          {
-            clientType: Constants.CLIENT_TYPE_DEVICE,
-            id: 'device-1',
-            isCurrentDevice: false,
-            name: 'zeta'
-          },
-          {
-            clientType: Constants.CLIENT_TYPE_OAUTH_APP,
-            id: 'oauth-1',
-            name: 'oauthy'
-          }
-        ]);
-      });
-
-      it('removes items and returns them', function () {
-        sinon.stub(user, 'destroyAccountClient', function () {
-          return p();
-        });
-
-        sinon.stub(user, 'getSignedInAccount', function () {
-          return {account: true};
-        });
-
-        return attachedClients.removeClient('device-1', user)
-          .then((item) => {
-            assert.equal(item.get('id'), 'device-1');
-            assert.equal(item.get('name'), 'zeta');
-            assert.isTrue(user.destroyAccountClient.calledWith({account: true}, item));
-
-            return attachedClients.removeClient('oauth-1', user)
-              .then((item) => {
-                assert.equal(item.get('id'), 'oauth-1');
-                assert.equal(item.get('name'), 'oauthy');
-                assert.isTrue(user.destroyAccountClient.calledWith({account: true}, item));
-              });
-
-          });
-
-      });
-    });
-
-
   });
 });
 

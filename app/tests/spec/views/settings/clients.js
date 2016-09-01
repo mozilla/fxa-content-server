@@ -183,7 +183,7 @@ define(function (require, exports, module) {
             // click events require the view to be in the DOM
             $('#container').html(view.el);
 
-            sinon.stub(view._attachedClients, 'removeClient', function () {
+            sinon.stub(user, 'destroyAccountClient', function () {
               return p();
             });
 
@@ -191,8 +191,8 @@ define(function (require, exports, module) {
           });
       });
 
-      it('calls `removeClient` with the deviceId', function () {
-        assert.isTrue(view._attachedClients.removeClient.calledWith('device-2'));
+      it('calls `destroyAccountClient` with the deviceId', function () {
+        assert.isTrue(user.destroyAccountClient.calledOnce);
       });
     });
 

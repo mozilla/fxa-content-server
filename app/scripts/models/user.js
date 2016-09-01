@@ -520,6 +520,12 @@ define(function (require, exports, module) {
         });
     },
 
+    /**
+     *
+     * @param {Object} account - account object
+     * @param {Object} client - an attached client
+     * @returns {Promise}
+     */
     destroyAccountClient: function (account, client) {
       if (client.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
         return this.destroyAccountDevice(account, client);

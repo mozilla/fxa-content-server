@@ -723,7 +723,9 @@ define(function (require, exports, module) {
             item.clientType = Constants.CLIENT_TYPE_DEVICE;
           });
 
-          return clients.add(devices);
+          return clients.set(devices, {
+            add: true
+          });
         });
     },
 
@@ -740,7 +742,9 @@ define(function (require, exports, module) {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
           });
 
-          clients.add(oAuthApps);
+          clients.set(oAuthApps, {
+            add: true
+          });
         });
     },
 
