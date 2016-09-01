@@ -23,7 +23,7 @@ define(function (require, exports, module) {
     emailInput,
     passwordInput,
     textInput,
-    defaultElement // defaultElemehnt is last since it is the fallback.
+    defaultElement // defaultElement is last since it is the fallback.
   ];
 
   return function ($el) {
@@ -36,7 +36,11 @@ define(function (require, exports, module) {
     }
 
     if (! $el.validate) {
-      $el.validate = elementOverride.validate.bind($el);
+      $el.validate = function () {
+        delete this.validationError;
+        elementOverride.validate.call(this);
+        return ! this.validationError;
+      };
     }
 
     return $el;

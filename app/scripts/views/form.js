@@ -60,7 +60,7 @@ define(function (require, exports, module) {
       BaseView.call(this, options);
 
       // attach events of the descendent view and this view.
-      this.delegateEvents(_.extend({}, proto.events, this.events));
+      this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
     },
 
     events: {
@@ -256,8 +256,8 @@ define(function (require, exports, module) {
 
       const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = inputEls[i];
-        if (this.$(el).validate()) {
+        var $el = this.$(inputEls[i]);
+        if (! $el.validate()) {
           return false;
         }
       }
@@ -308,9 +308,9 @@ define(function (require, exports, module) {
       const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
         const el = inputEls[i];
-        const err = this.$(el).validate();
-        if (err) {
-          this.showValidationError(el, err);
+        const $el = this.$(el);
+        if (! $el.validate()) {
+          this.showValidationError(el, $el.validationError);
           // only one message at a time.
           return;
         }

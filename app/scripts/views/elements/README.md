@@ -4,8 +4,8 @@ Contents of this directory are to define custom element helpers
 for view elements. Each module should define at minimum two functions:
 
 `match` - check whether the current module should be used with the given element.
-`validate` - validate the element. Return a falsy value if valid, and an Error
-if invalid.
+`validate` - validate the element. Set `this.validationError` to the error if
+invalid.
 
 An additional function can also be overridden:
 

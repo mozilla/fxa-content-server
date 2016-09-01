@@ -19,9 +19,9 @@ define(function (require, exports, module) {
       const value = this.val();
 
       if (! value) {
-        return AuthErrors.toError('PASSWORD_REQUIRED');
+        this.validationError = AuthErrors.toError('PASSWORD_REQUIRED');
       } else if (! Validate.isPasswordValid(value)) {
-        return AuthErrors.toError('PASSWORD_TOO_SHORT');
+        this.validationError = AuthErrors.toError('PASSWORD_TOO_SHORT');
       }
     }
   };

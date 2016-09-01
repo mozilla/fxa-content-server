@@ -17,7 +17,7 @@ define(function (require, exports, module) {
       const value = this.val();
 
       if (isRequired && ! value.length) {
-        return AuthErrors.toError('INPUT_REQUIRED');
+        this.validationError = AuthErrors.toError('INPUT_REQUIRED');
       }
     }
   };
