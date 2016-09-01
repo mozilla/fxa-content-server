@@ -1,3 +1,13 @@
+<a name="0.68.2"></a>
+## 0.68.2 (2016-09-01)
+
+
+### Bug Fixes
+
+* **sentry:** bring back cache busting file names in sentry ([bfd2fac](https://github.com/mozilla/fxa-content-server/commit/bfd2fac))
+
+
+
 <a name="0.68.1"></a>
 ## 0.68.1 (2016-08-24)
 
