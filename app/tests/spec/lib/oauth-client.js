@@ -161,13 +161,13 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('fetchClients', function () {
-      it('fetches clients', function () {
+    describe('fetchOAuthApps', function () {
+      it('fetches OAuth Apps', function () {
         sinon.stub(client._xhr, 'oauthAjax', function () {
           return p({});
         });
 
-        return client.fetchClients('token')
+        return client.fetchOAuthApps('token')
           .then(function () {
             assert.isTrue(xhr.oauthAjax.calledWith({
               accessToken: 'token',
@@ -178,13 +178,13 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('deleteClient', function () {
-      it('deletes clients', function () {
+    describe('destroyOAuthApp', function () {
+      it('deletes OAuth Apps', function () {
         sinon.stub(client._xhr, 'oauthAjax', function () {
           return p({});
         });
 
-        return client.deleteClient('token', 'id')
+        return client.destroyOAuthApp('token', 'id')
           .then(function () {
             assert.isTrue(xhr.oauthAjax.calledWith({
               accessToken: 'token',

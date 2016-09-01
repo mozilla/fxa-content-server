@@ -735,7 +735,7 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves when the action completes
      */
     fetchOAuthApps: function (clients) {
-      return this._oAuthClient.fetchClients(this.get('accessToken'))
+      return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
@@ -772,7 +772,7 @@ define(function (require, exports, module) {
       var oAuthAppId = oAuthApp.get('id');
       var accessToken = this.get('accessToken');
 
-      return this._oAuthClient.deleteClient(accessToken, oAuthAppId)
+      return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId)
         .then(() => {
           oAuthApp.destroy();
         });

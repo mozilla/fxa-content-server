@@ -1484,7 +1484,7 @@ define(function (require, exports, module) {
           }
         });
 
-        sinon.stub(account._oAuthClient, 'fetchClients', function () {
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
           return p([
             {
               id: 'oauth-1',
@@ -1502,7 +1502,7 @@ define(function (require, exports, module) {
       });
 
       it('fetches the device list from the back end', function () {
-        assert.isTrue(account._oAuthClient.fetchClients.calledWith(ACCESS_TOKEN));
+        assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
       });
 
       it('populates the `devices` collection', function () {
@@ -1547,7 +1547,7 @@ define(function (require, exports, module) {
           name: 'alpha'
         });
 
-        sinon.stub(account._oAuthClient, 'deleteClient', function () {
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
           return p();
         });
 
@@ -1556,7 +1556,7 @@ define(function (require, exports, module) {
 
       it('tells the backend to destroy the device', function () {
         assert.isTrue(
-          account._oAuthClient.deleteClient.calledWith(ACCESS_TOKEN, 'oauth-1'));
+          account._oAuthClient.destroyOAuthApp.calledWith(ACCESS_TOKEN, 'oauth-1'));
       });
     });
 

@@ -571,7 +571,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Destroy a client on the given account.
+     * Destroy the OAuth app on the given account.
      *
      * @param {Object} account - account with the connected app
      * @param {Object} oAuthApp - OAuth App to disconnect

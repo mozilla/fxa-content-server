@@ -53,7 +53,7 @@ define(function (require, exports, module) {
      * @param {String} accessToken
      * @returns {Promise}
      */
-    fetchClients (accessToken) {
+    fetchOAuthApps (accessToken) {
       const request = {
         accessToken: accessToken,
         type: 'get',
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
      * @param {String} clientId
      * @returns {Promise}
      */
-    deleteClient (accessToken, clientId) {
+    destroyOAuthApp (accessToken, clientId) {
       const request = {
         accessToken: accessToken,
         type: 'delete',
