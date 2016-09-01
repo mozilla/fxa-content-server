@@ -69,6 +69,8 @@ module.exports = function (grunt) {
     'sourcemap-source',
 
     'replace:require_on_demand',
+    // copy the require_on_demand files again, see issue #4107
+    'copy:require_on_demand',
 
     // Add subresource integrity attributes to static resources.
     'sriify',
