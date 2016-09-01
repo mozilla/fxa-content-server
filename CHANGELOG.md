@@ -1,3 +1,13 @@
+<a name="0.68.3"></a>
+## 0.68.3 (2016-09-01)
+
+
+### Bug Fixes
+
+* **build:** copy non-sha requireOnDemand files ([b2465fb](https://github.com/mozilla/fxa-content-server/commit/b2465fb))
+
+
+
 <a name="0.68.2"></a>
 ## 0.68.2 (2016-09-01)
 
