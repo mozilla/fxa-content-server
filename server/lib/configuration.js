@@ -152,7 +152,8 @@ var conf = module.exports = convict({
   hpkp: {
     enabled: {
       default: true,
-      doc: 'Feature flag for appending HPKP headers'
+      doc: 'Feature flag for appending HPKP headers',
+      env: 'HPKP_ENABLED'
     },
     includeSubDomains: {
       default: true,
