@@ -15,7 +15,7 @@
     "html5shiv": "3.7.2",
     "JavaScript-MD5": "1.1.0",
     "jquery": "3.1.0",
-    "jquery-modal": "https://github.com/kylefox/jquery-modal.git#5e9bdc3e4de703089fba1e38ddc0f62d7de9eff7",
+    "jquery-modal": "https://github.com/shane-tomlinson/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "jquery-simulate": "1.0.1",
     "jquery-ui": "1.11.0",
     "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830",
