@@ -25,9 +25,9 @@ define(function (require, exports, module) {
       const value = this.val();
 
       if (! value) {
-        this.validationError = AuthErrors.toError('EMAIL_REQUIRED');
+        throw AuthErrors.toError('EMAIL_REQUIRED');
       } else if (! Validate.isEmailValid(value)) {
-        this.validationError = AuthErrors.toError('INVALID_EMAIL');
+        throw AuthErrors.toError('INVALID_EMAIL');
       }
     }
   };

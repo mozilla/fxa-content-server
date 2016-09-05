@@ -20,13 +20,14 @@
 define(function (require, exports, module) {
   'use strict';
 
+  require('views/elements/jquery-plugin');
+
   const $ = require('jquery');
   const _ = require('underscore');
   const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Duration = require('duration');
-  const upgradeElement = require('views/elements/upgrade-element');
   const notifyDelayedRequest = require('views/decorators/notify_delayed_request');
   const p = require('lib/promise');
   const showButtonProgressIndicator = require('views/decorators/progress_indicator');
@@ -87,20 +88,6 @@ define(function (require, exports, module) {
 
       proto.afterRender.call(this);
     },
-
-    /**
-     * Get a view element. View element will contain
-     * an additional `validate` function.
-     *
-     * @param {String} el - selector or element
-     * @returns {Object} jQuery Element
-     */
-    $ (el) {
-      const $el = proto.$.call(this, el);
-
-      return upgradeElement($el);
-    },
-
 
     /**
      * Get the current form values. Does not fetch the value of elements with
@@ -257,7 +244,9 @@ define(function (require, exports, module) {
       const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
         var $el = this.$(inputEls[i]);
-        if (! $el.validate()) {
+        try {
+          $el.validate();
+        } catch (e) {
           return false;
         }
       }
@@ -309,8 +298,16 @@ define(function (require, exports, module) {
       for (var i = 0, length = inputEls.length; i < length; ++i) {
         const el = inputEls[i];
         const $el = this.$(el);
-        if (! $el.validate()) {
-          this.showValidationError(el, $el.validationError);
+
+        let validationError;
+        try {
+          $el.validate();
+        } catch (e) {
+          validationError = e;
+        }
+
+        if (validationError) {
+          this.showValidationError(el, validationError);
           // only one message at a time.
           return;
         }

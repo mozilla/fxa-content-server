@@ -68,6 +68,31 @@ define(function (require, exports, module) {
         });
     }
 
+    function testValidationError($el, expectedError) {
+      let validationError;
+
+      try {
+        $el.validate();
+      } catch (e) {
+        validationError = e;
+      }
+
+      assert.isTrue(AuthErrors.is(validationError, expectedError));
+    }
+
+    function testNoValidationError($el) {
+      let validationError;
+
+      try {
+        $el.validate();
+      } catch (e) {
+        validationError = e;
+      }
+
+      assert.isUndefined(validationError);
+    }
+
+
     beforeEach(function () {
       metrics = new Metrics();
       model = new Backbone.Model({});
@@ -415,23 +440,21 @@ define(function (require, exports, module) {
         const $el = view.$('#email');
         $el.val('');
 
-        assert.isFalse($el.validate());
-        assert.isTrue(AuthErrors.is($el.validationError, 'EMAIL_REQUIRED'));
+        testValidationError($el, 'EMAIL_REQUIRED');
       });
 
       it('not valid if an invalid email', function () {
         const $el = view.$('#email');
         $el.val('invalid');
 
-        assert.isFalse($el.validate());
-        assert.isTrue(AuthErrors.is($el.validationError, 'INVALID_EMAIL'));
+        testValidationError($el, 'INVALID_EMAIL');
       });
 
       it('valid if a valid email', function () {
         const $el = view.$('#email');
         $el.val('testuser@testuser.com');
 
-        assert.isTrue($el.validate());
+        testNoValidationError($el);
       });
     });
 
@@ -440,47 +463,44 @@ define(function (require, exports, module) {
         const $el = view.$('#password');
         $el.val('');
 
-        assert.isFalse($el.validate());
-        assert.isTrue(AuthErrors.is($el.validationError, 'PASSWORD_REQUIRED'));
+        testValidationError($el, 'PASSWORD_REQUIRED');
       });
 
       it('invalid if too short a password', function () {
         const $el = view.$('#password');
         $el.val('1');
 
-        assert.isFalse($el.validate());
-        assert.isTrue(AuthErrors.is($el.validationError, 'PASSWORD_TOO_SHORT'));
+        testValidationError($el, 'PASSWORD_TOO_SHORT');
       });
 
       it('valid if a valid password', function () {
         const $el = view.$('#password');
         $el.val(TestHelpers.createRandomHexString(Constants.PASSWORD_MIN_LENGTH));
-        assert.isTrue($el.validate());
+        testNoValidationError($el);
       });
     });
 
     describe('validate - text', function () {
       it('valid for an empty non-required input', function () {
         view.$('#notRequired').val('');
-        assert.isTrue(view.$('#notRequired').validate());
+        testNoValidationError(view.$('#notRequired'));
       });
 
       it('valid for a filled out non-required input', function () {
         view.$('#notRequired').val('value');
-        assert.isTrue(view.$('#notRequired').validate());
+        testNoValidationError(view.$('#notRequired'));
       });
 
       it('invalid for an empty required input', function () {
         const $el = view.$('#required');
         $el.val('');
 
-        assert.isFalse($el.validate());
-        assert.isTrue(AuthErrors.is($el.validationError, 'INPUT_REQUIRED'));
+        testValidationError($el, 'INPUT_REQUIRED');
       });
 
       it('valid for a filled out required input', function () {
         view.$('#required').val('value');
-        assert.isTrue(view.$('#required').validate());
+        testNoValidationError(view.$('#required'));
       });
     });
 

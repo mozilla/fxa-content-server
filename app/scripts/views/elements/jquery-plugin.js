@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Upgrade jQuery elements with two functions:
- * 1. `val` - overridden in some cases to do cleanup
+ * jQuery plugin to upgrade jQuery elements with two functions:
+ *
+ * 1. `val` - overridden in some cases to do input cleanup
  * 2. `validate` - validate the element value. If valid, returns falsy value,
  *    if invalid, returns an Error
  */
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const _ = require('underscore');
   const checkboxInput = require('views/elements/checkbox-input');
   const defaultElement = require('views/elements/default');
@@ -18,7 +20,7 @@ define(function (require, exports, module) {
   const passwordInput = require('views/elements/password-input');
   const textInput = require('views/elements/text-input');
 
-  const elementOverrides = [
+  const elementHelpers = [
     checkboxInput,
     emailInput,
     passwordInput,
@@ -26,23 +28,22 @@ define(function (require, exports, module) {
     defaultElement // defaultElement is last since it is the fallback.
   ];
 
-  return function ($el) {
-    const elementOverride =
-      _.find(elementOverrides, (elementOverride) => elementOverride.match($el));
+  function getHelper($el) {
+    return _.find(elementHelpers, (elementHelper) => elementHelper.match($el));
+  }
 
-    if (elementOverride.val && ! $el.__val) {
-      $el.__val = $el.val;
-      $el.val = elementOverride.val.bind($el);
+  $.fn.validate = function () {
+    return getHelper(this).validate.call(this);
+  };
+
+  $.fn.__val = $.fn.val;
+  $.fn.val = function () {
+    const elementHelper = getHelper(this);
+
+    if (elementHelper.val) {
+      return elementHelper.val.apply(this, arguments);
+    } else {
+      return $.fn.__val.apply(this, arguments);
     }
-
-    if (! $el.validate) {
-      $el.validate = function () {
-        delete this.validationError;
-        elementOverride.validate.call(this);
-        return ! this.validationError;
-      };
-    }
-
-    return $el;
   };
 });
