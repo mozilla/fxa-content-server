@@ -299,14 +299,9 @@ define(function (require, exports, module) {
         const el = inputEls[i];
         const $el = this.$(el);
 
-        let validationError;
         try {
           $el.validate();
-        } catch (e) {
-          validationError = e;
-        }
-
-        if (validationError) {
+        } catch (validationError) {
           this.showValidationError(el, validationError);
           // only one message at a time.
           return;
