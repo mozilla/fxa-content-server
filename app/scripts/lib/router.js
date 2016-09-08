@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   var CookiesDisabledView = require('../views/cookies_disabled');
   var DeleteAccountView = require('../views/settings/delete_account');
   var ClientsView = require('../views/settings/clients');
+  var ClientDisconnectView = require('../views/settings/client_disconnect');
   var DisplayNameView = require('../views/settings/display_name');
   var ForceAuthView = require('../views/force_auth');
   var GravatarPermissionsView = require('../views/settings/gravatar_permissions');
@@ -46,8 +47,11 @@ define(function (require, exports, module) {
     };
   }
 
-  function createChildViewHandler(ChildView, ParentView, options) {
-    return function () {
+  function createChildViewHandler(ChildView, ParentView, options = {}) {
+    return function (param) {
+      // if there is a view parameter then add it to options
+      // such as `/viewName/:param
+      options.viewParam = param;
       return this.showChildView(ChildView, ParentView, options);
     };
   }
@@ -87,6 +91,7 @@ define(function (require, exports, module) {
       'settings/avatar/gravatar_permissions(/)': createChildViewHandler(GravatarPermissionsView, SettingsView),
       'settings/change_password(/)': createChildViewHandler(ChangePasswordView, SettingsView),
       'settings/clients(/)': createChildViewHandler(ClientsView, SettingsView),
+      'settings/clients/disconnect/:deviceId': createChildViewHandler(ClientDisconnectView, SettingsView),
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),

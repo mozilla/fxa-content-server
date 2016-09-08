@@ -1,0 +1,35 @@
+<div id="client-disconnnect">
+  <section class="modal-panel">
+    <h1>{{#t}}Disconnect from Sync?{{/t}}</h1>
+    <div class="error"></div>
+    <p>
+      {{#t}}Your browsing data will remain on Firefox on DEVICE_NAME, but it will no longer sync with your account.{{/t}}
+    </p>
+
+    <select class="disconnect-reasons">
+      <option>Reason for disconnecting...</option>
+      <option>Suspicious device</option>
+      <option>Lost or stolen device</option>
+      <option>Old or replaced device</option>
+      <option>Rather not say</option>
+    </select>
+
+    <div data-reason-text="reason-suspicious">
+      We’re sorry to hear about this. If this was a device you
+      really don’t trust, you should change your Firefox Account password,
+      and change any passwords saved in Firefox.
+    </div>
+
+    <div data-reason-text="reason-lost">
+      We’re sorry to hear about this. You should change your Firefox Account password,
+      and look for information from your device manufacturer about erasing your data remotely.
+    </div>
+
+    <form novalidate>
+      <div class="button-row">
+        <button type="submit" id="submit-btn" class="settings-button primary disabled">{{#t}}Disconnect{{/t}}</button>
+        <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
+      </div>
+    </form>
+  </section>
+</div>

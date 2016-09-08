@@ -20,8 +20,8 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click .avatar-panel #back': BaseView.preventDefaultThen('_returnToAvatarChange'),
-      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings')
+      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
+      'click .modal-panel #back': BaseView.preventDefaultThen('_returnToAvatarChange')
     },
 
     openPanel: function (event) {
