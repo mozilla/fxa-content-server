@@ -37,7 +37,7 @@ define(function (require, exports, module) {
         this.logViewEvent('resend');
         this._updateSuccessMessage();
 
-        // The button is hidden after the forth click for 5 minutes, then
+        // The button is hidden after the fourth click for 5 minutes, then
         // start the process again.
         this._emailResend.incrementRequestCount();
         if (this._emailResend.shouldResend()) {
