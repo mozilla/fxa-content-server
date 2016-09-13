@@ -25,17 +25,6 @@ define([
     name: 'metrics-errors'
   };
 
-  suite['#get /config returns env that is used for error metrics'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    request(serverUrl + '/config',
-    dfd.callback(function (err, res) {
-      var results = JSON.parse(res.body);
-
-      assert.equal(results.env, env);
-    }, dfd.reject.bind(dfd)));
-  };
-
   suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
     var dfd = this.async(intern.config.asyncTimeout);
 
