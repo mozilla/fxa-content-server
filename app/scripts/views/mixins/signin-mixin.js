@@ -13,6 +13,9 @@ define(function (require, exports, module) {
   var VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    events: {
+      'click form': 'engageForm'
+    },
     /**
      * Sign in a user
      *
@@ -24,6 +27,8 @@ define(function (require, exports, module) {
      * @return {object} promise
      */
     signIn: function (account, password) {
+      this.logEvent('flow.attempt_signin');
+
       if (! account ||
             account.isDefault() ||
             (! account.has('sessionToken') && ! password)) {
@@ -98,6 +103,12 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
+    },
+
+    engageForm() {
+      // user has engaged with the signin or sign up form
+      // log 'flow.engage' from both forms because both forms can login.
+      this.logEventOnce('flow.engage');
     }
   };
 });

@@ -65,6 +65,8 @@ define(function (require, exports, module) {
   var NOT_REPORTED_VALUE = 'none';
   var UNKNOWN_CAMPAIGN_ID = 'unknown';
 
+  var eventMemory = [];
+
   // convert a hash of metrics impressions into an array of objects.
   function flattenHashIntoArrayOfObjects (hashTable) {
     return _.reduce(hashTable, function (memo, key) {
@@ -300,6 +302,18 @@ define(function (require, exports, module) {
     logEvent: function (eventName) {
       this._resetInactivityFlushTimeout();
       this.events.capture(eventName);
+    },
+
+    /**
+     * Log an event only if it never happened before during this page load.
+     *
+     * @param {String} eventName
+     */
+    logEventOnce: function (eventName) {
+      if (eventMemory.indexOf(eventName) === -1) {
+        this.logEvent(eventName);
+        eventMemory.push(eventName);
+      }
     },
 
     /**
