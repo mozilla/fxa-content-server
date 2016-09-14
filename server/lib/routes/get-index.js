@@ -5,27 +5,26 @@
 var flowMetrics = require('../flow-metrics');
 
 module.exports = function (config) {
-  var STATIC_RESOURCE_URL = config.get('static_resource_url');
+  var ALLOWED_PARENT_ORIGINS = config.get('allowed_parent_origins');
+  var AUTH_SERVER_URL = config.get('fxaccount_url');
+  var CLIENT_ID = config.get('oauth_client_id');
+  var ENV = config.get('env');
   var FLOW_ID_KEY = config.get('flow_id_key');
-
-  var allowedParentOrigins = config.get('allowed_parent_origins');
-  var authServerUrl = config.get('fxaccount_url');
-  var clientId = config.get('oauth_client_id');
-  var env = config.get('env');
-  var marketingEmailApiServerUrl = config.get('marketing_email.api_url');
-  var marketingEmailPreferencesUrl = config.get('marketing_email.preferences_url');
-  var oauthServerUrl = config.get('oauth_url');
-  var profileServerUrl = config.get('profile_url');
+  var MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
+  var MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
+  var OAUTH_SERVER_URL = config.get('oauth_url');
+  var PROFILE_SERVER_URL = config.get('profile_url');
+  var STATIC_RESOURCE_URL = config.get('static_resource_url');
 
   var serializedConfig = encodeURIComponent(JSON.stringify({
-    allowedParentOrigins: allowedParentOrigins,
-    authServerUrl: authServerUrl,
-    env: env,
-    marketingEmailPreferencesUrl: marketingEmailPreferencesUrl,
-    marketingEmailServerUrl: marketingEmailApiServerUrl,
-    oAuthClientId: clientId,
-    oAuthUrl: oauthServerUrl,
-    profileUrl: profileServerUrl
+    allowedParentOrigins: ALLOWED_PARENT_ORIGINS,
+    authServerUrl: AUTH_SERVER_URL,
+    env: ENV,
+    marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
+    marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
+    oAuthClientId: CLIENT_ID,
+    oAuthUrl: OAUTH_SERVER_URL,
+    profileUrl: PROFILE_SERVER_URL
   }));
 
   var route = {};

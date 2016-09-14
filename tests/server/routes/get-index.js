@@ -9,8 +9,9 @@ define([
   'intern/dojo/node!path',
   'intern/dojo/node!sinon',
   'intern/dojo/node!../../../server/lib/routes/get-index',
-], function (registerSuite, assert, Promise, path, sinon, route) {
-  var config, instance, request, response;
+  'intern/dojo/node!../../../server/lib/configuration',
+], function (registerSuite, assert, Promise, path, sinon, route, config) {
+  var instance, request, response;
 
   registerSuite({
     name: 'routes/get-index',
@@ -22,11 +23,6 @@ define([
 
     'initialise route': {
       setup: function () {
-        config = {
-          get: sinon.spy(function () {
-            return 'foo';
-          })
-        };
         instance = route(config);
       },
 
@@ -39,19 +35,11 @@ define([
         assert.lengthOf(instance.process, 2);
       },
 
-      'config.get was called correctly': function () {
-        assert.equal(config.get.callCount, 2);
-        var args = config.get.args[0];
-        assert.lengthOf(args, 1);
-        assert.equal(args[0], 'static_resource_url');
-        var argsFlow = config.get.args[1];
-        assert.lengthOf(argsFlow, 1);
-        assert.equal(argsFlow[0], 'flow_id_key');
-      },
-
       'route.process': {
         setup: function () {
-          request = { headers: {} };
+          request = {
+            headers: {}
+          };
           response = { render: sinon.spy() };
           instance.process(request, response);
         },
@@ -66,12 +54,25 @@ define([
 
           var renderParams = args[1];
           assert.isObject(renderParams);
-          assert.lengthOf(Object.keys(renderParams), 3);
+          assert.lengthOf(Object.keys(renderParams), 4);
           assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
           assert.isAbove(renderParams.flowBeginTime, 0);
-          assert.equal(renderParams.staticResourceUrl, 'foo');
+          assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
 
           assert.isString(renderParams.config);
+          var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
+
+          assert.deepEqual(sentConfig.allowedParentOrigins,
+                           config.get('allowed_parent_origins'));
+          assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
+          assert.equal(sentConfig.env, config.get('env'));
+          assert.equal(sentConfig.marketingEmailPreferencesUrl,
+                       config.get('marketing_email.preferences_url'));
+          assert.equal(sentConfig.marketingEmailServerUrl,
+                       config.get('marketing_email.api_url'));
+          assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
+          assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
+          assert.equal(sentConfig.profileUrl, config.get('profile_url'));
         }
       }
     }
