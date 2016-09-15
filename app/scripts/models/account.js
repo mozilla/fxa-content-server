@@ -850,6 +850,57 @@ define(function (require, exports, module) {
 
           return relier.deriveRelierKeys(accountKeys, self.get('uid'));
         });
+    },
+
+    /**
+     * Send a login authorization email.
+     *
+     * @param {object} relier
+     * @param {object} [options]
+     * @param {string} [options.resume] resume token
+     * @returns {promise} resolves when complete
+     */
+    sendLoginAuthorizationEmail (relier, options) {
+      return this._fxaClient.sendLoginAuthorizationEmail(
+        this.get('email'),
+        relier,
+        options
+      );
+    },
+
+    /**
+     * Check whether a login authorization is required.
+     *
+     * @returns {promise} resolves to `true` or `false`
+     */
+    checkLoginAuthorizationRequired () {
+      return this._fxaClient.checkLoginAuthorizationRequired();
+    },
+
+    /**
+     * Reject a login authorization code.
+     *
+     * @param {string} code
+     * @returns {promise} resolves when complete
+     */
+    rejectLoginAuthorizationCode (code) {
+      return this._fxaClient.rejectLoginAuthorizationCode(
+        this.get('uid'),
+        code
+      );
+    },
+
+    /**
+     * Verify a login authorization code.
+     *
+     * @param {string} code
+     * @returns {promise} resolves when complete
+     */
+    verifyLoginAuthorizationCode (code) {
+      return this._fxaClient.verifyLoginAuthorizationCode(
+        this.get('uid'),
+        code
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
