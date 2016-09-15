@@ -360,8 +360,11 @@ define(function (require, exports, module) {
         .then(function () {
           var isSignUp =
             account.get('verificationReason') === VerificationReasons.SIGN_UP;
+          var emailSent = !! account.get('emailSent');
 
-          if (! account.get('verified') && isSignUp) {
+          // Only send account verification email, it signing up
+          // and a verification email has not been sent by auth-server.
+          if (! account.get('verified') && isSignUp && ! emailSent) {
             return account.retrySignUp(relier, options);
           }
         })

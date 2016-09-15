@@ -94,6 +94,7 @@ define(function (require, exports, module) {
 
     var updatedSessionData = {
       email: email,
+      emailSent: accountData.emailSent,
       sessionToken: accountData.sessionToken,
       sessionTokenContext: sessionTokenContext,
       uid: accountData.uid,
