@@ -13,8 +13,12 @@ define(function (require, exports, module) {
   var VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    // force auth extends a view with this mixin
+    // for metrics purposes we need to know the view submit context
+    signInSubmitContext: 'signin',
     events: {
-      'click form': 'engageForm'
+      'click': '_engageSignInForm',
+      'input input': '_engageSignInForm'
     },
     /**
      * Sign in a user
@@ -27,7 +31,8 @@ define(function (require, exports, module) {
      * @return {object} promise
      */
     signIn: function (account, password) {
-      this.logEvent('flow.attempt_signin');
+      var self = this;
+      self.logEvent(`flow.${this.signInSubmitContext}.submit`);
 
       if (! account ||
             account.isDefault() ||
@@ -35,7 +40,6 @@ define(function (require, exports, module) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      var self = this;
       return self.invokeBrokerMethod('beforeSignIn', account)
         .then(function () {
           return self.user.signInAccount(account, password, self.relier, {
@@ -105,10 +109,10 @@ define(function (require, exports, module) {
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
     },
 
-    engageForm() {
-      // user has engaged with the signin or sign up form
-      // log 'flow.engage' from both forms because both forms can login.
-      this.logEventOnce('flow.engage');
+    _engageSignInForm () {
+      // user has engaged with the sign in, sign up or force auth form
+      // the flow event will be different depending on the view name
+      this.logEventOnce(`flow.${this.viewName}.engage`);
     }
   };
 });
