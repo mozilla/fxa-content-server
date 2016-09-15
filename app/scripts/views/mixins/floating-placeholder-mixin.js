@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   module.exports = {
     events: {
       'blur input': 'onInputBlur',
+      'change .select-row': 'floatingPlaceholderMixinOnSelect',
       'focus input': 'onInputFocus',
       'input input[placeholder]': 'floatingPlaceholderMixinOnInput'
     },
@@ -30,11 +31,12 @@ define(function (require, exports, module) {
      *
      * @param {object} inputEl - input element whose placeholder
      *        should be shown.
+     * @param {String} text - custom text for the floating label.
      */
-    showFloatingPlaceholder (inputEl) {
+    showFloatingPlaceholder (inputEl, text) {
       const $inputEl = this.$el.find(inputEl);
       const $labelHelperEl = $inputEl.prev('.label-helper');
-      const placeholderText = $inputEl.attr('placeholder') || '';
+      const placeholderText = text || $inputEl.attr('placeholder') || '';
 
       // If the placeholder for the element was already converted, no
       // further conversion will occur.
@@ -87,6 +89,18 @@ define(function (require, exports, module) {
       }
 
       this.showFloatingPlaceholder($inputEl);
+      this.focusFloatingPlaceholder($inputEl);
+    },
+
+    /**
+     * The ridiculous name is to avoid collisions with
+     * functions on consumers.
+     *
+     * @param {Event} event
+     */
+    floatingPlaceholderMixinOnSelect: function (event) {
+      var $inputEl = $(event.currentTarget);
+      this.showFloatingPlaceholder($inputEl, $inputEl.find('option:first').text());
       this.focusFloatingPlaceholder($inputEl);
     },
 

@@ -130,9 +130,10 @@ define(function (require, exports, module) {
 
     _onDisconnectClient: function (event) {
       var item = this._attachedClients.get($(event.currentTarget).data('id'));
-
       if (item.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
-        return this.navigate('settings/clients/disconnect/' + item.get('id'), {
+        return this.navigate('settings/clients/disconnect', {
+          clients: this._attachedClients,
+          itemId: item.get('id')
         });
       }
 

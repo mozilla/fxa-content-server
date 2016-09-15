@@ -1,35 +1,50 @@
-<div id="client-disconnnect">
+<div id="client-disconnect">
   <section class="modal-panel">
-    <h1>{{#t}}Disconnect from Sync?{{/t}}</h1>
-    <div class="error"></div>
-    <p>
-      {{#t}}Your browsing data will remain on Firefox on DEVICE_NAME, but it will no longer sync with your account.{{/t}}
-    </p>
+    {{#toDisconnect}}
+      <h2>{{#t}}Disconnect from Sync?{{/t}}</h2>
+      <div class="error"></div>
 
-    <select class="disconnect-reasons">
-      <option>Reason for disconnecting...</option>
-      <option>Suspicious device</option>
-      <option>Lost or stolen device</option>
-      <option>Old or replaced device</option>
-      <option>Rather not say</option>
-    </select>
+      <p class="intro">
+      {{#t}}Your browsing data will remain on %(deviceName)s, but it will no longer sync with your account.{{/t}}
+      </p>
 
-    <div data-reason-text="reason-suspicious">
-      We’re sorry to hear about this. If this was a device you
-      really don’t trust, you should change your Firefox Account password,
-      and change any passwords saved in Firefox.
-    </div>
-
-    <div data-reason-text="reason-lost">
-      We’re sorry to hear about this. You should change your Firefox Account password,
-      and look for information from your device manufacturer about erasing your data remotely.
-    </div>
-
-    <form novalidate>
-      <div class="button-row">
-        <button type="submit" id="submit-btn" class="settings-button primary disabled">{{#t}}Disconnect{{/t}}</button>
-        <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
+      <div class="select-row-wrapper">
+      <label class="label-helper"></label>
+      <div class="select-row">
+        <select class="disconnect-reasons">
+          <option value="reason">Reason for disconnecting...</option>
+          <option value="suspicious">Suspicious device</option>
+          <option value="lost">Lost or stolen device</option>
+          <option value="old">Old or replaced device</option>
+          <option value="no">Rather not say</option>
+        </select>
       </div>
-    </form>
+      </div>
+
+      <form novalidate>
+        <div class="button-row">
+          <button type="submit" id="submit-btn" class="settings-button primary disabled">{{#t}}Disconnect{{/t}}</button>
+          <button class="settings-button secondary" id="back">{{#t}}Cancel{{/t}}</button>
+        </div>
+      </form>
+
+    {{/toDisconnect}}
+    {{^toDisconnect}}
+      <h2>{{#t}}Disconnection Successful{{/t}}</h2>
+
+      {{#reasonSuspicious}}
+      <p class='reason-help'>
+        We’re sorry to hear about this. If this was a device you
+        really don’t trust, you should change your Firefox Account password,
+        and change any passwords saved in Firefox.
+      </p>
+      {{/reasonSuspicious}}
+      {{#reasonLost}}
+      <p class='reason-help'>
+        We’re sorry to hear about this. You should change your Firefox Account password,
+        and look for information from your device manufacturer about erasing your data remotely.
+      </p>
+      {{/reasonLost}}
+    {{/toDisconnect}}
   </section>
 </div>
