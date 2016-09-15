@@ -63,7 +63,7 @@ define(function (require, exports, module) {
     }
   };
 
-  var t = msg => msg;
+  const t = msg => msg;
 
   ConfigLoader.Errors = _.extend({}, Errors, {
     /*eslint-disable sorting/sort-object-props*/
