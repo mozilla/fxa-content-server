@@ -16,11 +16,6 @@ define([
 ], function (intern, registerSuite, assert, config, request, initLogging, fs, path, proxyquire, url) {
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var env = config.get('env');
-  if (intern.config.fxaProduction) {
-    env = 'production';
-  }
-
   var suite = {
     name: 'metrics-errors'
   };
