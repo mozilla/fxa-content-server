@@ -179,10 +179,10 @@ define(function (require, exports, module) {
           $(view.el).find('.disconnect-reasons').val('suspicious').change();
           return view.submit().then(() => {
             assert.notOk(view.toDisconnect);
-            assert.ok(view.render.calledTwice);
+            assert.ok(view.render.calledOnce, 'not rendered, current device');
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
             assert.ok(view.navigateToSignIn.called, 'navigates away');
-            assert.notOk(view._closePanelReturnToClients.called);
+            assert.ok(view._closePanelReturnToClients.called);
             assert.ok(view.reasonHelp);
           });
         });
