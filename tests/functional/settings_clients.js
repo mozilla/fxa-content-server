@@ -28,6 +28,9 @@ define([
   var client;
   var accountData;
 
+  var testElementExists = FunctionalHelpers.testElementExists;
+  var click = FunctionalHelpers.click;
+
   registerSuite({
     name: 'settings clients',
 
@@ -178,9 +181,33 @@ define([
         .end()
 
         // clicking disconnect on the second device should update the list
-        .findByCssSelector('.client:nth-child(2) .client-disconnect')
-          .click()
-        .end()
+        .then(click('.client:nth-child(2) .client-disconnect'))
+
+        // get the modal dialog
+        .then(testElementExists('.intro'))
+        .then(testElementExists('.disabled'))
+
+        // test cancel
+        .then(click('.cancel-disconnect'))
+        .then(FunctionalHelpers.pollUntil(function () {
+          var modalPanel = document.querySelectorAll('#client-disconnect').length;
+
+          return modalPanel === 0 ? true : null;
+        }, [ ], 10000))
+
+        .then(click('.client:nth-child(2) .client-disconnect'))
+        .then(click('select.disconnect-reasons > option[value="lost"]'))
+
+        // wait until button is enabled
+        .then(FunctionalHelpers.pollUntil(function () {
+          var disabledButton = document.querySelectorAll('#client-disconnect .disabled').length;
+
+          return disabledButton === 0 ? true : null;
+        }, [ ], 10000))
+
+        .then(click('#client-disconnect .primary'))
+
+        .then(click('#client-disconnect .reason-help'))
 
         // disconnect waits until successful AJAX device delete
         .then(FunctionalHelpers.pollUntil(function (newName) {
@@ -204,6 +231,17 @@ define([
         .findByCssSelector('.client:nth-child(1) .client-disconnect')
           .click()
         .end()
+
+        .then(click('select.disconnect-reasons > option[value="lost"]'))
+
+        // wait until button is enabled
+        .then(FunctionalHelpers.pollUntil(function () {
+          var disabledButton = document.querySelectorAll('#client-disconnect .disabled').length;
+
+          return disabledButton === 0 ? true : null;
+        }, [ ], 10000))
+
+        .then(click('#client-disconnect .primary'))
 
         .findByCssSelector('#fxa-signin-header')
         .end();

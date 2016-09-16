@@ -49,11 +49,16 @@ define(function (require, exports, module) {
     },
 
     context () {
-      return {
-        deviceName: this.item.get('name'),
+      var context = {
         reasonHelp: this.reasonHelp,
         toDisconnect: this.toDisconnect
       };
+
+      if (this.toDisconnect) {
+        context.deviceName = this.item.get('name');
+      }
+
+      return context;
     },
 
     afterRender () {
@@ -86,17 +91,16 @@ define(function (require, exports, module) {
           // user has disconnect the device
           this.toDisconnect = false;
           this.reasonHelp = REASON_HELP[selectedValue];
-          // if we can provide help for this disconnect reason
-          if (this.reasonHelp) {
+          if (item.get('isCurrentDevice')) {
+            // if disconnected the current device then sign out
+            this._closePanelReturnToClients();
+            this.navigateToSignIn();
+          } else if (this.reasonHelp) {
+            // if we can provide help for this disconnect reason
             this.render();
           } else {
-            // close the modal
+            // close the modal if no reason help
             this._closePanelReturnToClients();
-          }
-
-          // if disconnected the current device then sign out
-          if (item.get('isCurrentDevice')) {
-            this.navigateToSignIn();
           }
         });
     },
