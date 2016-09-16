@@ -21,6 +21,7 @@ define(function (require, exports, module) {
 
     events: {
       'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings'),
+      'click .cancel-disconnect': BaseView.preventDefaultThen('_closePanelReturnToClients'),
       'click .modal-panel #back': BaseView.preventDefaultThen('_returnToAvatarChange')
     },
 
@@ -43,6 +44,12 @@ define(function (require, exports, module) {
     _closePanelReturnToSettings: function () {
       this.navigate('settings');
       this.closePanel();
+    },
+
+    _closePanelReturnToClients: function () {
+      this.navigate('settings/clients');
+      this.closePanel();
+      $.modal.close();
     },
 
     closePanel: function () {

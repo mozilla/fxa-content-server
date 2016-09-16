@@ -47,14 +47,14 @@ define(function (require, exports, module) {
     };
   }
 
-  function createChildViewHandler(ChildView, ParentView, options = {}) {
+  function createChildViewHandler(ChildView, ParentView, options) {
     return function () {
       return this.showChildView(ChildView, ParentView, options);
     };
   }
 
-  function createViewModel(data = {}) {
-    return new Backbone.Model(data);
+  function createViewModel(data) {
+    return new Backbone.Model(data || {});
   }
 
   var Router = Backbone.Router.extend({

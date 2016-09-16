@@ -30,8 +30,8 @@ define(function (require, exports, module) {
 
   var View = FormView.extend({
     template: Template,
-    className: 'devices',
-    viewName: 'settings.devices',
+    className: 'clients',
+    viewName: 'settings.clients',
 
     initialize: function (options) {
       this._able = options.able;
@@ -130,22 +130,17 @@ define(function (require, exports, module) {
 
     _onDisconnectClient: function (event) {
       var item = this._attachedClients.get($(event.currentTarget).data('id'));
-      if (item.get('clientType') === Constants.CLIENT_TYPE_DEVICE) {
-        return this.navigate('settings/clients/disconnect', {
+      var clientType = item.get('clientType');
+      this.logViewEvent(clientType + '.disconnect');
+      // if a device then ask for confirmation
+      if (clientType === Constants.CLIENT_TYPE_DEVICE) {
+        this.navigate('settings/clients/disconnect', {
           clients: this._attachedClients,
           itemId: item.get('id')
         });
+      } else {
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), item);
       }
-
-      return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
-        .then(() => {
-          var clientType = item.get('clientType');
-
-          this.logViewEvent(clientType + '.disconnect');
-          if (clientType === Constants.CLIENT_TYPE_DEVICE && item.get('isCurrentDevice')) {
-            this.navigateToSignIn();
-          }
-        });
     },
 
     _onRefreshClientsList: function () {

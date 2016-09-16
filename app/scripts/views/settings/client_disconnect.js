@@ -5,98 +5,109 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var Template = require('stache!templates/settings/client_disconnect');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  const t = require('views/base').t;
+  const Template = require('stache!templates/settings/client_disconnect');
+
+  const REASON_SELECTOR = '.disconnect-reasons';
+  const REASON_HELP = {
+    'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +
+      'information from your device manufacturer about erasing your data remotely.'),
+    'suspicious': t('We\'re sorry to hear about this. If this was a device you really don\'t trust, you should change your ' +
+      'Firefox Account password, and change any passwords saved in Firefox.')
+  };
 
   var View = FormView.extend({
     template: Template,
     className: 'clients-disconnect',
-    viewName: 'settings.client.disconnect',
+    viewName: 'settings.clients.disconnect',
 
     events: {
       'change select': 'selectOption',
-      'click': 'closePanelIfDone',
+      'click': 'closePanelIfDisconnected'
     },
 
-    initialize: function () {
-      // receive the device collection and the item to delete
-      // if deleted the collection will be automatically updated in the settings panel.
-      this.deviceId = this.model.get('itemId');
-      this.item = this.model.get('clients').get(this.deviceId);
+    initialize () {
+      // user is presented with an option to disconnect device
       this.toDisconnect = true;
     },
 
-    beforeRender: function () {
-      // prevent direct navigation to disconnect
-      if (! this.deviceId) {
-        this.navigate('settings/clients');
-        return false;
+    beforeRender () {
+      // receive the device collection and the item to delete
+      // if deleted the collection will be automatically updated in the settings panel.
+      let clients = this.model.get('clients');
+      let deviceId = this.model.get('itemId');
+      if (! clients || ! deviceId) {
+        return this.navigate('settings/clients');
       }
+
+      this.item = clients.get(deviceId);
     },
 
-    context: function () {
+    context () {
       return {
         deviceName: this.item.get('name'),
-        reasonLost: this.reasonLost,
-        reasonSuspicious: this.reasonSuspicious,
+        reasonHelp: this.reasonHelp,
         toDisconnect: this.toDisconnect
       };
     },
 
-    afterRender: function () {
+    afterRender () {
+      // disable the form by default, user must select an option
       this.disableForm();
     },
 
-    selectOption: function (event) {
-      var selectedOption = $(event.currentTarget).find(':selected');
-      var index = selectedOption.index();
-      if (index === 0) {
+    /**
+     * Called on option select.
+     * If first option is selected then form is disabled.
+     *
+     * @param {Event} event
+     */
+    selectOption (event) {
+      let optionIndex = this.$el.find(event.currentTarget).find(':selected').index();
+      if (optionIndex === 0) {
         this.disableForm();
       } else {
         this.enableForm();
       }
     },
 
-    submit: function () {
-      var item = this.item;
-      this.logViewEvent('disconnect.');
-      this.logViewEvent('disconnect.'); // TODO: type.
+    submit () {
+      let item = this.item;
+      let selectedValue = this.$el.find(REASON_SELECTOR).find(':selected').val();
+      this.logViewEvent('submit.' + selectedValue);
 
       return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
         .then(() => {
-          var clientType = item.get('clientType');
-          var selectedValue = $('.disconnect-reasons').find(':selected').val();
+          // user has disconnect the device
           this.toDisconnect = false;
-          // TODO: success event
-
-          // TODO: clean up
-          if (selectedValue === 'lost' || selectedValue === 'suspicious') {
-            if (selectedValue === 'lost') {
-              this.reasonSuspicious = true;
-            } else {
-              this.reasonLost = true;
-            }
+          this.reasonHelp = REASON_HELP[selectedValue];
+          // if we can provide help for this disconnect reason
+          if (this.reasonHelp) {
             this.render();
           } else {
             // close the modal
-            this._closePanelReturnToSettings();
+            this._closePanelReturnToClients();
           }
 
           // if disconnected the current device then sign out
-          if (clientType === Constants.CLIENT_TYPE_DEVICE && item.get('isCurrentDevice')) {
+          if (item.get('isCurrentDevice')) {
             this.navigateToSignIn();
           }
         });
     },
 
-    closePanelIfDone: function () {
-      if (this.toDisconnect === false) {
-        this._closePanelReturnToSettings();
+    /**
+     * Called on panel interaction.
+     * Closes the panel if device was disconnected.
+     */
+    closePanelIfDisconnected () {
+      if (! this.toDisconnect) {
+        this._closePanelReturnToClients();
       }
     }
 
