@@ -674,8 +674,8 @@ define(function (require, exports, module) {
         });
       });
 
-      // Ensure that content-server can correctly handle any emailSent response
-      var emailSentTestCases = [{
+      // Ensure that content-server can correctly handle any auth-server emailSent response
+      const emailSentTestCases = [{
         emailSent: undefined,
         expectedRetryCallCount: 1
       }, {
@@ -688,32 +688,21 @@ define(function (require, exports, module) {
       emailSentTestCases.forEach(function (testCase) {
         describe('with an unverified account, emailSent = ' + testCase.emailSent, function () {
           beforeEach(function () {
-            account = user.initAccount({email: 'email', uid: 'uid'});
+            account = user.initAccount({
+              emailSent: testCase.emailSent,
+              verificationReason: VerificationReasons.SIGN_UP,
+              verified: false
+            });
 
             sinon.stub(account, 'signIn', function () {
               return p();
-            });
-
-            sinon.stub(account, 'get', function (property) {
-
-              if (property === 'verified') {
-                return false;
-              } else if (property === 'verificationReason') {
-                return VerificationReasons.SIGN_UP;
-              } else if (property === 'emailSent') {
-                return testCase.emailSent;
-              }
-
-              return property;
             });
 
             sinon.stub(account, 'retrySignUp', function () {
               return p();
             });
 
-            sinon.stub(user, 'setSignedInAccount', function () {
-              return p(account);
-            });
+            sinon.spy(user, 'setSignedInAccount');
 
             sinon.spy(notifier, 'triggerRemote');
 

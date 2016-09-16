@@ -222,7 +222,8 @@ define(function (require, exports, module) {
 
       var signInOptions = {
         keys: wantsKeys(relier),
-        reason: options.reason || SignInReasons.SIGN_IN
+        reason: options.reason || SignInReasons.SIGN_IN,
+        sendEmailIfUnverified: true, // Default is to delegate email sending
       };
 
       // `service` is sent on signIn to notify users when a new service
