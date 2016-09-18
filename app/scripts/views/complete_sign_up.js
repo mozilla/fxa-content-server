@@ -165,7 +165,7 @@ define(function (require, exports, module) {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
         isLinkExpired: verificationInfo.isExpired(),
-	isLinkUsed: verificationInfo.isUsed()
+        isLinkUsed: verificationInfo.isUsed()
       };
     },
 
