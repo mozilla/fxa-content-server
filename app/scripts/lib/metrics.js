@@ -121,7 +121,7 @@ define(function (require, exports, module) {
 
     this._marketingImpressions = {};
     this._activeExperiments = {};
-    this._eventMemory = [];
+    this._eventMemory = {};
 
     this._able = options.able;
     this._env = options.environment || new Environment(this._window);
@@ -309,9 +309,9 @@ define(function (require, exports, module) {
      * @param {String} eventName
      */
     logEventOnce: function (eventName) {
-      if (_.indexOf(this._eventMemory, eventName) === -1) {
+      if (! this._eventMemory[eventName]) {
         this.logEvent(eventName);
-        this._eventMemory.push(eventName);
+        this._eventMemory[eventName] = true;
       }
     },
 
