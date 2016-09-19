@@ -487,7 +487,7 @@ section.modal-panel {
 .client {
   // default client icon is desktop
   background-image: url('/images/device-icon-pc.png');
-  background-position: 0 4px;
+  background-position: 0 2px;
   background-repeat: no-repeat;
   background-size: 30px 30px;
 
@@ -534,6 +534,18 @@ section.modal-panel {
 
 .client.tablet {
   background-image: url('/images/device-icon-tablet.png');
+}
+
+.client-device {
+  // device clients currently have their 'last active' time hidden
+  // See issue https://github.com/mozilla/fxa/issues/190
+  .client-name {
+    padding-top: 8px;
+  }
+
+  .last-connected {
+    display: none;
+  }
 }
 
 #client-disconnect {

@@ -174,13 +174,6 @@ define([
           })
         .end()
 
-        .findByCssSelector('.client:nth-child(2) .last-connected')
-          .getVisibleText()
-          .then(function (val) {
-            assert.isTrue(val.indexOf('ago') >= 0, 'last connected is formatted');
-          })
-        .end()
-
         // clicking disconnect on the second device should update the list
         .then(click('.client:nth-child(2) .client-disconnect'))
 

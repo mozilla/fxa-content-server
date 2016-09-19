@@ -219,14 +219,14 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### settings/clients
 
-* settings.clients.[clientType].disconnect - user is attempting to disconnect a client type
+* settings.clients.[clientType].disconnect - user is attempting to disconnect a client type (types: `device` or `app`)
 * settings.clients.refresh - user refreshed the device and apps panel
 * settings.clients.open - user opened the client panel
 
 
 #### settings/clients/disconnect
 
-* settings.clients.disconnect.submit.[reason] - user submit the disconnect form with [reason]
+* settings.clients.disconnect.submit.[reason] - user submit the disconnect form with [reason] (types: `old`, `suspicious`, `lost`, `no`)
 
 
 #### settings/communication_preferences
