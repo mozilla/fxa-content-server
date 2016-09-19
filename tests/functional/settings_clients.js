@@ -30,6 +30,7 @@ define([
 
   var testElementExists = FunctionalHelpers.testElementExists;
   var click = FunctionalHelpers.click;
+  var pollUntilGoneByQSA = FunctionalHelpers.pollUntilGoneByQSA;
 
   registerSuite({
     name: 'settings clients',
@@ -189,21 +190,14 @@ define([
 
         // test cancel
         .then(click('.cancel-disconnect'))
-        .then(FunctionalHelpers.pollUntil(function () {
-          var modalPanel = document.querySelectorAll('#client-disconnect').length;
 
-          return modalPanel === 0 ? true : null;
-        }, [ ], 10000))
+        .then(pollUntilGoneByQSA('#client-disconnect'))
 
         .then(click('.client:nth-child(2) .client-disconnect'))
         .then(click('select.disconnect-reasons > option[value="lost"]'))
 
-        // wait until button is enabled
-        .then(FunctionalHelpers.pollUntil(function () {
-          var disabledButton = document.querySelectorAll('#client-disconnect .disabled').length;
-
-          return disabledButton === 0 ? true : null;
-        }, [ ], 10000))
+        // wait until button is enabled (disabled class has gone away)
+        .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
 
         .then(click('#client-disconnect .primary'))
 
@@ -233,13 +227,8 @@ define([
         .end()
 
         .then(click('select.disconnect-reasons > option[value="lost"]'))
-
         // wait until button is enabled
-        .then(FunctionalHelpers.pollUntil(function () {
-          var disabledButton = document.querySelectorAll('#client-disconnect .disabled').length;
-
-          return disabledButton === 0 ? true : null;
-        }, [ ], 10000))
+        .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
 
         .then(click('#client-disconnect .primary'))
 

@@ -129,17 +129,17 @@ define(function (require, exports, module) {
     },
 
     _onDisconnectClient: function (event) {
-      var item = this._attachedClients.get($(event.currentTarget).data('id'));
-      var clientType = item.get('clientType');
+      var client = this._attachedClients.get($(event.currentTarget).data('id'));
+      var clientType = client.get('clientType');
       this.logViewEvent(clientType + '.disconnect');
       // if a device then ask for confirmation
       if (clientType === Constants.CLIENT_TYPE_DEVICE) {
         this.navigate('settings/clients/disconnect', {
-          clients: this._attachedClients,
-          itemId: item.get('id')
+          clientId: client.get('id'),
+          clients: this._attachedClients
         });
       } else {
-        this.user.destroyAccountClient(this.user.getSignedInAccount(), item);
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), client);
       }
     },
 

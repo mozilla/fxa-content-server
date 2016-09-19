@@ -205,7 +205,7 @@ define(function (require, exports, module) {
         var args = view.navigate.args[0];
         assert.equal(args.length, 2);
         assert.equal(args[0], 'settings/clients/disconnect');
-        assert.equal(args[1].itemId, 'device-2');
+        assert.equal(args[1].clientId, 'device-2');
         assert.equal(args[1].clients, view._attachedClients);
       });
     });

@@ -19,14 +19,14 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   describe('views/settings/client_disconnect', () => {
-    var metrics;
-    var notifier;
-    var user;
-    var itemId;
-    var view;
-    var windowMock;
-    var attachedClients;
-    var model = new Backbone.Model();
+    let attachedClients;
+    let clientId;
+    let metrics;
+    let model = new Backbone.Model();
+    let notifier;
+    let user;
+    let view;
+    let windowMock;
 
     beforeEach(() => {
       metrics = new Metrics();
@@ -49,11 +49,11 @@ define(function (require, exports, module) {
           type: 'mobile'
         }
       ]);
-      itemId = 'device-2';
+      clientId = 'device-2';
 
       model.set({
-        clients: attachedClients,
-        itemId: itemId
+        clientId: clientId,
+        clients: attachedClients
       });
 
       createView();
@@ -77,16 +77,16 @@ define(function (require, exports, module) {
 
     describe('initialize', () => {
       it('initialize sets props', () => {
-        assert.ok(view.toDisconnect);
+        assert.notOk(view.hasDisconnected);
         assert.equal(view.viewName, 'settings.clients.disconnect');
       });
     });
 
     describe('beforeRender', () => {
-      it('sets item', () => {
+      it('sets client', () => {
         view.beforeRender();
-        assert.equal(view.item.id, 'device-2');
-        assert.equal(view.item.get('name'), 'beta');
+        assert.equal(view.client.id, 'device-2');
+        assert.equal(view.client.get('name'), 'beta');
       });
 
       it('redirects back to settings if empty model', () => {
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
       });
 
       it('renders view after disconnection', () => {
-        view.toDisconnect = false;
+        view.hasDisconnected = true;
         return view.render().then(() => {
           assert.notOk($(view.el).find('.intro').length, 'intro text');
           assert.notOk($(view.el).find('.select-row-wrapper').length, 'dropdown');
@@ -122,7 +122,8 @@ define(function (require, exports, module) {
       it('has props', () => {
         view.beforeRender();
         assert.ok(view.context().deviceName);
-        assert.ok(view.context().toDisconnect);
+        assert.notOk(view.context().reasonHelp);
+        assert.notOk(view.context().hasDisconnected, false);
       });
     });
 
@@ -134,7 +135,7 @@ define(function (require, exports, module) {
         return view.render().then(() => {
           assert.ok(view.disableForm.calledOnce);
           assert.notOk(view.enableForm.calledOnce);
-          assert.ok($(view.el).find('.primary.disabled').length, 'disabled button at first');
+          assert.ok($(view.el).find('.primary.disabled').length, 'has disabled class');
 
           // choose an option
           $(view.el).find('.disconnect-reasons').val('no').change();
@@ -149,18 +150,18 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('closePanelIfDisconnected event', () => {
+    describe('closePanelAfterDisconnect event', () => {
       it('does not close panel if not disconnected', () => {
-        sinon.spy(view, '_closePanelReturnToClients');
-        view.closePanelIfDisconnected();
-        assert.notOk(view._closePanelReturnToClients.calledOnce, 'does not close panel');
+        sinon.spy(view, 'closeDisconnectModal');
+        view.closePanelAfterDisconnect();
+        assert.notOk(view.closeDisconnectModal.calledOnce, 'does not close panel');
       });
 
       it('close panel if disconnected device', () => {
-        view.toDisconnect = false;
-        sinon.spy(view, '_closePanelReturnToClients');
-        view.closePanelIfDisconnected();
-        assert.ok(view._closePanelReturnToClients.calledOnce);
+        view.hasDisconnected = true;
+        sinon.spy(view, 'closeDisconnectModal');
+        view.closePanelAfterDisconnect();
+        assert.ok(view.closeDisconnectModal.calledOnce);
       });
     });
 
@@ -171,18 +172,20 @@ define(function (require, exports, module) {
         });
         sinon.spy(view, 'render');
         sinon.spy(view, 'navigateToSignIn');
-        sinon.spy(view, '_closePanelReturnToClients');
+        sinon.spy(view, 'closeModalPanel');
+        sinon.spy(view, 'closeDisconnectModal');
       });
 
       it('suspicious option with current device', () => {
         return view.render().then(() => {
           $(view.el).find('.disconnect-reasons').val('suspicious').change();
           return view.submit().then(() => {
-            assert.notOk(view.toDisconnect);
+            assert.ok(view.hasDisconnected);
             assert.ok(view.render.calledOnce, 'not rendered, current device');
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
             assert.ok(view.navigateToSignIn.called, 'navigates away');
-            assert.ok(view._closePanelReturnToClients.called);
+            assert.ok(view.closeModalPanel.called, 'close modal called');
+            assert.notOk(view.closeDisconnectModal.called);
             assert.ok(view.reasonHelp);
           });
         });
@@ -190,18 +193,18 @@ define(function (require, exports, module) {
 
       it('lost option with not a current device', () => {
         model.set({
-          clients: attachedClients,
-          itemId: 'device-1'
+          clientId: 'device-1',
+          clients: attachedClients
         });
 
         return view.render().then(() => {
           $(view.el).find('.disconnect-reasons').val('lost').change();
           return view.submit().then(() => {
-            assert.notOk(view.toDisconnect);
+            assert.ok(view.hasDisconnected);
             assert.ok(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.lost'));
             assert.notOk(view.navigateToSignIn.called, 'does not navigate');
-            assert.notOk(view._closePanelReturnToClients.called);
+            assert.notOk(view.closeDisconnectModal.called);
             assert.ok(view.reasonHelp);
           });
         });
@@ -209,18 +212,18 @@ define(function (require, exports, module) {
 
       it('old option', () => {
         model.set({
-          clients: attachedClients,
-          itemId: 'device-1'
+          clientId: 'device-1',
+          clients: attachedClients
         });
 
         return view.render().then(() => {
           $(view.el).find('.disconnect-reasons').val('old').change();
           return view.submit().then(() => {
-            assert.notOk(view.toDisconnect);
+            assert.ok(view.hasDisconnected);
             assert.notOk(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.old'));
             assert.notOk(view.navigateToSignIn.called);
-            assert.ok(view._closePanelReturnToClients.called);
+            assert.ok(view.closeDisconnectModal.called);
             assert.notOk(view.reasonHelp);
           });
         });
@@ -228,18 +231,18 @@ define(function (require, exports, module) {
 
       it('no option', () => {
         model.set({
-          clients: attachedClients,
-          itemId: 'device-1'
+          clientId: 'device-1',
+          clients: attachedClients
         });
 
         return view.render().then(() => {
           $(view.el).find('.disconnect-reasons').val('no').change();
           return view.submit().then(() => {
-            assert.notOk(view.toDisconnect);
+            assert.ok(view.hasDisconnected);
             assert.notOk(view.render.calledTwice);
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.no'));
             assert.notOk(view.navigateToSignIn.called);
-            assert.ok(view._closePanelReturnToClients.called);
+            assert.ok(view.closeDisconnectModal.called);
             assert.notOk(view.reasonHelp);
           });
         });

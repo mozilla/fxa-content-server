@@ -11,7 +11,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
+  const $ = require('jquery');
 
   module.exports = {
     events: {
@@ -31,7 +31,7 @@ define(function (require, exports, module) {
      *
      * @param {object} inputEl - input element whose placeholder
      *        should be shown.
-     * @param {String} text - custom text for the floating label.
+     * @param {String} [text] - optional custom text for the floating label.
      */
     showFloatingPlaceholder (inputEl, text) {
       const $inputEl = this.$el.find(inputEl);
@@ -65,11 +65,11 @@ define(function (require, exports, module) {
       }
     },
 
-    focusFloatingPlaceholder: function (inputEl) {
+    focusLabelHelper: function (inputEl) {
       this.$el.find(inputEl).prev('.label-helper').addClass('focused');
     },
 
-    unfocusFloatingPlaceholder: function (inputEl) {
+    unfocusLabelHelper: function (inputEl) {
       this.$el.find(inputEl).prev('.label-helper').removeClass('focused');
     },
 
@@ -80,7 +80,7 @@ define(function (require, exports, module) {
      * @param {Event} event
      */
     floatingPlaceholderMixinOnInput: function (event) {
-      var $inputEl = $(event.currentTarget);
+      const $inputEl = $(event.currentTarget);
 
       // If no form values have changed, no need to show the
       // placeholder text.
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
       }
 
       this.showFloatingPlaceholder($inputEl);
-      this.focusFloatingPlaceholder($inputEl);
+      this.focusLabelHelper($inputEl);
     },
 
     /**
@@ -99,17 +99,17 @@ define(function (require, exports, module) {
      * @param {Event} event
      */
     floatingPlaceholderMixinOnSelect: function (event) {
-      var $inputEl = $(event.currentTarget);
+      const $inputEl = $(event.currentTarget);
       this.showFloatingPlaceholder($inputEl, $inputEl.find('option:first').text());
-      this.focusFloatingPlaceholder($inputEl);
+      this.focusLabelHelper($inputEl);
     },
 
     onInputFocus: function (event) {
-      this.focusFloatingPlaceholder($(event.currentTarget));
+      this.focusLabelHelper($(event.currentTarget));
     },
 
     onInputBlur: function (event) {
-      this.unfocusFloatingPlaceholder($(event.currentTarget));
+      this.unfocusLabelHelper($(event.currentTarget));
     }
   };
 });

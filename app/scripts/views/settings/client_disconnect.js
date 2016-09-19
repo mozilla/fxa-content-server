@@ -17,8 +17,8 @@ define(function (require, exports, module) {
   const REASON_HELP = {
     'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +
       'information from your device manufacturer about erasing your data remotely.'),
-    'suspicious': t('We\'re sorry to hear about this. If this was a device you really don\'t trust, you should change your ' +
-      'Firefox Account password, and change any passwords saved in Firefox.')
+    'suspicious': t('We\'re sorry to hear about this. If this was a device you really don\'t trust, you should ' +
+      'change your Firefox Account password, and change any passwords saved in Firefox.')
   };
 
   var View = FormView.extend({
@@ -27,92 +27,86 @@ define(function (require, exports, module) {
     viewName: 'settings.clients.disconnect',
 
     events: {
-      'change select': 'selectOption',
-      'click': 'closePanelIfDisconnected'
+      'click': 'closePanelAfterDisconnect',
+      'click .cancel-disconnect': FormView.preventDefaultThen('closeDisconnectModal'),
     },
 
     initialize () {
       // user is presented with an option to disconnect device
-      this.toDisconnect = true;
+      this.hasDisconnected = false;
     },
 
     beforeRender () {
       // receive the device collection and the item to delete
       // if deleted the collection will be automatically updated in the settings panel.
       let clients = this.model.get('clients');
-      let deviceId = this.model.get('itemId');
-      if (! clients || ! deviceId) {
+      let clientId = this.model.get('clientId');
+      if (! clients || ! clientId) {
         return this.navigate('settings/clients');
       }
 
-      this.item = clients.get(deviceId);
+      this.client = clients.get(clientId);
     },
 
     context () {
       var context = {
-        reasonHelp: this.reasonHelp,
-        toDisconnect: this.toDisconnect
+        hasDisconnected: this.hasDisconnected,
+        reasonHelp: this.reasonHelp
       };
 
-      if (this.toDisconnect) {
-        context.deviceName = this.item.get('name');
+      if (! this.hasDisconnected) {
+        context.deviceName = this.client.get('name');
       }
 
       return context;
     },
 
-    afterRender () {
-      // disable the form by default, user must select an option
-      this.disableForm();
-    },
-
     /**
      * Called on option select.
-     * If first option is selected then form is disabled.
+     * If first option is selected then form is disabled using the logic in FormView.
      *
-     * @param {Event} event
+     * @returns {Boolean}
      */
-    selectOption (event) {
-      let optionIndex = this.$el.find(event.currentTarget).find(':selected').index();
-      if (optionIndex === 0) {
-        this.disableForm();
-      } else {
-        this.enableForm();
-      }
+    isValidStart () {
+      return this.$(':selected').index() > 0;
     },
 
     submit () {
-      let item = this.item;
+      const client = this.client;
       let selectedValue = this.$el.find(REASON_SELECTOR).find(':selected').val();
       this.logViewEvent('submit.' + selectedValue);
 
-      return this.user.destroyAccountClient(this.user.getSignedInAccount(), item)
+      return this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
         .then(() => {
           // user has disconnect the device
-          this.toDisconnect = false;
+          this.hasDisconnected = true;
           this.reasonHelp = REASON_HELP[selectedValue];
-          if (item.get('isCurrentDevice')) {
-            // if disconnected the current device then sign out
-            this._closePanelReturnToClients();
+          if (client.get('isCurrentDevice')) {
+            // if disconnected the current device, the user is automatically signed out
+            this.closeModalPanel();
             this.navigateToSignIn();
           } else if (this.reasonHelp) {
             // if we can provide help for this disconnect reason
             this.render();
           } else {
             // close the modal if no reason help
-            this._closePanelReturnToClients();
+            this.closePanelAfterDisconnect();
           }
         });
     },
 
     /**
-     * Called on panel interaction.
      * Closes the panel if device was disconnected.
      */
-    closePanelIfDisconnected () {
-      if (! this.toDisconnect) {
-        this._closePanelReturnToClients();
+    closePanelAfterDisconnect () {
+      if (this.hasDisconnected) {
+        this.closeDisconnectModal();
       }
+    },
+
+    closeDisconnectModal () {
+      this.closeModalPanel();
+      this.navigate('settings/clients');
     }
 
   });
