@@ -20,7 +20,7 @@ define(function (require, exports, module) {
           $el
             .addClass('visible-url')
             .attr('data-visible-url', $el.attr('href'))
-            .attr('rel','noopener');
+            .attr('rel','noopener noreferrer');
         });
       }
     }

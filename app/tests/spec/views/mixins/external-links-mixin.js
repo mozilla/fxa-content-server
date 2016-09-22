@@ -65,6 +65,8 @@ define(function (require, exports, module) {
         assert.isTrue($externalLink.hasClass('visible-url'));
         assert.equal(
           $externalLink.attr('data-visible-url'), $externalLink.attr('href'));
+        assert.equal(
+          $externalLink.attr('rel'),'noopener noreferrer');
       });
 
       it('does not convert internal links', function () {
