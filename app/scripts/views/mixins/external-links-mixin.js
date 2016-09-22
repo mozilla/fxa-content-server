@@ -19,7 +19,8 @@ define(function (require, exports, module) {
           var $el = $(el);
           $el
             .addClass('visible-url')
-            .attr('data-visible-url', $el.attr('href'));
+            .attr('data-visible-url', $el.attr('href'))
+            .attr('rel','noopener');
         });
       }
     }
