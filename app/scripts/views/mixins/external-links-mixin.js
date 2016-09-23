@@ -14,13 +14,16 @@ define(function (require, exports, module) {
 
   return {
     afterRender: function () {
+      this.$('a[href^=http]').each(function (index, el) {
+          var $el = $(el);
+          $el.attr('rel','noopener noreferrer');
+      });
       if (this.broker.hasCapability('convertExternalLinksToText')) {
         this.$('a[href^=http]').each(function (index, el) {
           var $el = $(el);
           $el
             .addClass('visible-url')
             .attr('data-visible-url', $el.attr('href'))
-            .attr('rel','noopener noreferrer');
         });
       }
     }
