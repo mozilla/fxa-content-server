@@ -73,8 +73,8 @@ define(function (require, exports, module) {
 
       it('adds rel in external links', function () {
         var $externalLink = view.$('#external-link');
-         assert.equal(
-          $externalLink.attr('rel'),'noopener noreferrer');
+        assert.equal(
+         $externalLink.attr('rel'),'noopener noreferrer');
       });
 
       it('does not add rel in internal links', function () {
