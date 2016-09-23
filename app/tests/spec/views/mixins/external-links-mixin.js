@@ -79,8 +79,8 @@ define(function (require, exports, module) {
 
       it('does not add rel in internal links', function () {
         var $internalLink = view.$('#internal-link');
-         assert.notEqual(
-          $internalLink.attr('rel'),'noopener noreferrer');
+        assert.notEqual(
+         $internalLink.attr('rel'),'noopener noreferrer');
       });
     });
   });
