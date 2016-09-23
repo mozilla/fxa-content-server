@@ -16,6 +16,8 @@ define(function (require, exports, module) {
   var AGE_ELEMENT = '#age';
   var AGE_SIZE_LIMIT = 3;
 
+  const proto = FormView.prototype;
+
   var View = FormView.extend({
 
     template: Template,
@@ -80,8 +82,9 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       this._selectPrefillAge('age');
+      return proto.afterRender.call(this);
     },
 
     /**
