@@ -1,3 +1,14 @@
+<a name="0.70.1"></a>
+## 0.70.1 (2016-09-28)
+
+
+### Bug Fixes
+
+* **build:** backslash-escape "/" in character class to satisfy minimizers (#4206) r=vladikof ([2e2a154](https://github.com/mozilla/fxa-content-server/commit/2e2a154))
+* **build:** update to grunt-file-rev ([97ce2b6](https://github.com/mozilla/fxa-content-server/commit/97ce2b6))
+
+
+
 <a name="0.70.0"></a>
 # 0.70.0 (2016-09-20)
 
