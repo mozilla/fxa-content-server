@@ -1,3 +1,14 @@
+<a name="0.70.2"></a>
+## 0.70.2 (2016-09-30)
+
+
+### Bug Fixes
+
+* **build:** Ensure revs are correctly created. ([690384d](https://github.com/mozilla/fxa-content-server/commit/690384d)), closes [#4189](https://github.com/mozilla/fxa-content-server/issues/4189)
+* **build:** Only copy resources to dist if they are used. ([985b923](https://github.com/mozilla/fxa-content-server/commit/985b923))
+
+
+
 <a name="0.70.1"></a>
 ## 0.70.1 (2016-09-28)
 
