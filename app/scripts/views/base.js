@@ -739,7 +739,7 @@ define(function (require, exports, module) {
     /**
      * Place the cursor at the given position within the input element
      *
-     * @param {Selector | element} which
+     * @param {String | Element} which - Strings are assumed to be selectors
      * @param {Number} selectionStart - defaults to after the last character.
      * @param {Number} selectionEnd - defaults to selectionStart.
      */
