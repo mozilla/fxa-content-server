@@ -390,7 +390,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Set whether a capability is supported
+     * Set a capability value.
      *
      * @param {String} capabilityName
      * @param {Variant} capabilityValue

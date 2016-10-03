@@ -126,8 +126,8 @@ define(function (require, exports, module) {
      *
      * @private
      * @param {Object} account
-     * @param {Strings[]} requestedPermissionNames
-     * @returns {Array.<Object>} applicable permissions
+     * @param {String[]} requestedPermissionNames
+     * @returns {Object[]} applicable permissions
      */
     _getApplicablePermissions: function (account, requestedPermissionNames) {
       var self = this;
@@ -167,8 +167,8 @@ define(function (require, exports, module) {
      * Sort permissions to match the sort order in the PERMISSIONS array
      *
      * @private
-     * @param {Strings[]} permissionNames
-     * @returns {Strings[]} sorted permissionNames
+     * @param {String[]} permissionNames
+     * @returns {String[]} sorted permissionNames
      */
     _sortPermissions: function (permissionNames) {
       var self = this;
@@ -184,7 +184,7 @@ define(function (require, exports, module) {
      *
      * @private
      * @param {Account} account
-     * @param {Strings[]} permissionNames
+     * @param {String[]} permissionNames
      * @returns {String} HTML
      */
     _getPermissionsHTML: function (account, permissionNames) {

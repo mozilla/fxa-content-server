@@ -606,7 +606,7 @@ define(function (require, exports, module) {
      * seen previously.
      *
      * @param {String} clientId
-     * @param {Strings[]} permissions
+     * @param {String[]} permissions
      * @returns {Boolean} `true` if client has seen all the permissions,
      *  `false` otw.
      */
@@ -623,8 +623,8 @@ define(function (require, exports, module) {
      * Return a list of permissions that have
      * corresponding account values.
      *
-     * @param {Strings[]} permissionNames
-     * @returns {Strings[]}
+     * @param {String[]} permissionNames
+     * @returns {String[]}
      */
     getPermissionsWithValues: function (permissionNames) {
       var self = this;
