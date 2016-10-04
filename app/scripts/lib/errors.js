@@ -253,13 +253,16 @@ define(function (require, exports, module) {
     normalizeXHRError: function (xhr) {
       var err;
 
-      if (! xhr || xhr.status === 0 || xhr.status === 503 ) {
+      if (! xhr || xhr.status === 0) {
         err = this.toError('SERVICE_UNAVAILABLE');
-      } else if ( xhr.status === 429 ) {
-        err = this.toError('Too Many Requests');
+      } else if (xhr.responseJSON) {
+        err = this.toError(xhr.responseJSON);
+      } else if (xhr.status === 503) {
+        err = this.toError('SERVICE_UNAVAILABLE');
+      } else if (xhr.status === 429) {
+        err = this.toError('THROTTLED');
       } else {
-        var serverError = xhr.responseJSON || 'UNEXPECTED_ERROR';
-        err = this.toError(serverError);
+        err = this.toError('UNEXPECTED_ERROR');
       }
 
       // copy over the HTTP status if not already part of the error.
