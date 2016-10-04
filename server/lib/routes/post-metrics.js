@@ -90,7 +90,7 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
   flowEvents.forEach(function (event) {
     if (event.type === 'flow.begin') {
       event.time = metrics.flowBeginTime;
-      event.flow_time = 0;
+      event.flowTime = 0;
     } else {
       event.time = estimateTime({
         /*eslint-disable sorting/sort-object-props*/
@@ -100,14 +100,10 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
         received: requestReceivedTime
         /*eslint-enable sorting/sort-object-props*/
       });
-      event.flow_time = event.time - metrics.flowBeginTime;
+      event.flowTime = event.time - metrics.flowBeginTime;
     }
 
-    flowEvent(event.type, {
-      flow_id: metrics.flowId, //eslint-disable-line camelcase
-      flow_time: event.flow_time, //eslint-disable-line camelcase
-      time: event.time
-    }, req);
+    flowEvent(event, metrics, req);
   });
 }
 

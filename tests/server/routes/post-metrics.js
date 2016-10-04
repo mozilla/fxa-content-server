@@ -157,7 +157,7 @@ define([
             assert.equal(args[0].events[2].type, 'flow.begin');
             assert.equal(args[0].events[2].offset, 2);
             assert.equal(args[0].events[2].time, 42);
-            assert.equal(args[0].events[2].flow_time, 0);
+            assert.equal(args[0].events[2].flowTime, 0);
             assert.isObject(args[0].events[3]);
             assert.lengthOf(Object.keys(args[0].events[3]), 2);
             assert.equal(args[0].events[3].type, 'baz');
@@ -167,7 +167,7 @@ define([
             assert.equal(args[0].events[4].type, 'flow.signup.engage');
             assert.equal(args[0].events[4].offset, 4);
             assert.equal(args[0].events[4].time, 994);
-            assert.equal(args[0].events[4].flow_time, 952);
+            assert.equal(args[0].events[4].flowTime, 952);
             assert.equal(args[0].flowId, 'qux');
             assert.equal(args[0].flowBeginTime, 42);
             assert.strictEqual(args[0].isSampledUser, true);
@@ -192,22 +192,25 @@ define([
           'flowEvent was called correctly': function () {
             assert.strictEqual(mocks.flowEvent.callCount, 2);
             var args = mocks.flowEvent.args[0];
-            var args2 = mocks.flowEvent.args[1];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.begin');
+            assert.strictEqual(args[0].flowTime, 0);
+            assert.equal(args[0].time, 42);
             assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].flow_id, 'qux');
-            assert.strictEqual(args[1].flow_time, 0);
-            assert.equal(args[1].time, 42);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 42);
             assert.equal(args[2], mocks.request);
             // second flowEvent
-            assert.equal(args2[0], 'flow.signup.engage');
-            assert.isObject(args2[1]);
-            assert.lengthOf(Object.keys(args2[1]), 3);
-            assert.equal(args2[1].flow_id, 'qux');
-            assert.strictEqual(args2[1].flow_time, 952);
-            assert.equal(args2[1].time, 994);
+            args = mocks.flowEvent.args[1];
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.signup.engage');
+            assert.strictEqual(args[0].flowTime, 952);
+            assert.equal(args[0].time, 994);
+            assert.isObject(args[1]);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 42);
+            assert.equal(args[2], mocks.request);
           }
         }
       },
@@ -391,12 +394,13 @@ define([
             assert.strictEqual(mocks.flowEvent.callCount, 4);
             var args = mocks.flowEvent.args[3];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.begin');
+            assert.strictEqual(args[0].flowTime, 0);
+            assert.equal(args[0].time, 77);
             assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].flow_id, 'bar');
-            assert.strictEqual(args[1].flow_time, 0);
-            assert.equal(args[1].time, 77);
+            assert.equal(args[1].flowId, 'bar');
+            assert.strictEqual(args[1].flowBeginTime, 77);
             assert.equal(args[2], mocks.request);
           }
         }
@@ -521,16 +525,18 @@ define([
             assert.strictEqual(mocks.flowEvent.callCount, 6);
             var args = mocks.flowEvent.args[4];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].time, 2029);
-            assert.equal(args[1].flow_time, 0);
+            assert.equal(args[0].type, 'flow.begin');
+            assert.equal(args[0].time, 2029);
+            assert.equal(args[0].flowTime, 0);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 2029);
             args = mocks.flowEvent.args[5];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.wibble');
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].time, 2049);
-            assert.equal(args[1].flow_time, 20);
+            assert.equal(args[0].type, 'flow.wibble');
+            assert.equal(args[0].time, 2049);
+            assert.equal(args[0].flowTime, 20);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 2029);
           }
         }
       }
