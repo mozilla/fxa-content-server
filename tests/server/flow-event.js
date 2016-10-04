@@ -263,6 +263,33 @@ define([
       }
     },
 
+    'call flowEvent with "none" data': {
+      setup: function () {
+        write = process.stderr.write;
+        process.stderr.write = sinon.spy();
+        return flowEvent({
+          flowTime: 'foo',
+          time: 'bar',
+          type: 'wibble'
+        }, {
+          migration: 'none'
+        }, {
+          headers: { 'user-agent': 'blee' }
+        });
+      },
+
+      teardown: function () {
+        process.stderr.write = write;
+      },
+
+      'process.stderr.write was called correctly': function () {
+        assert.equal(process.stderr.write.callCount, 1);
+
+        var eventData = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(Object.keys(eventData).indexOf('migration'), -1);
+      }
+    },
+
     'call flowEvent with 101-character client_id': {
       setup: function () {
         write = process.stderr.write;

@@ -35,7 +35,7 @@ module.exports = function (event, data, request) {
     time: event.time,
     userAgent: request.headers['user-agent'],
     v: VERSION
-  }, _.mapValues(pickedData, limitLength));
+  }, _.mapValues(pickedData, sanitiseData));
 
   optionallySetFallbackData(eventData, 'service', data.client_id);
   optionallySetFallbackData(eventData, 'entrypoint', data.entryPoint);
@@ -63,6 +63,14 @@ function limitLength (data) {
   }
 
   return data;
+}
+
+function sanitiseData (data) {
+  if (data === 'none') {
+    return undefined;
+  }
+
+  return limitLength(data);
 }
 
 function optionallySetFallbackData (eventData, key, fallback) {
