@@ -253,8 +253,10 @@ define(function (require, exports, module) {
     normalizeXHRError: function (xhr) {
       var err;
 
-      if (! xhr || xhr.status === 0) {
+      if (! xhr || xhr.status === 0 || xhr.status === 503 ) {
         err = this.toError('SERVICE_UNAVAILABLE');
+      } else if ( xhr.status === 429 ) {
+        err = this.toError('Too Many Requests');
       } else {
         var serverError = xhr.responseJSON || 'UNEXPECTED_ERROR';
         err = this.toError(serverError);
