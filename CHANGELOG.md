@@ -1,3 +1,17 @@
+<a name="0.70.3"></a>
+## 0.70.3 (2016-10-05)
+
+
+### chore
+
+* **circle:** add circle.yml with testing config (#4197) ([0ab31b3](https://github.com/mozilla/fxa-content-server/commit/0ab31b3))
+
+### Features
+
+* **devices:** use uid for devices panel ([3ca3ec0](https://github.com/mozilla/fxa-content-server/commit/3ca3ec0))
+
+
+
 <a name="0.70.2"></a>
 ## 0.70.2 (2016-09-30)
 
