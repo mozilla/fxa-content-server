@@ -68,28 +68,63 @@ define(function (require, exports, module) {
 
     describe('errors', function () {
       describe('realClient client returns a promise', function () {
-        it('are normalized to be AuthErrors based', function () {
-          // taken from the fxa-auth-server @
-          // https://github.com/mozilla/fxa-auth-server/blob/9dcdcd9b142a2ed93fc55ac187a501a7a2005c6b/lib/error.js#L290-L308
-          sinon.stub(realClient, 'signUp', function () {
-            return p.reject({
-              code: 429,
-              errno: 114,
-              error: 'Too Many Requests',
-              message: 'Client has sent too many requests',
-              retryAfter: 30
+        describe('with fully formed auth server response', () => {
+          it('are normalized to be AuthErrors based', function () {
+            // taken from the fxa-auth-server @
+            // https://github.com/mozilla/fxa-auth-server/blob/9dcdcd9b142a2ed93fc55ac187a501a7a2005c6b/lib/error.js#L290-L308
+            sinon.stub(realClient, 'signUp', function () {
+              return p.reject({
+                code: 429,
+                errno: 114,
+                error: 'Too Many Requests',
+                message: 'Client has sent too many requests',
+                retryAfter: 30
+              });
             });
+
+            return client.signUp(email, password, relier)
+              .fail(function (err) {
+                assert.equal(err.message, AuthErrors.toMessage(114));
+                assert.equal(err.namespace, AuthErrors.NAMESPACE);
+                assert.equal(err.code, 429);
+                assert.equal(err.errno, 114);
+                assert.equal(err.retryAfter, 30);
+                realClient.signUp.restore();
+              });
+          });
+        });
+
+        describe('with nginx responses', () => {
+          function createMockResponse(code) {
+            // Taken from https://github.com/mozilla/fxa-js-client/blob/5954e3df12720b6826b775099e8560219e4c3a6d/client/lib/request.js#L89
+            sinon.stub(realClient, 'signUp', function () {
+              return p.reject({
+                code,
+                errno: 999,
+                error: 'Unknown error'
+              });
+            });
+          }
+
+          it('converts 429 errors to THROTTLED', () => {
+            createMockResponse(429);
+
+            return client.signUp(email, password, relier)
+              .fail((err) => {
+                assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
+                realClient.signUp.restore();
+              });
           });
 
-          return client.signUp(email, password, relier)
-            .fail(function (err) {
-              assert.equal(err.message, AuthErrors.toMessage(114));
-              assert.equal(err.namespace, AuthErrors.NAMESPACE);
-              assert.equal(err.code, 429);
-              assert.equal(err.errno, 114);
-              assert.equal(err.retryAfter, 30);
-              realClient.signUp.restore();
-            });
+          it('converts 503 errors to SERVICE_UNAVAILABLE', () => {
+            createMockResponse(503);
+
+            return client.signUp(email, password, relier)
+              .fail((err) => {
+                assert.isTrue(AuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
+                realClient.signUp.restore();
+              });
+          });
         });
       });
 

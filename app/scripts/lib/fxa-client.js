@@ -66,8 +66,20 @@ define(function (require, exports, module) {
           }
 
           // a promise was returned, ensure any errors are normalized.
-          return retval.then(null, function (err) {
-            throw AuthErrors.toError(err);
+          return retval.then(null, (err) => {
+            // 429 and 503 w/ errno 999 are normalizations from
+            // the fxa-js-client, see
+            // https://github.com/mozilla/fxa-js-client/blob/5954e3df12720b6826b775099e8560219e4c3a6d/client/lib/request.js#L85:L91
+            //
+            // We need to re-normalize these into a form that makes sense
+            // for the front-end.
+            if (err.code === 429 && err.errno === 999) {
+              throw AuthErrors.toError('THROTTLED');
+            } else if (err.code === 503 && err.errno === 999) {
+              throw AuthErrors.toError('SERVICE_UNAVAILABLE');
+            } else {
+              throw AuthErrors.toError(err);
+            }
           });
         }.bind(client, key);
       }
