@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     SESSION_TOKEN_USED_FOR_SYNC: 'fx_desktop_v1',
 
     // Users that sign in to the content server directly
-    CONTENT_SERVER_CONTEXT: 'content-server',
+    CONTENT_SERVER_CONTEXT: 'web',
     FX_DESKTOP_V1_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
     FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',
