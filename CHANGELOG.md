@@ -1,3 +1,13 @@
+<a name="0.71.1"></a>
+## 0.71.1 (2016-10-07)
+
+
+### Bug Fixes
+
+* **styles:** adjust stacking for Firefox 49 (#4259) ([6823fbc](https://github.com/mozilla/fxa-content-server/commit/6823fbc))
+
+
+
 <a name="0.71.0"></a>
 # 0.71.0 (2016-10-06)
 
