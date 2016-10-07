@@ -23,8 +23,11 @@ define(function (require, exports, module) {
   var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
   var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
-  var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
-  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
+  var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
+    '?campaign=fxa-devices-page&adgroup=android&creative=button';
+  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
+    'campaign=fxa-devices-page&adgroup=ios&creative=button' +
+    '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
   var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
   var FORCE_APPS_LIST_VIEW = 'forceAppsList';
 
@@ -61,8 +64,10 @@ define(function (require, exports, module) {
     },
 
     context () {
+      let clients = this._attachedClients.toJSON();
+
       return {
-        clients: this._formatAccessTime(this._attachedClients.toJSON()),
+        clients: this._formatAccessTime(clients),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
@@ -72,13 +77,15 @@ define(function (require, exports, module) {
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
         linkLinux: FIREFOX_DOWNLOAD_LINK,
         linkOSX: FIREFOX_DOWNLOAD_LINK,
-        linkWindows: FIREFOX_DOWNLOAD_LINK
+        linkWindows: FIREFOX_DOWNLOAD_LINK,
+        showMobileApps: ! this._hasMobileDevices(clients)
       };
     },
 
     events: {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
-      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
+      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList'),
+      'click [data-get-app]': '_onGetApp'
     },
 
     _isPanelEnabled () {
@@ -87,6 +94,19 @@ define(function (require, exports, module) {
       return this._able.choose('deviceListVisible', {
         forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search),
         uid: account.get('uid')
+      });
+    },
+
+    /**
+     * Returns true if the clients collection has mobile devices
+     *
+     * @param {Array} clients - array of attached clients
+     * @returns {Boolean}
+     * @private
+     */
+    _hasMobileDevices (clients) {
+      return _.find(clients, function (client) {
+        return client.type === 'mobile';
       });
     },
 
@@ -155,6 +175,11 @@ define(function (require, exports, module) {
           this.render();
         });
       }
+    },
+
+    _onGetApp (event) {
+      var appType = this.$el.find(event.currentTarget).data('get-app');
+      this.logViewEvent(`get.${appType}`);
     },
 
     openPanel () {

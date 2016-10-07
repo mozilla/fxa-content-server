@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const assert = require('chai').assert;
   const BaseView = require('views/base');
   const AttachedClients = require('models/attached-clients');
+  const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const sinon = require('sinon');
@@ -28,11 +29,13 @@ define(function (require, exports, module) {
     var able;
     var account;
     var email;
+    var metrics;
 
     function initView () {
       view = new View({
         able: able,
         attachedClients: attachedClients,
+        metrics: metrics,
         notifier: notifier,
         parentView: parentView,
         user: user
@@ -61,6 +64,7 @@ define(function (require, exports, module) {
       sinon.stub(able, 'choose', function () {
         return true;
       });
+      metrics = new Metrics();
       notifier = new Notifier();
       parentView = new BaseView();
       user = new User();
@@ -146,7 +150,30 @@ define(function (require, exports, module) {
         assert.notOk(view.$('#device-1').hasClass('desktop'));
         assert.ok(view.$('#device-2').hasClass('mobile'));
         assert.notOk(view.$('#device-2').hasClass('desktop'));
+        assert.equal($('#container [data-get-app]').length, 0, '0 mobile app placeholders');
       });
+
+      it('app placeholders for mobile if there are no mobile clients', function () {
+        attachedClients = new AttachedClients([
+          {
+            clientType: 'device',
+            id: 'device-1',
+            isCurrentDevice: false,
+            name: 'alpha',
+            type: 'desktop'
+          }
+        ], {
+          notifier: notifier
+        });
+
+        return initView()
+          .then(function () {
+            $('#container').html(view.el);
+            assert.equal($('#container [data-get-app]').length, 2, '2 mobile app placeholders');
+          });
+
+      });
+
     });
 
     describe('device added to collection', function () {
@@ -279,6 +306,32 @@ define(function (require, exports, module) {
               forceDeviceList: undefined,
               uid: view.uid
             }));
+          });
+      });
+    });
+
+    describe('_onGetApp', function () {
+      it('logs get event', function () {
+        attachedClients = new AttachedClients([
+          {
+            clientType: 'device',
+            id: 'device-1',
+            isCurrentDevice: false,
+            name: 'alpha',
+            type: 'desktop'
+          }
+        ], {
+          notifier: notifier
+        });
+
+        return initView()
+          .then(() => {
+            $('#container').html(view.el);
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'settings.clients.get.android'));
+            view._onGetApp({
+              currentTarget: '[data-get-app=android]'
+            });
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'settings.clients.get.android'));
           });
       });
     });
