@@ -5,12 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Relier = require('models/reliers/sync');
-  var TestHelpers = require('../../../lib/helpers');
-  var Translator = require('lib/translator');
-  var WindowMock = require('../../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Relier = require('models/reliers/sync');
+  const TestHelpers = require('../../../lib/helpers');
+  const Translator = require('lib/translator');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 
