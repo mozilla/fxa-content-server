@@ -17,9 +17,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const p = require('lib/promise');
 
   var t = function (msg) {
     return msg;
@@ -61,12 +61,12 @@ define(function (require, exports, module) {
       // the resource into the main bundle. Instead, the item will
       // be loaded on demand, and the module returned when the promise
       // resolves.
-      var getNow = window.require;
+      const getNow = window.require;
       getNow([resourceToGet], deferred.resolve.bind(deferred),
         function (requireErr) {
           // RequireJS errors described in
           // http://requirejs.org/docs/api.html#errors
-          var errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
+          const errorType = requireErr.requireType || 'UNEXPECTED_ERROR';
           var normalizedErrorType = errorType.toUpperCase();
           var err = RODErrors.toError(normalizedErrorType, resourceToGet);
 

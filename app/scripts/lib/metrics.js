@@ -17,16 +17,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var FlowEventMetadata = require('models/flow-event-metadata');
-  var Backbone = require('backbone');
-  var Duration = require('duration');
-  var Environment = require('lib/environment');
-  var p = require('lib/promise');
-  var speedTrap = require('speedTrap');
-  var Strings = require('lib/strings');
-  var xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const FlowEventMetadata = require('models/flow-event-metadata');
+  const Backbone = require('backbone');
+  const Duration = require('duration');
+  const Environment = require('lib/environment');
+  const p = require('lib/promise');
+  const speedTrap = require('speedTrap');
+  const Strings = require('lib/strings');
+  const xhr = require('lib/xhr');
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.

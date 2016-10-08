@@ -7,16 +7,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Environment = require('lib/environment');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Environment = require('lib/environment');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
