@@ -38,6 +38,7 @@ define([
   var fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
+  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
   var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   var type = FunctionalHelpers.type;
@@ -267,6 +268,35 @@ define([
         .then(openCompleteResetPassword(
           this, 'invalidemail', token, code, '#fxa-reset-link-damaged-header'
         ));
+    },
+
+    'sign up with a gmail address, get the open gmail button': function () {
+      var email = 'signin' + Math.random() + '@gmail.com';
+      var RESET_PASSWORD_URL = intern.config.fxaContentRoot + 'reset_password?context=fx_desktop_v2&service=sync';
+      this.timeout = 90000;
+
+      return this.remote
+        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-confirm-reset-password-header'))
+        .then(createUser(email, PASSWORD, { preVerified: true } ))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+
+        .then(fillOutResetPassword(this, email))
+
+        .then(testElementExists('#choose-what-to-sync'))
+        .then(click('button[type="submit"]'))
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(click('[data-webmail-type="gmail"]'))
+
+        .getAllWindowHandles()
+          .then(function (handles) {
+            return this.parent.switchToWindow(handles[1]);
+          })
+
+        .then(testElementExists('.google-header-bar'))
+        .then(closeCurrentWindow())
+
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
     },
 
     'reset password, verify same browser': function () {
