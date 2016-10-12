@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var mailcheck = require('lib/mailcheck');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const mailcheck = require('lib/mailcheck');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
   var MAILCHECK_ID = 'mailcheck-test';
@@ -23,14 +23,14 @@ define(function (require, exports, module) {
   describe('lib/mailcheck', function () {
     var mockTranslator = window.translator;
     var mockMetrics = {
-      logEvent: function () {
+      logEvent () {
       }
     };
     var mockView;
 
     beforeEach(function () {
       mockView = {
-        isInExperimentGroup: function () {
+        isInExperimentGroup () {
           return true;
         },
         notifier: {

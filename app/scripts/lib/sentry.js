@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Logger = require('lib/logger');
-  var Raven = require('raven');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const Logger = require('lib/logger');
+  const Raven = require('raven');
+  const Url = require('lib/url');
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',
@@ -61,27 +61,6 @@ define(function (require, exports, module) {
       if (data.request.headers && data.request.headers.Referer) {
         data.request.headers.Referer = cleanUpQueryParam(data.request.headers.Referer);
       }
-
-      // in production we remove cache busting file names from js files.
-      // replace any 'scripts/1a22742b.head.js' with 'scripts/head.js'
-      // this helps errors stay consistent across deploys
-      var removeRegex = /\/[0-9a-f]{8}\./gi;
-      var addPart = '/';
-
-      if (data.exception && data.exception.values) {
-        _.each(data.exception.values, function (value) {
-          if (value.stacktrace && value.stacktrace.frames) {
-            _.each(value.stacktrace.frames, function (frame) {
-              frame.filename = frame.filename.replace(removeRegex, addPart);
-            });
-          }
-        });
-      }
-
-      if (data.culprit) {
-        data.culprit = data.culprit.replace(removeRegex, addPart);
-      }
-
     }
 
     return data;
@@ -151,10 +130,12 @@ define(function (require, exports, module) {
    * Read more at https://github.com/getsentry/raven-js
    *
    * @param {String} host
+   * @param {String} [release] - content server release version
    * @constructor
    */
-  function SentryMetrics (host) {
+  function SentryMetrics (host, release) {
     this._logger = new Logger();
+    this._release = release;
 
     if (host) {
       // use __API_KEY__ instead of the real API key because raven.js requires it
@@ -210,7 +191,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} err
      */
-    captureException: function (err) {
+    captureException (err) {
       var tags = {};
 
       this._exceptionTags.forEach(function (tagName) {
@@ -223,6 +204,11 @@ define(function (require, exports, module) {
         tags: tags
       };
 
+      if (this._release) {
+        // add release version if available
+        extraContext.release = this._release;
+      }
+
       Raven.captureException(err, extraContext);
     },
 
@@ -231,7 +217,7 @@ define(function (require, exports, module) {
      *
      * window.onerror reverted back to normal, TraceKit disabled
      */
-    remove: function () {
+    remove () {
       Raven.uninstall();
     },
     // Private functions, exposed for testing

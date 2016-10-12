@@ -5,22 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var VerificationReasons = require('lib/verification-reasons');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/complete_sign_up');
-  var WindowMock = require('../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const VerificationReasons = require('lib/verification-reasons');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/complete_sign_up');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -56,10 +56,6 @@ define(function (require, exports, module) {
         .then(function () {
           assert.ok(view.$('#fxa-verification-link-damaged-header').length);
         });
-    }
-
-    function testEventLogged(eventName) {
-      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
     }
 
     function testErrorLogged(error) {
@@ -189,7 +185,7 @@ define(function (require, exports, module) {
       describe('if service is available in the URL', function () {
         beforeEach(function () {
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid + '&service=' + validService;
-          relier = new Relier({
+          relier = new Relier({}, {
             window: windowMock
           });
           relier.fetch();
@@ -208,7 +204,7 @@ define(function (require, exports, module) {
       describe('if reminder is available in the URL', function () {
         beforeEach(function () {
           windowMock.location.search = '?code=' + validCode + '&uid=' + validUid + '&reminder=' + validReminder;
-          relier = new Relier({
+          relier = new Relier({}, {
             window: windowMock
           });
           relier.fetch();
@@ -226,9 +222,9 @@ define(function (require, exports, module) {
 
       describe('if reminder and service is available in the URL', function () {
         beforeEach(function () {
-          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid
-            + '&service=' + validService + '&reminder=' + validReminder;
-          relier = new Relier({
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
+            '&service=' + validService + '&reminder=' + validReminder;
+          relier = new Relier({}, {
             window: windowMock
           });
           relier.fetch();
@@ -343,7 +339,7 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+              assert.ok(view.$('#fxa-verification-link-reused-header').length);
             });
         });
 
@@ -355,7 +351,7 @@ define(function (require, exports, module) {
       describe('all other server errors', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('UNEXPECTED_ERROR');
-          return view.render();
+          return view.render().then(() => view.afterVisible());
         });
 
         it('attempts to verify the account', function () {
@@ -523,7 +519,7 @@ define(function (require, exports, module) {
 
     });
 
-    describe('submit - attempt to resend the verification email', function () {
+    describe('resend', function () {
       var retrySignUpAccount;
 
       beforeEach(function () {
@@ -567,12 +563,8 @@ define(function (require, exports, module) {
 
           return view.render()
             .then(function () {
-              return view.submit();
+              return view.resend();
             });
-        });
-
-        it('logs the event', function () {
-          testEventLogged('complete_sign_up.resend');
         });
 
         it('tells the account to retry signUp', function () {
@@ -582,10 +574,6 @@ define(function (require, exports, module) {
               resume: 'resume token'
             }
           ));
-        });
-
-        it('shows the success message', function () {
-          assert.isTrue(view.isSuccessVisible());
         });
       });
 
@@ -601,7 +589,7 @@ define(function (require, exports, module) {
 
           sinon.spy(view, 'navigate');
 
-          return view.submit();
+          return view.resend();
         });
 
         it('sends the user to the /signup page', function () {
@@ -620,8 +608,8 @@ define(function (require, exports, module) {
           });
         });
 
-        it('are re-thrown for display', function () {
-          return view.submit()
+        it('re-throws other errors', function () {
+          return view.resend()
             .then(assert.fail, function (err) {
               assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
             });

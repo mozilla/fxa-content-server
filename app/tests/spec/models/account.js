@@ -5,25 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var Assertion = require('lib/assertion');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Device = require('models/device');
-  var Devices = require('models/devices');
-  var FxaClientWrapper = require('lib/fxa-client');
-  var MarketingEmailClient = require('lib/marketing-email-client');
-  var OAuthClient = require('lib/oauth-client');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var ProfileClient = require('lib/profile-client');
-  var ProfileErrors = require('lib/profile-errors');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const Assertion = require('lib/assertion');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Device = require('models/device');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const MarketingEmailClient = require('lib/marketing-email-client');
+  const OAuthApp = require('models/oauth-app');
+  const OAuthClient = require('lib/oauth-client');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const ProfileClient = require('lib/profile-client');
+  const ProfileErrors = require('lib/profile-errors');
+  const Relier = require('models/reliers/relier');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const sinon = require('sinon');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -49,6 +49,7 @@ define(function (require, exports, module) {
       'uploadAvatar'
     ];
     var SESSION_TOKEN = 'abc123';
+    var ACCESS_TOKEN = 'access123';
     var UID = '6d940dd41e636cc156074109b8092f96';
     var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
@@ -57,7 +58,7 @@ define(function (require, exports, module) {
       fxaClient = new FxaClientWrapper();
       marketingEmailClient = new MarketingEmailClient();
       metrics = {
-        getFlowEventMetadata: function () {
+        getFlowEventMetadata () {
           return {
             baz: 'qux',
             foo: 'bar'
@@ -224,44 +225,78 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isVerified', function () {
-      it('isVerified returns false if account is unverified', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: false });
-        });
-
-        return account.isVerified()
-          .then(function (isVerified) {
-            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-            assert.isFalse(isVerified);
-          });
-      });
-
-      it('isVerified fails if an error occurs', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
-        });
-
-        return account.isVerified()
-          .then(assert.fail,
-            function (err) {
-              assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-              assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+    describe('waitForSessionVerification', () => {
+      describe('with a valid `sessionToken`', () => {
+        beforeEach(() => {
+          sinon.stub(account, 'sessionStatus', () => {
+            return p({
+              verified: account.sessionStatus.callCount === 3
             });
+          });
+
+          return account.waitForSessionVerification(2);
+        });
+
+        it('polls until /recovery_email/status returns `verified: true`', () => {
+          assert.equal(account.sessionStatus.callCount, 3);
+          assert.isTrue(account.get('verified'));
+        });
       });
 
-      it('isVerified returns true', function () {
-        account.set('sessionToken', SESSION_TOKEN);
-        sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
+      describe('with an invalid `sessionToken`', () => {
+        beforeEach(() => {
+          sinon.stub(account, 'sessionStatus',
+                     () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
         });
-        return account.isVerified()
-          .then(function (isVerified) {
-            assert.isTrue(fxaClient.recoveryEmailStatus.calledWith(SESSION_TOKEN));
-            assert.isTrue(isVerified);
+
+        describe('model does not have a `uid`', () => {
+          let err;
+
+          beforeEach(() => {
+            account.unset('uid');
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
           });
+
+          it('resolves with `INVALID_TOKEN` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+        });
+
+        describe('`uid` exists', () => {
+          let err;
+
+          beforeEach(() => {
+            account.set('uid', 'uid');
+
+            sinon.stub(account, 'checkUidExists', () => p(true));
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
+          });
+
+          it('resolves with `INVALID_TOKEN` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+        });
+
+        describe('`uid` does not exist', () => {
+          let err;
+
+          beforeEach(() => {
+            account.set('uid', 'uid');
+
+            sinon.stub(account, 'checkUidExists', () => p(false));
+
+            return account.waitForSessionVerification(0)
+              .then(assert.fail, _err => err = _err);
+          });
+
+          it('resolves with `SIGNUP_EMAIL_BOUNCE` error', () => {
+            assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+          });
+        });
       });
     });
 
@@ -1431,16 +1466,8 @@ define(function (require, exports, module) {
     });
 
     describe('fetchDevices', function () {
-      var devices;
-
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
-
-        devices = new Devices([], {
-          notifier: {
-            on: sinon.spy()
-          }
-        });
 
         sinon.stub(fxaClient, 'deviceList', function () {
           return p([
@@ -1457,16 +1484,45 @@ define(function (require, exports, module) {
           ]);
         });
 
-        return account.fetchDevices(devices);
       });
 
       it('fetches the device list from the back end', function () {
-        assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
+        return account.fetchDevices().then((result) => {
+          assert.isTrue(fxaClient.deviceList.calledWith(SESSION_TOKEN));
+          assert.equal(result.length, 2);
+          assert.equal(result[0].clientType, 'device');
+          assert.equal(result[0].name, 'alpha');
+        });
+      });
+    });
+
+    describe('fetchOAuthApps', function () {
+      beforeEach(function () {
+        account.set('accessToken', ACCESS_TOKEN);
+
+        sinon.stub(account._oAuthClient, 'fetchOAuthApps', function () {
+          return p([
+            {
+              id: 'oauth-1',
+              name: 'alpha'
+            },
+            {
+              id: 'oauth-2',
+              name: 'beta'
+            }
+          ]);
+        });
       });
 
-      it('populates the `devices` collection', function () {
-        assert.equal(devices.length, 2);
+      it('fetches the OAuth apps list from the back end', function () {
+        return account.fetchOAuthApps().then((result) => {
+          assert.isTrue(account._oAuthClient.fetchOAuthApps.calledWith(ACCESS_TOKEN));
+          assert.equal(result.length, 2);
+          assert.equal(result[0].clientType, 'oAuthApp');
+          assert.equal(result[0].name, 'alpha');
+        });
       });
+
     });
 
     describe('destroyDevice', function () {
@@ -1491,6 +1547,30 @@ define(function (require, exports, module) {
       it('tells the backend to destroy the device', function () {
         assert.isTrue(
           fxaClient.deviceDestroy.calledWith(SESSION_TOKEN, 'device-1'));
+      });
+    });
+
+    describe('destroyOAuthApp', function () {
+      var device;
+
+      beforeEach(function () {
+        account.set('accessToken', ACCESS_TOKEN);
+
+        device = new OAuthApp({
+          id: 'oauth-1',
+          name: 'alpha'
+        });
+
+        sinon.stub(account._oAuthClient, 'destroyOAuthApp', function () {
+          return p();
+        });
+
+        return account.destroyOAuthApp(device);
+      });
+
+      it('tells the backend to destroy the device', function () {
+        assert.isTrue(
+          account._oAuthClient.destroyOAuthApp.calledWith(ACCESS_TOKEN, 'oauth-1'));
       });
     });
 
@@ -1844,6 +1924,18 @@ define(function (require, exports, module) {
       it('delegates to the fxaClient', function () {
         assert.isTrue(
             fxaClient.checkAccountExistsByEmail.calledWith(EMAIL));
+      });
+    });
+
+    describe('isPasswordResetComplete', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', () => p());
+
+        return account.isPasswordResetComplete('token');
+      });
+
+      it('delegates to the fxaClient', () => {
+        assert.isTrue(fxaClient.isPasswordResetComplete.calledWith('token'));
       });
     });
   });

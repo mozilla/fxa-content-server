@@ -15,13 +15,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
 
   var proto = Backbone.Model.prototype;
 
   var VerificationInfo = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       proto.initialize.call(this, options);
 
       // clean up any whitespace that was probably added by an MUA.
@@ -44,10 +44,10 @@ define(function (require, exports, module) {
      * Check if the model is valid.
      *
      * @method isValid
-     * @returns {boolean} `false` if a `validationError` is set, or if
+     * @returns {Boolean} `false` if a `validationError` is set, or if
      *   `validate` either throws or returns false. `true` otherwise.
      */
-    isValid: function () {
+    isValid () {
       var isValid;
 
       if (this.isDamaged()) {
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
      * @method validate
      * @param {Object} attributes
      */
-    validate: function (attributes) {
+    validate (attributes) {
       _.each(this.validation, function (validator, key) {
         if (! validator(attributes[key])) {
           throw new Error('invalid ' + key);
@@ -85,7 +85,7 @@ define(function (require, exports, module) {
      * Mark the verification info as expired.
      * @method markExpired
      */
-    markExpired: function () {
+    markExpired () {
       this._isExpired = true;
     },
 
@@ -93,10 +93,28 @@ define(function (require, exports, module) {
      * Check if the verification info is expired
      *
      * @method isExpired
-     * @returns {boolean} `true` if expired, `false` otw.
+     * @returns {Boolean} `true` if expired, `false` otw.
      */
-    isExpired: function () {
+    isExpired () {
       return !! this._isExpired;
+    },
+
+    /**
+     * Mark the verification info as used.
+     * @method markUsed
+     */
+    markUsed () {
+      this._isUsed = true;
+    },
+
+     /**
+     * Check if the verification info is used
+     *
+     * @method isUsed
+     * @returns {Boolean} `true` if used, `false` otherwise.
+     */
+    isUsed () {
+      return !! this._isUsed;
     },
 
     /**
@@ -104,7 +122,7 @@ define(function (require, exports, module) {
      * return `false`.
      * @method markDamaged
      */
-    markDamaged: function () {
+    markDamaged () {
       this._isDamaged = true;
     },
 
@@ -112,9 +130,9 @@ define(function (require, exports, module) {
      * Check if the verification info is damaged
      *
      * @method isDamaged
-     * @returns {boolean} `true` if damaged, `false` otw.
+     * @returns {Boolean} `true` if damaged, `false` otw.
      */
-    isDamaged: function () {
+    isDamaged () {
       return !! this._isDamaged;
     }
   });

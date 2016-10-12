@@ -9,23 +9,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var FxaCheckbox = require('fxaCheckbox');
-  var Strings = require('lib/strings');
+  const $ = require('jquery');
+  const FxaCheckbox = require('fxaCheckbox');
+  const Strings = require('lib/strings');
 
   module.exports = {
     events: {
       'change input[type=checkbox]': 'logCheckboxChange'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.$el.find('.fxa-checkbox').get().forEach(function (el) {
         // FxaCheckbox enhances the native checkbox and provides custom styling
         new FxaCheckbox(el).init();
       });
     },
 
-    logCheckboxChange: function (event) {
+    logCheckboxChange (event) {
       var target = $(event.currentTarget);
       var isChecked = target.is(':checked');
       var checkedText = isChecked ? 'checked' : 'unchecked';

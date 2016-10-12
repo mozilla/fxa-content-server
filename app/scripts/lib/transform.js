@@ -19,18 +19,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Vat = require('lib/vat');
+  const Vat = require('lib/vat');
 
   module.exports = {
     /**
      * Transform and validate `data` using `schema`.
      *
-     * @param {object} data - data to validate
-     * @param {object} schema - schema that can be passed to the validator
-     * @param {object} Errors - Errors module used to create errors
-     * @returns {object} validation/transformation results
+     * @param {Object} data - data to validate
+     * @param {Object} schema - schema that can be passed to the validator
+     * @param {Object} Errors - Errors module used to create errors
+     * @returns {Object} validation/transformation results
      */
-    transformUsingSchema: function (data, schema, Errors) {
+    transformUsingSchema (data, schema, Errors) {
       var result = Vat.validate(data, schema);
       var error = result.error;
       if (error instanceof ReferenceError) {

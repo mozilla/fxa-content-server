@@ -7,21 +7,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
 
   function BaseChannel() {
     // nothing to do.
   }
 
   _.extend(BaseChannel.prototype, Backbone.Events, {
-    initialize: function () {
+    initialize () {
     },
 
-    teardown: function () {
+    teardown () {
     },
 
-    send: function (command, data, done) {
+    send (command, data, done) {
       if (done) {
         done();
       }

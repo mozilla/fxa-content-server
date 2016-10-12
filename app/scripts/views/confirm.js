@@ -5,31 +5,31 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FormView = require('views/form');
-  var OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
-  var p = require('lib/promise');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/confirm');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
+  const p = require('lib/promise');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/confirm');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
-  var View = FormView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'confirm',
 
     // used by unit tests
     VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
 
-    initialize: function () {
+    initialize () {
       // Account data is passed in from sign up and sign in flows.
       // It's important for Sync flows where account data holds
       // ephemeral properties like unwrapBKey and keyFetchToken
@@ -38,11 +38,11 @@ define(function (require, exports, module) {
       this.flow = this.model.get('flow');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    context: function () {
+    context () {
       var email = this.getAccount().get('email');
       var isSignIn = this.isSignIn();
       var isSignUp = this.isSignUp();
@@ -56,28 +56,22 @@ define(function (require, exports, module) {
         canGoBack: isSignIn && this.canGoBack(),
         email: email,
         isSignIn: isSignIn,
-        isSignUp: isSignUp,
-        openWebmailButtonVisible: this.isOpenWebmailButtonVisible(email)
+        isSignUp: isSignUp
       };
     },
 
-    events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
-
-    _bouncedEmailSignup: function () {
+    _bouncedEmailSignup () {
       this.navigate('signup', {
         bouncedEmail: this.getAccount().get('email')
       });
     },
 
-    _getMissingSessionTokenScreen: function () {
+    _getMissingSessionTokenScreen () {
       var screenUrl = this.isSignUp() ? 'signup' : 'signin';
       return this.broker.transformLink(screenUrl);
     },
 
-    _navigateToCompleteScreen: function () {
+    _navigateToCompleteScreen () {
       if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
@@ -85,7 +79,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot confirm if they have not initiated a sign up.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._getMissingSessionTokenScreen());
@@ -93,121 +87,93 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
       this.transformLinks();
+      return proto.afterRender.call(this);
     },
 
-    afterVisible: function () {
-      var self = this;
-
+    afterVisible () {
       // the view is always rendered, but the confirmation poll may be
       // prevented by the broker. An example is Firefox Desktop where the
       // browser is already performing a poll, so a second poll is not needed.
-
-      return self.broker.persistVerificationData(self.getAccount())
-        .then(function () {
-          return self.invokeBrokerMethod(
-                    'beforeSignUpConfirmationPoll', self.getAccount());
-        })
-        .then(function () {
-          return self._startPolling();
-        });
+      const account = this.getAccount();
+      return proto.afterVisible.call(this)
+        .then(() => this.broker.persistVerificationData(account))
+        .then(() =>
+          this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
+        )
+        .then(() => this._startPolling());
     },
 
-    _startPolling: function () {
-      var self = this;
-
-      return self._waitForConfirmation()
-        .then(function () {
-          self.logViewEvent('verification.success');
-          self.notifier.trigger('verification.success');
+    _startPolling () {
+      return this._waitForConfirmation()
+        .then(() => {
+          this.logViewEvent('verification.success');
+          this.notifier.trigger('verification.success');
 
           var brokerMethod =
-            self.isSignUp() ?
+            this.isSignUp() ?
             'afterSignUpConfirmationPoll' :
             'afterSignInConfirmationPoll';
 
-          return self.invokeBrokerMethod(brokerMethod, self.getAccount());
+          return this.invokeBrokerMethod(brokerMethod, this.getAccount());
         })
-        .then(function () {
+        .then(() => {
           // the user is definitely authenticated here.
-          if (self.relier.isDirectAccess()) {
-            self.navigate('settings', {
+          if (this.relier.isDirectAccess()) {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            return self._navigateToCompleteScreen();
+            return this._navigateToCompleteScreen();
           }
         })
-        .fail(function (err) {
+        .fail((err) => {
           // The user's email may have bounced because it was invalid.
           // Redirect them to the sign up page with an error notice.
           if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-            self._bouncedEmailSignup();
+            this._bouncedEmailSignup();
           } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
             // Hide the error from the user if it is an unexpected error.
             // an error may happen here if the status api is overloaded or
             // if the user is switching networks.
             // Report a known error to Sentry, but not the user.
             // Details: github.com/mozilla/fxa-content-server/issues/2638.
-            self.logError(AuthErrors.toError('POLLING_FAILED'));
+            this.logError(AuthErrors.toError('POLLING_FAILED'));
             var deferred = p.defer();
 
-            self.setTimeout(function () {
-              deferred.resolve(self._startPolling());
-            }, self.VERIFICATION_POLL_IN_MS);
+            this.setTimeout(() => {
+              deferred.resolve(this._startPolling());
+            }, this.VERIFICATION_POLL_IN_MS);
 
             return deferred.promise;
           } else {
-            self.displayError(err);
+            this.displayError(err);
           }
         });
     },
 
-    _waitForConfirmation: function () {
-      var self = this;
-      var account = self.getAccount();
-      return self.fxaClient.recoveryEmailStatus(
-          account.get('sessionToken'), account.get('uid'))
-        .then(function (result) {
-          if (result.verified) {
-            account.set('verified', true);
-            self.user.setAccount(account);
-            return true;
-          }
-
-          var deferred = p.defer();
-
-          // _waitForConfirmation will return a promise and the
-          // promise chain remains unbroken.
-          self.setTimeout(function () {
-            deferred.resolve(self._waitForConfirmation());
-          }, self.VERIFICATION_POLL_IN_MS);
-
-          return deferred.promise;
+    _waitForConfirmation () {
+      const account = this.getAccount();
+      return account.waitForSessionVerification(this.VERIFICATION_POLL_IN_MS)
+        .then(() => {
+          this.user.setAccount(account);
         });
     },
 
-    submit: function () {
-      var self = this;
-
-      self.logViewEvent('resend');
-
-      return self.getAccount().retrySignUp(
-        self.relier,
+    resend () {
+      return this.getAccount().retrySignUp(
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('signup', {
+          return this.navigate('signup', {
             error: err
           });
         }
@@ -215,11 +181,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

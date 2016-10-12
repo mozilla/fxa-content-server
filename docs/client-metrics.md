@@ -3,7 +3,16 @@
 ## Top level
 
 ### context
-The context will be `fx_desktop_v1` if the user is signing up for sync, `iframe` if the user is signing up in an iframe, `web` otherwise.
+The context will be one of:
+
+* `fx_desktop_v1` Fx Desktop Sync v1 (Uses CustomEvents to communicate)
+* `fx_desktop_v2` Fx Desktop Sync v2 (Uses WebChannels to communicate)
+* `fx_desktop_v3` Fx Desktop Sync v3 (Enables CWTS on the web)
+* `fx_fennec_v1` Fx Fennec v1
+* `fx_firstrun_v2` Fx Desktop firstrun v2
+* `iframe` Fx Desktop firstrun v1
+* `oauth` OAuth relier
+* `web` Interact w/ content server w/o signing into a relier.
 
 ### broker
 The broker used to coordinate behavior between FxA and the relier.
@@ -13,6 +22,20 @@ How long the user was at Firefox Account
 
 ### entrypoint
 If the user is signing in from the Firefox browser, the entrypoint is where the user came from. Set to `none` if not signing into a Firefox browser service.
+
+The known values of `entrypoint` are:
+
+* menupanel: the "sign in to sync" option at the bottom of the hamburger menu.
+* menubar: the "sign in to sync" itme in the top-level "tools" menu
+* abouthome: the sync button on about:home
+* dev-edition-setup: the dev-edition configuration process, which invites users to sync with their main profile
+* syncbutton: the "sync now" button in the hamburger menu
+* preferences: direct navigation to about:preferences#sync
+* synced-tabs: the synced-tabs item in the hamburger menu
+* tabs-sidebar: the synced-tabs sidebar
+* accounts-page: the iframe at https://www.mozilla.org/firefox/accounts/
+* firstrun: the iframe on the Firefox first-run page
+* fxa:signin-complete: TODO: we need to track down what's sending this value
 
 ### events
 The event stream, see [Event Stream](#event_stream)
@@ -86,20 +109,24 @@ The event stream is a log of events and the time they occurred while the user is
 * error.&lt;resource&gt;.require-on-demand.1002 - resource dependency had a script error.
 * error.&lt;unexpected_origin&gt;.auth.1027 - a postMessage message was received from an unexpected origin.
 * error.&lt;image_url&gt;.profile.997 - a profile image could not load.
+* error.&lt;screen_name&gt;.&lt;service&gt;.998 - System unavailable.
 * loaded - logged after the first screen is rendered.
 * &lt;screen_name&gt;.submit - A submit event has occurred and all of the form's input elements are valid.
 * &lt;screen_name&gt;.refresh - The aforementioned screen was refreshed.
 
+#### Authentication namespace
+* error.&lt;screen_name&gt;.auth.114 - account has been throttled ("Attempt limit exceeded")
+* error.&lt;screen_name&gt;.auth.1005 - request taking longer than expected ("Working...")
+* error.&lt;screen_name&gt;.auth.999 - Unknown error.
+
 ### Events per screen
-
-
-#### account_unlock_complete
-
-#### cannot_create_account
 
 #### change_password
 * error.change_password.auth.103 - incorrect password
 * error.change_password.auth.121 - account locked
+* error.change_password.auth.1008 - new password must be different
+* error.change_password.auth.1009 - password must be at least 8 characters
+* error.change_password.auth.1010 - valid password required
 * change_password.unlock-email.send - user attempted to send unlock email
 * change_password.unlock-email.send.success - unlock email successfully sent
 * change_password.success - password changed successfully
@@ -107,49 +134,72 @@ The event stream is a log of events and the time they occurred while the user is
 #### choose_what_to_sync
 * choose-what-to-sync.engine-unchecked.`<engine_name>` - a Sync engine was unselected.
 
-#### complete_account_unlock
-* error.complete_account_unlock.auth.1025 - User clicked on an expired verification link.
-* error.complete_account_unlock.auth.1026 - User clicked on a damaged verification link.
-* complete_account_unlock.verification.success - successful verification
+<img src="images/choose_what_to_sync.png" height="150">
 
 #### complete_reset_password
 * complete_reset_password.verification.success - email successfully verified.
 * complete_reset_password.resend - A verification email was resent after an expired link was opened.
+* error.complete_reset_password.auth.1004 - password does not match
+* error.complete_reset_password.auth.1009 - password must be at least 8 characters
+* error.complete_reset_password.auth.1010 - valid password required
+* error.complete_reset_password.auth.1011 - valid email required
 * error.complete_reset_password.auth.1025 - User clicked on an expired verification link.
-* error.complete_reset_password.auth.1026 - User clicked on a damaged verification link.
 
-#### complete_sign_up
-* complete_sign_up.verification.success - email successfully verified.
-* complete_sign_up.resend - A verification email was resent after an expired link was opened.
-* error.complete_sign_up.auth.1025 - User clicked on an expired verification link.
-* error.complete_sign_up.auth.1026 - User clicked on a damaged verification link.
-* error.complete_sign_up.auth.1040 - User tried to verify an account that does not exist.
-* error.complete_sign_up.auth.1041 - User tried to verify a sign-in that has already been verified.
+#### verify_email
+* verify_email.verification.success - email successfully verified.
+* verify_email.resend - A verification email was resent after an expired link was opened.
+* error.verify_email.auth.1025 - User clicked on an expired verification link.
+* error.verify_email.auth.1026 - User clicked on a damaged verification link.
+* error.verify_email.auth.1040 - User tried to verify an account that does not exist.
+
+<img src="images/verify_email.png" height="150">
+
+#### complete_signin
+* complete_signin.verification.success - email successfully verified.
+* error.complete_signin.auth.1025 - User clicked on an expired verification link.
+* error.complete_signin.auth.1026 - User clicked on a damaged verification link.
+* error.complete_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+
+<img src="images/complete_signin.png" height="150">
+<img src="images/complete_signin_link_expired.png" height="150">
 
 #### confirm
-
 * confirm.resend - attempt to resend verification email
+* error.confirm.auth.1039 - Polling failed.
+* error.confirm.auth.1041 - User tried to verify a sign-in that has already been verified.
 
-#### confirm_account_unlock
-* confirm-account-unlock.verification.success - account unlock verification occurred in another tab
-* confirm-account-unlock.resend - attempt to resend unlock email
-* confirm-account-unlock.resend.success - resend email successfully sent
-* error.confirm-account-unlock.auth.122 - account not locked
+<img src="images/confirm.png" height="150">
+
+#### confirm_signin
+* confirm_signin.verification.success - email successfully verified.
+* confirm_signin.back - User clicked back.
+* confirm_signin.resend - User resent verification email.
+* error.confirm_signin.auth.110 - Invalid authentication token used.
+* error.confirm_signin.auth.1039 - Polling failed.
+* error.confirm_signin.auth.1041 - User tried to verify a sign-in that has already been verified.
+
+<img src="images/confirm_signin.png" height="150">
 
 #### confirm_reset_password
+* confirm_reset_password.verification.success - Password successfully reset.
+
 #### cookies_disabled
+* error.cookies_disabled.auth.1003 - Cookies are still disabled.
+
 #### delete_account
-* error.delete-account.auth.121 - account locked
-* delete-account.unlock-email.send - user attempted to send unlock email
-* delete-account.unlock-email.send.success - unlock email successfully sent
+* error.delete_account.auth.1009 - password must be at least 8 characters
 * delete-account.deleted - user successfully deleted an account
 
 #### force_auth
-#### illegal_iframe
+* flow.force_auth.engage - user engaged the form
+* flow.force_auth.submit - user submit the form with front-end validation passing
+
+#### force_auth
 #### legal
 #### pp
 #### ready
 #### reset_password
+* error.reset_password.auth.102 - unknown account
 * error.reset_password.auth.1011 - user did not enter an email address
 * error.reset_password.auth.1023 - user entered an email address that was invalid
 
@@ -193,6 +243,19 @@ The event stream is a log of events and the time they occurred while the user is
 * settings.avatar.gravatar-permissions.alreadly-accepted - user accepted permission prompt
 * settings.avatar.gravatar-permissions.submit - user accepted permission prompt
 
+
+#### settings/clients
+
+* settings.clients.[clientType].disconnect - user is attempting to disconnect a client type (types: `device` or `app`)
+* settings.clients.refresh - user refreshed the device and apps panel
+* settings.clients.open - user opened the client panel
+
+
+#### settings/clients/disconnect
+
+* settings.clients.disconnect.submit.[reason] - user submit the disconnect form with [reason] (types: `old`, `suspicious`, `lost`, `no`)
+
+
 #### settings/communication_preferences
 
 * settings.communication-preferences.newsletter.optin.true - user is opted in to newsletter when opening screen.
@@ -210,6 +273,8 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signin.auth.121 - account locked
 * error.signin.auth.1011 - user did not enter an email address
 * error.signin.auth.1023 - user entered an email address that was invalid
+* flow.signin.engage - user engaged the form
+* flow.signin.submit - user submit the form with front-end validation passing
 * signin.ask-password.skipped - skipped asking for password thanks to existing session token
 * signin.ask-password.shown.account-unknown - asked for password due to missing account data
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
@@ -220,6 +285,7 @@ The event stream is a log of events and the time they occurred while the user is
 * signin.unlock-email.send - user attempted to send unlock email
 * signin.unlock-email.send.success - unlock email successfully sent
 
+<img src="images/signin.png" height="150">
 
 #### signin_permissions
 * signin-permissions.accept - user accepts and grants the requested permissions
@@ -238,6 +304,8 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signup.auth.1023 - user entered an email address that was invalid
 * error.signup.auth.1029 - signup is disabled on Fx for iOS v1
 * error.signup.auth.1030 - signup has been force disabled by a Sync based relier.
+* flow.signup.engage - user engaged the form
+* flow.signup.submit - user submit the form with front-end validation passing
 * signup.checkbox.change.customize-sync.checked - user checked the "Choose what to sync" checkbox.
 * signup.checkbox.change.customize-sync.unchecked - user unchecked the "Choose what to sync" checkbox.
 * signup.checkbox.change.marketing-email-optin.checked - user checked the email opt-in

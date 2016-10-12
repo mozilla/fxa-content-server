@@ -10,30 +10,29 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var FormView = require('views/form');
-  var MarketingSnippet = require('views/marketing_snippet');
-  var MarketingSnippetiOS = require('views/marketing_snippet_ios');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/ready');
-  var Url = require('lib/url');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const FormView = require('views/form');
+  const MarketingSnippet = require('views/marketing_snippet');
+  const MarketingSnippetiOS = require('views/marketing_snippet_ios');
+  const p = require('lib/promise');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/ready');
+  const Url = require('lib/url');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  function t(msg) {
-    return msg;
-  }
+  const t = msg => msg;
 
   /*eslint-disable camelcase*/
 
-  var FX_SYNC_WILL_BEGIN_MOMENTARILY =
+  const FX_SYNC_WILL_BEGIN_MOMENTARILY =
           t('Firefox Sync will begin momentarily');
 
   /**
    * Some template strings are fetched from JS to keep
    * the template marginally cleaner and easier to read.
    */
-  var TEMPLATE_INFO = {
+  const TEMPLATE_INFO = {
     FORCE_AUTH: {
       headerId: 'fxa-force-auth-complete-header',
       headerTitle: t('Welcome back'),
@@ -59,11 +58,12 @@ define(function (require, exports, module) {
 
   /*eslint-enable camelcase*/
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'ready',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._able = options.able;
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
     },
 
-    context: function () {
+    context () {
       return {
         headerId: this._getHeaderId(),
         headerTitle: this._getHeaderTitle(),
@@ -86,28 +86,27 @@ define(function (require, exports, module) {
       };
     },
 
-    _getHeaderId: function () {
+    _getHeaderId () {
       return this._templateInfo.headerId;
     },
 
-    _getHeaderTitle: function () {
+    _getHeaderTitle () {
       var title = this._templateInfo.headerTitle;
       return this.translateInTemplate(title);
     },
 
-    _getReadyToSyncText: function () {
+    _getReadyToSyncText () {
       var readyToSyncText = this._templateInfo.readyToSyncText;
       return this.translateInTemplate(readyToSyncText);
     },
 
-    _submitForProceed: function () {
-      var self = this;
-      return this.metrics.flush().then(function () {
-        self.window.location.href = self.relier.get('redirectUri');
+    _submitForProceed () {
+      return this.metrics.flush().then(() => {
+        this.window.location.href = this.relier.get('redirectUri');
       });
     },
 
-    submit: function () {
+    submit () {
       if (this._shouldShowProceedButton()) {
         return this._submitForProceed();
       } else if (this._shouldShowSyncPreferencesButton()) {
@@ -115,11 +114,10 @@ define(function (require, exports, module) {
       }
     },
 
-    _submitForSyncPreferences: function () {
-      var self = this;
-      return this.metrics.flush().then(function () {
-        var entryPoint = 'fxa:' + self.getViewName();
-        return self.broker.openSyncPreferences(entryPoint);
+    _submitForSyncPreferences () {
+      return this.metrics.flush().then(() => {
+        var entryPoint = 'fxa:' + this.getViewName();
+        return this.broker.openSyncPreferences(entryPoint);
       });
     },
 
@@ -128,10 +126,10 @@ define(function (require, exports, module) {
      * The button links to the redirect_uri of the relier with no extra
      * OAuth information.
      *
-     * @returns {boolean}
+     * @returns {Boolean}
      * @private
      */
-    _shouldShowProceedButton: function () {
+    _shouldShowProceedButton () {
       var redirectUri = this.relier.get('redirectUri');
       var verificationRedirect = this.relier.get('verificationRedirect');
 
@@ -144,24 +142,25 @@ define(function (require, exports, module) {
     /**
      * Determine whether the `Sync Preferences` button should be shown.
      *
-     * @returns {boolean}
+     * @returns {Boolean}
      * @private
      */
-    _shouldShowSyncPreferencesButton: function () {
+    _shouldShowSyncPreferencesButton () {
       return !! (this.relier.isSync() &&
                  this.broker.hasCapability('syncPreferencesNotification'));
     },
 
-    afterRender: function () {
+    afterRender () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      return this._createMarketingSnippet();
+      return this._createMarketingSnippet()
+        .then(proto.afterRender.bind(this));
     },
 
-    _createMarketingSnippet: function () {
+    _createMarketingSnippet () {
       if (! this.broker.hasCapability('emailVerificationMarketingSnippet')) {
-        return;
+        return p();
       }
 
       var marketingSnippetOpts = {

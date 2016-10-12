@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Account = require('models/account');
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var OAuthErrors = require('lib/oauth-errors');
-  var PermissionTemplate = require('stache!templates/partial/permission');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Strings = require('lib/strings');
-  var Template = require('stache!templates/permissions');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const _ = require('underscore');
+  const Account = require('models/account');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const OAuthErrors = require('lib/oauth-errors');
+  const PermissionTemplate = require('stache!templates/partial/permission');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Strings = require('lib/strings');
+  const Template = require('stache!templates/permissions');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'permissions',
 
-    initialize: function (options) {
+    initialize (options) {
       // Account data is passed in from sign up and sign in flows.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -67,11 +67,11 @@ define(function (require, exports, module) {
       this._validatePermissions(this.relier.get('permissions') || []);
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    context: function () {
+    context () {
       var account = this.getAccount();
       var requestedPermissions = this.relier.get('permissions');
       var applicablePermissions =
@@ -88,9 +88,9 @@ define(function (require, exports, module) {
      * if any invalid permissions found. Does not throw.
      *
      * @private
-     * @param {string} requestedPermissionNames
+     * @param {String} requestedPermissionNames
      */
-    _validatePermissions: function (requestedPermissionNames) {
+    _validatePermissions (requestedPermissionNames) {
       requestedPermissionNames.forEach(function (permissionName) {
         var permission = this._getPermissionConfig(permissionName);
         // log the invalid scope instead of throwing an error
@@ -106,11 +106,11 @@ define(function (require, exports, module) {
      * Get configuration for a permission
      *
      * @private
-     * @param {string} permissionName
-     * @returns {object} permission, if found.
+     * @param {String} permissionName
+     * @returns {Object} permission, if found.
      * @throws if permission is invalid
      */
-    _getPermissionConfig: function (permissionName) {
+    _getPermissionConfig (permissionName) {
       var permission = _.findWhere(PERMISSIONS, { name: permissionName });
 
       if (! permission) {
@@ -125,19 +125,17 @@ define(function (require, exports, module) {
      * if both requested and the account has a corresponding value
      *
      * @private
-     * @param {object} account
-     * @param {strings[]} requestedPermissionNames
-     * @returns {Array.<Object>} applicable permissions
+     * @param {Object} account
+     * @param {String[]} requestedPermissionNames
+     * @returns {Object[]} applicable permissions
      */
-    _getApplicablePermissions: function (account, requestedPermissionNames) {
-      var self = this;
-
+    _getApplicablePermissions (account, requestedPermissionNames) {
       // only show permissions that have corresponding values.
       var permissionsWithValues =
         account.getPermissionsWithValues(requestedPermissionNames);
 
-      return permissionsWithValues.map(function (permissionName) {
-        var permission = self._getPermissionConfig(permissionName);
+      return permissionsWithValues.map((permissionName) => {
+        var permission = this._getPermissionConfig(permissionName);
 
         // filter out permissions we do not know about
         if (! permission) {
@@ -154,10 +152,10 @@ define(function (require, exports, module) {
      * Get the index of a permission
      *
      * @private
-     * @param {string} permissionName
-     * @returns {number} permission index if found, -1 otw.
+     * @param {String} permissionName
+     * @returns {Number} permission index if found, -1 otw.
      */
-    _getPermissionIndex: function (permissionName) {
+    _getPermissionIndex (permissionName) {
       return _.findIndex(PERMISSIONS, function (permission) {
         return permission.name === permissionName;
       });
@@ -167,14 +165,13 @@ define(function (require, exports, module) {
      * Sort permissions to match the sort order in the PERMISSIONS array
      *
      * @private
-     * @param {strings[]} permissionNames
-     * @returns {strings[]} sorted permissionNames
+     * @param {String[]} permissionNames
+     * @returns {String[]} sorted permissionNames
      */
-    _sortPermissions: function (permissionNames) {
-      var self = this;
-      return [].concat(permissionNames).sort(function (a, b) {
-        var aIndex = self._getPermissionIndex(a);
-        var bIndex = self._getPermissionIndex(b);
+    _sortPermissions (permissionNames) {
+      return [].concat(permissionNames).sort((a, b) => {
+        var aIndex = this._getPermissionIndex(a);
+        var bIndex = this._getPermissionIndex(b);
         return aIndex - bIndex;
       });
     },
@@ -184,17 +181,15 @@ define(function (require, exports, module) {
      *
      * @private
      * @param {Account} account
-     * @param {strings[]} permissionNames
-     * @returns {string} HTML
+     * @param {String[]} permissionNames
+     * @returns {String} HTML
      */
-    _getPermissionsHTML: function (account, permissionNames) {
-      var self = this;
-
-      var sortedPermissionNames = self._sortPermissions(permissionNames);
+    _getPermissionsHTML (account, permissionNames) {
+      var sortedPermissionNames = this._sortPermissions(permissionNames);
 
       // convert the permission names to HTML
-      return sortedPermissionNames.map(function (permissionName) {
-        var permission = self._getPermissionConfig(permissionName);
+      return sortedPermissionNames.map((permissionName) => {
+        var permission = this._getPermissionConfig(permissionName);
         if (permission.required !== true) {
           permission.required = false;
         }
@@ -233,9 +228,9 @@ define(function (require, exports, module) {
      * }
      *
      * @private
-     * @returns {object}
+     * @returns {Object}
      */
-    _getFormPermissions: function () {
+    _getFormPermissions () {
       var $permissionEls = this.$('.permission');
       var clientPermissions = {};
 
@@ -246,7 +241,7 @@ define(function (require, exports, module) {
       return clientPermissions;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate(this._previousView());
@@ -259,20 +254,19 @@ define(function (require, exports, module) {
       }
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getAccount();
+    submit () {
+      var account = this.getAccount();
 
-      self.logViewEvent('accept');
+      this.logViewEvent('accept');
 
       account.setClientPermissions(
-          self.relier.get('clientId'), self._getFormPermissions());
+          this.relier.get('clientId'), this._getFormPermissions());
 
-      return self.user.setAccount(account)
-        .then(self.onSubmitComplete);
+      return this.user.setAccount(account)
+        .then(this.onSubmitComplete);
     },
 
-    _previousView: function () {
+    _previousView () {
       var page = this.isSignUp() ? '/signup' : '/signin';
       return this.broker.transformLink(page);
     }

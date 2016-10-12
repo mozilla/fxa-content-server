@@ -7,12 +7,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
 
   var MAX_SPINNER_COMPLETE_TIME = 400; // ms
 
@@ -21,7 +21,7 @@ define(function (require, exports, module) {
       // populated below using event name aliases
     },
 
-    onProfileUpdate: function (/* data */) {
+    onProfileUpdate (/* data */) {
       // implement in view
     },
 
@@ -29,88 +29,87 @@ define(function (require, exports, module) {
      * Adds a profile image for the account to the view, or a default image
      * if none is available.
      *
-     * @param {object} account - The account whose profile image will be shown.
-     * @param {object} [options]
-     *   @param {string} [options.wrapperClass] - The class for the element into
+     * @param {Object} account - The account whose profile image will be shown.
+     * @param {Object} [options]
+     *   @param {String} [options.wrapperClass] - The class for the element into
      *                 which the profile image will be inserted.
-     *   @param {boolean} [options.spinner] - When true, show a spinner while
+     *   @param {Boolean} [options.spinner] - When true, show a spinner while
      *                    the profile image is loading.
      * @returns {Promise}
      */
-    displayAccountProfileImage: function (account, options) {
+    displayAccountProfileImage (account, options) {
       options = options || {};
 
       var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
-      var self = this;
       var spinnerEl;
 
       // We'll optimize the UI for the case that the account
       // doesn't have a profile image if it's not cached
-      if (self._shouldShowDefaultProfileImage(account)) {
-        self.setDefaultPlaceholderAvatar(avatarWrapperEl);
+      if (this._shouldShowDefaultProfileImage(account)) {
+        this.setDefaultPlaceholderAvatar(avatarWrapperEl);
       } else if (options.spinner) {
-        spinnerEl = self._addLoadingSpinner(avatarWrapperEl);
+        spinnerEl = this._addLoadingSpinner(avatarWrapperEl);
       }
 
       return account.fetchCurrentProfileImage()
-        .then(function (profileImage) {
+        .then((profileImage) => {
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
-          self._updateCachedProfileImage(profileImage, account);
+          this._updateCachedProfileImage(profileImage, account);
           return profileImage;
-        }, function (err) {
+        }, (err) => {
           if (! ProfileErrors.is(err, 'UNAUTHORIZED') &&
               ! AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-            self.logError(err);
+            this.logError(err);
           }
           // Ignore errors; the image will be rendered as a
           // default image if displayed
           return new ProfileImage();
         })
-        .fin(function () {
-          return self._completeLoadingSpinner(spinnerEl);
+        .fin(() => {
+          return this._completeLoadingSpinner(spinnerEl);
         })
-        .then(function (profileImage) {
-          self._displayedProfileImage = profileImage;
+        .then((profileImage) => {
+          this._displayedProfileImage = profileImage;
           avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
           if (profileImage.isDefault()) {
             avatarWrapperEl
               .addClass('with-default')
               .append('<span></span>');
-            self.logViewEvent('profile_image_not_shown');
+            this.logViewEvent('profile_image_not_shown');
           } else {
             avatarWrapperEl
               .removeClass('with-default')
               .append($(profileImage.get('img')).addClass('profile-image'));
-            self.logViewEvent('profile_image_shown');
+            this.logViewEvent('profile_image_shown');
           }
         });
     },
 
-    hasDisplayedAccountProfileImage: function () {
+    hasDisplayedAccountProfileImage () {
       return this._displayedProfileImage && ! this._displayedProfileImage.isDefault();
     },
 
-    setDefaultPlaceholderAvatar: function (avatarWrapperEl) {
+    setDefaultPlaceholderAvatar (avatarWrapperEl) {
       avatarWrapperEl = avatarWrapperEl || $('.avatar-wrapper');
       avatarWrapperEl.addClass('with-default');
     },
 
     // Makes sure the account has an up-to-date image cache.
     // This should be called after fetching the current profile image.
-    _updateCachedProfileImage: function (profileImage, account) {
+    _updateCachedProfileImage (profileImage, account) {
       if (! account.isDefault()) {
         account.setProfileImage(profileImage);
         this.user.setAccount(account);
       }
     },
 
-    _shouldShowDefaultProfileImage: function (account) {
+    _shouldShowDefaultProfileImage (account) {
       return ! account.has('profileImageUrl');
     },
 
-    _addLoadingSpinner: function (spinnerWrapperEl) {
+    _addLoadingSpinner (spinnerWrapperEl) {
       if (spinnerWrapperEl) {
         return $('<span class="avatar-spinner"></span>').appendTo(spinnerWrapperEl.addClass('with-spinner'));
       }
@@ -118,7 +117,7 @@ define(function (require, exports, module) {
 
     // "Completes" the spinner, transitioning the semi-circle to a circle, and
     // then removes the spinner element.
-    _completeLoadingSpinner: function (spinnerEl) {
+    _completeLoadingSpinner (spinnerEl) {
       if (_.isUndefined(spinnerEl)) {
         return p();
       }
@@ -148,7 +147,7 @@ define(function (require, exports, module) {
       return deferred.promise;
     },
 
-    logAccountImageChange: function (account) {
+    logAccountImageChange (account) {
       // if the user already has an image set, then report a change event
       if (account.get('hadProfileImageSetBefore')) {
         this.logViewEvent('submit.change');
@@ -157,31 +156,28 @@ define(function (require, exports, module) {
       }
     },
 
-    updateProfileImage: function (profileImage, account) {
-      var self = this;
+    updateProfileImage (profileImage, account) {
       account.setProfileImage(profileImage);
-      return self.user.setAccount(account)
-        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+      return this.user.setAccount(account)
+        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
-    deleteDisplayedAccountProfileImage: function (account) {
-      var self = this;
-      return account.deleteAvatar(self._displayedProfileImage.get('id'))
-        .then(function () {
+    deleteDisplayedAccountProfileImage (account) {
+      return account.deleteAvatar(this._displayedProfileImage.get('id'))
+        .then(() => {
           // A blank image will clear the cache
-          self.updateProfileImage(new ProfileImage(), account);
+          this.updateProfileImage(new ProfileImage(), account);
         });
     },
 
-    updateDisplayName: function (displayName) {
-      var self = this;
-      var account = self.getSignedInAccount();
+    updateDisplayName (displayName) {
+      var account = this.getSignedInAccount();
       account.set('displayName', displayName);
-      return self.user.setAccount(account)
-        .then(_.bind(self._notifyProfileUpdate, self, account.get('uid')));
+      return this.user.setAccount(account)
+        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
     },
 
-    _notifyProfileUpdate: function (uid) {
+    _notifyProfileUpdate (uid) {
       this.notifier.triggerAll(Notifier.PROFILE_CHANGE, {
         uid: uid
       });

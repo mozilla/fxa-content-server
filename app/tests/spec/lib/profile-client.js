@@ -5,10 +5,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var ProfileClient = require('lib/profile-client');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
+  const chai = require('chai');
+  const ProfileClient = require('lib/profile-client');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
 
   var PROFILE_URL = 'http://127.0.0.1:1111';
   var assert = chai.assert;
@@ -37,7 +37,6 @@ define(function (require, exports, module) {
 
     describe('profile-client', function () {
       describe('getProfile', function () {
-
         it('normally responds with profile', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [200, { 'Content-Type': 'application/json' },

@@ -5,24 +5,24 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var FormPrefill = require('models/form-prefill');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/sign_in');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const FormPrefill = require('models/form-prefill');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/sign_in');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -779,9 +779,22 @@ define(function (require, exports, module) {
       it('called metrics.logFlowBegin correctly', function () {
         assert.equal(metrics.logFlowBegin.callCount, 1);
         var args = metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.equal(args[0], FLOW_ID);
         assert.equal(args[1], -1);
+        assert.equal(args[2], 'signin');
+      });
+    });
+
+    describe('_engageForm', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signin.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signin.engage'));
+          });
       });
     });
   });

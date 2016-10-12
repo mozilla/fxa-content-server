@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseExperiment = require('lib/experiments/base');
+  const BaseExperiment = require('lib/experiments/base');
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
@@ -16,7 +16,7 @@ define(function (require, exports, module) {
       'verification.success': '_onVerificationSuccess'
     },
 
-    _onVerificationSuccess: function () {
+    _onVerificationSuccess () {
       this.saveState('verified');
 
       // user verified after using show password

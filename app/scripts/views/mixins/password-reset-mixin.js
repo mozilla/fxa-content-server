@@ -12,8 +12,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const _ = require('underscore');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
 
   module.exports = _.extend({
     /**
@@ -23,18 +23,16 @@ define(function (require, exports, module) {
      * @param {String} email
      * @return {Promise} - resolves with auth server response if successful.
      */
-    resetPassword: function (email) {
-      var self = this;
-
+    resetPassword (email) {
       var account = this.user.initAccount({ email: email });
       return account.resetPassword(
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function (result) {
-        self.navigate('confirm_reset_password', {
+      .then((result) => {
+        this.navigate('confirm_reset_password', {
           email: email,
           passwordForgotToken: result.passwordForgotToken
         }, {
@@ -48,19 +46,17 @@ define(function (require, exports, module) {
     /**
      * Retry a password reset
      *
-     * @param {string} email
-     * @param {string} passwordForgotToken
-     * @return {promise} - resolves with auth server response if successful.
+     * @param {String} email
+     * @param {String} passwordForgotToken
+     * @return {Promise} - resolves with auth server response if successful.
      */
-    retryResetPassword: function (email, passwordForgotToken) {
-      var self = this;
-
+    retryResetPassword (email, passwordForgotToken) {
       var account = this.user.initAccount({ email: email });
       return account.retryResetPassword(
         passwordForgotToken,
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       );
     }

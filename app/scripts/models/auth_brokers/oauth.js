@@ -10,15 +10,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseAuthenticationBroker = require('models/auth_brokers/base');
-  var Constants = require('lib/constants');
-  var HaltBehavior = require('views/behaviors/halt');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
-  var Url = require('lib/url');
-  var Validate = require('lib/validate');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const Constants = require('lib/constants');
+  const HaltBehavior = require('views/behaviors/halt');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
+  const Url = require('lib/url');
+  const Validate = require('lib/validate');
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -66,7 +66,7 @@ define(function (require, exports, module) {
       handleSignedInNotification: false
     }),
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.session = options.session;
@@ -77,15 +77,14 @@ define(function (require, exports, module) {
                   this, options);
     },
 
-    getOAuthResult: function (account) {
-      var self = this;
+    getOAuthResult (account) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      return self._assertionLibrary.generate(account.get('sessionToken'))
-        .then(function (assertion) {
-          var relier = self.relier;
+      return this._assertionLibrary.generate(account.get('sessionToken'))
+        .then((assertion) => {
+          var relier = this.relier;
           var oauthParams = {
             assertion: assertion,
             client_id: relier.get('clientId'), //eslint-disable-line camelcase
@@ -95,7 +94,7 @@ define(function (require, exports, module) {
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
-          return self._oAuthClient.getCode(oauthParams);
+          return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
     },
@@ -111,85 +110,75 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    sendOAuthResultToRelier: function (/*result*/) {
+    sendOAuthResultToRelier (/*result*/) {
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthSignInFlow: function (account, additionalResultData) {
+    finishOAuthSignInFlow (account, additionalResultData) {
       additionalResultData = additionalResultData || {};
       additionalResultData.action = Constants.OAUTH_ACTION_SIGNIN;
       return this.finishOAuthFlow(account, additionalResultData);
     },
 
-    finishOAuthSignUpFlow: function (account, additionalResultData) {
+    finishOAuthSignUpFlow (account, additionalResultData) {
       additionalResultData = additionalResultData || {};
       additionalResultData.action = Constants.OAUTH_ACTION_SIGNUP;
       return this.finishOAuthFlow(account, additionalResultData);
     },
 
-    finishOAuthFlow: function (account, additionalResultData) {
-      var self = this;
-      self.session.clear('oauth');
-      return self.getOAuthResult(account)
-        .then(function (result) {
+    finishOAuthFlow (account, additionalResultData) {
+      this.session.clear('oauth');
+      return this.getOAuthResult(account)
+        .then((result) => {
           if (additionalResultData) {
             result = _.extend(result, additionalResultData);
           }
-          return self.sendOAuthResultToRelier(result);
+          return this.sendOAuthResultToRelier(result);
         });
     },
 
-    persistVerificationData: function (account) {
-      var self = this;
-      return p().then(function () {
-        var relier = self.relier;
-        self.session.set('oauth', {
+    persistVerificationData (account) {
+      return p().then(() => {
+        var relier = this.relier;
+        this.session.set('oauth', {
           access_type: relier.get('access_type'), //eslint-disable-line camelcase
           action: relier.get('action'),
           client_id: relier.get('clientId'), //eslint-disable-line camelcase
           keys: relier.get('keys'),
           scope: relier.get('scope'),
           state: relier.get('state'),
-          webChannelId: self.get('webChannelId')
+          webChannelId: this.get('webChannelId')
         });
 
-        return proto.persistVerificationData.call(self, account);
+        return proto.persistVerificationData.call(this, account);
       });
     },
 
-    afterForceAuth: function (account, additionalResultData) {
-      var self = this;
-      return self.finishOAuthSignInFlow(account, additionalResultData)
-        .then(function () {
-          return proto.afterForceAuth.call(self, account);
-        });
+    afterForceAuth (account, additionalResultData) {
+      return this.finishOAuthSignInFlow(account, additionalResultData)
+        .then(() => proto.afterForceAuth.call(this, account));
     },
 
-    afterSignIn: function (account, additionalResultData) {
-      var self = this;
-      return self.finishOAuthSignInFlow(account, additionalResultData)
-        .then(function () {
-          return proto.afterSignIn.call(self, account);
-        });
+    afterSignIn (account, additionalResultData) {
+      return this.finishOAuthSignInFlow(account, additionalResultData)
+        .then(() => proto.afterSignIn.call(this, account));
     },
 
     afterSignInConfirmationPoll (account, additionalResultData) {
       return this.finishOAuthSignInFlow(account, additionalResultData)
-        .then(() => {
-          return proto.afterSignInConfirmationPoll.call(this, account);
-        });
+        .then(() => proto.afterSignInConfirmationPoll.call(this, account));
     },
 
-    afterSignUpConfirmationPoll: function (account) {
+    afterSignUpConfirmationPoll (account) {
       // The original tab always finishes the OAuth flow if it is still open.
       return this.finishOAuthSignUpFlow(account);
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
+    afterResetPasswordConfirmationPoll (account) {
       return this.finishOAuthSignInFlow(account);
     },
 
-    transformLink: function (link) {
+    transformLink (link) {
       if (link[0] !== '/') {
         link = '/' + link;
       }

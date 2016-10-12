@@ -11,8 +11,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var VerificationReasons = require('lib/verification-reasons');
+  const _ = require('underscore');
+  const VerificationReasons = require('lib/verification-reasons');
 
   function findKey(haystack, needle) {
     return _.findKey(haystack, function (value) {
@@ -21,7 +21,7 @@ define(function (require, exports, module) {
   }
 
   module.exports = {
-    initialize: function (options) {
+    initialize (options) {
       if (! this.model.has('type')) {
         this.model.set('type', options.type || VerificationReasons.SIGN_UP);
       }
@@ -32,7 +32,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isSignIn: function () {
+    isSignIn () {
       return this.model.get('type') === VerificationReasons.SIGN_IN;
     },
 
@@ -41,7 +41,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isSignUp: function () {
+    isSignUp () {
       return this.model.get('type') === VerificationReasons.SIGN_UP;
     },
 
@@ -51,7 +51,7 @@ define(function (require, exports, module) {
      * @param {String} verificationReason
      * @returns {String}
      */
-    keyOfVerificationReason: function (verificationReason) {
+    keyOfVerificationReason (verificationReason) {
       return findKey(VerificationReasons, verificationReason);
     }
   };

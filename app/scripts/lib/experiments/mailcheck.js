@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseExperiment = require('lib/experiments/base');
+  const BaseExperiment = require('lib/experiments/base');
 
   var createSaveStateDelegate = BaseExperiment.createSaveStateDelegate;
 
@@ -18,7 +18,7 @@ define(function (require, exports, module) {
       'verification.success': '_onVerificationSuccess'
     },
 
-    _onSignupSubmit: function (data, view) {
+    _onSignupSubmit (data, view) {
       var emailEl = view.$el.find('.email');
 
       var emailValue = emailEl.val();
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _onVerificationSuccess: function () {
+    _onVerificationSuccess () {
       this.saveState('verified');
 
       if (this.hasState('clicked')) {

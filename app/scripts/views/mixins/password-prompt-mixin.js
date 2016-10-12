@@ -10,22 +10,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const BaseView = require('views/base');
-  const t = BaseView.t;
-  const Strings = require('lib/strings');
-
+  const t = require('views/base').t;
   const Tooltip = require('views/tooltip');
 
   // this link is not suitable for L10N and should be available in only `en` locales.
-  const MORE_INFO_LINK = '<a href="/support/create_secure_password">Need inspiration?</a>';
   const CHECK_PASSWORD_FIELD_SELECTOR = '.check-password';
   const INPUT_HELP_FOCUSED = '.input-help-focused';
   const TOOLTIP_MESSAGES = {
     FOCUS_PROMPT_MESSAGE: t('8 characters minimum, but longer if you plan to sync passwords.'),
     INITIAL_PROMPT_MESSAGE: t('A strong, unique password will keep your Firefox data safe from intruders.'),
     WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.'),
-    WARNING_PROMPT_MESSAGE_WITH_LINK: Strings.interpolate(
-      t('This is a common password; please consider another one. %(moreInfoLink)s'), { moreInfoLink: MORE_INFO_LINK })
+    WARNING_PROMPT_MESSAGE_WITH_LINK: t('This is a common password; please consider another one.')
   };
 
   const PasswordPromptMixin = {
@@ -36,21 +31,21 @@ define(function (require, exports, module) {
       'keyup .check-password': 'onInputKeyUp'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.updateFormValueChanges();
     },
 
-    displayPasswordInitialPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE));
+    displayPasswordInitialPrompt (inputEl) {
+      this.$(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.INITIAL_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('INITIAL_PROMPT_MESSAGE');
     },
 
-    displayPasswordFocusPrompt: function (inputEl) {
-      this.$el.find(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE));
+    displayPasswordFocusPrompt (inputEl) {
+      this.$(inputEl).siblings(INPUT_HELP_FOCUSED).html(this.translate(TOOLTIP_MESSAGES.FOCUS_PROMPT_MESSAGE));
       this._logPromptExperimentEvent('FOCUS_PROMPT_MESSAGE');
     },
 
-    displayPasswordWarningPrompt: function () {
+    displayPasswordWarningPrompt () {
       let promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE;
       if (this._isEnglishLocale()) {
         promptContent = TOOLTIP_MESSAGES.WARNING_PROMPT_MESSAGE_WITH_LINK;
@@ -61,15 +56,15 @@ define(function (require, exports, module) {
       const tooltip = new Tooltip({
         dismissible: false,
         extraClassNames: 'tooltip-suggest tooltip-warning',
-        invalidEl: this.$el.find(CHECK_PASSWORD_FIELD_SELECTOR),
+        invalidEl: this.$(CHECK_PASSWORD_FIELD_SELECTOR),
         message: promptContent
       });
       tooltip.render();
       this._logPromptExperimentEvent('WARNING_PROMPT_MESSAGE');
     },
 
-    showPasswordPrompt: function (inputEl) {
-      const length = this.$el.find(inputEl).val().length;
+    showPasswordPrompt (inputEl) {
+      const length = this.$(inputEl).val().length;
       if (length === 0) {
         this.displayPasswordInitialPrompt(inputEl);
       } else {
@@ -77,22 +72,22 @@ define(function (require, exports, module) {
       }
     },
 
-    onInputFocus: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+    onInputFocus (event) {
+      this.showPasswordPrompt(event.currentTarget);
     },
 
-    onInputKeyUp: function (event) {
-      this.showPasswordPrompt(this.$el.find(event.currentTarget));
+    onInputKeyUp (event) {
+      this.showPasswordPrompt(event.currentTarget);
     },
 
-    onPasswordBlur: function () {
+    onPasswordBlur () {
       const password = this.getElementValue(CHECK_PASSWORD_FIELD_SELECTOR);
       this.checkPasswordStrength(password);
     },
 
-    _logPromptExperimentEvent: function (eventNameSuffix) {
+    _logPromptExperimentEvent (eventNameSuffix) {
       const eventName = 'experiment.pw_prompt.' + eventNameSuffix.toLowerCase();
-      this.logViewEvent(eventName);
+      this.logEventOnce(eventName);
     },
 
     /**
@@ -100,7 +95,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _isEnglishLocale: function () {
+    _isEnglishLocale () {
       return !! (this.language && this.language.indexOf('en') === 0);
     },
 

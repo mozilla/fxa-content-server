@@ -9,22 +9,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Constants = require('lib/constants');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var xhr = require('lib/xhr');
+  const Constants = require('lib/constants');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const xhr = require('lib/xhr');
 
   function MarketingEmailClient(options) {
     options = options || {};
 
-    var self = this;
-    self._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
-    self._xhr = options.xhr || xhr;
-    self._baseUrl = options.baseUrl;
-    self._preferencesUrl = options.preferencesUrl;
+    this._xhrTimeout = options.timeout || Constants.DEFAULT_XHR_TIMEOUT_MS;
+    this._xhr = options.xhr || xhr;
+    this._baseUrl = options.baseUrl;
+    this._preferencesUrl = options.preferencesUrl;
   }
 
   MarketingEmailClient.prototype = {
-    _request: function (method, endpoint, accessToken, data) {
+    _request (method, endpoint, accessToken, data) {
       var url = this._baseUrl + endpoint;
       return this._xhr.oauthAjax({
         accessToken: accessToken,
@@ -38,29 +37,28 @@ define(function (require, exports, module) {
       });
     },
 
-    fetch: function (accessToken) {
-      var self = this;
+    fetch (accessToken) {
       return this._request('get', '/lookup-user', accessToken)
-        .then(function (response) {
+        .then((response) => {
           // TODO
           // I would prefer to place this into the MarketingEmailPrefs model
           // but doing so required passing around the preferencesUrl to lots of
           // irrelevant classes.
           if (response.token) {
-            response.preferencesUrl = self._preferencesUrl + response.token;
+            response.preferencesUrl = this._preferencesUrl + response.token;
           }
 
           return response;
         });
     },
 
-    optIn: function (accessToken, newsletterId) {
+    optIn (accessToken, newsletterId) {
       return this._request('post', '/subscribe', accessToken, {
         newsletters: newsletterId
       });
     },
 
-    optOut: function (accessToken, newsletterId) {
+    optOut (accessToken, newsletterId) {
       return this._request('post', '/unsubscribe', accessToken, {
         newsletters: newsletterId
       });

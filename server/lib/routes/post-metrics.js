@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
+var _ = require('lodash');
 var config = require('../configuration');
 var flowEvent = require('../flow-event');
 var MetricsCollector = require('../metrics-collector-stderr');
@@ -11,6 +12,8 @@ var GACollector = require('../ga-collector');
 var logger = require('mozlog')('server.post-metrics');
 
 var DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
+
+var FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
 
 module.exports = function () {
   var metricsCollector = new MetricsCollector();
@@ -51,24 +54,28 @@ module.exports = function () {
         }
         ga.write(metrics);
 
-        optionallyLogFlowBeginEvent(req, metrics, requestReceivedTime);
+        optionallyLogFlowEvents(req, metrics, requestReceivedTime);
       });
     }
   };
 };
 
-function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
+function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
   if (DISABLE_CLIENT_METRICS_STDERR) {
     return;
   }
 
   var events = metrics.events || [];
-  var hasFlowBeginEvent = events.some(function (event) {
-    if (event.type === 'flow.begin') {
-      if (! metrics.flowBeginTime) {
-        // This will only kick in if something clobbered the data-flow-begin
-        // attribute in the DOM, i.e. hopefully never.
-        metrics.flowBeginTime = estimateFlowBeginTime({
+  var flowEvents = _.filter(events, function(event) {
+    return event.type.indexOf('flow.') === 0;
+  });
+
+  if (! metrics.flowBeginTime) {
+    // This will only kick in if something clobbered the data-flow-begin
+    // attribute in the DOM, i.e. hopefully never.
+    flowEvents.some(function (event) {
+      if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
+        metrics.flowBeginTime = estimateTime({
           /*eslint-disable sorting/sort-object-props*/
           start: metrics.startTime,
           offset: event.offset,
@@ -76,24 +83,33 @@ function optionallyLogFlowBeginEvent (req, metrics, requestReceivedTime) {
           received: requestReceivedTime
           /*eslint-enable sorting/sort-object-props*/
         });
-      }
 
-      return true;
+        return true;
+      }
+    });
+  }
+
+  flowEvents.forEach(function (event) {
+    if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
+      event.time = metrics.flowBeginTime;
+      event.flowTime = 0;
+    } else {
+      event.time = estimateTime({
+        /*eslint-disable sorting/sort-object-props*/
+        start: metrics.startTime,
+        offset: event.offset,
+        sent: metrics.flushTime,
+        received: requestReceivedTime
+        /*eslint-enable sorting/sort-object-props*/
+      });
+      event.flowTime = event.time - metrics.flowBeginTime;
     }
 
-    return false;
+    flowEvent(event, metrics, req);
   });
-
-  if (hasFlowBeginEvent) {
-    flowEvent('flow.begin', {
-      flow_id: metrics.flowId, //eslint-disable-line camelcase
-      flow_time: 0, //eslint-disable-line camelcase
-      time: metrics.flowBeginTime
-    }, req);
-  }
 }
 
-function estimateFlowBeginTime (times) {
+function estimateTime (times) {
   var skew = times.received - times.sent;
   return times.start + times.offset + skew;
 }

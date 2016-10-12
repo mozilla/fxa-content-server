@@ -9,17 +9,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
 
   function NullReceiver() {
     // nothing to do
   }
   _.extend(NullReceiver.prototype, Backbone.Events, {
-    initialize: function () {
+    initialize () {
     },
 
-    teardown: function () {
+    teardown () {
     }
   });
 

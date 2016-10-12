@@ -5,25 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountResetMixin = require('views/mixins/account-reset-mixin');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  var FormView = require('views/form');
-  var MigrationMixin = require('views/mixins/migration-mixin');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Session = require('lib/session');
-  var showProgressIndicator = require('views/decorators/progress_indicator');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var SignInTemplate = require('stache!templates/sign_in');
+  const AccountResetMixin = require('views/mixins/account-reset-mixin');
+  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormView = require('views/form');
+  const MigrationMixin = require('views/mixins/migration-mixin');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Session = require('lib/session');
+  const showProgressIndicator = require('views/decorators/progress_indicator');
+  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const SignInTemplate = require('stache!templates/sign_in');
 
   var t = BaseView.t;
 
@@ -31,48 +31,47 @@ define(function (require, exports, module) {
     template: SignInTemplate,
     className: 'sign-in',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
     },
 
-    beforeRender: function () {
-      var self = this;
-      self._account = self._suggestedAccount();
+    beforeRender () {
+      this._account = this._suggestedAccount();
 
-      self._account.on('change:accessToken', function () {
+      this._account.on('change:accessToken', () => {
         // if no access token and password is not visible we need to show the password field.
-        if (! self._account.has('accessToken') && self.$('.password').is(':hidden')) {
+        if (! this._account.has('accessToken') && this.$('.password').is(':hidden')) {
           // accessToken could be changed async by an external request after render
           // If the ProfileClient fails to get an OAuth token with the current token then reset the view
-          self.chooserAskForPassword = true;
-          return self.render().then(function () {
-            self.setDefaultPlaceholderAvatar();
+          this.chooserAskForPassword = true;
+          return this.render().then(function () {
+            this.setDefaultPlaceholderAvatar();
           });
         }
       });
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    getEmail: function () {
+    getEmail () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       return hasSuggestedAccount ?
         suggestedAccount.get('email') : this.getPrefillEmail();
     },
 
-    context: function () {
+    context () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
@@ -93,22 +92,22 @@ define(function (require, exports, module) {
       'click .use-logged-in': 'useLoggedInAccount'
     },
 
-    afterRender: function () {
+    afterRender () {
       this.transformLinks();
       return FormView.prototype.afterRender.call(this);
     },
 
-    afterVisible: function () {
+    afterVisible () {
       FormView.prototype.afterVisible.call(this);
       return this.displayAccountProfileImage(this.getAccount(), { spinner: true });
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    submit: function () {
+    submit () {
       var account = this.user.initAccount({
         email: this.getElementValue('.email')
       });
@@ -124,33 +123,31 @@ define(function (require, exports, module) {
      * @param {Account} account
      *     @param {String} account.sessionToken
      *     Session token from the account
-     * @param {string} [password] - the user's password. Can be null if
+     * @param {String} [password] - the user's password. Can be null if
      *  user is signing in with a sessionToken.
      * @returns {Promise}
      * @private
      */
-    _signIn: function (account, password) {
+    _signIn (account, password) {
       return this.signIn(account, password)
         .fail(this.onSignInError.bind(this, account, password));
     },
 
-    onSignInError: function (account, password, err) {
-      var self = this;
-
+    onSignInError (account, password, err) {
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-        return self._suggestSignUp(err);
+        return this._suggestSignUp(err);
       } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-        self.logViewEvent('canceled');
+        this.logViewEvent('canceled');
         // if user canceled login, just stop
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
-        return self.notifyOfResetAccount(account);
+        return this.notifyOfResetAccount(account);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
     },
 
-    _suggestSignUp: function (err) {
+    _suggestSignUp (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
     },
@@ -160,19 +157,16 @@ define(function (require, exports, module) {
      * which is present when there is already a logged in user in the session
      */
     useLoggedInAccount: allowOnlyOneSubmit(showProgressIndicator(function () {
-      var self = this;
       var account = this.getAccount();
 
       return this._signIn(account, null)
-        .fail(
-          function () {
-            self.chooserAskForPassword = true;
-            return self.render()
-              .then(function () {
-                self.user.removeAccount(account);
-                return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-              });
+        .fail(() => {
+          this.chooserAskForPassword = true;
+          return this.render().then(() => {
+            this.user.removeAccount(account);
+            return this.displayError(AuthErrors.toError('SESSION_EXPIRED'));
           });
+        });
     })),
 
     /**
@@ -197,7 +191,7 @@ define(function (require, exports, module) {
      *          Returns "null" if the current signin view must not suggest users.
      * @private
      */
-    _suggestedAccount: function () {
+    _suggestedAccount () {
       var account = this.user.getChooserAccount();
       var prefillEmail = this.getPrefillEmail();
 
@@ -221,7 +215,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _suggestedAccountAskPassword: function (account) {
+    _suggestedAccountAskPassword (account) {
       // If there's no email, obviously we'll have to ask for the password.
       if (! account.get('email')) {
         this.logViewEvent('ask-password.shown.account-unknown');

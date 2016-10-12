@@ -9,16 +9,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Logger = require('lib/logger');
 
   function PostMessageReceiver() {
     // nothing to do
   }
   _.extend(PostMessageReceiver.prototype, Backbone.Events, {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._origin = options.origin;
@@ -29,14 +29,14 @@ define(function (require, exports, module) {
       this._logger = new Logger(this._window);
     },
 
-    isOriginIgnored: function (origin) {
+    isOriginIgnored (origin) {
       // A lot of messages are sent with the origin `chrome://browser`, whether
       // these are from Firefox or addons, we are not sure. Completely ignore
       // these messages. See #3465
       return origin === 'chrome://browser';
     },
 
-    isOriginTrusted: function (origin) {
+    isOriginTrusted (origin) {
       // `message` events that come from the Fx Desktop browser have an
       // origin of the string constant 'null'. See
       // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
@@ -52,7 +52,7 @@ define(function (require, exports, module) {
       return this._origin === origin;
     },
 
-    receiveEvent: function (event) {
+    receiveEvent (event) {
       if (event.type !== 'message') {
         return; // not an expected type of event
       }
@@ -76,7 +76,7 @@ define(function (require, exports, module) {
       }
     },
 
-    teardown: function () {
+    teardown () {
       this._window.removeEventListener('message', this._boundReceiveEvent, false);
     }
   });

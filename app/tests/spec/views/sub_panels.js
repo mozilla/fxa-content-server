@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var Metrics = require('lib/metrics');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var sinon = require('sinon');
-  var TestTemplate = require('stache!templates/test_template');
-  var View = require('views/sub_panels');
+  const $ = require('jquery');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const Metrics = require('lib/metrics');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const sinon = require('sinon');
+  const TestTemplate = require('stache!templates/test_template');
+  const View = require('views/sub_panels');
 
   var assert = chai.assert;
 
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
         notifier: notifier,
         panelViews: panelViews,
         parent: parent,
-        createView: function (Constructor, options) {
+        createView (Constructor, options) {
           return new Constructor(options);
         }
       });
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
 
     describe('childViews', function () {
       it('renders non-modal childViews on render', function () {
-        sinon.spy(view, '_createChildViewIfNeeded', function (View) {
+        sinon.stub(view, '_createChildViewIfNeeded', function (View) {
           var childView = new View();
           return childView;
         });

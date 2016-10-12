@@ -5,13 +5,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var Template = require('stache!templates/settings/display_name');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const Template = require('stache!templates/settings/display_name');
 
   var t = BaseView.t;
 
@@ -20,37 +20,35 @@ define(function (require, exports, module) {
     className: 'display-name',
     viewName: 'settings.display-name',
 
-    onProfileUpdate: function () {
+    onProfileUpdate () {
       this.render();
     },
 
-    context: function () {
+    context () {
       return {
         displayName: this._displayName
       };
     },
 
-    beforeRender: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+    beforeRender () {
+      var account = this.getSignedInAccount();
       return account.fetchProfile()
-        .then(function () {
-          self.user.setAccount(account);
-          self._displayName = account.get('displayName');
+        .then(() => {
+          this.user.setAccount(account);
+          this._displayName = account.get('displayName');
         });
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      var displayName = self.getElementValue('input.display-name').trim();
+    submit () {
+      var account = this.getSignedInAccount();
+      var displayName = this.getElementValue('input.display-name').trim();
 
       return account.postDisplayName(displayName)
-        .then(function () {
-          self.logViewEvent('success');
-          self.updateDisplayName(displayName);
-          self.displaySuccess(t('Display name updated'));
-          self.navigate('settings');
+        .then(() => {
+          this.logViewEvent('success');
+          this.updateDisplayName(displayName);
+          this.displaySuccess(t('Display name updated'));
+          this.navigate('settings');
         });
     }
   });

@@ -5,15 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var ExternalLinksMixin = require('views/mixins/external-links-mixin');
-  var FormView = require('views/form');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Session = require('lib/session');
-  var Template = require('stache!templates/reset_password');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Session = require('lib/session');
+  const Template = require('stache!templates/reset_password');
 
   var t = BaseView.t;
 
@@ -21,36 +20,33 @@ define(function (require, exports, module) {
     template: Template,
     className: 'reset_password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
     },
 
-    context: function () {
+    context () {
       return {
         forceEmail: this.model.get('forceEmail')
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var email = this.relier.get('email');
       var canSkip = this.relier.get('resetPasswordConfirm') === false;
       if (canSkip && email) {
-        var self = this;
         return this._resetPassword(email)
-          .then(function () {
-            return false;
-          })
-          .fail(function (err) {
-            self.model.set('error', err);
+          .then(() => false)
+          .fail((err) => {
+            this.model.set('error', err);
           });
       }
 
       return FormView.prototype.beforeRender.call(this);
     },
 
-    afterRender: function () {
+    afterRender () {
       if (this.relier.isOAuth()) {
         this.transformLinks();
       }
@@ -58,25 +54,24 @@ define(function (require, exports, module) {
       FormView.prototype.afterRender.call(this);
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('email', this.getElementValue('.email'));
     },
 
-    submit: function () {
+    submit () {
       return this._resetPassword(this.getElementValue('.email'));
     },
 
-    _resetPassword: function (email) {
-      var self = this;
-      return self.resetPassword(email)
-        .fail(function (err) {
+    _resetPassword (email) {
+      return this.resetPassword(email)
+        .fail((err) => {
           // clear oauth session
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(err);
+            return this.displayErrorUnsafe(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
+            this.logEvent('login.canceled');
             // if user canceled login, just stop
             return;
           }
@@ -88,7 +83,6 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    ExternalLinksMixin,
     PasswordResetMixin,
     ServiceMixin
   );

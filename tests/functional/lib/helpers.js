@@ -175,6 +175,25 @@ define([
     }, [ selector ], timeout);
   }
 
+
+  /**
+   * Use document.querySelectorAll and poll until to find loaded images.
+   *
+   * Usage:  ".then(FunctionalHelpers.pollUntilGoneByQSA('.disabled'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   * @param {Number} [timeout]
+   *        Timeout to wait until element is gone
+   */
+  function pollUntilGoneByQSA(selector, timeout) {
+    timeout = timeout || 10000;
+
+    return pollUntil(function (selector) {
+      return document.querySelectorAll(selector).length === 0 ? true : null;
+    }, [ selector ], timeout);
+  }
+
   /**
    * Use document.querySelectorAll to find visible elements
    * used for error and success notification animations.
@@ -775,30 +794,6 @@ define([
       .end();
   }
 
-  function listenForWebChannelMessage() {
-    // We start listening for web channel messages as soon as
-    // openPage is called, before the page is ready. Wait for
-    // the prerequisites, then attach.
-    function startListening() {
-      try {
-        addEventListener('WebChannelMessageToChrome', function (e) {
-          var command = e.detail.message.command;
-          var data = e.detail.message.data;
-
-          var element = document.createElement('div');
-          element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
-          element.innerText = JSON.stringify(data);
-          document.body.appendChild(element);
-        });
-      } catch (e) {
-        // problem adding the listener, window may not be ready, try again.
-        setTimeout(startListening, 0);
-      }
-    }
-
-    startListening();
-  }
-
   function mouseevent(eventType) {
     return function (selector) {
       return function () {
@@ -821,9 +816,10 @@ define([
   var mouseup = mouseevent('mouseup');
 
   function respondToWebChannelMessage(context, expectedCommand, response) {
+    var attachedId = Math.floor(Math.random() * 10000);
     return function () {
       return getRemote(context)
-        .execute(function (expectedCommand, response) {
+        .execute(function (expectedCommand, response, attachedId) {
           function startListening() {
             try {
               addEventListener('WebChannelMessageToChrome', function listener(e) {
@@ -846,6 +842,7 @@ define([
                   dispatchEvent(event);
                 }
               });
+              $('body').append('<div>').addClass('attached' + attachedId);
             } catch (e) {
               // problem adding the listener, window may not be
               // ready, try again.
@@ -854,7 +851,9 @@ define([
           }
 
           startListening();
-        }, [ expectedCommand, response ]);
+        }, [ expectedCommand, response, attachedId ])
+        // once the event is attached it adds a div with an attachedId.
+        .then(testElementExists('.attached' + attachedId));
     };
   }
 
@@ -943,10 +942,6 @@ define([
     return remote
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
-
-      // WebChannel Messages can sometimes be sent before the page
-      // is rendered. Try to attach a listener as early as possible.
-      .execute(listenForWebChannelMessage)
 
       // Wait until the `readySelector` element is found to return.
       .findByCssSelector(readySelector)
@@ -1421,14 +1416,6 @@ define([
     };
   }
 
-  function verifyUser(user, index, client, accountData) {
-    return getEmailHeaders(user, index)
-      .then(function (headers) {
-        var code = headers['x-verify-code'];
-        return client.verifyCode(accountData.uid, code);
-      });
-  }
-
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1450,7 +1437,6 @@ define([
     getQueryParamValue: getQueryParamValue,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
-    listenForWebChannelMessage: listenForWebChannelMessage,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,
@@ -1473,6 +1459,7 @@ define([
     openVerificationLinkInNewTab: openVerificationLinkInNewTab,
     openVerificationLinkInSameTab: openVerificationLinkInSameTab,
     pollUntil: pollUntil,
+    pollUntilGoneByQSA: pollUntilGoneByQSA,
     respondToWebChannelMessage: respondToWebChannelMessage,
     takeScreenshot: takeScreenshot,
     testAreEventsLogged: testAreEventsLogged,
@@ -1496,7 +1483,6 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
-    verifyUser: verifyUser,
     visibleByQSA: visibleByQSA
   };
 });

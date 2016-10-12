@@ -9,21 +9,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
+  const p = require('lib/promise');
 
   function NullSender() {
     // nothing to do here.
   }
 
   NullSender.prototype = {
-    initialize: function (/*options*/) {
+    initialize (/*options*/) {
     },
 
-    send: function (/*command, data, messageId*/) {
+    send (/*command, data, messageId*/) {
       return p();
     },
 
-    teardown: function () {
+    teardown () {
     }
   };
 

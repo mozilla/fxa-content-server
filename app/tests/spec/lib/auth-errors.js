@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var chai = require('chai');
+  const AuthErrors = require('lib/auth-errors');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const chai = require('chai');
 
   var assert = chai.assert;
 
@@ -132,6 +132,19 @@ define(function (require, exports, module) {
         assert.equal(AuthErrors.toMessage(AuthErrors.toError('SERVER_BUSY')), 'Server busy, try again soon');
       });
 
+      it('converts THROTTLED error correctly', function () {
+        assert.equal(AuthErrors.toMessage(AuthErrors.toError('THROTTLED')), 'You\'ve tried too many times. Try again later.');
+      });
+
+      it('converts THROTTLED error correctly', function () {
+        var err = AuthErrors.toError('THROTTLED');
+        err.retryAfter = 900;
+        err.retryAfterLocalized = 'in 15 minutes';
+        AuthErrors.toInterpolatedMessage(err);
+
+        assert.equal(AuthErrors.toInterpolatedMessage(err), 'You\'ve tried too many times. Try again in 15 minutes.');
+      });
+
       it('converts an unknown object to `UNEXPECTED_ERROR`', function () {
         assert.equal(AuthErrors.toMessage({}), 'Unexpected error');
       });
@@ -164,6 +177,19 @@ define(function (require, exports, module) {
               keys: 'uid'
             }
           }), {});
+      });
+
+      it('enhances the throttled error if provided with localized context', function () {
+        assert.deepEqual(
+          AuthErrors.toInterpolationContext({
+            errno: 114,
+            retryAfterLocalized: 'in 15 minutes'
+          }), { retryAfterLocalized: 'in 15 minutes' });
+
+        assert.deepEqual(
+          AuthErrors.toInterpolationContext({
+            errno: 114
+          }), { retryAfterLocalized: undefined });
       });
     });
 
@@ -221,6 +247,14 @@ define(function (require, exports, module) {
 
       it('converts an XHR request with `responseJSON` to an error`', function () {
         assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ responseJSON: { errno: 201 }, status: 200 }), 'SERVER_BUSY'));
+      });
+
+      it('converts an XHR request with missing `responseJSON` and `status=503` to a `SERVICE_UNAVAILABLE` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 503 }), 'SERVICE_UNAVAILABLE'));
+      });
+
+      it('converts an XHR request with missing `responseJSON` and `status=429` to a `THROTTLED` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 429 }), 'THROTTLED'));
       });
     });
   });

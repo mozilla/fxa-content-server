@@ -10,10 +10,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var loadingTemplate = require('stache!templates/loading');
+  const loadingTemplate = require('stache!templates/loading');
 
   module.exports = {
-    initialize: function () {
+    initialize () {
       var loadingHTML = loadingTemplate({});
       this.writeToDOM(loadingHTML);
     }

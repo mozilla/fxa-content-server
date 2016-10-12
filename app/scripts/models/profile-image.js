@@ -7,10 +7,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var ImageLoader = require('lib/image-loader');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
+  const Backbone = require('backbone');
+  const ImageLoader = require('lib/image-loader');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
 
   var ProfileImage = Backbone.Model.extend({
     defaults: {
@@ -19,23 +19,20 @@ define(function (require, exports, module) {
       url: undefined
     },
 
-    fetch: function () {
-      var self = this;
-      if (! self.has('url')) {
+    fetch () {
+      if (! this.has('url')) {
         return p();
       }
-      return ImageLoader.load(self.get('url'))
-        .then(function (img) {
-          self.set('img', img);
-        }, function () {
+      return ImageLoader.load(this.get('url'))
+        .then((img) => this.set('img', img), () => {
           var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
           // Set the context to the image's URL. This will be logged.
-          err.context = self.get('url');
+          err.context = this.get('url');
           return p.reject(err);
         });
     },
 
-    isDefault: function () {
+    isDefault () {
       return ! (this.has('url') && this.has('id') && this.has('img'));
     }
   });

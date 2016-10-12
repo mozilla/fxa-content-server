@@ -5,16 +5,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Able = require('lib/able');
-  var chai = require('chai');
-  var Experiment = require('lib/experiments/mailcheck');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const Able = require('lib/able');
+  const chai = require('chai');
+  const Experiment = require('lib/experiments/mailcheck');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   var able;
   var assert = chai.assert;
@@ -61,12 +61,12 @@ define(function (require, exports, module) {
       it('logs the corrected event', function () {
         var mockView = {
           $el: {
-            find: function () {
+            find () {
               return {
-                val: function () {
+                val () {
                   return 'a@gmail.com';
                 },
-                data: function () {
+                data () {
                   return 'a@gmail.com';
                 }
               };
@@ -80,12 +80,12 @@ define(function (require, exports, module) {
       it('does not log the corrected event if email value does not match', function () {
         var mockView = {
           $el: {
-            find: function () {
+            find () {
               return {
-                val: function () {
+                val () {
                   return 'a@snailmail.com';
                 },
-                data: function () {
+                data () {
                   return 'a@gmail.com';
                 }
               };

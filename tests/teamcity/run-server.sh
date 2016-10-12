@@ -73,26 +73,26 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-npm install                  \
-  bluebird@3.3.5             \
-  bower@1.7.9                \
-  convict@1.3.0              \
-  extend@3.0.0               \
-  firefox-profile@0.3.12     \
-  fxa-shared@1.0.1           \
-  helmet@2.1.1               \
-  htmlparser2@3.9.0          \
-  intern@3.1.1               \
-  lodash@4.11.1              \
-  mozlog@2.0.4               \
-  node-statsd@0.1.1          \
-  proxyquire@1.7.4           \
-  request@2.74.0             \
-  shane-tomlinson/node-uap.git#13fa830e8 \
-  sinon@1.17.3               \
-  sync-exec@0.6.2            \
-  universal-analytics@0.4.2  \
-  zaach/node-XMLHttpRequest.git#onerror
+node ./tests/teamcity/install-npm-deps.js \
+  bluebird                        \
+  bower                           \
+  convict                         \
+  extend                          \
+  firefox-profile                 \
+  fxa-shared                      \
+  helmet                          \
+  htmlparser2                     \
+  intern                          \
+  lodash                          \
+  mozlog                          \
+  node-statsd                     \
+  proxyquire                      \
+  request                         \
+  node-uap                        \
+  sinon                           \
+  sync-exec                       \
+  universal-analytics             \
+  xmlhttprequest
 
 ./node_modules/.bin/intern-client \
   config=tests/intern_server \

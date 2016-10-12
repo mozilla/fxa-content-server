@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var OAuthClient = require('lib/oauth-client');
-  var OAuthErrors = require('lib/oauth-errors');
-  var OAuthRelier = require('models/reliers/oauth');
-  var p = require('lib/promise');
-  var RelierKeys = require('lib/relier-keys');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../../lib/helpers');
-  var User = require('models/user');
-  var WindowMock = require('../../../mocks/window');
+  const _ = require('underscore');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const OAuthClient = require('lib/oauth-client');
+  const OAuthErrors = require('lib/oauth-errors');
+  const OAuthRelier = require('models/reliers/oauth');
+  const p = require('lib/promise');
+  const RelierKeys = require('lib/relier-keys');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../../lib/helpers');
+  const User = require('models/user');
+  const WindowMock = require('../../../mocks/window');
 
   /*eslint-disable camelcase */
   var assert = chai.assert;
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
 
       user = new User();
 
-      relier = new OAuthRelier({
+      relier = new OAuthRelier({}, {
         oAuthClient: oAuthClient,
         session: Session,
         window: windowMock
@@ -88,6 +88,9 @@ define(function (require, exports, module) {
 
         return relier.fetch()
           .then(function () {
+            // context is not imported from query params
+            assert.equal(relier.get('context'), Constants.OAUTH_CONTEXT);
+
             assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
             assert.equal(relier.get('prompt'), PROMPT);
             assert.equal(relier.get('service'), SERVICE);

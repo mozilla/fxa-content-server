@@ -12,7 +12,6 @@ define([
   intern.suites = [
     'tests/server/routes',
     'tests/server/ver.json.js',
-    'tests/server/cookies_disabled',
     'tests/server/csp',
     'tests/server/flow-event',
     'tests/server/flow-metrics',
@@ -28,6 +27,7 @@ define([
     'tests/server/noindex',
     'tests/server/configuration',
     'tests/server/statsd-collector',
+    'tests/server/routes/get-config',
     'tests/server/routes/get-fxa-client-configuration',
     'tests/server/routes/get-index',
     'tests/server/routes/post-csp',

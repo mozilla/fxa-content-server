@@ -9,14 +9,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
-  var OAuthErrors = require('lib/oauth-errors');
-  var Relier = require('models/reliers/relier');
-  var RelierKeys = require('lib/relier-keys');
-  var Transform = require('lib/transform');
-  var Validate = require('lib/validate');
-  var Vat = require('lib/vat');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const OAuthErrors = require('lib/oauth-errors');
+  const Relier = require('models/reliers/relier');
+  const RelierKeys = require('lib/relier-keys');
+  const Transform = require('lib/transform');
+  const Validate = require('lib/validate');
+  const Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['verificationRedirect'];
 
@@ -61,6 +61,7 @@ define(function (require, exports, module) {
     defaults: _.extend({}, Relier.prototype.defaults, {
       accessType: null,
       clientId: null,
+      context: Constants.OAUTH_CONTEXT,
       // whether to fetch and derive relier-specific keys
       keys: false,
       // permissions are individual scopes
@@ -86,41 +87,38 @@ define(function (require, exports, module) {
       Relier.prototype.resumeTokenFields
     ),
 
-    initialize: function (options) {
-      options = options || {};
-
-      Relier.prototype.initialize.call(this, options);
+    initialize (attributes, options = {}) {
+      Relier.prototype.initialize.call(this, attributes, options);
 
       this._session = options.session;
       this._oAuthClient = options.oAuthClient;
     },
 
-    fetch: function () {
-      var self = this;
+    fetch () {
       return Relier.prototype.fetch.call(this)
-        .then(function () {
-          if (self._isVerificationFlow()) {
-            self._setupVerificationFlow();
+        .then(() => {
+          if (this._isVerificationFlow()) {
+            this._setupVerificationFlow();
           } else {
-            self._setupSignInSignUpFlow();
+            this._setupSignInSignUpFlow();
           }
 
-          if (! self.has('service')) {
-            self.set('service', self.get('clientId'));
+          if (! this.has('service')) {
+            this.set('service', this.get('clientId'));
           }
 
-          return self._setupOAuthRPInfo();
+          return this._setupOAuthRPInfo();
         })
-        .then(function () {
-          if (self.has('scope')) {
+        .then(() => {
+          if (this.has('scope')) {
             // normalization depends on `trusted` field set in
             // setupOAuthRPInfo.
-            self._normalizeScopesAndPermissions();
+            this._normalizeScopesAndPermissions();
           }
         });
     },
 
-    _normalizeScopesAndPermissions: function () {
+    _normalizeScopesAndPermissions () {
       var permissions = scopeStrToArray(this.get('scope'));
       if (this.isTrusted()) {
         // We have to normalize `profile` into is expanded sub-scopes
@@ -144,7 +142,7 @@ define(function (require, exports, module) {
       this.set('permissions', permissions);
     },
 
-    isOAuth: function () {
+    isOAuth () {
       return true;
     },
 
@@ -153,58 +151,55 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    wantsKeys: function () {
+    wantsKeys () {
       if (this.get('keys')) {
         return true;
       }
       return Relier.prototype.wantsKeys.call(this);
     },
 
-    deriveRelierKeys: function (keys, uid) {
+    deriveRelierKeys (keys, uid) {
       return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
-    _isVerificationFlow: function () {
+    _isVerificationFlow () {
       return !! this.getSearchParam('code');
     },
 
-    _setupVerificationFlow: function () {
-      var self = this;
-
-      var resumeObj = self._session.oauth;
+    _setupVerificationFlow () {
+      var resumeObj = this._session.oauth;
       if (! resumeObj) {
         // The user is verifying in a second browser. `service` is
         // available in the link. Use it to populate the `service`
         // and `clientId` fields which will allow the user to
         // redirect back to the RP but not sign in.
         resumeObj = {
-          client_id: self.getSearchParam('service'), //eslint-disable-line camelcase
-          service: self.getSearchParam('service')
+          client_id: this.getSearchParam('service'), //eslint-disable-line camelcase
+          service: this.getSearchParam('service')
         };
       }
 
       var result = Transform.transformUsingSchema(
         resumeObj, VERIFICATION_INFO_SCHEMA, OAuthErrors);
 
-      self.set(result);
+      this.set(result);
     },
 
-    _setupSignInSignUpFlow: function () {
+    _setupSignInSignUpFlow () {
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
       this.importSearchParamsUsingSchema(
           SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA, OAuthErrors);
     },
 
-    _setupOAuthRPInfo: function () {
-      var self = this;
-      var clientId = self.get('clientId');
+    _setupOAuthRPInfo () {
+      var clientId = this.get('clientId');
 
-      return self._oAuthClient.getClientInfo(clientId)
-        .then(function (serviceInfo) {
+      return this._oAuthClient.getClientInfo(clientId)
+        .then((serviceInfo) => {
           var result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
-          self.set(result);
+          this.set(result);
         }, function (err) {
           // the server returns an invalid request parameter for an
           // invalid/unknown client_id
@@ -220,16 +215,16 @@ define(function (require, exports, module) {
         });
     },
 
-    isTrusted: function () {
+    isTrusted () {
       return this.get('trusted');
     },
 
     /**
      * Return `true` if the relier sets `prompt=consent`
      *
-     * @returns {boolean} `true` if relier asks for consent, false otw.
+     * @returns {Boolean} `true` if relier asks for consent, false otw.
      */
-    wantsConsent: function () {
+    wantsConsent () {
       return this.get('prompt') === Constants.OAUTH_PROMPT_CONSENT;
     },
 
@@ -237,11 +232,11 @@ define(function (require, exports, module) {
      * Check whether additional permissions are requested from
      * the given account
      *
-     * @param {object} account
-     * @returns {boolean} `true` if additional permissions
+     * @param {Object} account
+     * @returns {Boolean} `true` if additional permissions
      *   are needed, false otw.
      */
-    accountNeedsPermissions: function (account) {
+    accountNeedsPermissions (account) {
       if (this.isTrusted() && ! this.wantsConsent()) {
         return false;
       }

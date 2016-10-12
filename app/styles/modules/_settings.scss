@@ -179,15 +179,20 @@ body.settings #main-content.card {
 
       html[dir='ltr'] & {
         float: right;
+
+        &.unpaired {
+          float: none;
+        }
       }
 
       html[dir='rtl'] & {
         float: left;
+
+        &.unpaired {
+          float: none;
+        }
       }
 
-      &.unpaired {
-        float: none;
-      }
     }
   }
 
@@ -439,6 +444,12 @@ body.settings #main-content.card {
   display: none;
 }
 
+.blocker {
+  // Firefox 49 has an issue with z-index stacking
+  // Update z-index of the jquery modal, see issue #4257
+  z-index: 6;
+}
+
 .modal {
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $modal-border-color;
@@ -455,12 +466,34 @@ body.settings #main-content.card {
   }
 }
 
-.device-list {
+section.modal-panel {
+  text-align: center;
+
+  .button-row {
+    margin-bottom: 0;
+
+    html[dir='ltr'] & {
+      text-align: left;
+    }
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  .input-row {
+    text-align: left;
+  }
+}
+
+.client-list {
   padding: 0;
 }
 
-.device {
-  background-position: 0 4px;
+.client {
+  // default client icon is desktop
+  background-image: url('/images/device-icon-pc.png');
+  background-position: 0 2px;
   background-repeat: no-repeat;
   background-size: 30px 30px;
 
@@ -470,7 +503,7 @@ body.settings #main-content.card {
   padding-left: 40px;
   position: relative;
 
-  .device-name {
+  .client-name {
     overflow: hidden;
     text-overflow: ellipsis;
     /*allows 5% gutter between device-name and .device-disconnected button*/
@@ -501,10 +534,28 @@ body.settings #main-content.card {
   }
 }
 
-.device.desktop {
-  background-image: url('/images/device-icon-pc.png');
+.client.mobile {
+  background-image: url('/images/device-icon-mobile.png');
 }
 
-.device.mobile {
-  background-image: url('/images/device-icon-mobile.png');
+.client.tablet {
+  background-image: url('/images/device-icon-tablet.png');
+}
+
+.client-device {
+  // device clients currently have their 'last active' time hidden
+  // See issue https://github.com/mozilla/fxa/issues/190
+  .client-name {
+    padding-top: 8px;
+  }
+
+  .last-connected {
+    display: none;
+  }
+}
+
+#client-disconnect {
+  .intro {
+    margin-bottom: 30px;
+  }
 }

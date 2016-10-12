@@ -11,15 +11,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const Logger = require('lib/logger');
 
   function WebChannelReceiver() {
     // nothing to do
   }
   _.extend(WebChannelReceiver.prototype, Backbone.Events, {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._window = options.window;
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
       this._logger = new Logger(this._window);
     },
 
-    receiveMessage: function (event) {
+    receiveMessage (event) {
       var detail = event.detail;
 
       if (! (detail && detail.id)) {
@@ -54,7 +54,7 @@ define(function (require, exports, module) {
       }
     },
 
-    teardown: function () {
+    teardown () {
       this._window.removeEventListener('WebChannelMessageToContent', this._boundReceiveMessage, true);
     }
   });

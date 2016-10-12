@@ -10,14 +10,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Cocktail = require('cocktail');
-  var OAuthErrors = require('lib/oauth-errors');
-  var ChannelMixin = require('models/auth_brokers/mixins/channel');
-  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
-  var p = require('lib/promise');
-  var Vat = require('lib/vat');
-  var WebChannel = require('lib/channels/web');
+  const _ = require('underscore');
+  const Cocktail = require('cocktail');
+  const OAuthErrors = require('lib/oauth-errors');
+  const ChannelMixin = require('models/auth_brokers/mixins/channel');
+  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  const p = require('lib/promise');
+  const Vat = require('lib/vat');
+  const WebChannel = require('lib/channels/web');
 
   var proto = OAuthAuthenticationBroker.prototype;
 
@@ -31,7 +31,7 @@ define(function (require, exports, module) {
       webChannelId: null
     }),
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       // channel can be passed in for testing.
@@ -40,19 +40,18 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    fetch: function () {
-      var self = this;
+    fetch () {
       return proto.fetch.call(this)
-        .then(function () {
-          if (self._isVerificationFlow()) {
-            self._setupVerificationFlow();
+        .then(() => {
+          if (this._isVerificationFlow()) {
+            this._setupVerificationFlow();
           } else {
-            self._setupSigninSignupFlow();
+            this._setupSigninSignupFlow();
           }
         });
     },
 
-    sendOAuthResultToRelier: function (result) {
+    sendOAuthResultToRelier (result) {
       if (result.closeWindow !== true) {
         result.closeWindow = false;
       }
@@ -74,23 +73,22 @@ define(function (require, exports, module) {
      * keys 'kAr' and 'kBr'.
      */
 
-    getOAuthResult: function (account) {
-      var self = this;
+    getOAuthResult (account) {
       return proto.getOAuthResult.call(this, account)
-        .then(function (result) {
-          if (! self.relier.wantsKeys()) {
+        .then((result) => {
+          if (! this.relier.wantsKeys()) {
             return result;
           }
 
-          return account.relierKeys(self.relier)
-            .then(function (relierKeys) {
+          return account.relierKeys(this.relier)
+            .then((relierKeys) => {
               result.keys = relierKeys;
               return result;
             });
         });
     },
 
-    afterSignIn: function (account, additionalResultData) {
+    afterSignIn (account, additionalResultData) {
       if (! additionalResultData) {
         additionalResultData = {};
       }
@@ -105,7 +103,7 @@ define(function (require, exports, module) {
                 this, account, additionalResultData);
     },
 
-    afterForceAuth: function (account, additionalResultData) {
+    afterForceAuth (account, additionalResultData) {
       if (! additionalResultData) {
         additionalResultData = {};
       }
@@ -114,7 +112,7 @@ define(function (require, exports, module) {
                 this, account, additionalResultData);
     },
 
-    beforeSignUpConfirmationPoll: function (account) {
+    beforeSignUpConfirmationPoll (account) {
       // If the relier wants keys, the signup verification tab will need
       // to be able to fetch them in order to complete the flow.
       // Send them as part of the oauth session data.
@@ -140,61 +138,59 @@ define(function (require, exports, module) {
      * but it's unlikely to trigger in practice.
      */
 
-    hasPendingOAuthFlow: function () {
+    hasPendingOAuthFlow () {
       this.session.reload();
       return !! (this.session.oauth);
     },
 
-    afterSignUpConfirmationPoll: function (account) {
+    afterSignUpConfirmationPoll (account) {
       if (this.hasPendingOAuthFlow()) {
         return this.finishOAuthSignUpFlow(account);
       }
       return p();
     },
 
-    afterCompleteSignUp: function (account) {
+    afterCompleteSignUp (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
-      var self = this;
-      return proto.afterCompleteSignUp.call(self, account)
+      return proto.afterCompleteSignUp.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.hasPendingOAuthFlow()) {
+        .then((behavior) => {
+          if (this.hasPendingOAuthFlow()) {
             // This tab won't have access to key-fetching material, so
             // retreive it from the session if necessary.
-            if (self.relier.wantsKeys()) {
-              account.set('keyFetchToken', self.session.oauth.keyFetchToken);
-              account.set('unwrapBKey', self.session.oauth.unwrapBKey);
+            if (this.relier.wantsKeys()) {
+              account.set('keyFetchToken', this.session.oauth.keyFetchToken);
+              account.set('unwrapBKey', this.session.oauth.unwrapBKey);
             }
-            return self.finishOAuthSignUpFlow(account);
+            return this.finishOAuthSignUpFlow(account);
           }
 
           return behavior;
         });
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
+    afterResetPasswordConfirmationPoll (account) {
       if (this.hasPendingOAuthFlow()) {
         return this.finishOAuthSignInFlow(account);
       }
       return p();
     },
 
-    afterCompleteResetPassword: function (account) {
+    afterCompleteResetPassword (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
       // The slight delay here is to allow the functional tests time to
       // bind event handlers before the flow completes.
-      var self = this;
-      return proto.afterCompleteResetPassword.call(self, account)
+      return proto.afterCompleteResetPassword.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.hasPendingOAuthFlow()) {
-            return self.finishOAuthSignInFlow(account);
+        .then((behavior) => {
+          if (this.hasPendingOAuthFlow()) {
+            return this.finishOAuthSignInFlow(account);
           }
 
           return behavior;
@@ -202,7 +198,7 @@ define(function (require, exports, module) {
     },
 
     // used by the ChannelMixin to get a channel.
-    getChannel: function () {
+    getChannel () {
       if (this._channel) {
         return this._channel;
       }
@@ -215,15 +211,15 @@ define(function (require, exports, module) {
       return channel;
     },
 
-    _isVerificationFlow: function () {
+    _isVerificationFlow () {
       return !! this.getSearchParam('code');
     },
 
-    _setupSigninSignupFlow: function () {
+    _setupSigninSignupFlow () {
       this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, OAuthErrors);
     },
 
-    _setupVerificationFlow: function () {
+    _setupVerificationFlow () {
       var resumeObj = this.session.oauth;
 
       if (! resumeObj) {

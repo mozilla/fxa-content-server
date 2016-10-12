@@ -11,21 +11,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
+  const Backbone = require('backbone');
 
   var Model = Backbone.Model.extend({
     defaults: {
       token: undefined
     },
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._oAuthClient = options.oAuthClient;
       this.set('token', options.token);
     },
 
-    destroy: function () {
+    destroy () {
       return this._oAuthClient.destroyToken(this.get('token'));
     }
   });

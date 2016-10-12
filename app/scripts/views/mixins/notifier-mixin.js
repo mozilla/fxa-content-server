@@ -17,7 +17,7 @@
  * ```js
  * ...
  * notifications: {
- *   'notification-1': function () {
+ *   'notification-1' () {
  *      // handle notification
  *   },
  *   'notification-2': '_handlerName'
@@ -32,7 +32,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
+  const _ = require('underscore');
 
   function NotifierProxy(options) {
     options = options || {};
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
   }
 
   NotifierProxy.prototype = {
-    delegateNotifications: function (notifications) {
+    delegateNotifications (notifications) {
       var consumer = this._consumer;
       // based on delegateEvents from Backbone.View
       if (! (notifications || (notifications = _.result(consumer, 'notifications')))) {
@@ -78,10 +78,10 @@ define(function (require, exports, module) {
      * Send a local message over the notifications channel. Message
      * is only sent to consumers of this tab.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
-    trigger: function (eventName, data) {
+    trigger (eventName, data) {
       this._notifier.trigger(eventName, data, this._consumer);
     },
 
@@ -89,30 +89,30 @@ define(function (require, exports, module) {
      * Send a message to all tabs & webChannels over the
      * notifications channel.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
-    triggerAll: function (eventName, data) {
+    triggerAll (eventName, data) {
       this._notifier.triggerAll(eventName, data, this._consumer);
     },
 
     /**
      * Send a message to all remote tabs & webChannels.
      *
-     * @param {string} eventName
-     * @param {object} [data]
+     * @param {String} eventName
+     * @param {Object} [data]
      */
-    triggerRemote: function (eventName, data) {
+    triggerRemote (eventName, data) {
       this._notifier.triggerRemote(eventName, data);
     },
 
     /**
      * Register a listener
      *
-     * @param {string} eventName
-     * @param {function} callback
+     * @param {String} eventName
+     * @param {Function} callback
      */
-    on: function (eventName, callback) {
+    on (eventName, callback) {
       this._notifier.on(eventName, callback);
 
       this._notifierMessages.push({
@@ -125,10 +125,10 @@ define(function (require, exports, module) {
      * Unregister a listener. If `eventName` and `callback` are not given,
      * unregister all callbacks for the consumer.
      *
-     * @param {string} [eventName]
-     * @param {function} [callback]
+     * @param {String} [eventName]
+     * @param {Function} [callback]
      */
-    off: function (eventName, callback) {
+    off (eventName, callback) {
       if (! eventName) {
         // unregister all callbacks for consumer.
         this._notifierMessages.forEach(function (envelope) {
@@ -149,13 +149,13 @@ define(function (require, exports, module) {
     /**
      * Clear any inter tab channel data
      */
-    clear: function () {
+    clear () {
       this._notifier.clear();
     }
   };
 
   var NotifierMixin = {
-    initialize: function (options) {
+    initialize (options) {
       this.notifier = new NotifierProxy({
         consumer: this,
         notifier: options.notifier

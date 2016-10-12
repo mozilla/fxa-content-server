@@ -10,15 +10,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var Environment = require('lib/environment');
-  var NullBehavior = require('views/behaviors/null');
-  var p = require('lib/promise');
-  var SameBrowserVerificationModel = require('models/verification/same-browser');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const Environment = require('lib/environment');
+  const NullBehavior = require('views/behaviors/null');
+  const p = require('lib/promise');
+  const SameBrowserVerificationModel = require('models/verification/same-browser');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Vat = require('lib/vat');
 
   var QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()
@@ -27,7 +27,7 @@ define(function (require, exports, module) {
   var BaseAuthenticationBroker = Backbone.Model.extend({
     type: 'base',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.relier = options.relier;
@@ -63,20 +63,20 @@ define(function (require, exports, module) {
     /**
      * Set a behavior
      *
-     * @param {string} behaviorName
-     * @param {object} value
+     * @param {String} behaviorName
+     * @param {Object} value
      */
-    setBehavior: function (behaviorName, value) {
+    setBehavior (behaviorName, value) {
       this._behaviors.set(behaviorName, value);
     },
 
     /**
      * Get a behavior
      *
-     * @param {string} behaviorName
-     * @return {object}
+     * @param {String} behaviorName
+     * @return {Object}
      */
-    getBehavior: function (behaviorName) {
+    getBehavior (behaviorName) {
       if (! this._behaviors.has(behaviorName)) {
         throw new Error('behavior not found for: ' + behaviorName);
       }
@@ -88,13 +88,11 @@ define(function (require, exports, module) {
      * initialize the broker with any necessary data.
      * @returns {Promise}
      */
-    fetch: function () {
-      var self = this;
-      return p()
-        .then(function () {
-          self._isForceAuth = self._isForceAuthUrl();
-          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
-        });
+    fetch () {
+      return p().then(() => {
+        this._isForceAuth = this._isForceAuthUrl();
+        this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+      });
     },
 
     /*
@@ -102,7 +100,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    canCancel: function () {
+    canCancel () {
       return false;
     },
 
@@ -111,7 +109,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    cancel: function () {
+    cancel () {
       return p();
     },
 
@@ -121,7 +119,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    afterLoaded: function () {
+    afterLoaded () {
       return p();
     },
 
@@ -132,7 +130,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    beforeSignIn: function (/* account */) {
+    beforeSignIn (/* account */) {
       return p(this.getBehavior('beforeSignIn'));
     },
 
@@ -143,7 +141,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignIn: function (/* account */) {
+    afterSignIn (/* account */) {
       return p(this.getBehavior('afterSignIn'));
     },
 
@@ -155,7 +153,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterSignInConfirmationPoll: function (/* account */) {
+    afterSignInConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterSignInConfirmationPoll'));
     },
 
@@ -165,7 +163,7 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    afterForceAuth: function (/* account */) {
+    afterForceAuth (/* account */) {
       return p(this.getBehavior('afterForceAuth'));
     },
 
@@ -177,10 +175,8 @@ define(function (require, exports, module) {
      * @param {Object} account
      * @return {Promise}
      */
-    persistVerificationData: function (account) {
-      var self = this;
-
-      return p().then(function () {
+    persistVerificationData (account) {
+      return p().then(() => {
         // verification info is persisted to localStorage so that
         // the same `context` is used if the user verifies in the same browser.
         // If the user verifies in a different browser, the
@@ -189,7 +185,7 @@ define(function (require, exports, module) {
               createSameBrowserVerificationModel(account, 'context');
 
         verificationInfo.set({
-          context: self.relier.get('context')
+          context: this.relier.get('context')
         });
 
         return verificationInfo.persist();
@@ -199,10 +195,10 @@ define(function (require, exports, module) {
     /**
      * Clear persisted verification data for the account
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    unpersistVerificationData: function (account) {
+    unpersistVerificationData (account) {
       return p().then(function () {
         clearSameBrowserVerificationModel(account, 'context');
       });
@@ -212,10 +208,10 @@ define(function (require, exports, module) {
      * Called after the user has signed up but before the screen has
      * transitioned to the "confirm your email" view.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterSignUp: function (/* account */) {
+    afterSignUp (/* account */) {
       return p(this.getBehavior('afterSignUp'));
     },
 
@@ -224,10 +220,10 @@ define(function (require, exports, module) {
      * to notify the RP that the user has successfully signed up but
      * has not yet completed verification.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    beforeSignUpConfirmationPoll: function (/* account */) {
+    beforeSignUpConfirmationPoll (/* account */) {
       return p(this.getBehavior('beforeSignUpConfirmationPoll'));
     },
 
@@ -236,25 +232,22 @@ define(function (require, exports, module) {
      * to notify the RP that the user has successfully signed up and
      * completed verification.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterSignUpConfirmationPoll: function (/* account */) {
+    afterSignUpConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterSignUpConfirmationPoll'));
     },
 
     /**
      * Called after signup email verification, in the verification tab.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterCompleteSignUp: function (account) {
-      var self = this;
-      return self.unpersistVerificationData(account)
-        .then(function () {
-          return self.getBehavior('afterCompleteSignUp');
-        });
+    afterCompleteSignUp (account) {
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteSignUp'));
     },
 
     /**
@@ -262,44 +255,41 @@ define(function (require, exports, module) {
      * Can be used to notify the RP that the user has sucessfully reset their
      * password.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterResetPasswordConfirmationPoll: function (/* account */) {
+    afterResetPasswordConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
     },
 
     /**
      * Called after password reset email verification, in the verification tab.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterCompleteResetPassword: function (account) {
-      var self = this;
-      return self.unpersistVerificationData(account)
-        .then(function () {
-          return self.getBehavior('afterCompleteResetPassword');
-        });
+    afterCompleteResetPassword (account) {
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteResetPassword'));
     },
 
     /**
      * Called after a user has changed their password.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterChangePassword: function (/* account */) {
+    afterChangePassword (/* account */) {
       return p(this.getBehavior('afterChangePassword'));
     },
 
     /**
      * Called after a user has deleted their account.
      *
-     * @param {object} account
-     * @return {promise}
+     * @param {Object} account
+     * @return {Promise}
      */
-    afterDeleteAccount: function (/* account */) {
+    afterDeleteAccount (/* account */) {
       return p(this.getBehavior('afterDeleteAccount'));
     },
 
@@ -309,7 +299,7 @@ define(function (require, exports, module) {
      * @param {String} link
      * @returns {String}
      */
-    transformLink: function (link) {
+    transformLink (link) {
       return link;
     },
 
@@ -319,11 +309,11 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isForceAuth: function () {
+    isForceAuth () {
       return !! this._isForceAuth;
     },
 
-    _isForceAuthUrl: function () {
+    _isForceAuthUrl () {
       var pathname = this.window.location.pathname;
       return pathname === '/force_auth' || pathname === '/oauth/force_auth';
     },
@@ -333,7 +323,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isAutomatedBrowser: function () {
+    isAutomatedBrowser () {
       return !! this.get('automatedBrowser');
     },
 
@@ -381,40 +371,40 @@ define(function (require, exports, module) {
      * Check if a capability is supported. A capability is not supported
      * if it's value is not a member of or falsy in `this.defaultCapabilities`.
      *
-     * @param {string} capabilityName
-     * @return {boolean}
+     * @param {String} capabilityName
+     * @return {Boolean}
      */
-    hasCapability: function (capabilityName) {
+    hasCapability (capabilityName) {
       return this._capabilities.has(capabilityName) &&
              !! this._capabilities.get(capabilityName);
     },
 
     /**
-     * Set whether a capability is supported
+     * Set a capability value.
      *
-     * @param {string} capabilityName
-     * @param {variant} capabilityValue
+     * @param {String} capabilityName
+     * @param {Variant} capabilityValue
      */
-    setCapability: function (capabilityName, capabilityValue) {
+    setCapability (capabilityName, capabilityValue) {
       this._capabilities.set(capabilityName, capabilityValue);
     },
 
     /**
      * Remove support for a capability
      *
-     * @param {string} capabilityName
+     * @param {String} capabilityName
      */
-    unsetCapability: function (capabilityName) {
+    unsetCapability (capabilityName) {
       this._capabilities.unset(capabilityName);
     },
 
     /**
      * Get the capability value
      *
-     * @param {string} capabilityName
-     * @return {variant}
+     * @param {String} capabilityName
+     * @return {Variant}
      */
-    getCapability: function (capabilityName) {
+    getCapability (capabilityName) {
       return this._capabilities.get(capabilityName);
     }
   });

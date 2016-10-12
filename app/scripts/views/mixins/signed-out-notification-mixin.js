@@ -7,16 +7,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Notifier = require('lib/channels/notifier');
-  var Session = require('lib/session');
+  const BaseView = require('views/base');
+  const Notifier = require('lib/channels/notifier');
+  const Session = require('lib/session');
 
   var Mixin = {
     notifications: {
       // populated below using event name aliases
     },
 
-    clearSessionAndNavigateToSignIn: function () {
+    clearSessionAndNavigateToSignIn () {
       // Unset uid otherwise it will henceforth be impossible
       // to sign in to different accounts inside this tab.
       this.relier.unset('uid');
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
       this.navigateToSignIn();
     },
 
-    navigateToSignIn: function () {
+    navigateToSignIn () {
       this.navigate('signin', {
         success: BaseView.t('Signed out successfully')
       }, {

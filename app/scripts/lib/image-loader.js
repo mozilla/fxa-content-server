@@ -7,14 +7,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const p = require('lib/promise');
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme
    *
    * @param {String} src
-   * @returns {boolean}
+   * @returns {Boolean}
    */
   function load (src) {
     var defer = p.defer();

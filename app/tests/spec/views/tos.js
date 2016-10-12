@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var View = require('views/tos');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const View = require('views/tos');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       xhrMock = {
-        ajax: function () {
+        ajax () {
           return p(TEMPLATE_TEXT);
         }
       };
@@ -34,6 +34,9 @@ define(function (require, exports, module) {
       windowMock.location.pathname = '/legal/terms';
 
       view = new View({
+        broker: {
+          hasCapability: () => true
+        },
         window: windowMock,
         xhr: xhrMock
       });

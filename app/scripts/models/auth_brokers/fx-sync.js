@@ -43,7 +43,7 @@ define(function (require, exports, module) {
       sendChangePasswordNotice: true
     }),
 
-    getCommand: function (commandName) {
+    getCommand (commandName) {
       if (! this.commands) {
         throw new Error('this.commands must be specified');
       }
@@ -64,47 +64,40 @@ define(function (require, exports, module) {
      *        Channel used to send commands to remote listeners.
      * @returns {undefined}
      */
-    initialize: function (options) {
-      options = options || {};
-      var self = this;
-
-      self._logger = new Logger();
+    initialize (options = {}) {
+      this._logger = new Logger();
 
       // channel can be passed in for testing.
-      self._channel = options.channel;
+      this._channel = options.channel;
 
       if (options.commands) {
         this.commands = options.commands;
       }
 
-      return proto.initialize.call(self, options);
+      return proto.initialize.call(this, options);
     },
 
-    afterLoaded: function () {
-      var self = this;
-      return self.send(self.getCommand('LOADED'))
-        .then(function () {
-          return proto.afterLoaded.call(self);
-        });
+    afterLoaded () {
+      return this.send(this.getCommand('LOADED'))
+        .then(() => proto.afterLoaded.call(this));
     },
 
-    beforeSignIn: function (account) {
-      var self = this;
+    beforeSignIn (account) {
       var email = account.get('email');
       // This will send a message over the channel to determine whether
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
-      return self.request(self.getCommand('CAN_LINK_ACCOUNT'), { email: email })
-        .then(function (response) {
+      return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email: email })
+        .then((response) => {
           if (response && ! response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
 
-          self._verifiedCanLinkAccount = true;
-          return proto.beforeSignIn.call(self, account);
-        }, function (err) {
-          self._logger.error('beforeSignIn failed with', err);
+          this._verifiedCanLinkAccount = true;
+          return proto.beforeSignIn.call(this, account);
+        }, (err) => {
+          this._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.
           // This can likely be changed to 'reject' after Fx31 hits nightly,
@@ -112,43 +105,31 @@ define(function (require, exports, module) {
         });
     },
 
-    afterSignIn: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterSignIn.call(self, account);
-        });
+    afterSignIn (account) {
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterSignIn.call(this, account));
     },
 
-    afterForceAuth: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterForceAuth.apply(self, account);
-        });
+    afterForceAuth (account) {
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterForceAuth.apply(this, account));
     },
 
-    beforeSignUpConfirmationPoll: function (account) {
+    beforeSignUpConfirmationPoll (account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
-      var self = this;
       return this._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.beforeSignUpConfirmationPoll.call(self, account);
-        });
+        .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
     },
 
-    afterResetPasswordConfirmationPoll: function (account) {
-      var self = this;
-      return self._notifyRelierOfLogin(account)
-        .then(function () {
-          return proto.afterResetPasswordConfirmationPoll.call(self, account);
-        });
+    afterResetPasswordConfirmationPoll (account) {
+      return this._notifyRelierOfLogin(account)
+        .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
     },
 
-    afterChangePassword: function (account) {
+    afterChangePassword (account) {
       // If the message is sent over the WebChannel by the global WebChannel,
       // no need to send it from within the auth broker too.
       if (this.hasCapability('sendChangePasswordNotice')) {
@@ -164,15 +145,12 @@ define(function (require, exports, module) {
       }
     },
 
-    afterDeleteAccount: function (account) {
-      var self = this;
-      return self.send(self.getCommand('DELETE_ACCOUNT'), {
+    afterDeleteAccount (account) {
+      return this.send(this.getCommand('DELETE_ACCOUNT'), {
         email: account.get('email'),
         uid: account.get('uid')
       })
-      .then(function () {
-        return proto.afterDeleteAccount.call(self, account);
-      });
+      .then(() => proto.afterDeleteAccount.call(this, account));
     },
 
     /**
@@ -180,9 +158,9 @@ define(function (require, exports, module) {
      * the cached channel will be returned. Used by the ChannelMixin.
      *
      * @method getChannel
-     * @returns {object} channel
+     * @returns {Object} channel
      */
-    getChannel: function () {
+    getChannel () {
       if (! this._channel) {
         this._channel = this.createChannel();
       }
@@ -197,11 +175,11 @@ define(function (require, exports, module) {
      * @method createChannel
      * @throws {Error}
      */
-    createChannel: function () {
+    createChannel () {
       throw new Error('createChannel must be overridden');
     },
 
-    _notifyRelierOfLogin: function (account) {
+    _notifyRelierOfLogin (account) {
       /**
        * Workaround for #3078. If the user signs up but does not verify
        * their account, then visit `/` or `/settings`, they are
@@ -225,13 +203,13 @@ define(function (require, exports, module) {
       return this.send(this.getCommand('LOGIN'), loginData);
     },
 
-    _hasRequiredLoginFields: function (loginData) {
+    _hasRequiredLoginFields (loginData) {
       var requiredFields = FxSyncAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
       var loginFields = Object.keys(loginData);
       return ! _.difference(requiredFields, loginFields).length;
     },
 
-    _getLoginData: function (account) {
+    _getLoginData (account) {
       var ALLOWED_FIELDS = [
         'customizeSync',
         'declinedSyncEngines',
@@ -253,10 +231,10 @@ define(function (require, exports, module) {
      * Notify the browser that it should open sync preferences
      *
      * @method openSyncPreferences
-     * @param {string} entryPoint - where Sync Preferences is opened from
-     * @returns {promise} resolves when notification is sent.
+     * @param {String} entryPoint - where Sync Preferences is opened from
+     * @returns {Promise} resolves when notification is sent.
      */
-    openSyncPreferences: function (entryPoint) {
+    openSyncPreferences (entryPoint) {
       if (this.hasCapability('syncPreferencesNotification')) {
         return this.send(this.getCommand('SYNC_PREFERENCES'), {
           entryPoint: entryPoint

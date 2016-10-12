@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var ConfirmView = require('views/confirm');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Session = require('lib/session');
-  var Template = require('stache!templates/confirm_reset_password');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const ConfirmView = require('views/confirm');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Session = require('lib/session');
+  const Template = require('stache!templates/confirm_reset_password');
 
   var t = BaseView.t;
 
@@ -23,17 +23,13 @@ define(function (require, exports, module) {
     template: Template,
     className: 'confirm-reset-password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
       this._verificationPollMS = options.verificationPollMS ||
               this.VERIFICATION_POLL_IN_MS;
     },
 
-    events: {
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
-
-    context: function () {
+    context () {
       var email = this.model.get('email');
       var isSignInEnabled = this.relier.get('resetPasswordConfirm');
 
@@ -45,7 +41,7 @@ define(function (require, exports, module) {
       };
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot confirm if they have not initiated a reset password
       if (! this.model.has('passwordForgotToken')) {
         this.navigate('reset_password');
@@ -53,47 +49,44 @@ define(function (require, exports, module) {
       }
     },
 
-    afterVisible: function () {
-      var self = this;
-
+    afterVisible () {
       var account = this.user.initAccount({ email: this.model.get('email') });
-      return self.broker.persistVerificationData(account)
-        .then(function () {
-          return self._waitForConfirmation()
-            .then(function (sessionInfo) {
-              self.logViewEvent('verification.success');
+      return this.broker.persistVerificationData(account)
+        .then(() => {
+          return this._waitForConfirmation()
+            .then((sessionInfo) => {
+              this.logViewEvent('verification.success');
               // The password was reset, future attempts should ask confirmation.
-              self.relier.set('resetPasswordConfirm', true);
+              this.relier.set('resetPasswordConfirm', true);
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.
               if (sessionInfo) {
-                return self._finishPasswordResetSameBrowser(sessionInfo);
+                return this._finishPasswordResetSameBrowser(sessionInfo);
               }
 
-              return self._finishPasswordResetDifferentBrowser();
+              return this._finishPasswordResetDifferentBrowser();
             })
-            .fail(self.displayError.bind(self));
+            .fail(this.displayError.bind(this));
         });
     },
 
-    _waitForConfirmation: function () {
-      var self = this;
-      var confirmationDeferred = self._confirmationDeferred = p.defer();
-      var confirmationPromise = self._confirmationPromise = confirmationDeferred.promise;
+    _waitForConfirmation () {
+      var confirmationDeferred = this._confirmationDeferred = p.defer();
+      var confirmationPromise = this._confirmationPromise = confirmationDeferred.promise;
 
       // If either the `login` message comes through or the `login` message
       // timeout elapses after the server confirms the user is verified,
       // stop waiting all together and move to the next view.
-      function onComplete(response) {
-        self._stopWaiting();
-        self._confirmationDeferred.resolve(response);
-      }
+      const onComplete = (response) => {
+        this._stopWaiting();
+        this._confirmationDeferred.resolve(response);
+      };
 
-      function onError(err) {
-        self._stopWaiting();
-        self._confirmationDeferred.reject(err);
-      }
+      const onError = (err) => {
+        this._stopWaiting();
+        this._confirmationDeferred.reject(err);
+      };
 
       /**
        * A short message on password reset verification:
@@ -134,23 +127,22 @@ define(function (require, exports, module) {
        *
        * Once the `login` message has arrived, notify the browser. BOOM.
        */
-      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, function () {
-        if (! self._isWaitingForLoginMessage) {
-          self._waitForLoginMessage().then(onComplete, onError);
-          self._stopWaitingForServerConfirmation();
+      this.notifier.on(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN, () => {
+        if (! this._isWaitingForLoginMessage) {
+          this._waitForLoginMessage().then(onComplete, onError);
+          this._stopWaitingForServerConfirmation();
         }
       });
 
-      self._waitForServerConfirmation().then(onComplete, onError);
+      this._waitForServerConfirmation().then(onComplete, onError);
 
       return confirmationPromise;
     },
 
-    _finishPasswordResetSameBrowser: function (sessionInfo) {
-      var self = this;
+    _finishPasswordResetSameBrowser (sessionInfo) {
       // Only the account UID, unwrapBKey and keyFetchToken are passed
       // from the verification tab. Load other from localStorage
-      var account = self.user.getAccountByUid(sessionInfo.uid);
+      var account = this.user.getAccountByUid(sessionInfo.uid);
 
       // keyFetchToken and unwrapBKey are sent from the verification tab,
       // this tab has no idea what they are. The keyFetchToken and
@@ -169,49 +161,51 @@ define(function (require, exports, module) {
       }
 
       // The OAuth flow needs the sessionToken to finish the flow.
-      return self.user.setSignedInAccount(account)
-        .then(function () {
-          self.displaySuccess(t('Password reset'));
+      return this.user.setSignedInAccount(account)
+        .then(() => {
+          this.displaySuccess(t('Password reset'));
 
-          return self.invokeBrokerMethod(
+          return this.invokeBrokerMethod(
                   'afterResetPasswordConfirmationPoll', account);
         })
-        .then(function () {
-          if (self.relier.isDirectAccess()) {
+        .then(() => {
+          if (this.relier.isDirectAccess()) {
             // user is most definitely signed in since sessionInfo
             // was passed in. Just ship direct access users to /settings
-            self.navigate('settings', {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            self.navigate('reset_password_complete');
+            this.navigate('reset_password_complete');
           }
         });
     },
 
-    _getSignInRoute: function () {
+    _getSignInRoute () {
       return this.broker.transformLink('/signin').replace(/^\//, '');
     },
 
-    _finishPasswordResetDifferentBrowser: function () {
-      var self = this;
+    _finishPasswordResetDifferentBrowser () {
       // user verified in a different browser, make them sign in. OAuth
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
       Session.clear();
-      self.navigate(self._getSignInRoute(), {
+      this.navigate(this._getSignInRoute(), {
         success: t('Password reset successfully. Sign in to continue.')
       });
     },
 
     _isWaitingForServerConfirmation: false,
-    _waitForServerConfirmation: function () {
-      var self = this;
+    _waitForServerConfirmation () {
       // only check if still waiting.
       this._isWaitingForServerConfirmation = true;
-      return self.fxaClient.isPasswordResetComplete(self.model.get('passwordForgotToken'))
-        .then(function (isComplete) {
-          if (! self._isWaitingForServerConfirmation) {
+
+      const email = this.model.get('email');
+      const account = this.user.initAccount({ email });
+      const token = this.model.get('passwordForgotToken');
+      return account.isPasswordResetComplete(token)
+        .then((isComplete) => {
+          if (! this._isWaitingForServerConfirmation) {
             // we no longer care about the response, the other tab has opened.
             // drop the response on the ground and never resolve.
             return p.defer().promise;
@@ -220,17 +214,17 @@ define(function (require, exports, module) {
           }
 
           var deferred = p.defer();
-          self._waitForServerConfirmationTimeout = self.setTimeout(function () {
-            if (self._isWaitingForServerConfirmation) {
-              deferred.resolve(self._waitForServerConfirmation());
+          this._waitForServerConfirmationTimeout = this.setTimeout(() => {
+            if (this._isWaitingForServerConfirmation) {
+              deferred.resolve(this._waitForServerConfirmation());
             }
-          }, self._verificationPollMS);
+          }, this._verificationPollMS);
 
           return deferred.promise;
         });
     },
 
-    _stopWaitingForServerConfirmation: function () {
+    _stopWaitingForServerConfirmation () {
       if (this._waitForServerConfirmationTimeout) {
         this.clearTimeout(this._waitForServerConfirmationTimeout);
       }
@@ -238,7 +232,7 @@ define(function (require, exports, module) {
     },
 
     _isWaitingForLoginMessage: false,
-    _waitForLoginMessage: function () {
+    _waitForLoginMessage () {
       var deferred = p.defer();
 
       this._isWaitingForLoginMessage = true;
@@ -248,7 +242,7 @@ define(function (require, exports, module) {
       return deferred.promise;
     },
 
-    _stopListeningForInterTabMessages: function () {
+    _stopListeningForInterTabMessages () {
       this._isWaitingForLoginMessage = false;
       this.notifier.off();
       // Sensitive data is passed between tabs using localStorage.
@@ -256,25 +250,19 @@ define(function (require, exports, module) {
       this.notifier.clear();
     },
 
-    _stopWaiting: function () {
+    _stopWaiting () {
       this._stopWaitingForServerConfirmation();
       this._stopListeningForInterTabMessages();
     },
 
-    submit: function () {
-      var self = this;
-      self.logViewEvent('resend');
-
-      return self.retryResetPassword(
-        self.model.get('email'),
-        self.model.get('passwordForgotToken')
+    resend () {
+      return this.retryResetPassword(
+        this.model.get('email'),
+        this.model.get('passwordForgotToken')
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('reset_password', {
+          return this.navigate('reset_password', {
             error: err
           });
         }
@@ -282,11 +270,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

@@ -5,33 +5,35 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  var AvatarCameraView = require('views/settings/avatar_camera');
-  var AvatarChangeView = require('views/settings/avatar_change');
-  var AvatarCropView = require('views/settings/avatar_crop');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var AvatarView = require('views/settings/avatar');
-  var BaseView = require('views/base');
-  var ChangePasswordView = require('views/settings/change_password');
-  var Cocktail = require('cocktail');
-  var CommunicationPreferencesView = require('views/settings/communication_preferences');
-  var DeleteAccountView = require('views/settings/delete_account');
-  var ClientsView = require('views/settings/clients');
-  var DisplayNameView = require('views/settings/display_name');
-  var Duration = require('duration');
-  var GravatarPermissionsView = require('views/settings/gravatar_permissions');
-  var GravatarView = require('views/settings/avatar_gravatar');
-  var LoadingMixin = require('views/mixins/loading-mixin');
-  var modal = require('modal'); //eslint-disable-line no-unused-vars
-  var Session = require('lib/session');
-  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  var SubPanels = require('views/sub_panels');
-  var Template = require('stache!templates/settings');
+  const $ = require('jquery');
+  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  const AvatarCameraView = require('views/settings/avatar_camera');
+  const AvatarChangeView = require('views/settings/avatar_change');
+  const AvatarCropView = require('views/settings/avatar_crop');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const AvatarView = require('views/settings/avatar');
+  const BaseView = require('views/base');
+  const ChangePasswordView = require('views/settings/change_password');
+  const Cocktail = require('cocktail');
+  const CommunicationPreferencesView = require('views/settings/communication_preferences');
+  const DeleteAccountView = require('views/settings/delete_account');
+  const ClientsView = require('views/settings/clients');
+  const ClientDisconnectView = require('views/settings/client_disconnect');
+  const DisplayNameView = require('views/settings/display_name');
+  const Duration = require('duration');
+  const GravatarPermissionsView = require('views/settings/gravatar_permissions');
+  const GravatarView = require('views/settings/avatar_gravatar');
+  const LoadingMixin = require('views/mixins/loading-mixin');
+  const modal = require('modal'); //eslint-disable-line no-unused-vars
+  const Session = require('lib/session');
+  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  const SubPanels = require('views/sub_panels');
+  const Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [
     AvatarView,
     ClientsView,
+    ClientDisconnectView,
     DisplayNameView,
     CommunicationPreferencesView,
     ChangePasswordView,
@@ -43,7 +45,8 @@ define(function (require, exports, module) {
     GravatarPermissionsView
   ];
 
-  var View = BaseView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'settings',
     layoutClassName: 'settings',
@@ -51,7 +54,7 @@ define(function (require, exports, module) {
 
     mustVerify: true,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._able = options.able;
@@ -83,7 +86,7 @@ define(function (require, exports, module) {
       'navigate-from-child-view': '_onNavigateFromChildView'
     },
 
-    _initializeSubPanels: function (options) {
+    _initializeSubPanels (options) {
       var areCommunicationPrefsVisible = false;
       var panelViews = options.panelViews || PANEL_VIEWS;
 
@@ -108,7 +111,7 @@ define(function (require, exports, module) {
       });
     },
 
-    context: function () {
+    context () {
       var account = this.getSignedInAccount();
 
       return {
@@ -123,17 +126,17 @@ define(function (require, exports, module) {
     },
 
     // Triggered by AvatarMixin
-    onProfileUpdate: function () {
+    onProfileUpdate () {
       this._showAvatar();
     },
 
-    showChildView: function (ChildView, options) {
+    showChildView (ChildView, options) {
       return this._subPanels.showChildView(ChildView, options);
     },
 
     // When we navigate to settings from a childView
     // close the modal, show any ephemeral messages passed to `navigate`
-    _onNavigateFromChildView: function () {
+    _onNavigateFromChildView () {
       if ($.modal.isActive()) {
         $.modal.close();
       }
@@ -143,39 +146,35 @@ define(function (require, exports, module) {
       this._swapDisplayName();
     },
 
-    beforeRender: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+    beforeRender () {
+      var account = this.getSignedInAccount();
 
       return account.fetchProfile()
-        .then(function () {
-          self.user.setAccount(account);
-        });
+        .then(() => this.user.setAccount(account));
     },
 
-    afterRender: function () {
+    afterRender () {
       this._subPanels.setElement(this.$('#sub-panels')[0]);
-      return this._subPanels.render();
+      return this._subPanels.render()
+        .then(proto.afterRender.bind(this));
     },
 
-    afterVisible: function () {
-      var self = this;
-      BaseView.prototype.afterVisible.call(self);
-
+    afterVisible () {
       // Clients may link to the settings page with a `setting` query param
       // so that that field can be displayed/focused.
-      if (self.relier.get('setting') === 'avatar') {
-        self.relier.set('setting', null);
-        self.navigate('settings/avatar/change');
+      if (this.relier.get('setting') === 'avatar') {
+        this.relier.set('setting', null);
+        this.navigate('settings/avatar/change');
       }
 
-      return self._showAvatar();
+      return proto.afterVisible.call(this)
+        .then(this._showAvatar.bind(this));
     },
 
     // When the user adds, removes or changes a display name
     // this gets called and swaps out headers to reflect
     // the updated state of the account
-    _swapDisplayName: function () {
+    _swapDisplayName () {
       var account = this.getSignedInAccount();
       var displayName = account.get('displayName');
       var email = account.get('email');
@@ -192,58 +191,52 @@ define(function (require, exports, module) {
       }
     },
 
-    _setupAvatarChangeLinks: function () {
+    _setupAvatarChangeLinks () {
       this.$('.avatar-wrapper > *').wrap('<a href="/settings/avatar/change" class="change-avatar"></a>');
     },
 
-    _showAvatar: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      return self.displayAccountProfileImage(account)
-        .then(function () {
-          self._setupAvatarChangeLinks();
-        });
+    _showAvatar () {
+      var account = this.getSignedInAccount();
+      return this.displayAccountProfileImage(account)
+        .then(() => this._setupAvatarChangeLinks());
     },
 
-    _areCommunicationPrefsVisible: function () {
+    _areCommunicationPrefsVisible () {
       return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });
     },
 
     signOut: allowOnlyOneSubmit(function () {
-      var self = this;
-      var accountToSignOut = self.getSignedInAccount();
+      var accountToSignOut = this.getSignedInAccount();
 
-      self.logViewEvent('signout.submit');
-      return self.user.signOutAccount(accountToSignOut)
-        .fail(function () {
+      this.logViewEvent('signout.submit');
+      return this.user.signOutAccount(accountToSignOut)
+        .fail(() => {
           // log and ignore the error.
-          self.logViewEvent('signout.error');
+          this.logViewEvent('signout.error');
         })
-        .fin(function () {
-          self.logViewEvent('signout.success');
-          self.clearSessionAndNavigateToSignIn();
+        .fin(() => {
+          this.logViewEvent('signout.success');
+          this.clearSessionAndNavigateToSignIn();
         });
     }),
 
     SUCCESS_MESSAGE_DELAY_MS: new Duration('5s').milliseconds(),
 
-    displaySuccess: function () {
-      var self = this;
-      self.clearTimeout(self._successTimeout);
-      self._successTimeout = self.setTimeout(function () {
-        self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY_MS);
+    displaySuccess () {
+      this.clearTimeout(this._successTimeout);
+      this._successTimeout = this.setTimeout(() => {
+        this.hideSuccess();
+      }, this.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccess.apply(this, arguments);
     },
 
-    displaySuccessUnsafe: function () {
-      var self = this;
-      self.clearTimeout(self._successTimeout);
-      self._successTimeout = self.setTimeout(function () {
-        self.hideSuccess();
-      }, self.SUCCESS_MESSAGE_DELAY_MS);
+    displaySuccessUnsafe () {
+      this.clearTimeout(this._successTimeout);
+      this._successTimeout = this.setTimeout(() => {
+        this.hideSuccess();
+      }, this.SUCCESS_MESSAGE_DELAY_MS);
       return BaseView.prototype.displaySuccessUnsafe.apply(this, arguments);
     }
   });

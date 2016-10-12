@@ -9,10 +9,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
+  const Backbone = require('backbone');
+  const Constants = require('lib/constants');
 
   var Device = Backbone.Model.extend({
     defaults: {
+      clientType: Constants.CLIENT_TYPE_DEVICE,
       id: null,
       isCurrentDevice: null,
       lastAccessTime: null,
@@ -21,7 +23,7 @@ define(function (require, exports, module) {
       type: null
     },
 
-    destroy: function () {
+    destroy () {
       // Both a sessionToken and deviceId are needed to destroy a device.
       // An account `has a` device, therefore account destroys the device.
       this.trigger('destroy', this);

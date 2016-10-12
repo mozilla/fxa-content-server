@@ -5,15 +5,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var sinon = require('sinon');
+  const $ = require('jquery');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const PasswordPromptMixin = require('views/mixins/password-prompt-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const sinon = require('sinon');
 
-  var FormView = require('views/form');
-  var Template = require('stache!templates/test_template');
+  const FormView = require('views/form');
+  const Template = require('stache!templates/test_template');
 
   var TestView = FormView.extend({
     template: Template
@@ -70,14 +70,16 @@ define(function (require, exports, module) {
         var event = new $.Event('focus');
         event.currentTarget = PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR;
         view.onInputFocus(event);
-        assert.isTrue(view.showPasswordPrompt.calledWith(view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR)));
+        assert.isTrue(view.showPasswordPrompt.calledWith(
+          PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR));
       });
 
       it('onInputKeyUp calls showPasswordPrompt with the right password field', function () {
         var event = new $.Event('keyup');
         event.currentTarget = PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR;
         view.onInputKeyUp(event);
-        assert.isTrue(view.showPasswordPrompt.calledWith(view.$(PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR)));
+        assert.isTrue(view.showPasswordPrompt.calledWith(
+          PasswordPromptMixin.CHECK_PASSWORD_FIELD_SELECTOR));
       });
     });
 
@@ -108,7 +110,6 @@ define(function (require, exports, module) {
         // wait for tooltip
         setTimeout(function () {
           assert.equal(view.$(TOOLTIP_SELECTOR).length, 1);
-          assert.equal(view.$(TOOLTIP_SELECTOR + '> a').length, 1, 'has a link');
           done();
         }, 50);
       });

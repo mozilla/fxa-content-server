@@ -17,23 +17,24 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var FlowEventMetadata = require('models/flow-event-metadata');
-  var Backbone = require('backbone');
-  var Duration = require('duration');
-  var Environment = require('lib/environment');
-  var p = require('lib/promise');
-  var speedTrap = require('speedTrap');
-  var Strings = require('lib/strings');
-  var xhr = require('lib/xhr');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
+  const FlowEventMetadata = require('models/flow-event-metadata');
+  const Backbone = require('backbone');
+  const Duration = require('duration');
+  const Environment = require('lib/environment');
+  const p = require('lib/promise');
+  const speedTrap = require('speedTrap');
+  const Strings = require('lib/strings');
+  const xhr = require('lib/xhr');
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.
-  var SpeedTrap = function () {};
+  const SpeedTrap = function () {};
   SpeedTrap.prototype = speedTrap;
 
-  var ALLOWED_FIELDS = [
+  const ALLOWED_FIELDS = [
     'broker',
     'context',
     'duration',
@@ -74,9 +75,7 @@ define(function (require, exports, module) {
     }, []);
   }
 
-  function Metrics (options) {
-    options = options || {};
-
+  function Metrics (options = {}) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
 
@@ -92,7 +91,7 @@ define(function (require, exports, module) {
     this._window = options.window || window;
 
     this._lang = options.lang || 'unknown';
-    this._context = options.context || 'web';
+    this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._migration = options.migration || NOT_REPORTED_VALUE;
     this._service = options.service || NOT_REPORTED_VALUE;
@@ -121,6 +120,7 @@ define(function (require, exports, module) {
 
     this._marketingImpressions = {};
     this._activeExperiments = {};
+    this._eventMemory = {};
 
     this._able = options.able;
     this._env = options.environment || new Environment(this._window);
@@ -133,7 +133,7 @@ define(function (require, exports, module) {
   _.extend(Metrics.prototype, Backbone.Events, {
     ALLOWED_FIELDS: ALLOWED_FIELDS,
 
-    init: function () {
+    init () {
       this._flush = _.bind(this.flush, this, true);
       $(this._window).on('unload', this._flush);
       // iOS will not send events once the window is in the background,
@@ -146,7 +146,7 @@ define(function (require, exports, module) {
       this._resetInactivityFlushTimeout();
     },
 
-    destroy: function () {
+    destroy () {
       $(this._window).off('unload', this._flush);
       $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
@@ -158,13 +158,12 @@ define(function (require, exports, module) {
      * @param {String} isPageUnloading
      * @returns {Promise}
      */
-    flush: function (isPageUnloading) {
+    flush (isPageUnloading) {
       // Inactivity timer is restarted when the next event/timer comes in.
       // This avoids sending empty result sets if the tab is
       // just sitting there open with no activity.
       this._clearInactivityFlushTimeout();
 
-      var self = this;
       var filteredData = this.getFilteredData();
 
       if (! this._isFlushRequired(filteredData)) {
@@ -172,33 +171,32 @@ define(function (require, exports, module) {
       }
 
       return this._send(filteredData, isPageUnloading)
-        .then(function (sent) {
+        .then((sent) => {
           if (sent) {
-            self._speedTrap.events.clear();
-            self._speedTrap.timers.clear();
+            this._speedTrap.events.clear();
+            this._speedTrap.timers.clear();
           }
 
           return sent;
         });
     },
 
-    _isFlushRequired: function (data) {
+    _isFlushRequired (data) {
       return data.events.length !== 0 ||
         Object.keys(data.timers).length !== 0;
     },
 
-    _clearInactivityFlushTimeout: function () {
+    _clearInactivityFlushTimeout () {
       clearTimeout(this._inactivityFlushTimeout);
     },
 
-    _resetInactivityFlushTimeout: function () {
+    _resetInactivityFlushTimeout () {
       this._clearInactivityFlushTimeout();
 
-      var self = this;
       this._inactivityFlushTimeout =
-          setTimeout(function () {
-            self.logEvent('inactivity.flush');
-            self.flush();
+          setTimeout(() => {
+            this.logEvent('inactivity.flush');
+            this.flush();
           }, this._inactivityFlushMs);
     },
 
@@ -208,7 +206,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    getAllData: function () {
+    getAllData () {
       var loadData = this._speedTrap.getLoad();
       var unloadData = this._speedTrap.getUnload();
 
@@ -252,7 +250,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object}
      */
-    getFilteredData: function () {
+    getFilteredData () {
       var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
       return _.pick(allowedData, function (value, key) {
@@ -260,8 +258,7 @@ define(function (require, exports, module) {
       });
     },
 
-    _send: function (data, isPageUnloading) {
-      var self = this;
+    _send (data, isPageUnloading) {
       var url = this._collector + '/metrics';
       var payload = JSON.stringify(data);
 
@@ -270,8 +267,8 @@ define(function (require, exports, module) {
         //   1. it works asynchronously, even on unload.
         //   2. user agents SHOULD make "multiple attempts to transmit the
         //      data in presence of transient network or server errors".
-        return p().then(function () {
-          return self._window.navigator.sendBeacon(url, payload);
+        return p().then(() => {
+          return this._window.navigator.sendBeacon(url, payload);
         });
       }
 
@@ -297,9 +294,21 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this._resetInactivityFlushTimeout();
       this.events.capture(eventName);
+    },
+
+    /**
+     * Log an event only if it never happened before during this page load.
+     *
+     * @param {String} eventName
+     */
+    logEventOnce (eventName) {
+      if (! this._eventMemory[eventName]) {
+        this.logEvent(eventName);
+        this._eventMemory[eventName] = true;
+      }
     },
 
     /**
@@ -307,7 +316,7 @@ define(function (require, exports, module) {
      *
      * @param {String} timerName
      */
-    startTimer: function (timerName) {
+    startTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.start(timerName);
     },
@@ -317,7 +326,7 @@ define(function (require, exports, module) {
      *
      * @param {String} timerName
      */
-    stopTimer: function (timerName) {
+    stopTimer (timerName) {
       this._resetInactivityFlushTimeout();
       this.timers.stop(timerName);
     },
@@ -327,7 +336,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} error
      */
-    logError: function (error) {
+    logError (error) {
       this.logEvent(this.errorToId(error));
     },
 
@@ -337,7 +346,7 @@ define(function (require, exports, module) {
      * @param {Error} error
      * @returns {String}
      */
-    errorToId: function (error) {
+    errorToId (error) {
       var id = Strings.interpolate('error.%s.%s.%s', [
         error.context || 'unknown context',
         error.namespace || 'unknown namespace',
@@ -349,19 +358,19 @@ define(function (require, exports, module) {
     /**
      * Log a view
      *
-     * @param {string} viewName
+     * @param {String} viewName
      */
-    logView: function (viewName) {
+    logView (viewName) {
       this.logEvent(this.viewToId(viewName));
     },
 
     /**
      * Log an event with the view name as a prefix
      *
-     * @param {string} viewName
-     * @param {string} eventName
+     * @param {String} viewName
+     * @param {String} eventName
      */
-    logViewEvent: function (viewName, eventName) {
+    logViewEvent (viewName, eventName) {
       var event = Strings.interpolate('%(viewName)s.%(eventName)s', {
         eventName: eventName,
         viewName: viewName,
@@ -373,10 +382,10 @@ define(function (require, exports, module) {
     /**
      * Convert a viewName to an identifier used in metrics.
      *
-     * @param {string} viewName
-     * @return {string} identifier
+     * @param {String} viewName
+     * @return {String} identifier
      */
-    viewToId: function (viewName) {
+    viewToId (viewName) {
       // `screen.` is a legacy artifact from when each View was a screen.
       // The idenifier is kept to avoid updating all metrics queries.
       return 'screen.' + viewName;
@@ -387,7 +396,7 @@ define(function (require, exports, module) {
      * @param {String} choice - type of experiment
      * @param {String} group - the experiment group (treatment or control)
      */
-    logExperiment: function (choice, group) {
+    logExperiment (choice, group) {
       if (! choice || ! group) {
         return;
       }
@@ -410,7 +419,7 @@ define(function (require, exports, module) {
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - url of marketing link
      */
-    logMarketingImpression: function (campaignId, url) {
+    logMarketingImpression (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
       var impressions = this._marketingImpressions;
@@ -431,7 +440,7 @@ define(function (require, exports, module) {
      * @param {String} campaignId - marketing campaign id
      * @param {String} url - URL clicked.
      */
-    logMarketingClick: function (campaignId, url) {
+    logMarketingClick (campaignId, url) {
       campaignId = campaignId || UNKNOWN_CAMPAIGN_ID;
 
       var impression = this.getMarketingImpression(campaignId, url);
@@ -441,33 +450,33 @@ define(function (require, exports, module) {
       }
     },
 
-    getMarketingImpression: function (campaignId, url) {
+    getMarketingImpression (campaignId, url) {
       var impressions = this._marketingImpressions;
       return impressions[campaignId] && impressions[campaignId][url];
     },
 
-    setBrokerType: function (brokerType) {
+    setBrokerType (brokerType) {
       this._brokerType = brokerType;
     },
 
-    isCollectionEnabled: function () {
+    isCollectionEnabled () {
       return this._isSampledUser;
     },
 
-    logFlowBegin: function (flowId, flowBeginTime) {
+    logFlowBegin (flowId, flowBeginTime, viewName) {
       // Don't emit a new flow.begin event unless flowId has changed.
       if (flowId !== this._flowId) {
         this._flowId = flowId;
         this._flowBeginTime = flowBeginTime;
-        this.logEvent('flow.begin');
+        this.logEvent(`flow.${viewName}.begin`);
       }
     },
 
-    getFlowEventMetadata: function () {
+    getFlowEventMetadata () {
       return this._flowEventMetadata.attributes;
     },
 
-    setFlowEventMetadata: function () {
+    setFlowEventMetadata () {
       this._flowEventMetadata.set.apply(this._flowEventMetadata, arguments);
     }
   });

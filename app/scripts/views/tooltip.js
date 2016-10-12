@@ -7,22 +7,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var BaseView = require('views/base');
-  var KeyCodes = require('lib/key-codes');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const BaseView = require('views/base');
+  const KeyCodes = require('lib/key-codes');
 
   var displayedTooltip;
   var PADDING_BELOW_TOOLTIP_PX = 2;
   var PADDING_ABOVE_TOOLTIP_PX = 4;
 
-  var Tooltip = BaseView.extend({
+  const proto = BaseView.prototype;
+  const Tooltip = BaseView.extend({
     tagName: 'aside',
     className: 'tooltip',
     // tracks the type of a tooltip, used for metrics purposes
     type: 'generic',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
       this.message = options.message || '';
       this.dismissible  = options.dismissible || false;
@@ -35,11 +36,11 @@ define(function (require, exports, module) {
       this.invalidEl = $(options.invalidEl);
     },
 
-    template: function () {
+    template () {
       return this.translator.get(this.message);
     },
 
-    afterRender: function () {
+    afterRender () {
       // only one tooltip at a time!
       if (displayedTooltip) {
         displayedTooltip.destroy(true);
@@ -58,9 +59,11 @@ define(function (require, exports, module) {
       }
 
       this.bindDOMEvents();
+
+      return proto.afterRender.call(this);
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       displayedTooltip = null;
 
       // ditch the events we manually added to reduce interference
@@ -70,7 +73,7 @@ define(function (require, exports, module) {
       invalidEl.find('option').off('click', this._destroy);
     },
 
-    setPosition: function () {
+    setPosition () {
       // by default, the position is above the input/select element
       // to show the tooltip below the element, we use JS to set
       // the top of the tooltip to be just below the element it is
@@ -90,7 +93,7 @@ define(function (require, exports, module) {
       }
     },
 
-    bindDOMEvents: function () {
+    bindDOMEvents () {
       var invalidEl = this.invalidEl;
 
       // destroy the tooltip any time the user

@@ -10,11 +10,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var t = BaseView.t;
-  var _ = require ('underscore');
+  const _ = require ('underscore');
+  const BaseView = require('views/base');
+  const t = BaseView.t;
 
-  var WEBMAIL_SERVICES = [
+  const WEBMAIL_SERVICES = [
     {
       buttonName: t('Open Gmail'),
       link: 'https://mail.google.com/mail/u/?authuser=',
@@ -46,7 +46,7 @@ define(function (require, exports, module) {
       'click #open-webmail': '_webmailTabOpened'
     },
 
-    addUserInfo: function (providerLink, email) {
+    addUserInfo (providerLink, email) {
 
       if (this.getWebmailType(email) === 'gmail'){
         providerLink = providerLink.concat(encodeURIComponent(email));
@@ -55,7 +55,7 @@ define(function (require, exports, module) {
       return providerLink;
     },
 
-    _getService: function (email) {
+    _getService (email) {
       return _.find(WEBMAIL_SERVICES, function (service) {
         return service.regex.test(email);
       });
@@ -66,18 +66,31 @@ define(function (require, exports, module) {
      * @method getContext
      * @returns {Object}
      */
-    getContext: function () {
-      var context = BaseView.prototype.getContext.call(this);
-      var email = context.email;
-      if (email && context.openWebmailButtonVisible) {
-        context.webmailButtonText = this.getWebmailButtonText(email);
-        context.webmailLink = this.getWebmailLink(email);
-        context.webmailType = this.getWebmailType(email);
+    getContext () {
+      const context = BaseView.prototype.getContext.call(this);
+      const email = context.email;
+      const isOpenWebmailButtonVisible = this.isOpenWebmailButtonVisible(email);
+
+      context.isOpenWebmailButtonVisible = isOpenWebmailButtonVisible;
+
+      if (email && isOpenWebmailButtonVisible) {
+        _.extend(context, {
+          unsafeWebmailLink: this.getWebmailLink(email),
+          // function.bind is used to avoid infinite recursion.
+          // getWebmailButtonText calls this.translate which calls
+          // this.context, which will call this.getContext since context is
+          // not yet set. Mustache will call the helper function to get the
+          // button text, context will be set, and getContext will not be called
+          // again. We should fix our l10n.
+          webmailButtonText: this.getWebmailButtonText.bind(this, email),
+          webmailType: this.getWebmailType(email)
+        });
       }
+
       return context;
     },
 
-    getWebmailLink: function (email) {
+    getWebmailLink (email) {
       var providerLink = this._getService(email).link;
       return this.addUserInfo(providerLink, email);
     },
@@ -85,25 +98,25 @@ define(function (require, exports, module) {
     /**
      * Check if the `Open Webmail` button should be visible
      *
-     * @param {string} email
-     * @returns {boolean}
+     * @param {String} email
+     * @returns {Boolean}
      */
-    isOpenWebmailButtonVisible: function (email) {
+    isOpenWebmailButtonVisible (email) {
       // The "Open webmail" button is only visible in certain contexts
       // we do not show it in mobile context because it performs worse
       return this.broker.hasCapability('openWebmailButtonVisible') &&
             !! this._getService(email);
     },
 
-    getWebmailButtonText: function (email) {
-      return this._getService(email).buttonName;
+    getWebmailButtonText (email) {
+      return this.translate(this._getService(email).buttonName);
     },
 
-    getWebmailType: function (email) {
+    getWebmailType (email) {
       return this._getService(email).webmailType;
     },
 
-    _webmailTabOpened: function (event) {
+    _webmailTabOpened (event) {
       var webmailType = this.$el.find(event.target).data('webmailType');
       this.logViewEvent(webmailType + '_clicked');
     }

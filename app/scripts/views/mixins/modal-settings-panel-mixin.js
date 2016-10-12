@@ -9,49 +9,53 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var BaseView = require('views/base');
+  const $ = require('jquery');
+  const BaseView = require('views/base');
+  var preventDefaultThen = BaseView.preventDefaultThen;
 
   module.exports = {
     isModal: true,
 
-    initialize: function (options) {
+    initialize (options) {
       this.parentView = options.parentView;
     },
 
     events: {
-      'click .avatar-panel #back': BaseView.preventDefaultThen('_returnToAvatarChange'),
-      'click .cancel': BaseView.preventDefaultThen('_closePanelReturnToSettings')
+      'click .cancel': preventDefaultThen('_closePanelReturnToSettings'),
+      'click .modal-panel #back': preventDefaultThen('_returnToAvatarChange')
     },
 
-    openPanel: function (event) {
-      var self = this;
-      $(self.el).modal({
+    openPanel (event) {
+      $(this.el).modal({
         opacity: 0.75,
         showClose: false,
         zIndex: 999
       });
-      $(self.el).on($.modal.CLOSE, function () {
-        self._closePanelReturnToSettings();
+      $(this.el).on($.modal.CLOSE, () => {
+        this._closePanelReturnToSettings();
       });
     },
 
-    _returnToAvatarChange: function () {
+    _returnToAvatarChange () {
       this.navigate('settings/avatar/change');
     },
 
-    _closePanelReturnToSettings: function () {
+    _closePanelReturnToSettings () {
       this.navigate('settings');
       this.closePanel();
     },
 
-    closePanel: function () {
+    closePanel () {
       this.destroy(true);
     },
 
-    displaySuccess: function (msg) {
-      var self = this;
-      self.parentView.displaySuccess(msg);
+    closeModalPanel () {
+      this.closePanel();
+      $.modal.close();
+    },
+
+    displaySuccess (msg) {
+      this.parentView.displaySuccess(msg);
     }
   };
 });

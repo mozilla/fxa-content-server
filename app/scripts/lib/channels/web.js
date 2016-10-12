@@ -9,10 +9,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var DuplexChannel = require('lib/channels/duplex');
-  var WebChannelReceiver = require('lib/channels/receivers/web-channel');
-  var WebChannelSender = require('lib/channels/senders/web-channel');
+  const _ = require('underscore');
+  const DuplexChannel = require('lib/channels/duplex');
+  const WebChannelReceiver = require('lib/channels/receivers/web-channel');
+  const WebChannelSender = require('lib/channels/senders/web-channel');
 
   function WebChannel(id) {
     if (! id) {
@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(WebChannel.prototype, new DuplexChannel(), {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var win = options.window || window;

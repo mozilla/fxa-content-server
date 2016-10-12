@@ -5,26 +5,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var BaseBroker = require('models/auth_brokers/base');
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var DOMEventMock = require('../../mocks/dom-event');
-  var ErrorUtils = require('lib/error-utils');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/base');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
-  var TestHelpers = require('../../lib/helpers');
-  var Translator = require('lib/translator');
-  var User = require('models/user');
-  var VerificationReasons = require('lib/verification-reasons');
-  var VerificationMethods = require('lib/verification-methods');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const BaseBroker = require('models/auth_brokers/base');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const DOMEventMock = require('../../mocks/dom-event');
+  const ErrorUtils = require('lib/error-utils');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/base');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
+  const TestHelpers = require('../../lib/helpers');
+  const Translator = require('lib/translator');
+  const User = require('models/user');
+  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationMethods = require('lib/verification-methods');
+  const WindowMock = require('../../mocks/window');
 
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -146,43 +146,6 @@ define(function (require, exports, module) {
         return view.render()
             .then(function () {
               assert.equal(view.titleFromView(), 'Firefox Accounts Unit Tests');
-            });
-      });
-
-      it('shows success messages', function () {
-        model.set('success', 'success message');
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.success').text(), 'success message');
-
-              return view.render();
-            });
-      });
-
-      it('logError is called for error', function () {
-        var error = AuthErrors.toError('UNEXPECTED_ERROR');
-        sinon.spy(view, 'logError');
-        model.set('error', error);
-        view.displayStatusMessages();
-        assert.isTrue(view.logError.called);
-        assert.isTrue(error.logged);
-      });
-
-      it('displayError does not log an already logged error', function () {
-        var error = AuthErrors.toError('UNEXPECTED_ERROR');
-        error.logged = true;
-        sinon.stub(metrics, 'logError', function () { });
-        view.displayError(error);
-        assert.isFalse(metrics.logError.called);
-      });
-
-      it('shows error messages', function () {
-        model.set('error', 'error message');
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.error').text(), 'error message');
-
-              return view.render();
             });
       });
 
@@ -338,6 +301,18 @@ define(function (require, exports, module) {
         $('html').removeClass('no-touch');
       });
 
+      it('shows success messages', function () {
+        model.set('success', 'success message');
+        view.afterVisible();
+        assert.equal(view.$('.success').text(), 'success message');
+      });
+
+      it('shows error messages', function () {
+        model.set('error', 'error message');
+        view.afterVisible();
+        assert.equal(view.$('.error').text(), 'error message');
+      });
+
       it('adds `centered` class to `.links` if any child has width >= half of `.links` width', function () {
         var link1 = '<a href="/reset_password" class="left reset-password">Forgot password?</a>';
         var link2 = '<a href="/signup" class="right sign-up">Create an account with really really looooooooooooooong text</a>';
@@ -479,6 +454,22 @@ define(function (require, exports, module) {
         assert.isTrue(view.isErrorVisible());
         view.hideError();
         assert.isFalse(view.isErrorVisible());
+      });
+
+      it('logError is called for error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        sinon.spy(view, 'logError');
+        view.displayError(error);
+        assert.isTrue(view.logError.called);
+        assert.isTrue(error.logged);
+      });
+
+      it('does not log an already logged error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR');
+        error.logged = true;
+        sinon.stub(metrics, 'logError', function () { });
+        view.displayError(error);
+        assert.isFalse(metrics.logError.called);
       });
 
       it('hides any previously displayed success messages', function () {
@@ -728,6 +719,13 @@ define(function (require, exports, module) {
     describe('logEvent', function () {
       it('logs an event to the event stream', function () {
         view.logEvent('event1');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'event1'));
+      });
+    });
+
+    describe('logEventOnce', function () {
+      it('logs an event once to the event stream', function () {
+        view.logEventOnce('event1');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'event1'));
       });
     });

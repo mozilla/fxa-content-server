@@ -13,15 +13,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var Storage = require('lib/storage');
+  const Backbone = require('backbone');
+  const Storage = require('lib/storage');
 
   function isRefresh (refreshMetrics, viewName) {
     return refreshMetrics && refreshMetrics.view === viewName;
   }
 
   module.exports = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._metrics = options.metrics;
@@ -34,11 +34,11 @@ define(function (require, exports, module) {
       this._notifier.on('show-child-view', this._onShowChildView.bind(this));
     },
 
-    _onShowView: function (View, viewOptions) {
+    _onShowView (View, viewOptions) {
       this.logIfRefresh(viewOptions.viewName);
     },
 
-    _onShowChildView: function (ChildView, ParentView, viewOptions) {
+    _onShowChildView (ChildView, ParentView, viewOptions) {
       this.logIfRefresh(viewOptions.viewName);
     },
 
@@ -46,9 +46,9 @@ define(function (require, exports, module) {
      * Log a `<view_name>.refresh` event if `viewName` matches the
      * previous view's name. Works across page reloads.
      *
-     * @param {string} viewName
+     * @param {String} viewName
      */
-    logIfRefresh: function (viewName) {
+    logIfRefresh (viewName) {
       var refreshMetrics = this._storage.get('last_page_loaded');
 
       if (isRefresh(refreshMetrics, viewName)) {

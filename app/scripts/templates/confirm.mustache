@@ -10,9 +10,7 @@
 
   <section>
     <div class="error"></div>
-    <div class="success">
-      {{#t}}Email resent{{/t}}
-    </div>
+    <div class="success"></div>
 
     <div class="graphic graphic-mail">{{#t}}Email Sent{{/t}}</div>
 
@@ -23,11 +21,11 @@
     <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've emailed a confirmation link to %(email)s{{/t}}</p>
     {{/isSignIn}}
 
-    {{#openWebmailButtonVisible}}
+    {{#isOpenWebmailButtonVisible}}
       <div class="button-row">
-        <a href="{{{ webmailLink }}}" data-webmail-type="{{{webmailType}}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+        <a href="{{{ unsafeWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
       </div>
-    {{/openWebmailButtonVisible}}
+    {{/isOpenWebmailButtonVisible}}
 
     <div class="links">
       {{^canGoBack}}

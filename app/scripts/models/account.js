@@ -8,16 +8,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Constants = require('lib/constants');
-  var MarketingEmailPrefs = require('models/marketing-email-prefs');
-  var OAuthToken = require('models/oauth-token');
-  var p = require('lib/promise');
-  var ProfileErrors = require('lib/profile-errors');
-  var ProfileImage = require('models/profile-image');
-  var SignInReasons = require('lib/sign-in-reasons');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Constants = require('lib/constants');
+  const MarketingEmailPrefs = require('models/marketing-email-prefs');
+  const OAuthToken = require('models/oauth-token');
+  const p = require('lib/promise');
+  const ProfileErrors = require('lib/profile-errors');
+  const ProfileImage = require('models/profile-image');
+  const SignInReasons = require('lib/sign-in-reasons');
 
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
 
@@ -53,6 +53,7 @@ define(function (require, exports, module) {
     accessToken: undefined,
     customizeSync: undefined,
     declinedSyncEngines: undefined,
+    emailSent: undefined,
     keyFetchToken: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined,
@@ -63,7 +64,7 @@ define(function (require, exports, module) {
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
   var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
-  var PROFILE_SCOPE = 'profile profile:write';
+  var CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
   var PERMISSIONS_TO_KEYS = {
     'profile:avatar': 'profileImageUrl',
@@ -75,58 +76,48 @@ define(function (require, exports, module) {
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
 
-    initialize: function (accountData, options) {
-      options = options || {};
-      var self = this;
-
-      self._oAuthClientId = options.oAuthClientId;
-      self._oAuthClient = options.oAuthClient;
-      self._assertion = options.assertion;
-      self._profileClient = options.profileClient;
-      self._fxaClient = options.fxaClient;
-      self._marketingEmailClient = options.marketingEmailClient;
-      self._metrics = options.metrics;
+    initialize (accountData, options = {}) {
+      this._oAuthClientId = options.oAuthClientId;
+      this._oAuthClient = options.oAuthClient;
+      this._assertion = options.assertion;
+      this._profileClient = options.profileClient;
+      this._fxaClient = options.fxaClient;
+      this._marketingEmailClient = options.marketingEmailClient;
+      this._metrics = options.metrics;
 
       /**
        * Keeps track of outstanding assertion generation requests, keyed
        * by sessionToken. Used to prevent multiple concurrent assertion
        * requests for the same sessionToken.
        */
-      self._assertionPromises = {};
+      this._assertionPromises = {};
 
       // upgrade old `grantedPermissions` to the new `permissions`.
-      self._upgradeGrantedPermissions();
+      this._upgradeGrantedPermissions();
 
-      self._boundOnChange = self.onChange.bind(self);
-      self.on('change', self._boundOnChange);
+      this._boundOnChange = this.onChange.bind(this);
+      this.on('change', this._boundOnChange);
     },
 
     // Hydrate the account
-    fetch: function () {
-      var self = this;
-      var promise = p();
-
-      if (! self.get('sessionToken')) {
-        return promise;
+    fetch () {
+      if (! this.get('sessionToken') || this.get('verified')) {
+        return p();
       }
 
       // upgrade the credentials with verified state
-      if (! self.get('verified')) {
-        promise = self.isVerified()
-          .then(function (verified) {
-            self.set('verified', verified);
-          }, function (err) {
-            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-              self._invalidateSession();
-            }
-            // Ignore other errors; we'll just fetch again when needed
-          });
-      }
-
-      return promise;
+      return this.sessionStatus()
+        .then((sessionStatus) => {
+          this.set('verified', sessionStatus.verified);
+        }, (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            this._invalidateSession();
+          }
+          // Ignore other errors; we'll just fetch again when needed
+        });
     },
 
-    _invalidateSession: function () {
+    _invalidateSession () {
       // Invalid token can happen if user uses 'Disconnect'
       // in Firefox Desktop. Only 'set' will trigger model
       // change, using 'unset' will not.
@@ -141,83 +132,73 @@ define(function (require, exports, module) {
       });
     },
 
-    _fetchProfileOAuthToken: function () {
-      var self = this;
-      return self.createOAuthToken(PROFILE_SCOPE)
-        .then(function (accessToken) {
-          self.set('accessToken', accessToken.get('token'));
+    _fetchProfileOAuthToken () {
+      return this.createOAuthToken(CONTENT_SERVER_OAUTH_SCOPE)
+        .then((accessToken) => {
+          this.set('accessToken', accessToken.get('token'));
         });
     },
 
-    profileClient: function () {
-      var self = this;
-      return self.fetch()
-        .then(function () {
-          // If the account is not verified fail before attempting to fetch a token
-          if (! self.get('verified')) {
-            throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
-          } else if (self._needsAccessToken()) {
-            return self._fetchProfileOAuthToken();
-          }
-        })
-        .then(function () {
-          return self._profileClient;
-        });
+    profileClient () {
+      return this.fetch().then(() => {
+        // If the account is not verified fail before attempting to fetch a token
+        if (! this.get('verified')) {
+          throw AuthErrors.toError('UNVERIFIED_ACCOUNT');
+        } else if (this._needsAccessToken()) {
+          return this._fetchProfileOAuthToken();
+        }
+      })
+      .then(() => this._profileClient);
     },
 
-    isFromSync: function () {
+    isFromSync () {
       return this.get('sessionTokenContext') === Constants.SESSION_TOKEN_USED_FOR_SYNC;
     },
 
     // returns true if all attributes within ALLOWED_KEYS are defaults
-    isDefault: function () {
-      var self = this;
-      return ! _.find(ALLOWED_KEYS, function (key) {
-        return self.get(key) !== DEFAULTS[key];
+    isDefault () {
+      return ! _.find(ALLOWED_KEYS, (key) => {
+        return this.get(key) !== DEFAULTS[key];
       });
     },
 
     // If we're verified and don't have an accessToken, we should
     // go ahead and get one.
-    _needsAccessToken: function () {
+    _needsAccessToken () {
       return this.get('verified') && ! this.get('accessToken');
     },
 
-    _generateAssertion: function () {
-      var self = this;
-
-      var sessionToken = self.get('sessionToken');
+    _generateAssertion () {
+      var sessionToken = this.get('sessionToken');
 
       // assertions live for 25 years, they can be cached and reused while
       // this browser tab is open.
-      var existingAssertionPromise = self._assertionPromises[sessionToken];
+      var existingAssertionPromise = this._assertionPromises[sessionToken];
 
       if (existingAssertionPromise) {
         return existingAssertionPromise;
       }
 
-      var assertionPromise = self._assertion.generate(sessionToken);
+      var assertionPromise = this._assertion.generate(sessionToken);
 
-      self._assertionPromises[sessionToken] = assertionPromise;
+      this._assertionPromises[sessionToken] = assertionPromise;
 
       return assertionPromise;
     },
 
-    createOAuthToken: function (scope) {
-      var self = this;
-
-      return self._generateAssertion()
-        .then(function (assertion) {
+    createOAuthToken (scope) {
+      return this._generateAssertion()
+        .then((assertion) => {
           var params = {
             assertion: assertion,
-            client_id: self._oAuthClientId, //eslint-disable-line camelcase
+            client_id: this._oAuthClientId, //eslint-disable-line camelcase
             scope: scope
           };
-          return self._oAuthClient.getToken(params);
+          return this._oAuthClient.getToken(params);
         })
-        .then(function (result) {
+        .then((result) => {
           return new OAuthToken({
-            oAuthClient: self._oAuthClient,
+            oAuthClient: this._oAuthClient,
             token: result.access_token
           });
         });
@@ -228,7 +209,7 @@ define(function (require, exports, module) {
      * includes whether the session is verified, and if not, the reason
      * it must be verified and by which method.
      *
-     * @returns {promise} resolves with the account's current session
+     * @returns {Promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
      *
@@ -239,7 +220,7 @@ define(function (require, exports, module) {
      *   verificationReason: <see lib/verification-reasons.js>
      * }
      */
-    sessionStatus: function () {
+    sessionStatus () {
       var sessionToken = this.get('sessionToken');
       if (! sessionToken) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
@@ -248,18 +229,52 @@ define(function (require, exports, module) {
       return this._fxaClient.recoveryEmailStatus(sessionToken);
     },
 
-    isVerified: function () {
-      return this._fxaClient.recoveryEmailStatus(this.get('sessionToken'))
-        .then(function (results) {
-          return results.verified;
+    /**
+     * Wait for the session to become verified.
+     *
+     * @param {Number} pollIntervalInMs
+     * @returns {Promise}
+     */
+    waitForSessionVerification (pollIntervalInMs) {
+      return this.sessionStatus()
+        .then((result) => {
+          if (result.verified) {
+            this.set('verified', true);
+            return;
+          }
+
+          return p()
+            .delay(pollIntervalInMs)
+            .then(() => this.waitForSessionVerification(pollIntervalInMs));
+        })
+        .fail((err) => {
+          // The user's email may have bounced because it's invalid. Check
+          // if the account still exists, if it doesn't, it means the email
+          // bounced. Show a message allowing the user to sign up again.
+          //
+          // This makes the huge assumption that a confirmation email
+          // was sent.
+          if (AuthErrors.is(err, 'INVALID_TOKEN') && this.has('uid')) {
+            return this.checkUidExists()
+              .then((accountExists) => {
+                if (! accountExists) {
+                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
+                }
+
+                // account exists, but sessionToken has been invalidated.
+                throw err;
+              });
+          }
+
+          throw err;
         });
     },
 
-    isSignedIn: function () {
+    isSignedIn () {
       return this._fxaClient.isSignedIn(this.get('sessionToken'));
     },
 
-    toJSON: function () {
+    toJSON () {
       /*
        * toJSON is explicitly disabled because it fetches all attributes
        * on the model, making accidental data exposure easier than it
@@ -272,11 +287,11 @@ define(function (require, exports, module) {
       throw new Error('toJSON is explicitly disabled, use `.pick` instead');
     },
 
-    toPersistentJSON: function () {
+    toPersistentJSON () {
       return this.pick(ALLOWED_PERSISTENT_KEYS);
     },
 
-    setProfileImage: function (profileImage) {
+    setProfileImage (profileImage) {
       this.set({
         profileImageId: profileImage.get('id'),
         profileImageUrl: profileImage.get('url')
@@ -289,92 +304,84 @@ define(function (require, exports, module) {
       }
     },
 
-    onChange: function () {
+    onChange () {
       // if any data is set outside of the `fetchProfile` function,
       // clear the cache and force a reload of the profile the next time.
       delete this._profileFetchPromise;
     },
 
     _profileFetchPromise: null,
-    fetchProfile: function () {
-      var self = this;
-
+    fetchProfile () {
       // Avoid multiple views making profile requests by caching
       // the profile fetch request. Only allow one for a given account,
       // and then re-use the data after that. See #3053
-      if (self._profileFetchPromise) {
-        return self._profileFetchPromise;
+      if (this._profileFetchPromise) {
+        return this._profileFetchPromise;
       }
 
       // ignore change events while populating known good data.
       // Unbinding the change event here ignores the `set` from
       // the call to _fetchProfileOAuthToken made in `getProfile`.
-      self.off('change', self._boundOnChange);
+      this.off('change', this._boundOnChange);
 
-      self._profileFetchPromise = self.getProfile()
-        .then(function (result) {
+      this._profileFetchPromise = this.getProfile()
+        .then((result) => {
           var profileImage = new ProfileImage({ url: result.avatar });
 
-          self.setProfileImage(profileImage);
-          self.set('displayName', result.displayName);
+          this.setProfileImage(profileImage);
+          this.set('displayName', result.displayName);
 
-          self.on('change', self._boundOnChange);
+          this.on('change', this._boundOnChange);
         });
 
-      return self._profileFetchPromise;
+      return this._profileFetchPromise;
     },
 
-    fetchCurrentProfileImage: function () {
-      var self = this;
+    fetchCurrentProfileImage () {
       var profileImage = new ProfileImage();
 
-      return self.getAvatar()
-        .then(function (result) {
+      return this.getAvatar()
+        .then((result) => {
           profileImage = new ProfileImage({ id: result.id, url: result.avatar });
-          self.setProfileImage(profileImage);
+          this.setProfileImage(profileImage);
           return profileImage.fetch();
         })
-        .then(function () {
-          return profileImage;
-        });
+        .then(() => profileImage);
     },
 
     /**
      * Sign in an existing user.
      *
-     * @param {string} password - The user's password
-     * @param {object} relier - Relier being signed in to
-     * @param {object} [options]
+     * @param {String} password - The user's password
+     * @param {Object} relier - Relier being signed in to
+     * @param {Object} [options]
      * @param {String} [options.reason] - Reason for the sign in. See definitons
      * in sign-in-reasons.js. Defaults to SIGN_IN_REASONS.SIGN_IN.
-     * @param {string} [options.resume] - Resume token to send in verification
+     * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
-    signIn: function (password, relier, options) {
-      var self = this;
-      options = options || {};
-
-      return p().then(function () {
-        var email = self.get('email');
-        var sessionToken = self.get('sessionToken');
+    signIn (password, relier, options = {}) {
+      return p().then(() => {
+        var email = this.get('email');
+        var sessionToken = this.get('sessionToken');
 
         if (password) {
-          return self._fxaClient.signIn(email, password, relier, {
-            metricsContext: self._metrics.getFlowEventMetadata(),
+          return this._fxaClient.signIn(email, password, relier, {
+            metricsContext: this._metrics.getFlowEventMetadata(),
             reason: options.reason || SignInReasons.SIGN_IN,
             resume: options.resume
           });
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
-          return self._fxaClient.recoveryEmailStatus(sessionToken);
+          return this._fxaClient.recoveryEmailStatus(sessionToken);
         } else {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }
       })
-      .then(function (updatedSessionData) {
-        self.set(updatedSessionData);
+      .then((updatedSessionData) => {
+        this.set(updatedSessionData);
         return updatedSessionData;
       });
     },
@@ -382,42 +389,37 @@ define(function (require, exports, module) {
     /**
      * Sign up a new user.
      *
-     * @param {string} password - The user's password
-     * @param {object} relier - Relier being signed in to
-     * @param {object} [options]
-     * @param {string} [options.resume] - Resume token to send in verification
+     * @param {String} password - The user's password
+     * @param {Object} relier - Relier being signed in to
+     * @param {Object} [options]
+     * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
-    signUp: function (password, relier, options) {
-      var self = this;
-      options = options || {};
-
-      return self._fxaClient.signUp(
-        self.get('email'),
+    signUp (password, relier, options = {}) {
+      return this._fxaClient.signUp(
+        this.get('email'),
         password,
         relier,
         {
-          customizeSync: self.get('customizeSync'),
-          metricsContext: self._metrics.getFlowEventMetadata(),
+          customizeSync: this.get('customizeSync'),
+          metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume
         })
-        .then(function (updatedSessionData) {
-          self.set(updatedSessionData);
+        .then((updatedSessionData) => {
+          this.set(updatedSessionData);
         });
     },
 
     /**
      * Retry a sign up
      *
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise} - resolves when complete
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise} - resolves when complete
      */
-    retrySignUp: function (relier, options) {
-      options = options || {};
-
+    retrySignUp (relier, options = {}) {
       return this._fxaClient.signUpResend(
         relier,
         this.get('sessionToken'),
@@ -430,24 +432,23 @@ define(function (require, exports, module) {
     /**
      * Verify the account using the verification code
      *
-     * @param {string} code - the verification code
-     * @param {object} [options]
-     * @param {object} [options.service] - the service issuing signup request
-     * @returns {promise} - resolves when complete
+     * @param {String} code - the verification code
+     * @param {Object} [options]
+     * @param {Object} [options.service] - the service issuing signup request
+     * @returns {Promise} - resolves when complete
      */
-    verifySignUp: function (code, options) {
-      var self = this;
-      return self._fxaClient.verifyCode(
-        self.get('uid'),
+    verifySignUp (code, options = {}) {
+      return this._fxaClient.verifyCode(
+        this.get('uid'),
         code,
         options
       )
-      .then(function () {
-        self.set('verified', true);
+      .then(() => {
+        this.set('verified', true);
 
-        if (self.get('needsOptedInToMarketingEmail')) {
-          self.unset('needsOptedInToMarketingEmail');
-          var emailPrefs = self.getMarketingEmailPrefs();
+        if (this.get('needsOptedInToMarketingEmail')) {
+          this.unset('needsOptedInToMarketingEmail');
+          var emailPrefs = this.getMarketingEmailPrefs();
           return emailPrefs.optIn(NEWSLETTER_ID);
         }
       });
@@ -456,46 +457,45 @@ define(function (require, exports, module) {
     /**
      * Check whether the account's email is registered.
      *
-     * @returns {promise} resolves to `true` if email is registered,
+     * @returns {Promise} resolves to `true` if email is registered,
      * `false` otw.
      */
-    checkEmailExists: function () {
+    checkEmailExists () {
       return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
     },
 
     /**
      * Check whether the account's UID is registered.
      *
-     * @returns {promise} resolves to `true` if the uid is registered,
+     * @returns {Promise} resolves to `true` if the uid is registered,
      * `false` otw.
      */
-    checkUidExists: function () {
+    checkUidExists () {
       return this._fxaClient.checkAccountExists(this.get('uid'));
     },
 
     /**
      * Sign out the user
      *
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
-    signOut: function () {
+    signOut () {
       return this._fxaClient.signOut(this.get('sessionToken'));
     },
 
     /**
      * Destroy the account, remove it from the server
      *
-     * @param {string} password - The user's password
-     * @returns {promise} - resolves when complete
+     * @param {String} password - The user's password
+     * @returns {Promise} - resolves when complete
      */
-    destroy: function (password) {
-      var self = this;
-      return self._fxaClient.deleteAccount(
-        self.get('email'),
+    destroy (password) {
+      return this._fxaClient.deleteAccount(
+        this.get('email'),
         password
       )
-      .then(function () {
-        self.trigger('destroy', self);
+      .then(() => {
+        this.trigger('destroy', this);
       });
     },
 
@@ -508,7 +508,7 @@ define(function (require, exports, module) {
      *
      * @private
      */
-    _upgradeGrantedPermissions: function () {
+    _upgradeGrantedPermissions () {
       if (this.has('grantedPermissions')) {
         var grantedPermissions = this.get('grantedPermissions');
 
@@ -536,10 +536,10 @@ define(function (require, exports, module) {
      *   'profile:email': true
      * }
      *
-     * @param {string} clientId
-     * @returns {object}
+     * @param {String} clientId
+     * @returns {Object}
      */
-    getClientPermissions: function (clientId) {
+    getClientPermissions (clientId) {
       var permissions = this.get('permissions') || {};
       return permissions[clientId] || {};
     },
@@ -547,11 +547,11 @@ define(function (require, exports, module) {
     /**
      * Get the value of a single permission
      *
-     * @param {string} clientId
-     * @param {string} permissionName
-     * @returns {boolean}
+     * @param {String} clientId
+     * @param {String} permissionName
+     * @returns {Boolean}
      */
-    getClientPermission: function (clientId, permissionName) {
+    getClientPermission (clientId, permissionName) {
       var clientPermissions = this.getClientPermissions(clientId);
       return clientPermissions[permissionName];
     },
@@ -564,10 +564,10 @@ define(function (require, exports, module) {
      *   'profile:email': true
      * }
      *
-     * @param {string} clientId
-     * @param {object} clientPermissions
+     * @param {String} clientId
+     * @param {Object} clientPermissions
      */
-    setClientPermissions: function (clientId, clientPermissions) {
+    setClientPermissions (clientId, clientPermissions) {
       var allPermissions = this.get('permissions') || {};
       allPermissions[clientId] = clientPermissions;
       this.set('permissions', allPermissions);
@@ -577,12 +577,12 @@ define(function (require, exports, module) {
      * Check whether all the passed in permissions have been
      * seen previously.
      *
-     * @param {string} clientId
-     * @param {strings[]} permissions
-     * @returns {boolean} `true` if client has seen all the permissions,
+     * @param {String} clientId
+     * @param {String[]} permissions
+     * @returns {Boolean} `true` if client has seen all the permissions,
      *  `false` otw.
      */
-    hasSeenPermissions: function (clientId, permissions) {
+    hasSeenPermissions (clientId, permissions) {
       var seenPermissions = Object.keys(this.getClientPermissions(clientId));
       // without's signature is `array, *values)`,
       // *values cannot be an array, so convert to a form without can use.
@@ -595,12 +595,11 @@ define(function (require, exports, module) {
      * Return a list of permissions that have
      * corresponding account values.
      *
-     * @param {strings[]} permissionNames
-     * @returns {strings[]}
+     * @param {String[]} permissionNames
+     * @returns {String[]}
      */
-    getPermissionsWithValues: function (permissionNames) {
-      var self = this;
-      return permissionNames.map(function (permissionName) {
+    getPermissionsWithValues (permissionNames) {
+      return permissionNames.map((permissionName) => {
         var accountKey = PERMISSIONS_TO_KEYS[permissionName];
 
         // filter out permissions we do not know about
@@ -609,22 +608,18 @@ define(function (require, exports, module) {
         }
 
         // filter out permissions for which the account does not have a value
-        if (! self.has(accountKey)) {
+        if (! this.has(accountKey)) {
           return null;
         }
 
         return permissionName;
-      }).filter(function (permissionName) {
-        return permissionName !== null;
-      });
+      }).filter((permissionName) => permissionName !== null);
     },
 
-    getMarketingEmailPrefs: function () {
-      var self = this;
-
+    getMarketingEmailPrefs () {
       var emailPrefs = new MarketingEmailPrefs({
-        account: self,
-        marketingEmailClient: self._marketingEmailClient
+        account: this,
+        marketingEmailClient: this._marketingEmailClient
       });
 
       return emailPrefs;
@@ -633,22 +628,20 @@ define(function (require, exports, module) {
     /**
      * Change the user's password
      *
-     * @param {string} oldPassword
-     * @param {string} newPassword
-     * @param {object} relier
-     * @returns {promise}
+     * @param {String} oldPassword
+     * @param {String} newPassword
+     * @param {Object} relier
+     * @returns {Promise}
      */
-    changePassword: function (oldPassword, newPassword, relier) {
+    changePassword (oldPassword, newPassword, relier) {
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
       // password, they should know that first.
-      var self = this;
-
-      var fxaClient = self._fxaClient;
-      var email = self.get('email');
+      var fxaClient = this._fxaClient;
+      var email = this.get('email');
 
       return fxaClient.checkPassword(email, oldPassword)
-        .then(function () {
+        .then(() => {
           if (oldPassword === newPassword) {
             throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
           }
@@ -657,12 +650,12 @@ define(function (require, exports, module) {
             email,
             oldPassword,
             newPassword,
-            self.get('sessionToken'),
-            self.get('sessionTokenContext'),
+            this.get('sessionToken'),
+            this.get('sessionTokenContext'),
             relier
           );
         })
-        .then(self.set.bind(self));
+        .then(this.set.bind(this));
     },
 
     /**
@@ -693,13 +686,13 @@ define(function (require, exports, module) {
     /**
      * Complete a password reset
      *
-     * @param {string} password - the user's new password
-     * @param {string} token - email verification token
-     * @param {string} code - email verification code
-     * @param {object} relier - relier being signed in to.
-     * @returns {promise} - resolves when complete
+     * @param {String} password - the user's new password
+     * @param {String} token - email verification token
+     * @param {String} code - email verification code
+     * @param {Object} relier - relier being signed in to.
+     * @returns {Promise} - resolves when complete
      */
-    completePasswordReset: function (password, token, code, relier) {
+    completePasswordReset (password, token, code, relier) {
       return this._fxaClient.completePasswordReset(
         this.get('email'),
         password,
@@ -711,28 +704,44 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the account's device list and populate the `devices` collection.
+     * Fetch the account's device list and populate into the collection
      *
-     * @param {object} devices - Devices collection
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
-    fetchDevices: function (devices) {
-      var sessionToken = this.get('sessionToken');
+    fetchDevices () {
+      return this._fxaClient.deviceList(this.get('sessionToken'))
+        .then((devices) => {
+          devices.map((item) => {
+            item.clientType = Constants.CLIENT_TYPE_DEVICE;
+          });
 
-      return this._fxaClient.deviceList(sessionToken)
-        .then(devices.set.bind(devices));
+          return devices;
+        });
+    },
+
+    /**
+     * Fetch the account's OAuth Apps and populate into the collection
+     *
+     * @returns {Promise} resolves when the action completes
+     */
+    fetchOAuthApps () {
+      return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
+        .then((oAuthApps) => {
+          oAuthApps.map((item) => {
+            item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
+          });
+
+          return oAuthApps;
+        });
     },
 
     /**
      * Delete the device from the account
      *
-     * @param {object} device - Device model to remove
-     * @returns {promise} - resolves when complete
-     *
-     * @param {object} devices - Devices collection
-     * @returns {promise} - resolves when complete
+     * @param {Object} device - Device model to remove
+     * @returns {Promise} - resolves when complete
      */
-    destroyDevice: function (device) {
+    destroyDevice (device) {
       var deviceId = device.get('id');
       var sessionToken = this.get('sessionToken');
 
@@ -742,17 +751,32 @@ define(function (require, exports, module) {
         });
     },
 
+
+    /**
+     * Delete the device from the account
+     *
+     * @param {Object} oAuthApp - OAuthApp model to remove
+     * @returns {Promise} - resolves when complete
+     */
+    destroyOAuthApp (oAuthApp) {
+      var oAuthAppId = oAuthApp.get('id');
+      var accessToken = this.get('accessToken');
+
+      return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId)
+        .then(() => {
+          oAuthApp.destroy();
+        });
+    },
+
     /**
      * Initiate a password reset
      *
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise}
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise}
      */
-    resetPassword: function (relier, options) {
-      options = options || {};
-
+    resetPassword (relier, options = {}) {
       return this._fxaClient.passwordReset(
         this.get('email'),
         relier,
@@ -765,15 +789,13 @@ define(function (require, exports, module) {
     /**
      * Retry a password reset
      *
-     * @param {string} passwordForgotToken
-     * @param {object} relier
-     * @param {object} [options]
-     * @param {string} [options.resume] resume token
-     * @returns {promise}
+     * @param {String} passwordForgotToken
+     * @param {Object} relier
+     * @param {Object} [options]
+     * @param {String} [options.resume] resume token
+     * @returns {Promise}
      */
-    retryResetPassword: function (passwordForgotToken, relier, options) {
-      options = options || {};
-
+    retryResetPassword (passwordForgotToken, relier, options = {}) {
       return this._fxaClient.passwordResetResend(
         this.get('email'),
         passwordForgotToken,
@@ -788,10 +810,10 @@ define(function (require, exports, module) {
      * Fetch keys for the account. Requires account to have
      * `keyFetchToken` and `unwrapBKey`
      *
-     * @returns {promise} that resolves with the account keys, if they
+     * @returns {Promise} that resolves with the account keys, if they
      *   can be generated, resolves with null otherwise.
      */
-    accountKeys: function () {
+    accountKeys () {
       if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
         return p(null);
       }
@@ -803,20 +825,30 @@ define(function (require, exports, module) {
     /**
      * Fetch keys that can be used by a relier.
      *
-     * @param {object} relier
-     * @returns {promise} that resolves with the relier keys, if they
+     * @param {Object} relier
+     * @returns {Promise} that resolves with the relier keys, if they
      *   can be generated, resolves with null otherwise.
      */
-    relierKeys: function (relier) {
-      var self = this;
+    relierKeys (relier) {
       return this.accountKeys()
-        .then(function (accountKeys) {
+        .then((accountKeys) => {
           if (! accountKeys) {
             return null;
           }
 
-          return relier.deriveRelierKeys(accountKeys, self.get('uid'));
+          return relier.deriveRelierKeys(accountKeys, this.get('uid'));
         });
+    },
+
+    /**
+     * Check whether password reset is complete for the given token
+     *
+     * @param {String} token
+     * @returns {Promise} resolves to a boolean, true if password reset has
+     * been completed for the given token, false otw.
+     */
+    isPasswordResetComplete (token) {
+      return this._fxaClient.isPasswordResetComplete(token);
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
@@ -833,30 +865,28 @@ define(function (require, exports, module) {
     'postDisplayName'
   ]
     .forEach(function (method) {
-      Account.prototype[method] = function () {
-        var self = this;
-        var profileClient;
-        var args = Array.prototype.slice.call(arguments, 0);
-        return self.profileClient()
-          .then(function (client) {
+      Account.prototype[method] = function (...args) {
+        let profileClient;
+        return this.profileClient()
+          .then((client) => {
             profileClient = client;
-            var accessToken = self.get('accessToken');
-            return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            const accessToken = this.get('accessToken');
+            return profileClient[method].call(profileClient, accessToken, ...args);
           })
-          .fail(function (err) {
+          .fail((err) => {
             if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
-              self._invalidateSession();
+              this._invalidateSession();
             } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
               // If no oauth token existed, or it has gone stale,
               // get a new one and retry.
-              return self._fetchProfileOAuthToken()
-                .then(function () {
-                  var accessToken = self.get('accessToken');
-                  return profileClient[method].apply(profileClient, [accessToken].concat(args));
+              return this._fetchProfileOAuthToken()
+                .then(() => {
+                  const accessToken = this.get('accessToken');
+                  return profileClient[method].call(profileClient, accessToken, ...args);
                 })
-                .fail(function (err) {
+                .fail((err) => {
                   if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
-                    self.unset('accessToken');
+                    this.unset('accessToken');
                   }
                   throw err;
                 });

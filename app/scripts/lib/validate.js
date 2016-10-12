@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Constants = require('lib/constants');
+  const _ = require('underscore');
+  const Constants = require('lib/constants');
 
   // taken from the fxa-auth-server
   var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -34,18 +34,20 @@ define(function (require, exports, module) {
   //     in the domain (https://github.com/mozilla/fxa-content-server/issues/2199)
   // IETF spec:
   //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-  var emailRegex = /^[\w.!#$%&’*+/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+  // '/' in the character class is (reduntantly) backslash-escaped to produce
+  // the same minimized form in node 4.x and node 0.10.
+  var emailRegex = /^[\w.!#$%&’*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
   // A Base64 encoded JWT
   var BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/;
 
-  var self = {
+  var Validate = {
     /**
      * Check if an email address is valid
      * @param {String} email
      * @return {Boolean} true if email is valid, false otw.
      */
-    isEmailValid: function (email) {
+    isEmailValid (email) {
       if (typeof email !== 'string' || email.length > 256) {
         return false;
       }
@@ -68,7 +70,7 @@ define(function (require, exports, module) {
      * @param {String} code
      * @returns {Boolean}
      */
-    isCodeValid: function (code) {
+    isCodeValid (code) {
       if (typeof code !== 'string') {
         return false;
       }
@@ -84,7 +86,7 @@ define(function (require, exports, module) {
      * @param {String} code
      * @returns {Boolean}
      */
-    isOAuthCodeValid: function (code) {
+    isOAuthCodeValid (code) {
       if (typeof code !== 'string') {
         return false;
       }
@@ -99,7 +101,7 @@ define(function (require, exports, module) {
      * @param {String} token
      * @returns {Boolean}
      */
-    isTokenValid: function (token) {
+    isTokenValid (token) {
       if (typeof token !== 'string') {
         return false;
       }
@@ -113,7 +115,7 @@ define(function (require, exports, module) {
      * @param {String} uid
      * @returns {Boolean}
      */
-    isUidValid: function (uid) {
+    isUidValid (uid) {
       if (typeof uid !== 'string') {
         return false;
       }
@@ -128,7 +130,7 @@ define(function (require, exports, module) {
      * @param {String} password
      * @returns {Boolean}
      */
-    isPasswordValid: function (password) {
+    isPasswordValid (password) {
       if (typeof password !== 'string') {
         return false;
       }
@@ -188,7 +190,7 @@ define(function (require, exports, module) {
      * @param {String} prompt
      * @returns {Boolean}
      */
-    isPromptValid: function (prompt) {
+    isPromptValid (prompt) {
       var valid = [
         Constants.OAUTH_PROMPT_CONSENT
       ];
@@ -226,7 +228,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     isUriValid: function isUriValid(uri) {
-      return self.isUrlValid(uri) || self.isUrnValid(uri);
+      return Validate.isUrlValid(uri) || Validate.isUrnValid(uri);
     },
 
     /**
@@ -235,7 +237,7 @@ define(function (require, exports, module) {
      * @param {String} uuid - uuid to check
      * @returns {Boolean}
      */
-    isUuidValid: function (uuid) {
+    isUuidValid (uuid) {
       return uuidRegEx.test(uuid);
     },
 
@@ -257,7 +259,7 @@ define(function (require, exports, module) {
      * Checks if value is composed of only hex characters.
      *
      * @param {String} value
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     isHexValid: function isHexValid(value) {
       return HEX_STRING.test(value);
@@ -267,7 +269,7 @@ define(function (require, exports, module) {
      * Check if the verification redirect value is valid.
      *
      * @param {String} value
-     * @returns {boolean}
+     * @returns {Boolean}
      */
     isVerificationRedirectValid: function isVerificationRedirectValid(value) {
       var valid = [
@@ -289,5 +291,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = self;
+  module.exports = Validate;
 });

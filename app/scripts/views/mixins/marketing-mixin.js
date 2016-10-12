@@ -10,16 +10,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
+  const $ = require('jquery');
 
   var MarketingMixin = {
     events: {
       'click .marketing-link': '_onMarketingClick'
     },
 
-    afterRender: function () {
-      var self = this;
-      self.$('.marketing-link').each(function (index, element) {
+    afterRender () {
+      this.$('.marketing-link').each((index, element) => {
         element = $(element);
 
         // all links must open in a new tab or else their clicks
@@ -31,16 +30,16 @@ define(function (require, exports, module) {
         var id = element.attr('data-marketing-id');
         var url = element.attr('href');
 
-        self.metrics.logMarketingImpression(id, url);
+        this.metrics.logMarketingImpression(id, url);
       });
     },
 
-    _onMarketingClick: function (event) {
+    _onMarketingClick (event) {
       var element = $(event.currentTarget);
       this._logMarketingClick(element);
     },
 
-    _logMarketingClick: function (element) {
+    _logMarketingClick (element) {
       var id = element.attr('data-marketing-id');
       var url = element.attr('href');
 

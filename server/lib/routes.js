@@ -118,7 +118,6 @@ module.exports = function (config, i18n) {
       '/confirm_signin',
       '/cookies_disabled',
       '/force_auth',
-      '/force_auth_complete',
       '/legal',
       '/oauth',
       '/oauth/force_auth',
@@ -134,6 +133,7 @@ module.exports = function (config, i18n) {
       '/settings/avatar/gravatar_permissions',
       '/settings/change_password',
       '/settings/clients',
+      '/settings/clients/disconnect',
       '/settings/communication_preferences',
       '/settings/delete_account',
       '/settings/display_name',
@@ -143,7 +143,6 @@ module.exports = function (config, i18n) {
       '/signup',
       '/signup_complete',
       '/signup_permissions',
-      '/support/create_secure_password',
       '/verify_email'
     ];
 

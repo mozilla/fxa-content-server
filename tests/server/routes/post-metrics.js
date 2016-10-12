@@ -80,22 +80,32 @@ define([
 
       'route.process': {
         setup: function () {
+          sinon.stub(Date, 'now', function () {
+            return 1000;
+          });
           setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
             data: {
               flowBeginTime: 42,
               flowId: 'qux',
-              isSampledUser: true
+              isSampledUser: true,
+              startTime: 10,
+              flushTime: 20
             },
             events: [
-              /*eslint-disable sorting/sort-object-props*/
               { type: 'foo', offset: 0 },
               { type: 'bar', offset: 1 },
-              { type: 'flow.begin', offset: 2 },
-              { type: 'baz', offset: 3 }
-              /*eslint-enable sorting/sort-object-props*/
+              { type: 'flow.signup.begin', offset: 2 },
+              { type: 'baz', offset: 3 },
+              { type: 'flow.signup.engage', offset: 4 }
             ],
             userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
           });
+        },
+
+        teardown: function () {
+          Date.now.restore();
         },
 
         'response.json was called correctly': function () {
@@ -129,11 +139,11 @@ define([
             var args = mocks.metricsCollector.write.args[0];
             assert.lengthOf(args, 1);
             assert.equal(args[0], mocks.request.body);
-            assert.lengthOf(Object.keys(args[0]), 5);
+            assert.lengthOf(Object.keys(args[0]), 7);
 
             assert.equal(args[0].agent, 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0');
             assert.isArray(args[0].events);
-            assert.lengthOf(args[0].events, 4);
+            assert.lengthOf(args[0].events, 5);
             assert.isObject(args[0].events[0]);
             assert.lengthOf(Object.keys(args[0].events[0]), 2);
             assert.equal(args[0].events[0].type, 'foo');
@@ -143,16 +153,26 @@ define([
             assert.equal(args[0].events[1].type, 'bar');
             assert.equal(args[0].events[1].offset, 1);
             assert.isObject(args[0].events[2]);
-            assert.lengthOf(Object.keys(args[0].events[2]), 2);
-            assert.equal(args[0].events[2].type, 'flow.begin');
+            assert.lengthOf(Object.keys(args[0].events[2]), 4);
+            assert.equal(args[0].events[2].type, 'flow.signup.begin');
             assert.equal(args[0].events[2].offset, 2);
+            assert.equal(args[0].events[2].time, 42);
+            assert.equal(args[0].events[2].flowTime, 0);
             assert.isObject(args[0].events[3]);
             assert.lengthOf(Object.keys(args[0].events[3]), 2);
             assert.equal(args[0].events[3].type, 'baz');
             assert.equal(args[0].events[3].offset, 3);
+            assert.isObject(args[0].events[4]);
+            assert.lengthOf(Object.keys(args[0].events[4]), 4);
+            assert.equal(args[0].events[4].type, 'flow.signup.engage');
+            assert.equal(args[0].events[4].offset, 4);
+            assert.equal(args[0].events[4].time, 994);
+            assert.equal(args[0].events[4].flowTime, 952);
             assert.equal(args[0].flowId, 'qux');
             assert.equal(args[0].flowBeginTime, 42);
             assert.strictEqual(args[0].isSampledUser, true);
+            assert.strictEqual(args[0].startTime, 10);
+            assert.strictEqual(args[0].flushTime, 20);
           },
 
           'statsdCollector.write was called correctly': function () {
@@ -170,15 +190,26 @@ define([
           },
 
           'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 1);
+            assert.strictEqual(mocks.flowEvent.callCount, 2);
             var args = mocks.flowEvent.args[0];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.signup.begin');
+            assert.strictEqual(args[0].flowTime, 0);
+            assert.equal(args[0].time, 42);
             assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].flow_id, 'qux');
-            assert.strictEqual(args[1].flow_time, 0);
-            assert.equal(args[1].time, 42);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 42);
+            assert.equal(args[2], mocks.request);
+            // second flowEvent
+            args = mocks.flowEvent.args[1];
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.signup.engage');
+            assert.strictEqual(args[0].flowTime, 952);
+            assert.equal(args[0].time, 994);
+            assert.isObject(args[1]);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 42);
             assert.equal(args[2], mocks.request);
           }
         }
@@ -233,7 +264,7 @@ define([
           },
 
           'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 1);
+            assert.strictEqual(mocks.flowEvent.callCount, 2);
           }
         }
       },
@@ -249,7 +280,7 @@ define([
               /*eslint-disable sorting/sort-object-props*/
               { type: 'foo', offset: 0 },
               { type: 'bar', offset: 1 },
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.signin.begin', offset: 2 },
               { type: 'baz', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -287,7 +318,7 @@ define([
           },
 
           'flowEvent was called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 2);
+            assert.strictEqual(mocks.flowEvent.callCount, 3);
           }
         }
       },
@@ -303,7 +334,7 @@ define([
             },
             events: [
               /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.force_auth.begin', offset: 2 },
               { type: 'foo', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -360,15 +391,16 @@ define([
           },
 
           'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 3);
-            var args = mocks.flowEvent.args[2];
+            assert.strictEqual(mocks.flowEvent.callCount, 4);
+            var args = mocks.flowEvent.args[3];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
+            assert.isObject(args[0]);
+            assert.equal(args[0].type, 'flow.force_auth.begin');
+            assert.strictEqual(args[0].flowTime, 0);
+            assert.equal(args[0].time, 77);
             assert.isObject(args[1]);
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].flow_id, 'bar');
-            assert.strictEqual(args[1].flow_time, 0);
-            assert.equal(args[1].time, 77);
+            assert.equal(args[1].flowId, 'bar');
+            assert.strictEqual(args[1].flowBeginTime, 77);
             assert.equal(args[2], mocks.request);
           }
         }
@@ -385,7 +417,7 @@ define([
             },
             events: [
               /*eslint-disable sorting/sort-object-props*/
-              { type: 'flow.begin', offset: 2 },
+              { type: 'flow.wibble.begin', offset: 2 },
               { type: 'foo', offset: 3 }
               /*eslint-enable sorting/sort-object-props*/
             ],
@@ -426,7 +458,7 @@ define([
           },
 
           'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 3);
+            assert.strictEqual(mocks.flowEvent.callCount, 4);
           }
         }
       },
@@ -434,24 +466,25 @@ define([
       'route.process without flowBeginTime': {
         setup: function () {
           sinon.stub(Date, 'now', function () {
-            return 1000;
+            return 2000;
           });
           setupMetricsHandlerTests({
+            /*eslint-disable sorting/sort-object-props*/
             data: {
               flowId: 'qux',
-              flushTime: 100,
               isSampledUser: true,
-              startTime: 1
+              startTime: 1,
+              flushTime: 2
             },
             events: [
-              /*eslint-disable sorting/sort-object-props*/
-              { type: 'foo', offset: 0 },
-              { type: 'bar', offset: 1 },
-              { type: 'flow.begin', offset: 10 },
-              { type: 'baz', offset: 11 }
-              /*eslint-enable sorting/sort-object-props*/
+              { type: 'foo', offset: 10 },
+              { type: 'bar', offset: 20 },
+              { type: 'flow.wibble.begin', offset: 30 },
+              { type: 'baz', offset: 40 },
+              { type: 'flow.wibble', offset: 50 }
             ],
             userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:47.0) Gecko/20100101 Firefox/47.0'
+            /*eslint-enable sorting/sort-object-props*/
           });
         },
 
@@ -489,12 +522,21 @@ define([
           },
 
           'flowEvent was called correctly': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 4);
-            var args = mocks.flowEvent.args[3];
+            assert.strictEqual(mocks.flowEvent.callCount, 6);
+            var args = mocks.flowEvent.args[4];
             assert.lengthOf(args, 3);
-            assert.equal(args[0], 'flow.begin');
-            assert.lengthOf(Object.keys(args[1]), 3);
-            assert.equal(args[1].time, 911);
+            assert.equal(args[0].type, 'flow.wibble.begin');
+            assert.equal(args[0].time, 2029);
+            assert.equal(args[0].flowTime, 0);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 2029);
+            args = mocks.flowEvent.args[5];
+            assert.lengthOf(args, 3);
+            assert.equal(args[0].type, 'flow.wibble');
+            assert.equal(args[0].time, 2049);
+            assert.equal(args[0].flowTime, 20);
+            assert.equal(args[1].flowId, 'qux');
+            assert.strictEqual(args[1].flowBeginTime, 2029);
           }
         }
       }

@@ -9,6 +9,7 @@
         <meta name="viewport" content="width=device-width">
         <meta name="referrer" content="origin">
         <meta name="robots" content="noindex,nofollow">
+        <meta name="fxa-content-server/config" content="{{ config }}" />
 
         <!-- build:css(.tmp) /styles/{{ locale }}.css -->
         <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
@@ -33,6 +34,7 @@
           <script src="/bower_components/html5shiv/dist/html5shiv.js"></script>
           <!-- endbuild -->
         <![endif]-->
+
     </head>
     <body data-flow-id="{{flowId}}" data-flow-begin="{{flowBeginTime}}" data-static-resource-host="{{{staticResourceUrl}}}">
         <div id="fox-logo"></div>

@@ -5,20 +5,20 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var FxaClient = require('fxaClient');
-  var FxaClientWrapper = require('lib/fxa-client');
-  var OAuthRelier = require('models/reliers/oauth');
-  var p = require('lib/promise');
-  var ResumeToken = require('models/resume-token');
-  var sinon = require('sinon');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var testHelpers = require('../../lib/helpers');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const FxaClient = require('fxaClient');
+  const FxaClientWrapper = require('lib/fxa-client');
+  const OAuthRelier = require('models/reliers/oauth');
+  const p = require('lib/promise');
+  const ResumeToken = require('models/resume-token');
+  const sinon = require('sinon');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const testHelpers = require('../../lib/helpers');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
   var NON_SYNC_SERVICE = 'chronicle';
@@ -306,8 +306,8 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         clientMock = {
-          accountStatus: function () {},
-          recoveryEmailStatus: function () {}
+          accountStatus () {},
+          recoveryEmailStatus () {}
         };
 
         accountInfo = err = null;
@@ -317,181 +317,106 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with a sessionToken only', function () {
-        describe('valid session', function () {
-          describe('verified', function () {
-            describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
-              beforeEach(function () {
-                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-                  return p({
-                    email: 'testuser@testuser.com',
-                    emailVerified: true,
-                    sessionVerified: true,
-                    verified: true
-                  });
+      describe('valid session', function () {
+        describe('verified', function () {
+          describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
+            beforeEach(function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                return p({
+                  email: 'testuser@testuser.com',
+                  emailVerified: true,
+                  sessionVerified: true,
+                  verified: true
                 });
-
-                return client.recoveryEmailStatus('session token')
-                  .then(function (_accountInfo) {
-                    accountInfo = _accountInfo;
-                  });
               });
 
-              it('filters unexpected fields', function () {
-                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-                assert.equal(accountInfo.email, 'testuser@testuser.com');
-                assert.isTrue(accountInfo.verified);
-                assert.notProperty(accountInfo, 'emailVerified');
-                assert.notProperty(accountInfo, 'sessionVerified');
-              });
-            });
-          });
-
-          describe('unverified', function () {
-            describe('with unverified email, unverified session', function () {
-              beforeEach(function () {
-                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-                  return p({
-                    emailVerified: false,
-                    sessionVerified: false,
-                    verified: false
-                  });
+              return client.recoveryEmailStatus('session token')
+                .then(function (_accountInfo) {
+                  accountInfo = _accountInfo;
                 });
-
-                return client.recoveryEmailStatus('session token')
-                  .then(function (_accountInfo) {
-                    accountInfo = _accountInfo;
-                  });
-              });
-
-              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
-                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-                assert.isFalse(accountInfo.verified);
-                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
-                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
-              });
             });
 
-            describe('with verified email, unverified session', function () {
-              beforeEach(function () {
-                sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-                  return p({
-                    emailVerified: true,
-                    sessionVerified: false,
-                    verified: false
-                  });
-                });
-
-                return client.recoveryEmailStatus('session token')
-                  .then(function (_accountInfo) {
-                    accountInfo = _accountInfo;
-                  });
-              });
-
-              it('sets correct `verifiedReason` and `verifiedMethod`', function () {
-                assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-                assert.isFalse(accountInfo.verified);
-                assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
-                assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_IN);
-              });
+            it('filters unexpected fields', function () {
+              assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+              assert.equal(accountInfo.email, 'testuser@testuser.com');
+              assert.isTrue(accountInfo.verified);
+              assert.notProperty(accountInfo, 'emailVerified');
+              assert.notProperty(accountInfo, 'sessionVerified');
             });
           });
         });
 
-        describe('invalid session', function () {
-          beforeEach(function () {
-            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        describe('unverified', function () {
+          describe('with unverified email, unverified session', function () {
+            beforeEach(function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                return p({
+                  emailVerified: false,
+                  sessionVerified: false,
+                  verified: false
+                });
+              });
+
+              return client.recoveryEmailStatus('session token')
+                .then(function (_accountInfo) {
+                  accountInfo = _accountInfo;
+                });
             });
 
-            sinon.spy(clientMock, 'accountStatus');
+            it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+              assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+              assert.isFalse(accountInfo.verified);
+              assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+              assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_UP);
+            });
+          });
 
-            return client.recoveryEmailStatus('session token')
-              .then(assert.fail, function (_err) {
-                err = _err;
+          describe('with verified email, unverified session', function () {
+            beforeEach(function () {
+              sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+                return p({
+                  emailVerified: true,
+                  sessionVerified: false,
+                  verified: false
+                });
               });
-          });
 
-          it('rejects with an INVALID_TOKEN error', function () {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
-          });
+              return client.recoveryEmailStatus('session token')
+                .then(function (_accountInfo) {
+                  accountInfo = _accountInfo;
+                });
+            });
 
-          it('does not call accountStatus', function () {
-            assert.isFalse(clientMock.accountStatus.called);
+            it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+              assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
+              assert.isFalse(accountInfo.verified);
+              assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
+              assert.equal(accountInfo.verificationReason, VerificationReasons.SIGN_IN);
+            });
           });
         });
       });
 
-      describe('both a sessionToken and uid', function () {
-        describe('valid session', function () {
-          beforeEach(function () {
-            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p({ email: 'testuser@testuser.com', emailVerified: true, sessionVerified: true, verified: true });
+      describe('invalid session', function () {
+        beforeEach(function () {
+          sinon.stub(clientMock, 'recoveryEmailStatus', function () {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          sinon.spy(clientMock, 'accountStatus');
+
+          return client.recoveryEmailStatus('session token')
+            .then(assert.fail, function (_err) {
+              err = _err;
             });
-
-            return client.recoveryEmailStatus('session token', 'uid')
-              .then(function (_accountInfo) {
-                accountInfo = _accountInfo;
-              });
-          });
-
-          it('resolves with the status information', function () {
-            assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
-            assert.equal(accountInfo.email, 'testuser@testuser.com');
-            assert.isTrue(accountInfo.verified);
-            assert.notProperty(accountInfo, 'emailVerified');
-            assert.notProperty(accountInfo, 'sessionVerified');
-          });
         });
 
-        describe('invalid session', function () {
-          beforeEach(function () {
-            sinon.stub(clientMock, 'recoveryEmailStatus', function () {
-              return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-            });
-          });
+        it('rejects with an INVALID_TOKEN error', function () {
+          assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+        });
 
-          describe('account exists', function () {
-            beforeEach(function () {
-              sinon.stub(clientMock, 'accountStatus', function () {
-                return p({ exists: true });
-              });
-
-              return client.recoveryEmailStatus('session token', 'uid')
-                .then(assert.fail, function (_err) {
-                  err = _err;
-                });
-            });
-
-            it('rejects with an INVALID_TOKEN error', function () {
-              assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
-            });
-
-            it('calls accountStatus', function () {
-              assert.isTrue(clientMock.accountStatus.called);
-            });
-          });
-
-          describe('account does not exist', function () {
-            beforeEach(function () {
-              sinon.stub(clientMock, 'accountStatus', function () {
-                return p({ exists: false });
-              });
-
-              return client.recoveryEmailStatus('session token', 'uid')
-                .then(assert.fail, function (_err) {
-                  err = _err;
-                });
-            });
-
-            it('rejects with an SIGNUP_EMAIL_BOUNCE error', function () {
-              assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
-            });
-
-            it('calls accountStatus', function () {
-              assert.isTrue(clientMock.accountStatus.called);
-            });
-          });
+        it('does not call accountStatus', function () {
+          assert.isFalse(clientMock.accountStatus.called);
         });
       });
     });
@@ -606,6 +531,7 @@ define(function (require, exports, module) {
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
               resume: resumeToken,
+              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
 
@@ -633,6 +559,7 @@ define(function (require, exports, module) {
               keys: false,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
+              sendEmailIfUnverified: true,
               service: NON_SYNC_SERVICE
             }));
 
@@ -661,6 +588,7 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
+              sendEmailIfUnverified: true,
               service: NON_SYNC_SERVICE
             }));
 
@@ -690,6 +618,7 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
+              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
 
@@ -712,6 +641,7 @@ define(function (require, exports, module) {
               keys: true,
               reason: SignInReasons.PASSWORD_CHANGE,
               redirectTo: REDIRECT_TO,
+              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
           });
@@ -730,6 +660,7 @@ define(function (require, exports, module) {
               reason: SignInReasons.SIGN_IN,
               redirectTo: REDIRECT_TO,
               resume: 'resume token',
+              sendEmailIfUnverified: true,
               service: SYNC_SERVICE
             }));
           });
@@ -750,6 +681,7 @@ define(function (require, exports, module) {
             keys: false,
             metricsContext: { foo: 'bar' },
             reason: SignInReasons.SIGN_IN,
+            sendEmailIfUnverified: true,
             service: NON_SYNC_SERVICE
           });
         });
@@ -819,13 +751,13 @@ define(function (require, exports, module) {
         var code = 'code';
 
         var relier = {
-          has: function () {
+          has () {
             return false;
           },
-          isSync: function () {
+          isSync () {
             return true;
           },
-          wantsKeys: function () {
+          wantsKeys () {
             return true;
           }
         };
@@ -969,13 +901,13 @@ define(function (require, exports, module) {
         var trimmedEmail = trim(email);
 
         var relier = {
-          has: function () {
+          has () {
             return false;
           },
-          isSync: function () {
+          isSync () {
             return true;
           },
-          wantsKeys: function () {
+          wantsKeys () {
             return true;
           }
         };

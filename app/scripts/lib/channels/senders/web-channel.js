@@ -10,36 +10,35 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
+  const p = require('lib/promise');
 
   function WebChannelSender() {
     // nothing to do here.
   }
 
   WebChannelSender.prototype = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._window = options.window;
       this._webChannelId = options.webChannelId;
     },
 
-    send: function (command, data, messageId) {
-      var self = this;
-      return p().then(function () {
+    send (command, data, messageId) {
+      return p().then(() => {
         // save command name for testing purposes
-        self._saveEventName(command);
+        this._saveEventName(command);
 
         var event = createEvent(
-          self._window, self._webChannelId, command, data, messageId);
-        self._window.dispatchEvent(event);
+          this._window, this._webChannelId, command, data, messageId);
+        this._window.dispatchEvent(event);
       });
     },
 
-    teardown: function () {
+    teardown () {
     },
 
-    _saveEventName: function (command) {
+    _saveEventName (command) {
       var storedEvents;
       try {
         storedEvents = JSON.parse(this._window.sessionStorage.getItem('webChannelEvents')) || [];

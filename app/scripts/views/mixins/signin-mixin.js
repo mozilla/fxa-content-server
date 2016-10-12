@@ -7,58 +7,66 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var p = require('lib/promise');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const AuthErrors = require('lib/auth-errors');
+  const p = require('lib/promise');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   module.exports = {
+    // force auth extends a view with this mixin
+    // for metrics purposes we need to know the view submit context
+    signInSubmitContext: 'signin',
+    events: {
+      'click': '_engageSignInForm',
+      'input input': '_engageSignInForm'
+    },
     /**
      * Sign in a user
      *
      * @param {Account} account
      *     @param {String} account.sessionToken
      *     Session token from the account
-     * @param {string} [password] - the user's password. Can be null if
+     * @param {String} [password] - the user's password. Can be null if
      *  user is signing in with a sessionToken.
-     * @return {object} promise
+     * @return {Object} promise
      */
-    signIn: function (account, password) {
+    signIn (account, password) {
+      this.logEvent(`flow.${this.signInSubmitContext}.submit`);
+
       if (! account ||
             account.isDefault() ||
             (! account.has('sessionToken') && ! password)) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
-      var self = this;
-      return self.invokeBrokerMethod('beforeSignIn', account)
-        .then(function () {
-          return self.user.signInAccount(account, password, self.relier, {
+      return this.invokeBrokerMethod('beforeSignIn', account)
+        .then(() => {
+          return this.user.signInAccount(account, password, this.relier, {
             // a resume token is passed in to allow
             // unverified account or session users to complete
             // email verification.
-            resume: self.getStringifiedResumeToken()
+            resume: this.getStringifiedResumeToken()
           });
         })
-        .then(function (account) {
-          if (self._formPrefill) {
-            self._formPrefill.clear();
+        .then((account) => {
+          if (this._formPrefill) {
+            this._formPrefill.clear();
           }
 
-          if (self.relier.accountNeedsPermissions(account)) {
-            return self.navigate('signin_permissions', {
+          if (this.relier.accountNeedsPermissions(account)) {
+            return this.navigate('signin_permissions', {
               account: account,
               // the permissions screen will call onSubmitComplete
               // with an updated account
-              onSubmitComplete: self.onSignInSuccess.bind(self)
+              onSubmitComplete: this.onSignInSuccess.bind(this)
             });
           }
 
-          return self.onSignInSuccess(account);
+          return this.onSignInSuccess(account);
         });
     },
 
-    onSignInSuccess: function (account) {
+    onSignInSuccess (account) {
       if (! account.get('verified')) {
         var verificationMethod = account.get('verificationMethod');
         var verificationReason = account.get('verificationReason');
@@ -98,6 +106,23 @@ define(function (require, exports, module) {
 
       return this.invokeBrokerMethod(brokerMethod, account)
         .then(this.navigate.bind(this, this.model.get('redirectTo') || 'settings', {}, navigateData));
+    },
+
+    _engageSignInForm (event) {
+      if (event && event.target) {
+        var target = this.$el.find(event.target).attr('id');
+
+        if (target === 'have-account') {
+          // if the user clicks on 'have-account' we count that as flow event instead of the 'engage' event.
+          // Details: https://github.com/mozilla/fxa-content-server/pull/4221
+          this.logEvent('flow.have-account');
+          return;
+        }
+      }
+
+      // user has engaged with the sign in, sign up or force auth form
+      // the flow event will be different depending on the view name
+      this.logEventOnce(`flow.${this.viewName}.engage`);
     }
   };
 });

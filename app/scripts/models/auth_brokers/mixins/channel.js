@@ -15,7 +15,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
+  const p = require('lib/promise');
 
   // normalize the channel action. New channels return promises, old
   // channels use NodeJS style callbacks. Convert the old channel style
@@ -34,12 +34,12 @@ define(function (require, exports, module) {
     /**
      * Send a message to the remote listener, expect no response
      *
-     * @param {string} message
-     * @param {object} [data]
+     * @param {String} message
+     * @param {Object} [data]
      * @returns {Promise}
      *        The promise will resolve if the value was successfully sent.
      */
-    send: function (message, data) {
+    send (message, data) {
       var channel = this.getChannel();
       var send = ensureActionReturnsPromise(channel.send.bind(channel));
 
@@ -49,13 +49,13 @@ define(function (require, exports, module) {
     /**
      * Request information from the remote listener
      *
-     * @param {string} message
-     * @param {object} [data]
+     * @param {String} message
+     * @param {Object} [data]
      * @returns {Promise}
      *        The promise will resolve with the value returned by the remote
      *        listener, or reject if there was an error.
      */
-    request: function (message, data) {
+    request (message, data) {
       var channel = this.getChannel();
       // only new channels have a request. If not, fall back to send.
       var action = (channel.request || channel.send).bind(channel);

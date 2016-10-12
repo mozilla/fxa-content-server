@@ -13,11 +13,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var BaseChannel = require('lib/channels/base');
-  var Duration = require('duration');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
+  const _ = require('underscore');
+  const BaseChannel = require('lib/channels/base');
+  const Duration = require('duration');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
 
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = new Duration('90s').milliseconds();
 
@@ -29,7 +29,7 @@ define(function (require, exports, module) {
   }
 
   OutstandingRequests.prototype = {
-    add: function (messageId, request) {
+    add (messageId, request) {
       // remove any old outstanding messages with the same messageId
       this.remove(messageId);
 
@@ -40,7 +40,7 @@ define(function (require, exports, module) {
       this._requests[messageId] = request;
     },
 
-    remove: function (messageId) {
+    remove (messageId) {
       var outstanding = this.get(messageId);
       if (outstanding) {
         this._window.clearTimeout(outstanding.timeout);
@@ -48,11 +48,11 @@ define(function (require, exports, module) {
       }
     },
 
-    get: function (messageId) {
+    get (messageId) {
       return this._requests[messageId];
     },
 
-    clear: function () {
+    clear () {
       for (var messageId in this._requests) {
         this.remove(this._requests[messageId]);
       }
@@ -63,7 +63,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(DuplexChannel.prototype, new BaseChannel(), {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._sender = options.sender;
@@ -86,7 +86,7 @@ define(function (require, exports, module) {
       });
     },
 
-    teardown: function () {
+    teardown () {
       this._outstandingRequests.clear();
       if (this._sender) {
         this._sender.teardown();
@@ -105,12 +105,10 @@ define(function (require, exports, module) {
      * @return {Promise}
      *        Promise will resolve whenever message is sent.
      */
-    send: function (command, data) {
-      var self = this;
-      return p()
-        .then(function () {
-          return self._sender.send(command, data, null);
-        });
+    send (command, data) {
+      return p().then(() => {
+        return this._sender.send(command, data, null);
+      });
     },
 
     /**
@@ -121,9 +119,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      *        Promise will resolve when the response is received.
      */
-    request: function (command, data) {
-      var self = this;
-
+    request (command, data) {
       var messageId = this.createMessageId(command, data);
       var outstanding = {
         command: command,
@@ -133,21 +129,18 @@ define(function (require, exports, module) {
       };
 
       // save the data beforehand in case the response is synchronous.
-      self._outstandingRequests.add(messageId, outstanding);
+      this._outstandingRequests.add(messageId, outstanding);
 
-      return p()
-        .then(function () {
-          return self._sender.send(command, data, messageId);
-        })
-        .then(function () {
-          return outstanding.deferred.promise;
-        })
-        .fail(function (err) {
-          // The request is no longer considered outstanding if
-          // there was a problem sending.
-          self._outstandingRequests.remove(messageId);
-          throw err;
-        });
+      return p().then(() => {
+        return this._sender.send(command, data, messageId);
+      })
+      .then(() => outstanding.deferred.promise)
+      .fail((err) => {
+        // The request is no longer considered outstanding if
+        // there was a problem sending.
+        this._outstandingRequests.remove(messageId);
+        throw err;
+      });
     },
 
     /**
@@ -160,28 +153,27 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @return {String}
      */
-    createMessageId: function (command, data) {
+    createMessageId (command, data) {
       return Date.now();
     },
 
-    onMessageReceived: function (message) {
-      var self = this;
-      var parsedMessage = self.parseMessage(message);
+    onMessageReceived (message) {
+      var parsedMessage = this.parseMessage(message);
       var data = parsedMessage.data;
       var messageId = parsedMessage.messageId;
 
       // A message is not necessarily in response to a sent request.
       // If the message is in response to a request, then it should
       // have a messageId.
-      var outstanding = self._outstandingRequests.get(messageId);
+      var outstanding = this._outstandingRequests.get(messageId);
       if (outstanding) {
-        self._outstandingRequests.remove(messageId);
+        this._outstandingRequests.remove(messageId);
         outstanding.deferred.resolve(data);
       }
 
       // Even if the message is not in response to a request, trigger an
       // event for any listeners that are waiting for it.
-      self.trigger(parsedMessage.command, data);
+      this.trigger(parsedMessage.command, data);
     },
 
     /**
@@ -194,7 +186,7 @@ define(function (require, exports, module) {
      *    a response.
      *    @param {Object} parsedMessage.data - data
      */
-    parseMessage: function (message) {
+    parseMessage (message) {
       return {
         command: message.command,
         data: message.data,

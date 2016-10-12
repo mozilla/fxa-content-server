@@ -5,14 +5,14 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Relier = require('models/reliers/relier');
-  var ResumeToken = require('models/resume-token');
-  var TestHelpers = require('../../../lib/helpers');
-  var WindowMock = require('../../../mocks/window');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Relier = require('models/reliers/relier');
+  const ResumeToken = require('models/resume-token');
+  const TestHelpers = require('../../../lib/helpers');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
 
@@ -35,7 +35,7 @@ define(function (require, exports, module) {
     beforeEach(function () {
       windowMock = new WindowMock();
 
-      relier = new Relier({
+      relier = new Relier({}, {
         window: windowMock
       });
     });
@@ -70,9 +70,11 @@ define(function (require, exports, module) {
 
       return relier.fetch()
         .then(function () {
-          // not imported from the search parameters, but is set manually.
+          // Next two are not imported from the search parameters, but is set manually.
           assert.isTrue(relier.get('allowCachedCredentials'));
+          assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
+          // The rest are imported from search parameters
           assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
           assert.equal(relier.get('service'), SERVICE);
           assert.equal(relier.get('email'), EMAIL);
@@ -146,7 +148,7 @@ define(function (require, exports, module) {
 
     describe('email verification flow', function () {
       beforeEach(function () {
-        relier = new Relier({
+        relier = new Relier({}, {
           isVerification: true,
           window: windowMock
         });
@@ -183,7 +185,7 @@ define(function (require, exports, module) {
 
     describe('uid verification flow', function () {
       beforeEach(function () {
-        relier = new Relier({
+        relier = new Relier({}, {
           isVerification: true,
           window: windowMock
         });

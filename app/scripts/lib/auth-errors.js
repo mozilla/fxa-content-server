@@ -7,9 +7,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const Logger = require('lib/logger');
   var logger = new Logger();
 
   var t = function (msg) {
@@ -18,6 +18,11 @@ define(function (require, exports, module) {
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
   var EXPIRED_VERIFICATION_ERROR_MESSAGE = t('The link you clicked to verify your email is expired.');
+  var THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
+  // L10N Note: '%(retryAfterLocalized)s' becomes:
+  // 'in 10 minutes' / 'in a minute' or
+  // 'через 15 минут' / 'через 3 минуты' / 'через минуту'
+  var THROTTLED_LOCALIZED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again %(retryAfterLocalized)s.');
 
   /*eslint-disable sorting/sort-object-props*/
   var ERRORS = {
@@ -51,7 +56,7 @@ define(function (require, exports, module) {
     },
     INCORRECT_PASSWORD: {
       errno: 103,
-      message: t('Incorrect password')
+      message: t('Incorrect password. To double-check what you\'ve entered, press and hold down the Show button.')
     },
     UNVERIFIED_ACCOUNT: {
       errno: 104,
@@ -87,7 +92,7 @@ define(function (require, exports, module) {
     },
     THROTTLED: {
       errno: 114,
-      message: t('Attempt limit exceeded')
+      message: THROTTLED_ERROR_MESSAGE
     },
     /*
     ACCOUNT_LOCKED: {
@@ -294,7 +299,11 @@ define(function (require, exports, module) {
     },
     REUSED_SIGNIN_VERIFICATION_CODE: {
       errno: 1041,
-      message: EXPIRED_VERIFICATION_ERROR_MESSAGE
+      message: t('That confirmation link was already used, and can only be used once.')
+    },
+    INPUT_REQUIRED: {
+      errno: 1042,
+      message: t('This is a required field')
     }
   };
   /*eslint-enable sorting/sort-object-props*/
@@ -309,7 +318,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {Object}
      */
-    toInterpolationContext: function (err) {
+    toInterpolationContext (err) {
       // For data returned by backend, see
       // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
       try {
@@ -336,6 +345,15 @@ define(function (require, exports, module) {
         } else if (this.is(err, 'MISSING_DATA_ATTRIBUTE')) {
           return {
             property: err.property
+          };
+        } else if (this.is(err, 'THROTTLED')) {
+          if (err.retryAfterLocalized) {
+            // enhance the throttled message if localized retryAfter data is available
+            err.message = THROTTLED_LOCALIZED_ERROR_MESSAGE;
+          }
+
+          return {
+            retryAfterLocalized: err.retryAfterLocalized
           };
         }
       } catch (e) {

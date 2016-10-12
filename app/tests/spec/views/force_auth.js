@@ -5,22 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var FormPrefill = require('models/form-prefill');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var SignInView = require('views/sign_in');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/force_auth');
-  var WindowMock = require('../../mocks/window');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const FormPrefill = require('models/form-prefill');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const SignInView = require('views/sign_in');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/force_auth');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -73,6 +73,7 @@ define(function (require, exports, module) {
         notifier: notifier,
         relier: relier,
         user: user,
+        viewName: 'force-auth',
         window: windowMock
       });
 
@@ -192,15 +193,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });
@@ -241,15 +243,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });
@@ -277,15 +280,16 @@ define(function (require, exports, module) {
         describe('broker does not support UID change', function () {
           beforeEach(function () {
             broker.unsetCapability('allowUidChange');
-            return view.render();
+            sinon.spy(view, 'displayError');
+            return view.render().then(() => view.afterVisible());
           });
 
           it('does not navigate', function () {
             assert.isFalse(view.navigate.called);
           });
 
-          it('errors', function () {
-            assert.lengthOf(view.$('.error.visible'), 1);
+          it('displays the error', function () {
+            assert.isTrue(view.displayError.called);
           });
         });
       });
@@ -538,6 +542,41 @@ define(function (require, exports, module) {
         assert.equal(formPrefill.get('password'), 'password');
       });
     });
+
+    describe('_engageForm', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+          });
+      });
+    });
+
+    describe('flow submit', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.engage'));
+          });
+      });
+    });
+
+    it('records the correct submit event', function () {
+      return view.render()
+        .then(function () {
+          view.$('.password').val('password');
+          view.submit();
+          assert.equal(view.signInSubmitContext, 'force-auth', 'correct submit context');
+          assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.submit'));
+        });
+    });
+
   });
 
   function testNavigatesToForceSignUp(view, email) {

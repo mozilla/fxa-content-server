@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/complete_reset_password');
-  var WindowMock = require('../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/complete_reset_password');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -50,7 +50,6 @@ define(function (require, exports, module) {
     function initView() {
       view = new View({
         broker: broker,
-        fxaClient: fxaClient,
         metrics: metrics,
         notifier: notifier,
         relier: relier,
@@ -83,7 +82,8 @@ define(function (require, exports, module) {
         return p(isPasswordResetComplete);
       });
 
-      return view.render();
+      return view.render()
+        .then(() => $('#container').html(view.$el));
     });
 
     afterEach(function () {
@@ -286,6 +286,7 @@ define(function (require, exports, module) {
       describe('non-direct-access', function () {
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (account) {
             account.set('verified', true);
@@ -344,6 +345,7 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (_account) {
             account = _account;
@@ -375,6 +377,7 @@ define(function (require, exports, module) {
           relier.set('resetPasswordConfirm', false);
 
           view.$('[type=password]').val(PASSWORD);
+          view.enableForm();
 
           sinon.stub(user, 'completeAccountPasswordReset', function (account) {
             return p(account);
@@ -398,14 +401,15 @@ define(function (require, exports, module) {
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
         view.$('[type=password]').val('password');
+        view.enableForm();
 
-        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
         // isPasswordResetComplete needs to be overridden as well for when
         // render is re-loaded the token needs to be expired.
-        view.fxaClient.isPasswordResetComplete = function () {
+        fxaClient.isPasswordResetComplete = function () {
           return p(true);
         };
 
@@ -417,8 +421,9 @@ define(function (require, exports, module) {
 
       it('shows error message if server returns an error', function () {
         view.$('[type=password]').val('password');
+        view.enableForm();
 
-        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p.reject(new Error('uh oh'));
         });
 
@@ -429,27 +434,27 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('resendResetEmail', function () {
+    describe('resend', function () {
       it('delegates to the `resetPassword` method', function () {
         sinon.stub(view, 'resetPassword', function () {
           return p();
         });
 
-        return view.resendResetEmail()
+        return view.resend()
           .then(function () {
             assert.isTrue(view.resetPassword.calledOnce);
             assert.isTrue(view.resetPassword.calledWith(EMAIL));
           });
       });
 
-      it('shows server response as an error otherwise', function () {
+      it('re-throws all errors', function () {
         sinon.stub(view, 'resetPassword', function () {
           return p.reject(new Error('server error'));
         });
 
-        return view.resendResetEmail()
-          .then(function () {
-            assert.equal(view.$('.error').text(), 'server error');
+        return view.resend()
+          .then(assert.fail, (err) => {
+            assert.equal(err.message, 'server error');
           });
       });
     });

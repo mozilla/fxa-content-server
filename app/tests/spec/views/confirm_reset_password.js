@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var FxaClient = require('../../mocks/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var sinon = require('sinon');
-  var Storage = require('lib/storage');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/confirm_reset_password');
-  var WindowMock = require('../../mocks/window');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const FxaClient = require('../../mocks/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const sinon = require('sinon');
+  const Storage = require('lib/storage');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/confirm_reset_password');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -57,6 +57,7 @@ define(function (require, exports, module) {
       });
 
       user = new User({
+        fxaClient: fxaClient,
         storage: Storage.factory('localStorage')
       });
 
@@ -504,7 +505,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit', function () {
+    describe('resend', function () {
       beforeEach(function () {
         createDeps();
 
@@ -523,10 +524,8 @@ define(function (require, exports, module) {
           return p(true);
         });
 
-        return view.submit()
+        return view.resend()
           .then(function () {
-            assert.isTrue(view.$('.success').is(':visible'));
-
             assert.isTrue(view.retryResetPassword.calledOnce);
             assert.isTrue(view.retryResetPassword.calledWith(
               EMAIL,
@@ -542,78 +541,21 @@ define(function (require, exports, module) {
 
         sinon.spy(view, 'navigate');
 
-        return view.submit()
+        return view.resend()
           .then(function () {
             assert.isTrue(view.navigate.calledWith('reset_password'));
-
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'confirm_reset_password.resend'));
           });
       });
 
-      it('displays other error messages if there is a problem', function () {
+      it('re-throws other errors', function () {
         sinon.stub(view, 'retryResetPassword', function () {
           return p.reject(new Error('synthesized error from auth server'));
         });
 
-        return view.submit()
+        return view.resend()
           .then(assert.fail, function (err) {
             assert.equal(err.message, 'synthesized error from auth server');
           });
-      });
-    });
-
-    describe('validateAndSubmit', function () {
-      beforeEach(function () {
-        createDeps();
-
-        return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
-      });
-
-      afterEach(function () {
-        destroyView();
-      });
-
-      it('only called after click on #resend', function () {
-        var count = 0;
-        view.validateAndSubmit = function () {
-          count++;
-        };
-
-        view.$('section').click();
-        assert.equal(count, 0);
-
-        view.$('#resend').click();
-        assert.equal(count, 1);
-      });
-
-      it('debounces resend calls - submit on first four attempts', function () {
-        sinon.stub(view, 'retryResetPassword', function () {
-          return p(true);
-        });
-
-        return view.validateAndSubmit()
-              .then(function () {
-                assert.equal(view.retryResetPassword.callCount, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(view.retryResetPassword.callCount, 2);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(view.retryResetPassword.callCount, 3);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(view.retryResetPassword.callCount, 4);
-                assert.equal(view.$('#resend:visible').length, 0);
-
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm_reset_password.resend'));
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm_reset_password.too_many_attempts'));
-              });
       });
     });
   });

@@ -13,11 +13,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var _ = require('underscore');
-  var Relier = require('models/reliers/relier');
-  var ServiceNameTranslator = require('lib/service-name');
-  var Vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const _ = require('underscore');
+  const Relier = require('models/reliers/relier');
+  const ServiceNameTranslator = require('lib/service-name');
+  const Vat = require('lib/vat');
 
   /*eslint-disable camelcase*/
   var QUERY_PARAMETER_SCHEMA = {
@@ -29,29 +29,25 @@ define(function (require, exports, module) {
 
   var SyncRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
-      context: null,
       customizeSync: false
     }),
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (attributes, options = {}) {
       this._translator = options.translator;
 
-      Relier.prototype.initialize.call(this, options);
+      Relier.prototype.initialize.call(this, attributes, options);
     },
 
-    fetch: function () {
-      var self = this;
-      return Relier.prototype.fetch.call(self)
-        .then(function () {
-          self.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+    fetch () {
+      return Relier.prototype.fetch.call(this)
+        .then(() => {
+          this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-          self._setupServiceName();
+          this._setupServiceName();
         });
     },
 
-    isSync: function () {
+    isSync () {
       return true;
     },
 
@@ -60,11 +56,11 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    wantsKeys: function () {
+    wantsKeys () {
       return true;
     },
 
-    _setupServiceName: function () {
+    _setupServiceName () {
       var service = this.get('service');
       if (service) {
         var serviceNameTranslator = new ServiceNameTranslator(this._translator);
@@ -78,7 +74,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isCustomizeSyncChecked: function () {
+    isCustomizeSyncChecked () {
       return !! this.get('customizeSync');
     }
   });

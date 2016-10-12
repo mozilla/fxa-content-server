@@ -17,31 +17,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FormView = require('views/form');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var ResendMixin = require('views/mixins/resend-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var Url = require('lib/url');
-  var VerificationInfo = require('models/verification/sign-up');
-  var VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const CompleteSignUpTemplate = require('stache!templates/complete_sign_up');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const Url = require('lib/url');
+  const VerificationInfo = require('models/verification/sign-up');
+  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   var t = BaseView.t;
 
-  var CompleteSignUpView = FormView.extend({
+  var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
 
-    events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
-
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var searchParams = Url.searchParams(this.window.location.search);
@@ -63,11 +57,11 @@ define(function (require, exports, module) {
       this._email = this._account.get('email');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    _navigateToCompleteScreen: function () {
+    _navigateToCompleteScreen () {
       if (this.isSignUp()) {
         this.navigate('signup_complete');
       } else {
@@ -75,64 +69,63 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
-      var self = this;
-      var verificationInfo = self._verificationInfo;
+    beforeRender () {
+      var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
       var code = verificationInfo.get('code');
       var options = {
-        reminder: self._verificationInfo.get('reminder'),
-        service: self.relier.get('service')
+        reminder: this._verificationInfo.get('reminder'),
+        service: this.relier.get('service')
       };
-      return self.user.completeAccountSignUp(self.getAccount(), code, options)
-          .fail(function (err) {
+      return this.user.completeAccountSignUp(this.getAccount(), code, options)
+          .fail((err) => {
             if (MarketingEmailErrors.created(err)) {
               // A basket error should not prevent the
               // sign up verification from completing, nor
               // should an error be displayed to the user.
               // Log the error and nothing else.
-              self.logError(err);
+              this.logError(err);
             } else {
               throw err;
             }
           })
-          .then(function () {
-            self.logViewEvent('verification.success');
-            self.notifier.trigger('verification.success');
+          .then(() => {
+            this.logViewEvent('verification.success');
+            this.notifier.trigger('verification.success');
 
             // Update the stored account data in case it was
             // updated by verifySignUp.
-            var account = self.getAccount();
-            self.user.setAccount(account);
-            return self.invokeBrokerMethod('afterCompleteSignUp', account);
+            var account = this.getAccount();
+            this.user.setAccount(account);
+            return this.invokeBrokerMethod('afterCompleteSignUp', account);
           })
-          .then(function () {
-            var account = self.getAccount();
+          .then(() => {
+            var account = this.getAccount();
 
-            if (! self.relier.isDirectAccess()) {
-              self._navigateToCompleteScreen();
+            if (! this.relier.isDirectAccess()) {
+              this._navigateToCompleteScreen();
               return false;
             }
 
             return account.isSignedIn()
-              .then(function (isSignedIn) {
+              .then((isSignedIn) => {
                 if (isSignedIn) {
-                  self.navigate('settings', {
+                  this.navigate('settings', {
                     success: t('Account verified successfully')
                   });
                 } else {
-                  self._navigateToCompleteScreen();
+                  this._navigateToCompleteScreen();
                 }
                 return false;
               });
           })
-          .fail(function (err) {
+          .fail((err) => {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               verificationInfo.markExpired();
               err = AuthErrors.toError('UNKNOWN_ACCOUNT_VERIFICATION');
@@ -143,9 +136,9 @@ define(function (require, exports, module) {
               // When coming from sign-in confirmation verification, show a
               // verification link expired error instead of damaged verification link.
               // This error is generated because the link has already been used.
-              if (self.isSignIn()) {
+              if (this.isSignIn()) {
                 // Disable resending verification, can only be triggered from new sign-in
-                verificationInfo.markExpired();
+                verificationInfo.markUsed();
                 err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');
               } else {
                 // These server says the verification code or any parameter is
@@ -155,26 +148,27 @@ define(function (require, exports, module) {
               }
             } else {
               // all other errors show the standard error box.
-              self._error = self.translateError(err);
+              this.model.set('error', err);
             }
 
-            self.logError(err);
+            this.logError(err);
             return true;
           });
     },
 
-    context: function () {
+    context () {
       var verificationInfo = this._verificationInfo;
       return {
         canResend: this._canResend(),
-        error: this._error,
+        error: this.model.get('error'),
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
-        isLinkExpired: verificationInfo.isExpired()
+        isLinkExpired: verificationInfo.isExpired(),
+        isLinkUsed: verificationInfo.isUsed()
       };
     },
 
-    _canResend: function () {
+    _canResend () {
       // _getResendSessionToken is only returned if the user signed up in the
       // same browser in which they opened the verification link.
       return !! this._getResendSessionToken() && this.isSignUp();
@@ -184,30 +178,23 @@ define(function (require, exports, module) {
     // address. We intentionally don't cache it during view initialization so that
     // we can capture sessionTokens from accounts created (in this browser)
     // since the view was loaded.
-    _getResendSessionToken: function () {
+    _getResendSessionToken () {
       return this.user.getAccountByEmail(this._email).get('sessionToken');
     },
 
     // This is called when a user follows an expired verification link
     // and clicks the "Resend" link.
-    submit: function () {
-      var self = this;
-
-      self.logViewEvent('resend');
-
+    resend () {
       var account = this.user.getAccountByEmail(this._email);
       return account.retrySignUp(
-        self.relier,
+        this.relier,
         {
-          resume: self.getStringifiedResumeToken()
+          resume: this.getStringifiedResumeToken()
         }
       )
-      .then(function () {
-        self.displaySuccess();
-      })
-      .fail(function (err) {
+      .fail((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-          return self.navigate('signup', {
+          return this.navigate('signup', {
             error: err
           });
         }
@@ -215,11 +202,7 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
-    },
-
-    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
-    // Cocktail runs both the original version and the overridden version.
-    beforeSubmit: undefined
+    }
   });
 
   Cocktail.mixin(

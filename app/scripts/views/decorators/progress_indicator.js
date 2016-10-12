@@ -15,24 +15,20 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
-  var ProgressIndicator = require('views/progress_indicator');
+  const p = require('lib/promise');
+  const ProgressIndicator = require('views/progress_indicator');
 
   function showProgressIndicator(handler, _el) {
     var el = _el || 'button[type=submit]';
 
     return function () {
-      var self = this;
       var args = arguments;
-      var target = self.$(el);
+      var target = this.$(el);
 
-      var progressIndicator = getProgressIndicator(self, target);
+      var progressIndicator = getProgressIndicator(this, target);
       progressIndicator.start(target);
 
-      return p()
-        .then(function () {
-          return self.invokeHandler(handler, args);
-        })
+      return p().then(() => this.invokeHandler(handler, args))
         .then(function (value) {
           // Stop the progress indicator unless the flow halts.
           if (! (value && value.halt)) {

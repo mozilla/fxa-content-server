@@ -5,34 +5,29 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var BaseBroker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var VerificationReasons = require('lib/verification-reasons');
-  var Duration = require('duration');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/confirm');
-  var WindowMock = require('../../mocks/window');
+  const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const BaseBroker = require('models/auth_brokers/base');
+  const VerificationReasons = require('lib/verification-reasons');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/confirm');
+  const WindowMock = require('../../mocks/window');
 
-  var SIGNIN_REASON = VerificationReasons.SIGN_IN;
-  var SIGNUP_REASON = VerificationReasons.SIGN_UP;
-
-  var assert = chai.assert;
+  const SIGNIN_REASON = VerificationReasons.SIGN_IN;
+  const SIGNUP_REASON = VerificationReasons.SIGN_UP;
 
   describe('views/confirm', function () {
     var account;
     var broker;
     var flow;
-    var fxaClient;
     var metrics;
     var model;
     var notifier;
@@ -43,18 +38,15 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       flow = {
-        pickResumeTokenInfo: function () {}
+        pickResumeTokenInfo () {}
       };
-      fxaClient = new FxaClient();
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
-      user = new User({
-        fxaClient: fxaClient
-      });
+      user = new User();
       windowMock = new WindowMock();
 
-      relier = new Relier({
+      relier = new Relier({}, {
         window: windowMock
       });
 
@@ -77,14 +69,11 @@ define(function (require, exports, module) {
         type: SIGNUP_REASON
       });
 
-      sinon.stub(user, 'setSignedInAccount', function () {
-        return p();
-      });
+      sinon.stub(user, 'setSignedInAccount', () => p());
 
       view = new View({
         broker: broker,
         canGoBack: true,
-        fxaClient: fxaClient,
         metrics: metrics,
         model: model,
         notifier: notifier,
@@ -186,6 +175,8 @@ define(function (require, exports, module) {
 
     describe('afterVisible', function () {
       it('notifies the broker before the confirmation', function () {
+        sinon.stub(account, 'waitForSessionVerification', () => p());
+
         sinon.spy(broker, 'persistVerificationData');
 
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
@@ -211,7 +202,7 @@ define(function (require, exports, module) {
             return false;
           });
 
-          testEmailVerificationPoll('afterSignUpConfirmationPoll');
+          return testEmailVerificationPoll('afterSignUpConfirmationPoll');
         });
       });
 
@@ -225,42 +216,25 @@ define(function (require, exports, module) {
             return true;
           });
 
-          testEmailVerificationPoll('afterSignInConfirmationPoll');
+          return testEmailVerificationPoll('afterSignInConfirmationPoll');
         });
       });
 
       function testEmailVerificationPoll(expectedBrokerCall) {
         var notifySpy = sinon.spy(view.notifier, 'trigger');
 
-        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
-          return p();
-        });
+        sinon.stub(account, 'waitForSessionVerification', () => p());
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll', () => p());
+        sinon.stub(broker, expectedBrokerCall, () => p());
+        sinon.stub(user, 'setAccount', () => p());
+        sinon.stub(view, 'setTimeout', (callback) => callback());
 
-        sinon.stub(broker, expectedBrokerCall, function () {
-          return p();
-        });
-
-        sinon.stub(user, 'setAccount', function (account) {
-          assert.equal(account.get('sessionToken'), account.get('sessionToken'));
-          assert.isTrue(account.get('verified'));
-          return p();
-        });
-
-        var count = 0;
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-          // force at least one cycle through the poll
-          count++;
-          return p({ verified: count === 2 });
-        });
-
-        sinon.stub(view, 'setTimeout', function (callback) {
-          callback();
-        });
-
-        view.VERIFICATION_POLL_IN_MS = new Duration('100ms').milliseconds();
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(user.setAccount.called);
+            assert.equal(account.waitForSessionVerification.callCount, 1);
+            assert.isTrue(account.waitForSessionVerification.calledWith(view.VERIFICATION_POLL_IN_MS));
+            assert.isDefined(view.VERIFICATION_POLL_IN_MS);
+            assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
             assert.isTrue(broker[expectedBrokerCall].calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(
@@ -270,7 +244,7 @@ define(function (require, exports, module) {
       }
 
       it('displays an error message allowing the user to re-signup if their email bounces', function () {
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(account, 'waitForSessionVerification', function () {
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
@@ -278,20 +252,20 @@ define(function (require, exports, module) {
         return view.afterVisible()
           .then(function () {
             assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
-            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.isTrue(account.waitForSessionVerification.calledOnce);
           });
       });
 
       it('displays an error when an unknown error occurs', function () {
         var unknownError = 'Something failed';
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+        sinon.stub(account, 'waitForSessionVerification', function () {
           return p.reject(new Error(unknownError));
         });
 
         sinon.spy(view, 'navigate');
         return view.afterVisible()
           .then(function () {
-            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+            assert.isTrue(account.waitForSessionVerification.calledOnce);
             assert.equal(view.$('.error').text(), unknownError);
           });
       });
@@ -301,12 +275,12 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-            var callCount = view.fxaClient.recoveryEmailStatus.callCount;
+          sandbox.stub(account, 'waitForSessionVerification', () => {
+            var callCount = account.waitForSessionVerification.callCount;
             if (callCount < 2) {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             } else {
-              return p({ verified: true });
+              return p();
             }
           });
 
@@ -318,6 +292,8 @@ define(function (require, exports, module) {
             callback();
           });
 
+          sandbox.stub(user, 'setAccount', () => p());
+
           return view.afterVisible();
         });
 
@@ -326,7 +302,7 @@ define(function (require, exports, module) {
         });
 
         it('polls the auth server', function () {
-          assert.equal(view.fxaClient.recoveryEmailStatus.callCount, 2);
+          assert.equal(account.waitForSessionVerification.callCount, 2);
         });
 
         it('captures the exception to Sentry', function () {
@@ -345,8 +321,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit', function () {
-      it('resends the confirmation email, shows success message, logs the event', function () {
+    describe('resend', function () {
+      it('resends the confirmation email', function () {
         sinon.stub(account, 'retrySignUp', function () {
           return p();
         });
@@ -354,12 +330,8 @@ define(function (require, exports, module) {
           return 'resume token';
         });
 
-        return view.submit()
+        return view.resend()
           .then(function () {
-            assert.isTrue(view.$('.success').is(':visible'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'confirm.resend'));
-
             assert.isTrue(account.retrySignUp.calledWith(
               relier,
               {
@@ -377,16 +349,11 @@ define(function (require, exports, module) {
 
           sinon.spy(view, 'navigate');
 
-          return view.submit();
+          return view.resend();
         });
 
         it('redirects to /signup', function () {
           assert.isTrue(view.navigate.calledWith('signup'));
-        });
-
-        it('logs an event', function () {
-          assert.isTrue(TestHelpers.isEventLogged(metrics,
-                            'confirm.resend'));
         });
       });
 
@@ -398,77 +365,22 @@ define(function (require, exports, module) {
             return p.reject(new Error('synthesized error from auth server'));
           });
 
-          return view.submit()
+          return view.resend()
             .then(assert.fail, function (err) {
               error = err;
             });
         });
 
-        it('displays the error', function () {
+        it('re-throws the error', function () {
           assert.equal(error.message, 'synthesized error from auth server');
         });
       });
     });
 
-    describe('validateAndSubmit', function () {
-      it('only called after click on #resend', function () {
-        var count = 0;
-        view.validateAndSubmit = function () {
-          count++;
-        };
-
-        sinon.stub(account, 'retrySignUp', function () {
-          return p();
-        });
-
-        view.$('section').click();
-        assert.equal(count, 0);
-
-        view.$('#resend').click();
-        assert.equal(count, 1);
-      });
-
-      it('debounces resend calls - submit on first four attempts', function () {
-        var count = 0;
-
-        sinon.stub(account, 'retrySignUp', function () {
-          count++;
-          return p(true);
-        });
-
-        return view.validateAndSubmit()
-              .then(function () {
-                assert.equal(count, 1);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 2);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 3);
-                assert.equal(view.$('#resend:visible').length, 1);
-                return view.validateAndSubmit();
-              }).then(function () {
-                assert.equal(count, 4);
-                assert.equal(view.$('#resend:visible').length, 0);
-
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.resend'));
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.too_many_attempts'));
-              });
-      });
-    });
-
     describe('complete', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-          return p({
-            verified: true
-          });
-        });
-
+        sinon.stub(account, 'waitForSessionVerification', () => p());
+        sinon.stub(user, 'setAccount', () => p());
         sinon.stub(view, 'navigate', function (page) {
           // do nothing
         });
@@ -540,7 +452,6 @@ define(function (require, exports, module) {
         view = new View({
           broker: broker,
           canGoBack: true,
-          fxaClient: fxaClient,
           metrics: metrics,
           model: model,
           notifier: notifier,

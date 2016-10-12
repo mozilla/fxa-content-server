@@ -9,33 +9,32 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var p = require('lib/promise');
+  const p = require('lib/promise');
 
   function FxDesktopV1Sender() {
     // nothing to do here.
   }
 
   FxDesktopV1Sender.prototype = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._window = options.window;
     },
 
-    send: function (command, data, messageId) {
-      var self = this;
-      return p().then(function () {
-        return self.dispatchCommand(command, data, messageId);
+    send (command, data, messageId) {
+      return p().then(() => {
+        return this.dispatchCommand(command, data, messageId);
       });
     },
 
-    dispatchCommand: function (command, data, messageId) {
+    dispatchCommand (command, data, messageId) {
       var win = this._window;
       var event = createEvent(win, command, data, messageId);
       win.dispatchEvent(event);
     },
 
-    teardown: function () {
+    teardown () {
       // nothing to do.
     }
   };

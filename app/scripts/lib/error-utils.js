@@ -9,13 +9,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var domWriter = require('lib/dom-writer');
-  var FiveHundredTemplate = require('stache!templates/500');
-  var FourHundredTemplate = require('stache!templates/400');
-  var Logger = require('lib/logger');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
+  const AuthErrors = require('lib/auth-errors');
+  const domWriter = require('lib/dom-writer');
+  const FiveHundredTemplate = require('stache!templates/500');
+  const FourHundredTemplate = require('stache!templates/400');
+  const Logger = require('lib/logger');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
 
   module.exports = {
     /**
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
      * @param {Error} error - error for which to get error page URL
      * @returns {String}
      */
-    getErrorPageTemplate: function (error) {
+    getErrorPageTemplate (error) {
       if (AuthErrors.is(error, 'INVALID_PARAMETER') ||
           AuthErrors.is(error, 'MISSING_PARAMETER') ||
           OAuthErrors.is(error, 'INVALID_PARAMETER') ||
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
      * @param {Object} metrics
      * @param {Object} win
      */
-    captureError: function (error, sentryMetrics, metrics, win) {
+    captureError (error, sentryMetrics, metrics, win) {
       var logger = new Logger(win);
       logger.error(error);
 
@@ -71,9 +71,9 @@ define(function (require, exports, module) {
      * @param {Object} sentryMetrics
      * @param {Object} metrics
      * @param {Object} win
-     * @returns {promise};
+     * @returns {Promise};
      */
-    captureAndFlushError: function (error, sentryMetrics, metrics, win) {
+    captureAndFlushError (error, sentryMetrics, metrics, win) {
       this.captureError(error, sentryMetrics, metrics, win);
       return p().then(function () {
         if (metrics) {
@@ -89,7 +89,7 @@ define(function (require, exports, module) {
      * @param {Object} win
      * @param {Object} translator
      */
-    renderError: function (error, win, translator) {
+    renderError (error, win, translator) {
       var errorPageTemplate = this.getErrorPageTemplate(error);
       var errorMessage = this.getErrorMessage(error, translator);
       var errorHtml = errorPageTemplate({
@@ -109,9 +109,9 @@ define(function (require, exports, module) {
      * @param {Object} metrics
      * @param {Object} win
      * @param {Object} translator
-     * @returns {promise}
+     * @returns {Promise}
      */
-    fatalError: function (error, sentryMetrics, metrics, win, translator) {
+    fatalError (error, sentryMetrics, metrics, win, translator) {
       return p.all([
         this.captureAndFlushError(error, sentryMetrics, metrics, win),
         this.renderError(error, win, translator)
@@ -122,11 +122,11 @@ define(function (require, exports, module) {
      * Get the error message, performing any interpolation. If a translator
      * is passed, return value will be translated to the user's locale.
      *
-     * @param {string} error - an error object
+     * @param {String} error - an error object
      * @param {Object} [translator] - translator to translate error
-     * @return {string} interpolated error text.
+     * @return {String} interpolated error text.
      */
-    getErrorMessage: function (error, translator) {
+    getErrorMessage (error, translator) {
       if (error && error.errorModule) {
         return error.errorModule.toInterpolatedMessage(error, translator);
       }

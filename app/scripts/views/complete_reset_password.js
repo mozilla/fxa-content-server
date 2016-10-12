@@ -5,67 +5,69 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var Notifier = require('lib/channels/notifier');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var Template = require('stache!templates/complete_reset_password');
-  var Url = require('lib/url');
-  var VerificationInfo = require('models/verification/reset-password');
+  const AuthErrors = require('lib/auth-errors');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const Notifier = require('lib/channels/notifier');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const Template = require('stache!templates/complete_reset_password');
+  const { t } = require('views/base');
+  const Url = require('lib/url');
+  const VerificationInfo = require('models/verification/reset-password');
 
-  var t = BaseView.t;
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'complete-reset-password',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
     },
 
-    events: {
-      'click #resend': BaseView.preventDefaultThen('resendResetEmail')
+    getAccount () {
+      const email = this._verificationInfo.get('email');
+
+      return this.user.initAccount({ email });
     },
 
     // beforeRender is asynchronous and returns a promise. Only render
     // after beforeRender has finished its business.
-    beforeRender: function () {
-      var self = this;
-
+    beforeRender () {
       var verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
-        return true;
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+        return;
       }
 
-      var token = verificationInfo.get('token');
-      return this.fxaClient.isPasswordResetComplete(token)
-        .then(function (isComplete) {
+      const account = this.getAccount();
+      const token = verificationInfo.get('token');
+      return account.isPasswordResetComplete(token)
+        .then((isComplete) => {
           if (isComplete) {
             verificationInfo.markExpired();
-            self.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            this.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
           }
-          return true;
         });
     },
 
-    afterRender: function () {
+    afterVisible () {
       // The originating tab will start listening for `login` events once
       // it knows the complete reset password tab is open in the same browser.
       this.notifier.triggerRemote(Notifier.COMPLETE_RESET_PASSWORD_TAB_OPEN);
+      return proto.afterVisible.call(this);
     },
 
-    context: function () {
+    context () {
       var verificationInfo = this._verificationInfo;
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
@@ -81,22 +83,20 @@ define(function (require, exports, module) {
       };
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       return this._getPassword() === this._getVPassword();
     },
 
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (this._getPassword() !== this._getVPassword()) {
         var err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
         this.displayError(err);
       }
     },
 
-    submit: function () {
-      var self = this;
+    submit () {
       var verificationInfo = this._verificationInfo;
-      var email = verificationInfo.get('email');
-      var password = self._getPassword();
+      var password = this._getPassword();
       var token = verificationInfo.get('token');
       var code = verificationInfo.get('code');
 
@@ -107,42 +107,40 @@ define(function (require, exports, module) {
       // will store the sessionToken in localStorage, when the
       // reset password complete poll completes in the original tab,
       // it will fetch the sessionToken from localStorage and go to town.
-      var account = self.user.initAccount({
-        email: email
-      });
+      var account = this.getAccount();
 
-      return self.user.completeAccountPasswordReset(
+      return this.user.completeAccountPasswordReset(
           account,
           password,
           token,
           code,
-          self.relier
+          this.relier
         )
-        .then(function (updatedAccount) {
+        .then((updatedAccount) => {
           // The password was reset, future attempts should ask confirmation.
-          self.relier.set('resetPasswordConfirm', true);
+          this.relier.set('resetPasswordConfirm', true);
           // See the above note about notifying the original tab.
-          self.logViewEvent('verification.success');
-          return self.invokeBrokerMethod(
+          this.logViewEvent('verification.success');
+          return this.invokeBrokerMethod(
                     'afterCompleteResetPassword', updatedAccount);
         })
-        .then(function () {
+        .then(() => {
           // the user is definitively signed in here, otherwise this
           // path would not be taken.
-          if (self.relier.isDirectAccess()) {
-            self.navigate('settings', {
+          if (this.relier.isDirectAccess()) {
+            this.navigate('settings', {
               success: t('Account verified successfully')
             });
           } else {
-            self.navigate('reset_password_complete');
+            this.navigate('reset_password_complete');
           }
         })
-        .then(null, function (err) {
+        .fail((err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            self.logError(err);
+            this.logError(err);
             // The token has expired since the first check, re-render to
             // show a view that allows the user to receive a new link.
-            return self.render();
+            return this.render();
           }
 
           // all other errors are unexpected, bail.
@@ -150,20 +148,16 @@ define(function (require, exports, module) {
         });
     },
 
-    _getPassword: function () {
+    _getPassword () {
       return this.$('#password').val();
     },
 
-    _getVPassword: function () {
+    _getVPassword () {
       return this.$('#vpassword').val();
     },
 
-    resendResetEmail: function () {
-      var self = this;
-      self.logViewEvent('resend');
-      var email = self._verificationInfo.get('email');
-      return self.resetPassword(email)
-        .fail(self.displayError.bind(self));
+    resend () {
+      return this.resetPassword(this._verificationInfo.get('email'));
     }
   });
 
@@ -173,6 +167,7 @@ define(function (require, exports, module) {
     PasswordMixin,
     PasswordResetMixin,
     PasswordStrengthMixin,
+    ResendMixin,
     ServiceMixin
   );
 

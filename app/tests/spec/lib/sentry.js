@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var Raven = require('raven');
-  var SentryMetrics = require('lib/sentry');
-  var sinon = require('sinon');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const Raven = require('raven');
+  const SentryMetrics = require('lib/sentry');
+  const sinon = require('sinon');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
   var windowMock;
@@ -172,51 +172,6 @@ define(function (require, exports, module) {
         assert.equal(resultData.request.headers.Referer, goodData.request.headers.Referer);
       });
 
-      it('properly converts stacktrace and culprit urls', function () {
-        var url = 'https://accounts.firefox.com/complete_reset_password';
-        var badFile = 'https://accounts.firefox.com/scripts/1a22742b.head.js';
-        var otherFile = 'https://accounts.firefox.com/experiments.bundle.js';
-        var badCulprit = 'https://accounts.firefox.com/scripts/57f6d4e4.main.js';
-        var goodFile = 'https://accounts.firefox.com/scripts/head.js';
-        var goodCulprit = 'https://accounts.firefox.com/scripts/main.js';
-        var data = {
-          culprit: badCulprit,
-          exception: {
-            values: [
-              {
-                stacktrace: {
-                  frames: [
-                    {
-                      filename: badFile
-                    },
-                    {
-                      filename: otherFile
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          request: {
-            url: url
-          }
-        };
-
-        var goodData = {
-          request: {
-            url: url
-          }
-        };
-
-        var sentry = new SentryMetrics(host);
-        var resultData = sentry.__beforeSend(data);
-
-        assert.equal(resultData.url, goodData.url);
-        assert.equal(resultData.culprit, goodCulprit);
-        assert.equal(resultData.exception.values[0].stacktrace.frames[0].filename, goodFile, 'removes cache part');
-        assert.equal(resultData.exception.values[0].stacktrace.frames[1].filename, otherFile, 'does not remove cache part');
-      });
-
     });
 
     describe('cleanUpQueryParam', function () {
@@ -253,8 +208,8 @@ define(function (require, exports, module) {
         // do not call the real captureException,
         // no need to make network requests.
         sandbox.stub(Raven, 'captureException', function () {});
-
-        var sentry = new SentryMetrics(host);
+        var release = '0.1.0';
+        var sentry = new SentryMetrics(host, release);
 
         var err = new Error('uh oh');
         err.code = 400;
@@ -267,12 +222,31 @@ define(function (require, exports, module) {
         sentry.captureException(err);
 
         assert.isTrue(Raven.captureException.calledWith(err, {
+          release: release,
           tags: {
             code: 400,
             context: '/signup',
             errno: 998,
             namespace: 'config',
             status: 401
+          }
+        }));
+
+        sandbox.restore();
+      });
+
+      it('reports the error even if release version is not set', function () {
+        var sandbox = sinon.sandbox.create();
+        sandbox.stub(Raven, 'captureException', function () {});
+        var sentry = new SentryMetrics(host);
+
+        var err = new Error('uh oh');
+        err.code = 400;
+
+        sentry.captureException(err);
+        assert.isTrue(Raven.captureException.calledWith(err, {
+          tags: {
+            code: 400
           }
         }));
 

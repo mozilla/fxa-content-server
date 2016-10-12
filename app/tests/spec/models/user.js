@@ -5,21 +5,22 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Device = require('models/device');
-  var Devices = require('models/devices');
-  var FxaClient = require('lib/fxa-client');
-  var MarketingEmailErrors = require('lib/marketing-email-errors');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Session = require('lib/session');
-  var SentryMetrics = require('lib/sentry');
-  var sinon = require('sinon');
-  var User = require('models/user');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Device = require('models/device');
+  const AttachedClients = require('models/attached-clients');
+  const FxaClient = require('lib/fxa-client');
+  const MarketingEmailErrors = require('lib/marketing-email-errors');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const OAuthApp = require('models/oauth-app');
+  const Session = require('lib/session');
+  const SentryMetrics = require('lib/sentry');
+  const sinon = require('sinon');
+  const User = require('models/user');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 
@@ -673,62 +674,69 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with an unverified account', function () {
-        beforeEach(function () {
-          account = user.initAccount({ email: 'email', uid: 'uid' });
+      // Ensure that content-server can correctly handle any auth-server emailSent response
+      const emailSentTestCases = [{
+        emailSent: undefined,
+        expectedRetryCallCount: 1
+      }, {
+        emailSent: false,
+        expectedRetryCallCount: 1
+      }, {
+        emailSent: true,
+        expectedRetryCallCount: 0
+      }];
+      emailSentTestCases.forEach(function (testCase) {
+        describe('with an unverified account, emailSent = ' + testCase.emailSent, function () {
+          beforeEach(function () {
+            account = user.initAccount({
+              emailSent: testCase.emailSent,
+              verificationReason: VerificationReasons.SIGN_UP,
+              verified: false
+            });
 
-          sinon.stub(account, 'signIn', function () {
-            return p();
+            sinon.stub(account, 'signIn', function () {
+              return p();
+            });
+
+            sinon.stub(account, 'retrySignUp', function () {
+              return p();
+            });
+
+            sinon.spy(user, 'setSignedInAccount');
+
+            sinon.spy(notifier, 'triggerRemote');
+
+            return user.signInAccount(
+              account, 'password', relierMock, {resume: 'resume token'});
           });
 
-          sinon.stub(account, 'get', function (property) {
-            if (property === 'verified') {
-              return false;
-            } else if (property === 'verificationReason') {
-              return VerificationReasons.SIGN_UP;
+          it('delegates to the account', function () {
+            assert.isTrue(account.signIn.calledWith(
+              'password',
+              relierMock,
+              {
+                resume: 'resume token'
+              }
+            ));
+          });
+
+          it('called account.retrySignUp correctly', function () {
+            assert.strictEqual(account.retrySignUp.callCount, testCase.expectedRetryCallCount);
+            if (testCase.expectedRetryCallCount !== 0) {
+              var args = account.retrySignUp.args[0];
+              assert.lengthOf(args, 2);
+              assert.equal(args[0], relierMock);
+              assert.deepEqual(args[1], {resume: 'resume token'});
             }
-
-            return property;
           });
 
-          sinon.stub(account, 'retrySignUp', function () {
-            return p();
+          it('saves the account', function () {
+            assert.isTrue(user.setSignedInAccount.calledWith(account));
           });
 
-          sinon.stub(user, 'setSignedInAccount', function () {
-            return p(account);
+          it('notifies remote listeners of the signin', function () {
+            testRemoteSignInMessageSent(account);
           });
-
-          sinon.spy(notifier, 'triggerRemote');
-
-          return user.signInAccount(
-            account, 'password', relierMock, { resume: 'resume token'});
-        });
-
-        it('delegates to the account', function () {
-          assert.isTrue(account.signIn.calledWith(
-            'password',
-            relierMock,
-            {
-              resume: 'resume token'
-            }
-          ));
-        });
-
-        it('called account.retrySignUp correctly', function () {
-          assert.strictEqual(account.retrySignUp.callCount, 1);
-          var args = account.retrySignUp.args[0];
-          assert.lengthOf(args, 2);
-          assert.equal(args[0], relierMock);
-          assert.deepEqual(args[1], { resume: 'resume token' });
-        });
-
-        it('saves the account', function () {
-          assert.isTrue(user.setSignedInAccount.calledWith(account));
-        });
-
-        it('notifies remote listeners of the signin', function () {
-          testRemoteSignInMessageSent(account);
         });
       });
     });
@@ -969,7 +977,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        devices = new Devices([], {
+        devices = new AttachedClients([], {
           notifier: {
             on: sinon.spy()
           }
@@ -980,6 +988,30 @@ define(function (require, exports, module) {
 
       it('delegates to the account to fetch devices', function () {
         assert.isTrue(account.fetchDevices.calledWith(devices));
+      });
+    });
+
+    describe('fetchAccountOAuthApps', function () {
+      var account;
+      var oAuthApps;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'fetchOAuthApps', function () {
+          return p();
+        });
+
+        oAuthApps = new AttachedClients([], {
+          notifier: {
+            on: sinon.spy()
+          }
+        });
+
+        return user.fetchAccountOAuthApps(account, oAuthApps);
+      });
+
+      it('delegates to the account to fetch devices', function () {
+        assert.isTrue(account.fetchOAuthApps.calledWith(oAuthApps));
       });
     });
 
@@ -1038,6 +1070,29 @@ define(function (require, exports, module) {
         it('signs out the current account', function () {
           assert.isTrue(user.clearSignedInAccount.called);
         });
+      });
+    });
+
+    describe('destroyAccountApp', function () {
+      var oAuthApp;
+      var account;
+
+      beforeEach(function () {
+        account = user.initAccount({});
+        sinon.stub(account, 'destroyOAuthApp', function () {
+          return p();
+        });
+
+        oAuthApp = new OAuthApp({
+          id: 'oauth-1',
+          name: 'oauthy',
+        });
+
+        return user.destroyAccountApp(account, oAuthApp);
+      });
+
+      it('delegates to the account to destroy the device', function () {
+        assert.isTrue(account.destroyOAuthApp.calledWith(oAuthApp));
       });
     });
 

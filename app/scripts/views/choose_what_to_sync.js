@@ -5,18 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var BackMixin = require('views/mixins/back-mixin');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var Template = require('stache!templates/choose_what_to_sync');
+  const _ = require('underscore');
+  const BackMixin = require('views/mixins/back-mixin');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const Template = require('stache!templates/choose_what_to_sync');
 
   var View = FormView.extend({
     template: Template,
     className: 'choose-what-to-sync',
 
-    initialize: function () {
+    initialize () {
       // Account data is passed in from sign up flow.
       this._account = this.user.initAccount(this.model.get('account'));
 
@@ -26,11 +26,11 @@ define(function (require, exports, module) {
       this.onSubmitComplete = this.model.get('onSubmitComplete');
     },
 
-    getAccount: function () {
+    getAccount () {
       return this._account;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       // user cannot proceed if they have not initiated a sign up/in.
       if (! this.getAccount().get('sessionToken')) {
         this.navigate('signup');
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
       }
     },
 
-    context: function () {
+    context () {
       var account = this.getAccount();
 
       return {
@@ -52,10 +52,9 @@ define(function (require, exports, module) {
       };
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getAccount();
-      var declinedEngines = self._getDeclinedEngines();
+    submit () {
+      var account = this.getAccount();
+      var declinedEngines = this._getDeclinedEngines();
 
       this._trackUncheckedEngines(declinedEngines);
 
@@ -64,8 +63,8 @@ define(function (require, exports, module) {
         declinedSyncEngines: declinedEngines
       });
 
-      return self.user.setAccount(account)
-        .then(self.onSubmitComplete);
+      return this.user.setAccount(account)
+        .then(this.onSubmitComplete);
     },
 
     /**
@@ -75,7 +74,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _isEngineSupported: function (engineName) {
+    _isEngineSupported (engineName) {
       var supportedEngines =
                 this.broker.getCapability('chooseWhatToSyncWebV1').engines;
       return supportedEngines.indexOf(engineName) > -1;
@@ -88,7 +87,7 @@ define(function (require, exports, module) {
      * @returns {Array}
      * @private
      */
-    _getDeclinedEngines: function () {
+    _getDeclinedEngines () {
       var uncheckedEngineEls =
             this.$el.find('input[name=sync-content]').not(':checked');
 
@@ -103,12 +102,10 @@ define(function (require, exports, module) {
      * @param {Array} declinedEngines
      * @private
      */
-    _trackUncheckedEngines: function (declinedEngines) {
-      var self = this;
-
+    _trackUncheckedEngines (declinedEngines) {
       if (_.isArray(declinedEngines)) {
-        declinedEngines.forEach(function (engine) {
-          self.logViewEvent('engine-unchecked.' + engine);
+        declinedEngines.forEach((engine) => {
+          this.logViewEvent('engine-unchecked.' + engine);
         });
       }
     }

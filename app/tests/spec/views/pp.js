@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var chai = require('chai');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var View = require('views/pp');
-  var WindowMock = require('../../mocks/window');
+  const chai = require('chai');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const View = require('views/pp');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
 
     beforeEach(function () {
       xhrMock = {
-        ajax: function () {
+        ajax () {
           return p(TEMPLATE_TEXT);
         }
       };
@@ -34,6 +34,9 @@ define(function (require, exports, module) {
       windowMock.location.pathname = '/legal/privacy';
 
       view = new View({
+        broker: {
+          hasCapability: () => true
+        },
         window: windowMock,
         xhr: xhrMock
       });
@@ -96,7 +99,7 @@ define(function (require, exports, module) {
       return view.render()
         .then(function () {
           assert.equal(
-            view.$('#data-visible-url-added').attr('data-visible-url'),
+            view.$('#data-visible-url-added').data('visible-url'),
             'https://accounts.firefox.com'
           );
         });
@@ -106,7 +109,7 @@ define(function (require, exports, module) {
       return view.render()
         .then(function () {
           assert.equal(
-            typeof view.$('#data-visible-url-not-added').attr('data-visible-url'),
+            typeof view.$('#data-visible-url-not-added').data('visible-url'),
             'undefined'
           );
         });

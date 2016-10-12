@@ -10,8 +10,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
 
   var ResumeToken = Backbone.Model.extend({
     defaults: {
@@ -28,7 +28,7 @@ define(function (require, exports, module) {
       verificationRedirect: undefined
     },
 
-    initialize: function (options) {
+    initialize (options) {
       this.allowedKeys = Object.keys(this.defaults);
 
       // get rid of any data in the options block that is not expected.
@@ -38,7 +38,7 @@ define(function (require, exports, module) {
       this.set(allowedData);
     },
 
-    stringify: function () {
+    stringify () {
       return stringify(this.pick(this.allowedKeys));
     }
   });

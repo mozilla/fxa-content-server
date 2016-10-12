@@ -5,19 +5,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var chai = require('chai');
-  var Constants = require('lib/constants');
-  var Duration = require('duration');
-  var FormView = require('views/form');
-  var HaltBehavior = require('views/behaviors/halt');
-  var Metrics = require('lib/metrics');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
-  var Template = require('stache!templates/test_template');
-  var TestHelpers = require('../../lib/helpers');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const chai = require('chai');
+  const Constants = require('lib/constants');
+  const Duration = require('duration');
+  const FormView = require('views/form');
+  const HaltBehavior = require('views/behaviors/halt');
+  const Metrics = require('lib/metrics');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
+  const Template = require('stache!templates/test_template');
+  const TestHelpers = require('../../lib/helpers');
 
   var assert = chai.assert;
 
@@ -28,15 +28,15 @@ define(function (require, exports, module) {
     formIsValid: false,
     isFormSubmitted: false,
 
-    isValid: function () {
+    isValid () {
       return this.formIsValid;
     },
 
-    showValidationErrors: function () {
+    showValidationErrors () {
       return this.showValidationError('body', 'invalid form');
     },
 
-    submit: function () {
+    submit () {
       this.isFormSubmitted = true;
     }
   });
@@ -67,6 +67,31 @@ define(function (require, exports, module) {
           assert.isTrue(view.isFormSubmitted);
         });
     }
+
+    function testValidationError($el, expectedError) {
+      let validationError;
+
+      try {
+        $el.validate();
+      } catch (e) {
+        validationError = e;
+      }
+
+      assert.isTrue(AuthErrors.is(validationError, expectedError));
+    }
+
+    function testNoValidationError($el) {
+      let validationError;
+
+      try {
+        $el.validate();
+      } catch (e) {
+        validationError = e;
+      }
+
+      assert.isUndefined(validationError);
+    }
+
 
     beforeEach(function () {
       metrics = new Metrics();
@@ -410,87 +435,72 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('validateEmail', function () {
-      it('returns false if an empty email', function () {
-        view.$('#email').val('');
-        assert.isFalse(view.validateEmail('#email'));
-        assert.isFalse(view.isElementValid('#email'));
+    describe('validate - mail', function () {
+      it('not valid if an empty email', function () {
+        const $el = view.$('#email');
+        $el.val('');
+
+        testValidationError($el, 'EMAIL_REQUIRED');
       });
 
-      it('returns false if an invalid email', function () {
-        view.$('#email').val('invalid');
-        assert.isFalse(view.validateEmail('#email'));
-        assert.isFalse(view.isElementValid('#email'));
+      it('not valid if an invalid email', function () {
+        const $el = view.$('#email');
+        $el.val('invalid');
+
+        testValidationError($el, 'INVALID_EMAIL');
       });
 
-      it('returns true if a valid email', function () {
-        view.$('#email').val('testuser@testuser.com');
-        assert.isTrue(view.validateEmail('#email'));
-        assert.isTrue(view.isElementValid('#email'));
-      });
-    });
+      it('valid if a valid email', function () {
+        const $el = view.$('#email');
+        $el.val('testuser@testuser.com');
 
-    describe('validatePassword', function () {
-      it('returns false if an empty password', function () {
-        view.$('#password').val('');
-        assert.isFalse(view.validatePassword('#password'));
-        assert.isFalse(view.isElementValid('#password'));
-      });
-
-      it('returns false if too short a password', function () {
-        view.$('#password').val('1');
-        assert.isFalse(view.validatePassword('#password'));
-        assert.isFalse(view.isElementValid('#password'));
-      });
-
-      it('returns true if a valid password', function () {
-        view.$('#password').val(TestHelpers.createRandomHexString(Constants.PASSWORD_MIN_LENGTH));
-        assert.isTrue(view.validatePassword('#password'));
-        assert.isTrue(view.isElementValid('#password'));
+        testNoValidationError($el);
       });
     });
 
-    describe('validateInput', function () {
-      it('returns true for an empty non-required input', function () {
+    describe('validate - password', function () {
+      it('invalid if an empty password', function () {
+        const $el = view.$('#password');
+        $el.val('');
+
+        testValidationError($el, 'PASSWORD_REQUIRED');
+      });
+
+      it('invalid if too short a password', function () {
+        const $el = view.$('#password');
+        $el.val('1');
+
+        testValidationError($el, 'PASSWORD_TOO_SHORT');
+      });
+
+      it('valid if a valid password', function () {
+        const $el = view.$('#password');
+        $el.val(TestHelpers.createRandomHexString(Constants.PASSWORD_MIN_LENGTH));
+        testNoValidationError($el);
+      });
+    });
+
+    describe('validate - text', function () {
+      it('valid for an empty non-required input', function () {
         view.$('#notRequired').val('');
-        assert.isTrue(view.validateInput('#notRequired'));
-        assert.isTrue(view.isElementValid('#notRequired'));
+        testNoValidationError(view.$('#notRequired'));
       });
 
-      it('returns true for a filled out non-required input', function () {
+      it('valid for a filled out non-required input', function () {
         view.$('#notRequired').val('value');
-        assert.isTrue(view.validateInput('#notRequired'));
-        assert.isTrue(view.isElementValid('#notRequired'));
+        testNoValidationError(view.$('#notRequired'));
       });
 
-      it('returns false for an empty required input', function () {
-        view.$('#required').val('');
-        assert.isFalse(view.validateInput('#required'));
-        assert.isFalse(view.isElementValid('#required'));
+      it('invalid for an empty required input', function () {
+        const $el = view.$('#required');
+        $el.val('');
+
+        testValidationError($el, 'INPUT_REQUIRED');
       });
 
-      it('returns true for a filled out required input', function () {
+      it('valid for a filled out required input', function () {
         view.$('#required').val('value');
-        assert.isTrue(view.validateInput('#required'));
-        assert.isTrue(view.isElementValid('#required'));
-      });
-
-      it('returns true if no internal validation fails, and HTML5 validation is not available', function () {
-        sinon.stub(view, '$', function () {
-          // completely synthesize a mock element that
-          // has no HTML5 form validity.
-          return {
-            attr: function () {
-            },
-            val: function () {
-              return 'hiya!';
-            },
-            '0': {
-            }
-          };
-        });
-        assert.isTrue(view.validateInput({}));
-        view.$.restore();
+        testNoValidationError(view.$('#required'));
       });
     });
 
@@ -650,19 +660,6 @@ define(function (require, exports, module) {
             assert.equal(view.$('.error').text(), 'BOOM');
             assert.isTrue(view._isErrorVisible);
           });
-      });
-    });
-
-    describe('getElementType', function () {
-      it('returns the type of the element', function () {
-        assert.equal(view.getElementType('#focusMe'), 'text');
-        assert.equal(view.getElementType('#password'), 'password');
-      });
-
-      it('returns `password` for text inputs with the `password` class', function () {
-        assert.equal(view.getElementType('#focusMe'), 'text');
-        view.$('#focusMe').addClass('password');
-        assert.equal(view.getElementType('#focusMe'), 'password');
       });
     });
 

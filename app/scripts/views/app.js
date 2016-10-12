@@ -9,15 +9,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var LoadingMixin = require('views/mixins/loading-mixin');
-  var p = require('lib/promise');
+  const $ = require('jquery');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const LoadingMixin = require('views/mixins/loading-mixin');
+  const p = require('lib/promise');
 
   var AppView = BaseView.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._environment = options.environment;
@@ -33,7 +33,7 @@ define(function (require, exports, module) {
       'click a[href^="/"]': 'onAnchorClick'
     },
 
-    onAnchorClick: function (event) {
+    onAnchorClick (event) {
       // if someone killed this event, or the user is holding a modifier
       // key, ignore the event.
       if (event.isDefaultPrevented() ||
@@ -63,18 +63,16 @@ define(function (require, exports, module) {
      * re-rendered. If the view is not displayed, the current view is
      * replaced.
      *
-     * @param {function} View - the View's constructor
-     * @param {object} options - options to pass to the constructor
+     * @param {Function} View - the View's constructor
+     * @param {Object} options - options to pass to the constructor
      *
      * @returns {Promise}
      */
-    showView: function (View, options) {
-      var self = this;
-
-      return p().then(function () {
+    showView (View, options) {
+      return p().then(() => {
         options.model = options.model || new Backbone.Model();
 
-        var currentView = self._currentView;
+        var currentView = this._currentView;
         if (currentView instanceof View) {
           // child view->parent view
           //
@@ -83,20 +81,20 @@ define(function (require, exports, module) {
           // the child view.
           currentView.model.set(options.model.toJSON());
 
-          self.notifier.trigger('navigate-from-child-view', options);
-          self.setTitle(currentView.titleFromView());
+          this.notifier.trigger('navigate-from-child-view', options);
+          this.setTitle(currentView.titleFromView());
 
           return currentView;
         } else if (currentView) {
           currentView.destroy();
         }
 
-        var viewToShow = self._createView(View, options);
-        self._currentView = viewToShow;
+        var viewToShow = this._createView(View, options);
+        this._currentView = viewToShow;
 
         viewToShow.logView();
         return viewToShow.render()
-          .then(function (isShown) {
+          .then((isShown) => {
             // render will return false if the view could not be
             // rendered for any reason, including if the view was
             // automatically redirected.
@@ -104,57 +102,54 @@ define(function (require, exports, module) {
               viewToShow.destroy();
 
               // If viewToShow calls `navigate` in its `beforeRender` function,
-              // the new view will be created and self._currentView will
+              // the new view will be created and this._currentView will
               // reference the second view before the first view's render
-              // promise chain completes. Ensure self._currentView is the same
+              // promise chain completes. Ensure this._currentView is the same
               // as viewToShow before destroying the reference. Ref #3187
-              if (viewToShow === self._currentView) {
-                self._currentView = null;
+              if (viewToShow === this._currentView) {
+                this._currentView = null;
               }
 
               return p(null);
             }
 
-            self.setTitle(viewToShow.titleFromView());
+            this.setTitle(viewToShow.titleFromView());
 
-            self.writeToDOM(viewToShow.el);
+            this.writeToDOM(viewToShow.el);
 
             viewToShow.afterVisible();
 
-            self.notifier.trigger('view-shown', viewToShow);
+            this.notifier.trigger('view-shown', viewToShow);
 
             return viewToShow;
           });
-      }).fail(self.fatalError.bind(self));
+      }).fail(this.fatalError.bind(this));
     },
 
     /**
      * Show a ChildView
      *
-     * @param {function} ChildView - constructor of childView to show.
-     * @param {function} ParentView - constructor of the childView's parent.
-     * @param {object} options used to create the ParentView as well as
+     * @param {Function} ChildView - constructor of childView to show.
+     * @param {Function} ParentView - constructor of the childView's parent.
+     * @param {Object} options used to create the ParentView as well as
      *        display the child view.
      *
      * @returns {Promise}
      */
-    showChildView: function (ChildView, ParentView, options) {
-      var self = this;
+    showChildView (ChildView, ParentView, options) {
       // If currentView is of the ParentView type, simply show the subView
-      return p().then(function () {
-        if (! (self._currentView instanceof ParentView)) {
+      return p().then(() => {
+        if (! (this._currentView instanceof ParentView)) {
           // Create the ParentView; its initialization method should
           // handle the childView option.
-          return self.showView(ParentView, options);
+          return this.showView(ParentView, options);
         }
       })
-      .then(function () {
-        return self._currentView.showChildView(ChildView, options);
-      })
-      .then(function (childView) {
+      .then(() => this._currentView.showChildView(ChildView, options))
+      .then((childView) => {
         // Use the super view's title as the base title
-        var title = childView.titleFromView(self._currentView.titleFromView());
-        self.setTitle(title);
+        var title = childView.titleFromView(this._currentView.titleFromView());
+        this.setTitle(title);
         childView.logView();
 
         // The child view has its own model. Import the passed in
@@ -170,9 +165,9 @@ define(function (require, exports, module) {
     /**
      * Set the window's title
      *
-     * @param {string} title
+     * @param {String} title
      */
-    setTitle: function (title) {
+    setTitle (title) {
       this.window.document.title = title;
     }
 

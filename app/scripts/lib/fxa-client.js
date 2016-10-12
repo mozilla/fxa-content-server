@@ -9,16 +9,16 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var $ = require('jquery');
-  var AuthErrors = require('lib/auth-errors');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var requireOnDemand = require('lib/require-on-demand');
-  var Session = require('lib/session');
-  var SignInReasons = require('lib/sign-in-reasons');
-  var VerificationReasons = require('lib/verification-reasons');
-  var VerificationMethods = require('lib/verification-methods');
+  const _ = require('underscore');
+  const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
+  const Session = require('lib/session');
+  const SignInReasons = require('lib/sign-in-reasons');
+  const VerificationReasons = require('lib/verification-reasons');
+  const VerificationMethods = require('lib/verification-methods');
 
   function trim(str) {
     return $.trim(str);
@@ -39,8 +39,8 @@ define(function (require, exports, module) {
 
   /**
    * Check if keys should be requested
-   * @param {object} relier - relier being signed in to.
-   * @param {string} sessionTokenContext - context of the current session
+   * @param {Object} relier - relier being signed in to.
+   * @param {String} sessionTokenContext - context of the current session
    * token.
    * @returns {Boolean}
    */
@@ -94,6 +94,7 @@ define(function (require, exports, module) {
 
     var updatedSessionData = {
       email: email,
+      emailSent: accountData.emailSent,
       sessionToken: accountData.sessionToken,
       sessionTokenContext: sessionTokenContext,
       uid: accountData.uid,
@@ -124,7 +125,7 @@ define(function (require, exports, module) {
   }
 
   FxaClientWrapper.prototype = {
-    _getClient: function () {
+    _getClient () {
       if (this._client) {
         return p(this._client);
       }
@@ -221,7 +222,8 @@ define(function (require, exports, module) {
 
       var signInOptions = {
         keys: wantsKeys(relier),
-        reason: options.reason || SignInReasons.SIGN_IN
+        reason: options.reason || SignInReasons.SIGN_IN,
+        sendEmailIfUnverified: true, // Default is to delegate email sending
       };
 
       // `service` is sent on signIn to notify users when a new service
@@ -279,7 +281,6 @@ define(function (require, exports, module) {
      */
     signUp: withClient(function (client, originalEmail, password, relier, options = {}) {
       var email = trim(originalEmail);
-      var self = this;
 
       var signUpOptions = {
         keys: wantsKeys(relier)
@@ -308,9 +309,9 @@ define(function (require, exports, module) {
       setMetricsContext(signUpOptions, options);
 
       return client.signUp(email, password, signUpOptions)
-        .then(function (accountData) {
+        .then((accountData) => {
           return getUpdatedSessionData(email, relier, accountData, options);
-        }, function (err) {
+        }, (err) => {
           if (relier.has('preVerifyToken') &&
               AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
             // The token was invalid and the auth server could
@@ -318,7 +319,7 @@ define(function (require, exports, module) {
             // user and force them to verify their email.
             relier.unset('preVerifyToken');
 
-            return self.signUp(email, password, relier, options);
+            return this.signUp(email, password, relier, options);
           }
 
           throw err;
@@ -481,7 +482,7 @@ define(function (require, exports, module) {
       return client.sessionStatus(sessionToken);
     }),
 
-    isSignedIn: function (sessionToken) {
+    isSignedIn (sessionToken) {
       // Check if the user is signed in.
       if (! sessionToken) {
         return p(false);
@@ -507,9 +508,8 @@ define(function (require, exports, module) {
      * includes whether the session is verified, and if not, the reason
      * it must be verified and by which method.
      *
-     * @param {string} sessionToken
-     * @param {string} [uid]
-     * @returns {promise} resolves with the account's current session
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with the account's current session
      * information if session is valid. Rejects with an INVALID_TOKEN error
      * if session is invalid.
      *
@@ -520,8 +520,7 @@ define(function (require, exports, module) {
      *   verificationReason: <see lib/verification-reasons.js>
      * }
      */
-    recoveryEmailStatus: withClient(function (client, sessionToken, uid) {
-      var self = this;
+    recoveryEmailStatus: withClient(function (client, sessionToken) {
       return client.recoveryEmailStatus(sessionToken)
         .then(function (response) {
           if (! response.verified) {
@@ -544,23 +543,6 @@ define(function (require, exports, module) {
           // /recovery_email/status returns `emailVerified` and
           // `sessionVerified`, we don't want those.
           return _.pick(response, 'email', 'verified');
-        })
-        .fail(function (err) {
-          // The user's email may have bounced because it's invalid. Check
-          // if the account still exists, if it doesn't, it means the email
-          // bounced. Show a message allowing the user to sign up again.
-          if (uid && AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return self.checkAccountExists(uid)
-              .then(function (accountExists) {
-                if (! accountExists) {
-                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
-                }
-
-                throw err;
-              });
-          }
-
-          throw err;
         });
     }),
 

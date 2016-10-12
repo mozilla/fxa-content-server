@@ -9,9 +9,9 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var Validate = require('lib/validate');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const Validate = require('lib/validate');
 
   // Commands that have the 'internal:' namespace should only be
   // handled by the content server. Other commands may be handled
@@ -67,7 +67,7 @@ define(function (require, exports, module) {
     COMMANDS: COMMAND_NAMES,
     SCHEMATA: SCHEMATA,
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       // internal:* messages are never sent outside of FxA. Messages
@@ -97,11 +97,11 @@ define(function (require, exports, module) {
      * This includes listeners internal to the app, other FxA tabs, as
      * well as the browser.
      *
-     * @param {string} command
-     * @param {object} data
-     * @param {context} context
+     * @param {String} command
+     * @param {Object} data
+     * @param {Context} context
      */
-    triggerAll: function (command, data, context) {
+    triggerAll (command, data, context) {
       this.triggerRemote(command, data);
       this.trigger(command, data, context);
     },
@@ -110,10 +110,10 @@ define(function (require, exports, module) {
      * Send a notification to all interested remote parties,
      * including other FxA tabs.
      *
-     * @param {string} command
-     * @param {object} data
+     * @param {String} command
+     * @param {Object} data
      */
-    triggerRemote: function (command, data) {
+    triggerRemote (command, data) {
       // Validation distinguishes between undefined values and values that are
       // set to undefined. And some channels don't serialise their payloads, so
       // values that are set to undefined get sent with the message. Mitigate
@@ -142,14 +142,13 @@ define(function (require, exports, module) {
     },
 
     // Listen for notifications from other fxa tabs or frames
-    _listen: function (tabChannel) {
-      var self = this;
-      _.each(COMMAND_NAMES, function (name) {
-        tabChannel.on(name, self.trigger.bind(self, name));
+    _listen (tabChannel) {
+      _.each(COMMAND_NAMES, (name) => {
+        tabChannel.on(name, this.trigger.bind(this, name));
       });
     },
 
-    clear: function () {
+    clear () {
       if (this._tabChannel) {
         this._tabChannel.clear();
       }

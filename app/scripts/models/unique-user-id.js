@@ -20,15 +20,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Storage = require('lib/storage');
-  var uuid = require('uuid');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Storage = require('lib/storage');
+  const uuid = require('uuid');
 
   var Model = Backbone.Model.extend({
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this.sentryMetrics = options.sentryMetrics;
@@ -41,17 +41,16 @@ define(function (require, exports, module) {
       uniqueUserId: null
     },
 
-    fetch: function () {
+    fetch () {
       // Try to fetch the uniqueUserId from the resume token.
       // If unavailable there, fetch from localStorage.
       // If not in localStorage either, create a new uniqueUserId.
 
-      var self = this;
-      var storage = Storage.factory('localStorage', self.window);
+      var storage = Storage.factory('localStorage', this.window);
 
-      self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
+      this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
 
-      var uniqueUserId = self.get('uniqueUserId');
+      var uniqueUserId = this.get('uniqueUserId');
       if (! uniqueUserId) {
         if (storage.get('uuid')) {
           // stomlinson on 2015-07-08:
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
         }
       }
 
-      self.set('uniqueUserId', uniqueUserId);
+      this.set('uniqueUserId', uniqueUserId);
       storage.set('uniqueUserId', uniqueUserId);
     },
 

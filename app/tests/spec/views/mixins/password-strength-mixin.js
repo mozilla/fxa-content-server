@@ -5,11 +5,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var chai = require('chai');
-  var Cocktail = require('cocktail');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var sinon = require('sinon');
+  const BaseView = require('views/base');
+  const chai = require('chai');
+  const Cocktail = require('cocktail');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const sinon = require('sinon');
 
   var assert = chai.assert;
 
@@ -37,13 +37,13 @@ define(function (require, exports, module) {
         view = new View({
           able: ableMock,
           metrics: {
-            isCollectionEnabled: function () {
+            isCollectionEnabled () {
               return true;
             },
             logViewEvent: sinon.spy()
           },
           user: {
-            get: function () {
+            get () {
               return 'userid';
             }
           },

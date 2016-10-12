@@ -11,13 +11,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
 
   var t = BaseView.t;
 
   var AccountResetMixin = {
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._session = options.session;
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
      * @param {Object} account - account that has been reset
      * @returns {String}
      */
-    notifyOfResetAccount: function (account) {
+    notifyOfResetAccount (account) {
       this._resetAccount = account;
 
       var err = AuthErrors.toError('ACCOUNT_RESET');
@@ -49,16 +49,13 @@ define(function (require, exports, module) {
     /**
      * Send the account reset email
      *
-     * @returns {promise} - resolves when complete
+     * @returns {Promise} - resolves when complete
      */
-    sendAccountResetEmail: function () {
-      var self = this;
-      var account = self._resetAccount;
-
-      return self.resetPassword(account.get('email'))
-        .fail(function (err) {
-          self._session.clear('oauth');
-          self.displayError(err);
+    sendAccountResetEmail () {
+      return this.resetPassword(this._resetAccount.get('email'))
+        .fail((err) => {
+          this._session.clear('oauth');
+          this.displayError(err);
         });
     }
   };

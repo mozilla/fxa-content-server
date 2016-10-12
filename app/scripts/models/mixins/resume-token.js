@@ -19,10 +19,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var ErrorUtils = require('lib/error-utils');
-  var ResumeToken = require('models/resume-token');
-  var vat = require('lib/vat');
+  const AuthErrors = require('lib/auth-errors');
+  const ErrorUtils = require('lib/error-utils');
+  const ResumeToken = require('models/resume-token');
+  const vat = require('lib/vat');
 
   module.exports = {
     /**
@@ -31,7 +31,7 @@ define(function (require, exports, module) {
      * @method pickResumeTokenInfo
      * @returns {Object}
      */
-    pickResumeTokenInfo: function () {
+    pickResumeTokenInfo () {
       if (this.resumeTokenFields) {
         return this.pick(this.resumeTokenFields);
       }
@@ -45,7 +45,7 @@ define(function (require, exports, module) {
      * @method populateFromStringifiedResumeToken
      * @param {String} stringifiedResumeToken
      */
-    populateFromStringifiedResumeToken: function (stringifiedResumeToken) {
+    populateFromStringifiedResumeToken (stringifiedResumeToken) {
       if (this.resumeTokenFields) {
         var resumeToken =
           ResumeToken.createFromStringifiedResumeToken(stringifiedResumeToken);
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
      * @param {ResumeToken} resumeToken
      * @returns {undefined}
      */
-    populateFromResumeToken: function (resumeToken) {
+    populateFromResumeToken (resumeToken) {
       if (this.resumeTokenFields) {
         var pickedResumeToken = resumeToken.pick(this.resumeTokenFields);
 

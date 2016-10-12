@@ -13,15 +13,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseRelier = require('models/reliers/base');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var p = require('lib/promise');
-  var ResumeTokenMixin = require('models/mixins/resume-token');
-  var SearchParamMixin = require('models/mixins/search-param');
-  var Vat = require('lib/vat');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseRelier = require('models/reliers/base');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const p = require('lib/promise');
+  const ResumeTokenMixin = require('models/mixins/resume-token');
+  const SearchParamMixin = require('models/mixins/search-param');
+  const Vat = require('lib/vat');
 
   var RELIER_FIELDS_IN_RESUME_TOKEN = [
     'entrypoint',
@@ -68,6 +68,10 @@ define(function (require, exports, module) {
   var Relier = BaseRelier.extend({
     defaults: {
       allowCachedCredentials: true,
+      // This ensures for non-oauth reliers, SOME context is sent to the auth
+      // server to let the auth server know requests come from the content
+      // server and not some other service.
+      context: Constants.CONTENT_SERVER_CONTEXT,
       email: null,
       entrypoint: null,
       migration: null,
@@ -83,9 +87,7 @@ define(function (require, exports, module) {
       utmTerm: null
     },
 
-    initialize: function (options) {
-      options = options || {};
-
+    initialize (attributes, options = {}) {
       this._queryParameterSchema = options.isVerification ?
         VERIFICATION_QUERY_PARAMETER_SCHEMA : QUERY_PARAMETER_SCHEMA;
 
@@ -100,7 +102,7 @@ define(function (require, exports, module) {
      *
      * e.g.
      *
-     * fetch: function () {
+     * fetch () {
      *   return Relier.prototype.fetch.call(this)
      *       .then(function () {
      *         // do overriding behavior here.
@@ -110,29 +112,27 @@ define(function (require, exports, module) {
      * @method fetch
      * @returns {Promise}
      */
-    fetch: function () {
-      var self = this;
-      return p()
-        .then(function () {
-          // parse the resume token before importing any other data.
-          // query parameters and server provided data override
-          // resume provided data.
-          self.populateFromStringifiedResumeToken(self.getSearchParam('resume'));
-          // TODO - validate data coming from the resume token
+    fetch () {
+      return p().then(() => {
+        // parse the resume token before importing any other data.
+        // query parameters and server provided data override
+        // resume provided data.
+        this.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+        // TODO - validate data coming from the resume token
 
-          self.importSearchParamsUsingSchema(self._queryParameterSchema, AuthErrors);
+        this.importSearchParamsUsingSchema(this._queryParameterSchema, AuthErrors);
 
-          // FxDesktop declares both `entryPoint` (capital P) and
-          // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-          if (self.has('entryPoint') && ! self.has('entrypoint')) {
-            self.set('entrypoint', self.get('entryPoint'));
-          }
+        // FxDesktop declares both `entryPoint` (capital P) and
+        // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+        if (this.has('entryPoint') && ! this.has('entrypoint')) {
+          this.set('entrypoint', this.get('entryPoint'));
+        }
 
-          if (self.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
-            self.unset('email');
-            self.set('allowCachedCredentials', false);
-          }
-        });
+        if (this.get('email') === Constants.DISALLOW_CACHED_CREDENTIALS) {
+          this.unset('email');
+          this.set('allowCachedCredentials', false);
+        }
+      });
     },
 
     /**
@@ -141,7 +141,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    allowCachedCredentials: function () {
+    allowCachedCredentials () {
       return this.get('allowCachedCredentials');
     },
 

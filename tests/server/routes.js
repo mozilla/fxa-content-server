@@ -36,14 +36,13 @@ define([
     '/complete_signin': { statusCode: 200 },
     '/config': {
       headerAccept: 'application/json',
-      statusCode: 200
+      statusCode: 410
     },
     '/confirm': { statusCode: 200 },
     '/confirm_reset_password': { statusCode: 200 },
     '/confirm_signin': { statusCode: 200 },
     '/cookies_disabled': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
-    '/force_auth_complete': { statusCode: 200 },
     '/legal': { statusCode: 200 },
     '/legal/privacy': { statusCode: 200 },
     '/legal/terms': { statusCode: 200 },
@@ -62,6 +61,7 @@ define([
     '/settings/avatar/gravatar_permissions': { statusCode: 200 },
     '/settings/change_password': { statusCode: 200 },
     '/settings/clients': { statusCode: 200 },
+    '/settings/clients/disconnect': { statusCode: 200 },
     '/settings/delete_account': { statusCode: 200 },
     '/settings/display_name': { statusCode: 200 },
     '/signin': { statusCode: 200 },

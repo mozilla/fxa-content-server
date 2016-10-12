@@ -10,37 +10,35 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var p = require('lib/promise');
-  var Strings = require('lib/strings');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const Strings = require('lib/strings');
+  const xhr = require('lib/xhr');
 
   var Translator = function () {
     this.translations = {};
   };
 
   Translator.prototype = {
-    set: function (translations) {
+    set (translations) {
       this.translations = translations;
     },
 
     // Fetches our JSON translation file
-    fetch: function () {
-      var self = this;
-
-      return p.jQueryXHR($.getJSON('/i18n/client.json'))
-          .then(function (data) {
+    fetch () {
+      return xhr.getJSON('/i18n/client.json')
+          .then((data) => {
             // Only update the translations if some came back
             // from the server. If the server sent no translations,
             // english strings will be served.
             if (data) {
-              self.translations = data;
+              this.translations = data;
             }
-          }, function () {
+          }, () => {
             // allow for 404's. `.get` will use the key for the translation
             // if a value is not found in the translations table. This means
             // English will be the fallback.
-            self.translations = {};
+            this.translations = {};
           });
     },
 
@@ -52,7 +50,7 @@ define(function (require, exports, module) {
      * @param {String} context
      * @returns {String}
      */
-    get: function (key, context) {
+    get (key, context) {
       var translation = this.translations[key];
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
@@ -93,14 +91,13 @@ define(function (require, exports, module) {
      * Return a helper function to be used by the template engine
      * to translate a string
      *
-     * @param {string} [forceText] - text to translate
-     * @param {object} [context] - context to pass to translator
-     * @returns {function}
+     * @param {String} [forceText] - text to translate
+     * @param {Object} [context] - context to pass to translator
+     * @returns {Function}
      */
-    translateInTemplate: function (forceText, context) {
-      var self = this;
-      return function (templateText) {
-        return self.get(forceText || templateText, context);
+    translateInTemplate (forceText, context) {
+      return (templateText) => {
+        return this.get(forceText || templateText, context);
       };
     }
 

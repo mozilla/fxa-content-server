@@ -5,22 +5,23 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var $ = require('jquery');
-  var Cocktail = require('cocktail');
-  var Devices = require('models/devices');
-  var FormView = require('views/form');
-  var preventDefaultThen = require('views/base').preventDefaultThen;
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  var Strings = require('lib/strings');
-  var t = require('views/base').t;
-  var Template = require('stache!templates/settings/clients');
-  var Url = require('lib/url');
+  const _ = require('underscore');
+  const $ = require('jquery');
+  const AttachedClients = require('models/attached-clients');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const FormView = require('views/form');
+  const preventDefaultThen = require('views/base').preventDefaultThen;
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
+  const Strings = require('lib/strings');
+  const t = require('views/base').t;
+  const Template = require('stache!templates/settings/clients');
+  const Url = require('lib/url');
 
   var DEVICE_REMOVED_ANIMATION_MS = 150;
-  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices';
   var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
   var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
   var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/android/' + UTM_PARAMS;
   var FIREFOX_IOS_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/ios/' +  UTM_PARAMS;
@@ -29,44 +30,41 @@ define(function (require, exports, module) {
 
   var View = FormView.extend({
     template: Template,
-    className: 'devices',
-    viewName: 'settings.devices',
+    className: 'clients',
+    viewName: 'settings.clients',
 
-    initialize: function (options) {
+    initialize (options) {
       this._able = options.able;
-      this._devices = options.devices;
+      this._attachedClients = options.attachedClients;
 
-      // An empty Devices instance is created to render the initial view.
-      // Data is only fetched once the panel has been opened.
-      if (! this._devices) {
-        this._devices = new Devices([], {
+      if (! this._attachedClients) {
+        this._attachedClients = new AttachedClients([], {
           notifier: options.notifier
         });
       }
 
-      var devices = this._devices;
-      devices.on('add', this._onDeviceAdded.bind(this));
-      devices.on('remove', this._onDeviceRemoved.bind(this));
+      this.listenTo(this._attachedClients, 'add', this._onItemAdded);
+      this.listenTo(this._attachedClients, 'remove', this._onItemRemoved);
     },
 
-    _formatDevicesList: function (devices) {
-      return _.map(devices, function (device) {
-        if (device.lastAccessTimeFormatted) {
-          device.lastAccessTime = Strings.interpolate(
-            t('Last active: %(translatedTimeAgo)s'), { translatedTimeAgo: device.lastAccessTimeFormatted });
+    _formatAccessTime (items) {
+      return _.map(items, function (item) {
+        if (item.lastAccessTimeFormatted) {
+          item.lastAccessTimeFormatted = Strings.interpolate(
+            t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
         } else {
-          // unknown lastAccessTime or not possible to format.
-          device.lastAccessTime = '';
+          // unknown lastAccessTimeFormatted or not possible to format.
+          item.lastAccessTimeFormatted = '';
         }
-        return device;
+        return item;
       });
     },
 
-    context: function () {
+    context () {
       return {
+        clients: this._formatAccessTime(this._attachedClients.toJSON()),
         clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
-        devices: this._formatDevicesList(this._devices.toJSON()),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
@@ -79,17 +77,20 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'click .clients-refresh': preventDefaultThen('_onRefreshDeviceList'),
-      'click .device-disconnect': preventDefaultThen('_onDisconnectDevice')
+      'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
+      'click .clients-refresh': preventDefaultThen('_onRefreshClientsList')
     },
 
-    _isPanelEnabled: function () {
+    _isPanelEnabled () {
+      const account = this.user.getSignedInAccount();
+
       return this._able.choose('deviceListVisible', {
-        forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search)
+        forceDeviceList: Url.searchParam(FORCE_DEVICE_LIST_VIEW, this.window.location.search),
+        uid: account.get('uid')
       });
     },
 
-    _getPanelTitle: function () {
+    _getPanelTitle () {
       var title = t('Devices');
 
       if (this._isAppsListVisible()) {
@@ -99,7 +100,7 @@ define(function (require, exports, module) {
       return title;
     },
 
-    _getManageString: function () {
+    _getManageString () {
       var title = t('You can manage your devices below.');
 
       if (this._isAppsListVisible()) {
@@ -109,68 +110,65 @@ define(function (require, exports, module) {
       return title;
     },
 
-    _isAppsListVisible: function () {
+    _isAppsListVisible () {
+      // OAuth Apps list is visible if `appsListVisible` chooses `true`.
       return this._able.choose('appsListVisible', {
-        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search)
+        forceAppsList: Url.searchParam(FORCE_APPS_LIST_VIEW, this.window.location.search),
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled()
       });
     },
 
-    _onDeviceAdded: function () {
+    _onItemAdded () {
       this.render();
     },
 
-    _onDeviceRemoved: function (device) {
-      var id = device.get('id');
-      var self = this;
-      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, function () {
+    _onItemRemoved (item) {
+      var id = item.get('id');
+      $('#' + id).slideUp(DEVICE_REMOVED_ANIMATION_MS, () => {
         // re-render in case the last device is removed and the
         // "no registered devices" message needs to be shown.
-        self.render();
+        this.render();
       });
     },
 
-    _onDisconnectDevice: function (event) {
-      this.logViewEvent('disconnect');
-      var deviceId = $(event.currentTarget).attr('data-id');
-      this._destroyDevice(deviceId);
+    _onDisconnectClient (event) {
+      var client = this._attachedClients.get($(event.currentTarget).data('id'));
+      var clientType = client.get('clientType');
+      this.logViewEvent(clientType + '.disconnect');
+      // if a device then ask for confirmation
+      if (clientType === Constants.CLIENT_TYPE_DEVICE) {
+        this.navigate('settings/clients/disconnect', {
+          clientId: client.get('id'),
+          clients: this._attachedClients
+        });
+      } else {
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), client);
+      }
     },
 
-    _onRefreshDeviceList: function () {
-      var self = this;
+    _onRefreshClientsList () {
       if (this.isPanelOpen()) {
         this.logViewEvent('refresh');
         // only refresh devices if panel is visible
         // if panel is hidden there is no point of fetching devices
-        this._fetchDevices().then(function () {
-          self.render();
+        this._fetchAttachedClients().then(() => {
+          this.render();
         });
       }
     },
 
-    openPanel: function () {
+    openPanel () {
       this.logViewEvent('open');
-      this._fetchDevices();
+      this._fetchAttachedClients();
     },
 
-    _fetchDevices: function () {
-      var account = this.getSignedInAccount();
-
-      return this.user.fetchAccountDevices(account, this._devices);
-    },
-
-    _destroyDevice: function (deviceId) {
-      var self = this;
-      var account = this.getSignedInAccount();
-      var device = this._devices.get(deviceId);
-      if (device) {
-        this.user.destroyAccountDevice(account, device)
-          .then(function () {
-            if (device.get('isCurrentDevice')) {
-              self.navigateToSignIn();
-            }
-          });
-      }
+    _fetchAttachedClients () {
+      return this._attachedClients.fetchClients({
+        devices: true,
+        oAuthApps: this._isAppsListVisible()
+      }, this.user);
     }
+
   });
 
   Cocktail.mixin(

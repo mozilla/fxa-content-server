@@ -5,21 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var Duration = require('duration');
-  var Environment = require('lib/environment');
-  var FormView = require('views/form');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('lib/promise');
-  var ProfileImage = require('models/profile-image');
-  var ProgressIndicator = require('views/progress_indicator');
-  var Template = require('stache!templates/settings/avatar_camera');
-  var WebRTC = require('webrtc');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const canvasToBlob = require('canvasToBlob'); //eslint-disable-line no-unused-vars
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const Duration = require('duration');
+  const Environment = require('lib/environment');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('lib/promise');
+  const ProfileImage = require('models/profile-image');
+  const ProgressIndicator = require('views/progress_indicator');
+  const Template = require('stache!templates/settings/avatar_camera');
+  const WebRTC = require('webrtc');
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
@@ -29,43 +29,40 @@ define(function (require, exports, module) {
   var JPEG_QUALITY = Constants.PROFILE_IMAGE_JPEG_QUALITY;
   var MIME_TYPE = Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE;
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-camera',
     viewName: 'settings.avatar.camera',
 
-    context: function () {
+    context () {
       return {
         streaming: this.streaming
       };
     },
 
-    initialize: function (options) {
-      var self = this;
-
-      self.exportLength = options.exportLength || EXPORT_LENGTH;
-      self.displayLength = options.displayLength || DISPLAY_LENGTH;
-      self.streaming = false;
+    initialize (options) {
+      this.exportLength = options.exportLength || EXPORT_LENGTH;
+      this.displayLength = options.displayLength || DISPLAY_LENGTH;
+      this.streaming = false;
 
 
-      if (self.broker.isAutomatedBrowser()) {
+      if (this.broker.isAutomatedBrowser()) {
         var ARTIFICIAL_DELAY = new Duration('3s').milliseconds();
         // mock some things out for automated browser testing
-        self.streaming = true;
-        self.startStream = function () {
-          self.enableSubmitIfValid();
+        this.streaming = true;
+        this.startStream = function () {
+          this.enableSubmitIfValid();
         };
-        self.stream = {
-          stop: function () {}
+        this.stream = {
+          stop () {}
         };
 
-        self.window.setTimeout(_.bind(self.onLoadedMetaData, self), ARTIFICIAL_DELAY);
+        this.window.setTimeout(_.bind(this.onLoadedMetaData, this), ARTIFICIAL_DELAY);
       }
     },
 
-    startStream: function () {
-      var self = this;
-
+    startStream () {
       var constraints = {
         audio: false,
         video: true
@@ -73,19 +70,19 @@ define(function (require, exports, module) {
 
       // navigator.mediaDevices is polyfilled by WebRTC for older browsers.
       return this.window.navigator.mediaDevices.getUserMedia(constraints)
-        .then(function (stream) {
-          self.stream = stream;
-          WebRTC.attachMediaStream(self.video, stream);
-          self.video.play();
+        .then((stream) => {
+          this.stream = stream;
+          WebRTC.attachMediaStream(this.video, stream);
+          this.video.play();
         },
-        function () {
-          self._avatarProgressIndicator.done();
-          self.displayError(AuthErrors.toError('NO_CAMERA'));
+        () => {
+          this._avatarProgressIndicator.done();
+          this.displayError(AuthErrors.toError('NO_CAMERA'));
         }
       );
     },
 
-    stopAndDestroyStream: function () {
+    stopAndDestroyStream () {
       if (this.stream) {
         var stream = this.stream;
         var previewEl = this.video;
@@ -109,7 +106,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       var environment = new Environment(this.window);
       if (! environment.hasGetUserMedia()) {
         // no camera support, send user back to the change avatar page.
@@ -120,7 +117,7 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
+    afterRender () {
       this.startStream();
 
       this._avatarProgressIndicator = new ProgressIndicator();
@@ -132,9 +129,11 @@ define(function (require, exports, module) {
       this.canvas = this.$('#canvas')[0];
 
       this.video.addEventListener('loadedmetadata', _.bind(this.onLoadedMetaData, this), false);
+
+      return proto.afterRender.call(this);
     },
 
-    onLoadedMetaData: function () {
+    onLoadedMetaData () {
       if (! this.streaming) {
         var vw = this.video.videoWidth;
         var vh = this.video.videoHeight;
@@ -169,29 +168,28 @@ define(function (require, exports, module) {
       }
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       return this.streaming;
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      self.logAccountImageChange(account);
+    submit () {
+      var account = this.getSignedInAccount();
+      this.logAccountImageChange(account);
 
-      return self.takePicture()
-        .then(function (data) {
+      return this.takePicture()
+        .then((data) => {
           return account.uploadAvatar(data);
         })
-        .then(function (result) {
-          self.stopAndDestroyStream();
+        .then((result) => {
+          this.stopAndDestroyStream();
 
-          self.updateProfileImage(new ProfileImage(result), account);
-          self.navigate('settings');
+          this.updateProfileImage(new ProfileImage(result), account);
+          this.navigate('settings');
           return result;
         });
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this.stopAndDestroyStream();
     },
 
@@ -231,7 +229,7 @@ define(function (require, exports, module) {
 
     // Calculates the position offset needed to center a rectangular image
     // in a square container
-    centeredPos: function (w, h, max) {
+    centeredPos (w, h, max) {
       if (w > h) {
         return { left: (max - w) / 2, top: 0 };
       } else {

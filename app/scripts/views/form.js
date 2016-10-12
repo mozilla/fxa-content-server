@@ -20,17 +20,19 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Duration = require('duration');
-  var notifyDelayedRequest = require('views/decorators/notify_delayed_request');
-  var p = require('lib/promise');
-  var showButtonProgressIndicator = require('views/decorators/progress_indicator');
-  var Tooltip = require('views/tooltip');
-  var Validate = require('lib/validate');
+  require('views/elements/jquery-plugin');
+
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Duration = require('duration');
+  const notifyDelayedRequest = require('views/decorators/notify_delayed_request');
+  const p = require('lib/promise');
+  const showButtonProgressIndicator = require('views/decorators/progress_indicator');
+  const Tooltip = require('views/tooltip');
+
 
   /**
    * Decorator that checks whether the form has changed, and if so, call
@@ -48,12 +50,14 @@ define(function (require, exports, module) {
     };
   }
 
+  const proto = BaseView.prototype;
+
   var FormView = BaseView.extend({
 
     // Time to wait for a request to finish before showing a notice
     LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
-    constructor: function (options) {
+    constructor (options) {
       BaseView.call(this, options);
 
       // attach events of the descendent view and this view.
@@ -67,7 +71,7 @@ define(function (require, exports, module) {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    afterRender: function () {
+    afterRender () {
       // Firefox has a strange issue where if the previous
       // screen was submit using the keyboard, the `enter` key's
       // `keyup` event fires here on the element that receives
@@ -82,7 +86,7 @@ define(function (require, exports, module) {
         this.enableSubmitIfValid();
       }
 
-      BaseView.prototype.afterRender.call(this);
+      return proto.afterRender.call(this);
     },
 
     /**
@@ -92,7 +96,7 @@ define(function (require, exports, module) {
      * @method getFormValues
      * @returns {Object}
      */
-    getFormValues: function () {
+    getFormValues () {
       var values = {};
       var inputEls = this.$('input,textarea,select');
 
@@ -109,7 +113,7 @@ define(function (require, exports, module) {
       return values;
     },
 
-    enableSubmitIfValid: function () {
+    enableSubmitIfValid () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
@@ -130,7 +134,7 @@ define(function (require, exports, module) {
     /**
      * TODO - this should be called disableSubmit
      */
-    disableForm: function () {
+    disableForm () {
       // the disabled class is used instead of the disabled attribute
       // so that the submit handler is still called. With the submit attribute
       // applied, no submit handler is fired, and the form validation does not
@@ -139,13 +143,13 @@ define(function (require, exports, module) {
       this._isFormEnabled = false;
     },
 
-    enableForm: function () {
+    enableForm () {
       this.$('button[type=submit]').removeClass('disabled');
       this._isFormEnabled = true;
     },
 
     _isFormEnabled: true,
-    isFormEnabled: function () {
+    isFormEnabled () {
       return !! this._isFormEnabled;
     },
 
@@ -168,10 +172,9 @@ define(function (require, exports, module) {
      * displayError will display the error to the user.
      *
      * @method validateAndSubmit
-     * @return {promise}
+     * @return {Promise}
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event) {
-      var self = this;
       if (event) {
         event.stopImmediatePropagation();
       }
@@ -179,46 +182,45 @@ define(function (require, exports, module) {
       this.trigger('submitStart');
 
       return p()
-        .then(function () {
-          if (self.isHalted()) {
+        .then(() => {
+          if (this.isHalted()) {
             return;
           }
 
-          if (! self.isValid()) {
+          if (! this.isValid()) {
             // Validation error is surfaced for testing.
-            throw self.showValidationErrors();
+            throw this.showValidationErrors();
           }
 
           // the form enabled check is done after the validation check
           // so that the form's `submit` handler is triggered and validation
           // error tooltips are displayed, even if the form is disabled.
-          if (! self.isFormEnabled()) {
+          if (! this.isFormEnabled()) {
             // form is disabled, get outta here.
             return;
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
-          self.logViewEvent('submit');
-          return self._submitForm();
+          this.logViewEvent('submit');
+          return this._submitForm();
         });
     }),
 
     _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
-      var self = this;
       return p()
-          .then(_.bind(self.beforeSubmit, self))
-          .then(function (shouldSubmit) {
-            // submission is opt out, not opt in.
-            if (shouldSubmit !== false) {
-              return self.submit();
-            }
-          })
-          .then(null, function (err) {
-            // display error and surface for testing.
-            self.displayError(err);
-            throw err;
-          })
-          .then(_.bind(self.afterSubmit, self));
+        .then(_.bind(this.beforeSubmit, this))
+        .then((shouldSubmit) => {
+          // submission is opt out, not opt in.
+          if (shouldSubmit !== false) {
+            return this.submit();
+          }
+        })
+        .fail((err) => {
+          // display error and surface for testing.
+          this.displayError(err);
+          throw err;
+        })
+        .then(_.bind(this.afterSubmit, this));
     })),
 
     /**
@@ -232,15 +234,17 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isValid: function () {
+    isValid () {
       if (! this.isValidStart()) {
         return false;
       }
 
-      var inputEls = this.$('input').not('#coppa input');
+      const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = inputEls[i];
-        if (! this.isElementValid(el)) {
+        var $el = this.$(inputEls[i]);
+        try {
+          $el.validate();
+        } catch (e) {
           return false;
         }
       }
@@ -256,7 +260,7 @@ define(function (require, exports, module) {
      *
      * @return {Boolean} true if form is valid, false otw.
      */
-    isValidStart: function () {
+    isValidStart () {
       return true;
     },
 
@@ -268,28 +272,8 @@ define(function (require, exports, module) {
      *
      * @return {Boolean} true if form is valid, false otw.
      */
-    isValidEnd: function () {
+    isValidEnd () {
       return true;
-    },
-
-    /**
-     * Check to see if an element passes HTML5 form validation.
-     *
-     * @param {String} el
-     * @returns {Boolean}
-     */
-    isElementValid: function (el) {
-      el = this.$(el);
-      var type = this.getElementType(el);
-
-      // email and password follow our own rules.
-      if (type === 'email') {
-        return this.validateEmail(el);
-      } else if (type === 'password') {
-        return this.validatePassword(el);
-      }
-
-      return this.validateInput(el);
     },
 
     /**
@@ -300,7 +284,7 @@ define(function (require, exports, module) {
      *
      * @returns {undefined}
      */
-    showValidationErrors: function () {
+    showValidationErrors () {
       this.hideError();
 
       if (this.showValidationErrorsStart()) {
@@ -308,19 +292,15 @@ define(function (require, exports, module) {
         return;
       }
 
-      // exclude coppa inputs from validation, coppa has its own validation
-      var inputEls = this.$('input').not('#coppa input');
+      const inputEls = this.$('input');
       for (var i = 0, length = inputEls.length; i < length; ++i) {
-        var el = inputEls[i];
-        if (! this.isElementValid(el)) {
-          var fieldType = this.getElementType(el);
+        const el = inputEls[i];
+        const $el = this.$(el);
 
-          if (fieldType === 'email') {
-            return this.showEmailValidationError(el);
-          } else if (fieldType === 'password') {
-            return this.showPasswordValidationError(el);
-          }
-
+        try {
+          $el.validate();
+        } catch (validationError) {
+          this.showValidationError(el, validationError);
           // only one message at a time.
           return;
         }
@@ -335,27 +315,8 @@ define(function (require, exports, module) {
      * @param {String} el
      * @returns {String}
      */
-    getElementValue: function (el) {
-      var value = this.$(el).val();
-
-      if (value && this.getElementType(el) === 'email') {
-        value = $.trim(value);
-      }
-
-      return value;
-    },
-
-    getElementType: function (el) {
-      var fieldType = $(el).attr('type');
-
-      // text fields with the password class are treated as passwords.
-      // These are password fields that have been converted to text
-      // fields when the user clicked on 'show'
-      if (fieldType === 'text' && $(el).hasClass('password')) {
-        fieldType = 'password';
-      }
-
-      return fieldType;
+    getElementValue (el) {
+      return this.$(el).val();
     },
 
     /**
@@ -366,7 +327,7 @@ define(function (require, exports, module) {
      *
      * @return {undefined} true if a validation error is displayed.
      */
-    showValidationErrorsStart: function () {
+    showValidationErrorsStart () {
     },
 
     /**
@@ -377,78 +338,7 @@ define(function (require, exports, module) {
      *
      * @return {undefined} true if a validation error is displayed.
      */
-    showValidationErrorsEnd: function () {
-    },
-
-    /**
-     * Validate an email field
-     *
-     * @param {String} el
-     * @return {Boolean} true if email is valid, false otw.
-     */
-    validateEmail: function (el) {
-      var email = this.getElementValue(el);
-      return Validate.isEmailValid(email);
-    },
-
-    showEmailValidationError: function (el) {
-      var value = this.getElementValue(el);
-      var err = value && value.length ?
-                  // if the email element has any length, but is marked
-                  // as invalid, it's invalid.
-                  AuthErrors.toError('INVALID_EMAIL') :
-                  // email has no length, it's missing.
-                  AuthErrors.toError('EMAIL_REQUIRED');
-
-      return this.showValidationError(el, err);
-    },
-
-    /**
-     * Validate a password field
-     *
-     * @param {String} el
-     * @return {Boolean} true if password is valid, false otw.
-     */
-    validatePassword: function (el) {
-      var password = this.getElementValue(el);
-      return Validate.isPasswordValid(password);
-    },
-
-    /**
-     * Basic text input validation. By default, only performs `required`
-     * attribute validation. If the browser supports HTML5 form validation,
-     * browser validation will kick in. If validating an email or password
-     * field, call validateEmail or validatePassword instead.
-     *
-     * @param {String} el
-     * @return {Boolean}
-     */
-    validateInput: function (el) {
-      el = this.$(el);
-      var isRequired = typeof el.attr('required') !== 'undefined';
-
-      var value = this.getElementValue(el);
-
-      if (isRequired && value.length === 0) {
-        return false;
-      }
-
-      // If the browser supports HTML5 form validation, hooray,
-      // use its validation too.
-      var hasHtml5Validation = !! el[0].validity;
-      if (hasHtml5Validation) {
-        return el[0].validity.valid;
-      }
-
-      return true;
-    },
-
-    showPasswordValidationError: function (el) {
-      var passwordVal = this.getElementValue(el);
-
-      var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
-
-      return this.showValidationError(el, AuthErrors.toError(errType));
+    showValidationErrorsEnd () {
     },
 
     /**
@@ -458,7 +348,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {String}
      */
-    showValidationError: function (el, err) {
+    showValidationError (el, err) {
       this.logError(err);
 
       var invalidEl = this.$(el);
@@ -469,11 +359,10 @@ define(function (require, exports, module) {
         message: message
       });
 
-      var self = this;
-      tooltip.on('destroyed', function () {
+      tooltip.on('destroyed', () => {
         invalidEl.removeClass('invalid');
-        self.trigger('validation_error_removed', el);
-      }).render().then(function () {
+        this.trigger('validation_error_removed', el);
+      }).render().then(() => {
         try {
           invalidEl.addClass('invalid').get(0).focus();
         } catch (e) {
@@ -481,7 +370,7 @@ define(function (require, exports, module) {
         }
 
         // used for testing
-        self.trigger('validation_error', el, message);
+        this.trigger('validation_error', el, message);
       });
 
       this.trackChildView(tooltip);
@@ -499,7 +388,7 @@ define(function (require, exports, module) {
      * @returns {Promise|Boolean|none} Return a promise if
      *   beforeSubmit is an asynchronous operation.
      */
-    beforeSubmit: function () {
+    beforeSubmit () {
       return this.disableForm();
     },
 
@@ -510,7 +399,7 @@ define(function (require, exports, module) {
      * and beforeSubmit does not return false.
      *
      */
-    submit: function () {
+    submit () {
     },
 
     /**
@@ -523,9 +412,8 @@ define(function (require, exports, module) {
      * @returns {Promise|none} Return a promise if afterSubmit is
      *   an asynchronous operation.
      */
-    afterSubmit: function (result) {
-      var self = this;
-      return p().then(function () {
+    afterSubmit (result) {
+      return p().then(() => {
         // the flow may be halted by an authentication broker after form
         // submission. Views may display an error without throwing an exception.
         // Ensure the flow is not halted and and no errors are visible before
@@ -533,9 +421,9 @@ define(function (require, exports, module) {
         // be re-enabled.
 
         if (result && result.halt) {
-          self.halt();
-        } else if (! self.isErrorVisible()) {
-          self.enableForm();
+          this.halt();
+        } else if (! this.isErrorVisible()) {
+          this.enableForm();
         }
 
         return result;
@@ -547,7 +435,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean} true if form is being submitted, false otw.
      */
-    isSubmitting: function () {
+    isSubmitting () {
       return this._isSubmitting;
     },
 
@@ -556,7 +444,7 @@ define(function (require, exports, module) {
      *
      * TODO - this should be named disableForm, but that name is already taken.
      */
-    halt: function () {
+    halt () {
       this.$('input,textarea,button').attr('disabled', 'disabled').blur();
       this._isHalted = true;
     },
@@ -566,7 +454,7 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean} true if the view is halted, false otw.
      */
-    isHalted: function () {
+    isHalted () {
       return this._isHalted;
     },
 
@@ -575,7 +463,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object|null} the form values or null if they haven't changed.
      */
-    detectFormValueChanges: function () {
+    detectFormValueChanges () {
       // oldValues will be `undefined` the first time through.
       var oldValues = this._previousFormValues;
       var newValues = this.getFormValues();
@@ -593,7 +481,7 @@ define(function (require, exports, module) {
      *
      * @returns {Object|null} the form values or null if they haven't changed.
      */
-    updateFormValueChanges: function () {
+    updateFormValueChanges () {
       var newValues = this.detectFormValueChanges();
       if (newValues) {
         this._previousFormValues = newValues;

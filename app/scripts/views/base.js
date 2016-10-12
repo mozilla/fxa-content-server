@@ -5,20 +5,21 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Cocktail = require('cocktail');
-  var domWriter = require('lib/dom-writer');
-  var ErrorUtils = require('lib/error-utils');
-  var NotifierMixin = require('views/mixins/notifier-mixin');
-  var NullMetrics = require('lib/null-metrics');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
-  var Raven = require('raven');
-  var TimerMixin = require('views/mixins/timer-mixin');
-  var VerificationReasons = require('lib/verification-reasons');
+  const $ = require('jquery');
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Cocktail = require('cocktail');
+  const domWriter = require('lib/dom-writer');
+  const ErrorUtils = require('lib/error-utils');
+  const ExternalLinksMixin = require('views/mixins/external-links-mixin');
+  const NotifierMixin = require('views/mixins/notifier-mixin');
+  const NullMetrics = require('lib/null-metrics');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
+  const Raven = require('raven');
+  const TimerMixin = require('views/mixins/timer-mixin');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var DEFAULT_TITLE = window.document.title;
   var STATUS_MESSAGE_ANIMATION_MS = 150;
@@ -116,13 +117,12 @@ define(function (require, exports, module) {
      */
     viewName: '',
 
-    constructor: function (options) {
+    constructor (options) {
       options = options || {};
 
       this.broker = options.broker;
       this.currentPage = options.currentPage;
       this.model = options.model || new Backbone.Model();
-      this.fxaClient = options.fxaClient;
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
       this.sentryMetrics = options.sentryMetrics || Raven;
@@ -174,39 +174,34 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    render: function () {
-      var self = this;
-
+    render () {
       if (this.layoutClassName) {
         $('body').addClass(this.layoutClassName);
       }
 
       return p()
-        .then(function () {
-          return self.checkAuthorization();
+        .then(() => this.checkAuthorization())
+        .then((isUserAuthorized) => {
+          return isUserAuthorized && this.beforeRender();
         })
-        .then(function (isUserAuthorized) {
-          return isUserAuthorized && self.beforeRender();
-        })
-        .then(function (shouldRender) {
+        .then((shouldRender) => {
           // rendering is opt out.
           if (shouldRender === false) {
             return false;
           }
 
-          return p().then(function () {
-            self.destroyChildViews();
+          return p().then(() => {
+            this.destroyChildViews();
 
             // force a re-load of the context every time the
             // view is rendered or else stale data may
             // be returned.
-            self._context = null;
-            self.$el.html(self.template(self.getContext()));
+            this._context = null;
+            this.$el.html(this.template(this.getContext()));
           })
-          .then(_.bind(self.afterRender, self))
-          .then(function () {
-            self.displayStatusMessages();
-            self.trigger('rendered');
+          .then(_.bind(this.afterRender, this))
+          .then(() => {
+            this.trigger('rendered');
 
             return true;
           });
@@ -219,7 +214,7 @@ define(function (require, exports, module) {
      * @param {String|Element} content
      * @returns {undefined}
      */
-    writeToDOM: function (content) {
+    writeToDOM (content) {
       return domWriter.write(this.window, content);
     },
 
@@ -228,16 +223,14 @@ define(function (require, exports, module) {
      * If user is not authorized they will be sent to another screen
      * to sign in or confirm their account.
      *
-     * @returns {promise} resolves to true or false.
+     * @returns {Promise} resolves to true or false.
      */
-    checkAuthorization: function () {
-      var self = this;
-
-      if (self.mustAuth || self.mustVerify) {
-        var account = self.getSignedInAccount();
+    checkAuthorization () {
+      if (this.mustAuth || this.mustVerify) {
+        var account = this.getSignedInAccount();
         return account.sessionStatus()
-          .then(function (resp) {
-            if (self.mustVerify && ! resp.verified) {
+          .then((resp) => {
+            if (this.mustVerify && ! resp.verified) {
               var targetScreen;
 
               if (resp.verificationReason === VerificationReasons.SIGN_UP) {
@@ -246,7 +239,7 @@ define(function (require, exports, module) {
                 targetScreen = 'confirm_signin';
               }
 
-              self.navigate(targetScreen, {
+              this.navigate(targetScreen, {
                 account: account
               });
 
@@ -254,11 +247,11 @@ define(function (require, exports, module) {
             }
 
             return true;
-          }, function (err) {
+          }, (err) => {
             if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-              self.logError(AuthErrors.toError('SESSION_EXPIRED'));
-              self.navigate(self._reAuthPage(), {
-                redirectTo: self.currentPage
+              this.logError(AuthErrors.toError('SESSION_EXPIRED'));
+              this.navigate(this._reAuthPage(), {
+                redirectTo: this.currentPage
               });
               return false;
             }
@@ -273,15 +266,14 @@ define(function (require, exports, module) {
     // If the user navigates to a page that requires auth and their session
     // is not currently cached, we ask them to sign in again. If the relier
     // specifies an email address, we force the user to use that account.
-    _reAuthPage: function () {
-      var self = this;
-      if (self.relier && self.relier.get('email')) {
+    _reAuthPage () {
+      if (this.relier && this.relier.get('email')) {
         return 'force_auth';
       }
       return 'signin';
     },
 
-    displayStatusMessages: function () {
+    displayStatusMessages () {
       var success = this.model.get('success');
       if (success) {
         this.displaySuccess(success);
@@ -301,7 +293,7 @@ define(function (require, exports, module) {
       }
     },
 
-    titleFromView: function (baseTitle) {
+    titleFromView (baseTitle) {
       var title = baseTitle || DEFAULT_TITLE;
       var titleText = this.$('header:first h1').text();
       var subText = this.$('header:first h2').text();
@@ -317,7 +309,7 @@ define(function (require, exports, module) {
       return title;
     },
 
-    getContext: function () {
+    getContext () {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
@@ -331,17 +323,17 @@ define(function (require, exports, module) {
       return ctx;
     },
 
-    context: function () {
+    context () {
       // Implement in subclasses
     },
 
     /**
      * Translate a string
      *
-     * @param {string} text - string to translate
-     * @returns {string}
+     * @param {String} text - string to translate
+     * @returns {String}
      */
-    translate: function (text) {
+    translate (text) {
       return this.translator.get(text, this.getContext());
     },
 
@@ -352,10 +344,10 @@ define(function (require, exports, module) {
      * this.getContext(). This function avoids
      * infinite recursion.
      *
-     * @param {string} [text] - string to translate
-     * @returns {function}
+     * @param {String} [text] - string to translate
+     * @returns {Function}
      */
-    translateInTemplate: function (text) {
+    translateInTemplate (text) {
       if (text) {
         return this.translate.bind(this, text);
       } else {
@@ -363,18 +355,36 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
-      // Implement in subclasses. If returns false, or if returns a promise
-      // that resolves to false, then the view is not rendered.
-      // Useful if the view must immediately redirect to another view.
+    /**
+     * Called before rendering begins. If returns false, or if returns
+     * a promise that resolves to false, then the view is not
+     * rendered. Useful to immediately redirect to another view before
+     * rendering begins.
+     */
+    beforeRender () {
     },
 
-    afterRender: function () {
-      // Implement in subclasses
+    /**
+     * Called after the rendering occurs. Can be used to print an
+     * error message after the view is already rendered.
+     *
+     * @returns {Promise}
+     */
+    afterRender () {
+      // Override in subclasses
+      return p();
     },
 
-    // called after the view is visible.
-    afterVisible: function () {
+    /**
+     * Called after the view is visible.
+     *
+     * @returns {Promise}
+     */
+    afterVisible () {
+      // jQuery 3.x requires the view to be visible
+      // before animating the status messages.
+      this.displayStatusMessages();
+
       // restyle side-by-side links to stack if they are too long
       // to fit on one line
       var linkContainer = this.$el.find('.links');
@@ -398,9 +408,10 @@ define(function (require, exports, module) {
       }
 
       this.focusAutofocusElement();
+      return p();
     },
 
-    destroy: function (remove) {
+    destroy (remove) {
       this.trigger('destroy');
 
       if (this.beforeDestroy) {
@@ -426,7 +437,7 @@ define(function (require, exports, module) {
       this.trigger('destroyed');
     },
 
-    trackChildView: function (view) {
+    trackChildView (view) {
       if (! _.contains(this.childViews, view)) {
         this.childViews.push(view);
         view.on('destroyed', _.bind(this.untrackChildView, this, view));
@@ -435,19 +446,19 @@ define(function (require, exports, module) {
       return view;
     },
 
-    untrackChildView: function (view) {
+    untrackChildView (view) {
       this.childViews = _.without(this.childViews, view);
 
       return view;
     },
 
-    destroyChildViews: function () {
+    destroyChildViews () {
       _.invoke(this.childViews, 'destroy');
 
       this.childViews = [];
     },
 
-    isChildViewTracked: function (view) {
+    isChildViewTracked (view) {
       return _.indexOf(this.childViews, view) > -1;
     },
 
@@ -467,7 +478,7 @@ define(function (require, exports, module) {
      */
     displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
-    hideSuccess: function () {
+    hideSuccess () {
       this.$('.success').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isSuccessVisible = false;
     },
@@ -477,19 +488,19 @@ define(function (require, exports, module) {
      *
      * @returns {Boolean}
      */
-    isSuccessVisible: function () {
+    isSuccessVisible () {
       return !! this._isSuccessVisible;
     },
 
     /**
      * Display an error message.
      * @method translateError
-     * @param {string} err - an error object
+     * @param {String} err - an error object
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
-    translateError: function (err) {
+    translateError (err) {
       var errors = getErrorModule(err);
       var translated = errors.toInterpolatedMessage(err, this.translator);
 
@@ -502,17 +513,17 @@ define(function (require, exports, module) {
      *
      * @method disableErrors
      */
-    disableErrors: function () {
+    disableErrors () {
       this._areErrorsEnabled = false;
     },
 
     /**
      * Display an error message.
      * @method displayError
-     * @param {string} err - If err is not given, the contents of the
+     * @param {String} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
     displayError: _.partial(displayError, 'text'),
@@ -523,10 +534,10 @@ define(function (require, exports, module) {
      * with unsanitized user generated content.
      *
      * @method displayErrorUnsafe
-     * @param {string} err - If err is not given, the contents of the
+     * @param {String} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
      *
-     * @return {string} translated error text (if available), untranslated
+     * @return {String} translated error text (if available), untranslated
      *   error text otw.
      */
     displayErrorUnsafe: _.partial(displayError, 'html'),
@@ -536,7 +547,7 @@ define(function (require, exports, module) {
      *
      * @param {Error} err
      */
-    logError: function (err) {
+    logError (err) {
       err = this._normalizeError(err);
 
       // The error could already be logged, if so, abort mission.
@@ -558,9 +569,9 @@ define(function (require, exports, module) {
      * to the appropriate error page.
      *
      * @param {Error} err
-     * @returns {promise}
+     * @returns {Promise}
      */
-    fatalError: function (err) {
+    fatalError (err) {
       return ErrorUtils.fatalError(
         err, this.sentryMetrics, this.metrics, this.window, this.translator);
     },
@@ -570,11 +581,11 @@ define(function (require, exports, module) {
      *
      * @returns {String}
      */
-    getViewName: function () {
+    getViewName () {
       return this.viewName;
     },
 
-    _normalizeError: function (err) {
+    _normalizeError (err) {
       var errors = getErrorModule(err);
       if (! err) {
         // likely an error in logic, display an unexpected error to the
@@ -598,7 +609,7 @@ define(function (require, exports, module) {
     /**
      * Log the current view
      */
-    logView: function () {
+    logView () {
       this.metrics.logView(this.getViewName());
     },
 
@@ -607,8 +618,17 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logEvent: function (eventName) {
+    logEvent (eventName) {
       this.metrics.logEvent(eventName);
+    },
+
+    /**
+     * Log an event once per page load
+     *
+     * @param {String} eventName
+     */
+    logEventOnce (eventName) {
+      this.metrics.logEventOnce(eventName);
     },
 
     /**
@@ -616,27 +636,27 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      */
-    logViewEvent: function (eventName) {
+    logViewEvent (eventName) {
       this.metrics.logViewEvent(this.getViewName(), eventName);
     },
 
-    hideError: function () {
+    hideError () {
       this.$('.error').slideUp(STATUS_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;
     },
 
-    isErrorVisible: function () {
+    isErrorVisible () {
       return !! this._isErrorVisible;
     },
 
     /**
      * navigate to another screen
      *
-     * @param {string} url - url of screen
-     * @param {object} [nextViewData] - data to pass to the next view
-     * @param {routerOptions} [routerOptions] - options to pass to the router
+     * @param {String} url - url of screen
+     * @param {Object} [nextViewData] - data to pass to the next view
+     * @param {RouterOptions} [routerOptions] - options to pass to the router
      */
-    navigate: function (url, nextViewData, routerOptions) {
+    navigate (url, nextViewData, routerOptions) {
       nextViewData = nextViewData || {};
       routerOptions = routerOptions || {};
 
@@ -712,9 +732,9 @@ define(function (require, exports, module) {
     /**
      * Place the cursor at the given position within the input element
      *
-     * @param {selector | element} which
-     * @param {number} selectionStart - defaults to after the last character.
-     * @param {number} selectionEnd - defaults to selectionStart.
+     * @param {String | Element} which - Strings are assumed to be selectors
+     * @param {Number} selectionStart - defaults to after the last character.
+     * @param {Number} selectionEnd - defaults to selectionStart.
      */
     placeCursorAt (which, selectionStart = $(which).val().length, selectionEnd = selectionStart) {
       const el = $(which).get(0);
@@ -734,10 +754,10 @@ define(function (require, exports, module) {
      * the handler on `this`.
      *
      * @method invokeHandler
-     * @param {string|Function} handler
+     * @param {String|Function} handler
      * @returns {undefined}
      */
-    invokeHandler: function (handler/*, args...*/) {
+    invokeHandler (handler/*, args...*/) {
       // convert a name to a function.
       if (_.isString(handler)) {
         handler = this[handler];
@@ -765,7 +785,7 @@ define(function (require, exports, module) {
      *
      * @returns {Account}
      */
-    getSignedInAccount: function () {
+    getSignedInAccount () {
       return this.user.getSignedInAccount();
     },
 
@@ -773,7 +793,7 @@ define(function (require, exports, module) {
      * Returns the account that is active in the current view. It may not
      * be the currently logged in account.
      */
-    getAccount: function () {
+    getAccount () {
       // Implement in subclasses
     },
 
@@ -784,7 +804,7 @@ define(function (require, exports, module) {
      * @param {Object} [options] - options to send.
      * @returns {Promise} resolves when complete
      */
-    showChildView: function (/* ChildView, options */) {
+    showChildView (/* ChildView, options */) {
       // Implement in subclasses
       return p();
     },
@@ -796,14 +816,13 @@ define(function (require, exports, module) {
      * @param {String} methodName
      * @returns {Promise}
      */
-    invokeBrokerMethod: function (methodName/*, ...*/) {
+    invokeBrokerMethod (methodName/*, ...*/) {
       var args = [].slice.call(arguments, 1);
 
-      var self = this;
-      var broker = self.broker;
+      var broker = this.broker;
 
       return p(broker[methodName].apply(broker, args))
-        .then(self.invokeBehavior.bind(self));
+        .then(this.invokeBehavior.bind(this));
     },
 
     /**
@@ -811,10 +830,10 @@ define(function (require, exports, module) {
      *
      * @method invokeBehavior
      * @param {Function} behavior
-     * @returns {variant} behavior's return value if behavior is a function,
+     * @returns {Variant} behavior's return value if behavior is a function,
      *         otherwise return the behavior.
      */
-    invokeBehavior: function (behavior) {
+    invokeBehavior (behavior) {
       if (_.isFunction(behavior)) {
         return behavior(this);
       }
@@ -881,6 +900,10 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     BaseView,
+    // Attach the external links mixin in case the
+    // view has any external links that need to have
+    // their behaviors modified.
+    ExternalLinksMixin,
     TimerMixin
   );
 

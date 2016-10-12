@@ -5,17 +5,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BackMixin = require('views/mixins/back-mixin');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
-  var FormView = require('views/form');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  var Template = require('stache!templates/settings/change_password');
+  const BackMixin = require('views/mixins/back-mixin');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
+  const FormView = require('views/form');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const Template = require('stache!templates/settings/change_password');
 
   var t = BaseView.t;
 
@@ -31,29 +31,28 @@ define(function (require, exports, module) {
       };
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
-      var oldPassword = self.$('#old_password').val();
-      var newPassword = self.$('#new_password').val();
+    submit () {
+      var account = this.getSignedInAccount();
+      var oldPassword = this.$('#old_password').val();
+      var newPassword = this.$('#new_password').val();
 
-      self.hideError();
+      this.hideError();
 
-      return self.user.changeAccountPassword(
+      return this.user.changeAccountPassword(
           account,
           oldPassword,
           newPassword,
-          self.relier
+          this.relier
         )
-        .then(function () {
-          self.logViewEvent('success');
-          return self.invokeBrokerMethod('afterChangePassword', account);
+        .then(() => {
+          this.logViewEvent('success');
+          return this.invokeBrokerMethod('afterChangePassword', account);
         })
-        .then(function () {
-          self.displaySuccess(t('Password changed successfully'));
-          self.navigate('settings');
+        .then(() => {
+          this.displaySuccess(t('Password changed successfully'));
+          this.navigate('settings');
 
-          return self.render();
+          return this.render();
         });
     }
 

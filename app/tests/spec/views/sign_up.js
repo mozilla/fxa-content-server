@@ -5,27 +5,27 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var $ = require('jquery');
-  var Able = require('lib/able');
-  var Account = require('models/account');
-  var AuthErrors = require('lib/auth-errors');
-  var Backbone = require('backbone');
-  var Broker = require('models/auth_brokers/base');
-  var chai = require('chai');
-  var CoppaAgeInput = require('views/coppa/coppa-age-input');
-  var ExperimentInterface = require('lib/experiment');
-  var FormPrefill = require('models/form-prefill');
-  var FxaClient = require('lib/fxa-client');
-  var Metrics = require('lib/metrics');
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/sync');
-  var Session = require('lib/session');
-  var sinon = require('sinon');
-  var TestHelpers = require('../../lib/helpers');
-  var User = require('models/user');
-  var View = require('views/sign_up');
-  var WindowMock = require('../../mocks/window');
+  const $ = require('jquery');
+  const Able = require('lib/able');
+  const Account = require('models/account');
+  const AuthErrors = require('lib/auth-errors');
+  const Backbone = require('backbone');
+  const Broker = require('models/auth_brokers/base');
+  const chai = require('chai');
+  const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const ExperimentInterface = require('lib/experiment');
+  const FormPrefill = require('models/form-prefill');
+  const FxaClient = require('lib/fxa-client');
+  const Metrics = require('lib/metrics');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/sync');
+  const Session = require('lib/session');
+  const sinon = require('sinon');
+  const TestHelpers = require('../../lib/helpers');
+  const User = require('models/user');
+  const View = require('views/sign_up');
+  const WindowMock = require('../../mocks/window');
 
   var assert = chai.assert;
 
@@ -253,10 +253,18 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.lengthOf(view.$('#suggest-sync'), 1);
-            assert.equal(view.$('#suggest-sync').html(),
-              'Looking for Firefox Sync? <a href="https://mozilla.org/firefox/sync?' +
-              'utm_source=fx-website&amp;utm_medium=fx-accounts&amp;utm_campaign=fx-signup&amp;' +
-              'utm_content=fx-sync-get-started">Get started here</a>');
+
+            const $suggestSyncEl = view.$('#suggest-sync');
+            assert.include($suggestSyncEl.text(), 'Looking for Firefox Sync?');
+            assert.include($suggestSyncEl.text(), 'Get started here');
+
+            const $getStartedEl = $suggestSyncEl.find('a');
+            assert.equal($getStartedEl.attr('rel'), 'noopener noreferrer');
+            assert.equal($getStartedEl.attr('href'),
+              'https://mozilla.org/firefox/sync?' +
+              'utm_source=fx-website&utm_medium=fx-accounts&' +
+              'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
+
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
           });
       });
@@ -404,9 +412,10 @@ define(function (require, exports, module) {
       it('called metrics.logFlowBegin correctly', function () {
         assert.equal(metrics.logFlowBegin.callCount, 1);
         var args = metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
+        assert.lengthOf(args, 3);
         assert.equal(args[0], FLOW_ID);
         assert.equal(args[1], 3);
+        assert.equal(args[2], 'signup');
       });
     });
 
@@ -1369,6 +1378,31 @@ define(function (require, exports, module) {
         assert.equal(formPrefill.get('email'), '');
       });
     });
+
+    describe('_engageForm', function () {
+      it('logs the engage event', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+            view.$('form').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+          });
+      });
+
+      it('logs the have-account flow event instead of engage', function () {
+        return view.render()
+          .then(function () {
+            view.afterVisible();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
+            view.$('#have-account').click();
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
+          });
+      });
+    });
+
   });
 });
 

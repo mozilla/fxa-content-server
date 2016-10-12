@@ -7,17 +7,17 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Constants = require('lib/constants');
-  var HaltBehavior = require('views/behaviors/halt');
-  var OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
-  var p = require('lib/promise');
-  var Url = require('lib/url');
+  const Constants = require('lib/constants');
+  const HaltBehavior = require('views/behaviors/halt');
+  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
+  const p = require('lib/promise');
+  const Url = require('lib/url');
 
   var proto = OAuthAuthenticationBroker.prototype;
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._metrics = options.metrics;
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    sendOAuthResultToRelier: function (result) {
+    sendOAuthResultToRelier (result) {
       var win = this.window;
       return this._metrics.flush()
         .then(function () {
@@ -46,53 +46,49 @@ define(function (require, exports, module) {
      * the original tab with the verification tab, then the OAuth flow
      * should complete and the user redirected to the RP.
      */
-    setOriginalTabMarker: function () {
+    setOriginalTabMarker () {
       this.window.sessionStorage.setItem('originalTab', '1');
     },
 
-    isOriginalTab: function () {
+    isOriginalTab () {
       return !! this.window.sessionStorage.getItem('originalTab');
     },
 
-    clearOriginalTabMarker: function () {
+    clearOriginalTabMarker () {
       this.window.sessionStorage.removeItem('originalTab');
     },
 
-    persistVerificationData: function (account) {
+    persistVerificationData (account) {
       // If the user replaces the current tab with the verification url,
       // finish the OAuth flow.
-      var self = this;
-      return p().then(function () {
-        self.setOriginalTabMarker();
-        return proto.persistVerificationData.call(self, account);
+      return p().then(() => {
+        this.setOriginalTabMarker();
+        return proto.persistVerificationData.call(this, account);
       });
     },
 
-    finishOAuthFlow: function (account, additionalResultData) {
-      var self = this;
-      return p().then(function () {
+    finishOAuthFlow (account, additionalResultData) {
+      return p().then(() => {
         // There are no ill side effects if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
-        self.clearOriginalTabMarker();
-        return proto.finishOAuthFlow.call(self, account, additionalResultData);
+        this.clearOriginalTabMarker();
+        return proto.finishOAuthFlow.call(this, account, additionalResultData);
       });
     },
 
-    afterCompleteSignUp: function (account) {
+    afterCompleteSignUp (account) {
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
       //
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
-      var self = this;
-
-      return proto.afterCompleteSignUp.call(self, account)
+      return proto.afterCompleteSignUp.call(this, account)
         .delay(100)
-        .then(function (behavior) {
-          if (self.isOriginalTab() || self.canVerificationRedirect()) {
-            return self.finishOAuthSignUpFlow(account)
-              .then(function () {
+        .then((behavior) => {
+          if (this.isOriginalTab() || this.canVerificationRedirect()) {
+            return this.finishOAuthSignUpFlow(account)
+              .then(() => {
                 return new HaltBehavior();
               });
           }
@@ -100,7 +96,7 @@ define(function (require, exports, module) {
         });
     },
 
-    canVerificationRedirect: function () {
+    canVerificationRedirect () {
       // checks if the relier is using the verificationRedirect option
       // then automatically redirects to the relier if an oauth session is present
       var verificationRedirect = this.relier.get('verificationRedirect');
@@ -108,15 +104,14 @@ define(function (require, exports, module) {
       return this.session.oauth && verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS;
     },
 
-    afterCompleteResetPassword: function (account) {
+    afterCompleteResetPassword (account) {
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
-      var self = this;
-      return proto.afterCompleteResetPassword.call(self, account)
-        .then(function (behavior) {
-          if (self.isOriginalTab()) {
-            return self.finishOAuthSignInFlow(account)
-              .then(function () {
+      return proto.afterCompleteResetPassword.call(this, account)
+        .then((behavior) => {
+          if (this.isOriginalTab()) {
+            return this.finishOAuthSignInFlow(account)
+              .then(() => {
                 return new HaltBehavior();
               });
           }

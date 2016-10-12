@@ -11,10 +11,10 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var CloseTemplate = require('stache!templates/partial/close-button');
-  var OAuthErrors = require('lib/oauth-errors');
-  var p = require('lib/promise');
+  const BaseView = require('views/base');
+  const CloseTemplate = require('stache!templates/partial/close-button');
+  const OAuthErrors = require('lib/oauth-errors');
+  const p = require('lib/promise');
 
   var View = BaseView.extend({
     template: CloseTemplate,
@@ -23,23 +23,19 @@ define(function (require, exports, module) {
       'click': BaseView.preventDefaultThen('close')
     },
 
-    render: function () {
-      var self = this;
-      return p().then(function () {
+    render () {
+      return p().then(() => {
         var foxLogo = $('#fox-logo');
-        foxLogo.after(self.template());
-        self.$el = $('#close');
-        self.delegateEvents();
+        foxLogo.after(this.template());
+        this.$el = $('#close');
+        this.delegateEvents();
       });
     },
 
-    close: function () {
-      var self = this;
-      self.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
-      return self.broker.cancel()
-        .then(null, function (err) {
-          self.displayError(err);
-        });
+    close () {
+      this.logError(OAuthErrors.toError('USER_CANCELED_OAUTH_LOGIN'));
+      return this.broker.cancel()
+        .fail((err) => this.displayError(err));
     }
   });
 

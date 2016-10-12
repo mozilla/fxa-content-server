@@ -10,13 +10,13 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseView = require('views/base');
-  var Template = require('stache!templates/clear_storage');
+  const BaseView = require('views/base');
+  const Template = require('stache!templates/clear_storage');
 
   var View = BaseView.extend({
     template: Template,
 
-    beforeRender: function () {
+    beforeRender () {
       try {
         localStorage.clear();
         sessionStorage.clear();

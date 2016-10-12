@@ -7,15 +7,15 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Notifier = require('lib/channels/notifier');
-  var p = require('lib/promise');
+  const Notifier = require('lib/channels/notifier');
+  const p = require('lib/promise');
 
   var Mixin = {
     notifications: {
       // populated below using event name aliases
     },
 
-    _navigateToSignedInView: function (event) {
+    _navigateToSignedInView (event) {
       if (this.broker.hasCapability('handleSignedInNotification')) {
         this.user.setSignedInAccountByUid(event.uid);
         this.navigate(this.model.get('redirectTo') || 'settings');

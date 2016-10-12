@@ -6,17 +6,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Backbone = require('backbone');
-  var BaseView = require('views/base');
-  var Logger = require('lib/logger');
-  var p = require('lib/promise');
-  var Template = require('stache!templates/sub_panels');
+  const Backbone = require('backbone');
+  const BaseView = require('views/base');
+  const Logger = require('lib/logger');
+  const p = require('lib/promise');
+  const Template = require('stache!templates/sub_panels');
 
-  var View = BaseView.extend({
+  const proto = BaseView.prototype;
+  const View = BaseView.extend({
     template: Template,
     className: 'sub-panels',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._panelViews = options.panelViews || [];
@@ -25,22 +26,21 @@ define(function (require, exports, module) {
       this._logger = new Logger();
     },
 
-    showChildView: function (ChildView, options) {
-      var self = this;
-      if (self._panelViews.indexOf(ChildView) === -1) {
-        self._logger.warn('Tried to show a view that is not a subpanel');
+    showChildView (ChildView, options) {
+      if (this._panelViews.indexOf(ChildView) === -1) {
+        this._logger.warn('Tried to show a view that is not a subpanel');
         return p(null);
       }
 
       // Destroy any previous modal view
-      if (self._currentChildView && self._currentChildView.isModal) {
-        self._currentChildView.closePanel();
+      if (this._currentChildView && this._currentChildView.isModal) {
+        this._currentChildView.closePanel();
       }
 
-      return self._createChildViewIfNeeded(ChildView, options)
-        .then(function (childView) {
+      return this._createChildViewIfNeeded(ChildView, options)
+        .then((childView) => {
           if (childView) {
-            self._currentChildView = childView;
+            this._currentChildView = childView;
             childView.openPanel();
 
             return childView;
@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         });
     },
 
-    _childViewInstanceFromClass: function (ChildView) {
+    _childViewInstanceFromClass (ChildView) {
       return this.childViews.filter(function (childView) {
         if (childView instanceof ChildView) {
           return true;
@@ -56,28 +56,27 @@ define(function (require, exports, module) {
       })[0];
     },
 
-    _isModalView: function (ChildView) {
+    _isModalView (ChildView) {
       return !! ChildView.prototype.isModal;
     },
 
-    _childViewClassName: function (ChildView) {
+    _childViewClassName (ChildView) {
       return ChildView.prototype.className;
     },
 
     // Render childView if an instance doesn't already exist
-    _createChildViewIfNeeded: function (ChildView, options) {
+    _createChildViewIfNeeded (ChildView, options) {
       options = options || {};
 
-      var self = this;
-      var childView = self._childViewInstanceFromClass(ChildView);
+      var childView = this._childViewInstanceFromClass(ChildView);
       if (childView) {
         return p(childView);
       }
 
-      var className = self._childViewClassName(ChildView);
+      var className = this._childViewClassName(ChildView);
       var selector = '.' + className;
 
-      self.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
+      this.$('.child-views').append('<div class="settings-child-view ' + className + '"></div>');
 
       // Each child view receives its own model on creation. The
       // child view's model will be updated with the appropriate data
@@ -93,18 +92,18 @@ define(function (require, exports, module) {
         childModel.set(options.model.toJSON());
       }
 
-      var view = self._createView(ChildView, {
-        el: self.$(selector),
+      var view = this._createView(ChildView, {
+        el: this.$(selector),
         model: childModel,
-        parentView: self._parent
+        parentView: this._parent
       });
 
-      self.trackChildView(view);
+      this.trackChildView(view);
 
-      return self.renderChildView(view);
+      return this.renderChildView(view);
     },
 
-    renderChildView: function (viewToShow) {
+    renderChildView (viewToShow) {
       return viewToShow.render()
         .then(function (shown) {
           if (! shown) {
@@ -118,17 +117,16 @@ define(function (require, exports, module) {
         });
     },
 
-    afterRender: function () {
-      var self = this;
-
+    afterRender () {
       // Initial childViews to render; excludes modal views
-      var initialChildViews = self._panelViews.filter(function (ChildView) {
-        return ! self._isModalView(ChildView);
+      var initialChildViews = this._panelViews.filter((ChildView) => {
+        return ! this._isModalView(ChildView);
       });
 
-      return p.all(initialChildViews.map(function (ChildView) {
-        return self._createChildViewIfNeeded(ChildView);
-      }));
+      return p.all(initialChildViews.map((ChildView) => {
+        return this._createChildViewIfNeeded(ChildView);
+      }))
+      .then(proto.afterRender.bind(this));
     }
   });
 

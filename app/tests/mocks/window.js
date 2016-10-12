@@ -7,25 +7,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Backbone = require('backbone');
-  var NullStorage = require('lib/null-storage');
-  var p = require('lib/promise');
-  var sinon = require('sinon');
+  const _ = require('underscore');
+  const Backbone = require('backbone');
+  const NullStorage = require('lib/null-storage');
+  const p = require('lib/promise');
+  const sinon = require('sinon');
 
   function MutationObserver (notifier) {
     return {
       observe: sinon.spy(),
       disconnect: sinon.spy(),
       // test function to call notifier.
-      mockNotify: function (mutations) {
+      mockNotify (mutations) {
         notifier(mutations);
       }
     };
   }
 
   function WindowMock() {
-    var self = this;
+    var win = this;
 
     this.translator = window.translator;
     this.location = {
@@ -47,17 +47,17 @@ define(function (require, exports, module) {
     };
 
     this.history = {
-      back: function () {
-        self.history.back.called = true;
+      back () {
+        win.history.back.called = true;
       },
-      replaceState: function () {}
+      replaceState () {}
     };
 
     this.navigator = {
       userAgent: window.navigator.userAgent,
       mediaDevices: {
         // simulate the API presented by the WebRTC polyfill
-        getUserMedia: function (options) {
+        getUserMedia (options) {
           var deferred = p.defer();
 
           var nav = this;
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
 
           setTimeout(function () {
             var stream = {
-              stop: function () {
+              stop () {
               }
             };
             if (nav._error) {
@@ -74,18 +74,18 @@ define(function (require, exports, module) {
               deferred.resolve(stream);
             }
             setTimeout(function () {
-              self.trigger('stream');
+              win.trigger('stream');
             }, 0);
           }, 0);
 
           return deferred.promise;
         }
       },
-      sendBeacon: function () {}
+      sendBeacon () {}
     };
 
     this.URL = {
-      createObjectURL: function (/*stream*/) {
+      createObjectURL (/*stream*/) {
         return '';
       }
     };
@@ -108,7 +108,7 @@ define(function (require, exports, module) {
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
-    dispatchEvent: function (event) {
+    dispatchEvent (event) {
       var msg = event.detail.command || event.detail.message;
 
       var listenerEvent = {
@@ -132,46 +132,48 @@ define(function (require, exports, module) {
       }
     },
 
-    isEventDispatched: function (eventName) {
+    isEventDispatched (eventName) {
       return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
     },
 
-    addEventListener: function (msg, callback/*, bubbles*/) {
+    addEventListener (msg, callback/*, bubbles*/) {
       this.on(msg, callback);
     },
 
-    removeEventListener: function (msg, callback/*, bubbles*/) {
+    removeEventListener (msg, callback/*, bubbles*/) {
       this.off(msg, callback);
     },
 
+    // Cannot be converted to object shorthand notation
+    // because it's used as a constructor.
     CustomEvent: function (command, data) {
       return data;
     },
 
-    scrollTo: function (/*x, y*/) {
+    scrollTo (/*x, y*/) {
     },
 
-    setTimeout: function (/*callback, timeoutMS*/) {
+    setTimeout (/*callback, timeoutMS*/) {
       this._isTimeoutSet = true;
       return 'timeout';
     },
 
-    isTimeoutSet: function () {
+    isTimeoutSet () {
       return !! this._isTimeoutSet;
     },
 
-    clearTimeout: function (/*timeout*/) {
+    clearTimeout (/*timeout*/) {
     },
 
     navigator: {
       language: 'en-US'
     },
 
-    open: function (url/*, target, windowName*/) {
+    open (url/*, target, windowName*/) {
       console.log('window.open was called with', url);
     },
 
-    postMessage: function (/*msg, targetOrigin*/) {
+    postMessage (/*msg, targetOrigin*/) {
     }
   });
 

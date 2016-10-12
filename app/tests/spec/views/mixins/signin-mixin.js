@@ -5,25 +5,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var Account = require('models/account');
-  var assert = require('chai').assert;
-  var AuthBroker = require('models/auth_brokers/base');
-  var Backbone = require('backbone');
-  var p = require('lib/promise');
-  var Relier = require('models/reliers/relier');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var sinon = require('sinon');
-  var VerificationMethods = require('lib/verification-methods');
-  var VerificationReasons = require('lib/verification-reasons');
+  const Account = require('models/account');
+  const assert = require('chai').assert;
+  const AuthBroker = require('models/auth_brokers/base');
+  const Backbone = require('backbone');
+  const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const sinon = require('sinon');
+  const VerificationMethods = require('lib/verification-methods');
+  const VerificationReasons = require('lib/verification-reasons');
 
   var RESUME_TOKEN = 'a big hairy resume token';
 
   describe('views/mixins/signin-mixin', function () {
     it('exports correct interface', function () {
       assert.isObject(SignInMixin);
-      assert.lengthOf(Object.keys(SignInMixin), 2);
+      assert.lengthOf(Object.keys(SignInMixin), 5);
       assert.isFunction(SignInMixin.signIn);
       assert.isFunction(SignInMixin.onSignInSuccess);
+      assert.equal(SignInMixin.signInSubmitContext, 'signin', 'has a submit context');
     });
 
     describe('signIn', function () {
@@ -56,12 +57,15 @@ define(function (require, exports, module) {
           invokeBrokerMethod: sinon.spy(function () {
             return p();
           }),
+          logEvent: sinon.spy(),
+          logEventOnce: sinon.spy(),
           logViewEvent: sinon.spy(),
           model: model,
           navigate: sinon.spy(),
           onSignInSuccess: SignInMixin.onSignInSuccess,
           relier: relier,
           signIn: SignInMixin.signIn,
+          signInSubmitContext: SignInMixin.signInSubmitContext,
           user: {
             signInAccount: sinon.spy(function (account) {
               return p(account);
@@ -184,6 +188,7 @@ define(function (require, exports, module) {
           assert.isTrue(
             view.user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(view.user.signInAccount.args[0][3].resume, RESUME_TOKEN);
+          assert.equal(view.logEvent.args[0], 'flow.signin.submit', 'correct submit event');
         });
 
         it('calls view.navigate correctly', function () {

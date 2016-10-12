@@ -5,8 +5,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var BaseModel = require('models/verification/base');
-  var chai = require('chai');
+  const BaseModel = require('models/verification/base');
+  const chai = require('chai');
 
   var assert = chai.assert;
 
@@ -16,7 +16,7 @@ define(function (require, exports, module) {
       uid: null
     },
 
-    validate: function (attributes) {
+    validate (attributes) {
       if (attributes.uid === null || attributes.code === null) {
         throw new Error('invalid');
       }
@@ -84,6 +84,19 @@ define(function (require, exports, module) {
         assert.isFalse(model.isExpired());
         model.markExpired();
         assert.isTrue(model.isExpired());
+      });
+    });
+
+    describe('markUsed/isUsed', function () {
+      it('marks the link as used', function () {
+        var model = new Model({
+          code: 'a-code',
+          uid: 'a-uid'
+        });
+
+        assert.isFalse(model.isUsed());
+        model.markUsed();
+        assert.isTrue(model.isUsed());
       });
     });
 

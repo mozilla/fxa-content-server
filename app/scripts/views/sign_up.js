@@ -4,26 +4,26 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AccountResetMixin = require('views/mixins/account-reset-mixin');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var CheckboxMixin = require('views/mixins/checkbox-mixin');
-  var Cocktail = require('cocktail');
-  var CoppaAgeInput = require('views/coppa/coppa-age-input');
-  var ExperimentMixin = require('views/mixins/experiment-mixin');
-  var FlowBeginMixin = require('views/mixins/flow-begin-mixin');
-  var FormView = require('views/form');
-  var mailcheck = require('lib/mailcheck');
-  var MigrationMixin = require('views/mixins/migration-mixin');
-  var p = require('lib/promise');
-  var PasswordMixin = require('views/mixins/password-mixin');
-  var PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
-  var ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  var ServiceMixin = require('views/mixins/service-mixin');
-  var SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
-  var SignInMixin = require('views/mixins/signin-mixin');
-  var SignUpMixin = require('views/mixins/signup-mixin');
-  var Template = require('stache!templates/sign_up');
+  const AccountResetMixin = require('views/mixins/account-reset-mixin');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const CheckboxMixin = require('views/mixins/checkbox-mixin');
+  const Cocktail = require('cocktail');
+  const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const ExperimentMixin = require('views/mixins/experiment-mixin');
+  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
+  const FormView = require('views/form');
+  const mailcheck = require('lib/mailcheck');
+  const MigrationMixin = require('views/mixins/migration-mixin');
+  const p = require('lib/promise');
+  const PasswordMixin = require('views/mixins/password-mixin');
+  const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
+  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const ServiceMixin = require('views/mixins/service-mixin');
+  const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
+  const SignInMixin = require('views/mixins/signin-mixin');
+  const SignUpMixin = require('views/mixins/signup-mixin');
+  const Template = require('stache!templates/sign_up');
 
   var t = BaseView.t;
 
@@ -42,7 +42,7 @@ define(function (require, exports, module) {
     template: Template,
     className: 'sign-up',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._formPrefill = options.formPrefill;
@@ -50,7 +50,7 @@ define(function (require, exports, module) {
       this._able = options.able;
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
         return p(false);
@@ -64,48 +64,44 @@ define(function (require, exports, module) {
       return FormView.prototype.beforeRender.call(this);
     },
 
-    _createCoppaView: function () {
-      var self = this;
-
-      if (self._coppa) {
+    _createCoppaView () {
+      if (this._coppa) {
         return p();
       }
 
       var autofocusEl = this._selectAutoFocusEl();
       var coppaOptions = {
-        el: self.$('#coppa'),
-        formPrefill: self._formPrefill,
-        metrics: self.metrics,
+        el: this.$('#coppa'),
+        formPrefill: this._formPrefill,
+        metrics: this.metrics,
         shouldFocus: autofocusEl === null,
-        viewName: self.getViewName()
+        viewName: this.getViewName()
       };
 
       var coppaView = new CoppaAgeInput(coppaOptions);
 
       return coppaView.render()
-        .then(function () {
-          self.trackChildView(coppaView);
-          coppaView.on('submit', self.validateAndSubmit.bind(self));
+        .then(() => {
+          this.trackChildView(coppaView);
+          coppaView.on('submit', this.validateAndSubmit.bind(this));
 
-          self._coppa = coppaView;
+          this._coppa = coppaView;
         });
     },
 
-    afterRender: function () {
-      var self = this;
+    afterRender () {
+      this.logViewEvent('email-optin.visible.' +
+          String(this._isEmailOptInEnabled()));
 
-      self.logViewEvent('email-optin.visible.' +
-          String(self._isEmailOptInEnabled()));
+      return this._createCoppaView()
+        .then(() => {
+          this.transformLinks();
 
-      return self._createCoppaView()
-        .then(function () {
-          self.transformLinks();
-
-          return FormView.prototype.afterRender.call(self);
+          return FormView.prototype.afterRender.call(this);
         });
     },
 
-    afterVisible: function () {
+    afterVisible () {
       if (this.model.get('bouncedEmail')) {
         this.showValidationError('input[type=email]',
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
@@ -133,14 +129,14 @@ define(function (require, exports, module) {
       'click #amo-migration a': 'onAmoSignIn'
     },
 
-    getPrefillEmail: function () {
+    getPrefillEmail () {
       // formPrefill.email comes first because users can edit the email,
       // go to another view, edit the email again, and come back here. We
       // want the last used email.
       return this._formPrefill.get('email') || this.relier.get('email');
     },
 
-    _selectAutoFocusEl: function () {
+    _selectAutoFocusEl () {
       var prefillEmail = this.model.get('forceEmail') || this.getPrefillEmail();
       var prefillPassword = this._formPrefill.get('password');
 
@@ -148,7 +144,7 @@ define(function (require, exports, module) {
             this.model.get('bouncedEmail'), prefillEmail, prefillPassword);
     },
 
-    context: function () {
+    context () {
       var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
@@ -179,13 +175,13 @@ define(function (require, exports, module) {
       return context;
     },
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       var formPrefill = this._formPrefill;
       formPrefill.set('email', this.getElementValue('.email'));
       formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    isValidEnd: function () {
+    isValidEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         return false;
       }
@@ -200,7 +196,7 @@ define(function (require, exports, module) {
       return FormView.prototype.isValidEnd.call(this);
     },
 
-    showValidationErrorsEnd: function () {
+    showValidationErrorsEnd () {
       if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
                 AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
@@ -210,8 +206,7 @@ define(function (require, exports, module) {
       }
     },
 
-    submit: function () {
-      var self = this;
+    submit () {
       this.notifier.trigger('signup.submit');
       /**
        * The semi-convoluted flow:
@@ -229,40 +224,39 @@ define(function (require, exports, module) {
        *       1b3a. If not filled in, tell user to fill in age.
        *       1b3b. If too young, go to the too young screen.
        */
-      return p()
-        .then(function () {
-          var account = self._initAccount();
-          var password = self.getElementValue('.password');
+      return p().then(() => {
+        var account = this._initAccount();
+        var password = this.getElementValue('.password');
 
-          if (self._isUserOldEnough()) {
-            // User filled out COPPA, attempt a signup.
-            // If user already exists, they will be signed in.
-            return self._signUp(account, password);
-          }
+        if (this._isUserOldEnough()) {
+          // User filled out COPPA, attempt a signup.
+          // If user already exists, they will be signed in.
+          return this._signUp(account, password);
+        }
 
-          // COPPA is not valid, but maybe this is an existing user
-          // that wants to sign in. Let them try to sign in then, if
-          // that fails, show a COPPA error.
-          // https://github.com/mozilla/fxa-content-server/issues/2778
-          return self._signIn(account, password);
-        })
-        .fail(function (err) {
-          if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
-            // if user canceled login, just stop
-            return;
-          }
+        // COPPA is not valid, but maybe this is an existing user
+        // that wants to sign in. Let them try to sign in then, if
+        // that fails, show a COPPA error.
+        // https://github.com/mozilla/fxa-content-server/issues/2778
+        return this._signIn(account, password);
+      })
+      .fail((err) => {
+        if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+          this.logEvent('login.canceled');
+          // if user canceled login, just stop
+          return;
+        }
 
-          throw err;
-        });
+        throw err;
+      });
     },
 
-    _signUp: function (account, password) {
+    _signUp (account, password) {
       return this.signUp(account, password)
         .fail(this.onSignUpError.bind(this, account, password));
     },
 
-    onSignUpError: function (account, password, err) {
+    onSignUpError (account, password, err) {
       if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
         // account exists and is verified,
         // attempt to sign in the user.
@@ -273,12 +267,12 @@ define(function (require, exports, module) {
       throw err;
     },
 
-    _signIn: function (account, password) {
+    _signIn (account, password) {
       return this.signIn(account, password)
         .fail(this.onSignInError.bind(this, account, password));
     },
 
-    onSignInError: function (account, password, err) {
+    onSignInError (account, password, err) {
       // only verified users who already have an account will see
       // the INCORRECT_PASSWORD error.
       if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
@@ -303,31 +297,31 @@ define(function (require, exports, module) {
       throw err;
     },
 
-    onEmailBlur: function () {
+    onEmailBlur () {
       if (this.isInExperiment('mailcheck')) {
         mailcheck(this.$el.find('.email'), this.metrics, this.translator, this);
       }
     },
 
-    onAmoSignIn: function () {
+    onAmoSignIn () {
       // The user has chosen to sign in with a different email, clear the
       // email from the relier so it's not used again on the signin page.
       this.relier.unset('email');
       this.$('input[type=email]').val('');
     },
 
-    _isEmailSameAsBouncedEmail: function () {
+    _isEmailSameAsBouncedEmail () {
       var bouncedEmail = this.model.get('bouncedEmail');
 
       return bouncedEmail &&
              bouncedEmail === this.getElementValue('input[type=email]');
     },
 
-    _isUserOldEnough: function () {
+    _isUserOldEnough () {
       return this._coppa.isUserOldEnough();
     },
 
-    _isEmailFirefoxDomain: function () {
+    _isEmailFirefoxDomain () {
       var email = this.getElementValue('.email');
 
       // "@firefox" or "@firefox.com" email addresses are not valid
@@ -335,7 +329,7 @@ define(function (require, exports, module) {
       return /@firefox(\.com)?$/.test(email);
     },
 
-    _cannotCreateAccount: function () {
+    _cannotCreateAccount () {
       // this is a session cookie. It will go away once:
       // 1. the user closes the tab
       // and
@@ -347,33 +341,31 @@ define(function (require, exports, module) {
       this.navigate('cannot_create_account');
     },
 
-    _initAccount: function () {
-      var self = this;
-
-      var account = self.user.initAccount({
-        customizeSync: self.$('.customize-sync').is(':checked'),
-        email: self.getElementValue('.email'),
-        needsOptedInToMarketingEmail: self.$('.marketing-email-optin').is(':checked')
+    _initAccount () {
+      var account = this.user.initAccount({
+        customizeSync: this.$('.customize-sync').is(':checked'),
+        email: this.getElementValue('.email'),
+        needsOptedInToMarketingEmail: this.$('.marketing-email-optin').is(':checked')
       });
 
-      if (self.relier.has('preVerifyToken')) {
-        self.logViewEvent('preverified');
+      if (this.relier.has('preVerifyToken')) {
+        this.logViewEvent('preverified');
       }
 
-      if (self.relier.isSync()) {
+      if (this.relier.isSync()) {
         var customizeSync = account.get('customizeSync');
-        self.logViewEvent('customizeSync.' + String(customizeSync));
+        this.logViewEvent('customizeSync.' + String(customizeSync));
       }
 
       return account;
     },
 
-    _suggestSignIn: function (err) {
+    _suggestSignIn (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.displayErrorUnsafe(err);
     },
 
-    _isEmailOptInEnabled: function () {
+    _isEmailOptInEnabled () {
       return !! this._able.choose('communicationPrefsVisible', {
         lang: this.navigator.language
       });

@@ -32,13 +32,13 @@ define(function (require, exports, module) {
 
   module.exports = {
     searchParams: searchParams,
-    searchParam: function (name, str) {
+    searchParam (name, str) {
       const terms = searchParams(str);
 
       return terms[name];
     },
 
-    objToSearchString: function (obj) {
+    objToSearchString (obj) {
       const params = [];
       for (let paramName in obj) {
         const paramValue = obj[paramName];
@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       return '?' + params.join('&');
     },
 
-    getOrigin: function (url) {
+    getOrigin (url) {
       if (! url) {
         return '';
       }
@@ -94,20 +94,20 @@ define(function (require, exports, module) {
      * Returns true if given "uri" has HTTP or HTTPS scheme so it is navigable
      *
      * @param {String} uri
-     * @returns {boolean}
+     * @returns {Boolean}
      */
-    isNavigable: function (uri) {
+    isNavigable (uri) {
       // validate that that given 'uri' is 'http:// or https://' and has characters after the protocol
       return /^https?:\/\/\w+/i.test(uri);
     },
 
-    removeParamFromSearchString: function (name, str) {
+    removeParamFromSearchString (name, str) {
       const params = this.searchParams(str);
       delete params[name];
       return this.objToSearchString(params);
     },
 
-    updateSearchString: function (uri, newParams) {
+    updateSearchString (uri, newParams) {
       let params = {};
       const startOfParams = uri.indexOf('?');
       if (startOfParams >= 0) {

@@ -5,26 +5,18 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var AuthErrors = require('lib/auth-errors');
-  var BaseView = require('views/base');
-  var Cocktail = require('cocktail');
-  var FormView = require('views/form');
-  var NullBehavior = require('views/behaviors/null');
-  var p = require('lib/promise');
-  var PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  var SignInView = require('views/sign_in');
-  var Template = require('stache!templates/force_auth');
-  var Transform = require('lib/transform');
-  var Vat = require('lib/vat');
-
-  function getFatalErrorMessage(self, fatalError) {
-    if (fatalError) {
-      return self.translateError(fatalError);
-    }
-
-    return '';
-  }
+  const _ = require('underscore');
+  const AuthErrors = require('lib/auth-errors');
+  const BaseView = require('views/base');
+  const Cocktail = require('cocktail');
+  const FormView = require('views/form');
+  const NullBehavior = require('views/behaviors/null');
+  const p = require('lib/promise');
+  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
+  const SignInView = require('views/sign_in');
+  const Template = require('stache!templates/force_auth');
+  const Transform = require('lib/transform');
+  const Vat = require('lib/vat');
 
   var RELIER_DATA_SCHEMA = {
     email: Vat.email().required(),
@@ -36,15 +28,14 @@ define(function (require, exports, module) {
   var View = SignInView.extend({
     template: Template,
     className: 'force-auth',
+    signInSubmitContext: 'force-auth',
 
     // used by the signin-mixin to decide which broker method to
     // call with which data when signin is successful.
     afterSignInBrokerMethod: 'afterForceAuth',
     afterSignInNavigateData: { clearQueryParams: true },
 
-    _fatalError: null,
-
-    _getAndValidateAccountData: function () {
+    _getAndValidateAccountData () {
       var fieldsToPick = ['email', 'uid'];
       var accountData = {};
       var relier = this.relier;
@@ -59,8 +50,7 @@ define(function (require, exports, module) {
           accountData, RELIER_DATA_SCHEMA, AuthErrors);
     },
 
-    beforeRender: function () {
-      var self = this;
+    beforeRender () {
       var accountData;
 
       try {
@@ -87,7 +77,7 @@ define(function (require, exports, module) {
         return p.all([
           this.user.checkAccountEmailExists(account),
           this.user.checkAccountUidExists(account)
-        ]).spread(function (emailExists, uidExists) {
+        ]).spread((emailExists, uidExists) => {
           /*
            * uidExists: false, emailExists: false
            *   Let user sign up w/ email.
@@ -100,9 +90,9 @@ define(function (require, exports, module) {
            *   Assume for the same account, try to sign in
            */
           if (! emailExists) {
-            return self._signUpIfUidChangeSupported(account);
+            return this._signUpIfUidChangeSupported(account);
           } if (! uidExists) {
-            return self._signInIfUidChangeSupported(account);
+            return this._signInIfUidChangeSupported(account);
           }
 
           // email and uid are both registered, continue as normal
@@ -111,31 +101,31 @@ define(function (require, exports, module) {
         // relier did not specify a uid, there's a bit more flexibility.
         // If the email no longer exists, sign up the user.
         return this.user.checkAccountEmailExists(account)
-          .then(function (emailExists) {
+          .then((emailExists) => {
             if (! emailExists) {
-              return self._navigateToForceSignUp(account);
+              return this._navigateToForceSignUp(account);
             }
           });
       }
     },
 
-    _signUpIfUidChangeSupported: function (account) {
+    _signUpIfUidChangeSupported (account) {
       if (this.broker.hasCapability('allowUidChange')) {
         return this._navigateToForceSignUp(account);
       } else {
-        this._fatalError = AuthErrors.toError('DELETED_ACCOUNT');
+        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
       }
     },
 
-    _signInIfUidChangeSupported: function (account) {
+    _signInIfUidChangeSupported (account) {
       // if the broker supports a UID change, use force_auth to sign in,
       // otherwise print a big error message.
       if (! this.broker.hasCapability('allowUidChange')) {
-        this._fatalError = AuthErrors.toError('DELETED_ACCOUNT');
+        this.model.set('error', AuthErrors.toError('DELETED_ACCOUNT'));
       }
     },
 
-    _navigateToForceSignUp: function (account) {
+    _navigateToForceSignUp (account) {
       // The default behavior of FxDesktop brokers is to halt before
       // the signup confirmation poll because about:accounts takes care
       // of polling and updating the UI. /force_auth is not opened in
@@ -151,16 +141,16 @@ define(function (require, exports, module) {
       });
     },
 
-    _navigateToForceResetPassword: function () {
+    _navigateToForceResetPassword () {
       return this.navigate(this.broker.transformLink('reset_password'), {
         forceEmail: this.relier.get('email')
       });
     },
 
-    context: function () {
+    context () {
       return {
         email: this.relier.get('email'),
-        fatalError: getFatalErrorMessage(this, this._fatalError),
+        fatalError: this.model.get('error'),
         password: this._formPrefill.get('password')
       };
     },
@@ -169,11 +159,11 @@ define(function (require, exports, module) {
       'click a[href="/reset_password"]': BaseView.cancelEventThen('_navigateToForceResetPassword')
     }),
 
-    beforeDestroy: function () {
+    beforeDestroy () {
       this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
-    onSignInError: function (account, password, error) {
+    onSignInError (account, password, error) {
       if (AuthErrors.is(error, 'UNKNOWN_ACCOUNT')) {
         if (this.relier.has('uid')) {
           if (this.broker.hasCapability('allowUidChange')) {
@@ -194,7 +184,7 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    afterVisible: function () {
+    afterVisible () {
       var email = this.relier.get('email');
       var account = this.user.getAccountByEmail(email);
 

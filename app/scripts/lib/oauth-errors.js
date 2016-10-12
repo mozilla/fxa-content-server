@@ -7,11 +7,11 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var Errors = require('lib/errors');
-  var Logger = require('lib/logger');
+  const _ = require('underscore');
+  const Errors = require('lib/errors');
+  const Logger = require('lib/logger');
   var logger = new Logger();
-  var Strings = require('lib/strings');
+  const Strings = require('lib/strings');
 
   var t = function (msg) {
     return msg;
@@ -119,7 +119,7 @@ define(function (require, exports, module) {
      * @param {Error} err
      * @returns {Object}
      */
-    toInterpolationContext: function (err) {
+    toInterpolationContext (err) {
       // For data returned by backend, see
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors
       try {

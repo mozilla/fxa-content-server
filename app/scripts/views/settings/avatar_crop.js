@@ -5,27 +5,28 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var AuthErrors = require('lib/auth-errors');
-  var AvatarMixin = require('views/mixins/avatar-mixin');
-  var Cocktail = require('cocktail');
-  var Constants = require('lib/constants');
-  var Cropper = require('lib/cropper');
-  var CropperImage = require('models/cropper-image');
-  var FormView = require('views/form');
-  var ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
-  var p = require('p-promise');
-  var ProfileImage = require('models/profile-image');
-  var Template = require('stache!templates/settings/avatar_crop');
+  const AuthErrors = require('lib/auth-errors');
+  const AvatarMixin = require('views/mixins/avatar-mixin');
+  const Cocktail = require('cocktail');
+  const Constants = require('lib/constants');
+  const Cropper = require('lib/cropper');
+  const CropperImage = require('models/cropper-image');
+  const FormView = require('views/form');
+  const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
+  const p = require('p-promise');
+  const ProfileImage = require('models/profile-image');
+  const Template = require('stache!templates/settings/avatar_crop');
 
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
-  var View = FormView.extend({
+  const proto = FormView.prototype;
+  const View = FormView.extend({
     template: Template,
     className: 'avatar-crop',
     viewName: 'settings.avatar.crop',
 
-    initialize: function (options) {
+    initialize (options) {
       options = options || {};
 
       this._cropImg = this.model.get('cropImg');
@@ -35,7 +36,7 @@ define(function (require, exports, module) {
       }
     },
 
-    beforeRender: function () {
+    beforeRender () {
       if (! this._cropImg) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
@@ -44,12 +45,12 @@ define(function (require, exports, module) {
       }
     },
 
-    afterRender: function () {
-      FormView.prototype.afterRender.call(this);
+    afterRender () {
       this.canvas = this.$('canvas')[0];
+      return proto.afterRender.call(this);
     },
 
-    afterVisible: function () {
+    afterVisible () {
       // Use pre-set dimensions if available
       var width = this._cropImg.get('width');
       var height = this._cropImg.get('height');
@@ -82,9 +83,11 @@ define(function (require, exports, module) {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       }
+
+      return proto.afterVisible.call(this);
     },
 
-    toBlob: function () {
+    toBlob () {
       var defer = p.defer();
 
       this.cropper.toBlob(function (data) {
@@ -95,40 +98,39 @@ define(function (require, exports, module) {
       return defer.promise;
     },
 
-    submit: function () {
-      var self = this;
-      var account = self.getSignedInAccount();
+    submit () {
+      var account = this.getSignedInAccount();
 
-      self.logAccountImageChange(account);
+      this.logAccountImageChange(account);
 
-      return self.toBlob()
-        .then(function (data) {
+      return this.toBlob()
+        .then((data) => {
           return account.uploadAvatar(data);
         })
-        .then(function (result) {
-          self.updateProfileImage(new ProfileImage(result), account);
-          self.navigate('settings');
+        .then((result) => {
+          this.updateProfileImage(new ProfileImage(result), account);
+          this.navigate('settings');
           return result;
         });
     },
 
-    _onRotate: function () {
+    _onRotate () {
       this.logViewEvent('rotate.cw');
     },
 
-    _onTranslate: function () {
+    _onTranslate () {
       this.logViewEvent('translate');
     },
 
-    _onZoomIn: function () {
+    _onZoomIn () {
       this.logViewEvent('zoom.in');
     },
 
-    _onZoomOut: function () {
+    _onZoomOut () {
       this.logViewEvent('zoom.out');
     },
 
-    _onZoomRangeChange: function () {
+    _onZoomRangeChange () {
       this.logViewEvent('zoom.range');
     }
 

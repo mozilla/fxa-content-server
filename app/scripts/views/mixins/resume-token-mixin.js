@@ -7,8 +7,8 @@
 define(function (require, exports, module) {
   'use strict';
 
-  var _ = require('underscore');
-  var ResumeToken = require('models/resume-token');
+  const _ = require('underscore');
+  const ResumeToken = require('models/resume-token');
 
   module.exports = {
     /**
@@ -17,7 +17,7 @@ define(function (require, exports, module) {
      * @method getResumeToken
      * @returns {ResumeToken}
      */
-    getResumeToken: function () {
+    getResumeToken () {
       // there might not be any relier if the resume token is being fetched
       // for an account unlock request caused by changing the password.
       var flowInfo = this.flow && this.flow.pickResumeTokenInfo();
@@ -42,7 +42,7 @@ define(function (require, exports, module) {
      * @method getStringifiedResumeToken
      * @returns {String}
      */
-    getStringifiedResumeToken: function () {
+    getStringifiedResumeToken () {
       return this.getResumeToken().stringify();
     }
   };
