@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const ConfirmView = require('views/confirm');
   const Notifier = require('lib/channels/notifier');
+  const OpenConfirmationEmailMixin = require('views/mixins/open-webmail-mixin');
   const p = require('lib/promise');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ResendMixin = require('views/mixins/resend-mixin');
@@ -275,6 +276,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    OpenConfirmationEmailMixin,
     PasswordResetMixin,
     ResendMixin,
     ServiceMixin
