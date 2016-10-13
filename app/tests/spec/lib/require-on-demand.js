@@ -5,23 +5,25 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const chai = require('chai');
+  const { assert } = require('chai');
   const p = require('lib/promise');
   const requireOnDemand = require('lib/require-on-demand');
   const sinon = require('sinon');
 
-  var assert = chai.assert;
-
   describe('lib/require-on-demand', function () {
-    var sandbox;
     var MockModule1 = {};
     var MockModule2 = {};
+    var windowMock;
+
+    beforeEach(() => {
+      windowMock = {
+        require: function () {}
+      };
+    });
 
     describe('successful load', function () {
       beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-
-        sandbox.stub(window, 'require', function (moduleList, callback) {
+        sinon.stub(windowMock, 'require', function (moduleList, callback) {
           // requirejs is asynchronous, add a setTimeout to mimic that behavior.
           setTimeout(function () {
             var requestedModule = moduleList[0];
@@ -34,26 +36,22 @@ define(function (require, exports, module) {
         });
       });
 
-      afterEach(function () {
-        sandbox.restore();
-      });
-
       it('loads a module', function () {
-        return requireOnDemand('module1')
+        return requireOnDemand('module1', windowMock)
           .then(function (LoadedModule) {
             assert.strictEqual(LoadedModule, MockModule1);
-            assert.isTrue(window.require.calledOnce);
+            assert.isTrue(windowMock.require.calledOnce);
           });
       });
 
       it('multiple calls to requireOnDemand work as expected', function () {
         return p.all([
-          requireOnDemand('module1'),
-          requireOnDemand('module2')
+          requireOnDemand('module1', windowMock),
+          requireOnDemand('module2', windowMock)
         ]).spread(function (LoadedModule1, LoadedModule2) {
           assert.strictEqual(LoadedModule1, MockModule1);
           assert.strictEqual(LoadedModule2, MockModule2);
-          assert.isTrue(window.require.calledTwice);
+          assert.isTrue(windowMock.require.calledTwice);
         });
       });
     });
@@ -62,9 +60,7 @@ define(function (require, exports, module) {
       var errType;
 
       beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-
-        sandbox.stub(window, 'require', function (moduleList, callback, errback) {
+        sinon.stub(windowMock, 'require', function (moduleList, callback, errback) {
           // requirejs is asynchronous, add a setTimeout to mimic that behavior.
           setTimeout(function () {
             errback({
@@ -75,13 +71,9 @@ define(function (require, exports, module) {
         });
       });
 
-      afterEach(function () {
-        sandbox.restore();
-      });
-
       it('fails if there is a timeout fetching the resource', function () {
         errType = 'timeout';
-        return requireOnDemand('module1')
+        return requireOnDemand('module1', windowMock)
           .then(assert.fail, function (err) {
             assert.isTrue(requireOnDemand.Errors.is(err, 'TIMEOUT'));
           });
@@ -89,7 +81,7 @@ define(function (require, exports, module) {
 
       it('fails if there is a scripterror fetching the resource', function () {
         errType = 'scripterror';
-        return requireOnDemand('module1')
+        return requireOnDemand('module1', windowMock)
           .then(assert.fail, function (err) {
             assert.isTrue(requireOnDemand.Errors.is(err, 'SCRIPTERROR'));
           });
@@ -97,7 +89,7 @@ define(function (require, exports, module) {
 
       it('fails if there is resource does not contain a define', function () {
         errType = 'nodefine';
-        return requireOnDemand('module1')
+        return requireOnDemand('module1', windowMock)
           .then(assert.fail, function (err) {
             assert.isTrue(requireOnDemand.Errors.is(err, 'NODEFINE'));
           });
