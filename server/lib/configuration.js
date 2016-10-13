@@ -149,28 +149,39 @@ var conf = module.exports = convict({
     doc: 'Google Analytics id',
     format: String
   },
-  hpkp: {
+  hpkpConfig: {
     enabled: {
-      default: true,
+      default: false,
       doc: 'Feature flag for appending HPKP headers',
-      env: 'HPKP_ENABLED'
+      env: 'HPKP_ENABLE',
+      format: Boolean
     },
     includeSubDomains: {
       default: true,
       doc: 'Include Sub-Domains',
-      env: 'HPKP_INCLUDE_SUBDOMAINS'
+      env: 'HPKP_INCLUDE_SUBDOMAINS',
+      format: Boolean
     },
-    max_age: {
+    maxAge: {
       default: 1,
       doc: 'Max age for HPKP headers (seconds)',
-      env: 'HPKP_MAX_AGE'
+      env: 'HPKP_MAX_AGE',
+      format: Number
     },
-    pin_sha256: {
-      default: [
-        '5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=',
-        'PZXN3lRAy+8tBKk2Ox6F7jIlnzr2Yzmwqc3JnyfXoCw=',
-        'r/mIkG3eEpVdm+u/ko/cwxzOMo1bk4TyHIlByibiA5E='
-      ],
+    reportOnly: {
+      default: true,
+      doc: 'Enable report only mode',
+      env: 'HPKP_REPORT_ONLY',
+      format: Boolean
+    },
+    reportUri: {
+      default: '',
+      doc: 'Enable report only mode',
+      env: 'HPKP_REPORT_URI',
+      format: String
+    },
+    sha256s: {
+      default: [],
       doc: 'Supported pin-sha256s',
       env: 'HPKP_PIN_SHA256',
       format: Array
