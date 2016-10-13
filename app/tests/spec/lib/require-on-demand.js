@@ -15,25 +15,21 @@ define(function (require, exports, module) {
     var MockModule2 = {};
     var windowMock;
 
-    beforeEach(() => {
-      windowMock = {
-        require: function () {}
-      };
-    });
-
     describe('successful load', function () {
       beforeEach(function () {
-        sinon.stub(windowMock, 'require', function (moduleList, callback) {
-          // requirejs is asynchronous, add a setTimeout to mimic that behavior.
-          setTimeout(function () {
-            var requestedModule = moduleList[0];
-            if (requestedModule === 'module1') {
-              callback(MockModule1);
-            } else if (requestedModule === 'module2') {
-              callback(MockModule2);
-            }
-          }, 0);
-        });
+        windowMock = {
+          require: sinon.spy((moduleList, callback) => {
+            // requirejs is asynchronous, add a setTimeout to mimic that behavior.
+            setTimeout(() => {
+              var requestedModule = moduleList[0];
+              if (requestedModule === 'module1') {
+                callback(MockModule1);
+              } else if (requestedModule === 'module2') {
+                callback(MockModule2);
+              }
+            }, 0);
+          })
+        };
       });
 
       it('loads a module', function () {
@@ -60,15 +56,17 @@ define(function (require, exports, module) {
       var errType;
 
       beforeEach(function () {
-        sinon.stub(windowMock, 'require', function (moduleList, callback, errback) {
-          // requirejs is asynchronous, add a setTimeout to mimic that behavior.
-          setTimeout(function () {
-            errback({
-              requireModules: [moduleList],
-              requireType: errType
-            });
-          }, 0);
-        });
+        windowMock = {
+          require: sinon.spy((moduleList, callback, errback) => {
+            // requirejs is asynchronous, add a setTimeout to mimic that behavior.
+            setTimeout(() => {
+              errback({
+                requireModules: [moduleList],
+                requireType: errType
+              });
+            }, 0);
+          })
+        };
       });
 
       it('fails if there is a timeout fetching the resource', function () {
