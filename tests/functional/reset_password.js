@@ -276,7 +276,7 @@ define([
       this.timeout = 90000;
 
       return this.remote
-        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-confirm-reset-password-header'))
+        .then(openPage(this, RESET_PASSWORD_URL, '#fxa-reset-password-header'))
         .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
 
         .then(fillOutResetPassword(this, email))
@@ -284,7 +284,7 @@ define([
         .then(testElementExists('#choose-what-to-sync'))
         .then(click('button[type="submit"]'))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(testElementExists('#fxa-reset-password-header'))
         .then(click('[data-webmail-type="gmail"]'))
 
         .getAllWindowHandles()
@@ -295,7 +295,7 @@ define([
         .then(testElementExists('.google-header-bar'))
         .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'));
+        .then(testElementExists('#fxa-reset-password-header'));
     },
 
     'reset password, verify same browser': function () {
