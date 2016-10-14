@@ -10,7 +10,8 @@ define([
   'tests/functional/lib/helpers',
   'tests/functional/lib/test'
 ], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers, Test) {
-  var PAGE_URL = intern.config.fxaContentRoot + 'signup';
+  var SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
+  var SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
   var fxaProduction = intern.config.fxaProduction;
 
   var email;
@@ -20,6 +21,8 @@ define([
 
   var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
   var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var openPage = thenify(FunctionalHelpers.openPage);
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
@@ -72,7 +75,7 @@ define([
       // passed to basket. See a43061d3
       email = TestHelpers.createEmail('signup{id}+extra');
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: true }))
 
         .then(testElementExists('#fxa-confirm-header'))
@@ -106,12 +109,26 @@ define([
         .then(testNotOptedIn());
     },
 
-    'opt in to marketing email from settings': function () {
+    'do not opt-in on signup': function () {
       return this.remote
-        .then(openPage(this, PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(this, SIGNUP_PAGE_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(this, email, PASSWORD, { optInToMarketingEmail: false }))
         .then(testElementExists('#fxa-confirm-header'))
         .then(openVerificationLinkInSameTab(email, 0))
+
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
+
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+
+        .then(testNotOptedIn());
+    },
+
+    'opt in from settings after sign-in': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(this, SIGNIN_PAGE_URL, '#fxa-signin-header'))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
         .then(testElementExists('#communication-preferences.basket-ready'))
         .then(click('#communication-preferences .settings-unit-toggle'))
