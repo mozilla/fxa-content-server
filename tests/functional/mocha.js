@@ -42,6 +42,14 @@ define([
         .setFindTimeout(this.timeout)
         .get(require.toUrl(url))
         .refresh()
+
+        .execute(function () {
+          return navigator.userAgent;
+        })
+        .then(function (userAgent) {
+          console.error(descriptionColor(' userAgent => ' + userAgent));
+        })
+
         // let the mocha reporter load up
         .sleep(MOCHA_LOADER_SLEEP)
 
