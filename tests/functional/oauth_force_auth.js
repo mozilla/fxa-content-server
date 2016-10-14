@@ -96,6 +96,7 @@ define([
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 0))
 
+        .then(testElementExists('#loggedin'))
         // redirected back to the App
         .then(testUrlEquals(OAUTH_APP));
     }

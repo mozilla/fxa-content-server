@@ -199,7 +199,7 @@ define([
         .then(fillOutSignInUnblock(email, 0))
 
         .then(testUrlPathnameEquals('/oauth/signin'))
-        .then(fillOutSignIn(this, email, 'bad' + PASSWORD))
+        .then(fillOutSignIn(this, email, PASSWORD))
 
         .then(testElementExists('#fxa-signin-unblock-header'))
         .then(fillOutSignInUnblock(email, 1))
