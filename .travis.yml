@@ -24,9 +24,6 @@ cache:
   directories:
     - node_modules
     - app/bower_components
-    - deps/node_modules/fxa-auth-server/node_modules
-    - deps/node_modules/fxa-profile-server/node_modules
-    - deps/node_modules/fxa-oauth-server/node_modules
 
 notifications:
   irc:
@@ -49,9 +46,7 @@ install:
   - grunt lint
   # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
-  # install auth, oauth, verifier and profile servers
-  - ./tests/ci/deps.sh
-  - npm start &
+  - CONFIG_FILES=server/config/local.json,tests/ci/config_ci_base.json npm start &
   - sleep 5
 
 # now run the tests!
@@ -65,5 +60,5 @@ script:
   # the default firefox-bin is used by Selenium, which is Firefox 31.
   # firefoxBinary=`which firefox` forces the version we installed
   # to be used.
-  - travis_retry npm run test-travis firefoxBinary=`which firefox`
-  - travis_retry npm run test-server
+  - travis_retry npm run test-travis firefoxBinary=`which firefox` fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOAuthRoot=https://oauth-fxa-ci.dev.lcip.org fxaOauthApp=https://123done-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProfileRoot=https://fxa-ci.dev.lcip.org/profile fxaDevBox=true
+  - travis_retry npm run test-server firefoxBinary=`which firefox` fxaAuthRoot=https://fxa-ci.dev.lcip.org/auth fxaEmailRoot=http://restmail.net fxaOAuthRoot=https://oauth-fxa-ci.dev.lcip.org fxaOauthApp=https://123done-fxa-ci.dev.lcip.org fxaUntrustedOauthApp=https://321done-fxa-ci.dev.lcip.org fxaProfileRoot=https://fxa-ci.dev.lcip.org/profile fxaDevBox=true
