@@ -59,5 +59,7 @@ script:
   - travis_retry grunt nsp # check for vulnerable modules via nodesecurity.io
   - grunt selectconfig:dist l10n-generate-pages &> /dev/null
   - grunt htmllint:dist
+  - which firefox
+  - firefox --version
   - travis_retry npm run test-travis
   - travis_retry npm run test-server
