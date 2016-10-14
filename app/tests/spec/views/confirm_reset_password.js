@@ -29,6 +29,7 @@ define(function (require, exports, module) {
     var PASSWORD_FORGOT_TOKEN = 'fake password reset token';
     var VERIFICATION_POLL_TIMEOUT_MS = 100;
 
+    var account;
     var broker;
     var fxaClient;
     var metrics;
@@ -131,6 +132,45 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(view.navigate.calledWith('reset_password'));
           });
+      });
+
+      describe('openWebmail feature', function () {
+        it('it is not visible in basic contexts', function () {
+          assert.notOk($('#open-webmail').length);
+        });
+
+        it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
+          broker.setCapability('openWebmailButtonVisible', true);
+
+          account = user.initAccount({
+            customizeSync: true,
+            email: 'a@gmail.com',
+            sessionToken: 'fake session token',
+            uid: 'uid'
+          });
+
+          model.set({
+            account: account
+          });
+
+          view = new View({
+            broker: broker,
+            canGoBack: true,
+            metrics: metrics,
+            model: model,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            viewName: 'confirm',
+            window: windowMock
+          });
+
+          return view.render()
+            .then(function () {
+              $('#container').html(view.el);
+              assert.lengthOf(view.$('#open-webmail'), 1);
+            });
+        });
       });
 
       it('`sign in` link goes to /signin in normal flow', function () {
