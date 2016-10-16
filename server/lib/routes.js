@@ -80,14 +80,14 @@ module.exports = function (config, i18n) {
       // 1. The blanket code coverage tool does not understand ES6, only ES5.
       // 2. It'll give us a better approximation of the code that'll eventually
       //    be run on prod.
-      app.get('/scripts/*\.(js|map)', babel({
+      app.get('*\.(js|map)', babel({
         babelOptions: {
           presets: ['babel-preset-es2015-nostrict'],
           sourceMaps: true
         },
         cachePath: path.join(__dirname, '..', '..', '.es5cache'),
         consoleErrors: true,
-        exclude: ['scripts/{head|vendor}/**'],
+        exclude: ['scripts/{head|vendor}/**', 'bower_components/**'],
         srcPath: path.join(__dirname, '..', '..', 'app')
       }));
 
