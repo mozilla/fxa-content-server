@@ -149,7 +149,7 @@ var conf = module.exports = convict({
     doc: 'Google Analytics id',
     format: String
   },
-  hpkpConfig: {
+  hpkp: {
     enabled: {
       default: false,
       doc: 'Feature flag for appending HPKP headers',
@@ -182,7 +182,7 @@ var conf = module.exports = convict({
     },
     sha256s: {
       default: [],
-      doc: 'Supported pin-sha256s',
+      doc: 'Supported pin-sha256s (at least two shas required)',
       env: 'HPKP_PIN_SHA256',
       format: Array
     }

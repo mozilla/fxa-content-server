@@ -11,15 +11,15 @@ var helmet = require('helmet');
 
 module.exports = function (config) {
   var hpkpMiddleware = helmet.hpkp({
-    includeSubdomains: config.get('hpkpConfig.includeSubDomains'),
-    maxAge: config.get('hpkpConfig.maxAge') * 1000, // Convert to seconds
-    reportOnly: config.get('hpkpConfig.reportOnly'),
-    reportUri: config.get('hpkpConfig.reportUri'),
-    sha256s: config.get('hpkpConfig.sha256s')
+    includeSubdomains: config.get('hpkp.includeSubDomains'),
+    maxAge: config.get('hpkp.maxAge') * 1000, // Convert to milli-seconds
+    reportOnly: config.get('hpkp.reportOnly'),
+    reportUri: config.get('hpkp.reportUri'),
+    sha256s: config.get('hpkp.sha256s')
   });
 
   return function (req, res, next) {
-    if (! config.get('hpkpConfig.enabled')) {
+    if (! config.get('hpkp.enabled')) {
       return next();
     }
 

@@ -32,7 +32,7 @@ define([
   };
 
   suite['#fails with no sha pins'] = function () {
-    config.set('hpkpConfig.sha256s', []);
+    config.set('hpkp.sha256s', []);
     assert.throws(function () {
       hpkp(config);
     }, 'hpkp must be called with a maxAge and at least two SHA-256s (one actually used and another kept as a backup).');
@@ -40,10 +40,10 @@ define([
 
 
   suite['#sends header when enabled'] = function () {
-    config.set('hpkpConfig.enabled', true);
-    config.set('hpkpConfig.sha256s', ['sha1=', 'sha2=']);
-    config.set('hpkpConfig.reportOnly', false);
-    config.set('hpkpConfig.maxAge', 100);
+    config.set('hpkp.enabled', true);
+    config.set('hpkp.sha256s', ['sha1=', 'sha2=']);
+    config.set('hpkp.reportOnly', false);
+    config.set('hpkp.maxAge', 100);
     var middleware = hpkp(config);
     var dfd = this.async(intern.config.asyncTimeout);
 
@@ -55,21 +55,22 @@ define([
   };
 
   suite['#does not send header when disabled'] = function () {
-    config.set('hpkpConfig.enabled', false);
+    config.set('hpkp.enabled', false);
     var middleware = hpkp(config);
     var dfd = this.async(intern.config.asyncTimeout);
 
     var res = new ResMock();
     var req = new ReqMock();
     middleware(req, res, dfd.callback(function () {
-      assert.equal(res.headers['public-key-pins'], undefined);
+      assert.notProperty(res.headers, 'public-key-pins');
+      assert.notProperty(res.headers, 'public-key-pins-report-only');
     }, dfd.reject.bind(dfd)));
   };
 
   suite['#sends report only header'] = function () {
-    config.set('hpkpConfig.enabled', true);
-    config.set('hpkpConfig.reportOnly', true);
-    config.set('hpkpConfig.reportUri', 'http://report.com');
+    config.set('hpkp.enabled', true);
+    config.set('hpkp.reportOnly', true);
+    config.set('hpkp.reportUri', 'http://report.com');
     var middleware = hpkp(config);
     var dfd = this.async(intern.config.asyncTimeout);
 
@@ -78,6 +79,7 @@ define([
     middleware(req, res, dfd.callback(function () {
       var expectedValue = 'pin-sha256="sha1="; pin-sha256="sha2="; max-age=100; includeSubdomains; report-uri="http://report.com"';
       assert.equal(res.headers['public-key-pins-report-only'], expectedValue);
+      assert.notProperty(res.headers, 'public-key-pins');
     }, dfd.reject.bind(dfd)));
   };
 

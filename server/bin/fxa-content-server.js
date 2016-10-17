@@ -85,7 +85,7 @@ function makeApp() {
   if (config.get('csp.reportOnlyEnabled')) {
     app.use(csp({ rules: cspRulesReportOnly }));
   }
-  if (config.get('hpkpConfig.enabled')) {
+  if (config.get('hpkp.enabled')) {
     app.use(hpkp(config));
   }
 
