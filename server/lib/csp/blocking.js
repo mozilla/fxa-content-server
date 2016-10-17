@@ -63,7 +63,7 @@ module.exports = function (config) {
         SELF,
         DATA,
         GRAVATAR,
-        PROFILE_IMAGES_SERVER,
+        PROFILE_IMAGES_SERVER
       ]),
       mediaSrc: [BLOB],
       objectSrc: [NONE],
