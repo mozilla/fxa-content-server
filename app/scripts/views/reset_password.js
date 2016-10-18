@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
+  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormView = require('views/form');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
@@ -84,7 +85,8 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     PasswordResetMixin,
-    ServiceMixin
+    ServiceMixin,
+    FlowBeginMixin
   );
 
   module.exports = View;

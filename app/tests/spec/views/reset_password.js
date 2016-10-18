@@ -37,7 +37,8 @@ define(function (require, exports, module) {
         formPrefill: formPrefill,
         metrics: metrics,
         notifier: notifier,
-        relier: relier
+        relier: relier,
+        viewName: 'reset_password',
       }, options || {});
       return new View(viewOptions);
     }
@@ -93,6 +94,36 @@ define(function (require, exports, module) {
         it('converts the `learn more` link', function () {
           assert.lengthOf(view.$('.visible-url'), 1);
         });
+      });
+    });
+
+    describe('afterRender', function () {
+      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+
+      beforeEach(function () {
+        $('body').data('flowId', FLOW_ID);
+        $('body').data('flowBegin', -1);
+        sinon.spy(metrics, 'setFlowEventMetadata');
+        sinon.spy(metrics, 'logFlowBegin');
+        return view.afterRender();
+      });
+
+      it('called metrics.setFlowEventMetadata correctly', function () {
+        assert.equal(metrics.setFlowEventMetadata.callCount, 1);
+        var args = metrics.setFlowEventMetadata.args[0];
+        assert.lengthOf(args, 1);
+        assert.lengthOf(Object.keys(args[0]), 2);
+        assert.equal(args[0].flowId, FLOW_ID);
+        assert.equal(args[0].flowBeginTime, -1);
+      });
+
+      it('called metrics.logFlowBegin correctly', function () {
+        assert.equal(metrics.logFlowBegin.callCount, 1);
+        var args = metrics.logFlowBegin.args[0];
+        assert.lengthOf(args, 3);
+        assert.equal(args[0], FLOW_ID);
+        assert.equal(args[1], -1);
+        assert.equal(args[2], 'reset_password');
       });
     });
 
