@@ -176,7 +176,7 @@ define(function (require, exports, module) {
               success: t('Account verified successfully')
             });
           } else {
-            this.navigate('reset_password_complete');
+            this.navigate('reset_password_confirmed');
           }
         });
     },
