@@ -148,7 +148,8 @@ define(function (require, exports, module) {
     },
 
     _suggestSignUp (err) {
-      err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+      err.forceMessage = t('Unknown Firefox Account. To retrieve your Add-on data for that account,') +
+                           t('<a href="/signup">sign up</a> for a Firefox Account using the same email address.');
       return this.displayErrorUnsafe(err);
     },
 
