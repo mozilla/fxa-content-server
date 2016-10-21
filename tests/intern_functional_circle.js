@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  './intern'
-], function (intern) {
+  './intern',
+  './ci/select_circle_tests'
+], function (intern, selectCircleTests) {
 
-  intern.functionalSuites = [
+  intern.functionalSuites = selectCircleTests([
     'tests/functional/sign_in',
     'tests/functional/sign_in_cached',
+    'tests/functional/sign_in_blocked',
     'tests/functional/sync_sign_in',
     'tests/functional/sign_up',
     'tests/functional/complete_sign_up',
@@ -41,7 +43,7 @@ define([
     'tests/functional/back_button_after_start',
     'tests/functional/cookies_disabled',
     'tests/functional/password_visibility'
-  ];
+  ]);
 
   return intern;
 });

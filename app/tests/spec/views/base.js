@@ -582,6 +582,7 @@ define(function (require, exports, module) {
 
     describe('focus', () => {
       it('focuses an element, sets the cursor position', (done) => {
+        $('html').addClass('no-touch');
         requiresFocus(() => {
           // webkit fails unless focusing another element first.
           $('#otherElement').focus();
@@ -920,6 +921,16 @@ define(function (require, exports, module) {
 
       it('checkAuthorization is called on window focus', function () {
         assert.equal(view.checkAuthorization.callCount, 1);
+      });
+    });
+
+    describe('getSearchParams', () => {
+      it('returns an object representation of window.location.search', () => {
+        const searchString = '?search=1';
+
+        windowMock.location.search = searchString;
+        const searchParams = view.getSearchParams();
+        assert.equal(searchParams.search, '1');
       });
     });
   });

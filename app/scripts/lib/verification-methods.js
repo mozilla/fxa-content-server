@@ -12,7 +12,8 @@ define(function (require, exports, module) {
   'use strict';
 
   return {
-    EMAIL: 'email'
+    EMAIL: 'email',
+    EMAIL_CAPTCHA: 'email-captcha'
   };
 });
 
