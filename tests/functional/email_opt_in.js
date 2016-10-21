@@ -97,6 +97,8 @@ define([
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
         .then(testOptedIn())
         .then(click('#marketing-email-optin'))
+        .then(FunctionalHelpers.openExternalSite(this))
+        .switchToWindow('newwindow')
         .then(testSuccessWasShown(this))
 
         // ensure the opt-out sticks across refreshes
@@ -142,6 +144,8 @@ define([
 
         .then(Test.noElementByCssSelector(this, '#preferences-url'))
         .then(click('#marketing-email-optin'))
+        .then(FunctionalHelpers.openExternalSite(this))
+        .switchToWindow('newwindow')
         .then(testSuccessWasShown(this))
         .then(waitForBasket(email))
 
