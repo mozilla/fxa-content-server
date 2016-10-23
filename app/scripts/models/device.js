@@ -20,7 +20,8 @@ define(function (require, exports, module) {
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
       name: null,
-      type: null
+      type: null,
+      isDevice: true
     },
 
     destroy () {
