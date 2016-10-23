@@ -17,11 +17,11 @@ define(function (require, exports, module) {
       clientType: Constants.CLIENT_TYPE_DEVICE,
       id: null,
       isCurrentDevice: null,
+      isDevice: true,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
       name: null,
-      type: null,
-      isDevice: true
+      type: null
     },
 
     destroy () {
