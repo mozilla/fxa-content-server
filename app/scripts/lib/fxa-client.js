@@ -403,6 +403,8 @@ define(function (require, exports, module) {
         clientOptions.resume = options.resume;
       }
 
+      setMetricsContext(clientOptions, options);
+
       return client.passwordForgotResendCode(
         email,
         passwordForgotToken,
@@ -410,18 +412,22 @@ define(function (require, exports, module) {
       );
     }),
 
-    completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier) => {
+    completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier, options = {}) => {
       const email = trim(originalEmail);
 
-      return client.passwordForgotVerifyCode(code, token)
+      var clientOptions = {
+        keys: wantsKeys(relier),
+        sessionToken: true
+      };
+
+      setMetricsContext(clientOptions, options);
+
+      return client.passwordForgotVerifyCode(code, token, clientOptions)
         .then(result => {
           return client.accountReset(email,
             newPassword,
             result.accountResetToken,
-            {
-              keys: wantsKeys(relier),
-              sessionToken: true
-            }
+            clientOptions
           );
         })
         .then(accountData => {

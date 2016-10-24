@@ -702,7 +702,9 @@ define(function (require, exports, module) {
         token,
         code,
         relier,
-        this._metrics.getFlowEventMetadata()
+        {
+          metricsContext: this._metrics.getFlowEventMetadata()
+        }
       )
       .then(this.set.bind(this));
     },
