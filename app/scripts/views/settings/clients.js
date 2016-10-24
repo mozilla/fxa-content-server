@@ -19,17 +19,17 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings/clients');
   const Url = require('lib/url');
 
-  var DEVICE_REMOVED_ANIMATION_MS = 150;
-  var UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
-  var DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
-  var FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
-  var FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
+  const DEVICE_REMOVED_ANIMATION_MS = 150;
+  const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
+  const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
+  const FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
+  const FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
     '?campaign=fxa-devices-page&adgroup=android&creative=button';
-  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
+  const FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
     'campaign=fxa-devices-page&adgroup=ios&creative=button' +
     '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
-  var FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
-  var FORCE_APPS_LIST_VIEW = 'forceAppsList';
+  const FORCE_DEVICE_LIST_VIEW = 'forceDeviceList';
+  const FORCE_APPS_LIST_VIEW = 'forceAppsList';
 
   var View = FormView.extend({
     template: Template,
