@@ -27,7 +27,13 @@
             <div class="last-connected">{{lastAccessTimeFormatted}}</div>
             {{/isCurrentDevice}}
             <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">
-            {{#isDevice}}{{#t}}Disconnect…{{/t}}{{/isDevice}}{{^isDevice}}{{#t}}Disconnect{{/t}}{{/isDevice}}</button>
+            {{#isDevice}}
+              {{#t}}Disconnect…{{/t}}
+            {{/isDevice}}
+            {{^isDevice}}
+              {{#t}}Disconnect{{/t}}
+            {{/isDevice}}
+            </button>
           </li>
         {{/clients}}
         <a href="{{devicesSupportUrl}}">{{#t}}Missing or duplicate items?{{/t}}</a>
