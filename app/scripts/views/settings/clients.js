@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
   const DEVICES_SUPPORT_URL = 'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
-  const FIREFOX_DOWNLOAD_LINK = 'https://www.mozilla.org/firefox/new/' + UTM_PARAMS;
   const FIREFOX_ANDROID_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc' +
     '?campaign=fxa-devices-page&adgroup=android&creative=button';
   const FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
@@ -68,17 +67,13 @@ define(function (require, exports, module) {
 
       return {
         clients: this._formatAccessTime(clients),
-        clientsPanelManageString: this._getManageString(),
         clientsPanelTitle: this._getPanelTitle(),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelEnabled: this._isPanelEnabled(),
         isPanelOpen: this.isPanelOpen(),
         linkAndroid: FIREFOX_ANDROID_DOWNLOAD_LINK,
         linkIOS: FIREFOX_IOS_DOWNLOAD_LINK,
-        linkLinux: FIREFOX_DOWNLOAD_LINK,
-        linkOSX: FIREFOX_DOWNLOAD_LINK,
-        linkWindows: FIREFOX_DOWNLOAD_LINK,
-        showMobileApps: ! this._hasMobileDevices(clients)
+        showMobileApps: ! this._showMobileApps(clients)
       };
     },
 
@@ -98,14 +93,20 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Returns true if the clients collection has mobile devices
+     * Returns true if we should show mobile app placeholders
      *
-     * @param {Array} clients - array of attached clients
+     * @param {Client[]} clients - array of attached clients
      * @returns {Boolean}
      * @private
      */
-    _hasMobileDevices (clients) {
-      return _.find(clients, function (client) {
+    _showMobileApps (clients) {
+      if (! this.broker.hasCapability('convertExternalLinksToText')) {
+        // if we cannot show links exit out early
+        return false;
+      }
+
+      // we would show mobile apps if there are no mobile clients
+      return ! _.some(clients, function (client) {
         return client.type === 'mobile';
       });
     },
@@ -115,16 +116,6 @@ define(function (require, exports, module) {
 
       if (this._isAppsListVisible()) {
         title = t('Devices & apps');
-      }
-
-      return title;
-    },
-
-    _getManageString () {
-      var title = t('You can manage your devices below.');
-
-      if (this._isAppsListVisible()) {
-        title = t('You can manage your devices and apps below.');
       }
 
       return title;

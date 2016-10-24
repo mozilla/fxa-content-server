@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   var _ = require ('underscore');
   const Able = require('lib/able');
   const assert = require('chai').assert;
+  const BaseBroker = require('models/auth_brokers/base');
   const BaseView = require('views/base');
   const AttachedClients = require('models/attached-clients');
   const Metrics = require('lib/metrics');
@@ -28,6 +29,7 @@ define(function (require, exports, module) {
     var view;
     var able;
     var account;
+    var broker;
     var email;
     var metrics;
 
@@ -35,6 +37,7 @@ define(function (require, exports, module) {
       view = new View({
         able: able,
         attachedClients: attachedClients,
+        broker: broker,
         metrics: metrics,
         notifier: notifier,
         parentView: parentView,
@@ -64,6 +67,7 @@ define(function (require, exports, module) {
       sinon.stub(able, 'choose', function () {
         return true;
       });
+      broker = new BaseBroker();
       metrics = new Metrics();
       notifier = new Notifier();
       parentView = new BaseView();
@@ -191,7 +195,7 @@ define(function (require, exports, module) {
       });
 
       it('adds new device to list', function () {
-        assert.lengthOf(view.$('li.client'), 3);
+        assert.lengthOf(view.$('li.client-device'), 3);
         assert.include(view.$('#device-3 .client-name').text().trim(), 'delta');
         assert.include(view.$('#device-3 .client-name').attr('title'), 'delta', 'the title attr is correct');
         assert.isTrue(view.$('#device-3 .last-connected').text().trim().indexOf('Last active') === 0, 'formats last active string');
@@ -210,7 +214,7 @@ define(function (require, exports, module) {
       });
 
       it('removes device from list', function () {
-        assert.lengthOf(view.$('li.client'), 1);
+        assert.lengthOf(view.$('li.client-device'), 1);
         assert.lengthOf(view.$('#device-2'), 1);
       });
     });

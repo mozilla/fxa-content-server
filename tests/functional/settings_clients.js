@@ -156,9 +156,7 @@ define([
         )
 
         // external update should show in the device list
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
         // external text change is hard to track, use pollUntil
         .then(FunctionalHelpers.pollUntil(function (newName) {
@@ -203,9 +201,7 @@ define([
           return numberOfDevices === 1 ? true : null;
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
-        .findByCssSelector('.clients-refresh')
-          .click()
-        .end()
+        .then(click('.clients-refresh'))
 
         // should still have 1 device after refresh
         .then(FunctionalHelpers.pollUntil(function (newName) {
@@ -215,9 +211,7 @@ define([
         }, [ TEST_DEVICE_NAME_UPDATED ], 10000))
 
         // clicking disconnect on the current device should sign you out
-        .findByCssSelector('.client-device:nth-child(1) .client-disconnect')
-          .click()
-        .end()
+        .then(click('.client-device:nth-child(1) .client-disconnect'))
 
         .then(click('select.disconnect-reasons > option[value="lost"]'))
         // wait until button is enabled
