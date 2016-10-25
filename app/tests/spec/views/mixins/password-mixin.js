@@ -6,14 +6,13 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const assert = require('chai').assert;
+  const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const PasswordMixin = require('views/mixins/password-mixin');
-  const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const TestTemplate = require('stache!templates/test_template');
@@ -31,75 +30,47 @@ define(function (require, exports, module) {
 
   describe('views/mixins/password-mixin', function () {
     let metrics;
-    let relier;
     let view;
     let windowMock;
 
     beforeEach(function () {
-      relier = new Relier();
       metrics = new Metrics();
       windowMock = new WindowMock();
 
       view = new PasswordView({
         metrics: metrics,
         notifier: new Notifier(),
-        relier: relier,
         viewName: 'password-view',
         window: windowMock
       });
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
-    afterEach(function () {
-      $('#container').empty();
-    });
-
-    describe('afterVisible', function () {
+    describe('afterRender', function () {
       it('notifier not called by default', function () {
         sinon.spy(view.notifier, 'trigger');
-        view.afterVisible();
+        view.afterRender();
         assert.isFalse(view.notifier.trigger.called);
       });
 
       it('notifier called if part of an experiment', function () {
         sinon.spy(view.notifier, 'trigger');
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-        view.afterVisible();
+        sinon.stub(view, 'isInExperiment', () => true );
+        view.afterRender();
         assert.isTrue(view.notifier.trigger.called);
       });
 
-      it('hides show password button if part of an experiment', function () {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
+      it('checks whether `show` should be added to each password element', () => {
+        sinon.stub(view, 'isInExperiment', () => true );
+        sinon.spy(view, '_shouldCreateShowPasswordLabel');
 
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return true;
-        });
-        view.afterVisible();
-        assert.isTrue(view.$('.show-password-label').is(':hidden'));
-      });
-
-      it('shows show password button if part of an experiment control', function () {
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return false;
-        });
-        view.afterVisible();
-        assert.isFalse(view.$('.show-password-label').is(':hidden'));
+        view.afterRender();
+        assert.equal(view._shouldCreateShowPasswordLabel.callCount, 4);
       });
     });
 
-    describe('onPasswordMouseDown', function () {
+    describe('onShowPasswordMouseDown', function () {
       it('tracks the experiment click ', function () {
         sinon.stub(view, 'isInExperiment', function () {
           return true;
@@ -110,97 +81,8 @@ define(function (require, exports, module) {
         });
         sinon.spy(view.notifier, 'trigger');
 
-        view.afterVisible();
-        view.$('.show-password-label').trigger('mousedown');
+        view.onShowPasswordMouseDown({ target: view.$('.show-password-label').get(0) });
         assert.isTrue(view.notifier.trigger.calledWith('showPassword.clicked'));
-      });
-    });
-
-    describe('setPasswordVisibility', () => {
-      it('to visible', () => {
-        const $passwordEl = view.$('#password');
-        $passwordEl.val('password').focus();
-
-        view.setPasswordVisibility('#password', true);
-
-        assert.equal($passwordEl.attr('type'), 'text');
-        assert.equal($passwordEl.attr('autocapitalize'), 'off');
-        assert.equal($passwordEl.attr('autocorrect'), 'off');
-
-        // Ensure the show password state stays in sync
-        const $showPasswordEl = $passwordEl.siblings('.show-password');
-        assert.isTrue($showPasswordEl.is(':checked'));
-      });
-
-      it('to hidden', () => {
-        view.setPasswordVisibility('#password', false);
-
-        const $passwordEl = view.$('#password');
-        assert.equal($passwordEl.attr('autocomplete'), null);
-        assert.equal($passwordEl.attr('autocapitalize'), null);
-        assert.equal($passwordEl.attr('autocorrect'), null);
-
-        // Ensure the show password state stays in sync
-        const $showPasswordEl = $passwordEl.siblings('.show-password');
-        assert.isFalse($showPasswordEl.is(':checked'));
-      });
-    });
-
-    describe('clicking on unsynched/synched show buttons', function () {
-      it('gets password inputs to be shown', function () {
-        let targets = view.getAffectedPasswordInputs('#show-password');
-        assert.equal(targets.length, 1);
-
-        view.$('#show-password').data('synchronize-show', 'true');
-        targets = view.getAffectedPasswordInputs('#show-password');
-        assert.equal(targets.length, 2);
-      });
-    });
-
-    describe('show button', () => {
-      describe('with mouse events', () => {
-        it('pw field set to text on mousedown', () => {
-          view.$('.show-password-label').trigger('mousedown');
-          assert.equal(view.$('#password').attr('type'), 'text');
-          assert.equal(view.$('#vpassword').attr('type'), 'text');
-        });
-
-        it('pw field set to password on mouseup', () => {
-          view.$('.show-password-label').trigger('mousedown');
-          $(windowMock).trigger('mouseup');
-
-          assert.equal(view.$('#password').attr('type'), 'password');
-          assert.equal(view.$('#vpassword').attr('type'), 'password');
-        });
-      });
-
-      describe('with touch events', () => {
-        it('pw field set to text on touchstart', () => {
-          view.$('.show-password-label').trigger('touchstart');
-          assert.equal(view.$('#password').attr('type'), 'text');
-          assert.equal(view.$('#vpassword').attr('type'), 'text');
-        });
-
-        it('pw field set to password on touchend', () => {
-          view.$('.show-password-label').trigger('touchstart');
-          $(windowMock).trigger('touchend');
-
-          assert.equal(view.$('#password').attr('type'), 'password');
-          assert.equal(view.$('#vpassword').attr('type'), 'password');
-        });
-      });
-
-      it('logs whether the password is shown or hidden', function () {
-        view.$('.show-password-label').trigger('mousedown');
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          'password-view.password.visible'));
-        // the password has not been hidden yet.
-        assert.isFalse(TestHelpers.isEventLogged(metrics,
-                          'password-view.password.hidden'));
-
-        $(windowMock).trigger('mouseup');
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          'password-view.password.hidden'));
       });
     });
 
@@ -232,33 +114,104 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('updateShowPasswordLabelVisibility', () => {
-      it('hides the show password label if there is no text in the password field', () => {
+    describe('show password visibility', () => {
+      it('no `show password` if password field is empty', () => {
         const $passwordField = view.$('#password');
-        const $showPasswordLabel = view.$('#password ~ .show-password-label');
-        let e = $.Event('keyup');
-        e.target = $passwordField;
-
         $passwordField.val('');
-        // check for keyup
-        $showPasswordLabel.removeClass('hidden');
-        view.onPasswordKeyUp(e);
-        assert.isTrue($showPasswordLabel.hasClass('hidden'));
+        view.onPasswordKeyUp({ target: $passwordField.get(0) });
+
+        const $showPasswordLabel = view.$('#password ~ .show-password-label');
+        assert.lengthOf($showPasswordLabel, 0);
       });
 
-      it('shows the show password label if there is text in the password field', () => {
+      it('adds `show password` if password field contains entry', () => {
         const $passwordField = view.$('#password');
-        const $showPasswordLabel = view.$('#password ~ .show-password-label');
-        let e = $.Event('keyup');
-        e.target = $passwordField;
-
         $passwordField.val('asdf');
-        // check for keyup
-        $showPasswordLabel.removeClass('hidden');
-        view.onPasswordKeyUp(e);
+        view.onPasswordKeyUp({ target: $passwordField.get(0) });
+
+        const $showPasswordLabel = view.$('#password ~ .show-password-label');
         assert.isFalse($showPasswordLabel.hasClass('hidden'));
       });
     });
+
+    describe('show/hide button behavior', () => {
+      beforeEach(() => {
+        // ensure the password field contains text
+        const $passwordField = view.$('#password');
+        $passwordField.val('asdf');
+        view.onPasswordKeyUp({ target: $passwordField.get(0) });
+      });
+
+      it('works with mouse events', () => {
+        view.$('#password ~ .show-password-label').trigger('mousedown');
+        assert.equal(view.$('#password').attr('type'), 'text');
+
+        $(windowMock).trigger('mouseup');
+
+        assert.equal(view.$('#password').attr('type'), 'password');
+      });
+
+      it('works with touch events', () => {
+        view.$('.show-password-label').trigger('touchstart');
+        assert.equal(view.$('#password').attr('type'), 'text');
+
+        $(windowMock).trigger('touchend');
+
+        assert.equal(view.$('#password').attr('type'), 'password');
+      });
+
+      it('logs whether the password is shown or hidden', function () {
+        view.$('.show-password-label').trigger('mousedown');
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          'password-view.password.visible'));
+        // the password has not been hidden yet.
+        assert.isFalse(TestHelpers.isEventLogged(metrics,
+                          'password-view.password.hidden'));
+
+        $(windowMock).trigger('mouseup');
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          'password-view.password.hidden'));
+      });
+
+      it('showPassword shows a password', () => {
+        const $passwordEl = view.$('#password');
+        $passwordEl.val('password');
+
+        view.showPassword('#password');
+
+        assert.equal($passwordEl.attr('type'), 'text');
+        assert.equal($passwordEl.attr('autocapitalize'), 'off');
+        assert.equal($passwordEl.attr('autocorrect'), 'off');
+
+        // Ensure the show password state stays in sync
+        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        assert.isTrue($showPasswordEl.is(':checked'));
+      });
+
+      it('hidePassword hides a visible password', () => {
+        view.showPassword('#password');
+        view.hidePassword('#password');
+
+        const $passwordEl = view.$('#password');
+        assert.equal($passwordEl.attr('autocomplete'), null);
+        assert.equal($passwordEl.attr('autocapitalize'), null);
+        assert.equal($passwordEl.attr('autocorrect'), null);
+
+        // Ensure the show password state stays in sync
+        const $showPasswordEl = $passwordEl.siblings('.show-password');
+        assert.isFalse($showPasswordEl.is(':checked'));
+      });
+
+      it('getAffectedPasswordInputs - gets all affected inputs', function () {
+        let targets = view.getAffectedPasswordInputs('#show-password');
+        assert.equal(targets.length, 1);
+
+        view.$('#show-password').data('synchronize-show', 'true');
+        targets = view.getAffectedPasswordInputs('#show-password');
+        assert.equal(targets.length, 2);
+      });
+    });
+
 
     describe('hideVisiblePasswords', () => {
       it('sets all password fields to type `password`', () => {
@@ -267,7 +220,7 @@ define(function (require, exports, module) {
         assert.equal($passwordEls.length, 2);
 
         $passwordEls.each((index, el) => {
-          view.setPasswordVisibility(el, true);
+          view.showPassword(el);
           assert.equal(el.type, 'text');
         });
 

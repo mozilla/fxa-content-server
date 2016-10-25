@@ -15,8 +15,10 @@ define([
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
+  var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
+  var testElementExists = FunctionalHelpers.testElementExists;
   var type = FunctionalHelpers.type;
 
   registerSuite({
@@ -29,15 +31,18 @@ define([
     'show password ended with mouseup': function () {
       return this.remote
         .then(openPage(this, SIGNIN_URL, '#fxa-signin-header'))
-        .then(type('#password', 'password'))
+        // show-password button only appears once user types in a character.
+        .then(noSuchElement(this, '.show-password-label'))
+        .then(type('#password', 'p'))
+        .then(testElementExists('.show-password-label'))
 
-        // turn it into a text field
+        // turn password field into a text field
         .then(mousedown('.show-password-label'))
 
         .then(testAttributeEquals('#password', 'type', 'text'))
         .then(testAttributeEquals('#password', 'autocomplete', 'off'))
 
-        // turn it back into a password field
+        // turn text field back into a password field
         .then(mouseup('.show-password-label'))
 
         .then(testAttributeEquals('#password', 'type', 'password'))
