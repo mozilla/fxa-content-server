@@ -8,8 +8,8 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormView = require('views/form');
+  const Flow = require('models/flow');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
@@ -23,6 +23,11 @@ define(function (require, exports, module) {
 
     initialize (options) {
       options = options || {};
+
+      this.flow = new Flow({
+        sentryMetrics: this.sentryMetrics,
+        window: this.window
+      });
 
       this._formPrefill = options.formPrefill;
     },
@@ -85,8 +90,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     PasswordResetMixin,
-    ServiceMixin,
-    FlowBeginMixin
+    ServiceMixin
   );
 
   module.exports = View;
