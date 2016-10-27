@@ -17,6 +17,9 @@
       margin-bottom: 10px;
       padding: 5px;
     }
+    span {
+      font-size: 14px;
+    }
   }
 
   @include respond-to('big') {
