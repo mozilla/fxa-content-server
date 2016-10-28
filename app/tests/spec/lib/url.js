@@ -134,20 +134,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('removeParamFromSearchString', function () {
-      it('removes a param', function () {
-        assert.equal(Url.removeParamFromSearchString('foo', '?foo=one&bar=two'), '?bar=two');
-      });
-
-      it('returns the same string if param is not included', function () {
-        assert.equal(Url.removeParamFromSearchString('foo', '?bar=one&baz=two'), '?bar=one&baz=two');
-      });
-
-      it('does not explode if no query params exist', function () {
-        assert.equal(Url.removeParamFromSearchString('foo', ''), '');
-      });
-    });
-
     describe('updateSearchString', function () {
       it('adds new params while leaving the old ones intact', function () {
         var updated = Url.updateSearchString('?foo=one', {
@@ -170,6 +156,18 @@ define(function (require, exports, module) {
           foo: 'one'
         });
         assert.equal(updated, 'http://example.com?bar=two&foo=one');
+      });
+    });
+
+    describe('cleanSearchString', () => {
+      it('removes any undeclared search parameters', () => {
+        const cleanedSearchString = Url.cleanSearchString(
+          'https://accounts.firefox.com/?allowed=true&notAllowed=false',
+          [ 'allowed' ]
+        );
+
+        assert.equal(
+          cleanedSearchString, 'https://accounts.firefox.com/?allowed=true');
       });
     });
   });

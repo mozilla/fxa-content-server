@@ -90,12 +90,6 @@ define(function (require, exports, module) {
       return origin;
     },
 
-    removeParamFromSearchString (name, str) {
-      const params = this.searchParams(str);
-      delete params[name];
-      return this.objToSearchString(params);
-    },
-
     updateSearchString (uri, newParams) {
       let params = {};
       const startOfParams = uri.indexOf('?');
@@ -105,6 +99,21 @@ define(function (require, exports, module) {
       }
       _.extend(params, newParams);
       return uri + this.objToSearchString(params);
+    },
+
+    /**
+     * Clean the search string by only allowing search parameters declared in
+     * `allowedFields`
+     *
+     * @param {String} uri - uri with search string to clean.
+     * @param {String[]} allowedFields - list of allowed fields.
+     * @returns {String}
+     */
+    cleanSearchString (uri, allowedFields) {
+      const [ base, search ] = uri.split('?');
+      const cleanedQueryParams =
+        this.searchParams(search, allowedFields);
+      return base + this.objToSearchString(cleanedQueryParams);
     }
   };
 });
