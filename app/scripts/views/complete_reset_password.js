@@ -9,13 +9,12 @@ define(function (require, exports, module) {
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FormView = require('views/form');
-  const Flow = require('models/flow');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const Notifier = require('lib/channels/notifier');
   const PasswordMixin = require('views/mixins/password-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const PasswordStrengthMixin = require('views/mixins/password-strength-mixin');
   const ResendMixin = require('views/mixins/resend-mixin');
-  const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/complete_reset_password');
   const { t } = require('views/base');
@@ -29,19 +28,6 @@ define(function (require, exports, module) {
 
     initialize (options) {
       options = options || {};
-
-      this.flow = new Flow({
-        sentryMetrics: this.sentryMetrics,
-        window: this.window
-      });
-
-      const flowId = this.flow.get('flowId');
-      const flowBegin = this.flow.get('flowBegin');
-
-      this.metrics.setFlowEventMetadata({
-        flowBeginTime: flowBegin,
-        flowId: flowId
-      });
 
       var searchParams = Url.searchParams(this.window.location.search);
       this._verificationInfo = new VerificationInfo(searchParams);
@@ -179,11 +165,11 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     FloatingPlaceholderMixin,
+    FlowEventsMixin,
     PasswordMixin,
     PasswordResetMixin,
     PasswordStrengthMixin,
     ResendMixin,
-    ResumeTokenMixin,
     ServiceMixin
   );
 

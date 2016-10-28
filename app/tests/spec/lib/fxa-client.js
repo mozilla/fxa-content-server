@@ -767,9 +767,14 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `metricsContext`', function () {
-        return client.passwordReset(email, relier, { metricsContext: {}, resume: resumeToken })
+        var options = {
+          metricsContext: {},
+          resume: resumeToken
+        };
+
+        return client.passwordReset(email, relier, options)
           .then(function () {
-            return client.passwordResetResend(email, passwordForgotToken, relier, { metricsContext: {}, resume: resumeToken });
+            return client.passwordResetResend(email, passwordForgotToken, relier, options);
           })
           .then(function () {
             var params = {
@@ -841,12 +846,15 @@ define(function (require, exports, module) {
       });
 
       it('passes along an optional `metricsContext`', function () {
-        var metricsContext = {};
-        return client.completePasswordReset(email, password, token, code, relier, { metricsContext: metricsContext})
-          .then(function (sessionData) {
+        var options = {
+          metricsContext: {}
+        };
+
+        return client.completePasswordReset(email, password, token, code, relier, options)
+          .then(function () {
             var params = {
               keys: relier.wantsKeys(),
-              metricsContext: metricsContext,
+              metricsContext: options.metricsContext,
               sessionToken: true
             };
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
