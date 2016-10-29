@@ -415,19 +415,20 @@ define(function (require, exports, module) {
     completePasswordReset: withClient((client, originalEmail, newPassword, token, code, relier, options = {}) => {
       const email = trim(originalEmail);
 
-      var clientOptions = {
+      var accountResetOptions = {
         keys: wantsKeys(relier),
         sessionToken: true
       };
 
-      setMetricsContext(clientOptions, options);
+      var passwordVerifyCodeOptions = {};
+      setMetricsContext(passwordVerifyCodeOptions, options);
 
-      return client.passwordForgotVerifyCode(code, token, clientOptions)
+      return client.passwordForgotVerifyCode(code, token, passwordVerifyCodeOptions)
         .then(result => {
           return client.accountReset(email,
             newPassword,
             result.accountResetToken,
-            clientOptions
+            accountResetOptions
           );
         })
         .then(accountData => {

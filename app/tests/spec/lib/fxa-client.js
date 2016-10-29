@@ -853,9 +853,7 @@ define(function (require, exports, module) {
         return client.completePasswordReset(email, password, token, code, relier, options)
           .then(function () {
             var params = {
-              keys: relier.wantsKeys(),
-              metricsContext: options.metricsContext,
-              sessionToken: true
+              metricsContext: options.metricsContext
             };
             assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
               code, token, params));
