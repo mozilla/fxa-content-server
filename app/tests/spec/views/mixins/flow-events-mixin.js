@@ -62,10 +62,6 @@ define((require, exports, module) => {
         it('did not call metrics.logFlowBegin', () => {
           assert.strictEqual(flowEventsMixin.metrics.logFlowBegin.callCount, 0);
         });
-
-        it('did not call flow.logError', () => {
-          assert.strictEqual(flowEventsMixin.flow.logError.callCount, 0);
-        });
       });
     });
   });
