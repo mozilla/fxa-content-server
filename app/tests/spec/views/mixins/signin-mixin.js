@@ -67,6 +67,8 @@ define(function (require, exports, module) {
           }),
           logEvent: sinon.spy(),
           logEventOnce: sinon.spy(),
+          logFlowEvent: sinon.spy(),
+          logFlowEventOnce: sinon.spy(),
           logViewEvent: sinon.spy(),
           model: model,
           navigate: sinon.spy(),
@@ -194,7 +196,11 @@ define(function (require, exports, module) {
           assert.isTrue(
             user.signInAccount.calledWith(account, 'password', relier));
           assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
-          assert.equal(view.logEvent.args[0], 'flow.signin.submit', 'correct submit event');
+          assert.equal(view.logFlowEvent.callCount, 1);
+          const args = view.logFlowEvent.args[0];
+          assert.lengthOf(args, 2);
+          assert.equal(args[0], 'submit');
+          assert.equal(args[1], 'signin');
         });
 
         it('calls view.navigate correctly', function () {

@@ -49,6 +49,8 @@ define(function (require, exports, module) {
           }),
           logEvent: sinon.spy(),
           logEventOnce: sinon.spy(),
+          logFlowEvent: sinon.spy(),
+          logFlowEventOnce: sinon.spy(),
           logViewEvent: sinon.spy(),
           navigate: sinon.spy(),
           onSignUpSuccess: SignUpMixin.onSignUpSuccess,

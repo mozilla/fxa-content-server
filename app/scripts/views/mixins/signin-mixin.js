@@ -34,7 +34,7 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signIn (account, password, options = {}) {
-      this.logEvent(`flow.${this.signInSubmitContext}.submit`);
+      this.logFlowEvent('submit', this.signInSubmitContext);
 
       if (! account ||
             account.isDefault() ||
@@ -152,14 +152,14 @@ define(function (require, exports, module) {
         if (target === 'have-account') {
           // if the user clicks on 'have-account' we count that as flow event instead of the 'engage' event.
           // Details: https://github.com/mozilla/fxa-content-server/pull/4221
-          this.logEvent('flow.have-account');
+          this.logFlowEvent('have-account');
           return;
         }
       }
 
       // user has engaged with the sign in, sign up or force auth form
       // the flow event will be different depending on the view name
-      this.logEventOnce(`flow.${this.viewName}.engage`);
+      this.logFlowEvent('engage', this.viewName);
     }
   };
 });

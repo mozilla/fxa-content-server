@@ -80,23 +80,11 @@ function optionallyLogFlowEvents (req, metrics, requestReceivedTime) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
     } else {
-      event.time = estimateTime({
-        /*eslint-disable sorting/sort-object-props*/
-        start: metrics.startTime,
-        offset: event.offset,
-        sent: metrics.flushTime,
-        received: requestReceivedTime
-        /*eslint-enable sorting/sort-object-props*/
-      });
+      event.time = requestReceivedTime;
       event.flowTime = event.time - metrics.flowBeginTime;
     }
 
     flowEvent(event, metrics, req);
   });
-}
-
-function estimateTime (times) {
-  var skew = times.received - times.sent;
-  return times.start + times.offset + skew;
 }
 

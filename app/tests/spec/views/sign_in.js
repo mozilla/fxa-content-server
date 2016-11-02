@@ -43,6 +43,7 @@ define(function (require, exports, module) {
       email = TestHelpers.createEmail();
       formPrefill = new FormPrefill();
       metrics = new Metrics();
+      metrics.flush = sinon.spy();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();
