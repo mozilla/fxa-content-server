@@ -1,3 +1,13 @@
+<a name="0.72.2"></a>
+## 0.72.2 (2016-11-02)
+
+
+### Bug Fixes
+
+* **build:** Bring back SRI. (#4353) r=vladikoff (#4358) ([f3128e9](https://github.com/mozilla/fxa-content-server/commit/f3128e9))
+
+
+
 <a name="0.72.1"></a>
 ## 0.72.1 (2016-10-20)
 
