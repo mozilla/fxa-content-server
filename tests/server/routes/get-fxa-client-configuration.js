@@ -73,7 +73,7 @@ define([
       var args = mocks.response.json.args[0];
       assert.lengthOf(args, 1);
       var resp = args[0];
-      assert.equal(resp.auth_server_base_url, 'https://accounts.firefox.com');
+      assert.equal(resp.auth_server_base_url, 'https://accounts.firefox.com/v1');
       assert.equal(resp.oauth_server_base_url, 'https://oauth.accounts.firefox.com/path/component');
       assert.equal(resp.profile_server_base_url, 'https://profile.accounts.firefox.com/path/component');
     },
@@ -136,8 +136,8 @@ define([
 
         var conf = intern.config;
         var expectAuthRoot = conf.fxaAuthRoot;
-        if (conf.fxaDevBox || ! conf.fxaProduction) {
-          expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
+        if (! (/\/v1$/).test(expectAuthRoot)) {
+          expectAuthRoot += '/v1';
         }
 
         assert.equal(result.auth_server_base_url, expectAuthRoot);
