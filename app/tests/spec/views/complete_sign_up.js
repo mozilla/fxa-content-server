@@ -420,13 +420,29 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(relier, 'isSync', () => true);
           sinon.stub(relier, 'isOAuth', () => false);
-          sinon.spy(view, '_navigateToVerifiedScreen');
-
-          return view._navigateToNextScreen();
         });
 
-        it('delegates to `_navigateToVerifiedScreen`', () => {
-          assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+        describe('user is part of experiment treatment group', () => {
+          beforeEach(() => {
+            sinon.stub(view, 'isInExperimentGroup', () => true);
+            return view._navigateToNextScreen();
+          });
+
+          it('redirects user to `/connect_another_device`', () => {
+            assert.isTrue(view.navigate.calledWith('connect_another_device'));
+          });
+        });
+
+        describe('user is not part of experiment treatment group', () => {
+          beforeEach(() => {
+            sinon.spy(view, '_navigateToVerifiedScreen');
+            sinon.stub(view, 'isInExperimentGroup', () => false);
+            return view._navigateToNextScreen();
+          });
+
+          it('delegates to `_navigateToVerifiedScreen`', () => {
+            assert.isTrue(view._navigateToVerifiedScreen.calledOnce);
+          });
         });
       });
 

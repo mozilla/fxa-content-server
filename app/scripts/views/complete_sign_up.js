@@ -67,13 +67,17 @@ define(function (require, exports, module) {
         return true;
       }
 
+      const account = this.getAccount();
+      // Loads the email from the resume token to smooth out the signin
+      // flow if the user verifies in a 2nd Firefox.
+      account.populateFromStringifiedResumeToken(this.getSearchParam('resume'));
+
       const code = verificationInfo.get('code');
       const options = {
         reminder: verificationInfo.get('reminder'),
         service: this.relier.get('service')
       };
 
-      const account = this.getAccount();
       return this.user.completeAccountSignUp(account, code, options)
         .fail((err) => this._logAndAbsorbMarketingClientErrors(err))
         .then(() => this._notifyBrokerAndComplete(account))
@@ -140,24 +144,36 @@ define(function (require, exports, module) {
       const account = this.getAccount();
       const relier = this.relier;
 
-      // If an OAuth user makes it here, they are either not signed in
-      // or are verifying in a different tab. Show the "Account
-      // verified!" screen to the user, the correct tab will have
-      // already transitioned back to the relier.
-      if (relier.isSync() || relier.isOAuth()) {
-        return p(this._navigateToVerifiedScreen());
-      } else {
-        return account.isSignedIn()
-          .then((isSignedIn) => {
-            if (isSignedIn) {
-              this.navigate('settings', {
-                success: t('Account verified successfully')
-              });
+      return p()
+        .then(() => {
+          if (relier.isSync()) {
+            if (this.isInExperimentGroup('connectAnotherDevice', 'treatment')) {
+              // Sync users that are part of the experiment group who verify
+              // are sent to "connect another device". If the experiment proves
+              // useful, all users will be sent there.
+              this.navigate('connect_another_device', { account });
             } else {
               this._navigateToVerifiedScreen();
             }
-          });
-      }
+          } else if (relier.isOAuth()) {
+            // If an OAuth user makes it here, they are either not signed in
+            // or are verifying in a different tab. Show the "Account
+            // verified!" screen to the user, the correct tab will have
+            // already transitioned back to the relier.
+            this._navigateToVerifiedScreen();
+          } else {
+            return account.isSignedIn()
+              .then((isSignedIn) => {
+                if (isSignedIn) {
+                  this.navigate('settings', {
+                    success: t('Account verified successfully')
+                  });
+                } else {
+                  this._navigateToVerifiedScreen();
+                }
+              });
+          }
+        });
     },
 
     /**
