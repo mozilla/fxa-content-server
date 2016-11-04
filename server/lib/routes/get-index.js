@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var flowMetrics = require('../flow-metrics');
-var uaParser = require('node-uap');
 
 module.exports = function (config) {
   var ALLOWED_PARENT_ORIGINS = config.get('allowed_parent_origins');
@@ -11,10 +10,6 @@ module.exports = function (config) {
   var CLIENT_ID = config.get('oauth_client_id');
   var ENV = config.get('env');
   var FLOW_ID_KEY = config.get('flow_id_key');
-  var FIREFOX_IOS_DOWNLOAD_LINK = 'https://app.adjust.com/2uo1qc?' +
-    'campaign=fxa-devices-page&adgroup=ios&creative=button' +
-    '&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8';
-  var IOS_BANNER_META = '<meta name="apple-itunes-app" content="app-id=989804926, app-argument=' + FIREFOX_IOS_DOWNLOAD_LINK + '">';
   var MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
   var MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
   var OAUTH_SERVER_URL = config.get('oauth_url');
@@ -43,7 +38,6 @@ module.exports = function (config) {
     var userAgent = req.headers['user-agent'];
     var flowEventData = flowMetrics(FLOW_ID_KEY, userAgent);
 
-    // Render options
     var renderOptions = {
       config: serializedConfig,
       flowBeginTime: flowEventData.flowBeginTime,
@@ -51,12 +45,6 @@ module.exports = function (config) {
       // Note that staticResourceUrl is added to templates as a build step
       staticResourceUrl: STATIC_RESOURCE_URL
     };
-
-    // Display Firefox iOS install banner if on compatible device
-    var agent = uaParser.parse(userAgent);
-    if (agent && agent.os.family === 'iOS') {
-      renderOptions.iOSBannerMetaTag = IOS_BANNER_META;
-    }
 
     res.render('index', renderOptions);
   };
