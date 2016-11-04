@@ -35,18 +35,15 @@ module.exports = function (config) {
   route.path = '/';
 
   route.process = function (req, res) {
-    var userAgent = req.headers['user-agent'];
-    var flowEventData = flowMetrics(FLOW_ID_KEY, userAgent);
+    var flowEventData = flowMetrics(FLOW_ID_KEY, req.headers['user-agent']);
 
-    var renderOptions = {
+    res.render('index', {
       config: serializedConfig,
       flowBeginTime: flowEventData.flowBeginTime,
       flowId: flowEventData.flowId,
       // Note that staticResourceUrl is added to templates as a build step
       staticResourceUrl: STATIC_RESOURCE_URL
-    };
-
-    res.render('index', renderOptions);
+    });
   };
 
   return route;
