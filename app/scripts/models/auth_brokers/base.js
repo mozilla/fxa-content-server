@@ -95,15 +95,6 @@ define(function (require, exports, module) {
       });
     },
 
-    /*
-     * Check if the environment supports the cancelling of the flow.
-     *
-     * @returns {Boolean}
-     */
-    canCancel () {
-      return false;
-    },
-
     /**
      * The user wants to cancel
      *
@@ -340,6 +331,10 @@ define(function (require, exports, module) {
        * uid?
        */
       allowUidChange: false,
+      /**
+       * Is cancel supported?
+       */
+      cancelAllowed: false,
       /**
        * Should the signup page show the `Choose what to sync` checkbox
        */

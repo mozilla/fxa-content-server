@@ -386,7 +386,7 @@ define(function (require, exports, module) {
     },
 
     initializeCloseButton () {
-      if (this._authenticationBroker.canCancel()) {
+      if (this._authenticationBroker.hasCapability('cancelAllowed')) {
         this._closeButton = new CloseButtonView({
           broker: this._authenticationBroker
         });
