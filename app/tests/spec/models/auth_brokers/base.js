@@ -45,13 +45,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('cancel', function () {
-      it('returns a promise', function () {
-        return broker.cancel()
-          .then(assert.pass);
-      });
-    });
-
     describe('persistVerificationData', function () {
       var verificationInfo;
 
@@ -241,6 +234,10 @@ define(function (require, exports, module) {
 
           broker.unsetCapability('other-capability');
           assert.isFalse(broker.hasCapability('other-capability'));
+        });
+
+        it('returns `false` for `cancelAllowed`', function () {
+          assert.isFalse(broker.hasCapability('cancelAllowed'));
         });
 
         it('returns `true` for `signup` by default', function () {
