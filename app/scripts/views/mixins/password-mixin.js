@@ -120,7 +120,7 @@ define(function (require, exports, module) {
       if (val < Constants.PASSWORD_MIN_LENGTH) {
         this.showPasswordHelper();
       } else {
-        this.hidePasswordHelper();
+        //this.hidePasswordHelper();
       }
     },
 

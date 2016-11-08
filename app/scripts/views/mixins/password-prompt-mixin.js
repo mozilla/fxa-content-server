@@ -17,8 +17,8 @@ define(function (require, exports, module) {
   const CHECK_PASSWORD_FIELD_SELECTOR = '.check-password';
   const INPUT_HELP_FOCUSED = '.input-help-focused';
   const TOOLTIP_MESSAGES = {
-    FOCUS_PROMPT_MESSAGE: t('8 characters minimum, but longer if you plan to sync passwords.'),
-    INITIAL_PROMPT_MESSAGE: t('A strong, unique password will keep your Firefox data safe from intruders.'),
+    FOCUS_PROMPT_MESSAGE: t('8 characters minimum, not used elsewhere, especially not your email password'),
+    INITIAL_PROMPT_MESSAGE: t('8 characters minimum, not used elsewhere, especially not your email password'),
     WARNING_PROMPT_MESSAGE: t('This is a common password; please consider another one.')
   };
 
