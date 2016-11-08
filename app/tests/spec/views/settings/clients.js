@@ -142,9 +142,6 @@ define(function (require, exports, module) {
       });
 
       it('renders attachedClients and apps if apps view enabled', function () {
-        sinon.stub(view, '_isAppsListVisible', function () {
-          return true;
-        });
         assert.equal(view.$('#clients .settings-unit-title').text().trim(), 'Devices & apps');
         assert.ok(view.$('#clients').text().trim().indexOf('manage your attachedClients and apps below'));
       });
