@@ -16,10 +16,12 @@ define([
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
   var noSuchElement = FunctionalHelpers.noSuchElement;
+  var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = thenify(FunctionalHelpers.openPage);
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
   var type = FunctionalHelpers.type;
+  var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'password visibility',
@@ -35,6 +37,7 @@ define([
         .then(noSuchElement(this, '.show-password-label'))
         .then(type('#password', 'p'))
         .then(testElementExists('.show-password-label'))
+        .then(visibleByQSA('.show-password-label'))
 
         // turn password field into a text field
         .then(mousedown('.show-password-label'))
@@ -46,7 +49,16 @@ define([
         .then(mouseup('.show-password-label'))
 
         .then(testAttributeEquals('#password', 'type', 'password'))
-        .then(testAttributeEquals('#password', 'autocomplete', null));
+        .then(testAttributeEquals('#password', 'autocomplete', null))
+
+        // \u0008 is unicode for backspace char. By default `type` clears the
+        // element value before typing, we want the character to do so.
+        .then(type('#password', '\u0008'), { clearValue: true })
+        .sleep(1000)
+        // element still exists, though it's hidden.
+        .then(testElementExists('.show-password-label'))
+        .then(noSuchElementDisplayed('.show-password-label'));
+
     }
   });
 });

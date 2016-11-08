@@ -30,7 +30,25 @@ define(function (require, exports, module) {
       if (this._isInShowPasswordExperiment()) {
         this.notifier.trigger('showPassword.triggered');
       }
+
       this._addShowPasswordLabel(this.$('input[type=password]'));
+    },
+
+    /**
+     * Add and dhow the "show password" label field if needed, hide it
+     * if not needed.
+     *
+     * @param {String|Element} passwordEls
+     */
+    _updateShowPasswordLabel (passwordEls) {
+      const $targetEl = this.$(passwordEls);
+      this._addShowPasswordLabel($targetEl);
+
+      if ($targetEl.val().length === 0) {
+        $targetEl.addClass('empty');
+      } else {
+        $targetEl.removeClass('empty');
+      }
     },
 
     /**
@@ -189,7 +207,7 @@ define(function (require, exports, module) {
     },
 
     onPasswordKeyUp (event) {
-      this._addShowPasswordLabel(event.target);
+      this._updateShowPasswordLabel(event.target);
 
       var values = [];
 
