@@ -9,11 +9,11 @@ define([
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!../../server/lib/csp',
   'intern/dojo/node!htmlparser2',
-  'intern/dojo/node!request',
+  'intern/dojo/node!got',
   'intern/dojo/node!url',
   'intern/browser_modules/dojo/Promise'
 ], function (intern, registerSuite, assert, config, csp,
-  htmlparser2, request, url, Promise) {
+  htmlparser2, got, url, Promise) {
   var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   if (intern.config.fxaProduction) {
@@ -53,7 +53,8 @@ define([
     '/oauth/signup': { statusCode: 200 },
     '/report_signin': { statusCode: 200 },
     '/reset_password': { statusCode: 200 },
-    '/reset_password_complete': { statusCode: 200 },
+    '/reset_password_confirmed': { statusCode: 200 },
+    '/reset_password_verified': { statusCode: 200 },
     '/settings': { statusCode: 200 },
     '/settings/avatar/camera': { statusCode: 200 },
     '/settings/avatar/change': { statusCode: 200 },
@@ -66,13 +67,15 @@ define([
     '/settings/delete_account': { statusCode: 200 },
     '/settings/display_name': { statusCode: 200 },
     '/signin': { statusCode: 200 },
-    '/signin_complete': { statusCode: 200 },
+    '/signin_confirmed': { statusCode: 200 },
     '/signin_permissions': { statusCode: 200 },
     '/signin_reported': { statusCode: 200 },
     '/signin_unblock': { statusCode: 200 },
+    '/signin_verified': { statusCode: 200 },
     '/signup': { statusCode: 200 },
-    '/signup_complete': { statusCode: 200 },
+    '/signup_confirmed': { statusCode: 200 },
     '/signup_permissions': { statusCode: 200 },
+    '/signup_verified': { statusCode: 200 },
     // the following have a version prefix
     '/v1/complete_reset_password': { statusCode: 200 },
     '/v1/reset_password': { statusCode: 200 },
@@ -142,14 +145,10 @@ define([
   registerSuite(suite);
 
   function makeRequest(url, requestOptions) {
-    return new Promise(function (resolve, reject) {
-      request(url, requestOptions, function (err, res) {
-        if (err) {
-          return reject(err);
-        }
-        resolve(res);
+    return got(url, requestOptions)
+      .catch(function (err) {
+        return err.response;
       });
-    });
   }
 
   function checkHeaders(route, res) {
@@ -183,7 +182,7 @@ define([
    * and fonts, that the correct CORS headers are set.
    */
   function extractAndCheckUrls(res) {
-    var href = url.parse(res.request.href);
+    var href = url.parse(res.url);
     var origin = [ href.protocol, '//', href.host ].join('');
     return extractUrls(res.body)
       .then(checkUrls.bind(null, origin));

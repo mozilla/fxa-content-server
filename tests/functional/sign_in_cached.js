@@ -28,7 +28,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var clearSessionStorage = thenify(FunctionalHelpers.clearSessionStorage);
   var click = FunctionalHelpers.click;
   var createUser = FunctionalHelpers.createUser;
@@ -51,7 +51,7 @@ define([
       email = TestHelpers.createEmail('sync{id}');
       email2 = TestHelpers.createEmail();
       return this.remote
-        .then(clearBrowserState(this, { force: true }))
+        .then(clearBrowserState({ force: true }))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(createUser(email2, PASSWORD, { preVerified: true }));
     },
@@ -219,10 +219,11 @@ define([
         // not be cleared by clicking .use-different
         .then(openPage(this, PAGE_SIGNIN, '.use-different'))
         .then(visibleByQSA('#fxa-signin-header'))
-        // need this sleep here, even with visible selectors the credentials are not cleared fast enough
-        .sleep(1500)
         // This will clear the desktop credentials
         .then(click('.use-different'))
+        // need to wait for the email field to be visible
+        // before attempting to sign-in.
+        .then(visibleByQSA('input[type=email]'))
 
         .then(fillOutSignIn(this, email2, PASSWORD))
         .then(testElementExists('#fxa-settings-header'))

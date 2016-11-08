@@ -19,6 +19,7 @@ define([
   var thenify = FunctionalHelpers.thenify;
 
   var click = FunctionalHelpers.click;
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutResetPassword = thenify(FunctionalHelpers.fillOutResetPassword);
@@ -39,12 +40,12 @@ define([
       this.timeout = 90000;
 
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     teardown: function () {
       // clear localStorage to avoid polluting other tests.
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'reset password, verify same browser': function () {
@@ -76,8 +77,7 @@ define([
         .then(noSuchBrowserNotification(this, 'fxaccounts:login'));
     },
 
-    'reset password with a gmail address, get the open gmail button': function () {
-      var email = 'signin' + Math.random() + '@gmail.com';
+    'reset password with a restmail address, get the open webmail button': function () {
       this.timeout = 90000;
 
       return this.remote
@@ -86,14 +86,17 @@ define([
         .then(fillOutResetPassword(this, email))
 
         .then(testElementExists('#fxa-confirm-reset-password-header'))
-        .then(click('[data-webmail-type="gmail"]'))
+        .then(click('[data-webmail-type="restmail"]'))
 
         .getAllWindowHandles()
           .then(function (handles) {
             return this.parent.switchToWindow(handles[1]);
           })
 
-        .then(testElementExists('.google-header-bar'))
+          // wait until url is correct
+        .then(FunctionalHelpers.pollUntil(function (email) {
+          return window.location.pathname.endsWith(email);
+        }, [email], 10000))
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-confirm-reset-password-header'));

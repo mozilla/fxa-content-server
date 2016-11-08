@@ -56,6 +56,7 @@ define(function (require, exports, module) {
 
       user = new User({
         fxaClient: fxaClient,
+        metrics: metrics,
         storage: Storage.factory('localStorage')
       });
 
@@ -446,8 +447,8 @@ define(function (require, exports, module) {
           assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
         });
 
-        it('redirects to `/reset_password_complete`', function () {
-          assert.isTrue(view.navigate.calledWith('reset_password_complete'));
+        it('redirects to `/reset_password_confirmed`', function () {
+          assert.isTrue(view.navigate.calledWith('reset_password_confirmed'));
         });
       });
 
