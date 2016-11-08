@@ -19,8 +19,8 @@ define(function (require, exports, module) {
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterSignIn: new NavigateBehavior('signin_complete'),
-      afterSignUpConfirmationPoll: new NavigateBehavior('signup_complete')
+      afterSignIn: new NavigateBehavior('signin_confirmed'),
+      afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed')
     }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -28,8 +28,8 @@ define(function (require, exports, module) {
       chooseWhatToSyncWebV1: {
         engines: Constants.DEFAULT_DECLINED_ENGINES
       },
-      emailVerificationMarketingSnippet: false,
-      syncPreferencesNotification: true
+      convertExternalLinksToText: true,
+      emailVerificationMarketingSnippet: false
     }),
 
     type: 'fx-fennec-v1'

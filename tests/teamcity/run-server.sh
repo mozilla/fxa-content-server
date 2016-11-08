@@ -80,15 +80,16 @@ node ./tests/teamcity/install-npm-deps.js \
   extend                          \
   firefox-profile                 \
   fxa-shared                      \
+  got                             \
   helmet                          \
   htmlparser2                     \
   intern                          \
   lodash                          \
   mozlog                          \
   node-statsd                     \
-  proxyquire                      \
-  request                         \
   node-uap                        \
+  proxyquire                      \
+  raven                           \
   sinon                           \
   sync-exec                       \
   universal-analytics             \

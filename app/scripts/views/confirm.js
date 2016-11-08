@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
@@ -19,7 +20,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/confirm');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  var t = BaseView.t;
+  const t = BaseView.t;
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({
@@ -54,9 +55,10 @@ define(function (require, exports, module) {
         // it will since that's what happens on a bounced email, but that's
         // a discussion for another time.
         canGoBack: isSignIn && this.canGoBack(),
-        email: email,
-        isSignIn: isSignIn,
-        isSignUp: isSignUp
+        email,
+        escapedEmail: _.escape(email),
+        isSignIn,
+        isSignUp
       };
     },
 
@@ -71,11 +73,11 @@ define(function (require, exports, module) {
       return this.broker.transformLink(screenUrl);
     },
 
-    _navigateToCompleteScreen () {
+    _navigateToConfirmedScreen () {
       if (this.isSignUp()) {
-        this.navigate('signup_complete');
+        this.navigate('signup_confirmed');
       } else {
-        this.navigate('signin_complete');
+        this.navigate('signin_confirmed');
       }
     },
 
@@ -128,7 +130,7 @@ define(function (require, exports, module) {
               success: t('Account verified successfully')
             });
           } else {
-            return this._navigateToCompleteScreen();
+            return this._navigateToConfirmedScreen();
           }
         })
         .fail((err) => {

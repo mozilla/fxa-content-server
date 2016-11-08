@@ -7,7 +7,7 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
-  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/browser_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
@@ -26,6 +26,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
   var noPageTransition = FunctionalHelpers.noPageTransition;
@@ -42,19 +43,17 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
-      var self = this;
-
-      return FunctionalHelpers.clearBrowserState(this)
+      return this.remote.then(clearBrowserState())
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the
           // bounced_email tests try to sign up using the Sync broker,
           // resulting in a channel timeout.
-          return self.remote
+          return this.parent
             .get(require.toUrl(SIGNIN_URL))
 
             .findByCssSelector('#fxa-signin-header')
@@ -244,9 +243,7 @@ define([
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
+        .then(clearBrowserState())
 
         // verify the user
         .then(function () {

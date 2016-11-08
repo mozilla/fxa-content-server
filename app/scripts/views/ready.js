@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Template = require('stache!templates/ready');
-  const Url = require('lib/url');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   const t = msg => msg;
@@ -43,7 +42,7 @@ define(function (require, exports, module) {
       headerTitle: t('Password reset'),
       readyToSyncText: FX_SYNC_WILL_BEGIN_MOMENTARILY
     },
-    // signin_complete is only shown to Sync for now.
+    // signin_confirmed and signin_verified are only shown to Sync for now.
     SIGN_IN: {
       headerId: 'fxa-sign-in-complete-header',
       headerTitle: t('Sign-in confirmed'),
@@ -81,8 +80,7 @@ define(function (require, exports, module) {
         redirectUri: this.relier.get('redirectUri'),
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
-        shouldShowProceedButton: this._shouldShowProceedButton(),
-        shouldShowSyncPreferencesButton: this._shouldShowSyncPreferencesButton()
+        shouldShowProceedButton: this._shouldShowProceedButton()
       };
     },
 
@@ -109,16 +107,7 @@ define(function (require, exports, module) {
     submit () {
       if (this._shouldShowProceedButton()) {
         return this._submitForProceed();
-      } else if (this._shouldShowSyncPreferencesButton()) {
-        return this._submitForSyncPreferences();
       }
-    },
-
-    _submitForSyncPreferences () {
-      return this.metrics.flush().then(() => {
-        var entryPoint = 'fxa:' + this.getViewName();
-        return this.broker.openSyncPreferences(entryPoint);
-      });
     },
 
     /**
@@ -135,19 +124,7 @@ define(function (require, exports, module) {
 
       return !! (this.isSignUp() &&
                  redirectUri &&
-                 Url.isNavigable(redirectUri) &&
                  verificationRedirect === Constants.VERIFICATION_REDIRECT_ALWAYS);
-    },
-
-    /**
-     * Determine whether the `Sync Preferences` button should be shown.
-     *
-     * @returns {Boolean}
-     * @private
-     */
-    _shouldShowSyncPreferencesButton () {
-      return !! (this.relier.isSync() &&
-                 this.broker.hasCapability('syncPreferencesNotification'));
     },
 
     afterRender () {

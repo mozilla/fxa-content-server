@@ -57,12 +57,12 @@ define(function (require, exports, module) {
       assert.isTrue(broker.hasCapability('chooseWhatToSyncWebV1'));
     });
 
-    it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
-      assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
+    it('has the `convertExternalLinksToText` capability by default, disables links on privacy pages', function () {
+      assert.isTrue(broker.hasCapability('convertExternalLinksToText'));
     });
 
-    it('has the `syncPreferencesNotification` capability by default', function () {
-      assert.isTrue(broker.hasCapability('syncPreferencesNotification'));
+    it('does not have the `emailVerificationMarketingSnippet` capability by default', function () {
+      assert.isFalse(broker.hasCapability('emailVerificationMarketingSnippet'));
     });
 
     it('has all sync content types', function () {
@@ -86,21 +86,21 @@ define(function (require, exports, module) {
     });
 
     describe('afterSignIn', function () {
-      it('notifies the channel of `login`, redirects to `/signin_complete`', function () {
+      it('notifies the channel of `login`, redirects to `/signin_confirmed`', function () {
         return broker.afterSignIn(account)
           .then(function (behavior) {
             assert.isTrue(broker.send.calledWith('fxaccounts:login'));
-            assert.equal(behavior.endpoint, 'signin_complete');
+            assert.equal(behavior.endpoint, 'signin_confirmed');
           });
       });
     });
 
 
     describe('afterSignUpConfirmationPoll', function () {
-      it('redirects to `/signup_complete`', function () {
+      it('redirects to `/signup_confirmed`', function () {
         return broker.afterSignUpConfirmationPoll(account)
           .then(function (behavior) {
-            assert.equal(behavior.endpoint, 'signup_complete');
+            assert.equal(behavior.endpoint, 'signup_confirmed');
           });
       });
     });

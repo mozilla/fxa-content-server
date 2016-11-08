@@ -1605,6 +1605,7 @@ define(function (require, exports, module) {
           EMAIL,
           relier,
           {
+            metricsContext: metrics.getFlowEventMetadata(),
             resume: 'resume token'
           }
         ));
@@ -1635,6 +1636,7 @@ define(function (require, exports, module) {
           'password forgot token',
           relier,
           {
+            metricsContext: metrics.getFlowEventMetadata(),
             resume: 'resume token'
           }
         ));
@@ -1711,57 +1713,6 @@ define(function (require, exports, module) {
 
         it('resolves to the fxaClient result', function () {
           assert.equal(result, 'account keys');
-        });
-      });
-    });
-
-    describe('relierKeys', function () {
-      describe('account keys unavailable', function () {
-        var result;
-
-        beforeEach(function () {
-          sinon.stub(account, 'accountKeys', function () {
-            return p(null);
-          });
-
-          return account.relierKeys(relier)
-            .then(function (_result) {
-              result = _result;
-            });
-        });
-
-        it('returns null', function () {
-          assert.isNull(result);
-        });
-      });
-
-      describe('account keys available', function () {
-        var result;
-
-        beforeEach(function () {
-          sinon.stub(account, 'accountKeys', function () {
-            return p('account keys');
-          });
-
-          sinon.stub(relier, 'deriveRelierKeys', function () {
-            return p('relier keys');
-          });
-
-          account.set('uid', 'uid');
-
-          return account.relierKeys(relier)
-            .then(function (_result) {
-              result = _result;
-            });
-        });
-
-        it('delegates to the relier with the account keys', function () {
-          assert.isTrue(
-            relier.deriveRelierKeys.calledWith('account keys', 'uid'));
-        });
-
-        it('resolves to the relier result', function () {
-          assert.equal(result, 'relier keys');
         });
       });
     });

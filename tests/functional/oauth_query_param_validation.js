@@ -5,7 +5,7 @@
 define([
   'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!querystring',
+  'intern/browser_modules/dojo/node!querystring',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, Querystring, FunctionalHelpers) {
   var config = intern.config;
@@ -67,9 +67,10 @@ define([
     },
 
     beforeEach: function () {
-      return FunctionalHelpers.clearBrowserState(this, {
-        contentServer: true
-      });
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState({
+          contentServer: true
+        }));
     },
 
     'invalid access_type': function () {
@@ -242,16 +243,6 @@ define([
       .then(testErrorInclude('redirectTo'));
     },
 
-    'invalid redirectTo (urn)': function () {
-      return openSignUpExpect400(this, {
-        client_id: TRUSTED_CLIENT_ID,
-        redirectTo: 'urn::asdf',
-        scope: TRUSTED_SCOPE
-      })
-      .then(testErrorInclude('invalid'))
-      .then(testErrorInclude('redirectTo'));
-    },
-
     'valid redirectTo (url)': function () {
       return openSignUpExpect200(this, {
         client_id: TRUSTED_CLIENT_ID,
@@ -260,28 +251,10 @@ define([
       });
     },
 
-    'valid redirect_uri (urn)': function () {
-      return openSignUpExpect200(this, {
-        client_id: TRUSTED_CLIENT_ID,
-        redirect_uri: 'urn:ietf:wg:oauth:2.0:fx:webchannel',
-        scope: TRUSTED_SCOPE
-      });
-    },
-
     'invalid redirect_uri (url)': function () {
       return openSignUpExpect400(this, {
         client_id: TRUSTED_CLIENT_ID,
         redirect_uri: '127.0.0.1',
-        scope: TRUSTED_SCOPE
-      })
-      .then(testErrorInclude('invalid'))
-      .then(testErrorInclude('redirect_uri'));
-    },
-
-    'invalid redirect_uri (urn)': function () {
-      return openSignUpExpect400(this, {
-        client_id: TRUSTED_CLIENT_ID,
-        redirect_uri: 'urn::asdf',
         scope: TRUSTED_SCOPE
       })
       .then(testErrorInclude('invalid'))

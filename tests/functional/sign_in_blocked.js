@@ -15,7 +15,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
@@ -39,12 +39,12 @@ define([
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
       return this.remote
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     'valid code entered': function () {
@@ -59,7 +59,7 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'valid code with whitepsace at the beginning entered': function () {
+    'valid code with whitespace at the beginning entered': function () {
       return this.remote
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(this, email, PASSWORD))
@@ -76,7 +76,7 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'valid code with whitepsace at the end entered': function () {
+    'valid code with whitespace at the end entered': function () {
       return this.remote
         .then(openPage(this, PAGE_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(this, email, PASSWORD))

@@ -5,7 +5,7 @@
 define([
   'intern',
   'intern!object',
-  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/browser_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
@@ -17,17 +17,19 @@ define([
   var deliveredEmail;
   var PASSWORD = '12345678';
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
+
   registerSuite({
     name: 'sign_up with an email that bounces',
 
     beforeEach: function () {
       bouncedEmail = TestHelpers.createEmail();
       deliveredEmail = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'sign up, bounce email, allow user to restart flow but force a different email': function () {

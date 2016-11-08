@@ -8,10 +8,10 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
-  'intern/node_modules/dojo/lang',
-  'intern/node_modules/dojo/node!url',
-  'intern/node_modules/dojo/node!querystring',
-  'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/browser_modules/dojo/lang',
+  'intern/browser_modules/dojo/node!url',
+  'intern/browser_modules/dojo/node!querystring',
+  'intern/browser_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
@@ -35,37 +35,38 @@ define([
     return context.remote || context.parent || context;
   }
 
-  function clearBrowserState(context, options) {
-    options = options || {};
+  function clearBrowserState(options) {
+    return function () {
+      options = options || {};
+      if (! ('contentServer' in options)) {
+        options.contentServer = true;
+      }
 
-    if (! ('contentServer' in options)) {
-      options.contentServer = true;
-    }
+      if (! ('123done' in options)) {
+        options['123done'] = false;
+      }
 
-    if (! ('123done' in options)) {
-      options['123done'] = false;
-    }
+      if (! ('321done' in options)) {
+        options['321done'] = false;
+      }
 
-    if (! ('321done' in options)) {
-      options['321done'] = false;
-    }
-
-    return getRemote(context)
-      .then(function () {
-        if (options.contentServer) {
-          return clearContentServerState(context, options);
-        }
-      })
-      .then(function () {
-        if (options['123done']) {
-          return clear123DoneState(context);
-        }
-      })
-      .then(function () {
-        if (options['321done']) {
-          return clear123DoneState(context, true);
-        }
-      });
+      return this.parent
+        .then(function () {
+          if (options.contentServer) {
+            return clearContentServerState(this.parent, options);
+          }
+        })
+        .then(function () {
+          if (options['123done']) {
+            return clear123DoneState(this.parent);
+          }
+        })
+        .then(function () {
+          if (options['321done']) {
+            return clear123DoneState(this.parent, true);
+          }
+        });
+    };
   }
 
   function clearContentServerState(context, options) {
@@ -1282,7 +1283,7 @@ define([
         var client = getFxaClient();
 
         return client.signUp(
-            email, password, { preVerified: options.preVerified });
+          email, password, { lang: 'en', preVerified: options.preVerified });
       });
     };
   }

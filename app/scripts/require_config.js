@@ -70,7 +70,6 @@ require.config({
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
-    crosstab: 'vendor/crosstab',
     duration: '../bower_components/Duration.js/duration',
     fxaCheckbox: '../bower_components/fxa-checkbox/checkbox',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
@@ -90,7 +89,6 @@ require.config({
     'p-promise': '../bower_components/p/p',
     raven: '../bower_components/raven-js/dist/raven',
     sinon: '../bower_components/sinon/lib/sinon',
-    sjcl: '../bower_components/sjcl/sjcl',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     stache: '../bower_components/requirejs-mustache/stache',
     text: '../bower_components/requirejs-text/text',
@@ -106,9 +104,6 @@ require.config({
         'jquery'
       ],
       exports: 'Backbone'
-    },
-    crosstab: {
-      exports: 'crosstab'
     },
     mailcheck: {
       deps: ['jquery'],

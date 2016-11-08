@@ -26,13 +26,15 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState());
     },
 
     afterEach: function () {
       var self = this;
 
-      return FunctionalHelpers.clearBrowserState(this)
+      return this.remote
+        .then(FunctionalHelpers.clearBrowserState())
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the
@@ -110,34 +112,10 @@ define([
           })
         .end()
 
-          // user can open sync preferences in new tab.
-        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
-
-        // user should be able to open sync preferences
-        .findByCssSelector('#sync-preferences')
-          // user wants to open sync preferences.
-          .click()
-        .end()
-
-        // browser is notified of desire to open Sync preferences
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
-
-
         .then(closeCurrentWindow())
 
         .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
-
-        .then(FunctionalHelpers.noSuchBrowserNotification(self, 'fxaccounts:sync_preferences'))
-
-        // user can open sync preferences in original tab.
-        .findByCssSelector('#sync-preferences')
-          // user wants to open sync preferences.
-          .click()
-        .end()
-
-        // browser is notified of desire to open Sync preferences
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences'))
 
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));

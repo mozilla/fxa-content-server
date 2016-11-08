@@ -39,6 +39,12 @@ define(function (require, exports, module) {
       regex: /@outlook\.com$/,
       webmailType: 'outlook'
     },
+    {
+      buttonName: t('Open Restmail'),
+      link: 'http://restmail.net/mail/',
+      regex: /@restmail\.net/,
+      webmailType: 'restmail'
+    },
   ];
 
   return {
@@ -47,8 +53,9 @@ define(function (require, exports, module) {
     },
 
     addUserInfo (providerLink, email) {
+      var mailType = this.getWebmailType(email);
 
-      if (this.getWebmailType(email) === 'gmail'){
+      if (mailType === 'gmail' || mailType === 'restmail'){
         providerLink = providerLink.concat(encodeURIComponent(email));
       }
 
@@ -75,7 +82,7 @@ define(function (require, exports, module) {
 
       if (email && isOpenWebmailButtonVisible) {
         _.extend(context, {
-          unsafeWebmailLink: this.getWebmailLink(email),
+          escapedWebmailLink: encodeURI(this.getWebmailLink(email)),
           // function.bind is used to avoid infinite recursion.
           // getWebmailButtonText calls this.translate which calls
           // this.context, which will call this.getContext since context is

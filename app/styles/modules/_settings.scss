@@ -469,6 +469,10 @@ body.settings #main-content.card {
 section.modal-panel {
   text-align: center;
 
+  h2 {
+    font-weight: normal;
+  }
+
   .button-row {
     margin-bottom: 0;
 
@@ -492,10 +496,10 @@ section.modal-panel {
 
 .client {
   // default client icon is desktop
-  background-image: url('/images/device-icon-pc.png');
+  background-image: url('/images/icon-device-laptop.svg');
   background-position: 0 2px;
   background-repeat: no-repeat;
-  background-size: 30px 30px;
+  background-size: 32px 32px;
 
   height: 40px;
   list-style: none;
@@ -516,11 +520,16 @@ section.modal-panel {
     height: 35px;
     /*minimum width required for the button to look good without occupying too much space*/
     /*is also the default computed width on desktop screen*/
-    min-width: 95px;
+    min-width: 100px;
     position: absolute;
     right: 0;
+    text-align: center;
     top: 0;
     width: 20%;
+  }
+
+  a.settings-button {
+    padding-top: 8px;
   }
 
   .device-current {
@@ -535,11 +544,11 @@ section.modal-panel {
 }
 
 .client.mobile {
-  background-image: url('/images/device-icon-mobile.png');
+  background-image: url('/images/icon-device-phone.svg');
 }
 
 .client.tablet {
-  background-image: url('/images/device-icon-tablet.png');
+  background-image: url('/images/icon-device-tablet.svg');
 }
 
 .client-device {

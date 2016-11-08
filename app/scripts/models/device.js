@@ -17,9 +17,11 @@ define(function (require, exports, module) {
       clientType: Constants.CLIENT_TYPE_DEVICE,
       id: null,
       isCurrentDevice: null,
+      isDevice: true,
       lastAccessTime: null,
       lastAccessTimeFormatted: null,
-      name: null,
+      // set the default name in case the name is blank
+      name: 'Firefox',
       type: null
     },
 

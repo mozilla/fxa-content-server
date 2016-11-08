@@ -18,6 +18,7 @@ define([
   var email;
   var PASSWORD = '12345678';
 
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var noPageTransition = FunctionalHelpers.noPageTransition;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
@@ -28,13 +29,13 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     afterEach: function () {
       var self = this;
 
-      return FunctionalHelpers.clearBrowserState(this)
+      return this.remote.then(clearBrowserState())
         .then(function () {
           // ensure the next test suite (bounced_email) loads a fresh
           // signup page. If a fresh signup page is not forced, the
@@ -107,15 +108,6 @@ define([
             assert.ok(text.indexOf('Firefox Sync') > -1);
           })
         .end()
-
-        // attempt to open sync preferences
-        .findByCssSelector('#sync-preferences')
-          .click()
-        .end()
-
-        .then(FunctionalHelpers.testIsBrowserNotified(self, 'fxaccounts:sync_preferences', function (data) {
-          assert.equal(data.entryPoint, 'fxa:signup-complete');
-        }))
 
         .then(closeCurrentWindow())
 

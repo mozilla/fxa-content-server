@@ -61,8 +61,7 @@ define(function (require, exports, module) {
         action: 'action',
         clientId: 'clientId',
         scope: 'scope',
-        state: 'state',
-        webChannelId: 'webChannelId'
+        state: 'state'
       });
 
       user = new User();
@@ -91,10 +90,6 @@ define(function (require, exports, module) {
 
     it('has the `emailVerificationMarketingSnippet` capability by default', function () {
       assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
-    });
-
-    it('does not have the `syncPreferencesNotification` capability by default', function () {
-      assert.isFalse(broker.hasCapability('syncPreferencesNotification'));
     });
 
     describe('sendOAuthResultToRelier', function () {

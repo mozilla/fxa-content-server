@@ -18,7 +18,7 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
   var click = FunctionalHelpers.click;
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var fillOutSignUp = thenify(FunctionalHelpers.fillOutSignUp);
   var getVerificationLink = thenify(FunctionalHelpers.getVerificationLink);
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -37,7 +37,7 @@ define([
       email = TestHelpers.createEmail();
 
       return this.remote
-        .then(clearBrowserState(this, {
+        .then(clearBrowserState({
           '123done': true,
           contentServer: true
         }));
@@ -79,12 +79,12 @@ define([
         // second app should show up using 'refresh'
         .then(click('.clients-refresh'))
 
-        .then(testElementExists('li.client:nth-child(2)'))
+        .then(testElementExists('li.client-oAuthApp:nth-child(2)'))
 
         // delete should work
-        .then(click('li.client:nth-child(1) .client-disconnect'))
-        .then(click('li.client:nth-child(2) .client-disconnect'))
-        .then(pollUntilGoneByQSA('.client-name'));
+        .then(click('li.client-oAuthApp:nth-child(1) .client-disconnect'))
+        .then(click('li.client-oAuthApp:nth-child(2) .client-disconnect'))
+        .then(pollUntilGoneByQSA('.client-disconnect'));
     }
 
   });

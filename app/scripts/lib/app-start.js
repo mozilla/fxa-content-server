@@ -66,7 +66,6 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const User = require('models/user');
   const WebChannel = require('lib/channels/web');
-  const WebChannelAuthenticationBroker = require('models/auth_brokers/web-channel');
 
   function Start(options = {}) {
     this._authenticationBroker = options.broker;
@@ -303,63 +302,63 @@ define(function (require, exports, module) {
 
     initializeAuthenticationBroker () {
       if (! this._authenticationBroker) {
+        let assertionLibrary = this._assertionLibrary;
+        let iframeChannel = this._iframeChannel;
+        let metrics = this._metrics;
+        let oAuthClient = this._oAuthClient;
+        let relier = this._relier;
+        let session = Session;
+        let win = this._window;
+
         if (this._isFxFirstrunV2()) {
           this._authenticationBroker = new FxFirstrunV2AuthenticationBroker({
-            iframeChannel: this._iframeChannel,
-            relier: this._relier,
-            window: this._window
+            iframeChannel,
+            relier,
+            window: win
           });
         } else if (this._isFxFirstrunV1()) {
           this._authenticationBroker = new FxFirstrunV1AuthenticationBroker({
-            iframeChannel: this._iframeChannel,
-            relier: this._relier,
-            window: this._window
+            iframeChannel,
+            relier,
+            window: win
           });
         } else if (this._isFxFennecV1()) {
           this._authenticationBroker = new FxFennecV1AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
+            relier,
+            window: win
           });
         } else if (this._isFxDesktopV3()) {
           this._authenticationBroker = new FxDesktopV3AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
+            relier,
+            window: win
           });
         } else if (this._isFxDesktopV2()) {
           this._authenticationBroker = new FxDesktopV2AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
+            relier,
+            window: win
           });
         } else if (this._isFxDesktopV1()) {
           this._authenticationBroker = new FxDesktopV1AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
+            relier,
+            window: win
           });
         } else if (this._isFxiOSV1()) {
           this._authenticationBroker = new FxiOSV1AuthenticationBroker({
-            relier: this._relier,
-            window: this._window
-          });
-        } else if (this._isWebChannel()) {
-          this._authenticationBroker = new WebChannelAuthenticationBroker({
-            assertionLibrary: this._assertionLibrary,
-            oAuthClient: this._oAuthClient,
-            relier: this._relier,
-            session: Session,
-            window: this._window
+            relier,
+            window: win
           });
         } else if (this._isOAuth()) {
           this._authenticationBroker = new RedirectAuthenticationBroker({
-            assertionLibrary: this._assertionLibrary,
-            metrics: this._metrics,
-            oAuthClient: this._oAuthClient,
-            relier: this._relier,
-            session: Session,
-            window: this._window
+            assertionLibrary,
+            metrics,
+            oAuthClient,
+            relier,
+            session,
+            window: win
           });
         } else {
           this._authenticationBroker = new BaseAuthenticationBroker({
-            relier: this._relier
+            relier
           });
         }
 
@@ -710,12 +709,6 @@ define(function (require, exports, module) {
 
     _isFxFirstrunV2 () {
       return this._isContext(Constants.FX_FIRSTRUN_V2_CONTEXT);
-    },
-
-    _isWebChannel () {
-      return !! (this._searchParam('webChannelId') || // signup/signin
-                (this._isOAuthVerificationSameBrowser() &&
-                  Session.oauth && Session.oauth.webChannelId));
     },
 
     _isInAnIframe () {

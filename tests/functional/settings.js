@@ -16,13 +16,15 @@ define([
 
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
+  var click = FunctionalHelpers.click;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutSignIn = thenify(FunctionalHelpers.fillOutSignIn);
   var focus = FunctionalHelpers.focus;
   var getFxaClient = FunctionalHelpers.getFxaClient;
   var openPage = thenify(FunctionalHelpers.openPage);
+  var openSettingsInNewTab = thenify(FunctionalHelpers.openSettingsInNewTab);
   var testElementExists = FunctionalHelpers.testElementExists;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
 
@@ -41,11 +43,11 @@ define([
         .then(function (result) {
           accountData = result;
         })
-        .then(clearBrowserState(this));
+        .then(clearBrowserState());
     },
 
     afterEach: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return this.remote.then(clearBrowserState());
     },
 
     'with an invalid email': function () {
@@ -172,27 +174,21 @@ define([
 
     'sign in, open settings in a second tab, sign out': function () {
       var windowName = 'sign-out inter-tab functional test';
-      var self = this;
-      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
-        .then(function () {
-          return FunctionalHelpers.openSettingsInNewTab(self, windowName);
-        })
+      return this.remote
+        .then(fillOutSignIn(this, email, FIRST_PASSWORD))
+        // wait for the settings page or else when the new tab is opened,
+        // the user is asked to sign in.
+        .then(testElementExists('#fxa-settings-header'))
+
+        .then(openSettingsInNewTab(this, windowName))
         .switchToWindow(windowName)
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-        .findById('fxa-settings-header')
-        .end()
-
-        .findById('signout')
-          .click()
-        .end()
-
-        .findById('fxa-signin-header')
-        .end()
-
+        .then(testElementExists('#fxa-signin-header'))
         .then(closeCurrentWindow())
 
-        .findById('fxa-signin-header')
-        .end();
+        .then(testElementExists('#fxa-signin-header'));
     }
   });
 
@@ -204,7 +200,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD))
-        .then(clearBrowserState(this))
+        .then(clearBrowserState())
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-confirm-header'));
     },
@@ -224,7 +220,7 @@ define([
 
       return this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-        .then(clearBrowserState(this, { force: true }))
+        .then(clearBrowserState({ force: true }))
         .then(fillOutSignIn(this, email, FIRST_PASSWORD))
         .then(testElementExists('#fxa-settings-header'))
         .execute(function () {
@@ -242,7 +238,7 @@ define([
     afterEach: function () {
       // browser state must be cleared or the tests that follow fail.
       return this.remote
-        .then(clearBrowserState(this, { force: true }));
+        .then(clearBrowserState({ force: true }));
     },
 
     'a focus on the settings page after session expires redirects to signin': function () {

@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const FormView = require('views/form');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
@@ -69,7 +70,7 @@ define(function (require, exports, module) {
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
-            return this.displayErrorUnsafe(err);
+            return this.unsafeDisplayError(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
             this.logEvent('login.canceled');
             // if user canceled login, just stop
@@ -83,6 +84,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
+    FlowEventsMixin,
     PasswordResetMixin,
     ServiceMixin
   );

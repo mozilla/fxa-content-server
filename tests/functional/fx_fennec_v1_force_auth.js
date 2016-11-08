@@ -9,13 +9,11 @@ define([
 ], function (registerSuite, TestHelpers, FunctionalHelpers) {
   var thenify = FunctionalHelpers.thenify;
 
-  var clearBrowserState = thenify(FunctionalHelpers.clearBrowserState);
-  var click = FunctionalHelpers.click;
+  var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   var createUser = FunctionalHelpers.createUser;
   var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
   var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var noSuchBrowserNotification = FunctionalHelpers.noSuchBrowserNotification;
   var openForceAuth = FunctionalHelpers.openForceAuth;
   var openVerificationLinkDifferentBrowser = thenify(FunctionalHelpers.openVerificationLinkDifferentBrowser);
   var openVerificationLinkInNewTab = thenify(FunctionalHelpers.openVerificationLinkInNewTab);
@@ -35,7 +33,7 @@ define([
 
 
     return this.parent
-      .then(clearBrowserState(this.parent))
+      .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
       .then(openForceAuth({ query: {
         context: 'fx_fennec_v1',
@@ -69,22 +67,9 @@ define([
         .then(openVerificationLinkInNewTab(this, email, 0))
         .switchToWindow('newwindow')
           .then(testElementExists('#fxa-sign-in-complete-header'))
-          .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
-          // user wants to open sync preferences.
-          .then(click('#sync-preferences'))
-
-          // browser is notified of desire to open Sync preferences
-          .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'))
           .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-sign-in-complete-header'))
-
-        .then(noSuchBrowserNotification(this, 'fxaccounts:sync_preferences'))
-        // user wants to open sync preferences.
-        .then(click('#sync-preferences'))
-
-        // browser is notified of desire to open Sync preferences
-        .then(testIsBrowserNotified(this, 'fxaccounts:sync_preferences'));
+        .then(testElementExists('#fxa-sign-in-complete-header'));
     },
 
     'verified, verify different browser - from original tab\'s P.O.V.': function () {

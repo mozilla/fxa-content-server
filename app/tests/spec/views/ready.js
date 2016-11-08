@@ -176,9 +176,6 @@ define(function (require, exports, module) {
         relier.set('verificationRedirect', 'always');
         assert.isTrue(view.context().shouldShowProceedButton);
 
-        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
-        assert.isFalse(view.context().shouldShowProceedButton);
-
         relier.set('redirectUri', null);
         assert.isFalse(view.context().shouldShowProceedButton);
       });
@@ -197,24 +194,6 @@ define(function (require, exports, module) {
         return view.render()
           .then(function () {
             assert.ok(view.$('#proceed').length);
-          });
-      });
-
-      it('shows the `sync preferences` button for supporting brokers', function () {
-        relier.isSync = sinon.spy(function () {
-          return true;
-        });
-
-        sinon.stub(broker, 'hasCapability', function (type) {
-          if (type === 'syncPreferencesNotification') {
-            return true;
-          }
-        });
-
-        createView(VerificationReasons.SIGN_UP);
-        return view.render()
-          .then(function () {
-            assert.ok(view.$('#sync-preferences').length);
           });
       });
     });
@@ -248,28 +227,6 @@ define(function (require, exports, module) {
         });
       });
 
-      it('for `sync preferences` - submit metrics, notify broker', function () {
-        relier.isSync = sinon.spy(function () {
-          return true;
-        });
-
-        sinon.stub(broker, 'hasCapability', function (type) {
-          if (type === 'syncPreferencesNotification') {
-            return true;
-          }
-        });
-
-        broker.openSyncPreferences = sinon.spy(function () {
-          return p();
-        });
-
-        createView(VerificationReasons.SIGN_UP);
-
-        return view.submit().then(function () {
-          assert.isTrue(metrics.flush.calledOnce);
-          assert.isTrue(broker.openSyncPreferences.called);
-        });
-      });
 
     });
   });
