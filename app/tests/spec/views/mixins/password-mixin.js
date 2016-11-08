@@ -7,6 +7,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const { assert } = require('chai');
+  const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
@@ -278,6 +279,25 @@ define(function (require, exports, module) {
         assert.equal(view.hideVisiblePasswords.callCount, 0);
         view.trigger('submitStart');
         assert.equal(view.hideVisiblePasswords.callCount, 1);
+      });
+    });
+
+    describe('_logErrorConvertingPasswordType', () => {
+      it('logs an error when password type cannot be converted', () => {
+        const $mockEl = {
+          attr () {
+            return 'password';
+          }
+        };
+
+        sinon.spy(view, 'logError');
+
+        view._logErrorConvertingPasswordType($mockEl);
+
+        assert.isTrue(view.logError.calledOnce);
+        const err = view.logError.args[0][0];
+        assert.isTrue(AuthErrors.is(err, 'CANNOT_CHANGE_INPUT_TYPE'));
+        assert.equal(err.type, 'password');
       });
     });
   });

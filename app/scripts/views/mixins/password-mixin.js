@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
   const Constants = require('lib/constants');
   const showPasswordTemplate = require('stache!templates/partial/show-password');
 
@@ -35,7 +36,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Add and dhow the "show password" label field if needed, hide it
+     * Add and show the "show password" label field if needed, hide it
      * if not needed.
      *
      * @param {String|Element} passwordEls
@@ -102,7 +103,7 @@ define(function (require, exports, module) {
 
       const context = {
         id: `show-${targetId}`,
-        synchronizeShow: $passwordEl.data('synchronize-show') || false,
+        synchronizeShow: !! $passwordEl.data('synchronize-show') || false,
         targetId: targetId
       };
 
@@ -164,8 +165,7 @@ define(function (require, exports, module) {
         $passwordEl.attr('type', 'text').attr('autocomplete', 'off')
           .attr('autocorrect', 'off').attr('autocapitalize', 'off');
       } catch (e) {
-        // IE8 blows up when changing the type of the input field. Other
-        // browsers might too. Ignore the error.
+        this._logErrorConvertingPasswordType($passwordEl);
       }
 
       const $showPasswordEl = $passwordEl.siblings('.show-password');
@@ -185,8 +185,7 @@ define(function (require, exports, module) {
         $passwordEl.attr('type', 'password').removeAttr('autocomplete')
           .removeAttr('autocorrect').removeAttr('autocapitalize');
       } catch (e) {
-        // IE8 blows up when changing the type of the input field. Other
-        // browsers might too. Ignore the error.
+        this._logErrorConvertingPasswordType($passwordEl);
       }
 
       const $showPasswordEl = $passwordEl.siblings('.show-password');
@@ -197,8 +196,25 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Log an error converting the password input type
+     *
+     * @param {Element} $passwordEl
+     * @private
+     */
+    _logErrorConvertingPasswordType ($passwordEl) {
+      // IE8 blows up when changing the type of the input field. Other
+      // browsers might too. Ignore the error.
+      const err = AuthErrors.toError('CANNOT_CHANGE_INPUT_TYPE');
+      err.type = $passwordEl.attr('type');
+
+      this.logError(err);
+    },
+
+    /**
      * Hide all visible passwords to prevent passwords from being saved
      * by the browser as text form data.
+     *
+     * @private
      */
     hideVisiblePasswords () {
       this.$el.find('.password[type=text]').each((index, el) => {
