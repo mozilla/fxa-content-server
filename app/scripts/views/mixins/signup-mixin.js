@@ -30,7 +30,7 @@ define(function (require, exports, module) {
      * @return {Object} promise
      */
     signUp (account, password) {
-      this.logEvent('flow.signup.submit');
+      this.logFlowEvent('submit', 'signup');
 
       return this.invokeBrokerMethod('beforeSignIn', account)
         .then(() => {
