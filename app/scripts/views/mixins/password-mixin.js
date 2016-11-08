@@ -103,7 +103,7 @@ define(function (require, exports, module) {
 
       const context = {
         id: `show-${targetId}`,
-        synchronizeShow: !! $passwordEl.data('synchronize-show') || false,
+        synchronizeShow: !! $passwordEl.data('synchronize-show'),
         targetId: targetId
       };
 
