@@ -332,10 +332,6 @@ define(function (require, exports, module) {
        */
       allowUidChange: false,
       /**
-       * Is cancel supported?
-       */
-      cancelAllowed: false,
-      /**
        * Should the signup page show the `Choose what to sync` checkbox
        */
       chooseWhatToSyncCheckbox: true,

@@ -236,10 +236,6 @@ define(function (require, exports, module) {
           assert.isFalse(broker.hasCapability('other-capability'));
         });
 
-        it('returns `false` for `cancelAllowed`', function () {
-          assert.isFalse(broker.hasCapability('cancelAllowed'));
-        });
-
         it('returns `true` for `signup` by default', function () {
           assert.isTrue(broker.hasCapability('signup'));
         });
