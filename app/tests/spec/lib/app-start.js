@@ -424,23 +424,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('initializeCloseButton', function () {
-      beforeEach(function () {
-        appStart = new AppStart({
-          broker: brokerMock,
-          history: backboneHistoryMock,
-          router: routerMock,
-          user: userMock,
-          window: windowMock
-        });
-      });
-
-      it('does not create a close button by default', function () {
-        appStart.initializeCloseButton();
-        assert.isUndefined(appStart._closeButton);
-      });
-    });
-
     describe('initializeUser', function () {
       beforeEach(function () {
         appStart = new AppStart({
