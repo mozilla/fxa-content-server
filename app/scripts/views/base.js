@@ -199,7 +199,7 @@ define(function (require, exports, module) {
             // view is rendered or else stale data may
             // be returned.
             this._context = null;
-            this.$el.html(this.template(this.getContext()));
+            this.$el.html(this.renderTemplate(this.template.bind(this)));
           })
           .then(_.bind(this.afterRender, this))
           .then(() => {
@@ -208,6 +208,20 @@ define(function (require, exports, module) {
             return true;
           });
         });
+    },
+
+    /**
+     * Render a template using view's own context combined with
+     * any additional passed in context.
+     *
+     * @param {Function} template - template function
+     * @param {Object} [additionalContext] - additional context to pass to
+     * template function.
+     * @returns {String} - rendered template
+     */
+    renderTemplate (template, additionalContext = {}) {
+      const context = _.extend({}, this.getContext(), additionalContext);
+      return template(context);
     },
 
     /**
@@ -677,6 +691,26 @@ define(function (require, exports, module) {
      */
     logViewEvent (eventName) {
       this.metrics.logViewEvent(this.getViewName(), eventName);
+    },
+
+    /**
+     * Log a flow event to the event stream
+     *
+     * @param {String} eventName
+     * @param {String} viewName
+     */
+    logFlowEvent (eventName, viewName) {
+      this.metrics.logFlowEvent(eventName, viewName);
+    },
+
+    /**
+     * Log a flow event once per page load
+     *
+     * @param {String} eventName
+     * @param {String} viewName
+     */
+    logFlowEventOnce (eventName, viewName) {
+      this.metrics.logFlowEventOnce(eventName, viewName);
     },
 
     hideError () {

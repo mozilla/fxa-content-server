@@ -99,6 +99,23 @@ define(function (require, exports, module) {
       view = windowMock = metrics = null;
     });
 
+    describe('renderTemplate', () => {
+      it('invokes the template with merged `context` and `additionalContext`', () => {
+        const template = sinon.spy();
+        const additionalContext = {
+          baz: 'buz'
+        };
+        sinon.stub(view, 'getContext', () => {
+          return { foo: 'bar' };
+        });
+
+        view.renderTemplate(template, additionalContext);
+
+        assert.isTrue(template.calledOnce);
+        assert.isTrue(template.calledWith({ baz: 'buz', foo: 'bar' }));
+      });
+    });
+
     describe('render', function () {
       it('adds the `layoutClassName` to the body', function () {
         assert.isTrue($('body').hasClass('layout'));
@@ -783,6 +800,26 @@ define(function (require, exports, module) {
       it('logs an event once to the event stream', function () {
         view.logEventOnce('event1');
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'event1'));
+      });
+    });
+
+    describe('logFlowEvent', () => {
+      beforeEach(() => {
+        view.logFlowEvent('foo', 'bar');
+      });
+
+      it('logs the correct event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.bar.foo'));
+      });
+    });
+
+    describe('logFlowEventOnce', () => {
+      beforeEach(() => {
+        view.logFlowEventOnce('baz', 'qux');
+      });
+
+      it('logs the correct event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.qux.baz'));
       });
     });
 

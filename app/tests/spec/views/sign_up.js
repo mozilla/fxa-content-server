@@ -8,10 +8,10 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Able = require('lib/able');
   const Account = require('models/account');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
   const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentInterface = require('lib/experiment');
   const FormPrefill = require('models/form-prefill');
@@ -26,8 +26,6 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/sign_up');
   const WindowMock = require('../../mocks/window');
-
-  var assert = chai.assert;
 
   describe('views/sign_up', function () {
     var able;
@@ -165,23 +163,6 @@ define(function (require, exports, module) {
           .then(function () {
             assert.equal(view.$('#customize-sync').length, 1);
             assert.isFalse(view.$('#customize-sync').is(':checked'));
-          });
-      });
-
-      it('hides showPassword experiment treatment', function () {
-        Session.clear();
-        sinon.stub(view, 'isInExperiment', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'isInExperimentGroup', function () {
-          return true;
-        });
-
-        return view.render()
-          .then(function () {
-            view.afterVisible();
-            assert.isTrue(view.$('.show-password-label').is(':hidden'));
           });
       });
 
@@ -1314,8 +1295,9 @@ define(function (require, exports, module) {
         // wait for tooltip
         setTimeout(function () {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
-          // there are exactly 3 elements with tabindex in the page
-          assert.equal($('[tabindex]').length, 3);
+          // there are exactly 2 elements with tabindex in the page (show
+          // password button has not been added to the page).
+          assert.equal($('[tabindex]').length, 2);
           // the first element with tabindex is the span containing the website name
           assert.equal($('.tooltip-suggest span:first').get(0), $('[tabindex="1"]').get(0));
           // the second element with tabindex is the span containing the dismiss button
@@ -1379,30 +1361,51 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_engageForm', function () {
-      it('logs the engage event', function () {
-        return view.render()
-          .then(function () {
-            view.afterVisible();
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
-            view.$('form').click();
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
-          });
+    describe('flow events', () => {
+      beforeEach(() => {
+        view.afterVisible();
       });
 
-      it('logs the have-account flow event instead of engage', function () {
-        return view.render()
-          .then(function () {
-            view.afterVisible();
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
-            view.$('#have-account').click();
-            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.have-account'));
-          });
+      it('logs the begin event', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.begin'));
+      });
+
+      it('logs the engage event (click)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+        view.$('input').trigger('click');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+      });
+
+      it('logs the engage event (input)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+        view.$('input').trigger('input');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+      });
+
+      it('logs the engage event (keyup)', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+        view.$('input').trigger({
+          type: 'keyup',
+          which: 9
+        });
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+      });
+
+      it('logs the have-account event', () => {
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.have-account'));
+        view.$('[data-flow-event="have-account"]').click();
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.engage'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.have-account'));
+      });
+
+      it('logs the submit event', () => {
+        view.$('#submit-btn').click();
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
+        view.enableForm();
+        view.$('#submit-btn').click();
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
       });
     });
-
   });
 });
 
