@@ -484,10 +484,16 @@ define(function (require, exports, module) {
 
     logFlowEvent (eventName, viewName) {
       this.logEvent(marshallFlowEvent(eventName, viewName));
+      // We need to use server-side timestamps on flow events,
+      // so flush them to the server immediately.
+      this.flush();
     },
 
     logFlowEventOnce (eventName, viewName) {
       this.logEventOnce(marshallFlowEvent(eventName, viewName));
+      // We need to use server-side timestamps on flow events,
+      // so flush them to the server immediately.
+      this.flush();
     },
 
     getFlowEventMetadata () {

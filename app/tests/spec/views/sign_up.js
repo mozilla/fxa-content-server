@@ -80,6 +80,7 @@ define(function (require, exports, module) {
       formPrefill = new FormPrefill();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      metrics.flush = sinon.spy();
       model = new Backbone.Model();
       notifier = new Notifier();
       relier = new Relier();

@@ -166,8 +166,8 @@ define([
             assert.lengthOf(Object.keys(args[0].events[4]), 4);
             assert.equal(args[0].events[4].type, 'flow.signup.engage');
             assert.equal(args[0].events[4].offset, 4);
-            assert.equal(args[0].events[4].time, 994);
-            assert.equal(args[0].events[4].flowTime, 952);
+            assert.equal(args[0].events[4].time, 1000);
+            assert.equal(args[0].events[4].flowTime, 958);
             assert.equal(args[0].flowId, 'qux');
             assert.equal(args[0].flowBeginTime, 42);
             assert.strictEqual(args[0].isSampledUser, true);
@@ -205,8 +205,8 @@ define([
             args = mocks.flowEvent.args[1];
             assert.isObject(args[0]);
             assert.equal(args[0].type, 'flow.signup.engage');
-            assert.strictEqual(args[0].flowTime, 952);
-            assert.equal(args[0].time, 994);
+            assert.strictEqual(args[0].flowTime, 958);
+            assert.equal(args[0].time, 1000);
             assert.isObject(args[1]);
             assert.equal(args[1].flowId, 'qux');
             assert.strictEqual(args[1].flowBeginTime, 42);

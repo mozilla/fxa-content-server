@@ -175,8 +175,7 @@ define(function (require, exports, module) {
       describe('log events', function () {
         beforeEach(function () {
           metrics.logEvent('foo');
-          metrics.logFlowBegin('bar', 'baz', 'wibble');
-          metrics.logEvent('qux');
+          metrics.logEvent('bar');
         });
 
         describe('has sendBeacon', function () {
@@ -208,18 +207,15 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 25);
+              assert.lengthOf(Object.keys(data), 23);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
               assert.isNumber(data.duration);
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 3);
+              assert.lengthOf(data.events, 2);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.wibble.begin');
-              assert.equal(data.events[2].type, 'qux');
-              assert.equal(data.flowId, 'bar');
-              assert.equal(data.flowBeginTime, 'baz');
+              assert.equal(data.events[1].type, 'bar');
               assert.equal(data.isSampledUser, false);
               assert.equal(data.lang, 'unknown');
               assert.isArray(data.marketing);
@@ -247,24 +243,6 @@ define(function (require, exports, module) {
             it('clears the event stream', function () {
               assert.equal(metrics.getFilteredData().events.length, 0);
             });
-
-            describe('log a second flow.begin event with same flowId', function () {
-              beforeEach(function () {
-                metrics.logFlowBegin('bar', 'blee', 'hong');
-                metrics.logEvent('wibble');
-                return metrics.flush();
-              });
-
-              it('calls sendBeacon correctly', function () {
-                assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
-                var data = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
-                assert.isArray(data.events);
-                assert.lengthOf(data.events, 1);
-                assert.equal(data.events[0].type, 'wibble');
-                assert.equal(data.flowId, 'bar');
-                assert.equal(data.flowBeginTime, 'baz');
-              });
-            });
           });
 
           describe('flush, sendBeacon fails', function () {
@@ -289,7 +267,7 @@ define(function (require, exports, module) {
             });
 
             it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 3);
+              assert.equal(metrics.getFilteredData().events.length, 2);
             });
           });
         });
@@ -331,13 +309,12 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 25);
+              assert.lengthOf(Object.keys(data), 23);
               assert.isArray(data.events);
-              assert.lengthOf(data.events, 4);
+              assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.wibble.begin');
-              assert.equal(data.events[2].type, 'qux');
-              assert.equal(data.events[3].type, 'baz');
+              assert.equal(data.events[1].type, 'bar');
+              assert.equal(data.events[2].type, 'baz');
             });
 
             it('resolves to true', function () {
@@ -384,7 +361,7 @@ define(function (require, exports, module) {
             });
 
             it('does not clear the event stream', function () {
-              assert.equal(metrics.getFilteredData().events.length, 3);
+              assert.equal(metrics.getFilteredData().events.length, 2);
             });
           });
         });
@@ -404,12 +381,11 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 25);
-            assert.lengthOf(data.events, 4);
+            assert.lengthOf(Object.keys(data), 23);
+            assert.lengthOf(data.events, 3);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.wibble.begin');
-            assert.equal(data.events[2].type, 'qux');
-            assert.equal(data.events[3].type, 'wibble');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[2].type, 'wibble');
           });
         });
 
@@ -428,12 +404,11 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 25);
-            assert.lengthOf(data.events, 4);
+            assert.lengthOf(Object.keys(data), 23);
+            assert.lengthOf(data.events, 3);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.wibble.begin');
-            assert.equal(data.events[2].type, 'qux');
-            assert.equal(data.events[3].type, 'blee');
+            assert.equal(data.events[1].type, 'bar');
+            assert.equal(data.events[2].type, 'blee');
           });
         });
 
@@ -587,29 +562,56 @@ define(function (require, exports, module) {
       });
     });
 
-    it('metrics.logFlowEvent', () => {
-      metrics.logFlowEvent('foo', 'signin');
-      metrics.logFlowEvent('foo', 'signin');
-      metrics.logFlowEvent('bar', 'oauth.signin');
-      metrics.logFlowEvent('baz');
+    describe('flow events', () => {
+      beforeEach(() => {
+        sinon.stub(metrics, 'flush', () => {});
+      });
 
-      const events = metrics.getFilteredData().events;
-      assert.equal(events.length, 4);
-      assert.equal(events[0].type, 'flow.signin.foo');
-      assert.equal(events[1].type, 'flow.signin.foo');
-      assert.equal(events[2].type, 'flow.signin.bar');
-      assert.equal(events[3].type, 'flow.baz');
-    });
+      afterEach(() => {
+        metrics.flush.restore();
+      });
 
-    it('metrics.logFlowEventOnce', () => {
-      metrics.logFlowEventOnce('foo', 'signin');
-      metrics.logFlowEventOnce('foo', 'signin');
-      metrics.logFlowEventOnce('foo', 'signup');
+      it('metrics.logFlowBegin', () => {
+        metrics.logFlowBegin('foo', 'bar', 'signin');
+        metrics.logFlowBegin('foo', 'baz', 'signup');
 
-      const events = metrics.getFilteredData().events;
-      assert.equal(events.length, 2);
-      assert.equal(events[0].type, 'flow.signin.foo');
-      assert.equal(events[1].type, 'flow.signup.foo');
+        const data = metrics.getFilteredData();
+        assert.equal(data.events.length, 1);
+        assert.equal(data.events[0].type, 'flow.signin.begin');
+        assert.equal(data.flowId, 'foo');
+        assert.equal(data.flowBeginTime, 'bar');
+
+        assert.equal(metrics.flush.callCount, 1);
+      });
+
+      it('metrics.logFlowEvent', () => {
+        metrics.logFlowEvent('foo', 'signin');
+        metrics.logFlowEvent('foo', 'signin');
+        metrics.logFlowEvent('bar', 'oauth.signin');
+        metrics.logFlowEvent('baz');
+
+        const events = metrics.getFilteredData().events;
+        assert.equal(events.length, 4);
+        assert.equal(events[0].type, 'flow.signin.foo');
+        assert.equal(events[1].type, 'flow.signin.foo');
+        assert.equal(events[2].type, 'flow.signin.bar');
+        assert.equal(events[3].type, 'flow.baz');
+
+        assert.equal(metrics.flush.callCount, 4);
+      });
+
+      it('metrics.logFlowEventOnce', () => {
+        metrics.logFlowEventOnce('foo', 'signin');
+        metrics.logFlowEventOnce('foo', 'signin');
+        metrics.logFlowEventOnce('foo', 'signup');
+
+        const events = metrics.getFilteredData().events;
+        assert.equal(events.length, 2);
+        assert.equal(events[0].type, 'flow.signin.foo');
+        assert.equal(events[1].type, 'flow.signup.foo');
+
+        assert.equal(metrics.flush.callCount, 3);
+      });
     });
   });
 });

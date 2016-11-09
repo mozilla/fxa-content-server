@@ -71,6 +71,7 @@ define(function (require, exports, module) {
 
       windowMock = new WindowMock();
       metrics = new Metrics();
+      metrics.flush = sinon.spy();
       relier = new OAuthRelier({
         window: windowMock
       });
