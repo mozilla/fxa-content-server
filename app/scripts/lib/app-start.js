@@ -382,7 +382,7 @@ define(function (require, exports, module) {
       }
     },
 
-    sinitializeFxaClient () {
+    initializeFxaClient () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
           authServerUrl: this._config.authServerUrl,

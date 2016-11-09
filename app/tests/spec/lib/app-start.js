@@ -435,17 +435,6 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates a close button if the broker reports it can cancel', function () {
-        sinon.stub(brokerMock, 'hasCapability', function (type) {
-          if (type === 'cancelAllowed') {
-            return true;
-          }
-        });
-
-        appStart.initializeCloseButton();
-        assert.isDefined(appStart._closeButton);
-      });
-
       it('does not create a close button by default', function () {
         appStart.initializeCloseButton();
         assert.isUndefined(appStart._closeButton);
