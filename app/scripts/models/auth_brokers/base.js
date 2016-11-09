@@ -96,15 +96,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * The user wants to cancel
-     *
-     * @returns {Promise}
-     */
-    cancel () {
-      return p();
-    },
-
-    /**
      * Called after the first view is rendered. Can be used
      * to notify the RP the system is loaded.
      *
