@@ -29,7 +29,7 @@ module.exports = {
    * @param userAgent String
    * @returns Boolean
    */
-  check (key, flowId, flowBeginTime, userAgent) {
+  validate (key, flowId, flowBeginTime, userAgent) {
     const salt = flowId.substr(0, SALT_STRING_LENGTH);
     const expected = createFlowEventData(key, salt, flowBeginTime, userAgent);
 

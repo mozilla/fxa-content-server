@@ -42,11 +42,11 @@ define([
     Date.now.restore();
   };
 
-  suite['create and check functions are exported'] = () => {
+  suite['create and validate functions are exported'] = () => {
     assert.isObject(flowMetrics);
     assert.lengthOf(Object.keys(flowMetrics), 2);
     assert.equal(typeof flowMetrics.create, 'function');
-    assert.equal(typeof flowMetrics.check, 'function');
+    assert.equal(typeof flowMetrics.validate, 'function');
   };
 
   suite['create returns current timestamp for flowBeginTime'] = () => {
@@ -118,14 +118,14 @@ define([
     assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
-  suite['check returns true for good data'] = () => {
+  suite['validate returns true for good data'] = () => {
     // Force the mocks to return bad data to be sure it really works
     mockDateNow = 1478626838531;
     mockFlowIdKey = 'foo';
     mockUserAgent = 'bar';
     mockRandomBytes = 'baz';
 
-    const result = flowMetrics.check(
+    const result = flowMetrics.validate(
       // Good data is from the create test
       'S3CR37',
       '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
@@ -136,14 +136,14 @@ define([
     assert.strictEqual(result, true);
   };
 
-  suite['check returns false for a bad flow id'] = () => {
+  suite['validate returns false for a bad flow id'] = () => {
     // Force the mocks to return good data to be sure it really works
     mockDateNow = 1451566800000;
     mockFlowIdKey = 'S3CR37';
     mockUserAgent = 'Firefox';
     mockRandomBytes = 'MozillaFirefox!!';
 
-    const result = flowMetrics.check(
+    const result = flowMetrics.validate(
       'S3CR37',
       'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
       1451566800000,
@@ -153,14 +153,14 @@ define([
     assert.strictEqual(result, false);
   };
 
-  suite['check returns false for a bad key'] = () => {
+  suite['validate returns false for a bad key'] = () => {
     // Force the mocks to return good data to be sure it really works
     mockDateNow = 1451566800000;
     mockFlowIdKey = 'S3CR37';
     mockUserAgent = 'Firefox';
     mockRandomBytes = 'MozillaFirefox!!';
 
-    const result = flowMetrics.check(
+    const result = flowMetrics.validate(
       'foo',
       '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
       1451566800000,
@@ -170,14 +170,14 @@ define([
     assert.strictEqual(result, false);
   };
 
-  suite['check returns false for a bad flow begin time'] = () => {
+  suite['validate returns false for a bad flow begin time'] = () => {
     // Force the mocks to return good data to be sure it really works
     mockDateNow = 1451566800000;
     mockFlowIdKey = 'S3CR37';
     mockUserAgent = 'Firefox';
     mockRandomBytes = 'MozillaFirefox!!';
 
-    const result = flowMetrics.check(
+    const result = flowMetrics.validate(
       'S3CR37',
       '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
       1478626838531,
@@ -187,14 +187,14 @@ define([
     assert.strictEqual(result, false);
   };
 
-  suite['check returns false for a bad user agent string'] = () => {
+  suite['validate returns false for a bad user agent string'] = () => {
     // Force the mocks to return good data to be sure it really works
     mockDateNow = 1451566800000;
     mockFlowIdKey = 'S3CR37';
     mockUserAgent = 'Firefox';
     mockRandomBytes = 'MozillaFirefox!!';
 
-    const result = flowMetrics.check(
+    const result = flowMetrics.validate(
       'S3CR37',
       '4d6f7a696c6c6146697265666f782121c89d56556d22039fbbf54d34e0baf206',
       1451566800000,

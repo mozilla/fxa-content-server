@@ -124,7 +124,7 @@ function isValidFlowData (metrics, requestReceivedTime) {
     return false;
   }
 
-  return flowMetrics.check(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
+  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
 }
 
 function isValidTime (time, requestReceivedTime) {

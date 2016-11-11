@@ -12,7 +12,7 @@ define([
   'intern/dojo/node!sinon',
   'intern/dojo/node!../helpers/init-logging'
 ], function (registerSuite, assert, Promise, _, path, proxyquire, sinon, initLogging) {
-  var mocks, route, instance, flowMetricsCheckResult, sandbox;
+  var mocks, route, instance, flowMetricsValidateResult, sandbox;
 
   registerSuite({
     name: 'routes/post-metrics',
@@ -40,8 +40,8 @@ define([
         },
         flowEvent: sandbox.spy(),
         flowMetrics: {
-          check: sandbox.spy(() => flowMetricsCheckResult),
-          create: sandbox.spy()
+          create: sandbox.spy(),
+          validate: sandbox.spy(() => flowMetricsValidateResult)
         },
         gaCollector: {
           write: sandbox.spy()
@@ -151,7 +151,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
-            flowMetricsCheckResult = true;
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -258,6 +258,7 @@ define([
 
       'route.process with invalid flow id': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -291,44 +292,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process with invalid flow begin time': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 41;
           });
@@ -362,44 +333,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process with invalid context': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -433,44 +374,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process with invalid entrypoint': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -504,44 +415,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process with invalid migration': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -575,44 +456,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process with invalid service': {
         setup () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -646,44 +497,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process without optional flow data': {
         setup: function () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', function () {
             return 1000;
           });
@@ -714,44 +535,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': function () {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': function () {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup: function () {
-            flowMetricsCheckResult = true;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': function () {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 2);
-          }
+        'two flow events were emitted': () => {
+          assertFlowEventCallCount(2);
         }
       },
 
-      'route.process with valid-seeming flow data but flowMetrics.check returns false': {
+      'route.process with valid-seeming flow data but flowMetrics.validate returns false': {
         setup () {
+          flowMetricsValidateResult = false;
           sinon.stub(Date, 'now', () => {
             return 1000;
           });
@@ -781,39 +572,8 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': () => {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': () => {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup () {
-            flowMetricsCheckResult = false;
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': () => {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': () => {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': () => {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': () => {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': () => {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
@@ -840,43 +600,14 @@ define([
           sandbox.reset();
         },
 
-        'response.json was called': function () {
-          assert.equal(mocks.response.json.callCount, 1);
-        },
-
-        'process.nextTick was called': function () {
-          assert.equal(mocks.nextTick.callCount, 1);
-        },
-
-        'process.nextTick callback': {
-          setup: function () {
-            mocks.nextTick.args[0][0]();
-          },
-
-          'mozlog.error was not called': function () {
-            assert.strictEqual(mocks.mozlog.error.callCount, 0);
-          },
-
-          'metricsCollector.write was called': function () {
-            assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
-          },
-
-          'statsdCollector.write was called': function () {
-            assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-          },
-
-          'gaCollector.write was called': function () {
-            assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-          },
-
-          'flowEvent was not called': function () {
-            assert.strictEqual(mocks.flowEvent.callCount, 0);
-          }
+        'flow event was not emitted': () => {
+          assertFlowEventCallCount(0);
         }
       },
 
       'route.process without isSampledUser': {
         setup: function () {
+          flowMetricsValidateResult = true;
           sinon.stub(Date, 'now', function () {
             return 1000;
           });
@@ -912,7 +643,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
-            flowMetricsCheckResult = true;
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -976,7 +707,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
-            flowMetricsCheckResult = true;
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -1059,7 +790,7 @@ define([
 
         'process.nextTick callback': {
           setup: function () {
-            flowMetricsCheckResult = true;
+            flowMetricsValidateResult = true;
             mocks.nextTick.args[0][0]();
           },
 
@@ -1184,5 +915,18 @@ define([
     process.nextTick = mocks.nextTick;
     instance.process(mocks.request, mocks.response);
     process.nextTick = nextTickCopy;
+  }
+
+  function assertFlowEventCallCount (count) {
+    assert.equal(mocks.response.json.callCount, 1, 'response.json was called once');
+    assert.equal(mocks.nextTick.callCount, 1, 'process.nextTick was called once');
+
+    mocks.nextTick.args[0][0]();
+
+    assert.strictEqual(mocks.mozlog.error.callCount, 0, 'mozlog.error was not called');
+    assert.strictEqual(mocks.metricsCollector.write.callCount, 1, 'metricsCollector.write was called once');
+    assert.strictEqual(mocks.statsdCollector.write.callCount, 1, 'statsdCollector.write was called once');
+    assert.strictEqual(mocks.gaCollector.write.callCount, 1, 'gaCollector.write was called once');
+    assert.strictEqual(mocks.flowEvent.callCount, count, `flowEvent was called ${count} times`);
   }
 });
