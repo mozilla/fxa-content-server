@@ -97,25 +97,26 @@ define(function (require, exports, module) {
       it('opts in the user', function () {
         sinon.spy(xhrMock, 'ajax');
 
-        windowMock.location.href = 'https://accounts.firefox.com/settings?' +
-          'client_id=clientsid&service=sync&uid=asdfasd&' +
-          'utm_campaign=newsletter&utm_content=content&utm_medium=email&' +
-          'utm_source=menupanel&utm_term=awesome&unknown=false&email=no@no.com';
+        windowMock.location.href =
+          'https://accounts.firefox.com/settings?client_id=clientsid&' +
+          'service=sync&uid=asdfasd&utm_campaign=newsletter&' +
+          'utm_content=content&utm_medium=email&utm_source=menupanel&' +
+          'utm_term=awesome&unknown=false&email=no@no.com';
 
         return client.optIn('token', 'newsletter_id')
           .then(function () {
             const request = xhrMock.ajax.args[0][0];
-            const encodedSourceUrl = encodeURIComponent(
+            const cleanedSourceUrl =
               'https://accounts.firefox.com/settings?client_id=clientsid&' +
               'service=sync&utm_campaign=newsletter&utm_content=content&' +
-              'utm_medium=email&utm_source=menupanel&utm_term=awesome'
-            );
-            const expectedUrl =
-              `${BASE_URL}/subscribe?source_url=${encodedSourceUrl}`;
-            assert.equal(request.url, expectedUrl);
+              'utm_medium=email&utm_source=menupanel&utm_term=awesome';
+            assert.equal(request.url, BASE_URL + '/subscribe');
             assert.equal(request.type, 'post');
             assert.include(request.headers.Authorization, 'token');
-            assert.deepEqual(request.data, { newsletters: 'newsletter_id' });
+            assert.deepEqual(request.data, {
+              newsletters: 'newsletter_id',
+              source_url: cleanedSourceUrl //eslint-disable-line camelcase
+            });
           });
       });
     });

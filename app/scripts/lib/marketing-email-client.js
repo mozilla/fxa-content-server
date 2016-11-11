@@ -65,10 +65,9 @@ define(function (require, exports, module) {
     optIn (accessToken, newsletterId) {
       const cleanedSourceUrl =
         Url.cleanSearchString(this._window.location.href, ALLOWED_SOURCE_URL_QUERY_PARAMS);
-      const encodedSourceUrl = encodeURIComponent(cleanedSourceUrl);
-      const url = `/subscribe?source_url=${encodedSourceUrl}`;
-      return this._request('post', url, accessToken, {
-        newsletters: newsletterId
+      return this._request('post', '/subscribe', accessToken, {
+        newsletters: newsletterId,
+        source_url: cleanedSourceUrl //eslint-disable-line camelcase
       });
     },
 

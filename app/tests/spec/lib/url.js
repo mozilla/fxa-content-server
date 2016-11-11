@@ -29,29 +29,34 @@ define(function (require, exports, module) {
         assert.isUndefined(Url.searchParam('animal', '?color=green'));
       });
 
-      it('does not throw if str override is not specified', function () {
-        assert.isUndefined(Url.searchParam('animal'));
+      it('throws if str override is not specified', function () {
+        assert.throws(() => Url.searchParam('animal'));
       });
     });
 
-    describe('searchParams', function () {
-      var search = '?color=green&email=' + encodeURIComponent('testuser@testuser.com');
+    describe('searchParams', () => {
+      const search = '?color=green&email=' + encodeURIComponent('testuser@testuser.com');
 
-      it('returns all parameters from window.location.search, if no whitelist specified',
-          function () {
-            var params = Url.searchParams(search);
-            assert.equal(params.color, 'green');
-            assert.equal(params.email, 'testuser@testuser.com');
-          });
+      it('converts search string to an object, returns all key/value pairs if no allowlist specified', () => {
+        const params = Url.searchParams(search);
+        assert.equal(params.color, 'green');
+        assert.equal(params.email, 'testuser@testuser.com');
+      });
 
-      it('only returns whitelisted parameters from window.location.search, if whitelist specified',
-          function () {
-            var params = Url.searchParams(search, ['color', 'notDefined']);
-            assert.equal(params.color, 'green');
-            assert.isFalse('email' in params);
-            assert.isFalse('notDefined' in params);
-          });
+      it('returns only items in allow list of one is specified', () => {
+        const params = Url.searchParams(search, ['color', 'notDefined']);
+        assert.equal(params.color, 'green');
+        assert.isFalse('email' in params);
+        assert.isFalse('notDefined' in params);
+      });
 
+      it('returns an empty object if no query params', () => {
+        let params = Url.searchParams('');
+        assert.lengthOf(Object.keys(params), 0);
+
+        params = Url.searchParams('', ['blue']);
+        assert.lengthOf(Object.keys(params), 0);
+      });
     });
 
     describe('objToSearchString', function () {
@@ -160,6 +165,14 @@ define(function (require, exports, module) {
     });
 
     describe('cleanSearchString', () => {
+      it('works correctly if no search params are passed', () => {
+        const cleanedSearchString =
+          Url.cleanSearchString('https://accounts.firefox.com/');
+
+        assert.equal(
+          cleanedSearchString, 'https://accounts.firefox.com/');
+      });
+
       it('removes any undeclared search parameters', () => {
         const cleanedSearchString = Url.cleanSearchString(
           'https://accounts.firefox.com/?allowed=true&notAllowed=false',
