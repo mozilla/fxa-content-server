@@ -1,3 +1,13 @@
+<a name="0.73.2"></a>
+## 0.73.2 (2016-11-14)
+
+
+### Bug Fixes
+
+* **routes:** Redirect *_complete to *_verified r=vladikoff ([295cfc5](https://github.com/mozilla/fxa-content-server/commit/295cfc5))
+
+
+
 <a name="0.73.1"></a>
 ## 0.73.1 (2016-11-02)
 
