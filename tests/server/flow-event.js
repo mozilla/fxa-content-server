@@ -148,6 +148,19 @@ define([
       }
     },
 
+    'call flowEvent with string flow begin time': {
+      beforeEach () {
+        flowMetricsValidateResult = true;
+        setup({
+          flowBeginTime: `${mocks.time - 1000}`
+        }, 1000);
+      },
+
+      'process.stderr.write was not called': () => {
+        assert.equal(process.stderr.write.callCount, 0);
+      }
+    },
+
     'call flowEvent with invalid context': {
       beforeEach () {
         flowMetricsValidateResult = true;

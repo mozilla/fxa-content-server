@@ -82,7 +82,7 @@ function isValidFlowData (metrics, requestReceivedTime) {
     return false;
   }
 
-  if (! isValidTime(parseInt(metrics.flowBeginTime), requestReceivedTime)) {
+  if (! isValidTime(metrics.flowBeginTime, requestReceivedTime)) {
     return false;
   }
 
@@ -94,6 +94,10 @@ function isValidFlowData (metrics, requestReceivedTime) {
 }
 
 function isValidTime (time, requestReceivedTime) {
+  if (typeof time !== 'number') {
+    return false;
+  }
+
   const age = requestReceivedTime - time;
   if (age > FLOW_ID_EXPIRY || age < 0 || isNaN(age)) {
     return false;
