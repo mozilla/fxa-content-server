@@ -589,7 +589,7 @@ define([
         assert.isUndefined(arg.utm_source);
         assert.isUndefined(arg.utm_term);
       }
-    },
+    }
   });
 
   function setup (data, timeSinceFlowBegin) {
