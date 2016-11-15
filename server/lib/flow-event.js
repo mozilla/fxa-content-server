@@ -149,7 +149,7 @@ function limitLength (data) {
 }
 
 function sanitiseData (data) {
-  if (data === 'none') {
+  if (! data || data === 'none') {
     return undefined;
   }
 

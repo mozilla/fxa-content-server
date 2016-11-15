@@ -535,6 +535,30 @@ define([
       }
     },
 
+    'call flowEvent with falsy data': {
+      beforeEach () {
+        const timeSinceFlowBegin = 1000;
+        const flowBeginTime = mocks.time - timeSinceFlowBegin;
+        flowMetricsValidateResult = true;
+        flowEvent(mocks.request, {
+          events: [
+            { offset: 0, type: 'flow.signup.begin' }
+          ],
+          flowBeginTime,
+          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          flushTime: flowBeginTime,
+          service: 0,
+          startTime: flowBeginTime - timeSinceFlowBegin,
+        }, mocks.time);
+      },
+
+      'process.stderr.write was called correctly': () => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.isUndefined(arg.service);
+      }
+    },
+
     'call flowEvent with DNT header': {
       beforeEach () {
         flowMetricsValidateResult = true;
