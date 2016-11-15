@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var _ = require('lodash');
+const _ = require('lodash');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
-var os = require('os');
+const os = require('os');
 
-var DNT_ALLOWED_DATA = [
+const DNT_ALLOWED_DATA = [
   'context',
   'entrypoint',
   'migration',
   'service',
 ];
-var NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
+const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
   'utm_content',
   'utm_medium',
   'utm_source',
   'utm_term'
 ]);
-var HOSTNAME = os.hostname();
-var MAX_DATA_LENGTH = 100;
-var VERSION = 1;
+const HOSTNAME = os.hostname();
+const MAX_DATA_LENGTH = 100;
+const VERSION = 1;
 
 const FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
 const FLOW_ID_KEY = config.get('flow_id_key');
