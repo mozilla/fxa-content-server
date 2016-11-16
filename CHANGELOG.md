@@ -1,3 +1,13 @@
+<a name="0.74.1"></a>
+## 0.74.1 (2016-11-16)
+
+
+### Bug Fixes
+
+* **clients:** add tablet support to app placeholders (#4414) r=vbudhram (#4417) ([3650617](https://github.com/mozilla/fxa-content-server/commit/3650617)), closes [#4412](https://github.com/mozilla/fxa-content-server/issues/4412)
+
+
+
 <a name="0.74.0"></a>
 # 0.74.0 (2016-11-14)
 
