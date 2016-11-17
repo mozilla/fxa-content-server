@@ -25,6 +25,13 @@ var conf = module.exports = convict({
     doc: 'Check if the resources are under the /dist directory',
     format: Boolean
   },
+  babel: {
+    enabled: {
+      default: true,
+      doc: 'Convert ES2015 JavaScript to ES5',
+      format: Boolean
+    }
+  },
   basket: {
     api_key: {
       default: 'test key please change',
@@ -570,4 +577,3 @@ var options = {
 
 // validate the configuration based on the above specification
 conf.validate(options);
-
