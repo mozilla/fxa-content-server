@@ -20,7 +20,6 @@ define(function (require, exports, module) {
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
   const User = require('models/user');
-  const VerificationReasons = require('lib/verification-reasons');
 
   var assert = chai.assert;
 

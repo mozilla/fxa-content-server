@@ -22,7 +22,6 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('models/mixins/search-param');
   const Storage = require('lib/storage');
   const vat = require('lib/vat');
-  const VerificationReasons = require('lib/verification-reasons');
 
   var User = Backbone.Model.extend({
     initialize (options = {}) {
