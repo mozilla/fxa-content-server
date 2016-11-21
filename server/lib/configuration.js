@@ -28,7 +28,7 @@ var conf = module.exports = convict({
   babel: {
     enabled: {
       default: true,
-      doc: 'Convert ES2015 JavaScript to ES5',
+      doc: 'Convert ES2015 to ES5. Production builds do not use this setting',
       format: Boolean
     }
   },
