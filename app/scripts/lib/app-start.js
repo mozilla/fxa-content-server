@@ -105,53 +105,52 @@ define(function (require, exports, module) {
     },
 
     initializeDeps () {
-      // neither config nor l10n fetch from the network and can be loaded in parallel.
-      return p.all([
-        this.initializeConfig(),
-        this.initializeL10n(),
-        this.initializeInterTabChannel()
-      ])
-      // items below all depend on the above being ready.
-      .then(_.bind(this.initializeAble, this))
-      .then(_.bind(this.initializeErrorMetrics, this))
-      .then(_.bind(this.initializeOAuthClient, this))
-      // both the metrics and router depend on the language
-      // fetched from config.
-      .then(_.bind(this.initializeRelier, this))
-      // metrics depends on the relier.
-      .then(_.bind(this.initializeMetrics, this))
-      // iframe channel depends on the relier and metrics
-      .then(_.bind(this.initializeIframeChannel, this))
-      // fxaClient depends on the relier and
-      // inter tab communication.
-      .then(_.bind(this.initializeFxaClient, this))
-      // depends on iframeChannel and interTabChannel
-      .then(_.bind(this.initializeNotifier, this))
-      // assertionLibrary depends on fxaClient
-      .then(_.bind(this.initializeAssertionLibrary, this))
-      // profileClient depends on fxaClient and assertionLibrary
-      .then(_.bind(this.initializeProfileClient, this))
-      // marketingEmailClient depends on config
-      .then(_.bind(this.initializeMarketingEmailClient, this))
-      // user depends on the profileClient, oAuthClient,
-      // assertionLibrary and notifier.
-      .then(_.bind(this.initializeUser, this))
-      // broker relies on the user, relier, fxaClient,
-      // assertionLibrary, and metrics
-      .then(_.bind(this.initializeAuthenticationBroker, this))
-      // depends on the authentication broker
-      .then(_.bind(this.initializeHeightObserver, this))
-      // storage format upgrades depend on user
-      .then(_.bind(this.upgradeStorageFormats, this))
+      return p()
+        // config and l10n depend on nothing, and are depended upon
+        // by lots, they are loaded first.
+        .then(_.bind(this.initializeConfig, this))
+        .then(_.bind(this.initializeL10n, this))
+        .then(_.bind(this.initializeInterTabChannel, this))
+        .then(_.bind(this.initializeAble, this))
+        .then(_.bind(this.initializeErrorMetrics, this))
+        .then(_.bind(this.initializeOAuthClient, this))
+        // both the metrics and router depend on the language
+        // fetched from config.
+        .then(_.bind(this.initializeRelier, this))
+        // metrics depends on the relier.
+        .then(_.bind(this.initializeMetrics, this))
+        // iframe channel depends on the relier and metrics
+        .then(_.bind(this.initializeIframeChannel, this))
+        // fxaClient depends on the relier and
+        // inter tab communication.
+        .then(_.bind(this.initializeFxaClient, this))
+        // depends on iframeChannel and interTabChannel
+        .then(_.bind(this.initializeNotifier, this))
+        // assertionLibrary depends on fxaClient
+        .then(_.bind(this.initializeAssertionLibrary, this))
+        // profileClient depends on fxaClient and assertionLibrary
+        .then(_.bind(this.initializeProfileClient, this))
+        // marketingEmailClient depends on config
+        .then(_.bind(this.initializeMarketingEmailClient, this))
+        // user depends on the profileClient, oAuthClient,
+        // assertionLibrary and notifier.
+        .then(_.bind(this.initializeUser, this))
+        // broker relies on the user, relier, fxaClient,
+        // assertionLibrary, and metrics
+        .then(_.bind(this.initializeAuthenticationBroker, this))
+        // depends on the authentication broker
+        .then(_.bind(this.initializeHeightObserver, this))
+        // storage format upgrades depend on user
+        .then(_.bind(this.upgradeStorageFormats, this))
 
-      // depends on nothing
-      .then(_.bind(this.initializeFormPrefill, this))
-      // depends on notifier, metrics
-      .then(_.bind(this.initializeRefreshObserver, this))
-      // router depends on all of the above
-      .then(_.bind(this.initializeRouter, this))
-      // appView depends on the router
-      .then(_.bind(this.initializeAppView, this));
+        // depends on nothing
+        .then(_.bind(this.initializeFormPrefill, this))
+        // depends on notifier, metrics
+        .then(_.bind(this.initializeRefreshObserver, this))
+        // router depends on all of the above
+        .then(_.bind(this.initializeRouter, this))
+        // appView depends on the router
+        .then(_.bind(this.initializeAppView, this));
     },
 
     useConfig (config) {
