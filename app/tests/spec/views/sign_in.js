@@ -762,10 +762,9 @@ define(function (require, exports, module) {
       it('called metrics.logFlowBegin correctly', function () {
         assert.equal(metrics.logFlowBegin.callCount, 1);
         var args = metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 3);
+        assert.lengthOf(args, 2);
         assert.equal(args[0], FLOW_ID);
         assert.equal(args[1], -1);
-        assert.equal(args[2], 'signin');
       });
     });
 
@@ -774,8 +773,9 @@ define(function (require, exports, module) {
         view.afterVisible();
       });
 
-      it('logs the begin event', () => {
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signin.begin'));
+      it('logs the begin and view events', () => {
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.begin'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signin.view'));
       });
 
       it('logs the engage event (click)', () => {

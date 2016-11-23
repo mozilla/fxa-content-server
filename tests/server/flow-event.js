@@ -66,7 +66,7 @@ define([
         setup({
           events: [
             { offset: 5, type: 'wibble' },
-            { offset: 5, type: 'flow.signup.begin' },
+            { offset: 5, type: 'flow.begin' },
             { offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now' },
             { offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future' },
             { offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired' },
@@ -87,7 +87,7 @@ define([
           /*eslint-disable camelcase*/
           context: 'fx_desktop_v3',
           entrypoint: 'menupanel',
-          event: 'flow.signup.begin',
+          event: 'flow.begin',
           flow_id: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
           flow_time: 0,
           hostname: os.hostname(),
@@ -220,7 +220,7 @@ define([
         flowMetricsValidateResult = true;
         flowEvent(mocks.request, {
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -251,7 +251,7 @@ define([
         flowMetricsValidateResult = true;
         flowEvent(mocks.request, {
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flushTime: flowBeginTime,
@@ -271,7 +271,7 @@ define([
         flowMetricsValidateResult = true;
         flowEvent(mocks.request, {
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
           flushTime: flowBeginTime,
@@ -318,7 +318,7 @@ define([
         flowEvent(mocks.request, {
           client_id: 'deadbeefbaadf00d', //eslint-disable-line camelcase
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -342,7 +342,7 @@ define([
         flowEvent(mocks.request, {
           client_id: 'deadbeef', //eslint-disable-line camelcase
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -364,7 +364,7 @@ define([
         flowEvent(mocks.request, {
           client_id: 'deadbeefbaadf00d', //eslint-disable-line camelcase
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -389,7 +389,7 @@ define([
         flowEvent(mocks.request, {
           entryPoint: 'menubar',
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -413,7 +413,7 @@ define([
         flowEvent(mocks.request, {
           entryPoint: '!',
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -436,7 +436,7 @@ define([
           entryPoint: 'menubar',
           entrypoint: 'menupanel',
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -460,7 +460,7 @@ define([
         flowEvent(mocks.request, {
           context: new Array(102).join('0'),
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -484,7 +484,7 @@ define([
         flowEvent(mocks.request, {
           entrypoint: new Array(101).join('0'),
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -508,7 +508,7 @@ define([
         flowEvent(mocks.request, {
           entryPoint: new Array(102).join('x'), //eslint-disable-line camelcase
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -531,7 +531,7 @@ define([
         flowMetricsValidateResult = true;
         flowEvent(mocks.request, {
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -555,7 +555,7 @@ define([
         flowMetricsValidateResult = true;
         flowEvent(mocks.request, {
           events: [
-            { offset: 0, type: 'flow.signup.begin' }
+            { offset: 0, type: 'flow.begin' }
           ],
           flowBeginTime,
           flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
@@ -599,7 +599,7 @@ define([
         context: data.context || 'fx_desktop_v3',
         entrypoint: data.entrypoint || 'menupanel',
         events: data.events || [
-          { offset: 0, type: 'flow.signup.begin' }
+          { offset: 0, type: 'flow.begin' }
         ],
         flowBeginTime,
         flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',

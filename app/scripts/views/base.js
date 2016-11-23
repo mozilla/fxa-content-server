@@ -469,6 +469,9 @@ define(function (require, exports, module) {
       }
 
       this.focusAutofocusElement();
+
+      this.logFlowEvent('view', this.viewName);
+
       return p();
     },
 

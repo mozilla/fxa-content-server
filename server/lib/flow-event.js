@@ -24,7 +24,7 @@ const HOSTNAME = os.hostname();
 const MAX_DATA_LENGTH = 100;
 const VERSION = 1;
 
-const FLOW_BEGIN_EVENT_TYPES = /^flow\.[a-z_-]+\.begin$/;
+const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 
@@ -53,7 +53,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
   });
 
   flowEvents.forEach(event => {
-    if (FLOW_BEGIN_EVENT_TYPES.test(event.type)) {
+    if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
     } else {
