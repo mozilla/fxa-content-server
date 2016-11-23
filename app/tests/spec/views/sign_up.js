@@ -1365,9 +1365,8 @@ define(function (require, exports, module) {
         view.afterVisible();
       });
 
-      it('logs the begin and view events', () => {
+      it('logs the begin event', () => {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.begin'));
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.view'));
       });
 
       it('logs the engage event (click)', () => {

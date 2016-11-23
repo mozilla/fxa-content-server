@@ -48,9 +48,20 @@ module.exports = (req, metrics, requestReceivedTime) => {
   }
 
   const events = metrics.events || [];
-  const flowEvents = _.filter(events, event => {
-    return event.type.indexOf('flow.') === 0;
-  });
+  const flowEvents = _.filter(
+    _.map(events, event => {
+      if (event.type.indexOf('screen.') !== 0) {
+        return event;
+      }
+
+      return _.assign({}, event, {
+        type: `flow.${event.type.substr(7)}.view`
+      });
+    }),
+    event => {
+      return event.type.indexOf('flow.') === 0;
+    }
+  );
 
   flowEvents.forEach(event => {
     if (event.type === FLOW_BEGIN_EVENT) {

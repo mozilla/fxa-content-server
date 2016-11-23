@@ -568,9 +568,8 @@ define(function (require, exports, module) {
           });
       });
 
-      it('logs the begin and view events', () => {
+      it('logs the begin event', () => {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.begin'));
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.force-auth.view'));
       });
 
       it('logs the engage event (click)', () => {

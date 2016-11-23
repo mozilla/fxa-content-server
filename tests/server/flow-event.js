@@ -67,6 +67,7 @@ define([
           events: [
             { offset: 5, type: 'wibble' },
             { offset: 5, type: 'flow.begin' },
+            { offset: 5, type: 'screen.signup' },
             { offset: timeSinceFlowBegin, type: 'flow.signup.good-offset-now' },
             { offset: timeSinceFlowBegin + 1, type: 'flow.signup.bad-offset-future' },
             { offset: timeSinceFlowBegin - config.flow_id_expiry - 1, type: 'flow.signup.bad-offset-expired' },
@@ -75,8 +76,8 @@ define([
         }, timeSinceFlowBegin);
       },
 
-      'process.stderr.write was called three times': () => {
-        assert.equal(process.stderr.write.callCount, 3);
+      'process.stderr.write was called four times': () => {
+        assert.equal(process.stderr.write.callCount, 4);
       },
 
       'first call to process.stderr.write was correct': () => {
@@ -110,12 +111,19 @@ define([
       'second call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[1][0]);
         assert.lengthOf(Object.keys(arg), 18);
-        assert.equal(arg.event, 'flow.signup.good-offset-now');
-        assert.equal(arg.time, new Date(mocks.time).toISOString());
+        assert.equal(arg.event, 'flow.signup.view');
+        assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
       },
 
       'third call to process.stderr.write was correct': () => {
         const arg = JSON.parse(process.stderr.write.args[2][0]);
+        assert.lengthOf(Object.keys(arg), 18);
+        assert.equal(arg.event, 'flow.signup.good-offset-now');
+        assert.equal(arg.time, new Date(mocks.time).toISOString());
+      },
+
+      'fourth call to process.stderr.write was correct': () => {
+        const arg = JSON.parse(process.stderr.write.args[3][0]);
         assert.lengthOf(Object.keys(arg), 18);
         assert.equal(arg.event, 'flow.signup.good-offset-oldest');
         assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
