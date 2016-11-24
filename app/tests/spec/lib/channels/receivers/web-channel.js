@@ -89,6 +89,27 @@ define(function (require, exports, module) {
 
         assert.isTrue(receiver.trigger.calledWith('message', { key: 'value' }));
       });
+
+      it('can handle errors', function () {
+        sinon.spy(windowMock.console, 'error');
+        sinon.spy(receiver, 'trigger');
+
+        receiver.receiveMessage({
+          detail: {
+            id: 'channel_id',
+            message: {
+              error: {
+                message: 'Permission denied',
+                stack: 'foo \n bar'
+              }
+            }
+          }
+        });
+
+        assert.equal(windowMock.console.error.callCount, 1);
+        assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
+        assert.isFalse(receiver.trigger.called);
+      });
     });
   });
 });

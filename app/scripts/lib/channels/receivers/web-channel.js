@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const Backbone = require('backbone');
   const Logger = require('lib/logger');
+  const Raven = require('raven');
 
   function WebChannelReceiver() {
     // nothing to do
@@ -50,7 +51,23 @@ define(function (require, exports, module) {
       // Ignore events with no `message` field.
       var message = detail.message;
       if (message) {
-        this.trigger('message', message);
+        if (message.error) {
+          // if there is an error field in the message then Firefox reported an error, report to Sentry
+          // the structure of the error report is '{ error: { message, stack } }'
+          // Details: https://github.com/mozilla/fxa-content-server/issues/3668
+          let err = message.error;
+
+          this._logger.error('WebChannel error:', err.message);
+          Raven.captureMessage('WebChannel error: ' + err.message, {
+            // manually capture the stack as a custom field
+            extra: {
+              stackTrace: err.stack
+            }
+          });
+
+        } else {
+          this.trigger('message', message);
+        }
       }
     },
 
