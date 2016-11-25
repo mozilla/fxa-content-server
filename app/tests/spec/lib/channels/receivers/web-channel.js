@@ -90,7 +90,7 @@ define(function (require, exports, module) {
         assert.isTrue(receiver.trigger.calledWith('message', { key: 'value' }));
       });
 
-      it('can handle errors', function () {
+      it('can handle errors triggered by the WebChannel component', function () {
         sinon.spy(windowMock.console, 'error');
         sinon.spy(receiver, 'trigger');
 
@@ -98,9 +98,29 @@ define(function (require, exports, module) {
           detail: {
             id: 'channel_id',
             message: {
-              error: {
-                message: 'Permission denied',
-                stack: 'foo \n bar'
+              error: 'Permission denied'
+            }
+          }
+        });
+
+        assert.equal(windowMock.console.error.callCount, 1);
+        assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
+        assert.isFalse(receiver.trigger.called);
+      });
+
+      it('can handle errors that have a stack in data', function () {
+        sinon.spy(windowMock.console, 'error');
+        sinon.spy(receiver, 'trigger');
+
+        receiver.receiveMessage({
+          detail: {
+            id: 'channel_id',
+            message: {
+              data: {
+                error: {
+                  message: 'Permission denied',
+                  stack: 'foo \n bar'
+                }
               }
             }
           }
@@ -110,6 +130,17 @@ define(function (require, exports, module) {
         assert.isTrue(windowMock.console.error.calledWith('WebChannel error:', 'Permission denied'));
         assert.isFalse(receiver.trigger.called);
       });
+    });
+
+    describe('_reportedError', function () {
+
+      it('reports error if it gets an error from WebChannels', function () {
+        assert.isFalse(receiver._reportedError({ data: 'ok'}), 'false if no error');
+        assert.isTrue(receiver._reportedError({ error: 'fail'}), 'true if error');
+        assert.isFalse(receiver._reportedError({ error: { shouldNotBeObject: true}}), 'false if direct object');
+        assert.isTrue(receiver._reportedError({ data: { error: { message: 'error'}}}), 'true if nested error object');
+      });
+
     });
   });
 });

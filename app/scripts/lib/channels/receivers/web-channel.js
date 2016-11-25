@@ -31,7 +31,7 @@ define(function (require, exports, module) {
     },
 
     receiveMessage (event) {
-      var detail = event.detail;
+      let detail = event.detail;
 
       if (! (detail && detail.id)) {
         // malformed message
@@ -49,26 +49,49 @@ define(function (require, exports, module) {
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1173830
       //
       // Ignore events with no `message` field.
-      var message = detail.message;
-      if (message) {
-        if (message.error) {
-          // if there is an error field in the message then Firefox reported an error, report to Sentry
-          // the structure of the error report is '{ error: { message, stack } }'
-          // Details: https://github.com/mozilla/fxa-content-server/issues/3668
-          let err = message.error;
-
-          this._logger.error('WebChannel error:', err.message);
-          Raven.captureMessage('WebChannel error: ' + err.message, {
-            // manually capture the stack as a custom field
-            extra: {
-              stackTrace: err.stack
-            }
-          });
-
-        } else {
-          this.trigger('message', message);
-        }
+      let message = detail.message;
+      if (message && ! this._reportedError(message)) {
+        this.trigger('message', message);
       }
+    },
+
+    /**
+     * Determine if the message received had an error reported.
+     *
+     * @param {Object} message received from the WebChannel
+     * @returns {Boolean}
+     * @private
+     */
+    _reportedError (message) {
+      // this is super confusing, so read carefully:
+      // there are two ways the error can be reported. Either `message.error` or `message.data.error`.
+      let errorMsg = 'Unknown error';
+      let errorStack = null;
+      let reportedError = false;
+
+      if (message.error && _.isString(message.error)) {
+        // if it is a String then it is probably an error from WebChannel.jsm
+        // Example: https://dxr.mozilla.org/mozilla-central/rev/bad312aefb42982f492ad2cf36f4c6c3d698f4f7/toolkit/modules/WebChannel.jsm#101
+        errorMsg = message.error;
+        reportedError = true;
+      } else if (message.data && message.data.error) {
+        // if it has an error Object that means it is a component error with a stack
+        errorMsg = message.data.error.message;
+        errorStack = message.data.error.stack;
+        reportedError = true;
+      }
+
+      if (reportedError) {
+        this._logger.error('WebChannel error:', errorMsg);
+        Raven.captureMessage('WebChannel error: ' + errorMsg, {
+          // manually capture the stack as a custom field
+          extra: {
+            stackTrace: errorStack
+          }
+        });
+      }
+
+      return reportedError;
     },
 
     teardown () {
