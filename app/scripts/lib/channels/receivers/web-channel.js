@@ -50,7 +50,7 @@ define(function (require, exports, module) {
       //
       // Ignore events with no `message` field.
       let message = detail.message;
-      if (message && ! this._reportedError(message)) {
+      if (message && ! this._reportCaughtErrors(message)) {
         this.trigger('message', message);
       }
     },
@@ -62,7 +62,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      * @private
      */
-    _reportedError (message) {
+    _reportCaughtErrors (message) {
       // this is super confusing, so read carefully:
       // there are two ways the error can be reported. Either `message.error` or `message.data.error`.
       let errorMsg = 'Unknown error';

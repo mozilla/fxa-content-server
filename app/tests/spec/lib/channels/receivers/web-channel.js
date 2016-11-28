@@ -132,13 +132,13 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_reportedError', function () {
+    describe('_reportCaughtErrors', function () {
 
       it('reports error if it gets an error from WebChannels', function () {
-        assert.isFalse(receiver._reportedError({ data: 'ok'}), 'false if no error');
-        assert.isTrue(receiver._reportedError({ error: 'fail'}), 'true if error');
-        assert.isFalse(receiver._reportedError({ error: { shouldNotBeObject: true}}), 'false if direct object');
-        assert.isTrue(receiver._reportedError({ data: { error: { message: 'error'}}}), 'true if nested error object');
+        assert.isFalse(receiver._reportCaughtErrors({ data: 'ok'}), 'false if no error');
+        assert.isTrue(receiver._reportCaughtErrors({ error: 'fail'}), 'true if error');
+        assert.isFalse(receiver._reportCaughtErrors({ error: { shouldNotBeObject: true}}), 'false if direct object');
+        assert.isTrue(receiver._reportCaughtErrors({ data: { error: { message: 'error'}}}), 'true if nested error object');
       });
 
     });
