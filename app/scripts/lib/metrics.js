@@ -167,6 +167,14 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     flush (isPageUnloading) {
+      if (this._isFlushing) {
+        // Re-entrant flushing causes duplicate events to
+        // be emitted on the server, which we don't want.
+        return;
+      }
+
+      this._isFlushing = true;
+
       // Inactivity timer is restarted when the next event/timer comes in.
       // This avoids sending empty result sets if the tab is
       // just sitting there open with no activity.
@@ -186,6 +194,9 @@ define(function (require, exports, module) {
           }
 
           return sent;
+        })
+        .fin(() => {
+          this._isFlushing = false;
         });
     },
 
