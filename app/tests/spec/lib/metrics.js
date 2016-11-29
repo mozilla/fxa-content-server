@@ -500,6 +500,24 @@ define(function (require, exports, module) {
           assert.isTrue(data.timers.foo[0].elapsed >= 4);
         });
       });
+
+      it('flush is not re-entrant', () => {
+        let flushCount = 0;
+
+        sandbox.stub(metrics, '_send', () => {
+          if (flushCount++ < 2) {
+            $(windowMock).trigger('blur');
+          } else {
+            assert.notOk(true, 'flush should not be re-entrant');
+          }
+          return p(true);
+        });
+
+        metrics.logEvent('wibble');
+        $(windowMock).trigger('blur');
+
+        assert.strictEqual(flushCount, 1, 'flush only sent data once');
+      });
     });
 
     describe('errorToId', function () {
