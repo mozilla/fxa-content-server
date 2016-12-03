@@ -47,7 +47,7 @@ define([
       var self = this;
       self.timeout = 90 * 1000;
 
-      return openFxaFromRp(this, 'signup')
+      return openFxaFromRp('signup')
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
         .then(getVerificationLink(email, 0))
