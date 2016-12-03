@@ -51,9 +51,6 @@ define([
     },
 
     'sign up, verify same browser': function () {
-
-      var self = this;
-
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -64,12 +61,9 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
-
         .end()
+
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
@@ -159,8 +153,6 @@ define([
 
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
-      var self = this;
-
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -171,12 +163,9 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
+                .end()
 
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
-
-        .end()
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
@@ -200,11 +189,9 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
         .end()
+
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
@@ -232,7 +219,6 @@ define([
     },
 
     'choose option to customize sync': function () {
-      var self = this;
       return this.remote
         .get(require.toUrl(PAGE_URL))
         .execute(listenForFxaCommands)
@@ -248,9 +234,7 @@ define([
         .end()
         .then(fillOutSignUp(email, PASSWORD, { customizeSync: true }))
 
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
-        })
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // Being pushed to the confirmation screen is success.
         .findById('fxa-confirm-header')

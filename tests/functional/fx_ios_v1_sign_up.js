@@ -40,8 +40,6 @@ define([
     },
 
     'sign up, verify same browser': function () {
-      var self = this;
-
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
         .execute(listenForFxaCommands)
@@ -49,10 +47,9 @@ define([
         .then(fillOutSignUp(email, PASSWORD))
 
         .findByCssSelector('#fxa-confirm-header')
-          .then(function () {
-            return testIsBrowserNotifiedOfLogin(self, email);
-          })
         .end()
+
+        .then(testIsBrowserNotifiedOfLogin(email))
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0))
