@@ -30,6 +30,14 @@ define(function (require, exports, module) {
       };
     },
 
+    events: {
+      'focus input.display-name': 'onDisplayNameFocus',
+    },
+
+    onDisplayNameFocus (event) {
+      this.isValidStart();
+    },
+
     beforeRender () {
       var account = this.getSignedInAccount();
       return account.fetchProfile()
@@ -37,6 +45,19 @@ define(function (require, exports, module) {
           this.user.setAccount(account);
           this._displayName = account.get('displayName');
         });
+    },
+
+    isValidStart() {
+      var account = this.getSignedInAccount();
+      var displayName = this.getElementValue('input.display-name').trim();
+      var accountDisplayName = account.get('displayName');
+
+      if ( ! accountDisplayName) {
+        accountDisplayName = '';
+      }
+
+      return accountDisplayName !== displayName;
+
     },
 
     submit () {
@@ -51,6 +72,7 @@ define(function (require, exports, module) {
           this.navigate('settings');
         });
     }
+
   });
 
   Cocktail.mixin(
@@ -61,4 +83,5 @@ define(function (require, exports, module) {
   );
 
   module.exports = View;
+
 });
