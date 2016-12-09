@@ -64,6 +64,7 @@ define(function (require, exports, module) {
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
     this._metrics = options.metrics;
+    this._notificationWebChannel = options.notificationWebChannel;
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
@@ -115,7 +116,9 @@ define(function (require, exports, module) {
         // fxaClient depends on the relier and
         // inter tab communication.
         .then(_.bind(this.initializeFxaClient, this))
-        // depends on iframeChannel and interTabChannel
+        // depends on nothing
+        .then(_.bind(this.initializeWebChannel, this))
+        // depends on iframeChannel and interTabChannel, web channel
         .then(_.bind(this.initializeNotifier, this))
         // metrics depends on relier and notifier
         .then(_.bind(this.initializeMetrics, this))
@@ -125,12 +128,12 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeProfileClient, this))
         // marketingEmailClient depends on config
         .then(_.bind(this.initializeMarketingEmailClient, this))
-        // user depends on the profileClient, oAuthClient,
-        // assertionLibrary and notifier.
-        .then(_.bind(this.initializeUser, this))
-        // broker relies on the user, relier, fxaClient,
+        // broker relies on the relier, fxaClient,
         // assertionLibrary, and metrics
         .then(_.bind(this.initializeAuthenticationBroker, this))
+        // user depends on the auth broker, profileClient, oAuthClient,
+        // assertionLibrary and notifier.
+        .then(_.bind(this.initializeUser, this))
         // depends on the authentication broker
         .then(_.bind(this.initializeHeightObserver, this))
         // storage format upgrades depend on user
@@ -362,7 +365,7 @@ define(function (require, exports, module) {
 
     initializeUser () {
       if (! this._user) {
-        this._user = new User({
+        const user = this._user = new User({
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
           marketingEmailClient: this._marketingEmailClient,
@@ -375,19 +378,35 @@ define(function (require, exports, module) {
           storage: this._getStorageInstance(),
           uniqueUserId: this._getUniqueUserId()
         });
+
+        const service = this._relier.get('service');
+        const webChannel = this._notificationWebChannel;
+        if (user.shouldSetSignedInAccountFromBrowser(webChannel, service)) {
+          // The delay is to give functional tests a moment to attach
+          // WebChannel responders.
+          const REQUEST_DELAY_MS = this._authenticationBroker.isAutomatedBrowser() ? 200 : 0;
+          return p().delay(REQUEST_DELAY_MS)
+            .then(() => user.setSignedInAccountFromBrowser(webChannel, service));
+        }
+      }
+    },
+
+    initializeWebChannel () {
+      if (! this._notificationWebChannel) {
+        this._notificationWebChannel =
+              new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
+        this._notificationWebChannel.initialize({
+          window: this._window
+        });
       }
     },
 
     initializeNotifier () {
       if (! this._notifier) {
-        const notificationWebChannel =
-              new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-        notificationWebChannel.initialize();
-
         this._notifier = new Notifier({
           iframeChannel: this._iframeChannel,
           tabChannel: this._interTabChannel,
-          webChannel: notificationWebChannel
+          webChannel: this._notificationWebChannel
         });
       }
     },
@@ -562,7 +581,15 @@ define(function (require, exports, module) {
     },
 
     _getStorageInstance () {
-      return Storage.factory('localStorage', this._window);
+      // The Sync user should *always* come from the browser
+      // if FXA_STATUS is supported. Don't even bother
+      // with localStorage.
+      var shouldUseMemoryStorage =
+        this._notificationWebChannel.isFxaStatusSupported() &&
+        this._relier.isSync();
+
+      const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
+      return Storage.factory(storageType, this._window);
     },
 
     _isServiceSync () {

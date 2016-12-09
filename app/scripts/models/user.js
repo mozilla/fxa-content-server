@@ -733,6 +733,80 @@ define(function (require, exports, module) {
      */
     rejectAccountUnblockCode(account, unblockCode) {
       return account.rejectUnblockCode(unblockCode);
+    },
+
+    /**
+     * Initialize the signed in account from the browser, if needed.
+     *
+     * If service=sync, always use the browser's state of the world.
+     * If trying to sign in to an OAuth relier, prefer any users that are
+     * stored in localStorage and only use the browser's state if no
+     * user is stored.
+     *
+     * @param {Object} channel channel used to request data from browser.
+     * @param {String} [service=''] service being signed into.
+     * @returns {Promise} resolves with Account if loaded from browser.
+     *   Resolves to `undefined` if not.
+     */
+    setSignedInAccountFromBrowser (channel, service = '') {
+      if (! this.shouldSetSignedInAccountFromBrowser(channel, service)) {
+        return p();
+      }
+
+      // OAuth reliers will have `service` set to the client_id, Sync to `sync`
+      return channel.request(channel.COMMANDS.FXA_STATUS, { service })
+        .then((browserUserData) => this._setSignedInAccountFromFxaStatusResponse(browserUserData));
+    },
+
+    /**
+     * Should the model be initialized using browser data?
+     *
+     * @param {Object} channel channel used to request data from browser.
+     * @param {Object} [service=''] service being signed into.
+     * @returns {Boolean}
+     */
+    shouldSetSignedInAccountFromBrowser (channel, service = '') {
+      // If service=sync, always use the browser's state of the world.
+      // If trying to sign in to an OAuth relier, prefer any users that are
+      // stored in localStorage and only use the browser's state if no
+      // user is stored.
+      return channel.isFxaStatusSupported() && (
+        service === Constants.SYNC_SERVICE ||
+        this.getSignedInAccount().isDefault()
+      );
+    },
+
+    /**
+     * Set signed in account data from browser response.
+     *
+     * @param {Object} [response={}]
+     * @returns {Promise}
+     */
+    _setSignedInAccountFromFxaStatusResponse (response = {}) {
+      return p().then(() => {
+        // The browser will respond with a signedInUser in the following cases:
+        // - non-PB mode, service=*
+        // - PB mode, service=sync
+        const accountData = response.signedInUser;
+        if (accountData) {
+          const account = this.initAccount({
+            email: accountData.email,
+            sessionToken: accountData.sessionToken,
+            sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+            uid: accountData.uid,
+            verified: accountData.verified
+          });
+
+          // If service=sync, account information is stored in memory only.
+          // All other services store account information in localStorage.
+          return this.setSignedInAccount(account);
+        }
+
+        // If no account data is returned from the browser,
+        // don't clear or store anything. No need to. Sync users
+        // will have no accounts stored in memory, and OAuth users
+        // can only arrive here if no accounts are stored in localStorage.
+      });
     }
   });
 

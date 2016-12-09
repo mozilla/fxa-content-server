@@ -22,6 +22,7 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
+  const NullStorage = require('lib/null-storage');
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
   const Raven = require('raven');
@@ -36,6 +37,7 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../lib/helpers');
   const Url = require('lib/url');
   const User = require('models/user');
+  const WebChannel = require('lib/channels/web');
   const WindowMock = require('../../mocks/window');
 
   describe('lib/app-start', () => {
@@ -277,6 +279,11 @@ define(function (require, exports, module) {
         appStart._metrics = new Metrics({ notifier });
       });
 
+      afterEach(() => {
+        appStart._metrics.destroy();
+        appStart._metrics = null;
+      });
+
       describe('fx-firstrun-v1', () => {
         it('returns a FxFirstrunV1 broker if `service=sync&context=iframe`', () => {
           windowMock.location.search = Url.objToSearchString({
@@ -457,24 +464,51 @@ define(function (require, exports, module) {
     });
 
     describe('initializeUser', () => {
+      let notificationWebChannel;
+      let sandbox;
+
       beforeEach(() => {
+        // sandbox is used because stubs are added to User.prototype.
+        sandbox = sinon.sandbox.create();
+
+        sandbox.stub(User.prototype, 'setSignedInAccountFromBrowser', () => p());
+        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser', () => true);
+
+        notificationWebChannel = new WebChannel('web_channel');
+        sandbox.stub(notificationWebChannel, 'request', () => p({}));
+
         appStart = new AppStart({
           broker: brokerMock,
           history: backboneHistoryMock,
+          notificationWebChannel,
+          relier: new Relier({ service: 'sync' }),
           router: routerMock,
           window: windowMock
         });
+
+        sandbox.stub(appStart, '_getStorageInstance', () => new NullStorage());
+
         appStart.useConfig({});
       });
 
-      it('creates a user', () => {
-        appStart.initializeUser();
-        assert.isDefined(appStart._user);
+      afterEach(() => {
+        sandbox.restore();
       });
 
-      it('sets the user uniqueUserId', () => {
-        appStart.initializeUser();
-        assert.isDefined(appStart._user.get('uniqueUserId'));
+      it('creates a user, sets the uniqueUserId, populates from the browser', () => {
+        return appStart.initializeUser()
+          .then(() => {
+            assert.isDefined(appStart._user);
+            assert.isDefined(appStart._user.get('uniqueUserId'));
+
+            assert.isTrue(appStart._user.shouldSetSignedInAccountFromBrowser.calledOnce);
+
+            assert.isTrue(appStart._user.setSignedInAccountFromBrowser.calledOnce);
+            assert.isTrue(appStart._user.setSignedInAccountFromBrowser.calledWith(
+              notificationWebChannel,
+              'sync'
+            ));
+          });
       });
     });
 
@@ -918,6 +952,47 @@ define(function (require, exports, module) {
           windowMock.location.pathname = pathname;
           assert.isFalse(appStart._isReportSignIn());
         });
+      });
+    });
+
+    describe('_getStorageInstance', () => {
+      it('returns a memory store if fxaccounts:fxa_status is supported and using Sync', () => {
+        appStart = new AppStart({
+          notificationWebChannel: {
+            isFxaStatusSupported: () => true
+          },
+          relier: {
+            isSync: () => true
+          }
+        });
+        const storage = appStart._getStorageInstance();
+        assert.instanceOf(storage._backend, NullStorage);
+      });
+
+      it('returns a localStorage store if fxaccounts:fxa_status is supported and not Sync', () => {
+        appStart = new AppStart({
+          notificationWebChannel: {
+            isFxaStatusSupported: () => true
+          },
+          relier: {
+            isSync: () => false
+          }
+        });
+        const storage = appStart._getStorageInstance();
+        assert.strictEqual(storage._backend, localStorage);
+      });
+
+      it('returns a localStorage store if fxaccounts:fxa_status is not supported', () => {
+        appStart = new AppStart({
+          notificationWebChannel: {
+            isFxaStatusSupported: () => false
+          },
+          relier: {
+            isSync: () => true
+          }
+        });
+        const storage = appStart._getStorageInstance();
+        assert.strictEqual(storage._backend, localStorage);
       });
     });
   });
