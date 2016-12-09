@@ -543,6 +543,10 @@ define(function (require, exports, module) {
       return account.fetchDevices(devices);
     },
 
+    fetchSecurityHistory (account, events) {
+      return account.fetchSecurityHistory(events);
+    },
+
     /**
      * Fetch the OAuthApps for the given account, populated into the passed
      * collection.

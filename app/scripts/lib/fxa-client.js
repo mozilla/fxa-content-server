@@ -575,6 +575,10 @@ define(function (require, exports, module) {
       return client.deviceList(sessionToken);
     }),
 
+    securityHistory: withClient((client, sessionToken) => {
+      return client.securityHistory(sessionToken);
+    }),
+
     deviceDestroy: withClient((client, sessionToken, deviceId) => {
       return client.deviceDestroy(sessionToken, deviceId);
     }),

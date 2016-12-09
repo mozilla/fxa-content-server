@@ -1,0 +1,43 @@
+{{#isPanelEnabled}}
+<div id="clients" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
+  <div class="settings-unit-stub">
+    <header class="settings-unit-summary">
+      <h2 class="settings-unit-title">{{#t}}Account History{{/t}}</h2>
+    </header>
+    <button class="settings-button secondary settings-unit-toggle hidden"
+      data-href="settings/security_history">
+      {{#t}}Show{{/t}}
+    </button>
+  </div>
+
+  <div class="settings-unit-details">
+    <div class="error"></div>
+
+    <form novalidate>
+
+        <ul class="client-list button-row timeline">
+            {{#securityEvents}}
+                <li>
+                    <p class="timeline-date">{{createdAtTimeFormatted}}</p>
+                    <div class="timeline-content">
+                        <div class="timeline-title">
+                            <img src="/images/icon-device-laptop.svg">
+                            <h4>{{name}}</h4>
+                        </div>
+
+                        <p>{{os}} near {{location}}</p>
+                    </div>
+                </li>
+            {{/securityEvents}}
+        </ul>
+        <a href="{{devicesSupportUrl}}">{{#t}}Unknown account history?{{/t}}</a>
+      </ul>
+
+      <div class="button-row">
+        <button type="submit" class="settings-button primary clients-refresh">{{#t}}Refresh{{/t}}</button>
+        <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{{/isPanelEnabled}}

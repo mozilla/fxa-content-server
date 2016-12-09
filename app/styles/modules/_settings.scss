@@ -580,3 +580,53 @@ section.modal-panel {
     margin-bottom: 30px;
   }
 }
+
+.timeline {
+    list-style: none;
+}
+.timeline > li {
+    margin-bottom: 60px;
+}
+
+/* for Desktop */
+@media ( min-width : 640px ){
+    .timeline > li {
+        overflow: hidden;
+        margin: 0;
+        position: relative;
+    }
+    .timeline-date {
+        width: 110px;
+        float: left;
+        margin-top: 20px;
+    }
+    .timeline-content {
+        width: 75%;
+        float: left;
+        border-left: 3px #e5e5d1 solid;
+        padding-left: 30px;
+
+        .timeline-title {
+            display: flex;
+
+            h4 {
+                padding-left: 10px;
+                line-height: 0em;
+            }
+
+            p {
+                line-height: 0em;
+            }
+        }
+    }
+    .timeline-content:before {
+        content: '';
+        width: 12px;
+        height: 12px;
+        background: #6fc173;
+        position: absolute;
+        left: 106px;
+        top: 24px;
+        border-radius: 100%;
+    }
+}
