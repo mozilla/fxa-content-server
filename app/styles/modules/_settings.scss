@@ -212,7 +212,7 @@ body.settings #main-content.card {
   &.primary {
     background: $button-background-color;
     color: $message-text-color;
-	
+
     &:disabled,
     &.disabled {
       background: $button-background-default-color;
