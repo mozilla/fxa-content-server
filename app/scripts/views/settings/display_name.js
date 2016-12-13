@@ -34,7 +34,7 @@ define(function (require, exports, module) {
       'focus input.display-name': 'onDisplayNameFocus',
     },
 
-    onDisplayNameFocus (event) {
+    onDisplayNameFocus () {
       this.isValidStart();
     },
 
@@ -47,17 +47,12 @@ define(function (require, exports, module) {
         });
     },
 
-    isValidStart() {
-      var account = this.getSignedInAccount();
+    isValidStart () {
+      // if no display name set then we still do not want to activate the change button
+      var accountDisplayName = this.getSignedInAccount().get('displayName') || '';
       var displayName = this.getElementValue('input.display-name').trim();
-      var accountDisplayName = account.get('displayName');
-
-      if ( ! accountDisplayName) {
-        accountDisplayName = '';
-      }
 
       return accountDisplayName !== displayName;
-
     },
 
     submit () {
@@ -72,7 +67,6 @@ define(function (require, exports, module) {
           this.navigate('settings');
         });
     }
-
   });
 
   Cocktail.mixin(
@@ -83,5 +77,4 @@ define(function (require, exports, module) {
   );
 
   module.exports = View;
-
 });

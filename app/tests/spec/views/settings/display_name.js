@@ -118,16 +118,28 @@ define(function (require, exports, module) {
     });
 
     describe('isValidStart', function () {
-      var name = 'joe cool';
-      account.set('displayName', name);
-      it('returns true if display name is different', function () {
-        view.$('.display-name').val('joe');
-        assert.equal(view.isValidStart(), true);
+      it('validates the display name field for changes', function () {
+        account.set('displayName', 'joe');
+        return initView()
+          .then(function () {
+            view.$('.display-name').val('joe');
+            assert.equal(view.isValidStart(), false, 'name did not change');
+
+            view.$('.display-name').val('joe change');
+            assert.equal(view.isValidStart(), true, 'name changed');
+          });
       });
 
-      it('returns false if display name is same', function () {
-        view.$('.display-name').val('joe cool');
-        assert.equal(view.isValidStart(), false);
+      it('validates the display name field when it is not set', function () {
+        account.set('displayName', null);
+        return initView()
+          .then(function () {
+            view.$('.display-name').val('');
+            assert.equal(view.isValidStart(), false, 'name did not change');
+
+            view.$('.display-name').val('changed');
+            assert.equal(view.isValidStart(), true, 'name changed');
+          });
       });
     });
 
