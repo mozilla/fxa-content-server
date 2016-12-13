@@ -117,6 +117,20 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('isValidStart', function () {
+      var name = 'joe cool';
+      account.set('displayName', name);
+      it('returns true if display name is different', function () {
+        view.$('.display-name').val('joe');
+        assert.equal(view.isValidStart(), true);
+      });
+
+      it('returns false if display name is same', function () {
+        view.$('.display-name').val('joe cool');
+        assert.equal(view.isValidStart(), false);
+      });
+    });
+
     describe('submit', function () {
       it('submits correctly', function () {
         var name = '  joe cool  ';
