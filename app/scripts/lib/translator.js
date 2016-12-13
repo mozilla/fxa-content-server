@@ -44,12 +44,16 @@ define(function (require, exports, module) {
      * Gets a translated value by key but returns the key if nothing is found.
      * Does string interpolation on %s and %(named)s.
      * @method get
-     * @param {String} key
-     * @param {String} context
+     * @param {String} stringToTranslate
+     * @param {Object} [context={}]
      * @returns {String}
      */
-    get (key, context) {
-      var translation = this.__translations__[key];
+    get (stringToTranslate, context = {}) {
+      let key = stringToTranslate;
+      if (context.msgctxt) {
+        key = context.msgctxt + '\u0004' + stringToTranslate;
+      }
+      var translation = this.__translations__[key] || this.__translations__[stringToTranslate];
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
        * and
@@ -77,7 +81,7 @@ define(function (require, exports, module) {
       translation = $.trim(translation);
 
       if (! translation) {
-        translation = key;
+        translation = stringToTranslate;
       }
 
       return this.interpolate(translation, context);

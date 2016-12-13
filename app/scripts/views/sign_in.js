@@ -86,10 +86,18 @@ define(function (require, exports, module) {
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
 
+      /// button text
+      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'button text' });
+
+      /// header text
+      const headerSignInText = this.translate(t('Sign in'), { msgctxt: 'header text' });
+
       return {
+        buttonSignInText,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
+        headerSignInText,
         isAmoMigration: this.isAmoMigration(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
