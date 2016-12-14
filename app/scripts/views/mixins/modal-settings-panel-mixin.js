@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const BaseView = require('views/base');
   const ModalPanelMixin = require('views/mixins/modal-panel-mixin');
-  var preventDefaultThen = BaseView.preventDefaultThen;
+  const preventDefaultThen = BaseView.preventDefaultThen;
 
   const Mixin = _.extend({}, ModalPanelMixin, {
     initialize (options = {}) {
