@@ -269,6 +269,9 @@ define(function (require, exports, module) {
               version: 52
             },
             isFirefox: () => false,
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => false,
+            isFirefoxIos: () => false,
             isIos: () => false,
           };
         });
@@ -276,13 +279,33 @@ define(function (require, exports, module) {
         assert.isFalse(view._hasWebChannelSupport());
       });
 
-      it('returns `false` if Fx Desktop or Fennec < 40', () => {
+      it('returns `false` if Fx Desktop < 40', () => {
         sinon.stub(view, '_getUap', () => {
           return {
             browser: {
               version: 39
             },
             isFirefox: () => true,
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => true,
+            isFirefoxIos: () => false,
+            isIos: () => false,
+          };
+        });
+
+        assert.isFalse(view._hasWebChannelSupport());
+      });
+
+      it('returns `false` if Fx Desktop < 43', () => {
+        sinon.stub(view, '_getUap', () => {
+          return {
+            browser: {
+              version: 42
+            },
+            isFirefox: () => true,
+            isFirefoxAndroid: () => true,
+            isFirefoxDesktop: () => false,
+            isFirefoxIos: () => false,
             isIos: () => false,
           };
         });
@@ -297,6 +320,9 @@ define(function (require, exports, module) {
               version: 6
             },
             isFirefox: () => true,
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => false,
+            isFirefoxIos: () => true,
             isIos: () => true,
           };
         });
@@ -304,13 +330,33 @@ define(function (require, exports, module) {
         assert.isFalse(view._hasWebChannelSupport());
       });
 
-      it('returns true if Fx Desktop or Fennec >= 40', () => {
+      it('returns true if Fx Desktop >= 40', () => {
         sinon.stub(view, '_getUap', () => {
           return {
             browser: {
               version: 40
             },
             isFirefox: () => true,
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => true,
+            isFirefoxIos: () => false,
+            isIos: () => false,
+          };
+        });
+
+        assert.isTrue(view._hasWebChannelSupport());
+      });
+
+      it('returns true if Fennec >= 43', () => {
+        sinon.stub(view, '_getUap', () => {
+          return {
+            browser: {
+              version: 43
+            },
+            isFirefox: () => true,
+            isFirefoxAndroid: () => true,
+            isFirefoxDesktop: () => false,
+            isFirefoxIos: () => false,
             isIos: () => false,
           };
         });

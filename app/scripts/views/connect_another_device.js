@@ -32,7 +32,7 @@ define(function (require, exports, module) {
       'click #signin': '_onSignInClick'
     },
 
-    showChildView (ChildView, options) {
+    showChildView (ChildView, options = {}) {
       // an extra element is needed to attach the child view to, the extra element
       // is removed from the DOM when the view is destroyed. Without it, .child-view
       // is removed from the DOM and a 2nd child view cannot be displayed.
@@ -87,33 +87,35 @@ define(function (require, exports, module) {
       const isOtherIos = isIos && ! isFirefoxIos;
       const isOther = ! isAndroid && ! isIos;
 
-      let visibleAreaSuffix;
+      // connectMethod is used for metrics to log how the current user is
+      // being nudged to connect another device.
+      let connectMethod;
       if (canSignIn) {
         this.notifier.trigger('connectAnotherDevice.signin.eligible');
 
         if (isFirefoxAndroid) {
-          visibleAreaSuffix = 'signin_from.fennec';
+          connectMethod = 'signin_from.fennec';
         } else {
-          visibleAreaSuffix = 'signin_from.desktop';
+          connectMethod = 'signin_from.desktop';
         }
       } else {
         this.notifier.trigger('connectAnotherDevice.signin.ineligible');
 
         if (isFirefoxIos) {
-          visibleAreaSuffix = 'signin_from.fxios';
+          connectMethod = 'signin_from.fxios';
         } else if (isOtherIos) {
-          visibleAreaSuffix = 'install_from.other_ios';
+          connectMethod = 'install_from.other_ios';
         } else if (isFirefoxAndroid) {
-          visibleAreaSuffix = 'install_from.fennec';
+          connectMethod = 'install_from.fennec';
         } else if (isOtherAndroid) {
-          visibleAreaSuffix = 'install_from.other_android';
+          connectMethod = 'install_from.other_android';
         } else if (isOther) {
-          visibleAreaSuffix = 'install_from.other';
+          connectMethod = 'install_from.other';
         }
       }
 
-      if (visibleAreaSuffix) {
-        this.notifier.trigger(`connectAnotherDevice.${visibleAreaSuffix}`);
+      if (connectMethod) {
+        this.notifier.trigger(`connectAnotherDevice.${connectMethod}`);
       }
 
       return {
@@ -175,11 +177,11 @@ define(function (require, exports, module) {
      */
     _hasWebChannelSupport () {
       const uap = this._getUap();
+      const browserVersion = uap.browser.version;
 
-        // All Foxes >= 40 except iOS can sign in.
-      return uap.isFirefox() &&
-           ! uap.isIos() &&
-             uap.browser.version >= 40;
+      // WebChannels were introduced in Fx Desktop 40 and Fennec 43.
+      return ((uap.isFirefoxDesktop() && browserVersion >= 40) ||
+              (uap.isFirefoxAndroid() && browserVersion >= 43));
     },
 
     /**
