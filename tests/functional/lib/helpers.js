@@ -762,7 +762,6 @@ define([
             return click('form input.marketing-email-optin').call(this);
           }
         })
-
         .then(function () {
           if (submit) {
             return click('button[type="submit"]').call(this);
@@ -1457,6 +1456,9 @@ define([
   function click(selector) {
     return function () {
       return this.parent
+        // Ensure the element is visible and not animating before attempting to click.
+        // Sometimes clicks do not register if the element is in the middle of an animation.
+        .then(visibleByQSA(selector))
         .findByCssSelector(selector)
           .click()
         .end();
