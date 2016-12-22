@@ -1,12 +1,12 @@
 <div id="main-content" class="card">
   <header class="hidden"><h1>{{#t}}Connect another device{{/t}}</h1></header>
-  <div class="success visible">{{#t}}Email confirmed{{/t}}</div>
+  <div class="success visible">{{#t}}Email verified{{/t}}</div>
   <section>
     <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
 
     {{#canSignIn}}
       <p>
-        {{#t}}Complete set-up by signing in to this Firefox.{{/t}}
+        {{#t}}Sign in to this Firefox to complete set-up{{/t}}
       </p>
 
       <form novalidate>
@@ -19,14 +19,13 @@
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
         <p id="signin-fxios">
-          {{#t}}Complete set-up by signing in to this Firefox.{{/t}}
-          {{#t}}Open settings and click Sign In to Firefox.{{/t}}
+          {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
         </p>
       {{/isFirefoxIos}}
       {{#isOtherIos}}
         <!-- Safari or Chrome for iOS, encourage installation of Fx -->
         <p id="install-mobile-firefox-ios">
-          {{#t}}Complete set-up by installing Firefox for iOS.{{/t}}
+          {{#t}}Sign in to Firefox for iOS to complete set-up{{/t}}
         </p>
       {{/isOtherIos}}
       {{#isFirefoxAndroid}}
@@ -34,19 +33,19 @@
         or are already signed in. Ignore old browsers, assume already signed in.
         Encourage installation on another device. -->
         <p id="connect-other-firefox-from-android">
-          {{#t}}Complete set-up by connecting Firefox on another device.{{/t}}
+          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxAndroid}}
       {{#isOtherAndroid}}
         <!-- Another android browser, encourage Fx for Android installation -->
         <p id="install-mobile-firefox-android">
-          {{#t}}Complete set-up by installing Firefox for Android.{{/t}}
+          {{#t}}Sign in to Firefox for Android to complete set-up{{/t}}
         </p>
       {{/isOtherAndroid}}
       {{#isOther}}
         <!-- probably some desktop browser -->
         <p id="install-mobile-firefox-other">
-          {{#t}}Complete set-up by connecting Firefox for your smartphone.{{/t}}
+          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isOther}}
 
