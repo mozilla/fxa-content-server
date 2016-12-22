@@ -26,10 +26,9 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin');
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
+  const t = BaseView.t;
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
-
-  const t = BaseView.t;
 
   const CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
@@ -147,7 +146,7 @@ define(function (require, exports, module) {
       return p()
         .then(() => {
           if (relier.isSync()) {
-            if (this.isInExperimentGroup('connectAnotherDevice', 'treatment')) {
+            if (this._isEligibleToConnectAnotherDevice(account)) {
               // Sync users that are part of the experiment group who verify
               // are sent to "connect another device". If the experiment proves
               // useful, all users will be sent there.
@@ -174,6 +173,28 @@ define(function (require, exports, module) {
               });
           }
         });
+    },
+
+    /**
+     * Check if the user is eligible to connect another device
+     *
+     * @param {Object} verifiedAccount - account that was just verified.
+     * @returns {Boolean}
+     */
+    _isEligibleToConnectAnotherDevice (verifiedAccount) {
+      const user = this.user;
+      const isInExperimentGroup = this.isInExperimentGroup('connectAnotherDevice', 'treatment');
+      const isAnotherUserSignedIn =
+        (! user.getSignedInAccount().isDefault() && ! user.isSignedInAccount(verifiedAccount));
+
+      if (isInExperimentGroup && isAnotherUserSignedIn) {
+        // log that another user is signed in to see how often this happens.
+        this.notifier.trigger('connectAnotherDevice.other_user_signed_in');
+      }
+
+      // If a user is already signed in to Sync which is different to the
+      // user that just verified, show them the old "Account verified!" screen.
+      return isInExperimentGroup && ! isAnotherUserSignedIn;
     },
 
     /**

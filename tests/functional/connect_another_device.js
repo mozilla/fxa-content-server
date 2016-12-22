@@ -35,6 +35,7 @@ define([
   /*eslint-enable max-len*/
 
   var CONNECT_ANOTHER_DEVICE_ENTRYPOINT = 'entrypoint=connect_another_device';
+  var SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
   var SELECTOR_CONTINUE_BUTTON = 'form div a';
   var SELECTOR_INSTALL_TEXT_ANDROID = '#install-mobile-firefox-android';
   var SELECTOR_INSTALL_TEXT_IOS = '#install-mobile-firefox-ios';
@@ -45,8 +46,10 @@ define([
   var SELECTOR_PAGE_LOADED = '.graphic-connect-another-device';
   var SELECTOR_SIGNIN_FXIOS = '#signin-fxios';
   var SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
+  var SELECTOR_SIGNUP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE = 'a[href="/connect_another_device/why"]';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-why-connect-another-device-header';
+  var SIGNIN_DESKTOP_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
   var SIGNUP_FENNEC_URL = config.fxaContentRoot + 'signup?context=fx_fennec_v1&service=sync';
   var SIGNUP_DESKTOP_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v3&service=sync';
   var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
@@ -55,6 +58,8 @@ define([
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
+  var createUser = FunctionalHelpers.createUser;
+  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   var noSuchElement = FunctionalHelpers.noSuchElement;
   var openPage = FunctionalHelpers.openPage;
@@ -141,6 +146,62 @@ define([
         .then(testUrlInclude(SYNC_CONTEXT_DESKTOP))
         .then(testUrlInclude(SYNC_SERVICE))
         .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
+    },
+
+    'sign in Fx Desktop, verify same browser': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
+          forceUA: UA_STRINGS['desktop_firefox']
+        }))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
+        .then(openVerificationLinkInSameTab(email, 0, {
+          query: {
+            forceExperiment: EXPERIMENT_NAME,
+            forceExperimentGroup: EXPERIMENT_GROUP
+          }
+        }))
+        // Works for signin confirmation!
+        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER));
+    },
+
+    'sign up Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
+      var signInEmail = TestHelpers.createEmail('sync{id}');
+      var signUpEmail = email;
+
+      return this.remote
+        // preVerified: false causes the "verify account" email to be sent,
+        // that's used later to verify.
+        .then(createUser(signUpEmail, PASSWORD, { preVerified: false }))
+        .then(createUser(signInEmail, PASSWORD, { preVerified: true }))
+
+        .then(openPage(SIGNIN_DESKTOP_URL, '#fxa-signin-header', {
+          forceUA: UA_STRINGS['desktop_firefox']
+        }))
+        .then(respondToWebChannelMessage(this, 'fxaccounts:can_link_account', { ok: true } ))
+        .then(fillOutSignIn(signInEmail, PASSWORD))
+        .then(testElementExists(SELECTOR_CONFIRM_SIGNIN_HEADER))
+        .then(openVerificationLinkInSameTab(signInEmail, 0, {
+          query: {
+            forceExperiment: EXPERIMENT_NAME,
+            forceExperimentGroup: EXPERIMENT_GROUP
+          }
+        }))
+        // Works for signin confirmation!
+        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
+
+        // NOW - go back and open the verification link for the sign up user in a
+        // browser where another user is already signed in.
+        .then(openVerificationLinkInSameTab(signUpEmail, 0, {
+          query: {
+            forceExperiment: EXPERIMENT_NAME,
+            forceExperimentGroup: EXPERIMENT_GROUP
+          }
+        }))
+        // User goes to the old "Account verified" screen.
+        .then(testElementExists(SELECTOR_SIGNUP_COMPLETE_HEADER));
     },
 
     'sign up Fx Desktop, verify in Fennec': function () {

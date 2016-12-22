@@ -15,6 +15,7 @@
 * experiment.treatment.connectAnotherDevice.marketing.click.ios
 * experiment.treatment.connectAnotherDevice.marketing.impression.android
 * experiment.treatment.connectAnotherDevice.marketing.impression.ios
+* experiment.treatment.connectAnotherDevice.other_user_signed_in
 * experiment.treatment.connectAnotherDevice.signedin.true
 * experiment.treatment.connectAnotherDevice.signedin.false
 * experiment.treatment.connectAnotherDevice.signin.clicked

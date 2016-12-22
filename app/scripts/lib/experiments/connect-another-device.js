@@ -26,6 +26,7 @@ define(function (require, exports, module) {
         createSaveStateDelegate('install_from.other_android'),
       'connectAnotherDevice.install_from.other_ios':
         createSaveStateDelegate('install_from.other_ios'),
+      'connectAnotherDevice.other_user_signed_in': createSaveStateDelegate('other_user_signed_in'),
       'connectAnotherDevice.signedin.false': createSaveStateDelegate('signedin.false'),
       'connectAnotherDevice.signedin.true': createSaveStateDelegate('signedin.true'),
       'connectAnotherDevice.signin.clicked': createSaveStateDelegate('signin.clicked'),

@@ -52,6 +52,8 @@ define(function (require, exports, module) {
       'connectAnotherDevice.install_from.other_android', null, 'install_from.other_android');
     testNotificationSavesState(
       'connectAnotherDevice.install_from.other_ios', null, 'install_from.other_ios');
+    testNotificationSavesState(
+      'connectAnotherDevice.other_user_signed_in', null, 'other_user_signed_in');
     testNotificationSavesState('connectAnotherDevice.signedin.false', null, 'signedin.false');
     testNotificationSavesState('connectAnotherDevice.signedin.true', null, 'signedin.true');
     testNotificationSavesState('connectAnotherDevice.signin.clicked', null, 'signin.clicked');
