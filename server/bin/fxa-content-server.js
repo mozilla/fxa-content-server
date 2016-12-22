@@ -31,6 +31,8 @@ mozlog.config(config.get('logging'));
 
 var logger = require('mozlog')('server.main');
 
+logger.info('starting config', JSON.stringify(config.getProperties()));
+
 
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var routes = require('../lib/routes')(config, i18n);
