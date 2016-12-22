@@ -1,6 +1,11 @@
 <div id="main-content" class="card">
   <header class="hidden"><h1>{{#t}}Connect another device{{/t}}</h1></header>
-  <div class="success visible">{{#t}}Email verified{{/t}}</div>
+  {{#isSignedIn}}
+    <div class="success success-authenticated visible">{{#t}}This device is connected{{/t}}</div>
+  {{/isSignedIn}}
+  {{^isSignedIn}}
+    <div class="success success-not-authenticated visible">{{#t}}Email verified{{/t}}</div>
+  {{/isSignedIn}}
   <section>
     <div class="graphic graphic-connect-another-device">{{#t}}Success{{/t}}</div>
 

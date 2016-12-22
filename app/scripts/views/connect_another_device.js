@@ -44,11 +44,8 @@ define(function (require, exports, module) {
     },
 
     beforeRender () {
-      return this.getAccount().isSignedIn()
-        .then((isSignedIn) => {
-          this.model.set('isSignedIn', isSignedIn);
-          this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
-        });
+      const isSignedIn = this._isSignedIn();
+      this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
     },
 
     afterRender () {
@@ -58,7 +55,7 @@ define(function (require, exports, module) {
 
       // If the user signed up and verified in Firefox for Android,
       // show marketing material for both mobile OSs.
-      if (this.model.get('isSignedIn') && this._getUap().isFirefoxAndroid()) {
+      if (this._isSignedIn() && this._getUap().isFirefoxAndroid()) {
         options.which = MarketingSnippet.WHICH.BOTH;
       }
 
@@ -74,6 +71,7 @@ define(function (require, exports, module) {
     },
 
     context () {
+      const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
       const signInContext = this._getSignInContext();
@@ -126,7 +124,8 @@ define(function (require, exports, module) {
         isFirefoxIos,
         isOther,
         isOtherAndroid,
-        isOtherIos
+        isOtherIos,
+        isSignedIn
       };
     },
 
@@ -158,6 +157,16 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Check if the current user is already signed in.
+     *
+     * @returns {Boolean}
+     * @private
+     */
+    _isSignedIn () {
+      return this.user.isSignedInAccount(this.getAccount());
+    },
+
+    /**
      * Check if the current user can sign in.
      *
      * @returns {Boolean}
@@ -165,7 +174,7 @@ define(function (require, exports, module) {
      */
     _canSignIn () {
       // Only users that are not signed in can do so.
-      return ! this.model.get('isSignedIn') &&
+      return ! this._isSignedIn() &&
                this._hasWebChannelSupport();
     },
 

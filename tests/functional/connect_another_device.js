@@ -47,6 +47,8 @@ define([
   var SELECTOR_SIGNIN_FXIOS = '#signin-fxios';
   var SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
   var SELECTOR_SIGNUP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
+  var SELECTOR_SUCCESS_DIFFERENT_BROWSER = '.success-not-authenticated';
+  var SELECTOR_SUCCESS_SAME_BROWSER = '.success-authenticated';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE = 'a[href="/connect_another_device/why"]';
   var SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-why-connect-another-device-header';
   var SIGNIN_DESKTOP_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v3&service=sync';
@@ -103,6 +105,7 @@ define([
           }
         }))
         .then(testElementExists(SELECTOR_PAGE_LOADED))
+        .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER))
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))
@@ -132,6 +135,8 @@ define([
             forceExperimentGroup: EXPERIMENT_GROUP
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -164,7 +169,8 @@ define([
           }
         }))
         // Works for signin confirmation!
-        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER));
+        .then(testElementExists(SELECTOR_INSTALL_TEXT_OTHER))
+        .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER));
     },
 
     'sign up Fx Desktop, verify different Fx Desktop with another user already signed in': function () {
@@ -228,6 +234,8 @@ define([
             forceUA: UA_STRINGS['android_firefox']
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -267,6 +275,8 @@ define([
             forceUA: UA_STRINGS['ios_firefox']
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -302,6 +312,8 @@ define([
             forceUA: UA_STRINGS['android_chrome']
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -337,6 +349,8 @@ define([
             forceUA: UA_STRINGS['desktop_chrome']
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -370,6 +384,8 @@ define([
             forceUA: UA_STRINGS['ios_safari']
           }
         }))
+        .then(testElementExists(SELECTOR_SUCCESS_DIFFERENT_BROWSER))
+
         // ask "why must I do this?"
         .then(click(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE))
         .then(testElementExists(SELECTOR_WHY_CONNECT_ANOTHER_DEVICE_HEADER))
@@ -405,6 +421,8 @@ define([
           }
         }))
         .then(testElementExists(SELECTOR_PAGE_LOADED))
+        .then(testElementExists(SELECTOR_SUCCESS_SAME_BROWSER))
+
         .then(noSuchElement(SELECTOR_CONTINUE_BUTTON))
         .then(testElementExists(SELECTOR_INSTALL_TEXT_FROM_ANDROID))
         .then(testHrefEquals(SELECTOR_MARKETING_LINK_IOS, ADJUST_LINK_IOS))

@@ -15,6 +15,7 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const Url = require('lib/url');
+  const User = require('models/user');
   const View = require('views/connect_another_device');
   const WindowMock = require('../../mocks/window');
 
@@ -24,6 +25,7 @@ define(function (require, exports, module) {
     let model;
     let notifier;
     let relier;
+    let user;
     let view;
     let windowMock;
 
@@ -40,12 +42,14 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       sinon.spy(notifier, 'trigger');
 
+      user = new User();
 
       view = new View({
         broker,
         model,
         notifier,
         relier,
+        user,
         window: windowMock
       });
     });
@@ -236,10 +240,20 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('_isSignedIn', () => {
+      it('delegates to user.isSignedInAccount', () => {
+        sinon.stub(user, 'isSignedInAccount', () => true);
+
+        assert.isTrue(view._isSignedIn());
+        assert.isTrue(user.isSignedInAccount.calledOnce);
+        assert.isTrue(user.isSignedInAccount.calledWith(account));
+      });
+    });
+
     describe('_canSignIn', () => {
       it('returns `false` if user is signed in', () => {
 
-        model.set('isSignedIn', true);
+        sinon.stub(user, 'isSignedInAccount', () => true);
         sinon.stub(view, '_hasWebChannelSupport', () => true);
 
 
@@ -247,14 +261,14 @@ define(function (require, exports, module) {
       });
 
       it('returns `false` if no web channel support', () => {
-        model.set('isSignedIn', false);
+        sinon.stub(user, 'isSignedInAccount', () => false);
         sinon.stub(view, '_hasWebChannelSupport', () => false);
 
         assert.isFalse(view._canSignIn());
       });
 
       it('returns `true` if not signed in, has web channel support', () => {
-        model.set('isSignedIn', false);
+        sinon.stub(user, 'isSignedInAccount', () => false);
         sinon.stub(view, '_hasWebChannelSupport', () => true);
 
         assert.isTrue(view._canSignIn());
