@@ -42,7 +42,8 @@ function (intern, topic, firefoxProfile) {
     asyncTimeout: asyncTimeout,
     capabilities: {},
     environments: [{
-      browserName: 'firefox', marionette: true
+      browserName: 'firefox',
+      marionette: true
     }],
     excludeInstrumentation: true,
     fixSessionCapabilities: false,
