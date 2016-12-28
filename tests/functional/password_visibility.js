@@ -14,7 +14,6 @@ define([
   var mousedown = FunctionalHelpers.mousedown;
   var mouseup = FunctionalHelpers.mouseup;
   var noSuchElement = FunctionalHelpers.noSuchElement;
-  var noSuchElementDisplayed = FunctionalHelpers.noSuchElementDisplayed;
   var openPage = FunctionalHelpers.openPage;
   var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -54,9 +53,8 @@ define([
         .then(type('#password', '\u0008'), { clearValue: true })
         // give a short pause to clear the input
         .sleep(1000)
-        // element still exists, though it's hidden.
-        .then(testElementExists('.show-password-label'))
-        .then(noSuchElementDisplayed('.show-password-label'));
+        // element still exists
+        .then(testElementExists('.show-password-label'));
 
     }
   });
