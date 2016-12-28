@@ -4,7 +4,7 @@ node_js:
   - "4"
 
 addons:
-  firefox: "50"
+  firefox: "52.0a2"
   apt:
     sources:
       - ubuntu-toolchain-r-test
