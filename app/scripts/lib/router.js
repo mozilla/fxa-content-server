@@ -36,6 +36,7 @@ define(function (require, exports, module) {
   const ReadyView = require('../views/ready');
   const ReportSignInView = require('views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
+  const SecurityHistoryView = require('../views/settings/security_history');
   const SettingsView = require('../views/settings');
   const SignInView = require('../views/sign_in');
   const SignInReportedView = require('views/sign_in_reported');
@@ -99,6 +100,7 @@ define(function (require, exports, module) {
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
+      'settings/security_history(/)': createChildViewHandler(SecurityHistoryView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),

@@ -759,6 +759,18 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Fetch the account's security history and populate into the collection
+     *
+     * @returns {Promise} - resolves when complete
+     */
+    fetchSecurityHistory () {
+      return this._fxaClient.securityHistory(this.get('sessionToken'))
+        .then((securityEvents) => {
+          return securityEvents;
+        });
+    },
+
+    /**
      * Fetch the account's OAuth Apps and populate into the collection
      *
      * @returns {Promise} resolves when the action completes

@@ -145,6 +145,7 @@ module.exports = function (config, i18n) {
       '/settings/communication_preferences',
       '/settings/delete_account',
       '/settings/display_name',
+      '/settings/security_history',
       '/signin',
       '/signin_confirmed',
       '/signin_permissions',

@@ -25,6 +25,7 @@ define(function (require, exports, module) {
   const GravatarView = require('views/settings/avatar_gravatar');
   const LoadingMixin = require('views/mixins/loading-mixin');
   const modal = require('modal'); //eslint-disable-line no-unused-vars
+  const SecurityHistoryView = require('views/settings/security_history');
   const Session = require('lib/session');
   const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
   const SubPanels = require('views/sub_panels');
@@ -34,6 +35,7 @@ define(function (require, exports, module) {
     AvatarView,
     ClientsView,
     ClientDisconnectView,
+    SecurityHistoryView,
     DisplayNameView,
     CommunicationPreferencesView,
     ChangePasswordView,
