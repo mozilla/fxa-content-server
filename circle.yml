@@ -10,8 +10,7 @@ dependencies:
   override:
     - tightvncserver :1
     - npm install --global retry-cli
-    - wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
-    - DISPLAY=:1 nohup bash -c "java -jar selenium-server-standalone-2.53.0.jar &"
+    - export DISPLAY=:1
     - cp server/config/local.json-dist server/config/local.json
     - npm i --production
     - CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt build

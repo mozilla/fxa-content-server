@@ -4,7 +4,7 @@ node_js:
   - "4"
 
 addons:
-  firefox: "latest-dev"
+  firefox: "50"
   apt:
     sources:
       - ubuntu-toolchain-r-test
