@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthBroker = require('models/auth_brokers/oauth').Constructor;
   const OAuthClient = require('lib/oauth-client');
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');

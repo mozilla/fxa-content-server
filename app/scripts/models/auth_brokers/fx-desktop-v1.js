@@ -11,11 +11,12 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxDesktopChannel = require('lib/channels/fx-desktop-v1');
-  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
   const HaltBehavior = require('views/behaviors/halt');
   const Url = require('lib/url');
 
-  var proto = FxSyncAuthenticationBroker.prototype;
+  const parentBroker = require('models/auth_brokers/fx-sync');
+  const FxSyncAuthenticationBroker = parentBroker.Constructor;
+  const proto = FxSyncAuthenticationBroker.prototype;
 
   var FxDesktopV1AuthenticationBroker = FxSyncAuthenticationBroker.extend({
     type: 'fx-desktop-v1',
@@ -65,6 +66,9 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxDesktopV1AuthenticationBroker;
+  module.exports = {
+    Constructor: FxDesktopV1AuthenticationBroker,
+    options: parentBroker.options
+  };
 });
 

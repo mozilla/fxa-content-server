@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const chai = require('chai');
   const Constants = require('lib/constants');
-  const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2');
+  const FxFirstrunV2AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v2').Constructor;
   const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;

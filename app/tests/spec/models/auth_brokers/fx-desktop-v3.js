@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const chai = require('chai');
-  const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
+  const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3').Constructor;
   const sinon = require('sinon');
   const WindowMock = require('../../../mocks/window');
 

@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/base');
+  const Broker = require('models/auth_brokers/base').Constructor;
   const chai = require('chai');
   const Constants = require('lib/constants');
   const FormPrefill = require('models/form-prefill');

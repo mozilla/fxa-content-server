@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
   const FxaClient = require('lib/fxa-client');
   const Notifier = require('lib/channels/notifier');
-  const OAuthBroker = require('models/auth_brokers/oauth');
+  const OAuthBroker = require('models/auth_brokers/oauth').Constructor;
   const p = require('lib/promise');
   const Session = require('lib/session');
   const sinon = require('sinon');

@@ -9,11 +9,12 @@ define(function (require, exports, module) {
 
   const Constants = require('lib/constants');
   const HaltBehavior = require('views/behaviors/halt');
-  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   const p = require('lib/promise');
   const Url = require('lib/url');
 
-  var proto = OAuthAuthenticationBroker.prototype;
+  const parentBroker = require('models/auth_brokers/oauth');
+  const OAuthAuthenticationBroker = parentBroker.Constructor;
+  const proto = OAuthAuthenticationBroker.prototype;
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'redirect',
@@ -121,5 +122,8 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = RedirectAuthenticationBroker;
+  module.exports = {
+    Constructor: RedirectAuthenticationBroker,
+    options: [ 'metrics' ].concat(parentBroker.options)
+  };
 });

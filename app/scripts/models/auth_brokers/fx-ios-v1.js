@@ -14,8 +14,8 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const p = require('lib/promise');
 
-  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
-
+  const parentBroker = require('models/auth_brokers/fx-desktop-v1');
+  const FxDesktopV1AuthenticationBroker = parentBroker.Constructor;
   const proto = FxDesktopV1AuthenticationBroker.prototype;
 
   const FxiOSV1AuthenticationBroker = FxDesktopV1AuthenticationBroker.extend({
@@ -38,5 +38,8 @@ define(function (require, exports, module) {
     },
   });
 
-  module.exports = FxiOSV1AuthenticationBroker;
+  module.exports = {
+    Constructor: FxiOSV1AuthenticationBroker,
+    options: parentBroker.options
+  };
 });

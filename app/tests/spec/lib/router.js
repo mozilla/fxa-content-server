@@ -14,7 +14,7 @@ define(function (require, exports, module) {
   const DisplayNameView = require('views/settings/display_name');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const NullBroker = require('models/auth_brokers/base');
+  const NullBroker = require('models/auth_brokers/base').Constructor;
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Router = require('lib/router');

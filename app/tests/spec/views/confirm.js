@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const BaseBroker = require('models/auth_brokers/base');
+  const BaseBroker = require('models/auth_brokers/base').Constructor;
   const VerificationReasons = require('lib/verification-reasons');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');

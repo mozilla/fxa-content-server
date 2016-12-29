@@ -14,9 +14,10 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
 
-  var proto = FxFirstrunV1AuthenticationBroker.prototype;
+  const parentBroker = require('./fx-firstrun-v1');
+  const FxFirstrunV1AuthenticationBroker = parentBroker.Constructor;
+  const proto = FxFirstrunV1AuthenticationBroker.prototype;
 
   var FxFirstrunV2AuthenticationBroker = FxFirstrunV1AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -29,6 +30,9 @@ define(function (require, exports, module) {
     type: 'fx-firstrun-v2'
   });
 
-  module.exports = FxFirstrunV2AuthenticationBroker;
+  module.exports = {
+    Constructor: FxFirstrunV2AuthenticationBroker,
+    options: parentBroker.options
+  };
 });
 

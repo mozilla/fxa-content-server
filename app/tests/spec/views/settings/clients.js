@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const Able = require('lib/able');
   const assert = require('chai').assert;
   const AttachedClients = require('models/attached-clients');
-  const BaseBroker = require('models/auth_brokers/base');
+  const BaseBroker = require('models/auth_brokers/base').Constructor;
   const BaseView = require('views/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');

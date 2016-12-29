@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const Account = require('models/account');
-  const BaseAuthenticationBroker = require('models/auth_brokers/base');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base').Constructor;
   const chai = require('chai');
   const Relier = require('models/reliers/relier');
   const SameBrowserVerificationModel = require('models/verification/same-browser');

@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
   const chai = require('chai');
-  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
+  const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync').Constructor;
   const NullChannel = require('lib/channels/null');
   const p = require('lib/promise');
   const sinon = require('sinon');

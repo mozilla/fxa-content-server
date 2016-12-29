@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const BaseBroker = require('models/auth_brokers/base');
+  const BaseBroker = require('models/auth_brokers/base').Constructor;
   const BaseView = require('views/base');
   const DOMEventMock = require('../../mocks/dom-event');
   const ErrorUtils = require('lib/error-utils');

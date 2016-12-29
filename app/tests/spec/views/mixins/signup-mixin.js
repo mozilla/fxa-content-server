@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const Account = require('models/account');
   const assert = require('chai').assert;
-  const Broker = require('models/auth_brokers/base');
+  const Broker = require('models/auth_brokers/base').Constructor;
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const SignUpMixin = require('views/mixins/signup-mixin');

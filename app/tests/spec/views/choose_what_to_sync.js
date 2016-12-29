@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Account = require('models/account');
   const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/fx-fennec-v1');
+  const Broker = require('models/auth_brokers/fx-fennec-v1').Constructor;
   const chai = require('chai');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');

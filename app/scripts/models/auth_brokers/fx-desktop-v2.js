@@ -15,12 +15,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
   const HaltBehavior = require('views/behaviors/halt');
   const NullBehavior = require('views/behaviors/null');
   const p = require('lib/promise');
 
-  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
+  const parentBroker = require('./fx-sync-web-channel');
+  const FxSyncWebChannelAuthenticationBroker = parentBroker.Constructor;
+  const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxDesktopV2AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
@@ -81,6 +82,9 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxDesktopV2AuthenticationBroker;
+  module.exports = {
+    Constructor: FxDesktopV2AuthenticationBroker,
+    options: parentBroker.options
+  };
 });
 

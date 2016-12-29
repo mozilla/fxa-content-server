@@ -5,7 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Broker = require('models/auth_brokers/base');
+  const Broker = require('models/auth_brokers/base').Constructor;
   const chai = require('chai');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');

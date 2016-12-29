@@ -13,12 +13,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
-  const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const ChannelMixin = require('models/auth_brokers/mixins/channel');
   const Cocktail = require('cocktail');
   const p = require('lib/promise');
   const Logger = require('lib/logger');
 
+  const parentBroker = require('models/auth_brokers/base');
+  const BaseAuthenticationBroker = parentBroker.Constructor;
   const proto = BaseAuthenticationBroker.prototype;
 
   const FxSyncAuthenticationBroker = BaseAuthenticationBroker.extend({
@@ -252,6 +253,9 @@ define(function (require, exports, module) {
     ChannelMixin
   );
 
-  module.exports = FxSyncAuthenticationBroker;
+  module.exports = {
+    Constructor: FxSyncAuthenticationBroker,
+    options: [ 'channel', 'commands' ].concat(parentBroker.options)
+  };
 });
 

@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AuthErrors = require('lib/auth-errors');
-  const Broker = require('models/auth_brokers/base');
+  const Broker = require('models/auth_brokers/base').Constructor;
   const chai = require('chai');
   const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');

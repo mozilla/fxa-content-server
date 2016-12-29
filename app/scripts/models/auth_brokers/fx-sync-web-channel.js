@@ -12,9 +12,10 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const FxSyncAuthenticationBroker = require('./fx-sync');
   const WebChannel = require('lib/channels/web');
 
+  const parentBroker = require('./fx-sync');
+  const FxSyncAuthenticationBroker = parentBroker.Constructor;
   const proto = FxSyncAuthenticationBroker.prototype;
 
   const FxSyncWebChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend({
@@ -45,6 +46,9 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxSyncWebChannelAuthenticationBroker;
+  module.exports = {
+    Constructor: FxSyncWebChannelAuthenticationBroker,
+    options: parentBroker.options
+  };
 });
 

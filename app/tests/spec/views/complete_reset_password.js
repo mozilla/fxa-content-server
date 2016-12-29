@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const Able = require('lib/able');
   const AuthErrors = require('lib/auth-errors');
-  const Broker = require('models/auth_brokers/base');
+  const Broker = require('models/auth_brokers/base').Constructor;
   const chai = require('chai');
   const FxaClient = require('lib/fxa-client');
   const Metrics = require('lib/metrics');

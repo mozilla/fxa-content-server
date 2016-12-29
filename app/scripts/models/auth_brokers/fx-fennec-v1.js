@@ -12,10 +12,11 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Constants = require('lib/constants');
-  const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   const NavigateBehavior = require('views/behaviors/navigate');
 
-  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
+  const parentBroker = require('models/auth_brokers/fx-sync-web-channel');
+  const FxSyncWebChannelAuthenticationBroker = parentBroker.Constructor;
+  const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxFennecV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
@@ -34,5 +35,8 @@ define(function (require, exports, module) {
     type: 'fx-fennec-v1'
   });
 
-  module.exports = FxFennecV1AuthenticationBroker;
+  module.exports = {
+    Constructor: FxFennecV1AuthenticationBroker,
+    options: parentBroker.options
+  };
 });

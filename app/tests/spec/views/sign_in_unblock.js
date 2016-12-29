@@ -10,7 +10,7 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const BaseBroker = require('models/auth_brokers/base');
+  const BaseBroker = require('models/auth_brokers/base').Constructor;
   const Constants = require('lib/constants');
   const { createRandomHexString } = require('../../lib/helpers');
   const Metrics = require('lib/metrics');

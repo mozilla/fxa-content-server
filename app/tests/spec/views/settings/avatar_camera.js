@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AuthBroker = require('models/auth_brokers/base');
+  const AuthBroker = require('models/auth_brokers/base').Constructor;
   const AuthErrors = require('lib/auth-errors');
   const CanvasMock = require('../../../mocks/canvas');
   const chai = require('chai');
