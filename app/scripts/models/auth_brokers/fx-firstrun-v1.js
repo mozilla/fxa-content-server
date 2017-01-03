@@ -11,11 +11,10 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
   const HaltBehavior = require('views/behaviors/halt');
 
-  const parentBroker = require('models/auth_brokers/fx-sync-web-channel');
-  const FxSyncWebChannelAuthenticationBroker = parentBroker.Constructor;
-  const proto = FxSyncWebChannelAuthenticationBroker.prototype;
+  var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   var FxFirstrunV1AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend({
     type: 'fx-firstrun-v1',
@@ -92,8 +91,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = {
-    Constructor: FxFirstrunV1AuthenticationBroker,
-    options: [ 'iframeChannel' ].concat(parentBroker.options)
-  };
+  module.exports = FxFirstrunV1AuthenticationBroker;
 });

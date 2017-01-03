@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const Account = require('models/account');
   const chai = require('chai');
-  const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1').Constructor;
+  const FxFirstrunV1AuthenticationBroker = require('models/auth_brokers/fx-firstrun-v1');
   const NullChannel = require('lib/channels/null');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');

@@ -296,16 +296,6 @@ define(function (require, exports, module) {
 
     initializeAuthenticationBroker () {
       if (! this._authenticationBroker) {
-        const args = {
-          assertionLibrary: this._assertionLibrary,
-          iframeChannel: this._iframeChannel,
-          metrics: this._metrics,
-          oAuthClient: this._oAuthClient,
-          relier: this._relier,
-          session: Session,
-          window: this._window
-        };
-
         let context;
         if (this._isFxDesktopV2()) {
           if (this._isIframeContext()) {
@@ -319,11 +309,16 @@ define(function (require, exports, module) {
           context = this._getContext();
         }
 
-        const { Constructor, options } = authBrokers.get(context);
-        this._authenticationBroker = new Constructor(options.reduce((options, key) => {
-          options[key] = args[key];
-          return options;
-        }, {}));
+        const Constructor = authBrokers.get(context);
+        this._authenticationBroker = new Constructor({
+          assertionLibrary: this._assertionLibrary,
+          iframeChannel: this._iframeChannel,
+          metrics: this._metrics,
+          oAuthClient: this._oAuthClient,
+          relier: this._relier,
+          session: Session,
+          window: this._window
+        });
 
         this._authenticationBroker.on('error', this.captureError.bind(this));
 

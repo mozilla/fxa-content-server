@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const Backbone = require('backbone');
-  const BaseBroker = require('models/auth_brokers/base').Constructor;
+  const BaseBroker = require('models/auth_brokers/base');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const sinon = require('sinon');

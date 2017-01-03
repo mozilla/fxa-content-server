@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/base').Constructor;
+  const Broker = require('models/auth_brokers/base');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
   const ExperimentInterface = require('lib/experiment');
   const FormPrefill = require('models/form-prefill');

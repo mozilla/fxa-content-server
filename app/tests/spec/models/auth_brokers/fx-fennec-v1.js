@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const chai = require('chai');
   const Constants = require('lib/constants');
-  const FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1').Constructor;
+  const FxFennecV1AuthenticationBroker = require('models/auth_brokers/fx-fennec-v1');
   const NullChannel = require('lib/channels/null');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');

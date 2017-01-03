@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const chai = require('chai');
   const Constants = require('lib/constants');
-  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth').Constructor;
+  const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
   const p = require('lib/promise');

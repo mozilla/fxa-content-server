@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const chai = require('chai');
-  const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1').Constructor;
+  const FxiOSAuthenticationBroker = require('models/auth_brokers/fx-ios-v1');
   const NullChannel = require('lib/channels/null');
   const Relier = require('models/reliers/relier');
   const WindowMock = require('../../../mocks/window');

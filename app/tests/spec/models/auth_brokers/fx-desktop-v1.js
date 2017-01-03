@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const chai = require('chai');
-  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1').Constructor;
+  const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
   const NullChannel = require('lib/channels/null');
   const p = require('lib/promise');
   const sinon = require('sinon');

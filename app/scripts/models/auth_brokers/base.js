@@ -406,8 +406,5 @@ define(function (require, exports, module) {
     SearchParamMixin
   );
 
-  module.exports = {
-    Constructor: BaseAuthenticationBroker,
-    options: [ 'relier', 'window' ]
-  };
+  module.exports = BaseAuthenticationBroker;
 });

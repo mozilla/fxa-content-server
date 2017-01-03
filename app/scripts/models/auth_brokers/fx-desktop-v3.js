@@ -13,10 +13,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
 
-  const parentBroker = require('./fx-desktop-v2');
-  const FxDesktopV2AuthenticationBroker = parentBroker.Constructor;
-  const proto = FxDesktopV2AuthenticationBroker.prototype;
+  var proto = FxDesktopV2AuthenticationBroker.prototype;
 
   var FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
@@ -26,9 +25,6 @@ define(function (require, exports, module) {
     type: 'fx-desktop-v3'
   });
 
-  module.exports = {
-    Constructor: FxDesktopV3AuthenticationBroker,
-    options: parentBroker.options
-  };
+  module.exports = FxDesktopV3AuthenticationBroker;
 });
 

@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const Account = require('models/account');
   const { assert } = require('chai');
   const BaseView = require('views/base');
-  const Broker = require('models/auth_brokers/base').Constructor;
+  const Broker = require('models/auth_brokers/base');
   const Cocktail = require('cocktail');
   const OpenWebmailMixin = require('views/mixins/open-webmail-mixin');
   const sinon = require('sinon');

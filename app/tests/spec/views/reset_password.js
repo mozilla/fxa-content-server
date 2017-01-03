@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/base').Constructor;
+  const Broker = require('models/auth_brokers/base');
   const chai = require('chai');
   const FormPrefill = require('models/form-prefill');
   const Metrics = require('lib/metrics');

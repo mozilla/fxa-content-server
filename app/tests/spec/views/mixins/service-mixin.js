@@ -8,7 +8,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Chai = require('chai');
   const Cocktail = require('cocktail');
-  const NullBroker = require('models/auth_brokers/base').Constructor;
+  const NullBroker = require('models/auth_brokers/base');
   const OAuthRelier = require('models/reliers/oauth');
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');

@@ -12,16 +12,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
+  const BaseAuthenticationBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
   const HaltBehavior = require('views/behaviors/halt');
   const OAuthErrors = require('lib/oauth-errors');
   const p = require('lib/promise');
   const Url = require('lib/url');
   const Validate = require('lib/validate');
-
-  const parentBroker = require('models/auth_brokers/base');
-  const BaseAuthenticationBroker = parentBroker.Constructor;
-  const proto = BaseAuthenticationBroker.prototype;
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -49,6 +46,8 @@ define(function (require, exports, module) {
 
     return p(result);
   }
+
+  var proto = BaseAuthenticationBroker.prototype;
 
   var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
     type: 'oauth',
@@ -182,8 +181,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = {
-    Constructor: OAuthAuthenticationBroker,
-    options: [ 'assertionLibrary', 'oAuthClient', 'session' ].concat(parentBroker.options)
-  };
+  module.exports = OAuthAuthenticationBroker;
 });

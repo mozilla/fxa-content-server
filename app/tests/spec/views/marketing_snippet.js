@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const Able = require('lib/able');
   const { assert } = require('chai');
-  const BaseBroker = require('models/auth_brokers/base').Constructor;
+  const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
