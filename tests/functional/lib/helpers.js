@@ -663,10 +663,7 @@ define([
   function openFxaFromUntrustedRp(page, options) {
     options = options || {};
     options.untrusted = true;
-    return function () {
-      return this.parent
-        .then(openFxaFromRp(page, options));
-    };
+    return openFxaFromRp(page, options);
   }
 
   /**
@@ -697,7 +694,7 @@ define([
         return this.parent
           .then(openPage(endpoint, expectedHeader))
           .then(function () {
-            if (Object.keys(queryParams).length) {
+            if (Object.keys(queryParams).length > 1) {
               return this.parent
                 .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
             }
@@ -713,7 +710,7 @@ define([
         .then(testElementExists(expectedHeader))
 
         .then(function () {
-          if (Object.keys(queryParams).length) {
+          if (Object.keys(queryParams).length > 1) {
             return this.parent
               .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           }
