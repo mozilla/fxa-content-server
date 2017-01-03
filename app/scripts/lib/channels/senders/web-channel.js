@@ -27,7 +27,7 @@ define(function (require, exports, module) {
      * Send a WebChannel message.
      *
      * @param {String} command command name
-     * @param {Objet} data payload
+     * @param {Object} data payload
      * @param {String} messageId messageId browser will respond with.
      * @returns {Promise}
      */
@@ -84,7 +84,7 @@ define(function (require, exports, module) {
    *
    * @param {String} webChannelId ID of the receiving WebChannel
    * @param {String} command command name
-   * @param {Objet} data payload
+   * @param {Object} data payload
    * @param {String} messageId messageId browser will respond with.
    * @returns {Object}
    */
