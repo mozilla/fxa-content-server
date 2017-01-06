@@ -74,7 +74,7 @@ define(function (require, exports, module) {
      */
     logNumStoredAccounts () {
       const numAccounts = Object.keys(this._accounts()).length;
-      this._metrics.logEventOnce(`num.accounts.${numAccounts}`);
+      this._metrics.logNumStoredAccounts(numAccounts);
     },
 
     _accounts () {

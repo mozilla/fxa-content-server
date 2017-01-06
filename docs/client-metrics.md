@@ -79,6 +79,9 @@ Contains:
 
 See https://developer.mozilla.org/docs/Navigation_timing for more information.
 
+### numStoredAccounts
+The number of accounts the user has stored in localStorage. Only sent once from the /signin page.
+
 ### referrer
 Where the user came from. Not set if the `referrer` header cannot be read.
 
@@ -286,7 +289,6 @@ The event stream is a log of events and the time they occurred while the user is
 * error.signin.auth.1023 - user entered an email address that was invalid
 * flow.signin.engage - user engaged the form
 * flow.signin.submit - user submit the form with front-end validation passing
-* num.accounts.<n> - number of stored accounts - when viewing the signin page
 * signin.ask-password.skipped - skipped asking for password thanks to existing session token
 * signin.ask-password.shown.account-unknown - asked for password due to missing account data
 * signin.ask-password.shown.email-mismatch - asked for password due to using a different email
