@@ -108,10 +108,12 @@ define(function (require, exports, module) {
    */
   function formatEventDetail(win, eventDetail) {
     const userAgent = new UserAgent(win.navigator.userAgent);
-    // Firefox Desktop >= 50 expects the detail to be sent as a string.
+    // Firefox Desktop and Fennec >= 50 expect the detail to be
+    // sent as a string.
     // See https://bugzilla.mozilla.org/show_bug.cgi?id=1275616 and
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1238128
-    if (userAgent.isFirefoxDesktop() && userAgent.browser.version >= 50) {
+    if ((userAgent.isFirefoxDesktop() || userAgent.isFirefoxAndroid()) &&
+        userAgent.browser.version >= 50) {
       return JSON.stringify(eventDetail);
     } else {
       return eventDetail;

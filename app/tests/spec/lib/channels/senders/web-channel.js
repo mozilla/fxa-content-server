@@ -81,7 +81,7 @@ define(function (require, exports, module) {
     }
 
     describe('send', function () {
-      describe('Fx Dekstop >= 50', () => {
+      describe('Fx Desktop >= 50', () => {
         testStringifiedDetail(
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0');
       });
@@ -91,9 +91,14 @@ define(function (require, exports, module) {
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0');
       });
 
-      describe('Fx Android', () => {
+      describe('Fx Android >= 50', () => {
+        testStringifiedDetail(
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:50.0) Gecko/50.0 Firefox/50.0');
+      });
+
+      describe('Fx Android < 50', () => {
         testNonStringifiedDetail(
-          'Mozilla/5.0 (Android 4.4; Mobile; rv:43.0) Gecko/41.0 Firefox/43.0');
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:49.0) Gecko/49.0 Firefox/49.0');
       });
     });
 
