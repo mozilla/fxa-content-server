@@ -1,3 +1,13 @@
+<a name="0.77.1"></a>
+## 0.77.1 (2017-01-06)
+
+
+### Bug Fixes
+
+* **tests:** marionette fixes: remove selenium check; export X DISPLAY (#4596) r=vladikoff ([3744ac6](https://github.com/mozilla/fxa-content-server/commit/3744ac6))
+
+
+
 <a name="0.77.0"></a>
 # 0.77.0 (2016-12-28)
 
