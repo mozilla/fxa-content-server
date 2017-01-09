@@ -432,6 +432,7 @@ define(function (require, exports, module) {
           // See issue #616
           if (this.isSignedInAccount(account)) {
             this.clearSignedInAccount();
+            this._notifier.trigger('flow.clear');
           }
         });
     },

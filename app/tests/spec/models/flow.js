@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
+define((require, exports, module) => {
   'use strict';
 
   const $ = require('jquery');
@@ -14,21 +14,25 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const WindowMock = require('../../mocks/window');
 
-  var BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-  var RESUME_FLOW_ID = '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
+  const BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
+  const BODY_FLOW_BEGIN_TIME = 1484931996866;
+  const RESUME_FLOW_ID = '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
+  const RESUME_FLOW_BEGIN_TIME = 1484932012514;
 
-  describe('models/flow', function () {
-    var flow;
-    var sentryMetricsMock;
-    var windowMock;
+  describe('models/flow', () => {
+    let flow;
+    let sentryMetricsMock;
+    let windowMock;
+    let $body;
 
-    beforeEach(function () {
+    beforeEach(() => {
       sentryMetricsMock = {
         captureException: sinon.spy()
       };
       windowMock = new WindowMock();
-      $(windowMock.document.body).removeData('flowId').removeAttr('data-flow-id');
-      $(windowMock.document.body).removeData('flowBegin').removeAttr('data-flow-begin');
+      $body = $(windowMock.document.body);
+      $body.removeAttr('data-flow-id');
+      $body.removeAttr('data-flow-begin');
     });
 
     function createFlow () {
@@ -38,50 +42,46 @@ define(function (require, exports, module) {
       });
     }
 
-    afterEach(function () {
-      flow = null;
-    });
-
-    it('fetches from the `resume` search parameter, if available', function () {
+    it('fetches from the `resume` search parameter, if available', () => {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42, flowId: RESUME_FLOW_ID })
+        resume: ResumeToken.stringify({ flowBegin: RESUME_FLOW_BEGIN_TIME, flowId: RESUME_FLOW_ID })
       });
 
       createFlow();
 
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), RESUME_FLOW_BEGIN_TIME);
     });
 
-    it('fetches from body data attributes, if available', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '42');
+    it('fetches from body data attributes, if available', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.equal(flow.get('flowId'), BODY_FLOW_ID);
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), BODY_FLOW_BEGIN_TIME);
     });
 
-    it('gives preference to values from the `resume` search parameter', function () {
+    it('gives preference to values from the `resume` search parameter', () => {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42, flowId: RESUME_FLOW_ID })
+        resume: ResumeToken.stringify({ flowBegin: RESUME_FLOW_BEGIN_TIME, flowId: RESUME_FLOW_ID })
       });
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '24');
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.equal(flow.get('flowId'), RESUME_FLOW_ID);
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), RESUME_FLOW_BEGIN_TIME);
     });
 
-    it('logs an error when the resume token contains `flowId` but not `flowBegin`', function () {
+    it('logs an error when the resume token contains `flowId` but not `flowBegin`', () => {
       windowMock.location.search = Url.objToSearchString({
         resume: ResumeToken.stringify({ flowId: RESUME_FLOW_ID })
       });
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '24');
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
@@ -89,33 +89,33 @@ define(function (require, exports, module) {
       assert.notOk(flow.has('flowBegin'));
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'MISSING_RESUME_TOKEN_PROPERTY'));
       assert.strictEqual(args[0].property, 'flowBegin');
     });
 
-    it('logs an error when the resume token contains `flowBegin` but not `flowId`', function () {
+    it('logs an error when the resume token contains `flowBegin` but not `flowId`', () => {
       windowMock.location.search = Url.objToSearchString({
-        resume: ResumeToken.stringify({ flowBegin: 42 })
+        resume: ResumeToken.stringify({ flowBegin: RESUME_FLOW_BEGIN_TIME })
       });
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '24');
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.notOk(flow.has('flowId'));
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), RESUME_FLOW_BEGIN_TIME);
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'MISSING_RESUME_TOKEN_PROPERTY'));
       assert.strictEqual(args[0].property, 'flowId');
     });
 
-    it('logs an error when the DOM contains `flowId` but not `flowBegin`', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
+    it('logs an error when the DOM contains `flowId` but not `flowBegin`', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID);
 
       createFlow();
 
@@ -123,28 +123,28 @@ define(function (require, exports, module) {
       assert.notOk(flow.has('flowBegin'));
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'MISSING_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowBegin');
     });
 
-    it('logs an error when the DOM contains `flowBegin` but not `flowId`', function () {
-      $(windowMock.document.body).attr('data-flow-begin', '42');
+    it('logs an error when the DOM contains `flowBegin` but not `flowId`', () => {
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.notOk(flow.has('flowId'));
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), BODY_FLOW_BEGIN_TIME);
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'MISSING_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowId');
     });
 
-    it('logs two errors when there is no flow data available', function () {
+    it('logs two errors when there is no flow data available', () => {
       createFlow();
 
       assert.notOk(flow.has('flowId'));
@@ -152,7 +152,7 @@ define(function (require, exports, module) {
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 2);
 
-      var args = sentryMetricsMock.captureException.args[0];
+      let args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'MISSING_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowId');
@@ -163,41 +163,41 @@ define(function (require, exports, module) {
       assert.strictEqual(args[0].property, 'flowBegin');
     });
 
-    it('logs an error when `data-flow-id` is too short', function () {
-      $(windowMock.document.body).attr('data-flow-id', '123456');
-      $(windowMock.document.body).attr('data-flow-begin', '42');
+    it('logs an error when `data-flow-id` is too short', () => {
+      $body.attr('data-flow-id', '123456');
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.notOk(flow.has('flowId'));
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), BODY_FLOW_BEGIN_TIME);
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'INVALID_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowId');
     });
 
-    it('logs an error when `data-flow-id` is not a hex string', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID.substr(0, 63) + 'X');
-      $(windowMock.document.body).attr('data-flow-begin', '42');
+    it('logs an error when `data-flow-id` is not a hex string', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID.substr(0, 63) + 'X');
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
 
       createFlow();
 
       assert.notOk(flow.has('flowId'));
-      assert.equal(flow.get('flowBegin'), 42);
+      assert.equal(flow.get('flowBegin'), BODY_FLOW_BEGIN_TIME);
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'INVALID_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowId');
     });
 
-    it('logs an error when `data-flow-begin` is not a number', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', 'forty-two');
+    it('logs an error when `data-flow-begin` is not a number', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', 'forty-two');
 
       createFlow();
 
@@ -205,15 +205,15 @@ define(function (require, exports, module) {
       assert.notOk(flow.has('flowBegin'));
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'INVALID_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowBegin');
     });
 
-    it('logs an error when `data-flow-begin` is not an integer', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '3.14159265');
+    it('logs an error when `data-flow-begin` is not an integer', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', '3.14159265');
 
       createFlow();
 
@@ -221,10 +221,21 @@ define(function (require, exports, module) {
       assert.notOk(flow.has('flowBegin'));
 
       assert.strictEqual(sentryMetricsMock.captureException.callCount, 1);
-      var args = sentryMetricsMock.captureException.args[0];
+      const args = sentryMetricsMock.captureException.args[0];
       assert.lengthOf(args, 1);
       assert.isTrue(AuthErrors.is(args[0], 'INVALID_DATA_ATTRIBUTE'));
       assert.strictEqual(args[0].property, 'flowBegin');
+    });
+
+    it('removes data attributes when destroy is called', () => {
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', BODY_FLOW_BEGIN_TIME);
+
+      createFlow();
+      flow.destroy();
+
+      assert.isUndefined($body.attr('data-flow-id'));
+      assert.isUndefined($body.attr('data-flow-begin'));
     });
   });
 });

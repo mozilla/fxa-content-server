@@ -425,10 +425,11 @@ define([
         .then(testSuccessWasShown());
     },
 
-    'data-flow-begin attribute is set': function () {
+    'data-flow-* attributes are set': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/))
+        .then(testAttributeMatches('body', 'data-flow-id', /^[0-9a-f]{64}$/));
     },
 
     'integrity attribute is set on scripts and css': function () {
