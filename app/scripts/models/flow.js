@@ -50,17 +50,25 @@ define(function (require, exports, module) {
       flowId: null
     },
 
-    populateFromDataAttribute (attribute) {
-      var data = $(this.window.document.body).data(attribute);
+    populateFromDataAttribute (property) {
+      const $body = $(this.window.document.body);
+      const attribute = `data-${hyphenate(property)}`;
+      let data = $body.attr(attribute);
+
       if (! data) {
-        this.logError(AuthErrors.toMissingDataAttributeError(attribute));
+        this.logError(AuthErrors.toMissingDataAttributeError(property));
       } else {
         try {
-          data = this.resumeTokenSchema[attribute].validate(data);
-          this.set(attribute, data);
+          data = this.resumeTokenSchema[property].validate(data);
+          this.set(property, data);
         } catch (err) {
-          this.logError(AuthErrors.toInvalidDataAttributeError(attribute));
+          this.logError(AuthErrors.toInvalidDataAttributeError(property));
         }
+
+        // If a user signs out then signs in again, it is a separate flow.
+        // Remove the attributes from the DOM to ensure they're not re-used
+        // if that happens.
+        $body.removeAttr(attribute);
       }
     },
 
@@ -86,4 +94,8 @@ define(function (require, exports, module) {
   );
 
   module.exports = Model;
+
+  function hyphenate (string) {
+    return string.replace(/[A-Z]/g, uppercase => `-${uppercase.toLowerCase()}`);
+  }
 });

@@ -13,11 +13,18 @@ define(function (require, exports, module) {
 
   module.exports = {
     afterRender () {
-      this.flow = new Flow({
+      if (this.metrics.hasFlowModel()) {
+        return;
+      }
+
+      const flow = new Flow({
         sentryMetrics: this.sentryMetrics,
         window: this.window
       });
-      this.metrics.setFlowModel(this.flow);
+
+      if (flow.has('flowId')) {
+        this.metrics.setFlowModel(flow);
+      }
     },
 
     events: {

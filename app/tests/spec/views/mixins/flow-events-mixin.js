@@ -31,12 +31,12 @@ define((require, exports, module) => {
       assert.isFunction(flowEventsMixin._submitFlowEventsForm);
     });
 
-    describe('mix in', () => {
+    describe('hasFlowModel returns false', () => {
       let isFormEnabled;
 
       beforeEach(() => {
         flowEventsMixin.metrics = {
-          logFlowBegin: sinon.spy(),
+          hasFlowModel: sinon.spy(() => false),
           setFlowModel: sinon.spy()
         };
         flowEventsMixin.isFormEnabled = () => isFormEnabled;
@@ -44,8 +44,8 @@ define((require, exports, module) => {
         flowEventsMixin.logEventOnce = sinon.spy();
         flowEventsMixin.logFlowEvent = sinon.spy();
         flowEventsMixin.logFlowEventOnce = sinon.spy();
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', 42);
+        $('body').attr('data-flow-id', FLOW_ID);
+        $('body').attr('data-flow-begin', 42);
         flowEventsMixin.viewName = 'bar';
       });
 
@@ -54,21 +54,17 @@ define((require, exports, module) => {
           flowEventsMixin.afterRender();
         });
 
-        it('correctly created a Flow model instance', () => {
-          assert.ok(flowEventsMixin.flow);
-          assert.strictEqual(flowEventsMixin.flow.get('flowId'), FLOW_ID);
-          assert.strictEqual(flowEventsMixin.flow.get('flowBegin'), 42);
+        it('called metrics.hasFlowModel correctly', () => {
+          assert.strictEqual(flowEventsMixin.metrics.hasFlowModel.callCount, 1);
+          assert.lengthOf(flowEventsMixin.metrics.hasFlowModel.args[0], 0);
         });
 
         it('called metrics.setFlowModel correctly', () => {
           assert.strictEqual(flowEventsMixin.metrics.setFlowModel.callCount, 1);
           const args = flowEventsMixin.metrics.setFlowModel.args[0];
           assert.lengthOf(args, 1);
-          assert.equal(args[0], flowEventsMixin.flow);
-        });
-
-        it('did not call metrics.logFlowBegin', () => {
-          assert.strictEqual(flowEventsMixin.metrics.logFlowBegin.callCount, 0);
+          assert.strictEqual(args[0].get('flowId'), FLOW_ID);
+          assert.strictEqual(args[0].get('flowBegin'), 42);
         });
       });
 
@@ -227,6 +223,30 @@ define((require, exports, module) => {
         it('emits flow events correctly', () => {
           assert.strictEqual(flowEventsMixin.logFlowEventOnce.callCount, 0);
           assert.strictEqual(flowEventsMixin.logFlowEvent.callCount, 0);
+        });
+      });
+    });
+
+    describe('hasFlowModel returns true', () => {
+      beforeEach(() => {
+        flowEventsMixin.metrics = {
+          hasFlowModel: sinon.spy(() => true),
+          setFlowModel: sinon.spy()
+        };
+      });
+
+      describe('afterRender', () => {
+        beforeEach(() => {
+          flowEventsMixin.afterRender();
+        });
+
+        it('called metrics.hasFlowModel correctly', () => {
+          assert.strictEqual(flowEventsMixin.metrics.hasFlowModel.callCount, 1);
+          assert.lengthOf(flowEventsMixin.metrics.hasFlowModel.args[0], 0);
+        });
+
+        it('did not call metrics.setFlowModel', () => {
+          assert.strictEqual(flowEventsMixin.metrics.setFlowModel.callCount, 0);
         });
       });
     });

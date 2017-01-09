@@ -76,6 +76,8 @@ define(function (require, exports, module) {
       user = new User();
       windowMock = new WindowMock();
 
+      metrics.setFlowModel({});
+
       view = new View({
         broker: broker,
         metrics: metrics,

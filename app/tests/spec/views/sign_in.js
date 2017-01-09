@@ -748,10 +748,10 @@ define(function (require, exports, module) {
       var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
 
       beforeEach(function () {
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', -1);
+        $('body').attr('data-flow-id', FLOW_ID);
+        $('body').attr('data-flow-begin', '42');
         sinon.spy(metrics, 'setFlowModel');
-        sinon.spy(metrics, 'logFlowBegin');
+        sinon.spy(metrics, 'logFlowEventOnce');
         return view.afterRender();
       });
 
@@ -760,21 +760,22 @@ define(function (require, exports, module) {
         var args = metrics.setFlowModel.args[0];
         assert.lengthOf(args, 1);
         assert.equal(args[0].get('flowId'), FLOW_ID);
-        assert.equal(args[0].get('flowBegin'), -1);
+        assert.equal(args[0].get('flowBegin'), 42);
       });
 
-      it('called metrics.logFlowBegin correctly', function () {
-        assert.equal(metrics.logFlowBegin.callCount, 1);
-        var args = metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], FLOW_ID);
-        assert.equal(args[1], -1);
+      it('called metrics.logFlowEventOnce correctly', function () {
+        assert.equal(metrics.logFlowEventOnce.callCount, 1);
+        var args = metrics.logFlowEventOnce.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'begin');
       });
     });
 
     describe('flow events', () => {
       beforeEach(() => {
-        view.afterVisible();
+        $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
+        $('body').attr('data-flow-begin', '42');
+        return view.afterRender();
       });
 
       it('logs the begin event', () => {

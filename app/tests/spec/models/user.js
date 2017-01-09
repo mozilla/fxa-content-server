@@ -82,6 +82,29 @@ define(function (require, exports, module) {
         assert.equal(account.get('email'), email);
         assert.deepEqual(account.pick('email'), { email: email });
       });
+
+      it('signOutAccount behaves correctly', () => {
+        sinon.stub(account, 'signOut', () => p());
+        sinon.spy(user, 'clearSignedInAccount');
+        sinon.spy(notifier, 'trigger');
+
+        assert.equal(account.signOut.callCount, 0);
+        assert.equal(user.clearSignedInAccount.callCount, 0);
+        assert.equal(notifier.trigger.callCount, 0);
+
+        return user.signOutAccount(account)
+          .then(() => {
+            assert.equal(account.signOut.callCount, 1);
+            assert.lengthOf(account.signOut.args[0], 0);
+
+            assert.equal(user.clearSignedInAccount.callCount, 1);
+            assert.lengthOf(user.clearSignedInAccount.args[0], 0);
+
+            assert.equal(notifier.trigger.callCount, 1);
+            assert.lengthOf(notifier.trigger.args[0], 1);
+            assert.equal(notifier.trigger.args[0][0], 'flow.clear');
+          });
+      });
     });
 
     it('isSyncAccount', function () {

@@ -54,13 +54,17 @@ define(function (require, exports, module) {
     });
 
     it('fetches from body data attributes, if available', function () {
-      $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
-      $(windowMock.document.body).attr('data-flow-begin', '42');
+      const $body = $(windowMock.document.body);
+      $body.attr('data-flow-id', BODY_FLOW_ID);
+      $body.attr('data-flow-begin', '42');
 
       createFlow();
 
       assert.equal(flow.get('flowId'), BODY_FLOW_ID);
       assert.equal(flow.get('flowBegin'), 42);
+
+      assert.isUndefined($body.attr('data-flow-id'));
+      assert.isUndefined($body.attr('data-flow-begin'));
     });
 
     it('gives preference to values from the `resume` search parameter', function () {

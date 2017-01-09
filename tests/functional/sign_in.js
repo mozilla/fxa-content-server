@@ -177,12 +177,6 @@ define([
         .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-settings-header'));
-    },
-
-    'data-flow-begin attribute is set': function () {
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
     }
   });
 

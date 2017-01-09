@@ -427,12 +427,6 @@ define([
         .then(testSuccessWasShown());
     },
 
-    'data-flow-begin attribute is set': function () {
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signup-header'))
-        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
-    },
-
     'integrity attribute is set on scripts and css': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signup-header'))

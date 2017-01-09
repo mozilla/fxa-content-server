@@ -19,7 +19,7 @@ define((require, exports, module) => {
     describe('afterRender', () => {
       beforeEach(() => {
         flowBeginMixin.metrics = {
-          logFlowBegin: sinon.spy()
+          logFlowEventOnce: sinon.spy()
         };
         flowBeginMixin.flow = {
           get: sinon.spy(property => `mock ${property}`)
@@ -28,12 +28,11 @@ define((require, exports, module) => {
         flowBeginMixin.afterRender();
       });
 
-      it('called metrics.logFlowBegin correctly', () => {
-        assert.strictEqual(flowBeginMixin.metrics.logFlowBegin.callCount, 1);
-        const args = flowBeginMixin.metrics.logFlowBegin.args[0];
-        assert.lengthOf(args, 2);
-        assert.strictEqual(args[0], 'mock flowId');
-        assert.strictEqual(args[1], 'mock flowBegin');
+      it('called metrics.logFlowEventOnce correctly', () => {
+        assert.strictEqual(flowBeginMixin.metrics.logFlowEventOnce.callCount, 1);
+        const args = flowBeginMixin.metrics.logFlowEventOnce.args[0];
+        assert.lengthOf(args, 1);
+        assert.strictEqual(args[0], 'begin');
       });
     });
   });

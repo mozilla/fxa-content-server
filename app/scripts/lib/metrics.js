@@ -129,6 +129,12 @@ define(function (require, exports, module) {
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
     this._xhr = options.xhr || xhr;
+
+    if (options.notifier) {
+      options.notifier.on('flow.clear', () => {
+        this.setFlowModel(null);
+      });
+    }
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -240,16 +246,17 @@ define(function (require, exports, module) {
      * @returns {Object}
      */
     getAllData () {
-      var loadData = this._speedTrap.getLoad();
-      var unloadData = this._speedTrap.getUnload();
+      const loadData = this._speedTrap.getLoad();
+      const unloadData = this._speedTrap.getUnload();
+      const flowData = this.getFlowEventMetadata();
 
-      var allData = _.extend({}, loadData, unloadData, {
+      const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
-        flowBeginTime: this._flowBeginTime,
-        flowId: this._flowId,
+        flowBeginTime: flowData.flowBeginTime,
+        flowId: flowData.flowId,
         flushTime: Date.now(),
         isSampledUser: this._isSampledUser,
         lang: this._lang,
@@ -503,21 +510,16 @@ define(function (require, exports, module) {
       return this._isSampledUser;
     },
 
-    logFlowBegin (flowId, flowBeginTime) {
-      // Don't emit a new flow.begin event unless flowId has changed.
-      if (flowId !== this._flowId) {
-        this._flowId = flowId;
-        this._flowBeginTime = flowBeginTime;
-        this.logFlowEvent('begin');
+    logFlowEvent (eventName, viewName) {
+      if (this._flowModel) {
+        this.logEvent(marshallFlowEvent(eventName, viewName));
       }
     },
 
-    logFlowEvent (eventName, viewName) {
-      this.logEvent(marshallFlowEvent(eventName, viewName));
-    },
-
     logFlowEventOnce (eventName, viewName) {
-      this.logEventOnce(marshallFlowEvent(eventName, viewName));
+      if (this._flowModel) {
+        this.logEventOnce(marshallFlowEvent(eventName, viewName));
+      }
     },
 
     getFlowEventMetadata () {
@@ -526,6 +528,14 @@ define(function (require, exports, module) {
         flowBeginTime: metadata.flowBegin,
         flowId: metadata.flowId
       };
+    },
+
+    hasFlowModel (flowModel) {
+      return !! this._flowModel;
+    },
+
+    getFlowModel (flowModel) {
+      return this._flowModel;
     },
 
     setFlowModel (flowModel) {

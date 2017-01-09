@@ -224,8 +224,8 @@ define(function (require, exports, module) {
       var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
 
       beforeEach(function () {
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', -1);
+        $('body').attr('data-flow-id', FLOW_ID);
+        $('body').attr('data-flow-begin', '42');
         sinon.spy(metrics, 'setFlowModel');
         return view.afterRender();
       });
@@ -235,7 +235,7 @@ define(function (require, exports, module) {
         var args = metrics.setFlowModel.args[0];
         assert.lengthOf(args, 1);
         assert.equal(args[0].get('flowId'), FLOW_ID);
-        assert.equal(args[0].get('flowBegin'), -1);
+        assert.equal(args[0].get('flowBegin'), 42);
       });
     });
 
