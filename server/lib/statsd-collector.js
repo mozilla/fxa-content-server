@@ -186,7 +186,7 @@ function sendNumStoredAccounts(context, numStoredAccounts, tags) {
       // by tag. Convert the count to a tag so we can see which tag has
       // the most values.
       context.increment(
-        type, ['has:' + reportedNumStoredAccounts].concat(tags));
+        type, ['num_stored_accounts:' + reportedNumStoredAccounts].concat(tags));
     } else {
       logOutOfRange(type, numStoredAccounts, 0, STORED_ACCOUNTS_MAX_COUNT);
     }
