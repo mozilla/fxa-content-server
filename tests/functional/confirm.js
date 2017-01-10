@@ -44,6 +44,7 @@ define([
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
+      this.timeout = 90000;
       var email = 'test_signin' + Math.random() + '@mailinator.com';
 
       return this.remote
