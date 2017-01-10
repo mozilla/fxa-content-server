@@ -395,6 +395,8 @@ define(function (require, exports, module) {
         var email = this.get('email');
         var sessionToken = this.get('sessionToken');
 
+        this._metrics.logEvent('core.signin.attempt');
+
         if (password) {
           return this._fxaClient.signIn(email, password, relier, {
             metricsContext: this._metrics.getFlowEventMetadata(),
@@ -414,10 +416,13 @@ define(function (require, exports, module) {
         }
       })
       .then((updatedSessionData) => {
+        this._metrics.logEvent('core.signin.success');
         this.set(updatedSessionData);
         return updatedSessionData;
       })
       .fail((err) => {
+        this._metrics.logEvent('core.signin.error');
+
         if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
           // The server will respond with the canonical email
           // for this account. Use it hereafter.
@@ -440,6 +445,8 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     signUp (password, relier, options = {}) {
+      this._metrics.logEvent('core.signup.attempt');
+
       return this._fxaClient.signUp(
         this.get('email'),
         password,
@@ -450,7 +457,11 @@ define(function (require, exports, module) {
           resume: options.resume
         })
         .then((updatedSessionData) => {
+          this._metrics.logEvent('core.signup.success');
           this.set(updatedSessionData);
+        })
+        .fail(() => {
+          this._metrics.logEvent('core.signup.error');
         });
     },
 
