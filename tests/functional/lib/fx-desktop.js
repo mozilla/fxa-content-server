@@ -76,7 +76,7 @@ define([
       return this.parent
         .findByCssSelector('#message-login')
           .getProperty('innerText')
-          .then(function (innerText) {
+          .then((innerText) => {
             options = options || {};
             var data = JSON.parse(innerText);
             assert.equal(data.email, email);
@@ -101,8 +101,7 @@ define([
   function testIsBrowserNotifiedOfMessage(message) {
     return function () {
       return this.parent
-        .findByCssSelector('#message-' + message)
-        .end();
+        .then(testElementExists('#message-' + message));
     };
   }
 

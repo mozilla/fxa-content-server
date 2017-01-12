@@ -49,7 +49,7 @@ define([
         .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
         .then(testElementExists('#fxa-confirm-signin-header'))
         .then(restmail(EMAIL_SERVER_ROOT + '/mail/' + user))
-        .then(function (emails) {
+        .then((emails) => {
           code = emails[0].headers['x-verify-code'];
           uid = emails[0].headers['x-uid'];
         });
