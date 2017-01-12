@@ -101,7 +101,8 @@ define([
   function testIsBrowserNotifiedOfMessage(message) {
     return function () {
       return this.parent
-        .then(testElementExists('#message-' + message));
+        .findByCssSelector('#message-' + message)
+        .end();
     };
   }
 
