@@ -131,6 +131,7 @@ define(function (require, exports, module) {
       }
 
       this.logEvent('signin.success');
+      this.logViewEvent('success');
       this.logViewEvent('signin.success');
 
       var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';

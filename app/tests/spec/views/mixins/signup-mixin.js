@@ -158,6 +158,11 @@ define(function (require, exports, module) {
           assert.equal(view.logFlowEvent.args[0][1], 'signup');
         });
 
+        it('calls view.logEvent correctly', function () {
+          assert.equal(view.logEvent.callCount, 1);
+          assert.isTrue(view.logEvent.calledWith('signup.success'));
+        });
+
         it('calls view._formPrefill.clear', function () {
           assert.equal(view._formPrefill.clear.callCount, 1);
         });
@@ -204,6 +209,11 @@ define(function (require, exports, module) {
           assert.equal(view.logViewEvent.callCount, 2);
           assert.isTrue(view.logViewEvent.calledWith('success'));
           assert.isTrue(view.logViewEvent.calledWith('signup.success'));
+        });
+
+        it('calls view.logEvent correctly', function () {
+          assert.equal(view.logEvent.callCount, 1);
+          assert.isTrue(view.logEvent.calledWith('signup.success'));
         });
 
         it('calls view._formPrefill.clear correctly', function () {
