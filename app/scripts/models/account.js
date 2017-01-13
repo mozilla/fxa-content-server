@@ -413,20 +413,20 @@ define(function (require, exports, module) {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }
       })
-        .then((updatedSessionData) => {
-          this.set(updatedSessionData);
-          return updatedSessionData;
-        })
-        .fail((err) => {
-          if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
-            // The server will respond with the canonical email
-            // for this account. Use it hereafter.
-            this.set('email', err.email);
-            return this.signIn(password, relier, options);
-          }
+      .then((updatedSessionData) => {
+        this.set(updatedSessionData);
+        return updatedSessionData;
+      })
+      .fail((err) => {
+        if (AuthErrors.is(err, 'INCORRECT_EMAIL_CASE')) {
+          // The server will respond with the canonical email
+          // for this account. Use it hereafter.
+          this.set('email', err.email);
+          return this.signIn(password, relier, options);
+        }
 
-          throw err;
-        });
+        throw err;
+      });
     },
 
     /**
