@@ -125,6 +125,7 @@ define(function (require, exports, module) {
 
           it('calls view.logViewEvent correctly', function () {
             assert.equal(view.logViewEvent.callCount, 2);
+            assert.isTrue(view.logViewEvent.calledWith('success'));
             assert.isTrue(view.logViewEvent.calledWith('signin.success'));
           });
 
