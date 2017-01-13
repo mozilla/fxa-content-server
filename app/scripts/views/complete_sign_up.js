@@ -126,6 +126,15 @@ define(function (require, exports, module) {
       this.logViewEvent('verification.success');
       this.notifier.trigger('verification.success');
 
+      // Emmitting an explicit signin/signup event here
+      // allows us to capture successes that might be
+      // triggered from confirmation emails.
+      if (this.isSignUp()) {
+        this.logEvent('signup.success');
+      } else {
+        this.logEvent('signin.success');
+      }
+
       // Update the stored account data in case it was
       // updated by completeAccountSignUp.
       this.user.setAccount(account);

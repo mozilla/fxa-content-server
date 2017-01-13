@@ -130,7 +130,7 @@ define(function (require, exports, module) {
         this.relier.set('uid', account.get('uid'));
       }
 
-      this.logViewEvent('success');
+      this.logEvent('signin.success');
       this.logViewEvent('signin.success');
 
       var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
