@@ -708,6 +708,7 @@ define([
         return this.parent
           .then(openPage(endpoint, expectedHeader))
           .then(function () {
+            // > 1 because email must always be specified
             if (Object.keys(queryParams).length > 1) {
               return this.parent
                 .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
@@ -724,7 +725,7 @@ define([
         .then(testElementExists(expectedHeader))
 
         .then(function () {
-          if (Object.keys(queryParams).length > 1) {
+          if (Object.keys(queryParams).length) {
             return this.parent
               .then(reOpenWithAdditionalQueryParams(queryParams, expectedHeader));
           }
