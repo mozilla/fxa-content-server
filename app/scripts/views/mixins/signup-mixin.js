@@ -69,7 +69,6 @@ define(function (require, exports, module) {
     },
 
     onSignUpSuccess (account) {
-      this.logEvent('signup.success');
       this.logViewEvent('success');
       this.logViewEvent('signup.success');
 

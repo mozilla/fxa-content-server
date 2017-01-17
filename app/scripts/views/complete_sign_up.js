@@ -126,12 +126,10 @@ define(function (require, exports, module) {
       this.logViewEvent('verification.success');
       this.notifier.trigger('verification.success');
 
-      // Emmitting an explicit signin/signup event here
+      // Emitting an explicit signin event here
       // allows us to capture successes that might be
       // triggered from confirmation emails.
-      if (this.isSignUp()) {
-        this.logEvent('signup.success');
-      } else {
+      if (this.isSignIn()) {
         this.logEvent('signin.success');
       }
 

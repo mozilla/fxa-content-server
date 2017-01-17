@@ -147,8 +147,6 @@ define(function (require, exports, module) {
 
             assert.isTrue(user.signInAccount.calledWith(account));
             assert.isTrue(TestHelpers.isEventLogged(metrics, 'oauth.signin.success'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'oauth.signin.signin.success'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signin.success'));
             assert.isTrue(broker.afterSignIn.calledWith(account));
             assert.isTrue(view.navigate.calledWith('settings'));
           });
