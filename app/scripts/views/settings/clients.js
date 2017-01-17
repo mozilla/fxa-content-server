@@ -157,7 +157,8 @@ define(function (require, exports, module) {
     _fetchAttachedClients () {
       return this._attachedClients.fetchClients({
         devices: true,
-        oAuthApps: true
+        oAuthApps: true,
+        webSession: true
       }, this.user).then(() => {
         // log the number of items
         const numOfClients = this._attachedClients.length;

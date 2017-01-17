@@ -559,6 +559,10 @@ define(function (require, exports, module) {
       return client.deviceList(sessionToken);
     }),
 
+    sessions: withClient((client, sessionToken) => {
+      return client.sessions(sessionToken);
+    }),
+
     deviceDestroy: withClient((client, sessionToken, deviceId) => {
       return client.deviceDestroy(sessionToken, deviceId);
     }),

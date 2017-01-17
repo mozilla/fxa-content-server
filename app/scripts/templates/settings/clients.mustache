@@ -23,7 +23,7 @@
             <div class="device-current">{{#t}}current device{{/t}}</div>
             {{/isCurrentDevice}}
             {{^isCurrentDevice}}
-            <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+            <div class="last-connected">{{userAgent}} {{lastAccessTimeFormatted}}</div>
             {{/isCurrentDevice}}
             <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">
             {{#isDevice}}
