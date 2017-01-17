@@ -1,3 +1,13 @@
+<a name="0.78.1"></a>
+## 0.78.1 (2017-01-17)
+
+
+### Bug Fixes
+
+* **test:** Fix the failing OAuth functional tests. (#4630) r=@vbudhram (#4631) ([3ce5e50](https://github.com/mozilla/fxa-content-server/commit/3ce5e50)), closes [(#4630](https://github.com/(/issues/4630) [(#4631](https://github.com/(/issues/4631)
+
+
+
 <a name="0.78.0"></a>
 # 0.78.0 (2017-01-09)
 
