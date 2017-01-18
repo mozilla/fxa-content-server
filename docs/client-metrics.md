@@ -353,6 +353,7 @@ No page specific events
 * signup.experiment.pw_strength.too_short - password was &lt; 8 characters
 * signup.password.hidden - password is hidden
 * signup.password.visible - password is shown
+* signup.success.skip-confirm - user successfully signed in and did not have to confirm login
 * tooltip.mailcheck-suggested - an email address correction was suggested
 * tooltip.mailcheck-used - an email address correction was chosen by the user in the tooltip
 * tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.

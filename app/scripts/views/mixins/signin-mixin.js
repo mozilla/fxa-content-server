@@ -130,7 +130,7 @@ define(function (require, exports, module) {
         this.relier.set('uid', account.get('uid'));
       }
 
-      this.logEvent('signin.success.skipConfirm');
+      this.logEvent('signin.success.skip-confirm');
       this.logViewEvent('success');
       this.logViewEvent('signin.success');
 

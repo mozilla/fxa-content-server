@@ -131,7 +131,7 @@ define(function (require, exports, module) {
 
           it('calls view.logEvent correctly', function () {
             assert.equal(view.logEvent.callCount, 1);
-            assert.isTrue(view.logEvent.calledWith('signin.success.skipConfirm'));
+            assert.isTrue(view.logEvent.calledWith('signin.success.skip-confirm'));
           });
 
           it('calls view._formPrefill.clear correctly', function () {
