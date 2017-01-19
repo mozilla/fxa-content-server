@@ -23,7 +23,18 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('models/mixins/search-param');
   const vat = require('lib/vat');
 
-  var Model = Backbone.Model.extend({
+  const DATA_ATTRIBUTES = [
+    'flowBegin',
+    'flowId'
+  ].reduce((map, key) => {
+    return map.set(key, `data-${hyphenate(key)}`);
+  }, new Map());
+
+  function hyphenate (string) {
+    return string.replace(/[A-Z]/g, uppercase => `-${uppercase.toLowerCase()}`);
+  }
+
+  const Model = Backbone.Model.extend({
     initialize (options) {
       options = options || {};
 
@@ -45,6 +56,14 @@ define(function (require, exports, module) {
       }
     },
 
+    destroy () {
+      // If a user signs out then signs in again, it is a separate flow.
+      // Remove the attributes from the DOM to ensure they're not re-used
+      // if that happens.
+      const $body = $(this.window.document.body);
+      DATA_ATTRIBUTES.forEach(attribute => $body.removeAttr(attribute));
+    },
+
     defaults: {
       flowBegin: null,
       flowId: null
@@ -52,7 +71,7 @@ define(function (require, exports, module) {
 
     populateFromDataAttribute (property) {
       const $body = $(this.window.document.body);
-      const attribute = `data-${hyphenate(property)}`;
+      const attribute = DATA_ATTRIBUTES.get(property);
       let data = $body.attr(attribute);
 
       if (! data) {
@@ -64,11 +83,6 @@ define(function (require, exports, module) {
         } catch (err) {
           this.logError(AuthErrors.toInvalidDataAttributeError(property));
         }
-
-        // If a user signs out then signs in again, it is a separate flow.
-        // Remove the attributes from the DOM to ensure they're not re-used
-        // if that happens.
-        $body.removeAttr(attribute);
       }
     },
 
@@ -94,8 +108,4 @@ define(function (require, exports, module) {
   );
 
   module.exports = Model;
-
-  function hyphenate (string) {
-    return string.replace(/[A-Z]/g, uppercase => `-${uppercase.toLowerCase()}`);
-  }
 });

@@ -8,23 +8,11 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Flow = require('models/flow');
   const KEYS = require('lib/key-codes');
 
   module.exports = {
     afterRender () {
-      if (this.metrics.hasFlowModel()) {
-        return;
-      }
-
-      const flow = new Flow({
-        sentryMetrics: this.sentryMetrics,
-        window: this.window
-      });
-
-      if (flow.has('flowId')) {
-        this.metrics.setFlowModel(flow);
-      }
+      this.notifier.trigger('flow.initialize');
     },
 
     events: {

@@ -198,6 +198,7 @@ define(function (require, exports, module) {
         notifier: this._notifier,
         screenHeight: screenInfo.screenHeight,
         screenWidth: screenInfo.screenWidth,
+        sentryMetrics: this._sentryMetrics,
         service: relier.get('service'),
         uniqueUserId: this._getUniqueUserId(),
         utmCampaign: relier.get('utmCampaign'),

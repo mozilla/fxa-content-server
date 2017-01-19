@@ -23,6 +23,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Duration = require('duration');
   const Environment = require('lib/environment');
+  const Flow = require('models/flow');
   const p = require('lib/promise');
   const speedTrap = require('speedTrap');
   const Strings = require('lib/strings');
@@ -130,11 +131,7 @@ define(function (require, exports, module) {
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
     this._xhr = options.xhr || xhr;
 
-    if (options.notifier) {
-      options.notifier.on('flow.clear', () => {
-        this.setFlowModel(null);
-      });
-    }
+    this._initializeFlowEvents(options);
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -151,6 +148,50 @@ define(function (require, exports, module) {
 
       // Set the initial inactivity timeout to clear navigation timing data.
       this._resetInactivityFlushTimeout();
+    },
+
+    _initializeFlowEvents (options) {
+      const notifier = options.notifier;
+
+      if (notifier) {
+        const sentryMetrics = options.sentryMetrics;
+
+        notifier.on('flow.initialize', () => {
+          if (this._flowModel) {
+            return;
+          }
+
+          const flowModel = new Flow({
+            sentryMetrics: sentryMetrics,
+            window: this._window
+          });
+
+          if (flowModel.has('flowId')) {
+            this._flowModel = flowModel;
+          }
+        });
+
+        notifier.on('flow.event', data => {
+          if (! this._flowModel) {
+            return;
+          }
+
+          const eventName = marshallFlowEvent(data.event, data.view);
+
+          if (data.once) {
+            this.logEventOnce(eventName);
+          } else {
+            this.logEvent(eventName);
+          }
+        });
+
+        notifier.on('flow.clear', () => {
+          if (this._flowModel) {
+            this._flowModel.destroy();
+            this._flowModel = null;
+          }
+        });
+      }
     },
 
     destroy () {
@@ -510,18 +551,6 @@ define(function (require, exports, module) {
       return this._isSampledUser;
     },
 
-    logFlowEvent (eventName, viewName) {
-      if (this._flowModel) {
-        this.logEvent(marshallFlowEvent(eventName, viewName));
-      }
-    },
-
-    logFlowEventOnce (eventName, viewName) {
-      if (this._flowModel) {
-        this.logEventOnce(marshallFlowEvent(eventName, viewName));
-      }
-    },
-
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
@@ -530,16 +559,8 @@ define(function (require, exports, module) {
       };
     },
 
-    hasFlowModel (flowModel) {
-      return !! this._flowModel;
-    },
-
     getFlowModel (flowModel) {
       return this._flowModel;
-    },
-
-    setFlowModel (flowModel) {
-      this._flowModel = flowModel;
     },
 
     /**

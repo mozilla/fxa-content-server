@@ -10,7 +10,7 @@ define(function (require, exports, module) {
 
   module.exports = {
     afterRender () {
-      this.metrics.logFlowEventOnce('begin');
+      this.logFlowEventOnce('begin');
     }
   };
 });
