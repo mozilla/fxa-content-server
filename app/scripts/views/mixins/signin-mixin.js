@@ -139,7 +139,7 @@ define(function (require, exports, module) {
       this.logEvent('signin.success.skip-confirm');
 
       // This event ties the signin success to a screen.
-      // Currently, can be oauth, signin, signup, signin-block
+      // Currently, can be oauth, signin, signup, signin-unblock
       this.logViewEvent('signin.success');
 
       var brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
