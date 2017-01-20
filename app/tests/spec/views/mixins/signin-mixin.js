@@ -124,13 +124,13 @@ define(function (require, exports, module) {
           });
 
           it('calls view.logViewEvent correctly', function () {
-            assert.equal(view.logViewEvent.callCount, 2);
-            assert.isTrue(view.logViewEvent.calledWith('success'));
+            assert.equal(view.logViewEvent.callCount, 1);
             assert.isTrue(view.logViewEvent.calledWith('signin.success'));
           });
 
           it('calls view.logEvent correctly', function () {
-            assert.equal(view.logEvent.callCount, 1);
+            assert.equal(view.logEvent.callCount, 2);
+            assert.isTrue(view.logEvent.calledWith('signin.success'));
             assert.isTrue(view.logEvent.calledWith('signin.success.skip-confirm'));
           });
 
