@@ -75,7 +75,18 @@ define(function (require, exports, module) {
      * @return {Boolean}
      */
     isInExperiment (experimentName) {
-      return !! this._activeExperiments[experimentName];
+      // If able returns any truthy value, consider the
+      // user in the experiment.
+      return !! this.able.choose(experimentName, {
+        // yes, this is a hack because experiments do not have a reference
+        // to able internally. This allows experiemnts to reference other
+        // experiments
+        able: this.able,
+        forceExperiment: this.forceExperiment,
+        forceExperimentGroup: this.forceExperimentGroup,
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+        uniqueUserId: this.user.get('uniqueUserId')
+      });
     },
 
     /**
@@ -86,7 +97,7 @@ define(function (require, exports, module) {
      * @return {Boolean}
      */
     isInExperimentGroup (experimentName, groupName) {
-      if (this.isInExperiment(experimentName)) {
+      if (this.isInExperiment(experimentName) && this._activeExperiments[experimentName]) {
         return this._activeExperiments[experimentName].isInGroup(groupName);
       }
 
@@ -104,34 +115,10 @@ define(function (require, exports, module) {
       }
 
       for (let experimentName in this._allExperiments) {
-        const isInExperiment = !! this.choose(experimentName);
-
-          // If able returns any truthy value, consider the
-          // user in the experiment.
-        if (isInExperiment) {
+        if (this.isInExperiment(experimentName)) {
           this.createExperiment(experimentName);
         }
       }
-    },
-
-    /**
-     * Query able for a choice.
-     *
-     * @param {String} experimentName - name of experiment to query.
-     * @returns {String|Boolean} - the result of able's choice. Returns `false`
-     *  if user is not part of experiment.
-     */
-    choose (experimentName) {
-      return this.able.choose(experimentName, {
-        // yes, this is a hack because experiments do not have a reference
-        // to able internally. This allows experiemnts to reference other
-        // experiments
-        able: this.able,
-        forceExperiment: this.forceExperiment,
-        forceExperimentGroup: this.forceExperimentGroup,
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-        uniqueUserId: this.user.get('uniqueUserId')
-      });
     },
 
     /**

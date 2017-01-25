@@ -75,9 +75,9 @@ define(function (require, exports, module) {
 
     describe('isInExperiment', function () {
       it('checks experiment opt in', function () {
-        expInt._activeExperiments = {
-          'mockExperiment': mockExperiment
-        };
+        sinon.stub(expInt, 'isInExperiment', (experimentName) => {
+          return experimentName === 'mockExperiment';
+        });
 
         assert.isTrue(expInt.isInExperiment('mockExperiment'));
         assert.isFalse(expInt.isInExperiment('otherExperiment'));
@@ -87,6 +87,9 @@ define(function (require, exports, module) {
 
     describe('isInExperimentGroup', function () {
       it('is true when opted in', function () {
+        sinon.stub(expInt, 'isInExperiment', (experimentName) => {
+          return experimentName === 'mockExperiment';
+        });
         expInt._activeExperiments = {
           'mockExperiment': mockExperiment
         };
@@ -114,27 +117,27 @@ define(function (require, exports, module) {
       });
 
       it('does not choose when not initialized', function () {
-        sinon.spy(expInt, 'choose');
+        sinon.spy(expInt, 'isInExperiment');
         expInt.initialized = false;
         expInt.chooseExperiments();
-        assert.isFalse(expInt.choose.called);
+        assert.isFalse(expInt.isInExperiment.called);
       });
 
       describe('user is not part of any experiment', () => {
         it('does not create the experiment', () => {
-          sinon.stub(expInt, 'choose', () => false);
+          sinon.stub(expInt, 'isInExperiment', () => false);
 
           expInt.chooseExperiments();
 
-          assert.isTrue(expInt.choose.calledWith('experiment1'));
+          assert.isTrue(expInt.isInExperiment.calledWith('experiment1'));
           assert.isFalse(expInt.createExperiment.calledWith('experiment1'));
           assert.isFalse(expInt.isInExperiment('experiment1'));
 
-          assert.isTrue(expInt.choose.calledWith('experiment2'));
+          assert.isTrue(expInt.isInExperiment.calledWith('experiment2'));
           assert.isFalse(expInt.createExperiment.calledWith('experiment2'));
           assert.isFalse(expInt.isInExperiment('experiment2'));
 
-          assert.isTrue(expInt.choose.calledWith('experiment3'));
+          assert.isTrue(expInt.isInExperiment.calledWith('experiment3'));
           assert.isFalse(expInt.createExperiment.calledWith('experiment3'));
           assert.isFalse(expInt.isInExperiment('experiment3'));
         });
@@ -142,7 +145,7 @@ define(function (require, exports, module) {
 
       describe('user is part of at least one experiment', () => {
         it('creates the experiment', () => {
-          sinon.stub(expInt, 'choose', (choiceName) => {
+          sinon.stub(expInt, 'isInExperiment', (choiceName) => {
             if (choiceName === 'experiment1') {
               return true;
             } else if (choiceName === 'experiment3') {
