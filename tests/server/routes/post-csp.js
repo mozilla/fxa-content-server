@@ -11,9 +11,13 @@ define([
   'intern/dojo/node!path',
   'intern/dojo/node!../../../server/lib/configuration',
   'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon'
+  'intern/dojo/node!sinon',
+  'intern/dojo/node!got'
 ], function (intern, registerSuite, assert, initLogging, fs, path, config,
-  proxyquire, sinon) {
+  proxyquire, sinon, got) {
+
+  const REPORT_URL = intern.config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
+
   // ensure we don't get any module from the cache, but to load it fresh every time
   proxyquire.noPreserveCache();
   var suite = {
@@ -32,39 +36,32 @@ define([
     json: function () {}
   };
 
-  suite['it drops if no csp-report set'] = function () {
-    var writer = sinon.spy();
-    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
-    assert.isFalse(postCsp.process({
-      body: {},
-      'get': function () {}
-    }, mockResponse));
-
-    assert.equal(writer.callCount, 0);
+  suite['400s if no csp-report set'] = function () {
+    return got.post(REPORT_URL, { body: '{}', headers: { 'Content-Type': 'application/json' } })
+      .then(assert.fail, (resp) => {
+        console.log('resp', resp);
+        assert.equal(resp.statusCode, 400);
+        assert.equal(resp.statusMessage, 'Bad Request');
+      });
   };
 
-  suite['it drops if csp-report is empty'] = function () {
-    var writer = sinon.spy();
-    var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
-    assert.isFalse(postCsp.process({
-      body: {
-        'csp-report': {}
-      },
-      'get': function () {}
-    }, mockResponse));
-
-    assert.equal(writer.callCount, 0);
+  suite['400s if csp-report is empty'] = function () {
+    return got.post(REPORT_URL, { body: '{"csp-report":{}}', headers: { 'Content-Type': 'application/json' } })
+      .then(assert.fail, (resp) => {
+        assert.equal(resp.statusCode, 400);
+        assert.equal(resp.statusMessage, 'Bad Request');
+      });
   };
 
   suite['it works with csp reports'] = function () {
     var writer = sinon.spy();
     var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
     // check 5 times that all messages drop
-    assert.isTrue(postCsp.process(mockRequest, mockResponse));
-    assert.isTrue(postCsp.process(mockRequest, mockResponse));
-    assert.isTrue(postCsp.process(mockRequest, mockResponse));
-    assert.isTrue(postCsp.process(mockRequest, mockResponse));
-    assert.isTrue(postCsp.process(mockRequest, mockResponse));
+    postCsp.process(mockRequest, mockResponse);
+    postCsp.process(mockRequest, mockResponse);
+    postCsp.process(mockRequest, mockResponse);
+    postCsp.process(mockRequest, mockResponse);
+    postCsp.process(mockRequest, mockResponse);
 
     assert.equal(writer.callCount, 5);
   };

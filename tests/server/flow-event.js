@@ -130,19 +130,6 @@ define([
       }
     },
 
-    'call flowEvent with invalid flow id': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          flowId: '1234567890abcdef1234567890abcdef'
-        }, 1000);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
     'call flowEvent with invalid flow begin time': {
       beforeEach () {
         flowMetricsValidateResult = true;
@@ -161,58 +148,6 @@ define([
         flowMetricsValidateResult = true;
         setup({
           flowBeginTime: `${mocks.time - 1000}`
-        }, 1000);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
-    'call flowEvent with invalid context': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          context: '!'
-        }, 1000);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
-    'call flowEvent with invalid entrypoint': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          entrypoint: '!'
-        }, 1000);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
-    'call flowEvent with invalid migration': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          migration: 'sync111'
-        }, 1000);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
-    'call flowEvent with invalid service': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          service: '1234567890abcdef1234567890abcdef'
         }, 1000);
       },
 
@@ -342,28 +277,6 @@ define([
       }
     },
 
-    'call flowEvent with invalid client_id': {
-      beforeEach () {
-        const timeSinceFlowBegin = 1000;
-        const flowBeginTime = mocks.time - timeSinceFlowBegin;
-        flowMetricsValidateResult = true;
-        flowEvent(mocks.request, {
-          client_id: 'deadbeef', //eslint-disable-line camelcase
-          events: [
-            { offset: 0, type: 'flow.begin' }
-          ],
-          flowBeginTime,
-          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-          flushTime: flowBeginTime,
-          startTime: flowBeginTime - timeSinceFlowBegin,
-        }, mocks.time);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
-      }
-    },
-
     'call flowEvent with service and client_id': {
       beforeEach () {
         const timeSinceFlowBegin = 1000;
@@ -410,28 +323,6 @@ define([
         assert.equal(process.stderr.write.callCount, 1);
         const arg = JSON.parse(process.stderr.write.args[0][0]);
         assert.equal(arg.entrypoint, 'menubar');
-      }
-    },
-
-    'call flowEvent with invalid entryPoint': {
-      beforeEach () {
-        const timeSinceFlowBegin = 1000;
-        const flowBeginTime = mocks.time - timeSinceFlowBegin;
-        flowMetricsValidateResult = true;
-        flowEvent(mocks.request, {
-          entryPoint: '!',
-          events: [
-            { offset: 0, type: 'flow.begin' }
-          ],
-          flowBeginTime,
-          flowId: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-          flushTime: flowBeginTime,
-          startTime: flowBeginTime - timeSinceFlowBegin,
-        }, mocks.time);
-      },
-
-      'process.stderr.write was not called': () => {
-        assert.equal(process.stderr.write.callCount, 0);
       }
     },
 
@@ -596,70 +487,6 @@ define([
         assert.isUndefined(arg.utm_medium);
         assert.isUndefined(arg.utm_source);
         assert.isUndefined(arg.utm_term);
-      }
-    },
-
-    'call flowEvent with invalid utm_campaign': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          utm_campaign: '!' //eslint-disable-line camelcase
-        }, 1000);
-      },
-
-      'process.stderr.write was called correctly': () => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(arg), 16);
-        assert.isUndefined(arg.utm_campaign); //eslint-disable-line camelcase
-      }
-    },
-
-    'call flowEvent with invalid utm_content': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          utm_content: '"' //eslint-disable-line camelcase
-        }, 1000);
-      },
-
-      'process.stderr.write was called correctly': () => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(arg), 16);
-        assert.isUndefined(arg.utm_content); //eslint-disable-line camelcase
-      }
-    },
-
-    'call flowEvent with invalid utm_medium': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          utm_medium: ';' //eslint-disable-line camelcase
-        }, 1000);
-      },
-
-      'process.stderr.write was called correctly': () => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(arg), 16);
-        assert.isUndefined(arg.utm_medium); //eslint-disable-line camelcase
-      }
-    },
-
-    'call flowEvent with invalid utm_source': {
-      beforeEach () {
-        flowMetricsValidateResult = true;
-        setup({
-          utm_source: '>' //eslint-disable-line camelcase
-        }, 1000);
-      },
-
-      'process.stderr.write was called correctly': () => {
-        assert.equal(process.stderr.write.callCount, 1);
-        const arg = JSON.parse(process.stderr.write.args[0][0]);
-        assert.lengthOf(Object.keys(arg), 16);
-        assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
       }
     }
   });

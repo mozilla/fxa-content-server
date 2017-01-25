@@ -27,23 +27,12 @@ const FLOW_BEGIN_EVENT = 'flow.begin';
 const FLOW_ID_KEY = config.get('flow_id_key');
 const FLOW_ID_EXPIRY = config.get('flow_id_expiry');
 
-const ENTRYPOINT_PATTERN = /^[\w.-]+$/;
-const SERVICE_PATTERN = /^(sync|content-server|none|[0-9a-f]{16})$/;
-const VALID_FLOW_EVENT_PROPERTIES = [
-  { key: 'client_id', pattern: SERVICE_PATTERN },
-  { key: 'context', pattern: /^[0-9a-z_-]+$/ },
-  { key: 'entryPoint', pattern: ENTRYPOINT_PATTERN },
-  { key: 'entrypoint', pattern: ENTRYPOINT_PATTERN },
-  { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
-  { key: 'migration', pattern: /^(sync11|amo|none)$/ },
-  { key: 'service', pattern: SERVICE_PATTERN }
-];
-
-const UTM_PATTERN = /^[\w.%-]+$/;
-
 const IS_DISABLED = config.get('client_metrics').stderr_collector_disabled;
 
 module.exports = (req, metrics, requestReceivedTime) => {
+  // The form of all metrics values have been validated prior to this call.
+  // Some additional validation is performed to ensure timestamps and
+  // the flow id key are valid.
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
@@ -98,10 +87,6 @@ function isValidFlowData (metrics, requestReceivedTime) {
     return false;
   }
 
-  if (! VALID_FLOW_EVENT_PROPERTIES.every(p => isValidProperty(metrics[p.key], p.pattern))) {
-    return false;
-  }
-
   return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
 }
 
@@ -113,14 +98,6 @@ function isValidTime (time, requestReceivedTime) {
   const age = requestReceivedTime - time;
   if (age > FLOW_ID_EXPIRY || age < 0 || isNaN(age)) {
     return false;
-  }
-
-  return true;
-}
-
-function isValidProperty (propertyValue, pattern) {
-  if (propertyValue) {
-    return pattern.test(propertyValue);
   }
 
   return true;
@@ -156,16 +133,7 @@ function pickFlowData (data, request) {
     return _.pick(data, DNT_ALLOWED_DATA);
   }
 
-  const pickedData = _.pick(data, NO_DNT_ALLOWED_DATA);
-
-  return _.pickBy(pickedData, (value, key) => {
-    if (key.indexOf('utm_') === 0) {
-      // Silently drop utm_ properties that contain unexpected characters.
-      return UTM_PATTERN.test(value);
-    }
-
-    return true;
-  });
+  return _.pick(data, NO_DNT_ALLOWED_DATA);
 }
 
 function isDNT (request) {
@@ -193,4 +161,3 @@ function optionallySetFallbackData (eventData, key, fallback) {
     eventData[key] = limitLength(fallback);
   }
 }
-

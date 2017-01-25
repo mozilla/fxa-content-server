@@ -4,8 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 var bodyParser = require('body-parser');
+var celebrate = require('celebrate');
 var consolidate = require('consolidate');
 var cookieParser = require('cookie-parser');
 var cors = require('cors');
@@ -150,6 +150,21 @@ function makeApp() {
 
   // The error handler must be before any other error middleware
   app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
+
+  // log any joi validation errors
+  app.use((err, req, res, next) => {
+    if (err && err.isJoi) {
+      logger.error({
+        error: err.details.map(details => details.message).join(','),
+        op: 'validation.error',
+        path: req.path,
+      });
+    }
+    next(err);
+  });
+
+  // convert joi validation errors to a JSON response
+  app.use(celebrate.errors());
 
   // server error!
   app.use(serverErrorHandler);

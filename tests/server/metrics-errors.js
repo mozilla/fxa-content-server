@@ -20,44 +20,62 @@ define([
     name: 'metrics-errors'
   };
 
-  suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
+  const VALID_METRICS_ERROR =
+    fs.readFileSync('tests/server/fixtures/metrics_error_valid.json');
+  const INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD =
+    fs.readFileSync('tests/server/fixtures/metrics_error_overwrite_slice.json');
 
-    got.get(serverUrl + '/metrics-errors')
-      .then(function (res) {
+  suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
+    return got.get(serverUrl + '/metrics-errors')
+      .then((res) => {
         assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
+      });
   };
 
   suite['#post /metrics-errors - returns 200 without query'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors')
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
-  };
-
-  suite['#post /metrics-errors - returns 200 with an error query'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors?sentry_version=4')
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-      })
-      .then(dfd.resolve, dfd.reject);
+    return got.post(serverUrl + '/metrics-errors', {
+      body: VALID_METRICS_ERROR,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((res) => {
+      assert.equal(res.statusCode, 200);
+    });
   };
 
   suite['#post /metrics-errors - returns 200 with an error query and a body'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
-
-    got.post(serverUrl + '/metrics-errors?sentry_version=4', {
-      body: JSON.stringify({ logger: 'javascript', project: 'metrics-errors' }),
-    }).then(function (res) {
+    return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
+      body: VALID_METRICS_ERROR,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then((res) => {
       assert.equal(res.statusCode, 200);
-    }).then(dfd.resolve, dfd.reject);
+    });
+  };
+
+  suite['#post /metrics-errors - returns 400 with invalid body'] = function () {
+
+    return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
+      body: JSON.stringify({}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(assert.fail, (res) => {
+      assert.equal(res.statusCode, 400);
+    });
+  };
+
+  suite['#post /metrics-errors - returns 400 with invalid frames'] = function () {
+    return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
+      body: INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(assert.fail, (res) => {
+      assert.equal(res.statusCode, 400);
+    });
   };
 
   // This test cannot be run remotely like the other tests in tests/server.
