@@ -1691,6 +1691,49 @@ define([
     };
   }
 
+  /**
+   * Get account data from localStorage.
+   *
+   * @param {string} email - email of account
+   * @returns {promise} resolves with the account data, if exists,
+   *  resolves with `undefined` if not.
+   */
+  function getStoredAccountByEmail (email) {
+    return function () {
+      return this.parent
+        .execute((email) => {
+          // synthesize the user signing in before the email normalization fix went in (#4470)
+          var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
+          console.log('looking for email', email);
+
+          for (var uid in accounts) {
+            var account = accounts[uid];
+            if (account.email === email) {
+              return account;
+            }
+          }
+        }, [ email ]);
+    };
+  }
+
+  /**
+   * Ensure no such account is stored with the `email`
+   *
+   * @param {string} email - email of account
+   * @returns {promise} resolves if no account with `email`, rejects otherwise.
+   */
+  function noSuchStoredAccountByEmail (email) {
+    return function () {
+      return this.parent
+        .then(getStoredAccountByEmail(email))
+        .then((account) => {
+          if (account) {
+            throw new Error('Account data should have been removed: ' + email);
+          }
+        });
+    };
+  }
+
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1712,6 +1755,7 @@ define([
     getEmailHeaders: getEmailHeaders,
     getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
+    getStoredAccountByEmail: getStoredAccountByEmail,
     getUnblockInfo: getUnblockInfo,
     getVerificationLink: getVerificationLink,
     imageLoadedByQSA: imageLoadedByQSA,
@@ -1724,6 +1768,7 @@ define([
     noSuchBrowserNotification: noSuchBrowserNotification,
     noSuchElement: noSuchElement,
     noSuchElementDisplayed: noSuchElementDisplayed,
+    noSuchStoredAccountByEmail: noSuchStoredAccountByEmail,
     openExternalSite: openExternalSite,
     openForceAuth: openForceAuth,
     openFxaFromRp: openFxaFromRp,
