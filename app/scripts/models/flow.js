@@ -23,7 +23,18 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('models/mixins/search-param');
   const vat = require('lib/vat');
 
-  var Model = Backbone.Model.extend({
+  const DATA_ATTRIBUTES = [
+    'flowBegin',
+    'flowId'
+  ].reduce((map, key) => {
+    return map.set(key, `data-${hyphenate(key)}`);
+  }, new Map());
+
+  function hyphenate (string) {
+    return string.replace(/[A-Z]/g, uppercase => `-${uppercase.toLowerCase()}`);
+  }
+
+  const Model = Backbone.Model.extend({
     initialize (options) {
       options = options || {};
 
@@ -45,21 +56,32 @@ define(function (require, exports, module) {
       }
     },
 
+    destroy () {
+      // If a user signs out then signs in again, it is a separate flow.
+      // Remove the attributes from the DOM to ensure they're not re-used
+      // if that happens.
+      const $body = $(this.window.document.body);
+      DATA_ATTRIBUTES.forEach(attribute => $body.removeAttr(attribute));
+    },
+
     defaults: {
       flowBegin: null,
       flowId: null
     },
 
-    populateFromDataAttribute (attribute) {
-      var data = $(this.window.document.body).data(attribute);
+    populateFromDataAttribute (property) {
+      const $body = $(this.window.document.body);
+      const attribute = DATA_ATTRIBUTES.get(property);
+      let data = $body.attr(attribute);
+
       if (! data) {
-        this.logError(AuthErrors.toMissingDataAttributeError(attribute));
+        this.logError(AuthErrors.toMissingDataAttributeError(property));
       } else {
         try {
-          data = this.resumeTokenSchema[attribute].validate(data);
-          this.set(attribute, data);
+          data = this.resumeTokenSchema[property].validate(data);
+          this.set(property, data);
         } catch (err) {
-          this.logError(AuthErrors.toInvalidDataAttributeError(attribute));
+          this.logError(AuthErrors.toInvalidDataAttributeError(property));
         }
       }
     },

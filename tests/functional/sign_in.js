@@ -22,6 +22,7 @@ define([
   var openPage = FunctionalHelpers.openPage;
   var openSignInInNewTab = FunctionalHelpers.openSignInInNewTab;
   var openSignUpInNewTab = FunctionalHelpers.openSignUpInNewTab;
+  var testAttribute = FunctionalHelpers.testAttribute;
   var testAttributeMatches = FunctionalHelpers.testAttributeMatches;
   var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   var testElementExists = FunctionalHelpers.testElementExists;
@@ -179,10 +180,22 @@ define([
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'data-flow-begin attribute is set': function () {
+    'data-flow-* attributes are set': function () {
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
-        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
+        .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/))
+        .then(testAttributeMatches('body', 'data-flow-id', /^[0-9a-f]{64}$/));
+    },
+
+    'data-flow-* attributes are cleared after sign out': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testAttribute('body', 'data-flow-begin', 'isNull'))
+        .then(testAttribute('body', 'data-flow-id', 'isNull'));
     }
   });
 

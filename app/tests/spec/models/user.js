@@ -626,9 +626,7 @@ define(function (require, exports, module) {
             return p();
           });
 
-          sinon.stub(user, 'setSignedInAccount', function () {
-            return p(account);
-          });
+          sinon.spy(user, 'setSignedInAccount');
 
           sinon.spy(notifier, 'triggerRemote');
 
@@ -656,6 +654,29 @@ define(function (require, exports, module) {
 
         it('did not call account.retrySignUp', function () {
           assert.strictEqual(account.retrySignUp.callCount, 0);
+        });
+
+        it('signOutAccount behaves correctly', () => {
+          sinon.stub(account, 'signOut', () => p());
+          sinon.spy(user, 'clearSignedInAccount');
+          sinon.spy(notifier, 'trigger');
+
+          assert.equal(account.signOut.callCount, 0);
+          assert.equal(user.clearSignedInAccount.callCount, 0);
+          assert.equal(notifier.trigger.callCount, 0);
+
+          return user.signOutAccount(account)
+            .then(() => {
+              assert.equal(account.signOut.callCount, 1);
+              assert.lengthOf(account.signOut.args[0], 0);
+
+              assert.equal(user.clearSignedInAccount.callCount, 1);
+              assert.lengthOf(user.clearSignedInAccount.args[0], 0);
+
+              assert.equal(notifier.trigger.callCount, 1);
+              assert.lengthOf(notifier.trigger.args[0], 1);
+              assert.equal(notifier.trigger.args[0][0], 'flow.clear');
+            });
         });
       });
 

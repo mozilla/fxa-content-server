@@ -109,22 +109,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterRender', function () {
-      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-
-      beforeEach(function () {
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', -1);
-        sinon.spy(metrics, 'setFlowModel');
+    describe('afterRender', () => {
+      beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
         return view.afterRender();
       });
 
-      it('called metrics.setFlowModel correctly', function () {
-        assert.equal(metrics.setFlowModel.callCount, 1);
-        var args = metrics.setFlowModel.args[0];
-        assert.lengthOf(args, 1);
-        assert.equal(args[0].get('flowId'), FLOW_ID);
-        assert.equal(args[0].get('flowBegin'), -1);
+      it('called notifier.trigger correctly', () => {
+        assert.equal(notifier.trigger.callCount, 1);
+        assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
       });
     });
 
@@ -242,59 +235,65 @@ define(function (require, exports, module) {
     });
   });
 
-  describe('views/reset_password with email specified in relier', function () {
-    var broker;
-    var formPrefill;
-    var relier;
-    var view;
+  describe('views/reset_password with email specified in relier', () => {
+    let broker;
+    let formPrefill;
+    let notifier;
+    let relier;
+    let view;
 
-    beforeEach(function () {
+    beforeEach(() => {
       relier = new Relier();
       relier.set('email', 'testuser@testuser.com');
       broker = new Broker({
-        relier: relier
+        relier
       });
       formPrefill = new FormPrefill();
+      notifier = new Notifier();
 
       view = new View({
-        broker: broker,
-        formPrefill: formPrefill,
-        relier: relier
+        broker,
+        formPrefill,
+        notifier,
+        relier
       });
 
       return view.render();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       view.destroy();
       view = null;
       $('#container').empty();
     });
 
-    it('does not pre-fills email address', function () {
+    it('does not pre-fills email address', () => {
       assert.equal(view.$('.email').val(), '');
     });
   });
 
-  describe('views/reset_password with model.forceEmail', function () {
-    var broker;
-    var email = 'testuser@testuser.com';
-    var formPrefill;
-    var model;
-    var relier;
-    var view;
+  describe('views/reset_password with model.forceEmail', () => {
+    let broker;
+    let email = 'testuser@testuser.com';
+    let formPrefill;
+    let model;
+    let notifier;
+    let relier;
+    let view;
 
-    beforeEach(function () {
-      broker = new Broker({ relier: relier });
+    beforeEach(() => {
+      broker = new Broker({ relier });
       formPrefill = new FormPrefill();
       model = new Backbone.Model({ forceEmail: email });
-      relier = new Relier({ email: email });
+      notifier = new Notifier();
+      relier = new Relier({ email });
 
       view = new View({
-        broker: broker,
-        formPrefill: formPrefill,
-        model: model,
-        relier: relier
+        broker,
+        formPrefill,
+        model,
+        notifier,
+        relier
       });
 
       sinon.spy(view, '_resetPassword');
@@ -302,29 +301,29 @@ define(function (require, exports, module) {
       return view.render();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       view.destroy();
       view = null;
       $('#container').empty();
     });
 
-    it('shows a readonly email', function () {
-      var $emailInputEl = view.$('[type=email]');
+    it('shows a readonly email', () => {
+      const $emailInputEl = view.$('[type=email]');
       assert.equal($emailInputEl.val(), email);
       assert.isTrue($emailInputEl.hasClass('hidden'));
 
       assert.equal(view.$('.prefillEmail').text(), email);
     });
 
-    it('has a link back to /force_auth', function () {
+    it('has a link back to /force_auth', () => {
       assert.ok(view.$('a[href="/force_auth"]').length);
     });
 
-    it('does not submit the email address automatically', function () {
+    it('does not submit the email address automatically', () => {
       assert.isFalse(view._resetPassword.called);
     });
 
-    it('removes the back button - the user probably browsed here directly', function () {
+    it('removes the back button - the user probably browsed here directly', () => {
       assert.equal(view.$('#back').length, 0);
     });
   });
