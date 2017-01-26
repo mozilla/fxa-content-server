@@ -1,3 +1,14 @@
+<a name="0.79.4"></a>
+## 0.79.4 (2017-01-26)
+
+
+### Bug Fixes
+
+* **client:** Clear all account data on sign out. (#19) r=@seanmonstar ([15159d8](https://github.com/mozilla/fxa-content-server/commit/15159d8))
+* **metrics:** Validate all POST payloads before processing. (#20) r=@philbooth ([48ccadc](https://github.com/mozilla/fxa-content-server/commit/48ccadc))
+
+
+
 <a name="0.79.3"></a>
 ## 0.79.3 (2017-01-26)
 
