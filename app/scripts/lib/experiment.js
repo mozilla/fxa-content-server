@@ -36,13 +36,6 @@ define(function (require, exports, module) {
     this.forceExperiment = Url.searchParam(FORCE_EXPERIMENT_PARAM, search);
     this.forceExperimentGroup = Url.searchParam(FORCE_EXPERIMENT_GROUP_PARAM, search);
 
-    const agent = this.window.navigator.userAgent;
-    // if this is running in functional test mode then we do not want any unpredictable experiments
-    if (agent.indexOf(UA_OVERRIDE) >= 0 && ! this.forceExperiment) {
-      this.initialized = false;
-      return;
-    }
-
     // reset the active experiments so that each instance
     // of the interface creates its own copy of the list.
     this._activeExperiments = {};
@@ -53,6 +46,13 @@ define(function (require, exports, module) {
     this.notifier = options.notifier;
     this.translator = options.translator;
     this.user = options.user;
+
+    const agent = this.window.navigator.userAgent;
+    // if this is running in functional test mode then we do not want any unpredictable experiments
+    if (agent.indexOf(UA_OVERRIDE) >= 0 && ! this.forceExperiment) {
+      this.initialized = false;
+      return;
+    }
 
     this.initialized = true;
   }
@@ -79,7 +79,7 @@ define(function (require, exports, module) {
       // user in the experiment.
       return !! this.able.choose(experimentName, {
         // yes, this is a hack because experiments do not have a reference
-        // to able internally. This allows experiemnts to reference other
+        // to able internally. This allows experiments to reference other
         // experiments
         able: this.able,
         forceExperiment: this.forceExperiment,
@@ -130,7 +130,7 @@ define(function (require, exports, module) {
       const ExperimentConstructor = this._allExperiments[experimentName];
       if (_.isFunction(ExperimentConstructor)) {
         const experiment = new ExperimentConstructor();
-        const initResult = experiment.initialize(experimentName , {
+        const initResult = experiment.initialize(experimentName, {
           able: this.able,
           account: this.account,
           metrics: this.metrics,

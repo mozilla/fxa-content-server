@@ -1252,11 +1252,11 @@ define(function (require, exports, module) {
         windowMock.navigator.userAgent = 'mocha';
         var mockAble = new Able();
         sinon.stub(mockAble, 'choose', function (name) {
-          if (name === 'chooseAbExperiment') {
-            return 'mailcheck';
+          if (name === 'mailcheck') {
+            return 'treatment';
           }
 
-          return 'treatment';
+          return false;
         });
         view.experiments = new ExperimentInterface({
           able: mockAble,
