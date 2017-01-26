@@ -103,6 +103,19 @@ define(function (require, exports, module) {
           isCurrentDevice: true,
           name: 'beta',
           type: 'mobile'
+        },
+        {
+          clientType: 'oAuthApp',
+          id: 'app-1',
+          lastAccessTime: Date.now(),
+          name: '123Done'
+        },
+        {
+          clientType: 'oAuthApp',
+          id: 'app-2',
+          lastAccessTime: Date.now(),
+          name: 'Pocket',
+          scope: ['profile', 'profile:write']
         }
       ], {
         notifier: notifier
@@ -146,6 +159,11 @@ define(function (require, exports, module) {
 
       it('renders attachedClients already in the collection', function () {
         assert.ok(view.$('li.client').length, 2);
+      });
+
+      it('title attribute is added', function () {
+        assert.equal(view.$('#app-1 .client-name').attr('title'), '123Done');
+        assert.equal(view.$('#app-2 .client-name').attr('title'), 'Pocket - profile,profile:write');
       });
 
       it('renders attachedClients and apps', function () {
@@ -478,7 +496,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_formatAccessTime', function () {
+    describe('_formatAccessTimeAndScope', function () {
       it('translates the last active string', function () {
         return initView()
           .then(() => {
@@ -492,7 +510,7 @@ define(function (require, exports, module) {
               }
             };
 
-            const formatted = view._formatAccessTime([
+            const formatted = view._formatAccessTimeAndScope([
               {
                 lastAccessTimeFormatted: 'a few seconds ago',
                 name: 'client-1'
@@ -501,6 +519,40 @@ define(function (require, exports, module) {
 
             assert.equal(formatted[0].lastAccessTimeFormatted, 'Translated %(translatedTimeAgo)s');
             assert.equal(formatted[0].name, 'client-1');
+          });
+      });
+
+      it('properly sets the title according to scope', function () {
+        return initView()
+          .then(() => {
+            $('#container').html(view.el);
+
+            const formatted = view._formatAccessTimeAndScope([
+              {
+                clientType: 'oAuthApp',
+                id: 'app-1',
+                lastAccessTime: Date.now(),
+                name: '123Done',
+                scope: ['profile']
+              },
+              {
+                clientType: 'oAuthApp',
+                id: 'app-2',
+                lastAccessTime: Date.now(),
+                name: 'Pocket',
+                scope: ['profile', 'profile:write']
+              },
+              {
+                clientType: 'oAuthApp',
+                id: 'app-3',
+                lastAccessTime: Date.now(),
+                name: 'Add-ons'
+              }
+            ]);
+
+            assert.equal(formatted[0].title, '123Done - profile');
+            assert.equal(formatted[1].title, 'Pocket - profile,profile:write');
+            assert.equal(formatted[2].title, 'Add-ons');
           });
       });
     });
