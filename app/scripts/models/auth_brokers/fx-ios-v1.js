@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const Constants = require('lib/constants');
   const FxDesktopV1AuthenticationBroker = require('models/auth_brokers/fx-desktop-v1');
+  const NullBehavior = require('views/behaviors/null');
   const p = require('lib/promise');
   const UserAgent = require('lib/user-agent');
 
@@ -29,11 +30,30 @@ define(function (require, exports, module) {
     initialize (options = {}) {
       proto.initialize.call(this, options);
 
-      this.setCapability(
-        'immediateUnverifiedLogin',
-        this._supportsImmediateUnverifiedLogin());
+      if (this._supportsImmediateUnverifiedLogin()) {
+        this.setCapability('immediateUnverifiedLogin', true);
+
+        // Fx for iOS allows the user to see the "confirm your email" screen,
+        // but never takes it away after the user verifies. Allow the poll
+        // so that the user sees the "Signup complete!" screen after they
+        // verify their email.
+        this.setBehavior(
+          'beforeSignUpConfirmationPoll', new NullBehavior());
+      }
     },
 
+    /**
+     * Get the user-agent string. For functional testing
+     * purposes, first attempts to fetch a UA string from the
+     * `forceUA` query parameter, if that is not found, use
+     * the browser's.
+     *
+     * @returns {String}
+     * @private
+     */
+    _getUserAgentString () {
+      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
+    },
 
     /**
      * Check if the browser supports immediate login
@@ -43,7 +63,7 @@ define(function (require, exports, module) {
      * @private
      */
     _supportsImmediateUnverifiedLogin () {
-      const userAgent = new UserAgent(this.window.navigator.userAgent);
+      const userAgent = new UserAgent(this._getUserAgentString());
       const version = userAgent.parseVersion();
       return version.major > 6 ||
             (version.major === 6 && version.minor >= 1);

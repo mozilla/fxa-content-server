@@ -44,22 +44,26 @@ define(function (require, exports, module) {
 
     describe('capabilities', () => {
       describe('does not support immediateUnverifiedLogin', () => {
-        it('has the expected default capabilities', () => {
+        it('has the expected capabilities and behaviors', () => {
           assert.isTrue(broker.hasCapability('signup'));
           assert.isTrue(broker.hasCapability('handleSignedInNotification'));
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
           assert.isFalse(broker.hasCapability('immediateUnverifiedLogin'));
+
+          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'halt');
         });
       });
 
       describe('supports immediateUnverifiedLogin', () => {
-        it('has the expected default capabilities', () => {
+        it('has the expected capabilities and behaviors', () => {
           initializeBroker(IMMEDIATE_UNVERIFIED_LOGIN_UA_STRING);
 
           assert.isTrue(broker.hasCapability('signup'));
           assert.isTrue(broker.hasCapability('handleSignedInNotification'));
           assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));
           assert.isTrue(broker.hasCapability('immediateUnverifiedLogin'));
+
+          assert.equal(broker.getBehavior('beforeSignUpConfirmationPoll').type, 'null');
         });
       });
     });
