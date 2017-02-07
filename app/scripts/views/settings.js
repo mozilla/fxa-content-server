@@ -5,7 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const $ = require('jquery');
   const allowOnlyOneSubmit = require('views/decorators/allow_only_one_submit');
   const AvatarCameraView = require('views/settings/avatar_camera');
   const AvatarChangeView = require('views/settings/avatar_change');
@@ -137,12 +136,13 @@ define(function (require, exports, module) {
     // When we navigate to settings from a childView
     // close the modal, show any ephemeral messages passed to `navigate`
     _onNavigateFromChildView () {
+      /*
       if ($.modal.isActive()) {
         $.modal.close();
-      }
+      }*/
       this.displayStatusMessages();
 
-      this.logView();
+  //    this.logView();
     },
 
     beforeRender () {

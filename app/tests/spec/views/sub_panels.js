@@ -6,9 +6,9 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const { assert } = require('chai');
   const Backbone = require('backbone');
   const BaseView = require('views/base');
-  const chai = require('chai');
   const Cocktail = require('cocktail');
   const Metrics = require('lib/metrics');
   const ModalSettingsPanelMixin = require('views/mixins/modal-settings-panel-mixin');
@@ -18,8 +18,6 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
   const View = require('views/sub_panels');
-
-  var assert = chai.assert;
 
   var SETTINGS_PANEL_CLASSNAME = 'panel';
   var SettingsPanelView = BaseView.extend({
@@ -144,21 +142,33 @@ define(function (require, exports, module) {
 
       it('showChildView renders and opens', function () {
         sinon.stub(view, '_createChildViewIfNeeded', function (View) {
-          var childView = new View();
-          sinon.stub(childView, 'openPanel', function () { });
+          var childView = new View({
+            model: new Backbone.Model({
+              childKey: 'childValue'
+            })
+          });
+          sinon.stub(childView, 'openPanel', () => {});
           return p(childView);
         });
 
-        var options = {};
+        const options = {
+          model: new Backbone.Model({
+            showKey: 'showValue'
+          })
+        };
         return view.render()
-          .then(function () {
+          .then(() => {
             $('#container').append(view.el);
             return view.showChildView(SettingsPanelView, options);
           })
-          .then(function (childView) {
+          .then((childView) => {
             assert.isTrue(
                 view._createChildViewIfNeeded.calledWith(SettingsPanelView, options));
             assert.isTrue(childView.openPanel.called);
+
+            // child view's model is updated with model data passed in to showChildView
+            assert.equal(childView.model.get('childKey'), 'childValue');
+            assert.equal(childView.model.get('showKey'), 'showValue');
           });
       });
     });

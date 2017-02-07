@@ -36,7 +36,13 @@ define(function (require, exports, module) {
         .then((childView) => {
           if (childView) {
             this._currentChildView = childView;
+            // The child view has its own model. Import the passed in
+            // model data to the child's model and display any
+            // necessary status messages.
+            childView.model.set(options.model.toJSON());
             childView.openPanel();
+
+            childView.displayStatusMessages();
 
             return childView;
           }

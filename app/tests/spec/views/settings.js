@@ -193,20 +193,10 @@ define(function (require, exports, module) {
           });
       });
 
-      it('on navigate from childView', function () {
+      it('navigate-from-child-view displays status messages', function () {
         sinon.spy(view, 'displayStatusMessages');
-        sinon.spy(view, 'logView');
-        sinon.stub($.modal, 'isActive', function () {
-          return true;
-        });
-        sinon.stub($.modal, 'close', function () { });
         notifier.trigger('navigate-from-child-view');
         assert.isTrue(view.displayStatusMessages.called);
-        assert.isTrue(view.logView.called);
-        assert.isTrue($.modal.isActive.called);
-        assert.isTrue($.modal.close.called);
-        $.modal.isActive.restore();
-        $.modal.close.restore();
       });
 
       it('afterVisible', function () {

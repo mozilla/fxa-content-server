@@ -7,9 +7,9 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AppView = require('views/app');
+  const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const chai = require('chai');
   const Environment = require('lib/environment');
   const KeyCodes = require('lib/key-codes');
   const Notifier = require('lib/channels/notifier');
@@ -17,13 +17,11 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const WindowMock = require('../../mocks/window');
 
-  var assert = chai.assert;
-
   describe('views/app', function () {
-    var environment;
-    var notifier;
-    var view;
-    var windowMock;
+    let environment;
+    let notifier;
+    let view;
+    let windowMock;
 
     function createDeps() {
       notifier = new Notifier();
@@ -43,7 +41,7 @@ define(function (require, exports, module) {
     }
 
     describe('onAnchorClick', function () {
-      var event;
+      let event;
 
       beforeEach(function () {
         createDeps();
@@ -125,275 +123,120 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('showView', function () {
-      describe('with a view that does not render', function () {
-        var displayedView;
-        var isDestroyed = false;
-        var isLogged = false;
+    describe('showRoute', () => {
+      let ChildView;
+      let View;
 
-        var DoesNotRenderView = Backbone.View.extend({
-          render () {
-            return p(false);
-          },
+      beforeEach(() => {
+        createDeps();
 
-          destroy () {
-            isDestroyed = true;
-          },
-
+        View = Backbone.View.extend({
           logView () {
-            isLogged = true;
+
+          },
+
+          showChildView () {
+
+          },
+
+          titleFromView () {
+
           }
         });
 
-        before(function () {
-          createDeps();
+        ChildView = View.extend({});
 
-          return view.showView(DoesNotRenderView, {})
-            .then(function (_displayedView) {
-              displayedView = _displayedView;
-            });
+        sinon.stub(view, 'getRouteDefinition', (route) => {
+          return {
+            'route-that-errors': {
+              Constructor: View
+            },
+            'route-that-renders': {
+              Constructor: View
+            },
+            'route-with-parent': {
+              Constructor: ChildView,
+              parentRoute: 'route-that-renders'
+            }
+          }[route];
         });
 
-        it('returns `null` for the rendered view', function () {
-          assert.isNull(displayedView);
+        sinon.spy(view, 'fatalError');
+      });
+
+      describe('with a route that does not exist', () => {
+        beforeEach(function () {
+          sinon.spy(view, 'navigateAway');
+
+          return view.showRoute('route-that-does-not-exist', {});
         });
 
-        it('does not log the view', function () {
-          assert.isFalse(isLogged);
-        });
-
-        it('destroys the view', function () {
-          assert.isTrue(isDestroyed);
+        it('redirects to `/404`', function () {
+          assert.isTrue(view.navigateAway.calledWith('/404'));
         });
       });
 
       describe('with a view that renders', function () {
-        var displayedView;
+        beforeEach(function () {
+          sinon.stub(view, 'showChildView', () => p());
+          sinon.spy(view, 'showRoute');
 
-        var ViewThatRenders = Backbone.View.extend({
-          afterVisible: sinon.spy(),
-          destroy: sinon.spy(),
-          logView: sinon.spy(),
-          render () {
-            this.$el.html('<div id="rendered-view"></div>');
-            return p(true);
-          },
-          titleFromView () {
-            return 'the title';
-          }
+          return view.showRoute('route-that-renders', {});
         });
 
-        before(function () {
-          createDeps();
-
-          sinon.spy(notifier, 'trigger');
-          sinon.spy(view, 'setTitle');
-
-          return view.showView(ViewThatRenders, {})
-            .then(function (_displayedView) {
-              displayedView = _displayedView;
-            });
-        });
-
-        it('returns the displayed view', function () {
-          assert.ok(displayedView);
-        });
-
-        it('adds the view to the DOM', function () {
-          assert.equal($('#rendered-view').length, 1);
-        });
-
-        it('calls the returned views `afterVisible`', function () {
-          assert.isTrue(displayedView.afterVisible.called);
-        });
-
-        it('logs the view', function () {
-          assert.isTrue(displayedView.logView.called);
-        });
-
-        it('sets the title from the text the view returns', function () {
-          assert.isTrue(view.setTitle.calledWith('the title'));
-        });
-
-        it('triggers a `view-shown` message with the view', function () {
-          assert.isTrue(notifier.trigger.calledWith(
-              'view-shown', displayedView));
-        });
-      });
-
-      describe('with a second view that renders', function () {
-        var firstDisplayedView;
-        var secondDisplayedView;
-
-        var FirstViewThatRenders = Backbone.View.extend({
-          afterVisible: sinon.spy(),
-          destroy: sinon.spy(),
-          logView: sinon.spy(),
-          render: sinon.spy(function () {
-            return p(true);
-          }),
-          titleFromView () {
-            return 'the title';
-          }
-        });
-
-        var SecondViewThatRenders = Backbone.View.extend({
-          afterVisible: sinon.spy(),
-          destroy: sinon.spy(),
-          logView: sinon.spy(),
-          render: sinon.spy(function () {
-            return p(true);
-          }),
-          titleFromView () {
-            return 'the second title';
-          }
-        });
-
-        before(function () {
-          createDeps();
-
-          sinon.spy(notifier, 'trigger');
-          sinon.spy(view, 'setTitle');
-
-          return view.showView(FirstViewThatRenders, {})
-            .then(function (_firstDisplayedView) {
-              firstDisplayedView = _firstDisplayedView;
-              return view.showView(SecondViewThatRenders, {});
-            })
-            .then(function (_secondDisplayedView) {
-              secondDisplayedView = _secondDisplayedView;
-            });
-        });
-
-        it('returns both views', function () {
-          assert.isTrue(firstDisplayedView !== secondDisplayedView);
-        });
-
-        it('renders each view', function () {
-          assert.equal(firstDisplayedView.render.callCount, 1);
-          assert.equal(secondDisplayedView.render.callCount, 1);
-        });
-
-        it('destroys the first view', function () {
-          assert.isTrue(firstDisplayedView.destroy.called);
-        });
-
-        it('sets the title to the second view', function () {
-          assert.isTrue(view.setTitle.calledWith('the second title'));
-        });
-      });
-
-      describe('with the same view that is already visible', function () {
-        var firstDisplayedView;
-        var secondDisplayedView;
-        var secondViewModel;
-
-        var ViewThatRenders = Backbone.View.extend({
-          afterVisible: sinon.spy(),
-          destroy: sinon.spy(),
-          logView: sinon.spy(),
-          render: sinon.spy(function () {
-            return p(true);
-          }),
-          titleFromView () {
-            return 'the title';
-          }
-        });
-
-        before(function () {
-          secondViewModel = new Backbone.Model({
-            key: 'value'
-          });
-
-          createDeps();
-
-          sinon.spy(notifier, 'trigger');
-          sinon.spy(view, 'setTitle');
-
-          return view.showView(ViewThatRenders, {})
-            .then(function (_firstDisplayedView) {
-              firstDisplayedView = _firstDisplayedView;
-
-              return view.showView(ViewThatRenders, {
-                model: secondViewModel
-              });
-            })
-            .then(function (_secondDisplayedView) {
-              secondDisplayedView = _secondDisplayedView;
-            });
-        });
-
-        it('returns the same view both times', function () {
-          assert.strictEqual(firstDisplayedView, secondDisplayedView);
-        });
-
-        it('only renders once', function () {
-          assert.equal(firstDisplayedView.render.callCount, 1);
-        });
-
-        it('updates the view\'s model with data from the child', function () {
-          assert.equal(secondDisplayedView.model.get('key'), 'value');
-        });
-
-        it('triggers the `navigate-from-child-view` message', function () {
-          assert.isTrue(
-            notifier.trigger.calledWith('navigate-from-child-view'));
-        });
-
-        it('sets the title', function () {
-          assert.isTrue(view.setTitle.calledWith('the title'));
+        it('delegates to `showChildView`', function () {
+          assert.isTrue(view.getRouteDefinition.calledWith('route-that-renders'));
+          assert.isTrue(view.showChildView.calledOnce);
         });
       });
 
       describe('with a view that errors', function () {
-        var renderError = AuthErrors.toError('UNEXPECTED_ERROR');
+        let renderError = AuthErrors.toError('UNEXPECTED_ERROR');
 
-        var ViewThatErrors = Backbone.View.extend({
-          afterVisible: sinon.spy(),
-          destroy: sinon.spy(),
-          logView: sinon.spy(),
-          render: sinon.spy(function () {
-            return p.reject(renderError);
-          }),
-          titleFromView () {
-            return 'the title';
-          }
-        });
+        beforeEach(function () {
+          sinon.stub(view, 'showChildView', () => p.reject(renderError));
+          sinon.spy(view, 'showRoute');
 
-        before(function () {
-          createDeps();
-
-          sinon.spy(view, 'fatalError');
-
-          return view.showView(ViewThatErrors, {});
+          return view.showRoute('route-that-errors', {});
         });
 
         it('writes the error to the DOM', function () {
+          assert.isTrue(view.getRouteDefinition.calledWith('route-that-errors'));
+          assert.isTrue(view.showRoute.calledOnce);
+          assert.isTrue(view.showChildView.calledOnce);
           assert.isTrue(view.fatalError.calledWith(renderError));
+        });
+      });
+
+      describe('with a parentView', () => {
+        let parentView;
+        beforeEach(function () {
+          sinon.stub(view, 'showChildView', (ParentView) => {
+            parentView = new ParentView();
+            sinon.stub(parentView, 'showChildView', (ChildView) => new ChildView());
+            return p(parentView);
+          });
+          sinon.spy(view, 'showRoute');
+
+          return view.showRoute('route-with-parent');
+        });
+
+        it('shows the parent, then the child', () => {
+          assert.isTrue(view.getRouteDefinition.calledWith('route-with-parent'));
+          assert.isTrue(view.getRouteDefinition.calledWith('route-that-renders'));
+          assert.isTrue(view.showRoute.calledTwice);
+          assert.isTrue(view.showChildView.calledOnce);
+          assert.isTrue(view.showChildView.calledWith(View));
+          assert.isTrue(parentView.showChildView.called);
+          assert.isTrue(parentView.showChildView.calledWith(ChildView));
         });
       });
     });
 
     describe('showChildView', function () {
-      var parentView;
-      var childView;
+      let childView;
 
-      var ParentView = Backbone.View.extend({
-        afterVisible: sinon.spy(),
-        destroy: sinon.spy(),
-        logView: sinon.spy(),
-        render: sinon.spy(function () {
-          return p(true);
-        }),
-        showChildView: sinon.spy(function (ChildView, options) {
-          return new ChildView(options);
-        }),
-        titleFromView () {
-          return 'the title';
-        }
-      });
-
-      var ChildView = Backbone.View.extend({
+      const ChildView = Backbone.View.extend({
         afterVisible: sinon.spy(),
         destroy: sinon.spy(),
         displayStatusMessages: sinon.spy(),
@@ -401,22 +244,19 @@ define(function (require, exports, module) {
         render: sinon.spy(function () {
           return p(true);
         }),
-        titleFromView (base) {
-          return base + ', the second title';
+        titleFromView () {
+          return 'the second title';
         }
       });
 
-      before(function () {
+      const SecondChildView = ChildView.extend({});
+
+      beforeEach(function () {
         createDeps();
 
         sinon.spy(notifier, 'trigger');
-        sinon.spy(view, 'setTitle');
-        sinon.spy(view, 'showView');
-        notifier.on('view-shown', function (_parentView) {
-          parentView = _parentView;
-        });
 
-        return view.showChildView(ChildView, ParentView, {
+        return view.showChildView(ChildView, {
           model: new Backbone.Model({ 'new-key': 'new-value' })
         })
         .then(function (_childView) {
@@ -424,28 +264,37 @@ define(function (require, exports, module) {
         });
       });
 
-      it('creates the parent view', function () {
-        assert.isTrue(view.showView.calledWith(ParentView));
-      });
-
-      it('tells the parent view to show the sub view', function () {
-        assert.isTrue(parentView.showChildView.calledWith(ChildView));
-      });
-
-      it('logs the child view', function () {
-        assert.isTrue(childView.logView.called);
-      });
-
-      it('updates the child\'s model', function () {
+      it('creates & renders the child', () => {
         assert.equal(childView.model.get('new-key'), 'new-value');
+        assert.isTrue(childView.afterVisible.calledOnce);
       });
 
-      it('displays the child\'s status messages', function () {
-        assert.isTrue(childView.displayStatusMessages.called);
+      describe('with View that is already the child', () => {
+        beforeEach(() => {
+          return view.showChildView(ChildView, {
+            model: new Backbone.Model({ 'child-key': 'child-value' })
+          });
+        });
+
+        it('updates the currentView model with the sent data, notifies', () => {
+          assert.equal(childView.model.get('child-key'), 'child-value');
+          assert.isTrue(notifier.trigger.calledWith('navigate-from-child-view'));
+        });
       });
 
-      it('sets the title', function () {
-        assert.isTrue(view.setTitle.calledWith('the title, the second title'));
+      describe('with a different ChildView', () => {
+        let originalChildView;
+
+        beforeEach(() => {
+          originalChildView = childView;
+          return view.showChildView(SecondChildView, {
+            model: new Backbone.Model({})
+          });
+        });
+
+        it('destroys the previous child view', () => {
+          assert.isTrue(originalChildView.destroy.calledOnce);
+        });
       });
     });
 

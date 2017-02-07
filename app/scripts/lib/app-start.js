@@ -20,7 +20,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Able = require('lib/able');
-  const AppView = require('views/app');
   const authBrokers = require('models/auth_brokers/index');
   const Assertion = require('lib/assertion');
   const Backbone = require('backbone');
@@ -45,6 +44,7 @@ define(function (require, exports, module) {
   const Relier = require('models/reliers/relier');
   const requireOnDemand = require('lib/require-on-demand');
   const Router = require('lib/router');
+  const RouteRenderer = require('lib/route-renderer');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const ScreenInfo = require('lib/screen-info');
   const SentryMetrics = require('lib/sentry');
@@ -142,8 +142,9 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeRefreshObserver, this))
         // router depends on all of the above
         .then(_.bind(this.initializeRouter, this))
-        // appView depends on the router
-        .then(_.bind(this.initializeAppView, this));
+        // RouteRenderer directly depends on the renderer, renders AppView
+        // which indirectly depends on everything else.
+        .then(_.bind(this.initializeRouteRenderer, this));
     },
 
     useConfig (config) {
@@ -438,7 +439,7 @@ define(function (require, exports, module) {
         session: Session,
         user: this._user,
         window: this._window
-      }, this._router.getViewOptions(options));
+      }, options);
 
       return new Constructor(viewOptions);
     },
@@ -446,25 +447,19 @@ define(function (require, exports, module) {
     initializeRouter () {
       if (! this._router) {
         this._router = new Router({
-          createView: this.createView.bind(this),
           metrics: this._metrics,
           notifier: this._notifier,
-          relier: this._relier,
-          user: this._user,
           window: this._window
         });
       }
       this._window.router = this._router;
     },
 
-    initializeAppView () {
-      if (! this._appView) {
-        this._appView = new AppView({
+    initializeRouteRenderer () {
+      if (! this._routeRenderer) {
+        this._routeRenderer = new RouteRenderer({
           createView: this.createView.bind(this),
-          el: 'body',
-          environment: new Environment(this._window),
           notifier: this._notifier,
-          router: this._router,
           window: this._window
         });
       }

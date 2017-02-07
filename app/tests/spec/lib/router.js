@@ -2,37 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
+define((require, exports, module) => {
   'use strict';
 
   const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
-  const BaseView = require('views/base');
   const Constants = require('lib/constants');
-  const DisplayNameView = require('views/settings/display_name');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const Router = require('lib/router');
-  const SettingsView = require('views/settings');
   const sinon = require('sinon');
   const User = require('models/user');
   const WindowMock = require('../../mocks/window');
 
-  describe('lib/router', function () {
-    var metrics;
-    var navigateOptions;
-    var navigateUrl;
-    var notifier;
-    var relier;
-    var router;
-    var user;
-    var windowMock;
+  describe('lib/router', () => {
+    let metrics;
+    let navigateOptions;
+    let navigateUrl;
+    let notifier;
+    let relier;
+    let router;
+    let user;
+    let windowMock;
 
-    beforeEach(function () {
+    beforeEach(() => {
       navigateUrl = navigateOptions = null;
 
       notifier = new Notifier();
@@ -58,14 +55,14 @@ define(function (require, exports, module) {
       });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       metrics.destroy();
       windowMock = router = navigateUrl = navigateOptions = metrics = null;
       Backbone.Router.prototype.navigate.restore();
     });
 
-    describe('navigate', function () {
-      it('tells the router to navigate to a page', function () {
+    describe('navigate', () => {
+      it('tells the router to navigate to a page', () => {
         windowMock.location.search = '';
         router.navigate('/signin');
         assert.equal(navigateUrl, '/signin');
@@ -73,8 +70,8 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('`navigate` notifier message', function () {
-      beforeEach(function () {
+    describe('`navigate` notifier message', () => {
+      beforeEach(() => {
         sinon.spy(router, 'navigate');
 
         notifier.trigger('navigate', {
@@ -89,7 +86,7 @@ define(function (require, exports, module) {
         });
       });
 
-      it('calls `navigate` correctly', function () {
+      it('calls `navigate` correctly', () => {
         assert.isTrue(router.navigate.calledWith('signin', {
           clearQueryParams: true,
           trigger: true
@@ -130,14 +127,14 @@ define(function (require, exports, module) {
         assert.lengthOf(metrics.flush.args[0], 0);
       });
 
-      it('navigated correctly', function () {
+      it('navigated correctly', () => {
         assert.equal(router.navigate.callCount, 0);
         assert.equal(windowMock.location.href, 'blee');
       });
     });
 
-    describe('`navigate-back` notifier message', function () {
-      beforeEach(function () {
+    describe('`navigate-back` notifier message', () => {
+      beforeEach(() => {
         sinon.spy(router, 'navigateBack');
 
         notifier.trigger('navigate-back', {
@@ -147,62 +144,62 @@ define(function (require, exports, module) {
         });
       });
 
-      it('calls `navigateBack` correctly', function () {
+      it('calls `navigateBack` correctly', () => {
         assert.isTrue(router.navigateBack.called);
       });
     });
 
-    describe('set query params', function () {
-      beforeEach(function () {
+    describe('set query params', () => {
+      beforeEach(() => {
         windowMock.location.search = '?context=' + Constants.FX_DESKTOP_V1_CONTEXT;
       });
 
-      describe('navigate with default options', function () {
-        beforeEach(function () {
+      describe('navigate with default options', () => {
+        beforeEach(() => {
           router.navigate('/forgot');
         });
 
-        it('preserves query params', function () {
+        it('preserves query params', () => {
           assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_V1_CONTEXT);
           assert.deepEqual(navigateOptions, { trigger: true });
         });
       });
 
-      describe('navigate with clearQueryParams option set', function () {
-        beforeEach(function () {
+      describe('navigate with clearQueryParams option set', () => {
+        beforeEach(() => {
           router.navigate('/forgot', { clearQueryParams: true });
         });
 
-        it('clears the query params if clearQueryString option is set', function () {
+        it('clears the query params if clearQueryString option is set', () => {
           assert.equal(navigateUrl, '/forgot');
           assert.deepEqual(navigateOptions, { clearQueryParams: true, trigger: true });
         });
       });
     });
 
-    describe('navigateBack', function () {
-      beforeEach(function () {
+    describe('navigateBack', () => {
+      beforeEach(() => {
         sinon.spy(windowMock.history, 'back');
 
         router.navigateBack();
       });
 
-      it('calls `window.history.back`', function () {
+      it('calls `window.history.back`', () => {
         assert.isTrue(windowMock.history.back.called);
       });
     });
 
-    describe('redirectToSignupOrSettings', function () {
-      it('replaces current page with the signup page if there is no current account', function () {
+    describe('redirectToSignupOrSettings', () => {
+      it('replaces current page with the signup page if there is no current account', () => {
         windowMock.location.search = '';
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
         assert.deepEqual(navigateOptions, { replace: true, trigger: true });
       });
 
-      it('replaces the current page with the settings page if there is a current account', function () {
+      it('replaces the current page with the settings page if there is a current account', () => {
         windowMock.location.search = '';
-        sinon.stub(user, 'getSignedInAccount', function () {
+        sinon.stub(user, 'getSignedInAccount', () => {
           return user.initAccount({
             sessionToken: 'abc123'
           });
@@ -213,39 +210,39 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('redirectToBestOAuthChoice', function () {
-      describe('no email in params', function () {
-        it('replaces current page with the signup page if there is no current account', function () {
+    describe('redirectToBestOAuthChoice', () => {
+      describe('no email in params', () => {
+        it('replaces current page with the signup page if there is no current account', () => {
           windowMock.location.search = '';
           return router.redirectToBestOAuthChoice()
-            .then(function () {
+            .then(() => {
               assert.equal(navigateUrl, '/oauth/signup');
               assert.deepEqual(navigateOptions, { replace: true, trigger: true });
             });
         });
 
-        it('replaces the current page with the signin page', function () {
+        it('replaces the current page with the signin page', () => {
           windowMock.location.search = '';
-          sinon.stub(user, 'getChooserAccount', function () {
+          sinon.stub(user, 'getChooserAccount', () => {
             return user.initAccount({
               sessionToken: 'abc123'
             });
           });
 
           return router.redirectToBestOAuthChoice()
-            .then(function () {
+            .then(() => {
               assert.equal(navigateUrl, '/oauth/signin');
               assert.deepEqual(navigateOptions, { replace: true, trigger: true });
             });
         });
       });
 
-      describe('email in params', function () {
+      describe('email in params', () => {
         var accountExists;
-        beforeEach(function () {
+        beforeEach(() => {
           accountExists = false;
 
-          sinon.stub(user, 'checkAccountEmailExists', function () {
+          sinon.stub(user, 'checkAccountEmailExists', () => {
             if (accountExists instanceof Error) {
               return p.reject(accountExists);
             } else {
@@ -256,38 +253,38 @@ define(function (require, exports, module) {
           relier.set('email', 'test@email.com');
         });
 
-        it('navigate to signup page if email is not associated with account', function () {
+        it('navigate to signup page if email is not associated with account', () => {
           accountExists = false;
 
           return router.redirectToBestOAuthChoice()
-            .then(function () {
+            .then(() => {
               assert.include(navigateUrl, '/oauth/signup');
               assert.deepEqual(navigateOptions, { replace: true, trigger: true });
             });
         });
 
-        it('navigate to signin page if email is associated with account', function () {
+        it('navigate to signin page if email is associated with account', () => {
           accountExists = true;
 
           return router.redirectToBestOAuthChoice()
-            .then(function () {
+            .then(() => {
               assert.include(navigateUrl, '/oauth/signin');
               assert.deepEqual(navigateOptions, { replace: true, trigger: true });
             });
         });
 
-        it('logs and swallows any errors that are thrown checking whether the email is registered', function () {
+        it('logs and swallows any errors that are thrown checking whether the email is registered', () => {
           var err = AuthErrors.toError('THROTTLED');
           accountExists = err;
 
           sinon.spy(metrics, 'logError');
-          sinon.stub(user, 'getChooserAccount', function () {
+          sinon.stub(user, 'getChooserAccount', () => {
             // return a default account to ensure user is sent to signup
             return new Account({});
           });
 
           return router.redirectToBestOAuthChoice()
-            .then(function () {
+            .then(() => {
               assert.isTrue(metrics.logError.calledWith(err));
               assert.include(navigateUrl, '/oauth/signup');
               assert.deepEqual(navigateOptions, { replace: true, trigger: true });
@@ -296,69 +293,73 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_afterFirstViewHasRendered', function () {
+    describe('`view-shown` notifier message', () => {
+      it('calls `onFirstViewRendered` correctly', () => {
+        sinon.spy(router, 'onFirstViewRendered');
+
+        notifier.trigger('view-shown');
+        // the 2nd trigger should be ignored.
+        notifier.trigger('view-shown');
+        assert.isTrue(router.onFirstViewRendered.calledOnce);
+      });
+    });
+
+    describe('onFirstViewRendered', () => {
       it('sets `canGoBack`', function () {
-        router._afterFirstViewHasRendered();
+        router.onFirstViewRendered();
 
         assert.isTrue(router.storage.get('canGoBack'));
       });
     });
 
-    describe('pathToViewName', function () {
-      it('strips leading /', function () {
+    describe('pathToViewName', () => {
+      it('strips leading /', () => {
         assert.equal(router.fragmentToViewName('/signin'), 'signin');
       });
 
-      it('strips trailing /', function () {
+      it('strips trailing /', () => {
         assert.equal(router.fragmentToViewName('signup/'), 'signup');
       });
 
-      it('converts middle / to .', function () {
+      it('converts middle / to .', () => {
         assert.equal(router.fragmentToViewName('/legal/tos/'), 'legal.tos');
       });
 
-      it('converts _ to -', function () {
+      it('converts _ to -', () => {
         assert.equal(router.fragmentToViewName('complete_sign_up'),
             'complete-sign-up');
       });
 
-      it('strips search parameters', function () {
-        assert.equal(router.fragmentToViewName('complete_sign_up?email=testuser@testuser.com'),
+      it('strips search parameters', () => {
+        assert.equal(router.fragmentToViewName('complete_sign_up/?email=testuser@testuser.com'),
             'complete-sign-up');
       });
 
     });
 
-    describe('showView', function () {
-      it('triggers a `show-view` notification', function () {
+    describe('notifyOfRouteChange', () => {
+      it('triggers a `show-view` notification', () => {
         sinon.spy(notifier, 'trigger');
+        sinon.stub(router, 'getCurrentPage', () => 'route-name');
+        router.notifyOfRouteChange();
 
-        var options = { key: 'value' };
+        assert.isTrue(notifier.trigger.calledOnce);
+        const args = notifier.trigger.args[0];
+        assert.equal(args[0], 'change:route');
 
-        router.showView(BaseView, options);
-        assert.isTrue(
-          notifier.trigger.calledWith('show-view', BaseView));
+        assert.isObject(args[1]);
+        assert.equal(args[1].route, 'route-name');
+
+        assert.isObject(args[1].options);
       });
     });
 
-    describe('showChildView', function () {
-      it('triggers a `show-child-view` notification', function () {
-        sinon.spy(notifier, 'trigger');
-
-        var options = { key: 'value' };
-
-        router.showChildView(DisplayNameView, SettingsView, options);
-        assert.isTrue(notifier.trigger.calledWith(
-            'show-child-view', DisplayNameView, SettingsView));
-      });
-    });
-
-    describe('canGoBack initial value', function () {
-      it('is `false` if sessionStorage.canGoBack is not set', function () {
+    describe('canGoBack initial value', () => {
+      it('is `false` if sessionStorage.canGoBack is not set', () => {
         assert.isUndefined(router.storage._backend.getItem('canGoBack'));
       });
 
-      it('is `true` if sessionStorage.canGoBack is set', function () {
+      it('is `true` if sessionStorage.canGoBack is set', () => {
         windowMock.sessionStorage.setItem('canGoBack', true);
         router = new Router({
           metrics: metrics,
@@ -371,15 +372,10 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('getCurrentPage', function () {
-      it('returns the current screen URL based on Backbone.history.fragment', function () {
+    describe('getCurrentPage', () => {
+      it('returns the current screen URL based on Backbone.history.fragment', () => {
         Backbone.history.fragment = 'settings';
         assert.equal(router.getCurrentPage(), 'settings');
-      });
-
-      it('strips any query parameters from the fragment', () => {
-        Backbone.history.fragment = 'force_auth?email=testuser@testuser.com';
-        assert.equal(router.getCurrentPage(), 'force_auth');
       });
 
       it('strips leading `/` from the fragment', () => {
@@ -391,49 +387,12 @@ define(function (require, exports, module) {
         Backbone.history.fragment = 'force_auth/';
         assert.equal(router.getCurrentPage(), 'force_auth');
       });
-    });
 
-    describe('createViewHandler', function () {
-      function View() {
-      }
-      var viewConstructorOptions = {};
-
-      it('returns a function that can be used by the router to show a View', function () {
-        sinon.spy(router, 'showView');
-
-        var routeHandler = router.createViewHandler(View, viewConstructorOptions);
-        assert.isFunction(routeHandler);
-        assert.isFalse(router.showView.called);
-
-        routeHandler.call(router);
-
-        assert.isTrue(
-            router.showView.calledWith(View, viewConstructorOptions));
+      it('strips any query parameters from the fragment', () => {
+        Backbone.history.fragment = 'force_auth/?email=testuser@testuser.com';
+        assert.equal(router.getCurrentPage(), 'force_auth');
       });
-    });
 
-    describe('createChildViewHandler', function () {
-      function ParentView() {
-      }
-      function ChildView() {
-      }
-
-      var viewConstructorOptions = {};
-
-      it('returns a function that can be used by the router to show a ChildView within a ParentView', function () {
-        sinon.spy(router, 'showChildView');
-
-        var routeHandler = router.createChildViewHandler(
-            ChildView, ParentView, viewConstructorOptions);
-
-        assert.isFunction(routeHandler);
-        assert.isFalse(router.showChildView.called);
-
-        routeHandler.call(router);
-
-        assert.isTrue(router.showChildView.calledWith(
-            ChildView, ParentView, viewConstructorOptions));
-      });
     });
   });
 });
