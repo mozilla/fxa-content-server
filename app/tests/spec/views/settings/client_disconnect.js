@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
+  const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
@@ -24,14 +25,16 @@ define(function (require, exports, module) {
     let metrics;
     let model = new Backbone.Model();
     let notifier;
+    let relier;
     let user;
     let view;
     let windowMock;
 
     beforeEach(() => {
       metrics = new Metrics();
-      user = new User();
       notifier = new Notifier();
+      relier = new Relier();
+      user = new User();
       windowMock = new WindowMock();
       attachedClients = new AttachedClients([
         {
@@ -61,10 +64,11 @@ define(function (require, exports, module) {
 
     function createView() {
       view = new View({
-        metrics: metrics,
-        model: model,
-        notifier: notifier,
-        user: user,
+        metrics,
+        model,
+        notifier,
+        relier,
+        user,
         window: windowMock
       });
     }
@@ -180,6 +184,25 @@ define(function (require, exports, module) {
             assert.ok(TestHelpers.isEventLogged(metrics, 'settings.clients.disconnect.submit.suspicious'));
             assert.ok(view.navigateToSignIn.called, 'navigates away');
             assert.ok(view.reasonHelp);
+          });
+        });
+      });
+
+      it('a click on the "Got it" button returns to `settings/clients`', () => {
+        model.set({
+          clientId: 'device-1',
+          clients: attachedClients
+        });
+
+        sinon.stub(view, 'navigate', () => {});
+
+        return view.render().then(() => {
+          $(view.el).find('input[name=disconnect-reasons][value=lost]').prop('checked', true).change();
+          return view.submit().then(() => {
+            assert.ok(view.hasDisconnected);
+            view.$el.find('button[type=submit]').click();
+            assert.isTrue(view.navigate.calledOnce);
+            assert.isTrue(view.navigate.calledWith('settings/clients'));
           });
         });
       });
