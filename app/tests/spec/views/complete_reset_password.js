@@ -220,22 +220,15 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('afterRender', function () {
-      var FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';
-
-      beforeEach(function () {
-        $('body').data('flowId', FLOW_ID);
-        $('body').data('flowBegin', -1);
-        sinon.spy(metrics, 'setFlowModel');
+    describe('afterRender', () => {
+      beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
         return view.afterRender();
       });
 
-      it('called metrics.setFlowModel correctly', function () {
-        assert.equal(metrics.setFlowModel.callCount, 1);
-        var args = metrics.setFlowModel.args[0];
-        assert.lengthOf(args, 1);
-        assert.equal(args[0].get('flowId'), FLOW_ID);
-        assert.equal(args[0].get('flowBegin'), -1);
+      it('called notifier.trigger correctly', () => {
+        assert.equal(notifier.trigger.callCount, 1);
+        assert.equal(notifier.trigger.args[0][0], 'flow.initialize');
       });
     });
 

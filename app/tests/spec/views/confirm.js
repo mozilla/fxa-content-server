@@ -27,7 +27,6 @@ define(function (require, exports, module) {
   describe('views/confirm', function () {
     var account;
     var broker;
-    var flow;
     var metrics;
     var model;
     var notifier;
@@ -37,9 +36,6 @@ define(function (require, exports, module) {
     var windowMock;
 
     beforeEach(function () {
-      flow = {
-        pickResumeTokenInfo () {}
-      };
       metrics = new Metrics();
       model = new Backbone.Model();
       notifier = new Notifier();
@@ -65,7 +61,6 @@ define(function (require, exports, module) {
 
       model.set({
         account: account,
-        flow: flow,
         type: SIGNUP_REASON
       });
 
@@ -96,10 +91,6 @@ define(function (require, exports, module) {
       view.destroy();
 
       view = metrics = null;
-    });
-
-    it('sets this.flow correctly', function () {
-      assert.equal(view.flow, flow);
     });
 
     describe('render', function () {

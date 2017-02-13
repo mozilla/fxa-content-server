@@ -23,6 +23,7 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Duration = require('duration');
   const Environment = require('lib/environment');
+  const Flow = require('models/flow');
   const p = require('lib/promise');
   const speedTrap = require('speedTrap');
   const Strings = require('lib/strings');
@@ -129,6 +130,8 @@ define(function (require, exports, module) {
     this._utmSource = options.utmSource || NOT_REPORTED_VALUE;
     this._utmTerm = options.utmTerm || NOT_REPORTED_VALUE;
     this._xhr = options.xhr || xhr;
+
+    this._initializeFlowEvents(options);
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -151,6 +154,46 @@ define(function (require, exports, module) {
       $(this._window).off('unload', this._flush);
       $(this._window).off('blur', this._flush);
       this._clearInactivityFlushTimeout();
+    },
+
+    _initializeFlowEvents (options) {
+      const notifier = options.notifier;
+
+      if (notifier) {
+        notifier.on('flow.initialize', () => this._initializeFlowModel(options.sentryMetrics));
+        notifier.on('flow.event', data => this._handleFlowEvent(data));
+      }
+    },
+
+    _initializeFlowModel (sentryMetrics) {
+      if (this._flowModel) {
+        return;
+      }
+
+      const flowModel = new Flow({
+        sentryMetrics,
+        window: this._window
+      });
+
+      if (flowModel.has('flowId')) {
+        this._flowModel = flowModel;
+      }
+    },
+
+    _handleFlowEvent (data) {
+      if (! this._flowModel) {
+        // If there is no flow model, we're not in a recognised flow
+        // and we should not emit the event.
+        return;
+      }
+
+      const eventName = marshallFlowEvent(data.event, data.view);
+
+      if (data.once) {
+        this.logEventOnce(eventName);
+      } else {
+        this.logEvent(eventName);
+      }
     },
 
     /**
@@ -240,16 +283,17 @@ define(function (require, exports, module) {
      * @returns {Object}
      */
     getAllData () {
-      var loadData = this._speedTrap.getLoad();
-      var unloadData = this._speedTrap.getUnload();
+      const loadData = this._speedTrap.getLoad();
+      const unloadData = this._speedTrap.getUnload();
+      const flowData = this.getFlowEventMetadata();
 
-      var allData = _.extend({}, loadData, unloadData, {
+      const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
-        flowBeginTime: this._flowBeginTime,
-        flowId: this._flowId,
+        flowBeginTime: flowData.flowBeginTime,
+        flowId: flowData.flowId,
         flushTime: Date.now(),
         isSampledUser: this._isSampledUser,
         lang: this._lang,
@@ -503,23 +547,6 @@ define(function (require, exports, module) {
       return this._isSampledUser;
     },
 
-    logFlowBegin (flowId, flowBeginTime) {
-      // Don't emit a new flow.begin event unless flowId has changed.
-      if (flowId !== this._flowId) {
-        this._flowId = flowId;
-        this._flowBeginTime = flowBeginTime;
-        this.logFlowEvent('begin');
-      }
-    },
-
-    logFlowEvent (eventName, viewName) {
-      this.logEvent(marshallFlowEvent(eventName, viewName));
-    },
-
-    logFlowEventOnce (eventName, viewName) {
-      this.logEventOnce(marshallFlowEvent(eventName, viewName));
-    },
-
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
@@ -528,8 +555,8 @@ define(function (require, exports, module) {
       };
     },
 
-    setFlowModel (flowModel) {
-      this._flowModel = flowModel;
+    getFlowModel (flowModel) {
+      return this._flowModel;
     },
 
     /**
