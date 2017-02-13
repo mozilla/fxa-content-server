@@ -1,3 +1,17 @@
+<a name="0.79.4"></a>
+## 0.79.4 (2017-02-13)
+
+
+### Bug Fixes
+
+* **tests:** adjust to new SUMO urls (#4713) (#4720) ([b50aa81](https://github.com/mozilla/fxa-content-server/commit/b50aa81)), closes [#4712](https://github.com/mozilla/fxa-content-server/issues/4712)
+
+### Features
+
+* **firstrun:** Add fx_firstrun_v2 events to support new firstrun flow. (#4717) ([f1373ed](https://github.com/mozilla/fxa-content-server/commit/f1373ed))
+
+
+
 <a name="0.79.3"></a>
 ## 0.79.3 (2017-01-26)
 
