@@ -36,12 +36,14 @@ define(function (require, exports, module) {
     },
 
     onKeyUp (event) {
-      // Application level listener for keyboard events. This is
+      // Global listener for keyboard events. This is
       // useful for cases where the view has lost focus
       // but you still want to perform an action on that view.
 
       // Handle user pressing `ESC`
       if (event.which === KeyCodes.ESCAPE) {
+
+        // Pressing ESC when any modal is visible should close the modal.
         if ($.modal.isActive()) {
           $.modal.close();
         } else if (event.currentTarget.className.indexOf('settings') >= 0) {

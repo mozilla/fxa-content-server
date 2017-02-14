@@ -28,13 +28,6 @@ define(function (require, exports, module) {
       this.$('[autofocus]')
         .attr('data-autofocus-on-panel-open', true)
         .removeAttr('autofocus');
-
-
-      // The client view is a special case because the model is rendered
-      // after being added. Manually set the focus.
-      if (this.viewName === 'settings.clients') {
-        this.focus(this.$('[data-autofocus-on-panel-open]'));
-      }
     },
 
     _triggerPanel (event) {
