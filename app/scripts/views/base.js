@@ -713,9 +713,13 @@ define(function (require, exports, module) {
      *
      * @param {String} eventName
      * @param {String} viewName
+     * @param {Object} data
      */
-    logFlowEvent (eventName, viewName) {
-      this.metrics.logFlowEvent(eventName, viewName);
+    logFlowEvent (eventName, viewName, data) {
+      this.notifier.trigger('flow.event', _.assign({}, data, {
+        event: eventName,
+        view: viewName
+      }));
     },
 
     /**
@@ -725,7 +729,7 @@ define(function (require, exports, module) {
      * @param {String} viewName
      */
     logFlowEventOnce (eventName, viewName) {
-      this.metrics.logFlowEventOnce(eventName, viewName);
+      this.logFlowEvent(eventName, viewName, { once: true });
     },
 
     hideError () {

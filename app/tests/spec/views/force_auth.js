@@ -52,6 +52,7 @@ define(function (require, exports, module) {
         metrics,
         notifier
       });
+      metrics.setFlowModel({});
       user.getSignedInAccount().set('uid', 'foo');
 
       isEmailRegistered = isUidRegistered = false;

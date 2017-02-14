@@ -23,11 +23,16 @@ define(function (require, exports, module) {
   const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
 
   describe('lib/metrics', function () {
-    var metrics;
-    var windowMock;
+    let metrics;
+    let notifier;
+    let windowMock;
 
     function createMetrics(options) {
       options = options || {};
+
+      notifier = {
+        on: sinon.spy()
+      };
 
       metrics = new Metrics(_.defaults(options, {
         brokerType: 'fx-desktop-v1',
@@ -39,6 +44,7 @@ define(function (require, exports, module) {
         isSampledUser: true,
         lang: 'db_LB',
         migration: 'sync1.5',
+        notifier,
         screenHeight: 1200,
         screenWidth: 1600,
         service: 'sync',
@@ -64,6 +70,38 @@ define(function (require, exports, module) {
     afterEach(function () {
       metrics.destroy();
       metrics = null;
+    });
+
+    it('calls notifier.on correctly', () => {
+      assert.equal(notifier.on.callCount, 1);
+      const args = notifier.on.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'flow.clear');
+      assert.isFunction(args[1]);
+    });
+
+    it('setFlowModel updates observable state correctly', () => {
+      assert.isFalse(metrics.hasFlowModel());
+      assert.isUndefined(metrics.getFlowModel());
+      assert.deepEqual(metrics.getFlowEventMetadata(), {
+        flowBeginTime: undefined,
+        flowId: undefined
+      });
+
+      const flowModel = {
+        attributes: {
+          flowBegin: 'foo',
+          flowId: 'bar'
+        }
+      };
+      metrics.setFlowModel(flowModel);
+
+      assert.isTrue(metrics.hasFlowModel());
+      assert.equal(metrics.getFlowModel(), flowModel);
+      assert.deepEqual(metrics.getFlowEventMetadata(), {
+        flowBeginTime: 'foo',
+        flowId: 'bar'
+      });
     });
 
     describe('getFilteredData', function () {
@@ -177,9 +215,15 @@ define(function (require, exports, module) {
 
       describe('log events', function () {
         beforeEach(function () {
+          metrics.setFlowModel({
+            attributes: {
+              flowBegin: 'wibble',
+              flowId: 'blee'
+            }
+          });
           metrics.logEvent('foo');
-          metrics.logFlowBegin('bar', 'baz');
-          metrics.logEvent('qux');
+          metrics.logFlowEventOnce('bar');
+          metrics.logEvent('baz');
         });
 
         describe('has sendBeacon', function () {
@@ -220,10 +264,10 @@ define(function (require, exports, module) {
               assert.isArray(data.events);
               assert.lengthOf(data.events, 3);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.begin');
-              assert.equal(data.events[2].type, 'qux');
-              assert.equal(data.flowId, 'bar');
-              assert.equal(data.flowBeginTime, 'baz');
+              assert.equal(data.events[1].type, 'flow.bar');
+              assert.equal(data.events[2].type, 'baz');
+              assert.equal(data.flowId, 'blee');
+              assert.equal(data.flowBeginTime, 'wibble');
               assert.equal(data.isSampledUser, false);
               assert.equal(data.lang, 'unknown');
               assert.isArray(data.marketing);
@@ -253,10 +297,10 @@ define(function (require, exports, module) {
               assert.equal(metrics.getFilteredData().events.length, 0);
             });
 
-            describe('log a second flow.begin event with same flowId', function () {
+            describe('log a duplicate flow event', function () {
               beforeEach(function () {
-                metrics.logFlowBegin('bar', 'blee');
-                metrics.logEvent('wibble');
+                metrics.logFlowEventOnce('bar');
+                metrics.logEvent('baz');
                 return metrics.flush();
               });
 
@@ -265,9 +309,9 @@ define(function (require, exports, module) {
                 var data = JSON.parse(windowMock.navigator.sendBeacon.args[1][1]);
                 assert.isArray(data.events);
                 assert.lengthOf(data.events, 1);
-                assert.equal(data.events[0].type, 'wibble');
-                assert.equal(data.flowId, 'bar');
-                assert.equal(data.flowBeginTime, 'baz');
+                assert.equal(data.events[0].type, 'baz');
+                assert.equal(data.flowId, 'blee');
+                assert.equal(data.flowBeginTime, 'wibble');
               });
             });
           });
@@ -317,7 +361,7 @@ define(function (require, exports, module) {
               sandbox.stub(xhr, 'ajax', function () {
                 return p(true);
               });
-              metrics.logEvent('baz');
+              metrics.logEvent('qux');
               return metrics.flush(true).then(function (r) {
                 result = r;
               });
@@ -344,9 +388,9 @@ define(function (require, exports, module) {
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
               assert.equal(data.events[0].type, 'foo');
-              assert.equal(data.events[1].type, 'flow.begin');
-              assert.equal(data.events[2].type, 'qux');
-              assert.equal(data.events[3].type, 'baz');
+              assert.equal(data.events[1].type, 'flow.bar');
+              assert.equal(data.events[2].type, 'baz');
+              assert.equal(data.events[3].type, 'qux');
             });
 
             it('resolves to true', function () {
@@ -420,8 +464,8 @@ define(function (require, exports, module) {
             assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.begin');
-            assert.equal(data.events[2].type, 'qux');
+            assert.equal(data.events[1].type, 'flow.bar');
+            assert.equal(data.events[2].type, 'baz');
             assert.equal(data.events[3].type, 'wibble');
           });
         });
@@ -444,8 +488,8 @@ define(function (require, exports, module) {
             assert.lengthOf(Object.keys(data), 25);
             assert.lengthOf(data.events, 4);
             assert.equal(data.events[0].type, 'foo');
-            assert.equal(data.events[1].type, 'flow.begin');
-            assert.equal(data.events[2].type, 'qux');
+            assert.equal(data.events[1].type, 'flow.bar');
+            assert.equal(data.events[2].type, 'baz');
             assert.equal(data.events[3].type, 'blee');
           });
         });
@@ -650,50 +694,55 @@ define(function (require, exports, module) {
       });
     });
 
-    it('metrics.logFlowEvent', () => {
-      metrics.logFlowEvent('foo', 'signin');
-      metrics.logFlowEvent('foo', 'signin');
-      metrics.logFlowEvent('bar', 'oauth.signin');
-      metrics.logFlowEvent('baz');
-
-      const events = metrics.getFilteredData().events;
-      assert.equal(events.length, 4);
-      assert.equal(events[0].type, 'flow.signin.foo');
-      assert.equal(events[1].type, 'flow.signin.foo');
-      assert.equal(events[2].type, 'flow.signin.bar');
-      assert.equal(events[3].type, 'flow.baz');
-    });
-
-    it('metrics.logFlowEventOnce', () => {
-      metrics.logFlowEventOnce('foo', 'signin');
-      metrics.logFlowEventOnce('foo', 'signin');
-      metrics.logFlowEventOnce('foo', 'signup');
-
-      const events = metrics.getFilteredData().events;
-      assert.equal(events.length, 2);
-      assert.equal(events[0].type, 'flow.signin.foo');
-      assert.equal(events[1].type, 'flow.signup.foo');
-    });
-
-    it('getFlowEventMetadata', () => {
-      const result = metrics.getFlowEventMetadata();
-      assert.deepEqual(result, {
-        flowBeginTime: undefined,
-        flowId: undefined
+    describe('setFlowModel', () => {
+      beforeEach(() => {
+        metrics.setFlowModel({
+          attributes: {
+            flowBegin: 'wibble',
+            flowId: 'blee'
+          }
+        });
       });
-      assert.deepEqual(Object.keys(result), ['flowBeginTime','flowId']);
-    });
 
-    it('setFlowModel', () => {
-      metrics.setFlowModel({
-        attributes: {
-          flowBegin: 'foo',
-          flowId: 'bar'
-        }
+      it('metrics.logFlowEvent', () => {
+        metrics.logFlowEvent('foo', 'signin');
+        metrics.logFlowEvent('foo', 'signin');
+        metrics.logFlowEvent('bar', 'oauth.signin');
+        metrics.logFlowEvent('baz');
+
+        const events = metrics.getFilteredData().events;
+        assert.equal(events.length, 4);
+        assert.equal(events[0].type, 'flow.signin.foo');
+        assert.equal(events[1].type, 'flow.signin.foo');
+        assert.equal(events[2].type, 'flow.signin.bar');
+        assert.equal(events[3].type, 'flow.baz');
       });
-      assert.deepEqual(metrics.getFlowEventMetadata(), {
-        flowBeginTime: 'foo',
-        flowId: 'bar'
+
+      it('metrics.logFlowEventOnce', () => {
+        metrics.logFlowEventOnce('foo', 'signin');
+        metrics.logFlowEventOnce('foo', 'signin');
+        metrics.logFlowEventOnce('foo', 'signup');
+
+        const events = metrics.getFilteredData().events;
+        assert.equal(events.length, 2);
+        assert.equal(events[0].type, 'flow.signin.foo');
+        assert.equal(events[1].type, 'flow.signup.foo');
+      });
+
+      describe('trigger flow.clear event', () => {
+        beforeEach(() => {
+          notifier.on.args[0][1]();
+        });
+
+        it('metrics.logFlowEvent logs no events', () => {
+          metrics.logFlowEvent('foo', 'signin');
+          assert.equal(metrics.getFilteredData().events.length, 0);
+        });
+
+        it('metrics.logFlowEventOnce logs no events', () => {
+          metrics.logFlowEventOnce('foo', 'signin');
+          assert.equal(metrics.getFilteredData().events.length, 0);
+        });
       });
     });
 

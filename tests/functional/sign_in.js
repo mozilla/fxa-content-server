@@ -180,6 +180,8 @@ define([
     },
 
     'data-flow-begin attribute is set': function () {
+      // TODO: test the attribute is gone after sign out
+      // TODO: test the data-flow-id attribute
       return this.remote
         .then(openPage(PAGE_URL, '#fxa-signin-header'))
         .then(testAttributeMatches('body', 'data-flow-begin', /^[1-9][0-9]{12,}$/));
