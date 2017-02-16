@@ -11,7 +11,7 @@
 const helmet = require('helmet');
 const utils = require('./utils');
 
-function isCspRequired(req) {
+function isCspRequired(req, res) {
   if (req.method !== 'GET') {
     return false;
   }
@@ -23,6 +23,9 @@ function isCspRequired(req) {
   }
 
   // Only HTML files need CSP headers.
+  if (res && res.getHeader && res.getHeader('content-type')) {
+    return utils.isHTMLPage(path) || /html/i.test(res.getHeader('content-type'));
+  }
   return utils.isHTMLPage(path);
 }
 
@@ -30,7 +33,7 @@ module.exports = function (config) {
   const cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
   return function (req, res, next) {
-    if (! isCspRequired(req)) {
+    if (! isCspRequired(req, res)) {
       return next();
     }
 
