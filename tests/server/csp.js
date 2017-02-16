@@ -24,6 +24,7 @@ define([
     assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/fonts/clearsans.woff' }));
 
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/404.html' }));
+    assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/notfound.css' }, { getHeader: () => 'text/html' }));
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/' }));
     assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/confirm' }));
   };
