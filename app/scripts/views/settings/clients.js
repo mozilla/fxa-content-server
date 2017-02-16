@@ -58,8 +58,14 @@ define(function (require, exports, module) {
           item.title += ' - ' + item.scope;
         }
         if (item.lastAccessTimeFormatted) {
-          item.lastAccessTimeFormatted = this.translate(
-            t('Last active %(translatedTimeAgo)s'), { translatedTimeAgo: item.lastAccessTimeFormatted });
+          // only format if not a web session
+          if (item.isWebSession) {
+            item.lastAccessTimeFormatted = this.translate(
+              t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+          } else {
+            item.lastAccessTimeFormatted = this.translate(
+              t('Last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+          }
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
           item.lastAccessTimeFormatted = '';
@@ -135,11 +141,20 @@ define(function (require, exports, module) {
       // if a device then ask for confirmation
       if (clientType === Constants.CLIENT_TYPE_DEVICE) {
         this.navigate('settings/clients/disconnect', {
-          clientId: client.get('id'),
+          clientId: client.get('deviceId'),
           clients: this._attachedClients
         });
       } else {
-        this.user.destroyAccountClient(this.user.getSignedInAccount(), client);
+        this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
+          .then(() => {
+            if (clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
+              return this.user.sessionStatus().then((res) => {
+              }, (err) => {
+                // if disconnected the current session, the user is signed out
+                this.navigateToSignIn();
+              });
+            }
+          });
       }
     },
 
@@ -156,9 +171,8 @@ define(function (require, exports, module) {
 
     _fetchAttachedClients () {
       return this._attachedClients.fetchClients({
-        devices: true,
         oAuthApps: true,
-        webSession: true
+        sessions: true
       }, this.user).then(() => {
         // log the number of items
         const numOfClients = this._attachedClients.length;

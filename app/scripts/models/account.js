@@ -790,6 +790,7 @@ define(function (require, exports, module) {
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
+            item.isOAuthApp = true;
           });
 
           return oAuthApps;
@@ -805,8 +806,17 @@ define(function (require, exports, module) {
       return this._fxaClient.sessions(this.get('sessionToken'))
         .then((sessions) => {
           sessions.map((item) => {
-            item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
-            item.name = 'Web Session';
+            if (item.isDevice) {
+              item.clientType = Constants.CLIENT_TYPE_DEVICE;
+              // override the item id as deviceId for consistency
+              // if you ever need the tokenId just add it here with a different name
+              item.id = item.deviceId;
+            } else {
+              item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
+              item.name = 'Web Session';
+              item.isWebSession = true;
+            }
+
           });
 
           return sessions;
@@ -826,6 +836,18 @@ define(function (require, exports, module) {
       return this._fxaClient.deviceDestroy(sessionToken, deviceId)
         .then(function () {
           device.destroy();
+        });
+    },
+
+    destroySession (session) {
+      var tokenId = session.get('id');
+      var sessionToken = this.get('sessionToken');
+
+      return this._fxaClient.sessionDestroy(sessionToken, {
+        customSessionToken: tokenId
+      })
+        .then(function () {
+          session.destroy();
         });
     },
 

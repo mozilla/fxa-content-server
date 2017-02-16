@@ -336,6 +336,10 @@ define(function (require, exports, module) {
       return client.sessionDestroy(sessionToken);
     }),
 
+    sessionDestroy: withClient((client, sessionToken, options = {}) => {
+      return client.sessionDestroy(sessionToken, options);
+    }),
+
     verifyCode: withClient((client, uid, code, options) => {
       return client.verifyCode(uid, code, options);
     }),

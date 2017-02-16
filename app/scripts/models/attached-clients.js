@@ -40,7 +40,7 @@ define(function (require, exports, module) {
         fetchItems.push(user.fetchAccountOAuthApps(account));
       }
 
-      if (clientTypes.webSession) {
+      if (clientTypes.sessions) {
         fetchItems.push(user.fetchAccountSessions(account));
       }
 
