@@ -22,6 +22,7 @@
    const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
    const SELECTOR_LEARN_MORE = 'a#learn-more';
    const SELECTOR_LEARN_MORE_HEADER = '#tabzilla';
+   const SELECTOR_MARKETING_LINK = '.marketing-link';
    const SELECTOR_SEND_SMS_MAYBE_LATER = 'a[href="/connect_another_device"]';
    const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
    const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
@@ -61,6 +62,7 @@
      'learn more': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+        .then(testElementExists(SELECTOR_MARKETING_LINK))
         .then(click(SELECTOR_LEARN_MORE))
         .switchToWindow(LEARN_MORE_WINDOW_HANDLE)
 
@@ -129,7 +131,8 @@
 
    if (testPhoneNumber && testPhoneNumberCountry) {
      const countryInfo = CountryTelephoneInfo[testPhoneNumberCountry];
-     const formattedPhoneNumber = countryInfo.format(testPhoneNumber);
+     const formattedPhoneNumber =
+       countryInfo.format(countryInfo.normalize(testPhoneNumber));
 
      suite['valid phone number'] = function () {
        return this.remote
@@ -137,8 +140,31 @@
         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
-        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber));
+        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+        .then(testElementExists(SELECTOR_MARKETING_LINK));
      };
+
+     if (testPhoneNumberCountry === 'US') {
+       suite['valid phone number w/ country code of 1'] = function () {
+         return this.remote
+          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `1${testPhoneNumber}`))
+          .then(click(SELECTOR_SEND_SMS_SUBMIT))
+          .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
+          .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+          .then(testElementExists(SELECTOR_MARKETING_LINK));
+       };
+
+       suite['valid phone number w/ country code of +1'] = function () {
+         return this.remote
+          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `+1${testPhoneNumber}`))
+          .then(click(SELECTOR_SEND_SMS_SUBMIT))
+          .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
+          .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+          .then(testElementExists(SELECTOR_MARKETING_LINK));
+       };
+     }
 
      suite['valid phone number (contains spaces and punctuation)'] = function () {
        return this.remote

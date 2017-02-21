@@ -151,11 +151,15 @@
          });
 
          it('returns phone number with +1 prefix', () => {
-           // prefix is pre-filled in form
+           // no country code prefix
            view.$('input[type=tel]').val('1234567890');
            assert.equal(view._getPhoneNumber(), '+11234567890');
 
-           // prefix is not pre-filled in form
+           // user entered country code prefix w/o +
+           view.$('input[type=tel]').val('11234567890');
+           assert.equal(view._getPhoneNumber(), '+11234567890');
+
+           // user entered country code prefix w/ +1
            view.$('input[type=tel]').val('+11234567890');
            assert.equal(view._getPhoneNumber(), '+11234567890');
          });

@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const CountryTelephoneInfo = require('lib/country-telephone-info');
+  const { MARKETING_ID_AUTUMN_2016 } = require('lib/constants');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const Template = require('stache!templates/sms_sent');
 
@@ -39,7 +40,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    MarketingMixin
+    MarketingMixin({ marketingId: MARKETING_ID_AUTUMN_2016 })
   );
 
   module.exports = View;

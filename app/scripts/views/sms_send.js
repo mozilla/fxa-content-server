@@ -109,11 +109,7 @@ define(function (require, exports, module) {
     _getPhoneNumber () {
       const phoneNumber = this.getElementValue(SELECTOR_PHONE_NUMBER);
       const country = this.model.get('country');
-      const countryInfo = CountryTelephoneInfo[country];
-      if (phoneNumber.indexOf(countryInfo.prefix) === -1) {
-        return `${countryInfo.prefix}${phoneNumber}`;
-      }
-      return phoneNumber;
+      return CountryTelephoneInfo[country].normalize(phoneNumber);
     },
 
     /**

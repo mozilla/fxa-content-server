@@ -10,11 +10,18 @@
 
    describe('lib/country-telephone-info', () => {
      describe('GB', () => {
-       let { format, pattern } = CountryTelephoneInfo.GB;
+       let { format, normalize, pattern } = CountryTelephoneInfo.GB;
 
        describe('format', () => {
          it('formats correctly', () => {
            assert.equal(format('+441234567890'), '+44 1234 567890');
+         });
+       });
+
+       describe('normalize', () => {
+         it('normalizes a number accepted by pattern correctly', () => {
+           assert.equal(normalize('+441234567890'), '+441234567890');
+           assert.equal(normalize('1234567890'), '+441234567890');
          });
        });
 
@@ -31,17 +38,27 @@
      });
 
      describe('US', () => {
-       let { format, pattern } = CountryTelephoneInfo.US;
+       let { format, normalize, pattern } = CountryTelephoneInfo.US;
 
        it('formats correctly', () => {
          assert.equal(format('+11234567890'), '123-456-7890');
-         assert.equal(format('1234567890'), '123-456-7890');
+         assert.equal(format('+14234567890'), '423-456-7890');
+       });
+
+       describe('normalize', () => {
+         it('normalizes a number accepted by pattern correctly', () => {
+           assert.equal(normalize('+11234567890'), '+11234567890'); // full country code prefix
+           assert.equal(normalize('11234567890'), '+11234567890'); // country code prefix w/o +
+           assert.equal(normalize('1234567890'), '+11234567890'); // no country code prefix
+         });
        });
 
        describe('pattern', () => {
          it('validates correctly', () => {
            assert.ok(pattern.test('1234567890'));
-           assert.ok(pattern.test('+11234567890'));
+           assert.ok(pattern.test('+11234567890')); // full country code prefix
+           assert.ok(pattern.test('11234567890')); // country code prefix w/o +
+           assert.ok(pattern.test('15234567890'));
            assert.isFalse(pattern.test('+331234567890'));
            assert.isFalse(pattern.test('+1123456789'));
            assert.isFalse(pattern.test('123456789'));

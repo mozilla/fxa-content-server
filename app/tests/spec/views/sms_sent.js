@@ -7,7 +7,9 @@
 
    const { assert } = require('chai');
    const Backbone = require('backbone');
+   const Broker = require('models/auth_brokers/base');
    const Notifier = require('lib/channels/notifier');
+   const Relier = require('models/reliers/relier');
    const sinon = require('sinon');
    const View = require('views/sms_sent');
 
@@ -18,8 +20,10 @@
      beforeEach(() => {
        model = new Backbone.Model({});
        view = new View({
+         broker: new Broker({}),
          model,
-         notifier: new Notifier()
+         notifier: new Notifier(),
+         relier: new Relier({ service: 'sync' })
        });
      });
 
@@ -51,7 +55,7 @@
         });
      });
 
-     it('renders a US phone number correctly', () => {
+     it('renders a US phone number correctly, shows marketing', () => {
        model.set({
          country: 'US',
          phoneNumber: '+11234567890'
@@ -60,6 +64,7 @@
        return view.render()
         .then(() => {
           assert.include(view.$('#sms-sent-to').text(), '123-456-7890');
+          assert.lengthOf(view.$('.marketing-link'), 2);
         });
      });
 
