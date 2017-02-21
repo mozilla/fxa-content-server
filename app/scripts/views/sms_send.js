@@ -48,8 +48,8 @@ define(function (require, exports, module) {
     _onSuccessClick () {
       this._successClickCount++;
       if (this._successClickCount === 4) {
-        // Convert to UK mode for testing.
-        this.model.set('country', 'UK');
+        // Convert to GB mode for testing.
+        this.model.set('country', 'GB');
       }
     },
 

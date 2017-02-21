@@ -161,9 +161,9 @@
          });
        });
 
-       describe('with a UK phone number', () => {
+       describe('with a GB phone number', () => {
          beforeEach(() => {
-           model.set('country', 'UK');
+           model.set('country', 'GB');
          });
 
          it('returns phone number with +44 prefix', () => {

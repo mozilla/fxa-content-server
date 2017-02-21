@@ -76,7 +76,7 @@ define(function (require, exports, module) {
 
       describe('specifying country using `data-country`', () => {
         beforeEach(() => {
-          $telEl.data('country', 'UK');
+          $telEl.data('country', 'GB');
         });
         it('throws a `PHONE_NUMBER_REQUIRED` if empty', () => {
           testInvalidInput('', 'PHONE_NUMBER_REQUIRED');

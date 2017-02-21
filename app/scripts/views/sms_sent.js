@@ -24,7 +24,7 @@ define(function (require, exports, module) {
 
     beforeRender () {
       if (! this.model.get('phoneNumber') || ! this.model.get('country')) {
-        this.navigate('send_sms');
+        this.navigate('sms');
         return false;
       }
     },

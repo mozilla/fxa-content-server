@@ -9,7 +9,7 @@
    'use strict';
 
    module.exports = {
-     UK: {
+     GB: {
        /**
         * Format a phone phone number, expects country code prefix
         *

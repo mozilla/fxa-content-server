@@ -118,7 +118,7 @@ define(function (require, exports, module) {
     },
     INVALID_PHONE_NUMBER: {
       errno: 129,
-      message: t('Phone number invalid')
+      message: t('Invalid phone number')
     },
     INVALID_PHONE_REGION: {
       errno: 130,
@@ -126,7 +126,8 @@ define(function (require, exports, module) {
     },
     SMS_ID_INVALID: {
       errno: 131,
-      message: t('The Firefox Accounts developers screwed up')
+      // should not be user facing, not wrapped in t
+      message: 'SMS ID invalid'
     },
     SMS_REJECTED: {
       errno: 132,

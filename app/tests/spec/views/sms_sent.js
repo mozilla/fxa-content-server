@@ -7,8 +7,9 @@
 
    const { assert } = require('chai');
    const Backbone = require('backbone');
+   const Notifier = require('lib/channels/notifier');
+   const sinon = require('sinon');
    const View = require('views/sms_sent');
-
 
    describe('views/sms_sent', () => {
      let model;
@@ -16,7 +17,38 @@
 
      beforeEach(() => {
        model = new Backbone.Model({});
-       view = new View({ model });
+       view = new View({
+         model,
+         notifier: new Notifier()
+       });
+     });
+
+     it('returns to `sms` if no `phoneNumber`', () => {
+       sinon.spy(view, 'navigate');
+
+       model.set({
+         country: 'US'
+       });
+
+       return view.render()
+        .then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('sms'));
+        });
+     });
+
+     it('returns to `sms` if no `country`', () => {
+       sinon.spy(view, 'navigate');
+
+       model.set({
+         phoneNumber: '+11234567890'
+       });
+
+       return view.render()
+        .then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('sms'));
+        });
      });
 
      it('renders a US phone number correctly', () => {
@@ -31,9 +63,9 @@
         });
      });
 
-     it('renders a UK phone number correctly', () => {
+     it('renders a GB phone number correctly', () => {
        model.set({
-         country: 'UK',
+         country: 'GB',
          phoneNumber: '+441234567890'
        });
 

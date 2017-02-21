@@ -9,8 +9,8 @@
    const CountryTelephoneInfo = require('lib/country-telephone-info');
 
    describe('lib/country-telephone-info', () => {
-     describe('UK', () => {
-       let { format, pattern } = CountryTelephoneInfo.UK;
+     describe('GB', () => {
+       let { format, pattern } = CountryTelephoneInfo.GB;
 
        describe('format', () => {
          it('formats correctly', () => {
@@ -23,6 +23,7 @@
            assert.ok(pattern.test('1234567890'));
            assert.ok(pattern.test('+441234567890'));
            assert.isFalse(pattern.test('+331234567890'));
+           assert.isFalse(pattern.test('+4401234567890')); // that leading 0 kills me.
            assert.isFalse(pattern.test('+44123456789'));
            assert.isFalse(pattern.test('123456789'));
          });

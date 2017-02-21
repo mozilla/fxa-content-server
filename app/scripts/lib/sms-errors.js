@@ -13,7 +13,8 @@ define((require, exports, module) => {
   const Errors = require('lib/errors');
   const t = msg => msg;
 
-  const COULD_NOT_SEND = t('Could not send SMS');
+  const INVALID_PHONE_NUMBER_MESSAGE = t('Invalid phone number');
+  const THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
 
   /*eslint-disable sorting/sort-object-props*/
   const ERRORS = {
@@ -23,27 +24,31 @@ define((require, exports, module) => {
     },
     THROTTLED: {
       errno: 1,
-      message: COULD_NOT_SEND
+      message: THROTTLED_ERROR_MESSAGE
     },
     MISSING_PARAMETER: {
       errno: 2,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS parameter missing'
     },
     INVALID_PARAMETER: {
       errno: 3,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS parameter invalid'
     },
     INVALID_CREDENTIALS: {
       errno: 4,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS credentials invalid'
     },
     INTERNAL_ERROR: {
       errno: 5,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS internal error'
     },
     UNROUTABLE_MESSAGE: {
       errno: 6,
-      message: t('Phone number invalid')
+      message: INVALID_PHONE_NUMBER_MESSAGE
     },
     NUMBER_BLOCKED: {
       errno: 7,
@@ -51,55 +56,66 @@ define((require, exports, module) => {
     },
     PARTNER_ACCOUNT_BLOCKED: {
       errno: 8,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS partner account blocked'
     },
     PARTNER_QUOTA_EXCEEDED: {
       errno: 9,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS partner quota exceeded'
     },
     ACCOUNT_NOT_ENABLED_FOR_REST: {
       errno: 11,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS account not enabled for REST'
     },
     MESSAGE_TOO_LONG: {
       errno: 12,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS message too long'
     },
     COMMUNICATION_FAILED: {
       errno: 13,
-      message: COULD_NOT_SEND
+      message: t('SMS not sent, please try again')
     },
     INVALID_SIGNATURE: {
       errno: 14,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS invalid signature'
     },
     ILLEGAL_SENDER_ADDRESS: {
       errno: 15,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS sender address illegal'
     },
     INVALID_TTL: {
       errno: 16,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS ttl invalid'
     },
     FACILITY_NOT_ALLOWED: {
       errno: 19,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS facility not allowed'
     },
     INVALID_MESSAGE_CLASS: {
       errno: 20,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS message class invalid'
     },
     MISSING_PROTOCOL: {
       errno: 23,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS protocol missing'
     },
     DESTINATION_NOT_ALLOWED: {
       errno: 29,
-      message: COULD_NOT_SEND
+      // should not be user facing, not wrapped in t
+      message: 'SMS destination not allowed'
     },
     INVALID_PHONE_NUMBER: {
       errno: 34,
-      message: t('Phone number invalid')
+      message: INVALID_PHONE_NUMBER_MESSAGE
     }
 
   };
