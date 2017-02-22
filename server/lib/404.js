@@ -8,7 +8,6 @@ module.exports = function (req, res, next) {
   res.status(404);
 
   if (req.accepts('html')) {
-    res.setHeader('content-type', 'text/html; charset=utf-8');
     return res.render('404');
   }
 

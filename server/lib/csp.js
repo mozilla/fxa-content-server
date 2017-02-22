@@ -9,36 +9,23 @@
 
 'use strict';
 const helmet = require('helmet');
-const utils = require('./utils');
+const htmlOnly = require('./html-middleware');
 
-function isCspRequired(req, res) {
-  if (req.method !== 'GET') {
-    return false;
-  }
-
-  const path = req.path;
+function isCspRequired(req) {
   // is the user running tests? No CSP.
-  if (path === '/tests/index.html') {
-    return false;
-  }
-
-  // Only HTML files need CSP headers.
-  if (res && res.getHeader && res.getHeader('content-type')) {
-    return utils.isHTMLPage(path) || /html/i.test(res.getHeader('content-type'));
-  }
-  return utils.isHTMLPage(path);
+  return req.path !== '/tests/index.html';
 }
 
 module.exports = function (config) {
   const cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
-  return function (req, res, next) {
-    if (! isCspRequired(req, res)) {
-      return next();
+  return htmlOnly((req, res, next) => {
+    if (isCspRequired(req)) {
+      cspMiddleware(req, res, next);
+    } else {
+      next();
     }
-
-    cspMiddleware(req, res, next);
-  };
+  });
 };
 
 module.exports.isCspRequired = isCspRequired;

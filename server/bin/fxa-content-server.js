@@ -75,6 +75,7 @@ function makeApp() {
   app.use(localizedRender({ i18n: i18n }));
 
   app.use(frameGuard);
+
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     force: true,
@@ -147,11 +148,6 @@ function makeApp() {
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
-
-  // add CSP header if the route changed the content-type to html
-  if (config.get('csp.enabled')) {
-    app.use(csp({ rules: cspRulesBlocking }));
-  }
 
   // The error handler must be before any other error middleware
   app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
