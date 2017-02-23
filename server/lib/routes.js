@@ -92,7 +92,10 @@ module.exports = function (config, i18n) {
       }
 
       if (route.validate) {
-        routeHandlers.push(celebrate(route.validate));
+        routeHandlers.push(celebrate(route.validate, {
+          // silently drop any unknown fields on the ground.
+          stripUnknown: true
+        }));
       }
 
       routeHandlers.push(route.process);

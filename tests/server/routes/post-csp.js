@@ -164,6 +164,7 @@ define([
     'source-file empty ()': testValidCspValue('source-file', ''),
     'source-file missing': testValidCspValue('source-file', undefined),
     'status-code missing': testValidCspValue('status-code', undefined),
+    'unknown-field': testValidCspValue('unknown-field', 'hey-ho'), // unknown fields are silently dropped.
     'valid': testValidCspValue(VALID_CSP_REPORT)
   };
 
