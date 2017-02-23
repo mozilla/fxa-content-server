@@ -7,7 +7,7 @@ define([
   'intern!object',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, FunctionalHelpers) {
-  var EXP_MAILCHECK_URL = intern.config.fxaContentRoot;
+  var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?automatedBrowser=true';
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;

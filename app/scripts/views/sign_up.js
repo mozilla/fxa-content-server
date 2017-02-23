@@ -115,7 +115,7 @@ define(function (require, exports, module) {
       if (this.broker.isAutomatedBrowser()) {
         // helps avoid 'focus' issues with Firefox Selenium Driver
         // See https://code.google.com/p/selenium/issues/detail?id=157
-        $('input').on('input', function () {
+        this.$el.find('input[type=password]').click(function () {
           this.onEmailBlur();
         }.bind(this));
       }
