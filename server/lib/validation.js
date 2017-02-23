@@ -11,7 +11,7 @@ const joi = require('joi');
 module.exports = {
   TYPES: {
     INTEGER: joi.number().integer(),
-    STRING: joi.string(),
-    URL: joi.string().uri({ scheme: [ 'http', 'https' ]})
+    STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
+    URL: joi.string().max(2048).uri({ scheme: [ 'http', 'https' ]}) // 2048 is also arbitrary, the same limit we use on the front end.
   }
 };

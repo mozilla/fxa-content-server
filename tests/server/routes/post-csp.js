@@ -12,9 +12,10 @@ define([
   'intern/dojo/node!../../../server/lib/configuration',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
-  'intern/dojo/node!got'
+  'intern/dojo/node!got',
+  'tests/lib/helpers'
 ], function (intern, registerSuite, assert, initLogging, fs, path, config,
-  proxyquire, sinon, got) {
+  proxyquire, sinon, got, TestHelpers) {
 
   const REPORT_URL = intern.config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
   const VALID_CSP_REPORT = {
@@ -45,6 +46,8 @@ define([
   var mockResponse = {
     json: function () {}
   };
+
+  const createRandomHexString = TestHelpers.createRandomHexString;
 
   suite['it works with csp reports'] = function () {
     var writer = sinon.spy();
@@ -128,6 +131,7 @@ define([
       'csp-report': {}
     }),
     'csp-report not set': testInvalidCspReport({}),
+    'disposition is too long': testInvalidCspValue('disposition', createRandomHexString(1025)),
     'disposition not a string (1)': testInvalidCspValue('disposition', 1),
     'document-uri empty ()': testInvalidCspValue('document-uri', ''),
     'document-uri invalid scheme (telnet)': testInvalidCspValue('document-uri', 'telnet://bing.com'),
