@@ -19,7 +19,8 @@ const URL_TYPE = validation.TYPES.URL;
 const BODY_SCHEMA = {
   'csp-report': joi.object().keys({
     // CSP 2, 3 required
-    'blocked-uri': URL_TYPE.allow('self').required(),
+    // `eval` and `inline` are specified in CSP 3 and sent by Chrome
+    'blocked-uri': URL_TYPE.allow('eval').allow('inline').allow('self').required(),
     // CSP 2, 3 optional
     'column-number': INTEGER_TYPE.min(0).optional(),
     // CSP 3 required, but not always sent

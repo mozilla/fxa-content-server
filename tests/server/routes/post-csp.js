@@ -151,6 +151,8 @@ define([
   };
 
   suite['#post csp - returns 200 if CSP report is valid'] = {
+    'blocked-uri (eval)': testValidCspValue('blocked-uri', 'eval'),
+    'blocked-uri (inline)': testValidCspValue('blocked-uri', 'inline'),
     'blocked-uri (self)': testValidCspValue('blocked-uri', 'self'),
     'column-number missing': testValidCspValue('column-number', undefined),
     'disposition missing': testValidCspValue('disposition', undefined),
