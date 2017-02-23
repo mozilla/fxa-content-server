@@ -34,7 +34,6 @@ define([
         .then(openPage(EXP_MAILCHECK_URL, '#fxa-signup-header'))
         .then(type('.email', BAD_EMAIL))
         .then(click('#password'))
-        .then(type('#password', 'password'))
         .then(click('.tooltip-suggest > span:nth-child(1)'))
 
         .then(testElementValueEquals('input[type=email]', CORRECTED_EMAIL));
