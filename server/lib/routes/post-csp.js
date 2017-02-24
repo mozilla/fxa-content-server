@@ -41,7 +41,7 @@ const BODY_SCHEMA = {
     'source-file': STRING_TYPE.allow('').optional(),
     // CSP 2, 3 required, but not always sent
     'status-code': INTEGER_TYPE.min(0).optional(),
-    // CSP 2, 3 reuqired
+    // CSP 2, 3 required
     'violated-directive': STRING_TYPE.required()
   }).required()
 };
