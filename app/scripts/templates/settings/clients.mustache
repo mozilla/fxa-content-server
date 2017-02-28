@@ -25,7 +25,7 @@
                     <div class="device-current">{{#t}}current device{{/t}}</div>
                 {{/isCurrentDevice}}
                 {{^isCurrentDevice}}
-                    <div class="last-connected">{{userAgent}} {{lastAccessTimeFormatted}}</div>
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
                 {{/isCurrentDevice}}
                 <button class="settings-button warning client-disconnect" data-id="{{deviceId}}" data-type="{{clientType}}">{{#t}}Disconnect…{{/t}}</button>
               </li>
@@ -34,7 +34,12 @@
             {{#isWebSession}}
                 <li class="client {{type}} client-webSession" data-name="{{name}}" id="{{id}}">
                     <div class="client-name" title="{{title}}">{{title}}</div>
+                  {{#isCurrentDevice}}
+                    <div class="device-current">{{#t}}current session{{/t}}</div>
+                  {{/isCurrentDevice}}
+                  {{^isCurrentDevice}}
                     <div class="last-connected">{{lastAccessTimeFormatted}}</div>
+                  {{/isCurrentDevice}}
                     <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
                 </li>
             {{/isWebSession}}
