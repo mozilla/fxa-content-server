@@ -186,7 +186,7 @@ define(function (require, exports, module) {
     ExperimentMixin,
     OpenConfirmationEmailMixin,
     PulseGraphicMixin,
-    ResendMixin,
+    ResendMixin(),
     ResumeTokenMixin,
     ServiceMixin,
     VerificationReasonMixin

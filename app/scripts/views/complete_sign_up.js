@@ -313,7 +313,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     CompleteSignUpView,
     ExperimentMixin,
-    ResendMixin,
+    ResendMixin(),
     ResumeTokenMixin,
     VerificationReasonMixin
   );

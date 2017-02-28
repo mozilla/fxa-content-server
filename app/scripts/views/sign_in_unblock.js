@@ -101,7 +101,7 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    ResendMixin,
+    ResendMixin(),
     ResumeTokenMixin,
     SignInMixin
   );

@@ -273,7 +273,7 @@ define(function (require, exports, module) {
     View,
     PasswordResetMixin,
     OpenResetPasswordEmailMixin,
-    ResendMixin,
+    ResendMixin(),
     ServiceMixin
   );
 

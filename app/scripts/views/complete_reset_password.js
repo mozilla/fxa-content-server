@@ -169,7 +169,7 @@ define(function (require, exports, module) {
     PasswordMixin,
     PasswordResetMixin,
     PasswordStrengthMixin,
-    ResendMixin,
+    ResendMixin(),
     ServiceMixin
   );
 
