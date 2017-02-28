@@ -336,6 +336,16 @@ define(function (require, exports, module) {
       return client.sessionDestroy(sessionToken);
     }),
 
+    /**
+     * Destroy the user's current or custom session
+     *
+     * @method sessionDestroy
+     * @param {String} sessionToken
+     * @param {Object} [options]
+     *   @param {String} [options.customSessionToken] - if provided, deletes a custom session token
+     * @returns {Promise}
+     *
+     */
     sessionDestroy: withClient((client, sessionToken, options = {}) => {
       return client.sessionDestroy(sessionToken, options);
     }),
@@ -347,7 +357,7 @@ define(function (require, exports, module) {
     /**
      * Initiate a password reset
      *
-     * @method signUp
+     * @method passwordReset
      * @param {String} originalEmail
      * @param {Relier} relier
      * @param {Object} [options]

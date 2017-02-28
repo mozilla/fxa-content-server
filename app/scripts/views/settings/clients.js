@@ -60,6 +60,8 @@ define(function (require, exports, module) {
         if (item.lastAccessTimeFormatted) {
           // only format if not a web session
           if (item.isWebSession) {
+            item.title = this.translate(
+              t('Web Session, %(userAgent)s'), {userAgent: item.userAgent});
             item.lastAccessTimeFormatted = this.translate(
               t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           } else {
@@ -148,10 +150,9 @@ define(function (require, exports, module) {
         this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
           .then(() => {
             if (clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
-              return this.user.sessionStatus().then((res) => {
-              }, (err) => {
-                // if disconnected the current session, the user is signed out
-                this.navigateToSignIn();
+              return this.user.sessionStatus().then(null, () => {
+                // if err then it disconnected the current session, the user is signed out
+                this.clearSessionAndNavigateToSignIn();
               });
             }
           });

@@ -813,7 +813,6 @@ define(function (require, exports, module) {
               item.id = item.deviceId;
             } else {
               item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
-              item.name = 'Web Session';
               item.isWebSession = true;
             }
 
@@ -845,10 +844,9 @@ define(function (require, exports, module) {
 
       return this._fxaClient.sessionDestroy(sessionToken, {
         customSessionToken: tokenId
-      })
-        .then(function () {
-          session.destroy();
-        });
+      }).then(function () {
+        session.destroy();
+      });
     },
 
 

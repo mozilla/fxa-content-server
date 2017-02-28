@@ -33,8 +33,8 @@
 
             {{#isWebSession}}
                 <li class="client {{type}} client-webSession" data-name="{{name}}" id="{{id}}">
-                    <div class="client-name" title="{{title}}">{{name}}</div>
-                    <div class="last-connected">{{userAgent}}, {{lastAccessTimeFormatted}}</div>
+                    <div class="client-name" title="{{title}}">{{title}}</div>
+                    <div class="last-connected">{{lastAccessTimeFormatted}}</div>
                     <button class="settings-button warning client-disconnect" data-id="{{id}}" data-type="{{clientType}}">{{#t}}Disconnect{{/t}}</button>
                 </li>
             {{/isWebSession}}
