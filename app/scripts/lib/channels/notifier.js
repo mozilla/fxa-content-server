@@ -44,6 +44,8 @@ define(function (require, exports, module) {
       name: 'internal:signed_in',
       schema: {
         keyFetchToken: '?String',
+        sessionToken: 'String',
+        sessionTokenContext: 'String',
         uid: 'String',
         unwrapBKey: '?String'
       }
