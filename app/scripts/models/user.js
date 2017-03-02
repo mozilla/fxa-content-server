@@ -117,7 +117,7 @@ define(function (require, exports, module) {
       const accounts = this._accounts();
       const uid = account.get('uid');
       if (! uid) {
-        this._metrics.logError(AuthErrors.toError('ACCOUNT_HAS_NO_UID'));
+        this._metrics.logError(AuthErrors.toError('ACCOUNT_HAS_NO_UID', 'persistAccount'));
         return;
       }
 
@@ -392,10 +392,10 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Remove accounts with empty or `undefined` uids.
+     * Remove accounts with invalid uids.
      * See #4769. w/ e10s enabled, post account reset,
-     * a phantom account with a uid of `undefined` was
-     * being written to localStorage. These accounts
+     * a phantom account with a uid of the string `undefined`
+     * was being written to localStorage. These accounts
      * are garbage, get rid of them.
      *
      * @returns {Promise}
@@ -404,6 +404,8 @@ define(function (require, exports, module) {
       return p().then(() => {
         const accounts = this._accounts();
         for (const uid in accounts) {
+          // the string `undefined` is correct here. That's the
+          // uid being stored in localStorage.
           if (! uid || uid === 'undefined') {
             delete accounts[uid];
             this._storage.set('accounts', accounts);

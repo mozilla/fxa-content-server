@@ -41,9 +41,6 @@ define(function (require, exports, module) {
       assert.lengthOf(args, 2);
       assert.equal(args[0], notifier.COMMANDS.SIGNED_IN);
 
-      // unwrapBKey and keyFetchToken are used in password reset
-      // to enable the original tab to send encryption keys
-      // to Firefox Hello.
       assert.deepEqual(
         args[1], account.pick('keyFetchToken', 'sessionToken', 'sessionTokenContext', 'uid', 'unwrapBKey'));
     }
@@ -304,7 +301,9 @@ define(function (require, exports, module) {
 
           assert.isFalse(storage.set.called);
           assert.isTrue(metrics.logError.calledOnce);
-          assert.isTrue(AuthErrors.is(metrics.logError.args[0][0], 'ACCOUNT_HAS_NO_UID'));
+          const err = metrics.logError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'ACCOUNT_HAS_NO_UID'));
+          assert.equal(err.context, 'persistAccount');
         });
       });
     });

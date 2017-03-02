@@ -148,12 +148,6 @@ define(function (require, exports, module) {
       // from within about:accounts. Because of this, all account data needed to sign in must
       // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
       // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
-      //
-      // keyFetchToken and unwrapBKey are sent from the verification tab,
-      // this tab has no idea what they are. The keyFetchToken and
-      // unwrapBKey are used to generate encryption keys for Hello
-      // that must be sent from this tab, otherwise Hello gets
-      // confused on where it should update it's UI.
       account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
 
       if (account.isDefault()) {
