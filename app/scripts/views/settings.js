@@ -20,6 +20,7 @@ define(function (require, exports, module) {
   const ClientsView = require('views/settings/clients');
   const ClientDisconnectView = require('views/settings/client_disconnect');
   const DisplayNameView = require('views/settings/display_name');
+  const EmailsView = require('views/settings/emails');
   const Duration = require('duration');
   const GravatarPermissionsView = require('views/settings/gravatar_permissions');
   const GravatarView = require('views/settings/avatar_gravatar');
@@ -32,6 +33,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings');
 
   var PANEL_VIEWS = [
+    EmailsView,
     AvatarView,
     ClientsView,
     ClientDisconnectView,

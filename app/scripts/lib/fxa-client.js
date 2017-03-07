@@ -651,6 +651,22 @@ define(function (require, exports, module) {
         });
     }),
 
+    getEmails: withClient((client, sessionToken) => {
+      return client.getEmails(sessionToken)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
+    }),
+
+    createEmail: withClient((client, sessionToken, email) => {
+      return client.createEmail(sessionToken, email)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
+    }),
+
     /**
      * Check whether SMS is enabled for the user
      *
