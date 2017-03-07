@@ -126,7 +126,7 @@ const conf = module.exports = convict({
       doc: 'path to where experiments are stored'
     },
     git: {
-      default: 'github:mozilla/fxa-content-experiments#dev',
+      default: 'github:mozilla/fxa-content-experiments#train-79',
       doc: 'git url for experiments repo. set to empty to not pull'
     },
     watch: {
