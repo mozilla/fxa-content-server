@@ -1006,6 +1006,18 @@ define(function (require, exports, module) {
           metricsContext: this._metrics.getFlowEventMetadata()
         }
       );
+    },
+
+    /**
+     * Check whether SMS is enabled for the current account.
+     *
+     * @returns {Promise} resolves to `true` if SMS is enabled,
+     *  `false` otw.
+     */
+    smsStatus() {
+      return this._fxaClient.smsStatus(
+        this.get('sessionToken')
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
