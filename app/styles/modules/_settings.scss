@@ -641,3 +641,68 @@ section.modal-panel {
     display: block;
   }
 }
+
+.email-list {
+    padding: 0;
+}
+
+.email-address {
+    height: 40px;
+    list-style: none;
+    margin: 10px 0;
+    position: relative;
+
+    html[dir='ltr'] & {
+        background-position: left 2px;
+    }
+
+    html[dir='rtl'] & {
+        background-position: right 2px;
+    }
+
+    .address {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+    }
+
+    .details {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+        color: $color-grey;
+        font-size: 12px;
+
+        .verification-warning {
+            background-image: url("/images/warning.svg");
+            height: 10px;
+            width: 10px;
+            display: inline-block;
+        }
+    }
+
+    .settings-button {
+        height: 35px;
+        /*minimum width required for the button to look good without occupying too much space*/
+        /*is also the default computed width on desktop screen*/
+        min-width: 100px;
+        position: absolute;
+        text-align: center;
+        top: 0;
+        width: 20%;
+
+        html[dir='ltr'] & {
+            right: 0;
+        }
+
+        html[dir='rtl'] & {
+            left: 0;
+        }
+    }
+
+    a.settings-button {
+        padding-top: 8px;
+    }
+}
