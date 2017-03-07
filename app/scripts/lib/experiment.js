@@ -7,6 +7,9 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const ConnectAnotherDeviceExperiment = require('lib/experiments/connect-another-device');
+  // For now, the send SMS experiment only needs to log "enrolled", so
+  // no special experiment is created.
+  const SendSMSExperiment = require('lib/experiments/base');
   const Url = require('lib/url');
 
   const FORCE_EXPERIMENT_PARAM = 'forceExperiment';
@@ -14,7 +17,8 @@ define(function (require, exports, module) {
   const UA_OVERRIDE = 'FxATester';
 
   const ALL_EXPERIMENTS = {
-    'connectAnotherDevice': ConnectAnotherDeviceExperiment
+    'connectAnotherDevice': ConnectAnotherDeviceExperiment,
+    'sendSms': SendSMSExperiment
   };
 
   function ExperimentInterface (options) {
