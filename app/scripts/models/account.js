@@ -968,6 +968,31 @@ define(function (require, exports, module) {
           metricsContext: this._metrics.getFlowEventMetadata()
         }
       );
+    },
+
+    /**
+     * Get emails associated with user.
+     *
+     * @returns {Promise}
+     */
+    getEmails () {
+      return this._fxaClient.getEmails(
+        this.get('sessionToken')
+      );
+    },
+
+    /**
+     * Associates a new email to a users account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    createEmail (email) {
+      return this._fxaClient.createEmail(
+        this.get('sessionToken'),
+        email
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

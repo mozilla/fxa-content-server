@@ -27,6 +27,7 @@ define(function (require, exports, module) {
   const ClientsView = require('../views/settings/clients');
   const ClientDisconnectView = require('../views/settings/client_disconnect');
   const DisplayNameView = require('../views/settings/display_name');
+  const EmailsView = require('../views/settings/emails');
   const ForceAuthView = require('../views/force_auth');
   const GravatarPermissionsView = require('../views/settings/gravatar_permissions');
   const LegalView = require('../views/legal');
@@ -101,6 +102,7 @@ define(function (require, exports, module) {
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
+      'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),

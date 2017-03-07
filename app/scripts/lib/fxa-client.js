@@ -625,6 +625,22 @@ define(function (require, exports, module) {
 
           throw err;
         });
+    }),
+
+    getEmails: withClient((client, sessionToken) => {
+      return client.getEmails(sessionToken)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
+    }),
+
+    createEmail: withClient((client, sessionToken, email) => {
+      return client.createEmail(sessionToken, email)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
     })
   };
 
