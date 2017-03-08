@@ -5,19 +5,37 @@
 const got = require('got');
 const logger = require('mozlog')('server.get-verify-email');
 const config = require('../configuration');
+const ravenClient = require('../../lib/raven').ravenMiddleware;
 const joi = require('joi');
 const validation = require('../validation');
 
 const fxaAccountUrl = config.get('fxaccount_url');
 const STRING_TYPE = validation.TYPES.STRING;
 
-const BODY_SCHEMA = {
+const VERIFICATION_ENDPOINT = `${fxaAccountUrl}/v1/recovery_email/verify_code`;
+const VERIFICATION_TIMEOUT = 5000;
+// Sentry combines both Info and Error into one if same name
+const VERIFICATION_LEVEL_ERROR = 'VerificationValidationError';
+const VERIFICATION_LEVEL_INFO = 'VerificationValidationInfo';
+
+const REQUIRED_SCHEMA = {
   'code': STRING_TYPE.alphanum().min(32).max(32).required(),
   'uid': STRING_TYPE.alphanum().min(32).max(32).required()
 };
 
-module.exports = function () {
+const FULL_SCHEMA = {
+  'code': STRING_TYPE.alphanum().min(32).max(32).required(),
+  // resume token can be long, do not use the limited STRING_TYPE
+  'resume': joi.string().alphanum().optional(),
+  'service': STRING_TYPE.alphanum().max(100).optional(),
+  'uid': STRING_TYPE.alphanum().min(32).max(32).required(),
+  'utm_campaign': STRING_TYPE.alphanum().optional(),
+  'utm_content': STRING_TYPE.alphanum().optional(),
+  'utm_medium': STRING_TYPE.alphanum().optional(),
+  'utm_source': STRING_TYPE.alphanum().optional()
+};
 
+module.exports = function () {
   return {
     method: 'get',
     path: '/verify_email',
@@ -29,31 +47,59 @@ module.exports = function () {
         uid: req.query.uid
       };
 
-      joi.validate(data, BODY_SCHEMA, function (err, value) {
+      joi.validate(data, REQUIRED_SCHEMA, (err) => {
         if (err) {
-          logger.error(err);
-          next();
-        } else {
-          if (req.query.service) {
-            data.service = req.query.service;
-          }
+          ravenClient.captureMessage(VERIFICATION_LEVEL_ERROR, {
+            extra: {
+              details: err.details
+            }
+          });
+          // if cannot validate required params then just forward to front-end
+          return next();
+        }
 
-          if (req.query.reminder) {
-            data.reminder = req.query.reminder;
-          }
+        if (req.query.service) {
+          data.service = req.query.service;
+        }
 
-          got.post(`${fxaAccountUrl}/v1/recovery_email/verify_code`, {
-            body: data
-          }).then(function (res) {
-            // verified, all good
+        if (req.query.reminder) {
+          data.reminder = req.query.reminder;
+        }
+
+        const options = {
+          body: data,
+          retries: 0,
+          timeout: {
+            connect: VERIFICATION_TIMEOUT,
+            socket: VERIFICATION_TIMEOUT
+          }
+        };
+
+        got.post(VERIFICATION_ENDPOINT, options)
+          .then(() => {
             next();
-          }).catch(function (err) {
-            // something went wrong....
+          })
+          .catch((err) => {
+            ravenClient.captureError(err);
             logger.error(err);
+            // failed to verify, continue to front-end
             next();
+
+          });
+      });
+
+      // Passive validation and error reporting, could be made required in the future.
+      joi.validate(req.query, FULL_SCHEMA, (err) => {
+        if (err) {
+          ravenClient.captureMessage(VERIFICATION_LEVEL_INFO, {
+            extra: {
+              details: err.details
+            },
+            level: 'info'
           });
         }
       });
+
     }
   };
 };
