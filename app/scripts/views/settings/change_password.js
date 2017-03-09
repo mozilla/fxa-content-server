@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
