@@ -127,7 +127,7 @@ const conf = module.exports = convict({
       env: 'EXPERIMENTS_STORAGE_DIR'
     },
     git: {
-      default: 'github:mozilla/fxa-content-experiments#sessions-ver',
+      default: 'github:mozilla/fxa-content-experiments#dev',
       doc: 'git url for experiments repo. set to empty to not pull',
       env: 'EXPERIMENTS_GIT_REPO'
     },
