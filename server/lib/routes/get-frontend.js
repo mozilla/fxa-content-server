@@ -37,6 +37,7 @@ module.exports = function () {
     'settings/communication_preferences',
     'settings/delete_account',
     'settings/display_name',
+    'settings/emails',
     'signin',
     'signin_confirmed',
     'signin_permissions',

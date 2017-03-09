@@ -679,6 +679,14 @@ define(function (require, exports, module) {
      */
     smsStatus: withClient((client, sessionToken, options) => {
       return client.smsStatus(sessionToken, options);
+    }),
+
+    deleteEmail: withClient((client, sessionToken, email) => {
+      return client.deleteEmail(sessionToken, email)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
     })
   };
 

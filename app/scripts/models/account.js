@@ -1060,6 +1060,20 @@ define(function (require, exports, module) {
         this.get('sessionToken'),
         email
       );
+    },
+
+    /**
+     * Associates a new email to a users account.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    deleteEmail (email) {
+      return this._fxaClient.deleteEmail(
+        this.get('sessionToken'),
+        email
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,

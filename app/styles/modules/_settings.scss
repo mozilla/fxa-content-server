@@ -674,13 +674,6 @@ section.modal-panel {
         width: calc(95% - 95px);
         color: $color-grey;
         font-size: 12px;
-
-        .verification-warning {
-            background-image: url("/images/warning.svg");
-            height: 10px;
-            width: 10px;
-            display: inline-block;
-        }
     }
 
     .settings-button {
