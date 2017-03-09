@@ -11,9 +11,14 @@ define(function (require, exports, module) {
 
   const Backbone = require('backbone');
 
-  var Email = Backbone.Collection.extend({
+  var Email = Backbone.Model.extend({
+    initialize (options = {}) {
+      this.email = options.email;
+      this.isPrimary = options.isPrimary;
+      this.isVerified = options.isVerified;
+    },
     defaults: {
-      address: '',
+      email: undefined,
       isPrimary: false,
       isVerified: false
     },
