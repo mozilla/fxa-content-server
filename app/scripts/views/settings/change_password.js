@@ -49,6 +49,12 @@ define(function (require, exports, module) {
           this.logViewEvent('success');
           return this.invokeBrokerMethod('afterChangePassword', account);
         })
+        .then(() => {
+          this.displaySuccess(t('Password changed successfully'));
+          this.navigate('settings');
+
+          return this.render();
+        })
         .fail((err) => {
           if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
             this.showValidationError(this.$('#new_password'), err);
@@ -56,12 +62,6 @@ define(function (require, exports, module) {
           }
 
           throw err;
-        })
-        .then(() => {
-          this.displaySuccess(t('Password changed successfully'));
-          this.navigate('settings');
-
-          return this.render();
         });
     }
 
