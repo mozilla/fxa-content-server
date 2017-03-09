@@ -44,6 +44,14 @@ define(function (require, exports, module) {
           newPassword,
           this.relier
         )
+        .fail((err) => {
+          if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
+            this.showValidationError(this.$('#new_password'), err);
+            return;
+          }
+
+          throw err;
+        })
         .then(() => {
           this.logViewEvent('success');
           return this.invokeBrokerMethod('afterChangePassword', account);
