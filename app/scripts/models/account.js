@@ -811,6 +811,7 @@ define(function (require, exports, module) {
               // override the item id as deviceId for consistency
               // if you ever need the tokenId just add it here with a different name
               item.id = item.deviceId;
+              item.name = item.deviceName;
             } else {
               item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
               item.isWebSession = true;
