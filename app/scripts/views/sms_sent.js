@@ -21,7 +21,7 @@ define(function (require, exports, module) {
 
   const t = msg => msg;
 
-  const UNTRANSLATED_RESENT_MESSAGE = t('Download link resent to %(phoneNumber)s');
+  const UNTRANSLATED_RESENT_MESSAGE = t('App link resent to %(phoneNumber)s');
 
   const View = BaseView.extend({
     template: Template,
