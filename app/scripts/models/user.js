@@ -620,15 +620,15 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the WebSessions for the given account, populated into the passed
+     * Fetch the sessions for the given account, populated into the passed
      * collection.
      *
      * @param {Object} account - account for which device list is requested
-     * @param {Object} webSessions - webSessions collection used to store list.
+     * @param {Object} sessions - sessions collection used to store list.
      * @returns {Promise} resolves when the action completes
      */
-    fetchAccountSessions (account, webSessions) {
-      return account.fetchSessions(webSessions);
+    fetchAccountSessions (account, sessions) {
+      return account.fetchSessions(sessions);
     },
 
     /**
@@ -652,13 +652,13 @@ define(function (require, exports, module) {
      * Destroy a session on the given account. If it is the current session, sign out the user.
      *
      * @param {Object} account - account with the device
-     * @param {Object} webSession - session to destroy
+     * @param {Object} session - session to destroy
      * @returns {Promise} resolves when the action completes
      */
-    destroyAccountSession (account, webSession) {
-      return account.destroySession(webSession)
+    destroyAccountSession (account, session) {
+      return account.destroySession(session)
         .then(() => {
-          if (this.isSignedInAccount(account) && webSession.get('isCurrentSession')) {
+          if (this.isSignedInAccount(account) && session.get('isCurrentSession')) {
             this.clearSignedInAccount();
           }
         });

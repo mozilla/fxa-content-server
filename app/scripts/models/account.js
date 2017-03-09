@@ -798,7 +798,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Fetch the account's Web Sessions and populate into the collection
+     * Fetch the account's sessions + devices, populate into the collection
      *
      * @returns {Promise} resolves when the action completes
      */
@@ -845,7 +845,7 @@ define(function (require, exports, module) {
 
       return this._fxaClient.sessionDestroy(sessionToken, {
         customSessionToken: tokenId
-      }).then(function () {
+      }).then(() => {
         session.destroy();
       });
     },

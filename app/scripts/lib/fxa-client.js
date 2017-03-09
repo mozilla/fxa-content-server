@@ -573,6 +573,12 @@ define(function (require, exports, module) {
       return client.deviceList(sessionToken);
     }),
 
+    /**
+     * Get user's sessions
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with response when complete.
+     */
     sessions: withClient((client, sessionToken) => {
       return client.sessions(sessionToken);
     }),
