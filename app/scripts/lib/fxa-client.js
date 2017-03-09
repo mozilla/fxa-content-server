@@ -641,6 +641,14 @@ define(function (require, exports, module) {
           // TODO Handle errors
           throw err;
         });
+    }),
+
+    deleteEmail: withClient((client, sessionToken, email) => {
+      return client.deleteEmail(sessionToken, email)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
     })
   };
 

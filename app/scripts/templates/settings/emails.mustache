@@ -1,10 +1,11 @@
 <div id="emails" class="settings-unit">
     <div class="settings-unit-stub">
         <header class="settings-unit-summary">
-            <h2 class="settings-unit-title">{{#t}}Email addresses{{/t}}</h2>
+            <h2 class="settings-unit-title">{{#t}}Secondary email{{/t}}</h2>
         </header>
-        <button class="settings-button secondary settings-unit-toggle hidden" data-href="settings/emails">
-            {{#t}}Manage…{{/t}}
+        <button class="settings-button secondary settings-unit-toggle hidden" data-href="/settings/emails">
+            {{#hasSecondaryEmail}}{{#t}}Change…{{/t}}{{/hasSecondaryEmail}}
+            {{^hasSecondaryEmail}}{{#t}}Add…{{/t}}{{/hasSecondaryEmail}}
         </button>
     </div>
 
@@ -12,54 +13,45 @@
         <div class="error"></div>
 
         <form novalidate>
-            <p>
-                {{#t}}Choose if you would like to receive the monthly Firefox newsletter, and where you would like to
-                    receive emails to confirm new Sync devices.{{/t}}
-            </p>
-            <ul class="email-list button-row">
-                {{#emails}}
-                    <li class="email-address">
-                        <div class="address">{{address}}</div>
-                        <div class="details">
-                            {{#isPrimary}}
-                                Username, device confirmations and newsletter
-                            {{/isPrimary}}
-
-                            {{^isPrimary}}
-                                {{#isVerified}}
-                                    Device confirmations
-                                {{/isVerified}}
-                                {{^isVerified}}
-                                    <span class="verification-warning"></span>
-                                    Verification pending <a>Resend</a>
-                                {{/isVerified}}
-                            {{/isPrimary}}
-                        </div>
-
-                        {{#isPrimary}}
-                            <button class="settings-button secondary disabled">
-                                {{#t}}Options…{{/t}}
-                            </button>
-                        {{/isPrimary}}
-                        {{^isPrimary}}
-                            <button class="settings-button warning">
-                                {{#t}}Remove…{{/t}}
-                            </button>
-                        {{/isPrimary}}
-                    </li>
-                {{/emails}}
-            </ul>
-
-            <div class="input-row">
+            {{#hasSecondaryEmail}}
                 <p>
-                    {{#t}}
-                        Enter an extra email address for confirming new Sync devices. This is useful when you are unable
-                        to check your primary email address.{{/t}}
+                    {{#t}}Current secondary email associated with account.{{/t}}
                 </p>
-                <label class="label-helper"></label>
-                <input type="text" class="text new-email" placeholder="{{#t}}Additional email{{/t}}"
-                       value="{{ newEmail }}" autofocus autocomplete="off"/>
-            </div>
+                <ul class="email-list button-row">
+                    {{#emails}}
+                        {{^isPrimary}}
+                            <li class="email-address">
+                                <div class="address">{{email}}</div>
+                                <div class="details">
+                                    {{#isVerified}}
+                                        verified
+                                    {{/isVerified}}
+                                    {{^isVerified}}
+                                        not verified
+                                    {{/isVerified}}
+                                </div>
+                                <button class="settings-button warning email-disconnect" data-id="{{email}}">
+                                    {{#t}}Remove...{{/t}}
+                                </button>
+                            </li>
+                        {{/isPrimary}}
+                    {{/emails}}
+                </ul>
+            {{/hasSecondaryEmail}}
+
+            {{^hasSecondaryEmail}}
+                <div class="input-row">
+                    <p>
+                        {{#t}}
+                            A secondary email is an additional address for receiving security
+                            notices and confirming new Sync devices.{{/t}}
+                    </p>
+                    <label class="label-helper"></label>
+                    <input type="text" class="text new-email" placeholder="{{#t}}Email address{{/t}}"
+                           value="{{newEmail}}" autofocus autocomplete="off"/>
+                </div>
+            {{/hasSecondaryEmail}}
+
             <div class="button-row">
                 <button type="submit" class="settings-button primary disabled">{{#t}}Add{{/t}}</button>
                 <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
