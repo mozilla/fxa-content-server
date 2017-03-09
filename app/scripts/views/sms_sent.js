@@ -8,6 +8,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
@@ -34,7 +35,11 @@ define(function (require, exports, module) {
 
     context () {
       return {
-        phoneNumber: this._getFormattedPhoneNumber()
+        // The attributes are not surrounded by quotes because _.escape would
+        // escape them, causing the id to be the string `"back"`, and the href
+        // to be the string `"#"`.
+        escapedBackLinkAttrs: _.escape('id=back href=#'),
+        escapedPhoneNumber: _.escape(this._getFormattedPhoneNumber())
       };
     },
 
