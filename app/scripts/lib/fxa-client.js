@@ -667,6 +667,14 @@ define(function (require, exports, module) {
         });
     }),
 
+    deleteEmail: withClient((client, sessionToken, email) => {
+      return client.deleteEmail(sessionToken, email)
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
+    }),
+
     /**
      * Check whether SMS is enabled for the user
      *
