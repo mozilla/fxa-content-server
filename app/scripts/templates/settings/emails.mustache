@@ -1,4 +1,4 @@
-<div id="emails" class="settings-unit">
+<div id="emails" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}}">
     <div class="settings-unit-stub">
         <header class="settings-unit-summary">
             <h2 class="settings-unit-title">{{#t}}Secondary email{{/t}}</h2>
@@ -10,13 +10,13 @@
     </div>
 
     <div class="settings-unit-details">
-        <div class="error"></div>
+        <!--<div class="error"></div>-->
 
         <form novalidate>
+            <p>
+                {{#t}}A secondary email is an additional address for receiving security notices and confirming new Sync devices.{{/t}}
+            </p>
             {{#hasSecondaryEmail}}
-                <p>
-                    {{#t}}Current secondary email associated with account.{{/t}}
-                </p>
                 <ul class="email-list button-row">
                     {{#emails}}
                         {{^isPrimary}}
@@ -24,16 +24,19 @@
                                 <div class="address">{{email}}</div>
                                 <div class="details">
                                     {{#isVerified}}
-                                        verified
+                                        <div class="verified"> {{#t}}verified{{/t}}</div>
                                     {{/isVerified}}
                                     {{^isVerified}}
-                                        not verified
+                                        <div class="not-verified">{{#t}}verification required{{/t}}</div>
                                     {{/isVerified}}
                                 </div>
                                 <button class="settings-button warning email-disconnect" data-id="{{email}}">
-                                    {{#t}}Remove...{{/t}}
+                                    {{#t}}Remove{{/t}}
                                 </button>
                             </li>
+                            {{^isVerified}}
+                                <a>{{#t}}Didn't arrive and not in spam folder? Resend?{{/t}}</a>
+                            {{/isVerified}}
                         {{/isPrimary}}
                     {{/emails}}
                 </ul>
@@ -41,19 +44,24 @@
 
             {{^hasSecondaryEmail}}
                 <div class="input-row">
-                    <p>
-                        {{#t}}
-                            A secondary email is an additional address for receiving security
-                            notices and confirming new Sync devices.{{/t}}
-                    </p>
                     <label class="label-helper"></label>
-                    <input type="text" class="text new-email" placeholder="{{#t}}Email address{{/t}}"
+                    <input type="email" class="new-email tooltip-below" placeholder="{{#t}}Email address{{/t}}"
                            value="{{newEmail}}" autofocus autocomplete="off"/>
                 </div>
             {{/hasSecondaryEmail}}
 
             <div class="button-row">
-                <button type="submit" class="settings-button primary disabled">{{#t}}Add{{/t}}</button>
+                {{#hasSecondaryEmail}}
+                    <button class="settings-button email-refresh primary {{#hasSecondaryVerifiedEmail}}disabled{{/hasSecondaryVerifiedEmail}}
+                        {{^hasSecondaryVerifiedEmail}}enabled{{/hasSecondaryVerifiedEmail}}">
+                        {{#t}}Refresh{{/t}}
+                    </button>
+                {{/hasSecondaryEmail}}
+
+                {{^hasSecondaryEmail}}
+                    <button type="submit" class="settings-button email-add primary disabled">{{#t}}Add{{/t}}</button>
+                {{/hasSecondaryEmail}}
+
                 <button class="settings-button secondary cancel">{{#t}}Done{{/t}}</button>
             </div>
     </div>
