@@ -382,6 +382,10 @@ define(function (require, exports, module) {
       // an attempt is made to write an account w/o a uid
       // to localStorage.
       message: 'Account has no uid'
+    },
+    EMAIL_ALREADY_EXISTS: {
+      errno: 301,
+      message: 'This email was already verified by another user'
     }
   };
   /*eslint-enable sorting/sort-object-props*/

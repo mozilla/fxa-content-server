@@ -674,6 +674,14 @@ section.modal-panel {
         width: calc(95% - 95px);
         color: $color-grey;
         font-size: 12px;
+
+        & .not-verified {
+            color: $color-red;
+        }
+
+        & .verified {
+            color: $color-green;
+        }
     }
 
     .settings-button {
