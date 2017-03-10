@@ -16,6 +16,7 @@ define(function (require, exports, module) {
   const ServiceMixin = require('views/mixins/service-mixin');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/change_password');
+  const AuthErrors = require('lib/auth-errors');
 
   var t = BaseView.t;
 
@@ -53,6 +54,13 @@ define(function (require, exports, module) {
           this.navigate('settings');
 
           return this.render();
+        })
+        .fail((err) => {
+          if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+            this.showValidationError(this.$('#old_password'), err);
+            return;
+          }
+          throw err;
         });
     }
 
