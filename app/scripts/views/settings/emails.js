@@ -6,6 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
+  const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Email = require('models/email');
@@ -13,9 +14,14 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const preventDefaultThen = require('views/base').preventDefaultThen;
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const showProgressIndicator = require('views/decorators/progress_indicator');
   const Template = require('stache!templates/settings/emails');
 
   var t = BaseView.t;
+
+  const EMAIL_INPUT_SELECTOR = 'input.new-email';
+  const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';
+  const EMAIL_REFRESH_DELAYMS = 350;
 
   var View = FormView.extend({
     template: Template,
@@ -23,7 +29,8 @@ define(function (require, exports, module) {
     viewName: 'settings.emails',
 
     events: {
-      'click .email-disconnect': preventDefaultThen('_onDisconnectEmail')
+      'click .email-disconnect': preventDefaultThen('_onDisconnectEmail'),
+      'click .email-refresh.enabled': preventDefaultThen('refresh')
     },
 
     initialize () {
@@ -34,22 +41,22 @@ define(function (require, exports, module) {
       return {
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
+        hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
+        isPanelOpen: this.isPanelOpen(),
         newEmail: this.newEmail
       };
     },
 
     beforeRender () {
-      var account = this.getSignedInAccount();
-      return account.getEmails()
-        .then((emails) => {
-          this._emails = emails.map((email) => {
-            return new Email(email);
-          });
-        });
+      return this._fetchEmails();
     },
 
     _hasSecondaryEmail () {
       return this._emails.length > 1;
+    },
+
+    _hasSecondaryVerifiedEmail () {
+      return this._hasSecondaryEmail() ? this._emails[1].isVerified : false;
     },
 
     _onDisconnectEmail (event) {
@@ -57,19 +64,49 @@ define(function (require, exports, module) {
       const account = this.getSignedInAccount();
       return account.deleteEmail(email)
         .then(()=> {
-          this.render();
+          return this.render()
+            .then(()=> {
+              this.navigate('/settings/emails');
+            });
         });
     },
 
-    submit () {
-      const account = this.getSignedInAccount();
-      const newEmail = this.getElementValue('input.new-email').trim();
-      return account.createEmail(newEmail)
-        .then(()=> {
-          this.displaySuccess(t('Email added. Please check your email and verify account.'));
-          this._emails.push(new Email({email: newEmail}));
-          this.render();
+    _onEmailCreateError (err) {
+      if (AuthErrors.is(err, 'EMAIL_ALREADY_EXISTS')) {
+        this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err);
+        return;
+      }
+      // all other errors are handled at a higher level.
+      throw err;
+    },
+
+    _fetchEmails () {
+      var account = this.getSignedInAccount();
+      return account.getEmails()
+        .then((emails) => {
+          this._emails = emails.map((email) => {
+            return new Email(email).toJSON();
+          });
         });
+    },
+
+    refresh: showProgressIndicator(function() {
+      return this.render();
+    }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
+
+    submit () {
+      const newEmail = this.getElementValue('input.new-email');
+      if (this.isPanelOpen() && newEmail) {
+        const account = this.getSignedInAccount();
+        return account.createEmail(newEmail)
+          .then(()=> {
+            this.displaySuccess(t('Verification emailed to ') + newEmail, {
+              closePanel: false
+            });
+            this.render();
+          })
+          .fail((err) => this._onEmailCreateError(err));
+      }
     },
   });
 
