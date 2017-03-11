@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
@@ -16,7 +17,6 @@ define(function (require, exports, module) {
   const ServiceMixin = require('views/mixins/service-mixin');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/change_password');
-  const AuthErrors = require('lib/auth-errors');
 
   var t = BaseView.t;
 
