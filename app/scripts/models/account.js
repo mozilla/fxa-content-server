@@ -1074,6 +1074,20 @@ define(function (require, exports, module) {
         this.get('sessionToken'),
         email
       );
+    },
+
+    /**
+     * Resend the verification code associated with the passed email address
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    resendEmailCode (email) {
+      return this._fxaClient.resendEmailCode(
+        this.get('sessionToken'),
+        email
+      );
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
