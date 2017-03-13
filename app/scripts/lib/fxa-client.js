@@ -675,6 +675,14 @@ define(function (require, exports, module) {
         });
     }),
 
+    resendEmailCode: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailResendCode(sessionToken, {email: email})
+        .fail((err) => {
+          // TODO Handle errors
+          throw err;
+        });
+    }),
+
     /**
      * Check whether SMS is enabled for the user
      *
