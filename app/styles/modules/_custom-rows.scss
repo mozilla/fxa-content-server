@@ -98,6 +98,10 @@ ul.links {
     margin: 20px 0 10px 0;
   }
 
+  .fxa-checkbox {
+    line-height: 18px;
+  }
+
 }
 
 .choose-what-to-sync-row,
@@ -152,11 +156,6 @@ ul.links {
   .extra-links,
   .links + .extra-links {
     margin: 5px auto;
-  }
-
-  .extra-links +
-  .button-row {
-    margin: 0;
   }
 }
 
