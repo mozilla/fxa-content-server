@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('lib/auth-errors');
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
@@ -53,6 +54,14 @@ define(function (require, exports, module) {
           this.navigate('settings');
 
           return this.render();
+        })
+        .fail((err) => {
+          if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
+            this.showValidationError(this.$('#new_password'), err);
+            return;
+          }
+
+          throw err;
         });
     }
 
