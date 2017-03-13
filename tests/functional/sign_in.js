@@ -115,7 +115,8 @@ define([
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(fillOutSignIn(email, '  ' + PASSWORD))
         // success is seeing the error message.
-        .then(visibleByQSA('.tooltip'));
+        .then(visibleByQSA('.tooltip'))
+        .then(testElementTextInclude('.tooltip', 'password'));
     },
 
     'visiting the pp links saves information for return': function () {
