@@ -30,7 +30,8 @@ define(function (require, exports, module) {
 
     events: {
       'click .email-disconnect': preventDefaultThen('_onDisconnectEmail'),
-      'click .email-refresh.enabled': preventDefaultThen('refresh')
+      'click .email-refresh.enabled': preventDefaultThen('refresh'),
+      'click .resend': preventDefaultThen('resend')
     },
 
     initialize () {
@@ -93,6 +94,19 @@ define(function (require, exports, module) {
     refresh: showProgressIndicator(function() {
       return this.render();
     }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
+
+    resend (event) {
+      const email = $(event.currentTarget).data('id');
+      const account = this.getSignedInAccount();
+      return account.resendEmailCode(email)
+        .then(() => {
+          this.displaySuccess(t('Verification emailed to ') + email, {
+            closePanel: false
+          });
+          this.render();
+          this.navigate('/settings/emails');
+        });
+    },
 
     submit () {
       const newEmail = this.getElementValue('input.new-email');
