@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const url = require('url');
 const got = require('got');
 const logger = require('mozlog')('server.get-verify-email');
 const config = require('../configuration');
@@ -40,6 +41,9 @@ module.exports = function () {
     method: 'get',
     path: '/verify_email',
     process: function (req, res, next) {
+      const rawQuery = url.parse(req.url).query;
+
+      // reset the url for the front-end router
       req.url = '/';
 
       const data = {
@@ -77,7 +81,10 @@ module.exports = function () {
 
         got.post(VERIFICATION_ENDPOINT, options)
           .then(() => {
-            next();
+            // In some cases the code can only be used once.
+            // Here we add an extra query param to signal the front-end that verification succeeded.
+            // See issue #4800
+            return res.redirect(`/verify_email?${rawQuery}&server_verification=verified`);
           })
           .catch((err) => {
             ravenClient.captureError(err);
