@@ -124,6 +124,7 @@ module.exports = (req, metrics, requestReceivedTime) => {
     }
 
     logFlowEvent(event, metrics, req);
+    sendToAmplitude(event, metrics, req);
   });
 
   const navigationTiming = metrics.navigationTiming;
@@ -252,4 +253,61 @@ function optionallySetFallbackData (eventData, key, fallback) {
   if (! eventData[key] && fallback) {
     eventData[key] = limitLength(fallback);
   }
+}
+
+
+const uaParser = require('node-uap');
+const crypto = require('crypto');
+const Amplitude = require('amplitude');
+const amplitude = new Amplitude(config.get('amplitude.api_key'));
+let amplitudeLastSeenTimestamp = 0;
+let amplitudeEventCounter = 0;
+let amplitudeHmacKey = config.get('amplitude.hmac_key');
+
+function nextAmplitudeEventId(data) {
+  if (data.time > amplitudeLastSeenTimestamp) {
+    amplitudeLastSeenTimestamp = data.time;
+    amplitudeEventCounter = 0;
+  }
+  return ++amplitudeEventCounter;
+}
+
+function anonymizeForAmplitude(id) {
+  return crypto.createHmac('sha256', amplitudeHmacKey)
+               .update(id)
+               .digest('hex');
+}
+
+function sendToAmplitude(event, data, request) {
+  let agent = uaParser.parse(request.headers['user-agent']);
+  let moreData = _.mapValues(pickFlowData(data, request), sanitiseData);
+  optionallySetFallbackData(moreData, 'service', data.client_id);
+  optionallySetFallbackData(moreData, 'entrypoint', data.entryPoint);
+  if (agent) {
+    if (agent.ua) {
+      event.uaBrowser = agent.ua.family;
+    }
+    if (agent.os) {
+      event.uaOS = agent.os.family;
+      event.uaOSVersion = agent.os.toVersionString();
+    }
+  }
+  /* eslint-disable camelcase */
+  amplitude.track({
+    device_id: anonymizeForAmplitude(data.flowId),
+    event_id: nextAmplitudeEventId(event),
+    event_properties: {
+      entrypoint: moreData.entrypoint,
+      flow_time: event.flowTime,
+      service: moreData.service
+      // XXX TODO: utm_* and other params
+    },
+    event_type: event.type,
+    os_name: event.uaOS,
+    os_version: event.uaOSVersion,
+    platform: event.uaBrowser,
+    session_id: data.flowBeginTime,
+    time: event.time
+  });
+  /* eslint-enable camelcase */
 }

@@ -21,6 +21,18 @@ const conf = module.exports = convict({
     doc: 'Origins that are allowed to embed FxA within an IFRAME',
     format: Array
   },
+  amplitude: {
+    api_key: {
+      default: 'b63fd23a7571e9aaa9970788d376f389',
+      doc: 'API key for amplitude metrics tracking',
+      format: String
+    },
+    hmac_key: {
+      default: 'ac1ff145570fa39109ee5f4649eb5a84',
+      doc: 'HMAC key used to anonymize amplitude metrics data',
+      format: String
+    }
+  },
   are_dist_resources: {
     default: false,
     doc: 'Check if the resources are under the /dist directory',
