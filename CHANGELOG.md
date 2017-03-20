@@ -1,3 +1,13 @@
+<a name="1.82.4"></a>
+## 1.82.4 (2017-03-20)
+
+
+### Bug Fixes
+
+* **validation:** adjust validation rules based on sentry feedback ([c975bb1](https://github.com/mozilla/fxa-content-server/commit/c975bb1))
+
+
+
 <a name="1.82.3"></a>
 ## 1.82.3 (2017-03-18)
 
