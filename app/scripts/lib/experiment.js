@@ -71,7 +71,7 @@ define(function (require, exports, module) {
     _allExperiments: ALL_EXPERIMENTS,
 
     /**
-     * Destory all active experiments.
+     * Destroy all active experiments.
      */
     destroy () {
       for (let expName in this._activeExperiments) {
