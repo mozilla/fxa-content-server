@@ -60,7 +60,8 @@ define([
         query: {
           code: '',
           uid: ''
-        }
+        },
+        url: '/verify_email'
       };
 
       mockModule(mocks).process(req, res, () => {
@@ -92,7 +93,8 @@ define([
         query: {
           code: '12345678912345678912345678912312',
           uid: '12345678912345678912345678912312'
-        }
+        },
+        url: '/verify_email'
       };
 
       mockModule(mocks).process(req, res, () => {
@@ -135,7 +137,8 @@ define([
         query: {
           code: '12345678912345678912345678912312',
           uid: '12345678912345678912345678912312'
-        }
+        },
+        url: '/verify_email'
       };
 
       mockModule(mocks).process(req, res, () => {

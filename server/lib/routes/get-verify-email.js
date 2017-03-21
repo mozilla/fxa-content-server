@@ -46,6 +46,10 @@ module.exports = function () {
       // reset the url for the front-end router
       req.url = '/';
 
+      if (req.query.server_verification) {
+        return next();
+      }
+
       const data = {
         code: req.query.code,
         uid: req.query.uid
