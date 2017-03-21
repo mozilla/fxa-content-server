@@ -20,11 +20,11 @@ const VERIFICATION_LEVEL_ERROR = 'VerificationValidationError';
 const VERIFICATION_LEVEL_INFO = 'VerificationValidationInfo';
 
 const REQUIRED_SCHEMA = {
-  'code': STRING_TYPE.alphanum().min(32).max(32).required(),
-  'uid': STRING_TYPE.alphanum().min(32).max(32).required()
+  'code': joi.string().hex().min(32).max(32).required(),
+  'uid': joi.string().hex().min(32).max(32).required()
 };
 
-const FULL_SCHEMA = {
+const REPORT_ONLY_SCHEMA = {
   'code': STRING_TYPE.alphanum().min(32).max(32).required(),
   // resume token can be long, do not use the limited STRING_TYPE
   'resume': joi.string().alphanum().optional(),
@@ -100,7 +100,7 @@ module.exports = function () {
       });
 
       // Passive validation and error reporting, could be made required in the future.
-      joi.validate(req.query, FULL_SCHEMA, (err) => {
+      joi.validate(req.query, REPORT_ONLY_SCHEMA, (err) => {
         if (err) {
           ravenClient.captureMessage(VERIFICATION_LEVEL_INFO, {
             extra: {
