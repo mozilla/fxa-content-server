@@ -9,6 +9,7 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Constants = require('lib/constants');
+  const { createUid } = require('../../lib/helpers');
   const Device = require('models/device');
   const AttachedClients = require('models/attached-clients');
   const FxaClient = require('lib/fxa-client');
@@ -190,11 +191,12 @@ define(function (require, exports, module) {
 
     it('clearSignedInAccount', function () {
       sinon.spy(notifier, 'triggerRemote');
-      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+      const uid = createUid();
+      return user.setSignedInAccount({ email: 'email', uid })
         .then(function () {
           user.clearSignedInAccount();
           assert.isTrue(user.getSignedInAccount().isDefault());
-          assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
+          assert.equal(user.getAccountByUid(uid).get('uid'), uid);
           assert.equal(notifier.triggerRemote.callCount, 1);
           var args = notifier.triggerRemote.args[0];
           assert.lengthOf(args, 2);
@@ -215,7 +217,7 @@ define(function (require, exports, module) {
     });
 
     it('removeAccount', function () {
-      var account = { email: 'email', uid: 'uid' };
+      var account = { email: 'email', uid: createUid() };
       return user.setSignedInAccount(account)
         .then(function () {
           user.removeAccount(account);
@@ -230,7 +232,7 @@ define(function (require, exports, module) {
       beforeEach(function () {
         account = user.initAccount({
           email: 'testuser@testuser.com',
-          uid: 'uid'
+          uid: createUid()
         });
 
         sinon.stub(account, 'destroy', function () {
@@ -359,7 +361,7 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount does not return previously cached account after clearSignedInAccount', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: 'email', uid: createUid() });
         return user.setSignedInAccount(account)
           .then(function () {
             user.clearSignedInAccount();
@@ -368,7 +370,7 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount does not return previously cached account after removeAccount', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: 'email', uid: createUid() });
         return user.setSignedInAccount(account)
           .then(function () {
             user.removeAccount(account);
@@ -683,26 +685,17 @@ define(function (require, exports, module) {
 
       describe('with a new account', function () {
         beforeEach(function () {
-          account = user.initAccount({ email: 'email', uid: 'uid' });
-
-          sinon.stub(account, 'signIn', function () {
-            return p();
+          account = user.initAccount({
+            email: 'testuser@testuser.com',
+            sessionToken: 'sessionToken',
+            sessionTokenContext: 'sessionTokenContext',
+            uid: createUid(),
+            verified: true
           });
 
-          sinon.stub(account, 'get', function (property) {
-            if (property === 'verified') {
-              return true;
-            }
-
-            return property;
-          });
-
-          sinon.stub(account, 'retrySignUp', function () {
-            return p();
-          });
-
+          sinon.stub(account, 'signIn', () => p());
+          sinon.stub(account, 'retrySignUp', () => p());
           sinon.spy(user, 'setSignedInAccount');
-
           sinon.spy(notifier, 'triggerRemote');
 
           return user.signInAccount(
@@ -750,8 +743,10 @@ define(function (require, exports, module) {
         beforeEach(function () {
           account = user.initAccount({
             displayName: 'fx user',
-            email: 'email',
-            uid: 'uid'
+            email: 'testuser@testuser.com',
+            sessionToken: 'sessionToken',
+            sessionTokenContext: 'sessionTokenContext',
+            uid: createUid()
           });
 
           var oldAccount = user.initAccount({
@@ -807,7 +802,7 @@ define(function (require, exports, module) {
       var relierMock = {};
 
       beforeEach(function () {
-        account = user.initAccount({ email: 'email', uid: 'uid' });
+        account = user.initAccount({ email: 'email', uid: createUid() });
         sinon.stub(account, 'signUp', function () {
           return p();
         });
@@ -839,7 +834,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         sinon.stub(user, 'removeAccount', () => {});
-        account = user.initAccount({ email: 'email', uid: 'uid' });
+        account = user.initAccount({ email: 'email', uid: createUid() });
       });
 
       describe('request completes as expected', () => {
@@ -876,21 +871,24 @@ define(function (require, exports, module) {
       var account;
 
       beforeEach(function () {
-        account = user.initAccount({ email: 'email', uid: 'uid' });
-
+        account = user.initAccount({
+          email: 'testuser@testuser.com',
+          sessionToken: 'sessionToken',
+          sessionTokenContext: 'sessionTokenContext',
+          uid: createUid()
+        });
         sinon.spy(notifier, 'triggerRemote');
       });
 
       describe('without a basket error', function () {
         beforeEach(function () {
-          account = user.initAccount({ email: 'email', uid: 'uid' });
-          sinon.stub(account, 'verifySignUp', function () {
-            return p();
-          });
+          sinon.stub(account, 'verifySignUp', () => p());
         });
 
         describe('without a sessionToken', function () {
           beforeEach(function () {
+            account.unset('sessionToken');
+            account.unset('sessionTokenContext');
             return user.completeAccountSignUp(account, CODE);
           });
 
@@ -905,7 +903,6 @@ define(function (require, exports, module) {
 
         describe('with a sessionToken', function () {
           beforeEach(function () {
-            account.set('sessionToken', 'session token');
             return user.completeAccountSignUp(account, CODE);
           });
 
@@ -916,19 +913,21 @@ define(function (require, exports, module) {
       });
 
       describe('with a basket error', function () {
-        var err;
+        let err;
 
         beforeEach(function () {
           err = null;
 
-          account = user.initAccount({ email: 'email', uid: 'uid' });
-          sinon.stub(account, 'verifySignUp', function () {
+          sinon.stub(account, 'verifySignUp', () => {
             return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
           });
         });
 
         describe('without a sessionToken', function () {
           beforeEach(function () {
+            account.unset('sessionToken');
+            account.unset('sessionTokenContext');
+
             return user.completeAccountSignUp(account, CODE)
               .then(assert.fail, function (_err) {
                 err = _err;
@@ -946,7 +945,6 @@ define(function (require, exports, module) {
 
         describe('with a sessionToken', function () {
           beforeEach(function () {
-            account.set('sessionToken', 'session token');
             return user.completeAccountSignUp(account, CODE)
               .then(assert.fail, function (_err) {
                 err = _err;
@@ -965,12 +963,13 @@ define(function (require, exports, module) {
     });
 
     it('changeAccountPassword changes the account password, notifies the browser', function () {
+      const uid = createUid();
       const account = user.initAccount({
-        email: 'email',
+        email: 'testuser@testuser.com',
         keyFetchToken: 'old-key-fetch-token',
         sessionToken: 'old-session-token',
         sessionTokenContext: 'fx_desktop_v2',
-        uid: 'uid',
+        uid,
         unwrapBKey: 'old-unwrap-b-key',
       });
       const newPassword = 'new_password';
@@ -1010,10 +1009,10 @@ define(function (require, exports, module) {
           assert.equal(args[0], changePasswordCommand);
 
           assert.deepEqual(args[1], {
-            email: 'email',
+            email: 'testuser@testuser.com',
             keyFetchToken: 'new-key-fetch-token',
             sessionToken: 'new-session-token',
-            uid: 'uid',
+            uid,
             unwrapBKey: 'new-unwrap-b-key',
             verified: true
           });
@@ -1025,7 +1024,12 @@ define(function (require, exports, module) {
       var relierMock = {};
 
       beforeEach(function () {
-        account = user.initAccount({ email: 'email', uid: 'uid' });
+        account = user.initAccount({
+          email: 'email',
+          sessionToken: 'sessionToken',
+          sessionTokenContext: 'sessionTokenContext',
+          uid: createUid()
+        });
 
         sinon.stub(account, 'completePasswordReset', function () {
           return p();
@@ -1146,7 +1150,8 @@ define(function (require, exports, module) {
         account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'session token',
-          uid: 'the uid'
+          sessionTokenContext: 'sessionTokenContext',
+          uid: createUid()
         });
 
         sinon.stub(account, 'destroyDevice', () => p());
@@ -1342,7 +1347,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         account = user.initAccount({
           email: 'testuser@testuser.com',
-          uid: 'uid'
+          uid: createUid()
         });
       });
 
@@ -1364,7 +1369,7 @@ define(function (require, exports, module) {
       let account;
 
       beforeEach(() => {
-        account = user.initAccount({ email: 'testuser@testuser.com', uid: 'uid' });
+        account = user.initAccount({ email: 'testuser@testuser.com', uid: createUid() });
       });
 
       describe('no signed in user', () => {
