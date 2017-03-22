@@ -1,3 +1,13 @@
+<a name="1.82.5"></a>
+## 1.82.5 (2017-03-22)
+
+
+### Bug Fixes
+
+* **sentry:** update to latest raven.js, fix up validation rules (#4840) r=jrgm,shane-tomlinso ([70107a9](https://github.com/mozilla/fxa-content-server/commit/70107a9)), closes [(#4840](https://github.com/(/issues/4840) [#4828](https://github.com/mozilla/fxa-content-server/issues/4828)
+
+
+
 <a name="1.82.4"></a>
 ## 1.82.4 (2017-03-20)
 
