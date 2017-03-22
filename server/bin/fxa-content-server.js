@@ -156,7 +156,7 @@ function makeApp() {
   // log any joi validation errors
   app.use((err, req, res, next) => {
     if (err && err.isJoi) {
-      logger.error('validation.error',{
+      logger.error('validation.error', {
         error: err.details.map(details => details.message).join(','),
         path: req.path,
       });
