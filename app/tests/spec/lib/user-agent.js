@@ -101,7 +101,7 @@ define(function (require, exports, module) {
     });
 
     describe('isDesktop', () => {
-      it('returns `true` if on a desktop device', () => {
+      it('returns `true` if not on a mobile device', () => {
         const desktopUserAgentStrings = [
           // Fx  windows
           'Mozilla/5.0 (Windows NT x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
@@ -123,7 +123,8 @@ define(function (require, exports, module) {
           'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
           // safari
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/602.4.8 ' +
-          '(KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'
+          '(KHTML, like Gecko) Version/10.0.3 Safari/602.4.8',
+          'random unknown user-agent'
         ];
         desktopUserAgentStrings.forEach((userAgentString) => {
           const uap = new UserAgent(userAgentString);
