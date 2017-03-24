@@ -608,9 +608,40 @@ define(function (require, exports, module) {
         sinon.spy(notifier, 'trigger');
       });
 
-      describe('user is part of treatment group', () => {
+      describe('user is on mobile, would otherwise be allowed to send SMS', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignIn', () => false);
+          sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isDesktop: () => false
+            };
+          });
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => true
+            };
+          });
+
+          sinon.stub(account, 'smsStatus', () => true);
+        });
+
+        it('resolves to `false`', () => {
+          return view._isEligibleToSendSms(account)
+            .then((isEligible) => {
+              assert.isFalse(isEligible);
+            });
+        });
+      });
+
+      describe('user is part of treatment group, on desktop', () => {
         beforeEach(() => {
           sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isDesktop: () => true
+            };
+          });
         });
 
         describe('user is completing sign-in', () => {
@@ -688,6 +719,11 @@ define(function (require, exports, module) {
       describe('user is not part of treatment group', () => {
         beforeEach(() => {
           sinon.stub(view, 'isInExperimentGroup', () => false);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isDesktop: () => true
+            };
+          });
           sinon.stub(account, 'smsStatus', () => true);
         });
 
@@ -702,6 +738,11 @@ define(function (require, exports, module) {
       describe('auth-server blocks user from sending SMS', () => {
         beforeEach(() => {
           sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isDesktop: () => true
+            };
+          });
           sinon.stub(account, 'smsStatus', () => false);
         });
 
