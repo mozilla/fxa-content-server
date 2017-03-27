@@ -31,15 +31,6 @@ define(function (require, exports, module) {
       },
 
       /**
-       * Check if on a desktop device
-       *
-       * @returns {Boolean}
-       */
-      isDesktop () {
-        return ! this.isAndroid() && ! this.isIos();
-      },
-
-      /**
        * Check if the browser is Mobile Safari.
        *
        * @returns {Boolean}

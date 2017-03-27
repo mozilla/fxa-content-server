@@ -222,7 +222,9 @@ define(function (require, exports, module) {
     _isEligibleToSendSms (verifiedAccount) {
       return p().then(() => {
         return ! this.isSignIn() &&
-               this.getUserAgent().isDesktop() &&
+               // If already on a mobile device, doesn't make sense to send an SMS.
+               ! this.getUserAgent().isAndroid() &&
+               ! this.getUserAgent().isIos() &&
                this.isInExperimentGroup('sendSms', 'treatment') &&
                // If a user is already signed in to Sync which is different to the
                // user that just verified, show them the old "Account verified!" screen.

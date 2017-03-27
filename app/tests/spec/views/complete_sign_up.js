@@ -608,13 +608,41 @@ define(function (require, exports, module) {
         sinon.spy(notifier, 'trigger');
       });
 
-      describe('user is on mobile, would otherwise be allowed to send SMS', () => {
+      describe('user is on Android, would otherwise be allowed to send SMS', () => {
         beforeEach(() => {
           sinon.stub(view, 'isSignIn', () => false);
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
-              isDesktop: () => false
+              isAndroid: () => true,
+              isIos: () => false
+            };
+          });
+          sinon.stub(user, 'getSignedInAccount', () => {
+            return {
+              isDefault: () => true
+            };
+          });
+
+          sinon.stub(account, 'smsStatus', () => true);
+        });
+
+        it('resolves to `false`', () => {
+          return view._isEligibleToSendSms(account)
+            .then((isEligible) => {
+              assert.isFalse(isEligible);
+            });
+        });
+      });
+
+      describe('user is on iOS, would otherwise be allowed to send SMS', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'isSignIn', () => false);
+          sinon.stub(view, 'isInExperimentGroup', () => true);
+          sinon.stub(view, 'getUserAgent', () => {
+            return {
+              isAndroid: () => false,
+              isIos: () => true
             };
           });
           sinon.stub(user, 'getSignedInAccount', () => {
@@ -639,7 +667,8 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
-              isDesktop: () => true
+              isAndroid: () => false,
+              isIos: () => false
             };
           });
         });
@@ -721,7 +750,8 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isInExperimentGroup', () => false);
           sinon.stub(view, 'getUserAgent', () => {
             return {
-              isDesktop: () => true
+              isAndroid: () => false,
+              isIos: () => false
             };
           });
           sinon.stub(account, 'smsStatus', () => true);
@@ -740,7 +770,8 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isInExperimentGroup', () => true);
           sinon.stub(view, 'getUserAgent', () => {
             return {
-              isDesktop: () => true
+              isAndroid: () => false,
+              isIos: () => false
             };
           });
           sinon.stub(account, 'smsStatus', () => false);
