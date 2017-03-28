@@ -665,11 +665,8 @@ define(function (require, exports, module) {
               sandbox.stub(coppa, 'hasValue', function () {
                 return false;
               });
-              sandbox.stub(view, 'showValidationError', function (){});
-              return view.submit()
-                .fail(function (err) {
-                  failed = err;
-                });
+              sandbox.stub(view, 'showValidationError', function () { });
+              return view.submit();
             });
 
             it('does not call view.signUp', function () {
