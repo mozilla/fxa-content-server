@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (registerSuite, assert, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
   var PASSWORD = 'password';
   var email;
+
+  const OAUTH_APP = intern.config.fxaOauthApp;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
@@ -21,6 +24,7 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   var testElementExists = FunctionalHelpers.testElementExists;
+  var waitForUrl = FunctionalHelpers.waitForUrl;
 
   registerSuite({
     name: 'oauth sign up verification_redirect',
@@ -136,6 +140,7 @@ define([
         .then(click('#proceed'))
 
         // Note: success is 123done giving a bad request because this is a different browser
+        .then(waitForUrl(`${OAUTH_APP}api/oauth`))
         .findByCssSelector('body')
         .getVisibleText()
         .then(function (text) {
