@@ -665,7 +665,7 @@ define(function (require, exports, module) {
               sandbox.stub(coppa, 'hasValue', function () {
                 return false;
               });
-              sinon.stub(view, 'showValidationError', function () { });
+              sandbox.stub(view, 'showValidationError', function (){});
               return view.submit()
                 .fail(function (err) {
                   failed = err;
