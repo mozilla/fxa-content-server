@@ -12,7 +12,8 @@ define([
   var PASSWORD = 'password';
   var email;
 
-  const OAUTH_APP = intern.config.fxaOauthApp;
+  const OAUTH_APP_URL = intern.config.fxaOauthApp;
+  const OAUTH_API_URL = `${OAUTH_APP_URL}api/oauth`;
 
   var clearBrowserState = FunctionalHelpers.clearBrowserState;
   var click = FunctionalHelpers.click;
@@ -78,28 +79,48 @@ define([
       function countSignInAndInvalidState() {
         return function () {
           return this.parent
-            .findByCssSelector('body')
-              .getVisibleText()
-              .then(function (text) {
-                var isBadRequest = text === 'Bad request - missing code - missing state';
-                if (isBadRequest) {
-                  badRequestCount++;
-                }
-              })
-            .end()
+            // This test can do redirecting. We want to make sure all redirections
+            // have completed. The user will either finish at 123done's logged in
+            // screen, or 123done's /api/oauth endpoint where an error message will
+            // be displayed.
+            // As ugly as it is, wait a few seconds for the redirects to finish.
+            // Check which URL the user is at. If they are at the /api/oauth endpoint,
+            // check for the error message. If they are at 123done, then check for
+            // the #loggedin element.
 
-            .setFindTimeout(0)
-            .findByCssSelector('#loggedin')
-              .then(function () {
-                signedInCount++;
-              }, function (err) {
-                if (/NoSuchElement/.test(String(err))) {
-                  // swallow the error
-                  return;
-                }
+            .sleep(5000) // <--- GROSS!!! Read above.
+            .getCurrentUrl()
+            .then(function (currentUrl) {
+              // ditch the query params or else an exact match is not possible at the API endpoint.
+              currentUrl = currentUrl.split('?')[0];
+              if (currentUrl === OAUTH_API_URL) {
+                return this.parent
+                  .findByCssSelector('body')
+                    .getVisibleText()
+                    .then(function (text) {
+                      var isBadRequest = text === 'Bad request - missing code - missing state';
+                      if (isBadRequest) {
+                        badRequestCount++;
+                      }
+                    })
+                  .end();
+              } else if (currentUrl === OAUTH_APP_URL) {
+                return this.parent
+                  .setFindTimeout(0)
+                  .findByCssSelector('#loggedin')
+                    .then(function () {
+                      signedInCount++;
+                    }, function (err) {
+                      if (/NoSuchElement/.test(String(err))) {
+                        // swallow the error
+                        return;
+                      }
 
-                throw err;
-              })
+                      throw err;
+                    })
+                  .end();
+              }
+            })
             .end();
         };
       }
@@ -140,7 +161,7 @@ define([
         .then(click('#proceed'))
 
         // Note: success is 123done giving a bad request because this is a different browser
-        .then(waitForUrl(`${OAUTH_APP}api/oauth`))
+        .then(waitForUrl(OAUTH_API_URL))
         .findByCssSelector('body')
         .getVisibleText()
         .then(function (text) {
