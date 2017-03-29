@@ -39,6 +39,7 @@ define([
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   const openPage = FunctionalHelpers.openPage;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   const testElementExists = FunctionalHelpers.testElementExists;
   const testEmailExpected = FunctionalHelpers.testEmailExpected;
@@ -102,6 +103,18 @@ define([
     afterEach: function () {
       return this.remote
         .then(clearBrowserState());
+    },
+
+    'sign up, verify different browser': function () {
+      return this.remote
+        .then(setupTest())
+        // clear browser state to synthesize opening in a different browser
+        .then(clearBrowserState())
+
+        // verify the user in a different browser, they should see the
+        // "connect another device" screen.
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
     },
 
     'sign up, verify same browser': function () {
