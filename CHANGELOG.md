@@ -1,3 +1,13 @@
+<a name="1.83.5"></a>
+## 1.83.5 (2017-03-29)
+
+
+### Bug Fixes
+
+* **sms:** Fix users who verify in a 2nd browser. (#4874) r=@vbudhram, @philbooth ([4a6e591](https://github.com/mozilla/fxa-content-server/commit/4a6e591)), closes [(#4874](https://github.com/(/issues/4874) [#4873](https://github.com/mozilla/fxa-content-server/issues/4873)
+
+
+
 <a name="1.83.4"></a>
 ## 1.83.4 (2017-03-27)
 
