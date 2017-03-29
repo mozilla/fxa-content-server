@@ -105,18 +105,6 @@ define([
         .then(clearBrowserState());
     },
 
-    'sign up, verify different browser': function () {
-      return this.remote
-        .then(setupTest())
-        // clear browser state to synthesize opening in a different browser
-        .then(clearBrowserState())
-
-        // verify the user in a different browser, they should see the
-        // "connect another device" screen.
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
-    },
-
     'sign up, verify same browser': function () {
       return this.remote
         .then(setupTest())
@@ -136,6 +124,22 @@ define([
         .then(testElementExists(SELECTOR_SIGN_UP_COMPLETE_HEADER))
         // A post-verification email should be sent, this is Sync.
         .then(testEmailExpected(email, 1));
+    },
+
+    'sign up, verify different browser, force SMS': function () {
+      return this.remote
+        .then(setupTest())
+        // clear browser state to synthesize opening in a different browser
+        .then(clearBrowserState({ force: true }))
+        // verify the user in a different browser, they should see the
+        // "connect another device" screen.
+        .then(openVerificationLinkInSameTab(email, 0, {
+          query: {
+            forceExperiment: 'sendSms',
+            forceExperimentGroup: 'treatment'
+          }
+        }))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
     },
 
     'sign up, verify same browser, force SMS': function () {
