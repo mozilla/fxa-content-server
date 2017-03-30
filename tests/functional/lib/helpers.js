@@ -364,21 +364,26 @@ define([
     var timeout = options.timeout || 10000;
 
     return pollUntil(function (selector, options) {
-      var $matchingEl = $(selector);
+      var matchingEls = document.querySelectorAll(selector);
 
-      if ($matchingEl.length === 0) {
+      if (matchingEls.length === 0) {
         return null;
       }
 
-      if ($matchingEl.length > 1) {
+      if (matchingEls.length > 1) {
         throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
       }
 
-      if (! $matchingEl.is(':visible')) {
+      var matchingEl = matchingEls[0];
+
+      // Check if the element is visible. This is from jQuery source - see
+      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
         return null;
       }
 
-      if ($matchingEl.is(':animated')) {
+      // use jQuery if available to check for jQuery animations.
+      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
         // If the element is animating, try again after a delay. Clicks
         // do not always register if the element is in the midst of
         // an animation.
