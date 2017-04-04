@@ -81,8 +81,9 @@ define(function (require, exports, module) {
       });
 
       it('returns the expected URL', () => {
-        const escapedSyncUrl
-          = view.getEscapedSyncUrl(PATHNAME, ENTRYPOINT, { email: EMAIL });
+        const escapedSyncUrl = view.getEscapedSyncUrl(PATHNAME, ENTRYPOINT, {
+          email: EMAIL
+        });
 
         const search = escapedSyncUrl.split('?')[1];
         const params = Url.searchParams(search);
