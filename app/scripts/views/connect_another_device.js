@@ -18,9 +18,9 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const MarketingMixin = require('views/mixins/marketing-mixin');
   const MarketingSnippet = require('views/marketing_snippet');
+  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/connect_another_device');
-  const Url = require('lib/url');
-  const UserAgent = require('lib/user-agent');
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -29,10 +29,6 @@ define(function (require, exports, module) {
     initialize (options = {}) {
       this._createView = options.createView;
       return proto.initialize.call(this, options);
-    },
-
-    events: {
-      'click #signin': '_onSignInClick'
     },
 
     showChildView (ChildView, options = {}) {
@@ -53,7 +49,7 @@ define(function (require, exports, module) {
 
       // If the user signed up and verified in Firefox for Android,
       // show marketing material for both mobile OSs.
-      if (this._isSignedIn() && this._getUap().isFirefoxAndroid()) {
+      if (this._isSignedIn() && this.getUserAgent().isFirefoxAndroid()) {
         options.which = MarketingSnippet.WHICH.BOTH;
       }
 
@@ -81,7 +77,6 @@ define(function (require, exports, module) {
      */
     _logViewMetrics () {
       const isSignedIn = this._isSignedIn();
-      this.notifier.trigger(`connectAnotherDevice.signedin.${isSignedIn}`);
       this.logFlowEvent(`signedin.${isSignedIn}`);
 
       const {
@@ -98,7 +93,6 @@ define(function (require, exports, module) {
       // being nudged to connect another device.
       let connectMethod;
       if (canSignIn) {
-        this.notifier.trigger('connectAnotherDevice.signin.eligible');
         this.logFlowEvent('signin.eligible');
 
         if (isFirefoxAndroid) {
@@ -107,7 +101,6 @@ define(function (require, exports, module) {
           connectMethod = 'signin_from.fx_desktop';
         }
       } else {
-        this.notifier.trigger('connectAnotherDevice.signin.ineligible');
         this.logFlowEvent('signin.ineligible');
 
         if (isFirefoxIos) {
@@ -126,7 +119,6 @@ define(function (require, exports, module) {
       }
 
       if (connectMethod) {
-        this.notifier.trigger(`connectAnotherDevice.${connectMethod}`);
         this.logFlowEvent(connectMethod);
       }
     },
@@ -135,10 +127,9 @@ define(function (require, exports, module) {
       const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
-      const signInContext = this._getSignInContext();
-      const escapedSignInUrl = this._getEscapedSignInUrl(signInContext, email);
+      const escapedSignInUrl = this._getEscapedSignInUrl(email);
 
-      const uap = this._getUap();
+      const uap = this.getUserAgent();
       const isAndroid = uap.isAndroid();
       const isFirefoxAndroid = uap.isFirefoxAndroid();
       const isFirefoxDesktop = uap.isFirefoxDesktop();
@@ -163,33 +154,6 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Get the user-agent string. For functional testing
-     * purposes, first attempts to fetch a UA string from the
-     * `forceUA` query parameter, if that is not found, use
-     * the browser's.
-     *
-     * @returns {String}
-     * @private
-     */
-    _getUserAgentString () {
-      return this.getSearchParam('forceUA') || this.window.navigator.userAgent;
-    },
-
-    /**
-     * Get a user-agent parser instance.
-     *
-     * @returns {Object}
-     * @private
-     */
-    _getUap () {
-      if (! this._uap) {
-        const userAgent = this._getUserAgentString();
-        this._uap = new UserAgent(userAgent);
-      }
-      return this._uap;
-    },
-
-    /**
      * Check if the current user is already signed in.
      *
      * @returns {Boolean}
@@ -207,86 +171,19 @@ define(function (require, exports, module) {
      */
     _canSignIn () {
       // Only users that are not signed in can do so.
-      return ! this._isSignedIn() &&
-               this._hasWebChannelSupport();
-    },
-
-    /**
-     * Check if the current browser has web channel support.
-     *
-     * @returns {Boolean}
-     * @private
-     */
-    _hasWebChannelSupport () {
-      const uap = this._getUap();
-      const browserVersion = uap.browser.version;
-
-      // WebChannels were introduced in Fx Desktop 40 and Fennec 43.
-      return ((uap.isFirefoxDesktop() && browserVersion >= 40) ||
-              (uap.isFirefoxAndroid() && browserVersion >= 43));
-    },
-
-    /**
-     * Return the sign in context that can be used to sign in
-     * to Sync. Assumes the context is only used if the user
-     * can actually sign in to Sync.
-     *
-     * @returns {String}
-     * @private
-     */
-    _getSignInContext() {
-      const uap = this._getUap();
-      if (uap.isFirefoxAndroid()) {
-        return Constants.FX_FENNEC_V1_CONTEXT;
-      } else if (uap.isFirefoxDesktop()) {
-        // desktop_v3 is safe for all desktop versions that can
-        // use WebChannels. The only difference between v2 and v3
-        // was the Sync Preferences button, which has since
-        // been disabled.
-        return Constants.FX_DESKTOP_V3_CONTEXT;
-      }
+      return ! this._isSignedIn() && this.isSyncAuthSupported();
     },
 
     /**
      * Get an escaped sign in URL.
      *
-     * @param {String} context - context to use to sign in
      * @param {String} email - users email address, used to
      *  pre-fill the signin page.
      * @returns {String}
      * @private
      */
-    _getEscapedSignInUrl (context, email) {
-      const origin = this.window.location.origin;
-      const relier = this.relier;
-
-      const params = {
-        context,
-        email,
-        entrypoint: View.ENTRYPOINT,
-        service: Constants.SYNC_SERVICE,
-        /* eslint-disable camelcase */
-        utm_campaign: relier.get('utmCampaign'),
-        utm_content: relier.get('utmContent'),
-        utm_medium: relier.get('utmMedium'),
-        utm_source: relier.get('utmSource'),
-        utm_term: relier.get('utmTerm')
-        /* eslint-enable camelcase */
-      };
-      // Url.objToSearchString escapes each of the
-      // query parameters.
-      const escapedSearchString = Url.objToSearchString(params);
-
-      return `${origin}/signin${escapedSearchString}`;
-    },
-
-    /**
-     * Log a click on the sign-in button.
-     *
-     * @private
-     */
-    _onSignInClick () {
-      this.notifier.trigger('connectAnotherDevice.signin.clicked');
+    _getEscapedSignInUrl (email) {
+      return this.getEscapedSyncUrl('signin', View.ENTRYPOINT, { email: email });
     }
   }, {
     ENTRYPOINT: 'connect_another_device'
@@ -299,7 +196,9 @@ define(function (require, exports, module) {
     MarketingMixin({
       // The marketing area is manually created to which badges are displayed.
       autocreate: false
-    })
+    }),
+    SyncAuthMixin,
+    UserAgentMixin
   );
 
   module.exports = View;

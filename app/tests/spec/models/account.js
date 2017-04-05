@@ -691,6 +691,48 @@ define(function (require, exports, module) {
     });
 
     describe('verifySignUp', function () {
+      describe('with custom server verification value', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'verifyCode', function () {
+            return p();
+          });
+        });
+
+        it('does not call verifyCode with verified', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'verified'
+          }).then(() => {
+            assert.isFalse(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with other status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'test'
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with undefined status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: undefined
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+      });
+
       describe('without email opt-in', function () {
         beforeEach(function () {
           sinon.stub(fxaClient, 'verifyCode', function () {
@@ -2147,6 +2189,64 @@ define(function (require, exports, module) {
 
         it('does not populate `email`', () => {
           assert.isFalse(account.has('email'));
+        });
+      });
+    });
+
+    describe('sendSms', () => {
+      const flowEventMetaData = {
+        startTime: Date.now()
+      };
+
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'sendSms', () => p());
+        sinon.stub(metrics, 'getFlowEventMetadata', () => flowEventMetaData);
+
+        account.set('sessionToken', 'sessionToken');
+        return account.sendSms('1234567890', 1);
+      });
+
+      it('delegates to the fxa-client', () => {
+        assert.isTrue(fxaClient.sendSms.calledOnce);
+        assert.isTrue(fxaClient.sendSms.calledWith(
+          'sessionToken',
+          '1234567890',
+          1,
+          {
+            metricsContext: flowEventMetaData
+          }
+        ));
+      });
+    });
+
+    describe('smsStatus', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'smsStatus', () => p(true));
+      });
+
+      describe('sessionToken not available', () => {
+        it('does not delegate to fxa-client, resolves with `false`', () => {
+          account.unset('sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isFalse(response);
+              assert.isFalse(fxaClient.smsStatus.called);
+            });
+        });
+      });
+
+      describe('sessionToken available', () => {
+        it('delegates to the fxa-client, returns response', () => {
+          account.set('sessionToken', 'sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isTrue(response);
+
+              assert.isTrue(fxaClient.smsStatus.calledOnce);
+              assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+            });
         });
       });
     });

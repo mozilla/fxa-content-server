@@ -1,3 +1,185 @@
+<a name="1.84.0"></a>
+# 1.84.0 (2017-04-04)
+
+
+### Bug Fixes
+
+* **signup:** Made error message for AGE-REQUIRED field specific ([7e935e9](https://github.com/mozilla/fxa-content-server/commit/7e935e9))
+* **sms:** Add the send_sms suite to circle. (#4875) r=vladikoff ([b578127](https://github.com/mozilla/fxa-content-server/commit/b578127))
+* **sms:** Fix the "send_sms - learn more" functional test. (#4892) r=vladikoff ([ce5a0ac](https://github.com/mozilla/fxa-content-server/commit/ce5a0ac)), closes [(#4892](https://github.com/(/issues/4892) [#4891](https://github.com/mozilla/fxa-content-server/issues/4891)
+* **sms:** Fix users who verify in a 2nd browser. (#4874) r=@vbudhram, @philbooth ([54ee445](https://github.com/mozilla/fxa-content-server/commit/54ee445)), closes [(#4874](https://github.com/(/issues/4874) [#4873](https://github.com/mozilla/fxa-content-server/issues/4873)
+* **test:** Fix "verify different browser, verification_redirect=always" test. (#4869) r=vla ([3b97981](https://github.com/mozilla/fxa-content-server/commit/3b97981)), closes [(#4869](https://github.com/(/issues/4869)
+* **test:** Fix NoSuchBrowserNotification flakiness. (#4883) r=@jrgm ([679d1ca](https://github.com/mozilla/fxa-content-server/commit/679d1ca)), closes [(#4883](https://github.com/(/issues/4883) [#4882](https://github.com/mozilla/fxa-content-server/issues/4882)
+* **test:** Fix the flaky "learn more" SMS test. (#4881) r=@jrgm ([584a60b](https://github.com/mozilla/fxa-content-server/commit/584a60b)), closes [(#4881](https://github.com/(/issues/4881) [#4880](https://github.com/mozilla/fxa-content-server/issues/4880)
+* **test:** Fix the rp listen in apps, can be deleted test. (#4879) r=vladikoff ([c57a9a7](https://github.com/mozilla/fxa-content-server/commit/c57a9a7)), closes [(#4879](https://github.com/(/issues/4879) [#4878](https://github.com/mozilla/fxa-content-server/issues/4878)
+
+### chore
+
+* **config:** Add environment config options ([ac4f622](https://github.com/mozilla/fxa-content-server/commit/ac4f622))
+
+### Features
+
+* **experiments:** Re-add `additionalInfo` parameter for experiment functions. (#4877) r=@vbudhram ([5cec42e](https://github.com/mozilla/fxa-content-server/commit/5cec42e))
+
+### Refactor
+
+* **test:** Modernize the oauth_sign_up tests. (#4871) r=vladikoff ([f0d99c4](https://github.com/mozilla/fxa-content-server/commit/f0d99c4))
+
+
+
+<a name="1.83.4"></a>
+## 1.83.4 (2017-03-27)
+
+
+### Bug Fixes
+
+* **sms:** Fix visiting /sms w/o ?service=sync query parameter. (#4865) r=vbudhram,vladikof ([9c8b14d](https://github.com/mozilla/fxa-content-server/commit/9c8b14d)), closes [(#4865](https://github.com/(/issues/4865)
+* **sms:** Only show the SMS form to desktop users. (#4860) r=@vbudhram, @philbooth ([66afcd5](https://github.com/mozilla/fxa-content-server/commit/66afcd5))
+
+
+
+<a name="1.83.3"></a>
+## 1.83.3 (2017-03-24)
+
+
+### Bug Fixes
+
+* **metrics:** Fix the "refreshes_metrics" test. (#4850) r=@philbooth, @vladikoff ([8d266f9](https://github.com/mozilla/fxa-content-server/commit/8d266f9)), closes [(#4850](https://github.com/(/issues/4850) [#4844](https://github.com/mozilla/fxa-content-server/issues/4844)
+* **server:** prevent bad performance data polluting metrics ([f0a5baa](https://github.com/mozilla/fxa-content-server/commit/f0a5baa))
+* **tests:** fix avatar test and include it in CI (#4856) ([1fa05b0](https://github.com/mozilla/fxa-content-server/commit/1fa05b0)), closes [(#4856](https://github.com/(/issues/4856)
+* **tests:** fix OAuth settngs clients test (#4853) ([f0411e1](https://github.com/mozilla/fxa-content-server/commit/f0411e1)), closes [(#4853](https://github.com/(/issues/4853)
+* **tests:** remove string from reject then in confirm.js test (#4849) ([27c7797](https://github.com/mozilla/fxa-content-server/commit/27c7797))
+
+### chore
+
+* **validation:** Update to VAT 0.0.9 (#4848) r=@philbooth ([d15994a](https://github.com/mozilla/fxa-content-server/commit/d15994a))
+
+### Features
+
+* **CAD:** Remove the CAD experiment. (#4781) r=@vbudhram ([912a948](https://github.com/mozilla/fxa-content-server/commit/912a948))
+
+### Refactor
+
+* **client:** Create views for `/` and `/oauth` routes. (#4858) r=@philbooth ([4ad97fb](https://github.com/mozilla/fxa-content-server/commit/4ad97fb))
+* **user-agent:** Extract a user-agent-mixin to share amongst the views. (#4859) r=@philbooth ([b78a26c](https://github.com/mozilla/fxa-content-server/commit/b78a26c))
+
+
+
+<a name="1.83.2"></a>
+## 1.83.2 (2017-03-22)
+
+
+### Bug Fixes
+
+* **fxa-content-server:** validate log in fxa-content-server.js (#4845) r=vladikoff ([ef70974](https://github.com/mozilla/fxa-content-server/commit/ef70974)), closes [#4841](https://github.com/mozilla/fxa-content-server/issues/4841)
+* **sentry:** update to latest raven.js, fix up validation rules (#4840) r=jrgm,shane-tomlinso ([7d3a234](https://github.com/mozilla/fxa-content-server/commit/7d3a234)), closes [(#4840](https://github.com/(/issues/4840) [#4828](https://github.com/mozilla/fxa-content-server/issues/4828)
+
+### Refactor
+
+* **test:** Use helpers in the Firstrun Sync v2 sign_up test. (#4838) r=@philbooth ([b0ff599](https://github.com/mozilla/fxa-content-server/commit/b0ff599))
+
+
+
+<a name="1.83.1"></a>
+## 1.83.1 (2017-03-22)
+
+
+### Bug Fixes
+
+* **docs:** changelog fixes ([249b9c2](https://github.com/mozilla/fxa-content-server/commit/249b9c2))
+* **sms:** US area codes must start with 2-9. (#4834) r=vladikoff ([6aa1460](https://github.com/mozilla/fxa-content-server/commit/6aa1460)), closes [#4833](https://github.com/mozilla/fxa-content-server/issues/4833)
+* **tests:** fix process.nextTick testing issues (#24) r=jrgm ([68fd55a](https://github.com/mozilla/fxa-content-server/commit/68fd55a)), closes [(#24](https://github.com/(/issues/24)
+* **tests:** lock Selenium and geckodriver versions (#4836) r=jrgm ([6085ff5](https://github.com/mozilla/fxa-content-server/commit/6085ff5))
+* **validation:** adjust validation rules based on sentry feedback ([d8bf79a](https://github.com/mozilla/fxa-content-server/commit/d8bf79a))
+
+### chore
+
+* **sms:** Use +407 for the Romania prefix. ([72fb877](https://github.com/mozilla/fxa-content-server/commit/72fb877))
+
+### Features
+
+* **metrics:** Validate POST data to /metrics-errors. (#23) r=vladikoff ([7b8532b](https://github.com/mozilla/fxa-content-server/commit/7b8532b))
+* **metrics:** Validate the POST /metrics body (#22) r=vladikoff ([4cbd363](https://github.com/mozilla/fxa-content-server/commit/4cbd363))
+* **server:** try to verify emails on the server (#4794) r=vbudhram ([005549a](https://github.com/mozilla/fxa-content-server/commit/005549a))
+* **sms:** Allow sending SMS messages to Romania. ([42afec7](https://github.com/mozilla/fxa-content-server/commit/42afec7)), closes [#4829](https://github.com/mozilla/fxa-content-server/issues/4829)
+* **sms:** SMS feature gated by the auth-server. (#4827) r=vladikoff,philbooth ([de3ba24](https://github.com/mozilla/fxa-content-server/commit/de3ba24)), closes [#4789](https://github.com/mozilla/fxa-content-server/issues/4789)
+
+
+
+<a name="1.83.0"></a>
+# 1.83.0 (2017-03-20)
+
+
+### Bug Fixes
+
+* **auth_errors:** User received an error message saying no message ([408d692](https://github.com/mozilla/fxa-content-server/commit/408d692))
+* **change_password:** Field specific error message when password is same. ([4262abd](https://github.com/mozilla/fxa-content-server/commit/4262abd))
+* **change_password:** Made "Incorrect Password" error field specific ([ad0048a](https://github.com/mozilla/fxa-content-server/commit/ad0048a))
+* **config:** allow env vars for experiment config (#4785) r=philbooth ([ea2c538](https://github.com/mozilla/fxa-content-server/commit/ea2c538)), closes [#4780](https://github.com/mozilla/fxa-content-server/issues/4780)
+* **config:** env vars for config page_template_subdirectory,static_directory (#4803) r=vladik ([f94bb48](https://github.com/mozilla/fxa-content-server/commit/f94bb48))
+* **CWTS:** Ensure `destroy` calls the parent. (#4808) r=@philbooth ([397afaf](https://github.com/mozilla/fxa-content-server/commit/397afaf))
+* **CWTS:** Fix styles for the trustedUI (#4786) r=vladikoff ([e6aa57b](https://github.com/mozilla/fxa-content-server/commit/e6aa57b)), closes [(#4786](https://github.com/(/issues/4786) [#4749](https://github.com/mozilla/fxa-content-server/issues/4749)
+* **display_name:** button now says Add when display name hasn't been set ([ef7b6b6](https://github.com/mozilla/fxa-content-server/commit/ef7b6b6))
+* **preferences:** add specific error msg for rate-limiting error (#4812) r=vladikoff ([236d172](https://github.com/mozilla/fxa-content-server/commit/236d172))
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff ([05ed9ee](https://github.com/mozilla/fxa-content-server/commit/05ed9ee)), closes [(#4822](https://github.com/(/issues/4822)
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff (#4824) ([a142805](https://github.com/mozilla/fxa-content-server/commit/a142805)), closes [(#4822](https://github.com/(/issues/4822) [(#4824](https://github.com/(/issues/4824)
+* **sign_in:** Making incorrect password error message field specific on Sign in page ([c28061f](https://github.com/mozilla/fxa-content-server/commit/c28061f))
+* **signup:** decrease checkbox line height for email opt-in on signup page (#4797) r=vladikof ([5935bf9](https://github.com/mozilla/fxa-content-server/commit/5935bf9)), closes [#4707](https://github.com/mozilla/fxa-content-server/issues/4707)
+* **teamcity:** add config for fxadevtest box ([45705ba](https://github.com/mozilla/fxa-content-server/commit/45705ba))
+* **version:** use use cwd and env var to get version ([9287337](https://github.com/mozilla/fxa-content-server/commit/9287337))
+
+### Features
+
+* **CAD:** Add flow metrics for connect another device. (#4787) r=@philbooth ([65a70b0](https://github.com/mozilla/fxa-content-server/commit/65a70b0)), closes [#4783](https://github.com/mozilla/fxa-content-server/issues/4783)
+* **sms:** Allow the user to resend and go "back" from /sms/sent (#4777) r=@vbudhram ([8a2c5e7](https://github.com/mozilla/fxa-content-server/commit/8a2c5e7))
+* **sms:** Use Able to decide if user should see /sms (#4792) r=vladikoff ([8b19765](https://github.com/mozilla/fxa-content-server/commit/8b19765))
+* **websessions:** add Sessions to client list (#4628) r=stomlinson,vbudhram ([4c1a8cd](https://github.com/mozilla/fxa-content-server/commit/4c1a8cd))
+
+### Refactor
+
+* **experiments:** Simplify the experiment architecture (#4809) r=vladikoff ([95b122f](https://github.com/mozilla/fxa-content-server/commit/95b122f))
+
+
+
+<a name="1.82.4"></a>
+## 1.82.4 (2017-03-20)
+
+
+### Bug Fixes
+
+* **validation:** adjust validation rules based on sentry feedback ([c975bb1](https://github.com/mozilla/fxa-content-server/commit/c975bb1))
+
+
+
+<a name="1.82.3"></a>
+## 1.82.3 (2017-03-18)
+
+
+### Bug Fixes
+
+* **server:** fix undefined dereference in perf flow events (#4822) r=vladikoff ([31fb753](https://github.com/mozilla/fxa-content-server/commit/31fb753)), closes [(#4822](https://github.com/(/issues/4822)
+
+
+
+<a name="1.82.2"></a>
+## 1.82.2 (2017-03-16)
+
+
+### Bug Fixes
+
+* **tests:** fix process.nextTick testing issues (#24) r=jrgm ([77b3a43](https://github.com/mozilla/fxa-content-server/commit/77b3a43)), closes [(#24](https://github.com/(/issues/24)
+
+
+
+<a name="1.82.1"></a>
+## 1.82.1 (2017-03-08)
+
+### Features
+
+* **metrics:** Validate POST data to /metrics-errors. (#23) r=vladikoff ([5ca663b](https://github.com/mozilla/fxa-content-server-private/commit/5ca663b))
+* **metrics:** Validate the POST /metrics body (#22) r=vladikoff ([56f7635](https://github.com/mozilla/fxa-content-server-private/commit/56f7635))
+
+
 <a name="1.82.0"></a>
 # 1.82.0 (2017-03-06)
 

@@ -56,14 +56,14 @@ define([
       }))
       .execute(listenForFxaCommands)
       .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(successSelector))
       .then(testIsBrowserNotified('can_link_account'))
       .then(() => {
         if (! options.blocked) {
           return this.parent
             .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }));
         }
-      })
-      .then(testElementExists(successSelector));
+      });
   });
 
   registerSuite({
@@ -108,7 +108,7 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
         // about:accounts will take over post-verification, no transition
@@ -124,7 +124,7 @@ define([
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
           // In Fx for iOS >= 6.1, user should redirect to the signup-complete
@@ -158,9 +158,9 @@ define([
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }))
         // about:accounts will take over post-unblock, no transition
-        .then(noPageTransition('#fxa-signin-unblock-header'));
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
     }
   });
 });

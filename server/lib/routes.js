@@ -29,6 +29,7 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
+    require('./routes/get-verify-email')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(config),
@@ -93,8 +94,8 @@ module.exports = function (config, i18n) {
 
       if (route.validate) {
         routeHandlers.push(celebrate(route.validate, {
-          // silently drop any unknown fields on the ground.
-          stripUnknown: true
+          // silently drop any unknown fields within objects on the ground.
+          stripUnknown: { arrays: false, objects: true }
         }));
       }
 

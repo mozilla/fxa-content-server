@@ -48,13 +48,33 @@
          return num.slice(0, 3) + ' ' + num.slice(3, 7) + ' ' + num.slice(7, 14);
        },
        normalize (num) {
-         if (/\+44/.test(num)) {
+         if (/^\+44/.test(num)) {
            return num;
          }
          return `+44${num}`;
        },
        pattern: /^(?:\+44)?\d{10,10}$/,
        prefix: '+44'
+     },
+     RO: {
+       format(num) {
+         // +40 7xx xxxxxx
+         return num.slice(0, 3) + ' ' + num.slice(3, 6) + ' ' + num.slice(6, 12);
+       },
+       normalize(num) {
+         // allow +40 country code prefix
+         // as well as an extra 0 before the 7 prefix.
+         const prefix = /^(\+40)?0?/;
+         if (prefix.test(num)) {
+           num = num.replace(prefix, '');
+         }
+         return `+40${num}`;
+       },
+       // +407xxxxxxxx, allow leading 0 for sloppiness.
+       pattern: /^(?:\+40)?0?7\d{8,8}$/,
+       // The country code is +40, all mobile phones have a 7 prefix.
+       prefix: '+407'
+
      },
      US: {
        format (num) {
@@ -70,8 +90,11 @@
          }
          return `+1${num}`;
        },
-       pattern: /^(?:\+?1)?\d{10,10}$/, // allow for a +1 or 1 prefix before the area code
+       pattern: /^(\+?1)?[2-9]\d{9,9}$/, // allow for a +1 or 1 prefix before the area code, area codes are all 2-9
        prefix: '+1'
      }
    };
+
+   // alias CA (Canada) to use the same info as the US.
+   module.exports.CA = module.exports.US;
  });
