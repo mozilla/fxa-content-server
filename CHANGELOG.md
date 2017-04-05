@@ -1,3 +1,23 @@
+<a name="1.83.7"></a>
+## 1.83.7 (2017-04-05)
+
+
+### Bug Fixes
+
+* **server:** add back verify_email route ([ad4e41c](https://github.com/mozilla/fxa-content-server/commit/ad4e41c))
+
+
+
+<a name="1.83.6"></a>
+## 1.83.6 (2017-04-05)
+
+
+### Features
+
+* **server:** disable server verification ([8b340cb](https://github.com/mozilla/fxa-content-server/commit/8b340cb))
+
+
+
 <a name="1.83.5"></a>
 ## 1.83.5 (2017-03-29)
 
