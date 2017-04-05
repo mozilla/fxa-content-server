@@ -24,7 +24,9 @@ define(function (require, exports, module) {
   const SignedInNotificationMixin = require('views/mixins/signed-in-notification-mixin');
   const SignInMixin = require('views/mixins/signin-mixin');
   const SignUpMixin = require('views/mixins/signup-mixin');
+  const SyncAuthMixin = require('views/mixins/sync-auth-mixin');
   const Template = require('stache!templates/sign_up');
+  const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
   var t = BaseView.t;
 
@@ -163,7 +165,6 @@ define(function (require, exports, module) {
         chooseWhatToSyncCheckbox: this.broker.hasCapability('chooseWhatToSyncCheckbox'),
         email: prefillEmail,
         error: this.error,
-        escapedSyncSuggestionUrl: encodeURI('https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started'), // eslint-disable-line max-len
         forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
@@ -177,6 +178,14 @@ define(function (require, exports, module) {
         shouldFocusPassword: autofocusEl === 'password',
         showSyncSuggestion: this.isSyncSuggestionEnabled()
       };
+      if (this.isSyncAuthSupported()) {
+        context.escapedSyncSuggestionUrl = this.getEscapedSyncUrl('signup', View.ENTRYPOINT);
+      } else {
+        context.escapedSyncSuggestionUrl = encodeURI(
+                'https://mozilla.org/firefox/sync?' +
+                'utm_source=fx-website&utm_medium=fx-accounts&' +
+                'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
+      }
 
       return context;
     },
@@ -387,6 +396,8 @@ define(function (require, exports, module) {
         lang: this.navigator.language
       });
     }
+  }, {
+    ENTRYPOINT: 'fxa:signup'
   });
 
   Cocktail.mixin(
@@ -404,7 +415,9 @@ define(function (require, exports, module) {
     ServiceMixin,
     SignInMixin,
     SignUpMixin,
-    SignedInNotificationMixin
+    SignedInNotificationMixin,
+    SyncAuthMixin,
+    UserAgentMixin
   );
 
   module.exports = View;
