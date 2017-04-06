@@ -9,7 +9,7 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const BaseView = require('views/base');
-  const Chai = require('chai');
+  const { assert } = require('chai');
   const Cocktail = require('cocktail');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -23,11 +23,11 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
 
-  var assert = Chai.assert;
-
-  var SettingsView = BaseView.extend({});
-
-  Cocktail.mixin(SettingsView, AvatarMixin);
+  const SettingsView = BaseView.extend({});
+  Cocktail.mixin(
+    SettingsView,
+    AvatarMixin
+  );
 
   describe('views/mixins/avatar-mixin', function () {
     var UID = '123';
@@ -238,10 +238,11 @@ define(function (require, exports, module) {
 
     describe('updateDisplayName', function () {
       it('stores the name', function () {
-        return view.updateDisplayName('joe')
+        sinon.stub(account, 'updateDisplayName', () => p());
+        return view.updateDisplayName(account, 'joe')
           .then(function () {
-            assert.equal(account.get('displayName'), 'joe');
-            assert.isTrue(view.getSignedInAccount.called);
+            assert.isTrue(account.updateDisplayName.calledOnce);
+            assert.isTrue(account.updateDisplayName.calledWith('joe'));
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID }));
           });

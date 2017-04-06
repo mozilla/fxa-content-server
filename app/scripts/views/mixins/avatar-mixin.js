@@ -154,7 +154,7 @@ define(function (require, exports, module) {
     updateProfileImage (profileImage, account) {
       account.setProfileImage(profileImage);
       return this.user.setAccount(account)
-        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
+        .then(() => this._notifyProfileUpdate(account.get('uid')));
     },
 
     deleteDisplayedAccountProfileImage (account) {
@@ -179,11 +179,17 @@ define(function (require, exports, module) {
         });
     },
 
-    updateDisplayName (displayName) {
-      var account = this.getSignedInAccount();
-      account.set('displayName', displayName);
-      return this.user.setAccount(account)
-        .then(_.bind(this._notifyProfileUpdate, this, account.get('uid')));
+    /**
+     * Update `displayName` for `account`
+     *
+     * @param {Object} account
+     * @param {String} displayName
+     * @returns {Promise}
+     */
+    updateDisplayName (account, displayName) {
+      return account.updateDisplayName(displayName)
+        .then(() => this.user.setAccount(account))
+        .then(() => this._notifyProfileUpdate(account.get('uid')));
     },
 
     _notifyProfileUpdate (uid) {

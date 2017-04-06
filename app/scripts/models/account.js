@@ -1033,6 +1033,17 @@ define(function (require, exports, module) {
       }
 
       return this._fxaClient.smsStatus(sessionToken);
+    },
+
+    /**
+     * Update the `displayName` for the account.
+     *
+     * @param {String} displayName
+     * @returns {Promise} resolves when name has been saved
+     */
+    updateDisplayName (displayName) {
+      this.set('displayName', displayName);
+      return this.postDisplayName(displayName);
     }
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
