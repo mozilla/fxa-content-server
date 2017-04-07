@@ -113,8 +113,8 @@ define([
     text = String(text);
 
     return this.parent
+      .then(click(selector))
       .findByCssSelector(selector)
-        .click()
 
         .then(function () {
           if (clearValue) {
@@ -361,7 +361,7 @@ define([
    */
   function visibleByQSA(selector, options) {
     options = options || {};
-    var timeout = options.timeout || 10000;
+    var timeout = options.timeout || config.pageLoadTimeout;
 
     return pollUntil(function (selector, options) {
       var matchingEls = document.querySelectorAll(selector);
