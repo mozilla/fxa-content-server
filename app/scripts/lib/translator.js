@@ -49,11 +49,18 @@ define(function (require, exports, module) {
      * @returns {String}
      */
     get (stringToTranslate, context = {}) {
-      let key = stringToTranslate;
+      const translations = this.__translations__;
+      let translation;
+
       if (context.msgctxt) {
-        key = context.msgctxt + '\u0004' + stringToTranslate;
+        const stringWithContextPrefix = `${context.msgctxt}\u0004${stringToTranslate}`;
+        // If a translation exists with a context prefix, use that. If no translation exists
+        // with the context prefix, try to find a string without the context prefix.
+        translation = translations[stringWithContextPrefix] || translations[stringToTranslate];
+      } else {
+        translation = translations[stringToTranslate];
       }
-      var translation = this.__translations__[key] || this.__translations__[stringToTranslate];
+
       /**
        * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
        * and

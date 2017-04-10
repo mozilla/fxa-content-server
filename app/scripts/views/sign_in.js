@@ -86,8 +86,8 @@ define(function (require, exports, module) {
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
 
-      /// button text
-      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'button text' });
+      /// submit button
+      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
 
       /// header text
       const headerSignInText = this.translate(t('Sign in'), { msgctxt: 'header text' });
