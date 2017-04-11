@@ -1,3 +1,13 @@
+<a name="1.84.2"></a>
+## 1.84.2 (2017-04-11)
+
+
+### Bug Fixes
+
+* **clients:** set correct device type for mobile clients (#4936) r=vbudhram ([a1f0f3b](https://github.com/mozilla/fxa-content-server/commit/a1f0f3b)), closes [#4932](https://github.com/mozilla/fxa-content-server/issues/4932)
+
+
+
 <a name="1.84.1"></a>
 ## 1.84.1 (2017-04-06)
 
