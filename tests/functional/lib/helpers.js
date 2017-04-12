@@ -462,7 +462,7 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    // restmail takes an index that is 1 based instead of 0 based.
+    // restmail takes a length, not an index. Add 1.
     return this.parent
       .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
       .then(function (emails) {
