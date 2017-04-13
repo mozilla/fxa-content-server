@@ -1042,8 +1042,8 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    getEmails () {
-      return this._fxaClient.getEmails(
+    recoveryEmails () {
+      return this._fxaClient.recoveryEmails(
         this.get('sessionToken')
       );
     },

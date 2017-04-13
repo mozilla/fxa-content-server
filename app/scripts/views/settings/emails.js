@@ -83,7 +83,7 @@ define(function (require, exports, module) {
 
     _fetchEmails () {
       var account = this.getSignedInAccount();
-      return account.getEmails()
+      return account.recoveryEmails()
         .then((emails) => {
           this._emails = emails.map((email) => {
             return new Email(email).toJSON();
