@@ -116,10 +116,10 @@ define([
         return true;
       }, [ selector, options ], timeout))
       .then(null, function (err) {
-        // swallow the error until after taking a screenshot.
         // The error has to be swallowed before a screenshot
-        // can be taken or else takeScreenshot itself returns
-        // the error.
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
         pollError = err;
       })
       .then(() => {
@@ -240,10 +240,10 @@ define([
     return this.parent
       .findByCssSelector(selector)
       .then(null, function (err) {
-        // swallow the error until after taking a screenshot.
         // The error has to be swallowed before a screenshot
-        // can be taken or else takeScreenshot itself returns
-        // the error.
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
         findError = err;
       })
       .then(function () {
