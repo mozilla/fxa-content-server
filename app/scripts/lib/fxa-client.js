@@ -651,8 +651,8 @@ define(function (require, exports, module) {
         });
     }),
 
-    getEmails: withClient((client, sessionToken) => {
-      return client.getEmails(sessionToken)
+    recoveryEmails: withClient((client, sessionToken) => {
+      return client.recoveryEmails(sessionToken)
         .fail((err) => {
           // TODO Handle errors
           throw err;
