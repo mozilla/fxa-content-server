@@ -101,7 +101,7 @@ define(function (require, exports, module) {
      * @private
      */
     _getCountry () {
-      // relier takes precedence over the model so to allow query parameters
+      // relier takes precedence over the model to allow query parameters
       // to override the auth-server's view of the world. This allows
       // testers and functional tests to force a country even if geo-lookup
       // is enabled on the auth server.
