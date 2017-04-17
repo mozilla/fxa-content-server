@@ -13,6 +13,13 @@ const METRICS_OP = 'client.metrics';
 const MARKETING_OP = 'client.marketing';
 const VERSION = 1;
 
+var FLOW_EVENTS = {
+  'screen.confirm': 'flow.signup.success',
+  'screen.signin': 'flow.signin',
+  'screen.signup': 'flow.signup',
+  'verify-email.verification.success': 'flow.signup.verify'
+};
+
 function addTime(loggableEvent) {
   // round the date to the nearest hour.
   const today = new Date();
@@ -115,6 +122,7 @@ function toLoggableEvent(event) {
 }
 
 function writeEntry(entry) {
+  entry.events = addFlowEvents(entry);
   // Heka listens on stderr.
   // process.stderr.write is synchronous unlike most stream operations.
   // See http://nodejs.org/api/process.html#process_process_stderr
@@ -123,6 +131,20 @@ function writeEntry(entry) {
   process.stderr.write(JSON.stringify(entry) + '\n');
 }
 
+function addFlowEvents(entry) {
+  var events = entry.events;
+  var entrypoint = entry.entrypoint;
+
+  if (Array.isArray(events)) {
+    return events.concat(events.filter(function (event) {
+      return !! FLOW_EVENTS[event];
+    }).map(function (event) {
+      return FLOW_EVENTS[event] + ':' + entrypoint;
+    }));
+  }
+
+  return events;
+}
 
 function processMarketingImpressions(event) {
   if (! (event && event.marketing && event.marketing.forEach)) {
