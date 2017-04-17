@@ -23,7 +23,6 @@ define([
   var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
   var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   var testEmailExpected = FunctionalHelpers.testEmailExpected;
   var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
@@ -48,11 +47,12 @@ define([
         .then(noSuchElement('#customize-sync'))
         .then(fillOutSignUp(email, PASSWORD))
 
+        // user should be transitioned to the choose what to Sync page
+        .then(testElementExists('#fxa-choose-what-to-sync-header'))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         // the login message is only sent after the confirm screen is shown.
         .then(noSuchBrowserNotification('fxaccounts:login'))
-        // user should be transitioned to the choose what to Sync page
-        .then(testElementExists('#fxa-choose-what-to-sync-header'))
+
         // uncheck the passwords and history engines
         .then(click('div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)'))
         .then(click('div.two-col-block:nth-child(2) > div:nth-child(2) > label:nth-child(1)'))
@@ -69,8 +69,7 @@ define([
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
 
-        .then(testElementExists('#fxa-sign-up-complete-header'))
-        .then(testElementTextInclude('.account-ready-service', 'Firefox Sync'))
+        .then(testElementExists('#fxa-connect-another-device-header'))
 
         .then(closeCurrentWindow())
         .then(testElementExists('#fxa-sign-up-complete-header'))

@@ -9,7 +9,7 @@ define(function (require, exports, module) {
 
   module.exports = {
     initialize (options = {}) {
-      this.experiments = new ExperimentInterface({
+      this.experiments = options.experiments || new ExperimentInterface({
         able: options.able,
         account: this._account,
         metrics: this.metrics,
@@ -23,13 +23,23 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Destroy the attached experiments instance.
+     */
+    destroy () {
+      if (this.experiments) {
+        this.experiments.destroy();
+        this.experiments = null;
+      }
+    },
+
+    /**
      * Is the user in an experiment?
      *
      * @param {String} experimentName
      * @return {Boolean}
      */
-    isInExperiment (experimentName) {
-      return this.experiments.isInExperiment(experimentName);
+    isInExperiment (...args) {
+      return this.experiments.isInExperiment(...args);
     },
 
     /**
@@ -39,8 +49,8 @@ define(function (require, exports, module) {
      * @param {String} groupName
      * @return {Boolean}
      */
-    isInExperimentGroup (experimentName, groupName) {
-      return this.experiments.isInExperimentGroup(experimentName, groupName);
+    isInExperimentGroup (...args) {
+      return this.experiments.isInExperimentGroup(...args);
     }
   };
 });

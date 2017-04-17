@@ -26,6 +26,7 @@ define(function (require, exports, module) {
   const sinon = require('sinon');
   const VerificationMethods = require('lib/verification-methods');
   const VerificationReasons = require('lib/verification-reasons');
+  const WebSession = require('models/web-session');
 
   describe('models/account', function () {
     var account;
@@ -690,6 +691,48 @@ define(function (require, exports, module) {
     });
 
     describe('verifySignUp', function () {
+      describe('with custom server verification value', function () {
+        beforeEach(function () {
+          sinon.stub(fxaClient, 'verifyCode', function () {
+            return p();
+          });
+        });
+
+        it('does not call verifyCode with verified', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'verified'
+          }).then(() => {
+            assert.isFalse(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with other status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: 'test'
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+        it('calls verifyCode with undefined status', function () {
+          account.set('uid', UID);
+
+          return account.verifySignUp('CODE', {
+            serverVerificationStatus: undefined
+          }).then(() => {
+            assert.isTrue(fxaClient.verifyCode.called);
+            assert.isTrue(account.get('verified'));
+          });
+        });
+
+      });
+
       describe('without email opt-in', function () {
         beforeEach(function () {
           sinon.stub(fxaClient, 'verifyCode', function () {
@@ -1589,6 +1632,94 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('fetchSessions', function () {
+      beforeEach(() => {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        sinon.stub(fxaClient, 'sessions', () => {
+          return p([
+            {
+              deviceName: 'alpha',
+              deviceType: 'desktop',
+              id: 'device-1',
+              isCurrentDevice: false,
+              isDevice: true
+            },
+            {
+              id: 'foo',
+              isCurrentDevice: false,
+              name: 'session'
+            },
+            {
+              deviceName: 'beta',
+              deviceType: 'mobile',
+              id: 'device-2',
+              isCurrentDevice: true,
+              isDevice: true
+            }
+          ]);
+        });
+
+      });
+
+      it('fetches the session list from the back end', function () {
+        return account.fetchSessions().then((result) => {
+          assert.isTrue(fxaClient.sessions.calledWith(SESSION_TOKEN));
+          assert.equal(result.length, 3);
+          assert.equal(result[0].clientType, 'device');
+          assert.equal(result[0].name, 'alpha');
+          assert.equal(result[0].type, 'desktop');
+          assert.equal(result[0].deviceType, 'desktop');
+          assert.ok(result[0].isDevice);
+          assert.notOk(result[0].isWebSession);
+
+          assert.equal(result[1].clientType, 'webSession');
+          assert.equal(result[1].name, 'session');
+          assert.ok(result[1].isWebSession);
+          assert.notOk(result[1].isDevice);
+
+          assert.equal(result[2].clientType, 'device');
+          assert.equal(result[2].name, 'beta');
+          assert.equal(result[2].type, 'mobile');
+          assert.equal(result[2].deviceType, 'mobile');
+          assert.ok(result[2].isDevice);
+          assert.notOk(result[2].isWebSession);
+        });
+      });
+    });
+
+
+    describe('destroySession', function () {
+      var session;
+
+      beforeEach(function () {
+        account.set('sessionToken', SESSION_TOKEN);
+
+        session = new WebSession({
+          id: 'session-1',
+          lastAccessTime: 100,
+          lastAccessTimeFormatted: 'a few seconds ago',
+          name: 'alpha',
+          userAgent: 'Firefox 50'
+        });
+        sinon.spy(session, 'destroy');
+
+        sinon.stub(fxaClient, 'sessionDestroy', function () {
+          return p();
+        });
+
+        return account.destroySession(session);
+      });
+
+      it('tells the backend to destroy the session', function () {
+        assert.isTrue(
+          fxaClient.sessionDestroy.calledWith(SESSION_TOKEN, {
+            customSessionToken: 'session-1'
+          }));
+        assert.isTrue(session.destroy.calledOnce);
+      });
+    });
+
     describe('fetchOAuthApps', function () {
       beforeEach(function () {
         account.set('accessToken', ACCESS_TOKEN);
@@ -2064,6 +2195,64 @@ define(function (require, exports, module) {
 
         it('does not populate `email`', () => {
           assert.isFalse(account.has('email'));
+        });
+      });
+    });
+
+    describe('sendSms', () => {
+      const flowEventMetaData = {
+        startTime: Date.now()
+      };
+
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'sendSms', () => p());
+        sinon.stub(metrics, 'getFlowEventMetadata', () => flowEventMetaData);
+
+        account.set('sessionToken', 'sessionToken');
+        return account.sendSms('1234567890', 1);
+      });
+
+      it('delegates to the fxa-client', () => {
+        assert.isTrue(fxaClient.sendSms.calledOnce);
+        assert.isTrue(fxaClient.sendSms.calledWith(
+          'sessionToken',
+          '1234567890',
+          1,
+          {
+            metricsContext: flowEventMetaData
+          }
+        ));
+      });
+    });
+
+    describe('smsStatus', () => {
+      beforeEach(() => {
+        sinon.stub(fxaClient, 'smsStatus', () => p(true));
+      });
+
+      describe('sessionToken not available', () => {
+        it('does not delegate to fxa-client, resolves with `false`', () => {
+          account.unset('sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isFalse(response);
+              assert.isFalse(fxaClient.smsStatus.called);
+            });
+        });
+      });
+
+      describe('sessionToken available', () => {
+        it('delegates to the fxa-client, returns response', () => {
+          account.set('sessionToken', 'sessionToken');
+
+          return account.smsStatus()
+            .then((response) => {
+              assert.isTrue(response);
+
+              assert.isTrue(fxaClient.smsStatus.calledOnce);
+              assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+            });
         });
       });
     });

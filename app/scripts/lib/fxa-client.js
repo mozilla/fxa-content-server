@@ -336,6 +336,20 @@ define(function (require, exports, module) {
       return client.sessionDestroy(sessionToken);
     }),
 
+    /**
+     * Destroy the user's current or custom session
+     *
+     * @method sessionDestroy
+     * @param {String} sessionToken
+     * @param {Object} [options]
+     *   @param {String} [options.customSessionToken] - if provided, deletes a custom session token
+     * @returns {Promise}
+     *
+     */
+    sessionDestroy: withClient((client, sessionToken, options = {}) => {
+      return client.sessionDestroy(sessionToken, options);
+    }),
+
     verifyCode: withClient((client, uid, code, options) => {
       return client.verifyCode(uid, code, options);
     }),
@@ -343,7 +357,7 @@ define(function (require, exports, module) {
     /**
      * Initiate a password reset
      *
-     * @method signUp
+     * @method passwordReset
      * @param {String} originalEmail
      * @param {Relier} relier
      * @param {Object} [options]
@@ -559,6 +573,16 @@ define(function (require, exports, module) {
       return client.deviceList(sessionToken);
     }),
 
+    /**
+     * Get user's sessions
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with response when complete.
+     */
+    sessions: withClient((client, sessionToken) => {
+      return client.sessions(sessionToken);
+    }),
+
     deviceDestroy: withClient((client, sessionToken, deviceId) => {
       return client.deviceDestroy(sessionToken, deviceId);
     }),
@@ -656,6 +680,20 @@ define(function (require, exports, module) {
         .fail((err) => {
           // TODO Handle errors
           throw err;
+        });
+    }),
+
+    /**
+     * Check whether SMS is enabled for the user
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves to `true` if SMS is enabled,
+     *  `false` otw.
+     */
+    smsStatus: withClient((client, sessionToken) => {
+      return client.smsStatus(sessionToken)
+        .then((resp) => {
+          return !! (resp && resp.ok);
         });
     })
   };

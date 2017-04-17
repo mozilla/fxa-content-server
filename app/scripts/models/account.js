@@ -482,23 +482,31 @@ define(function (require, exports, module) {
      * @param {String} code - the verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
+     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves when complete
      */
     verifySignUp (code, options = {}) {
-      return this._fxaClient.verifyCode(
-        this.get('uid'),
-        code,
-        options
-      )
-      .then(() => {
-        this.set('verified', true);
+      return p()
+        .then(() => {
+          if (options.serverVerificationStatus !== 'verified') {
+            // if server verification was not present or not successful
+            // then attempt client verification
+            return this._fxaClient.verifyCode(
+              this.get('uid'),
+              code,
+              options
+            );
+          }
+        })
+        .then(() => {
+          this.set('verified', true);
 
-        if (this.get('needsOptedInToMarketingEmail')) {
-          this.unset('needsOptedInToMarketingEmail');
-          var emailPrefs = this.getMarketingEmailPrefs();
-          return emailPrefs.optIn(NEWSLETTER_ID);
-        }
-      });
+          if (this.get('needsOptedInToMarketingEmail')) {
+            this.unset('needsOptedInToMarketingEmail');
+            var emailPrefs = this.getMarketingEmailPrefs();
+            return emailPrefs.optIn(NEWSLETTER_ID);
+          }
+        });
     },
 
     /**
@@ -790,9 +798,37 @@ define(function (require, exports, module) {
         .then((oAuthApps) => {
           oAuthApps.map((item) => {
             item.clientType = Constants.CLIENT_TYPE_OAUTH_APP;
+            item.isOAuthApp = true;
           });
 
           return oAuthApps;
+        });
+    },
+
+    /**
+     * Fetch the account's sessions + devices, populate into the collection
+     *
+     * @returns {Promise} resolves when the action completes
+     */
+    fetchSessions () {
+      return this._fxaClient.sessions(this.get('sessionToken'))
+        .then((sessions) => {
+          sessions.map((item) => {
+            if (item.isDevice) {
+              item.clientType = Constants.CLIENT_TYPE_DEVICE;
+              // override the item id as deviceId for consistency
+              // if you ever need the tokenId just add it here with a different name
+              item.id = item.deviceId;
+              item.name = item.deviceName;
+              item.type = item.deviceType;
+            } else {
+              item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
+              item.isWebSession = true;
+            }
+
+          });
+
+          return sessions;
         });
     },
 
@@ -810,6 +846,17 @@ define(function (require, exports, module) {
         .then(function () {
           device.destroy();
         });
+    },
+
+    destroySession (session) {
+      var tokenId = session.get('id');
+      var sessionToken = this.get('sessionToken');
+
+      return this._fxaClient.sessionDestroy(sessionToken, {
+        customSessionToken: tokenId
+      }).then(() => {
+        session.destroy();
+      });
     },
 
 
@@ -971,6 +1018,21 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Check whether SMS is enabled for the current account.
+     *
+     * @returns {Promise} resolves to `true` if SMS is enabled,
+     *  `false` otw.
+     */
+    smsStatus() {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p(false);
+      }
+
+      return this._fxaClient.smsStatus(sessionToken);
+    },
+
+    /**
      * Get emails associated with user.
      *
      * @returns {Promise}
@@ -1022,6 +1084,7 @@ define(function (require, exports, module) {
         email
       );
     }
+
   }, {
     ALLOWED_KEYS: ALLOWED_KEYS,
     PERMISSIONS_TO_KEYS: PERMISSIONS_TO_KEYS

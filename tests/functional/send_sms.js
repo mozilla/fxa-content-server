@@ -14,14 +14,15 @@
    CountryTelephoneInfo, serverConfig) {
    const config = intern.config;
 
-   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync';
-
-   const LEARN_MORE_WINDOW_HANDLE = '_learn-more';
+   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US';
+   const SEND_SMS_NO_QUERY_URL = config.fxaContentRoot + 'sms';
 
    const SELECTOR_CONFIRM_SIGNUP = '#fxa-confirm-header';
    const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
+   const SELECTOR_400_HEADER = '#fxa-400-header';
+   const SELECTOR_400_ERROR = '.error';
    const SELECTOR_LEARN_MORE = 'a#learn-more';
-   const SELECTOR_LEARN_MORE_HEADER = '#tabzilla';
+   const SELECTOR_LEARN_MORE_HEADER = '#websites-notice';
    const SELECTOR_MARKETING_LINK = '.marketing-link';
    const SELECTOR_SEND_SMS_MAYBE_LATER = 'a[href="/connect_another_device"]';
    const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
@@ -44,6 +45,8 @@
    const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
    const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
    const openPage = FunctionalHelpers.openPage;
+   const switchToWindow = FunctionalHelpers.switchToWindow;
+   const testAttributeEquals = FunctionalHelpers.testAttributeEquals;
    const testElementExists = FunctionalHelpers.testElementExists;
    const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
    const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
@@ -62,12 +65,86 @@
          .then(testElementExists(SELECTOR_CONFIRM_SIGNUP));
      },
 
+     'with no query parameters': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_NO_QUERY_URL, SELECTOR_SEND_SMS_HEADER))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'US'));
+     },
+
+     'with no service, unsupported country': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_NO_QUERY_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'KZ'
+           }
+         }))
+         // The Sync relier validates `country`, this uses the base relier
+         // so country is ignored.
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'US'));
+     },
+
+     'with `country=CA`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'CA'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'CA'));
+     },
+
+     'with `country=RO`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'RO'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+407'))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'RO'));
+     },
+
+     'with `country=GB`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'GB'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, '+44'))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'GB'));
+     },
+
+     'with `country=US`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER, {
+           query: {
+             country: 'US'
+           }
+         }))
+         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, ''))
+         .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'US'));
+     },
+
+     'with an unsupported `country`': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_400_HEADER, {
+           query: {
+             country: 'KZ'
+           }
+         }))
+         .then(testElementTextInclude(SELECTOR_400_ERROR, 'country'));
+     },
+
      'learn more': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
         .then(testElementExists(SELECTOR_MARKETING_LINK))
         .then(click(SELECTOR_LEARN_MORE))
-        .switchToWindow(LEARN_MORE_WINDOW_HANDLE)
+        .then(switchToWindow(1))
 
         .then(testElementExists(SELECTOR_LEARN_MORE_HEADER))
         .then(closeCurrentWindow());
@@ -103,26 +180,26 @@
 
      'invalid phone number (too short)': function () {
        return this.remote
-        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567'))
-        .then(click(SELECTOR_SEND_SMS_SUBMIT))
-        .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
-        .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567'))
+         .then(click(SELECTOR_SEND_SMS_SUBMIT))
+         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
+         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
+     },
+
+     'invalid phone number (too long)': function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '21345678901'))
+         .then(click(SELECTOR_SEND_SMS_SUBMIT))
+         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
+         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
      },
 
      'invalid phone number (contains letters)': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567a890'))
-        .then(click(SELECTOR_SEND_SMS_SUBMIT))
-        .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
-        .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
-     },
-
-     'invalid phone number (fails hapi validation)': function () {
-       return this.remote
-        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '1234567890'))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567a890'))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));

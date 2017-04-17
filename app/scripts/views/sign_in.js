@@ -86,10 +86,18 @@ define(function (require, exports, module) {
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = this.getEmail();
 
+      /// submit button
+      const buttonSignInText = this.translate(t('Sign in'), { msgctxt: 'submit button' });
+
+      /// header text
+      const headerSignInText = this.translate(t('Sign in'), { msgctxt: 'header text' });
+
       return {
+        buttonSignInText,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         email: email,
         error: this.error,
+        headerSignInText,
         isAmoMigration: this.isAmoMigration(),
         isSyncMigration: this.isSyncMigration(),
         password: this._formPrefill.get('password'),
@@ -153,6 +161,8 @@ define(function (require, exports, module) {
         return;
       } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
         return this.notifyOfResetAccount(account);
+      } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+        return this.showValidationError(this.$('#password'), err);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;

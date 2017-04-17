@@ -403,6 +403,71 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('sessionDestroy', () => {
+      it('can successfully complete', () => {
+        sinon.stub(realClient, 'sessionDestroy', () => {
+          return p({});
+        });
+
+        return client.sessionDestroy('sessionToken')
+          .then(() => {
+            assert.isTrue(realClient.sessionDestroy.calledWith('sessionToken'));
+          });
+      });
+
+      it('throws any errors', () => {
+        sinon.stub(realClient, 'sessionDestroy', () => {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return client.sessionDestroy('session')
+          .then(assert.fail, (err) => {
+            assert.isTrue(realClient.sessionDestroy.calledWith('session'));
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
+      it('supports customSessionToken option', () => {
+        sinon.stub(realClient, 'sessionDestroy', () => {
+          return p({});
+        });
+
+        return client.sessionDestroy('session', {
+          customSessionToken: 'foo'
+        }).then(() => {
+          assert.isTrue(realClient.sessionDestroy.calledWith('session', {
+            customSessionToken: 'foo'
+          }));
+        });
+      });
+    });
+
+    describe('sessions', () => {
+      it('can successfully complete', () => {
+        sinon.stub(realClient, 'sessions', () => {
+          return p({});
+        });
+
+        return client.sessions('sessionToken')
+          .then(() => {
+            assert.isTrue(realClient.sessions.calledWith('sessionToken'));
+          });
+      });
+
+      it('throws any errors', () => {
+        sinon.stub(realClient, 'sessions', () => {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return client.sessions('session')
+          .then(assert.fail, (err) => {
+            assert.isTrue(realClient.sessions.calledWith('session'));
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
+    });
+
     describe('signIn', function () {
       it('signin with unknown user should fail', function () {
         sinon.stub(realClient, 'signIn', function () {
@@ -1313,6 +1378,18 @@ define(function (require, exports, module) {
         .then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
         });
+      });
+    });
+
+    describe('smsStatus', () => {
+      it('delegates to the fxa-js-client', () => {
+        sinon.stub(realClient, 'smsStatus', () => p());
+
+        return client.smsStatus('sessionToken')
+          .then(() => {
+            assert.isTrue(realClient.smsStatus.calledOnce);
+            assert.isTrue(realClient.smsStatus.calledWith('sessionToken'));
+          });
       });
     });
   });

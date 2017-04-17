@@ -8,14 +8,13 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'intern/dojo/node!leadfoot/helpers/pollUntil',
-  'intern/browser_modules/dojo/lang',
   'intern/browser_modules/dojo/node!url',
   'intern/browser_modules/dojo/node!querystring',
   'intern/browser_modules/dojo/node!xmlhttprequest',
   'intern/chai!assert',
   'app/bower_components/fxa-js-client/fxa-client',
 ], function (intern, require, restmail, TestHelpers, pollUntil,
-  lang, Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
+  Url, Querystring, nodeXMLHttpRequest, assert, FxaClient) {
   const config = intern.config;
 
   const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -66,10 +65,10 @@ define([
    */
   const click = thenify(function (selector) {
     return this.parent
-      // Ensure the element is visible and not animating before attempting to click.
-      // Sometimes clicks do not register if the element is in the middle of an animation.
-      .then(visibleByQSA(selector))
       .findByCssSelector(selector)
+        // Ensure the element is visible and not animating before attempting to click.
+        // Sometimes clicks do not register if the element is in the middle of an animation.
+        .then(visibleByQSA(selector))
         .click()
       .end();
   });
@@ -114,8 +113,8 @@ define([
     text = String(text);
 
     return this.parent
+      .then(click(selector))
       .findByCssSelector(selector)
-        .click()
 
         .then(function () {
           if (clearValue) {
@@ -235,6 +234,27 @@ define([
       .then(testElementExists('#loggedout'));
   });
 
+  /**
+   * Close all windows but the first. Used to cleanup after
+   * failing functional tests where the test fails when checking
+   * the 2nd window.
+   *
+   * @returns {Promise}
+   */
+  const closeAllButFirstWindow = thenify(function () {
+    return this.parent
+      .getAllWindowHandles()
+      .then(function (handles) {
+        if (handles.length > 1) {
+          return this.parent
+            .switchToWindow(handles[1])
+            .closeCurrentWindow()
+            .switchToWindow('')
+            .then(closeAllButFirstWindow());
+        }
+      });
+  });
+
   const clearBrowserState = thenify(function (options) {
     options = options || {};
     if (! ('contentServer' in options)) {
@@ -267,7 +287,8 @@ define([
           return this.parent
             .then(clear123DoneState( { untrusted: true }));
         }
-      });
+      })
+      .then(closeAllButFirstWindow());
   });
 
   const clearSessionStorage = thenify(function () {
@@ -340,24 +361,29 @@ define([
    */
   function visibleByQSA(selector, options) {
     options = options || {};
-    var timeout = options.timeout || 10000;
+    var timeout = options.timeout || config.pageLoadTimeout;
 
     return pollUntil(function (selector, options) {
-      var $matchingEl = $(selector);
+      var matchingEls = document.querySelectorAll(selector);
 
-      if ($matchingEl.length === 0) {
+      if (matchingEls.length === 0) {
         return null;
       }
 
-      if ($matchingEl.length > 1) {
+      if (matchingEls.length > 1) {
         throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
       }
 
-      if (! $matchingEl.is(':visible')) {
+      var matchingEl = matchingEls[0];
+
+      // Check if the element is visible. This is from jQuery source - see
+      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
         return null;
       }
 
-      if ($matchingEl.is(':animated')) {
+      // use jQuery if available to check for jQuery animations.
+      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
         // If the element is animating, try again after a delay. Clicks
         // do not always register if the element is in the midst of
         // an animation.
@@ -545,33 +571,32 @@ define([
    * Open a verification link in a new tab of the same browser.
    * @param {string} email user's email
    * @param {number} index verification email index
+   * @param {object} [options] options
+   *   @param {object} [options.query] extra query parameters to add to the verification link
    * @returns {promise} resolves when complete
    */
-  const openVerificationLinkInNewTab = thenify(function (email, index, windowName) {
+  const openVerificationLinkInNewTab = thenify(function (email, index, options) {
     var user = TestHelpers.emailToUser(email);
-
-    return this.parent
-      .then(getVerificationLink(user, index))
-      .then(function (verificationLink) {
-        return this.parent
-          .execute(openWindow, [ verificationLink, windowName ]);
-      });
-  });
-
-  const openVerificationLinkInSameTab = thenify(function (email, index, options) {
-    var user = TestHelpers.emailToUser(email);
-
     options = options || {};
 
     return this.parent
       .then(getVerificationLink(user, index))
       .then(function (verificationLink) {
-        const parsedVerificationLink = Url.parse(verificationLink, true);
-        for (var paramName in options.query) {
-          parsedVerificationLink.query[paramName] = options.query[paramName];
-        }
-        parsedVerificationLink.search = undefined;
-        return this.parent.get(require.toUrl(Url.format(parsedVerificationLink)));
+        const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
+        return this.parent
+          .execute(openWindow, [ verificationLinkWithParams ]);
+      });
+  });
+
+  const openVerificationLinkInSameTab = thenify(function (email, index, options) {
+    var user = TestHelpers.emailToUser(email);
+    options = options || {};
+
+    return this.parent
+      .then(getVerificationLink(user, index))
+      .then(function (verificationLink) {
+        const verificationLinkWithParams = addQueryParamsToLink(verificationLink, options.query);
+        return this.parent.get(verificationLinkWithParams);
       });
   });
 
@@ -755,12 +780,7 @@ define([
   const openPage = thenify(function (url, readySelector, options) {
     options = options || {};
 
-    const parsedUrl = Url.parse(url, true);
-    for (var paramName in options.query) {
-      parsedUrl.query[paramName] = options.query[paramName];
-    }
-    parsedUrl.search = undefined;
-    url = Url.format(parsedUrl);
+    url = addQueryParamsToLink(url, options.query);
 
     return this.parent
       .get(require.toUrl(url))
@@ -802,6 +822,23 @@ define([
   });
 
   /**
+   * Add query parameters to a link
+   *
+   * @param {String} link
+   * @param {Object} query
+   * @returns {String}
+   */
+  function addQueryParamsToLink(link, query) {
+    query = query || {};
+    const parsedLink = Url.parse(link, true);
+    for (var paramName in query) {
+      parsedLink.query[paramName] = query[paramName];
+    }
+    parsedLink.search = undefined;
+    return require.toUrl(Url.format(parsedLink));
+  }
+
+  /**
    * Re-open the same page with additional query parameters.
    *
    * @param   {object} additionalQueryParams key/value pairs of query parameters
@@ -812,10 +849,7 @@ define([
     return this.parent
       .getCurrentUrl()
       .then(function (url) {
-        var parsedUrl = Url.parse(url);
-        var currentQueryParams = Querystring.parse(parsedUrl.search);
-        var updatedQueryParams = lang.mixin({}, currentQueryParams, additionalQueryParams);
-        var urlToOpen = url + '?' + Querystring.stringify(updatedQueryParams);
+        var urlToOpen = addQueryParamsToLink(url, additionalQueryParams);
 
         return this.parent
           .then(openPage(urlToOpen, waitForSelector));
@@ -1634,6 +1668,25 @@ define([
     };
   }
 
+  /**
+   * Wait for the given `url`
+   *
+   * @param {string} url - url to wait for
+   * @returns {promise} resolves when true
+   */
+
+  const waitForUrl = thenify(function (url) {
+    return this.parent
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        if (currentUrl !== url) {
+          return this.parent
+            .sleep(500)
+            .then(waitForUrl(url));
+        }
+      });
+  });
+
   return {
     clearBrowserNotifications: clearBrowserNotifications,
     clearBrowserState: clearBrowserState,
@@ -1709,6 +1762,7 @@ define([
     testUrlPathnameEquals: testUrlPathnameEquals,
     thenify: thenify,
     type: type,
-    visibleByQSA: visibleByQSA
+    visibleByQSA: visibleByQSA,
+    waitForUrl: waitForUrl
   };
 });

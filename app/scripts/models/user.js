@@ -482,6 +482,7 @@ define(function (require, exports, module) {
      * @param {String} code - verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
+     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves with the account when complete
      */
     completeAccountSignUp (account, code, options) {
@@ -590,6 +591,8 @@ define(function (require, exports, module) {
         return this.destroyAccountDevice(account, client);
       } else if (client.get('clientType') === Constants.CLIENT_TYPE_OAUTH_APP) {
         return this.destroyAccountApp(account, client);
+      } else if (client.get('clientType') === Constants.CLIENT_TYPE_WEB_SESSION) {
+        return this.destroyAccountSession(account, client);
       }
     },
 
@@ -618,6 +621,18 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Fetch the sessions for the given account, populated into the passed
+     * collection.
+     *
+     * @param {Object} account - account for which device list is requested
+     * @param {Object} sessions - sessions collection used to store list.
+     * @returns {Promise} resolves when the action completes
+     */
+    fetchAccountSessions (account, sessions) {
+      return account.fetchSessions(sessions);
+    },
+
+    /**
      * Destroy a device on the given account. If the current device
      * is destroyed, sign out the user.
      *
@@ -630,6 +645,22 @@ define(function (require, exports, module) {
         .then(() => {
           if (this.isSignedInAccount(account) && device.get('isCurrentDevice')) {
             this.removeAccount(account);
+          }
+        });
+    },
+
+    /**
+     * Destroy a session on the given account. If it is the current session, sign out the user.
+     *
+     * @param {Object} account - account with the device
+     * @param {Object} session - session to destroy
+     * @returns {Promise} resolves when the action completes
+     */
+    destroyAccountSession (account, session) {
+      return account.destroySession(session)
+        .then(() => {
+          if (this.isSignedInAccount(account) && session.get('isCurrentSession')) {
+            this.clearSignedInAccount();
           }
         });
     },

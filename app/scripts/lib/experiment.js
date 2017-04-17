@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
-  const ConnectAnotherDeviceExperiment = require('lib/experiments/connect-another-device');
+  const BaseExperiment = require('lib/experiments/base');
   const Url = require('lib/url');
 
   const FORCE_EXPERIMENT_PARAM = 'forceExperiment';
@@ -14,7 +14,9 @@ define(function (require, exports, module) {
   const UA_OVERRIDE = 'FxATester';
 
   const ALL_EXPERIMENTS = {
-    'connectAnotherDevice': ConnectAnotherDeviceExperiment
+    // For now, the send SMS experiment only needs to log "enrolled", so
+    // no special experiment is created.
+    'sendSms': BaseExperiment
   };
 
   function ExperimentInterface (options) {
@@ -67,24 +69,28 @@ define(function (require, exports, module) {
     _allExperiments: ALL_EXPERIMENTS,
 
     /**
+     * Destroy all active experiments.
+     */
+    destroy () {
+      for (let expName in this._activeExperiments) {
+        const experiment = this._activeExperiments[expName];
+        experiment.destroy();
+        this._activeExperiments[expName] = null;
+        delete this._activeExperiments[expName];
+      }
+    },
+
+    /**
      * Is the user in an experiment?
      *
      * @param {String} experimentName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
      * @return {Boolean}
      */
-    isInExperiment (experimentName) {
+    isInExperiment (experimentName, additionalInfo) {
       // If able returns any truthy value, consider the
       // user in the experiment.
-      return !! this.able.choose(experimentName, {
-        // yes, this is a hack because experiments do not have a reference
-        // to able internally. This allows experiments to reference other
-        // experiments
-        able: this.able,
-        forceExperiment: this.forceExperiment,
-        forceExperimentGroup: this.forceExperimentGroup,
-        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-        uniqueUserId: this.user.get('uniqueUserId')
-      });
+      return !! this._getExperimentGroup(experimentName, additionalInfo);
     },
 
     /**
@@ -92,14 +98,11 @@ define(function (require, exports, module) {
      *
      * @param {String} experimentName
      * @param {String} groupName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
      * @return {Boolean}
      */
-    isInExperimentGroup (experimentName, groupName) {
-      if (this.isInExperiment(experimentName) && this._activeExperiments[experimentName]) {
-        return this._activeExperiments[experimentName].isInGroup(groupName);
-      }
-
-      return false;
+    isInExperimentGroup (experimentName, groupName, additionalInfo) {
+      return this._getExperimentGroup(experimentName, additionalInfo) === groupName;
     },
 
     /**
@@ -113,8 +116,10 @@ define(function (require, exports, module) {
       }
 
       for (const experimentName in this._allExperiments) {
-        if (this.isInExperiment(experimentName)) {
-          this.createExperiment(experimentName);
+        const groupType = this._getExperimentGroup(experimentName);
+
+        if (groupType) {
+          this.createExperiment(experimentName, groupType);
         }
       }
     },
@@ -123,36 +128,58 @@ define(function (require, exports, module) {
      * Create an experiment and add it to the list of active experiments.
      *
      * @param {String} experimentName - name of experiment to create.
+     * @param {String} groupType - which group the user is in.
      */
-    createExperiment (experimentName) {
+    createExperiment (experimentName, groupType) {
       const ExperimentConstructor = this._allExperiments[experimentName];
       if (_.isFunction(ExperimentConstructor)) {
         const experiment = new ExperimentConstructor();
         const initResult = experiment.initialize(experimentName, {
-          able: this.able,
-          account: this.account,
+          groupType,
           metrics: this.metrics,
-          notifier: this.notifier,
-          translator: this.translator,
-          user: this.user,
-          window: this.window
+          notifier: this.notifier
         });
 
         /**
          * 'initResult' may be false if the view does not have the
-         * required components, such as 'user', or 'account'.
-         * Those components are required to make a correct decision
-         * about the experiment. 'initialize' does not throw
-         * because some experiments only work on particular views.
+         * required components, such as `notifier`.
          *
          * If experiment failed to initialized then do not add it
-         * to active experiments. Also if the experiment is not active then the user gets the default view options with no modifications.
+         * to active experiments. Also if the experiment is not
+         * active then the user gets the default view options with
+         * no modifications.
          */
         if (initResult) {
           this._activeExperiments[experimentName] = experiment;
-          this.metrics.logExperiment(experimentName, experiment._groupType);
         }
       }
+    },
+
+    /**
+     * Get the experiment group for `experimentName` the user is in.
+     *
+     * @param {String} experimentName
+     * @param {Object} [additionalInfo] additional info to pass to Able.
+     * @returns {String}
+     * @private
+     */
+    _getExperimentGroup (experimentName, additionalInfo = {}) {
+      // can't be in an experiment group if not initialized.
+      if (! this.initialized) {
+        return false;
+      }
+
+      return this.able.choose(experimentName, _.extend({
+        // yes, this is a hack because experiments do not have a reference
+        // to able internally. This allows experiments to reference other
+        // experiments
+        able: this.able,
+        account: this.account,
+        forceExperiment: this.forceExperiment,
+        forceExperimentGroup: this.forceExperimentGroup,
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+        uniqueUserId: this.user.get('uniqueUserId')
+      }, additionalInfo));
     }
   });
 

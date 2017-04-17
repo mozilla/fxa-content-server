@@ -61,9 +61,10 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
+        .then(testElementExists('#fxa-confirm-signin-header'))
+
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
-        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInNewTab(email, 0))
         .switchToWindow('newwindow')
@@ -78,9 +79,9 @@ define([
       return this.remote
         .then(setupTest({ preVerified: true }))
 
+        .then(testElementExists('#fxa-confirm-signin-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
-        .then(testElementExists('#fxa-confirm-signin-header'))
 
         .then(openVerificationLinkInDifferentBrowser(email))
 
@@ -93,17 +94,16 @@ define([
       return this.remote
         .then(setupTest({ preVerified: false }))
 
+        .then(testElementExists('#fxa-confirm-header'))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
-
-        .then(testElementExists('#fxa-confirm-header'))
 
         // email 0 - initial sign up email
         // email 1 - sign in w/ unverified address email
         // email 2 - "You have verified your Firefox Account"
         .then(openVerificationLinkInNewTab(email, 1))
         .switchToWindow('newwindow')
-          .then(testElementExists('#fxa-sign-up-complete-header'))
+          .then(testElementExists('#fxa-connect-another-device-header'))
           .then(closeCurrentWindow())
 
         .then(testElementExists('#fxa-sign-up-complete-header'))
@@ -130,12 +130,11 @@ define([
         .then(testElementTextInclude('.verification-email-message', email))
         .then(fillOutSignInUnblock(email, 0))
 
-        .then(testIsBrowserNotified('fxaccounts:login'))
-
         // Only users that go through signin confirmation see
         // `/signin_complete`, and users that go through signin unblock see
         // the default `settings` page.
-        .then(testElementExists('#fxa-settings-header'));
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
 });

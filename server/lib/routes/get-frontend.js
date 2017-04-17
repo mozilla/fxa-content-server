@@ -52,8 +52,7 @@ module.exports = function () {
     'signup_verified',
     'sms',
     'sms/sent',
-    'sms/why',
-    'verify_email'
+    'sms/why'
   ].join('|'); // prepare for use in a RegExp
 
   return {
