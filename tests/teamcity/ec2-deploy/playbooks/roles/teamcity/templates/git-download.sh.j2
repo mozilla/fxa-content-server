@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+
+set -e
+
+TEAMCITY_DIR=/home/ec2-user/teamcity
+GITHUB_URL="https://api.github.com/repos/jrgm-docker/teamcity/tarball/master?access_token={{ github_teamcity_deploy_key }}"
+
+mkdir -p $TEAMCITY_DIR
+
+curl -s -L "$GITHUB_URL" | tar --strip-components=1 -xpzf - -C $TEAMCITY_DIR

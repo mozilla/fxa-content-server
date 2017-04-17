@@ -1,0 +1,28 @@
+---
+
+- name: ensure /home/ec2-user/.docker exists
+  file: path=/home/ec2-user/.docker state=directory mode=0700
+
+- name: install Quay.io deploy key into /home/ec2-user/.docker/config.json
+  template: src=dot-docker.cfg.j2 dest=/home/ec2-user/.docker/config.json
+
+- name: ensure /root/.docker exists
+  sudo: true
+  file: path=/root/.docker state=directory mode=0700
+
+- name: install Quay.io deploy key into /root/.docker/config.json
+  sudo: true
+  template: src=dot-docker.cfg.j2 dest=/root/.docker/config.json
+
+- name: install github teamcity repo
+  git: repo=https://github.com/jrgm-docker/teamcity.git
+       dest=/home/ec2-user/teamcity
+
+- name: configure upstart for docker-compose
+  sudo: true
+  copy: src=docker-compose.conf dest=/etc/init/docker-compose.conf owner=root group=root
+
+- name: start docker-compose
+  sudo: true
+  service: name=docker-compose state=started enabled=true
+

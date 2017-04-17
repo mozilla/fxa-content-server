@@ -1,0 +1,18 @@
+---
+
+- name: install nginx
+  sudo: true
+  yum: name=nginx state=present
+
+- name: delete nginx default.conf
+  sudo: true
+  file: path=/etc/nginx/conf.d/default.conf state=absent
+
+- name: copy base nginx.conf
+  sudo: true
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  notify: reload nginx config
+
+- name: start nginx
+  sudo: true
+  service: name=nginx state=started enabled=true

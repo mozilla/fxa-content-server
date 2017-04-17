@@ -1,0 +1,228 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "FxA Teamcity Test Runner",
+  "Parameters": {
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair for SSH access.",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    "StackName": {
+      "Description": "Name for this Cloudformation stack.",
+      "Type": "String"
+    },
+    "InstanceType": {
+      "Description": "EC2 instance type",
+      "Type": "String",
+      "Default": "m3.large",
+      "AllowedValues": [
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "HostedZone": {
+      "Description": "The DNS name of an existing Amazon Route 53 hosted zone",
+      "Type": "String",
+      "Default": "lcip.org",
+      "AllowedPattern": "(?!-)[a-zA-Z0-9-.]{1,63}(?<!-)",
+      "ConstraintDescription": "must be a valid DNS zone name."
+    },
+    "SSLCertificateName": {
+      "Description": "SSL Cert name from IAM",
+      "Type": "String",
+      "Default": "exp20170412_wildcard_dev_lcip.org"
+    }
+  },
+
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+      "m3.medium"  : { "Arch": "HVM64" },
+      "m3.large"   : { "Arch": "HVM64" },
+      "m3.xlarge"  : { "Arch": "HVM64" },
+      "m3.2xlarge" : { "Arch": "HVM64" }
+    },
+    "AWSRegionArch2AMI": {
+      "us-east-1"      : { "HVM64": "ami-0d4cfd66" },
+      "us-west-2"      : { "HVM64": "ami-d5c5d1e5" },
+      "us-west-1"      : { "HVM64": "ami-87ea13c3" },
+      "eu-west-1"      : { "HVM64": "ami-e4d18e93" },
+      "eu-central-1"   : { "HVM64": "ami-a6b0b7bb" },
+      "ap-northeast-1" : { "HVM64": "ami-1c1b9f1c" },
+      "ap-southeast-1" : { "HVM64": "ami-d44b4286" },
+      "ap-southeast-2" : { "HVM64": "ami-db7b39e1" }
+    }
+  },
+
+  "Resources": {
+    "EC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceType" },
+        "SecurityGroups": [ { "Ref": "InstanceSecurityGroup" } ],
+        "KeyName": { "Ref": "KeyName" },
+        "Tags": [
+          {
+            "Key" : "Name",
+            "Value" : { "Fn::Join": [ "", [ "tc-", { "Ref": "StackName" } ] ] }
+          }
+        ],
+        "ImageId": { "Fn::FindInMap": [ "AWSRegionArch2AMI", { "Ref": "AWS::Region" },
+                                        { "Fn::FindInMap": [ "AWSInstanceType2Arch", { "Ref": "InstanceType" }, "Arch" ] } ] },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : {
+              "VolumeSize" : "40",
+              "VolumeType" : "gp2"
+            }
+          }
+        ]
+      }
+    },
+    "InstanceSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable access to ports 22, and from ELB: 80 and 8111",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "EC2SecurityGroupIngress80" : {
+      "Type" : "AWS::EC2::SecurityGroupIngress",
+      "Properties" : {
+        "GroupName" : { "Ref" : "InstanceSecurityGroup" },
+        "IpProtocol" : "tcp",
+        "ToPort" : "80",
+        "FromPort" : "80",
+        "SourceSecurityGroupName" : { "Ref" : "ELBSecurityGroup" }
+      }
+    },
+    "EC2SecurityGroupIngress8111" : {
+      "Type" : "AWS::EC2::SecurityGroupIngress",
+      "Properties" : {
+        "GroupName" : { "Ref" : "InstanceSecurityGroup" },
+        "IpProtocol" : "tcp",
+        "FromPort": 8111,
+        "ToPort": 8111,
+        "SourceSecurityGroupName" : { "Ref" : "ELBSecurityGroup" }
+      }
+    },
+    "ELBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Fxa Teamcity Test Runner ELB",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "ELB":{
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties":{
+        "AvailabilityZones": { "Fn::GetAZs": "" },
+        "ConnectionDrainingPolicy":{ "Enabled": true, "Timeout": 15 },
+        "Listeners":[
+          {
+            "InstancePort": "80",
+            "LoadBalancerPort": "80",
+            "Protocol": "HTTP"
+          },
+          {
+            "InstancePort": 8111,
+            "LoadBalancerPort": "443",
+            "PolicyNames": [ "ELBSecurityPolicy-2015-05" ],
+            "Protocol": "HTTPS",
+            "SSLCertificateId":{
+              "Fn::Join":[ "",
+                           [
+                             "arn:aws:iam::", { "Ref": "AWS::AccountId" }, ":server-certificate/", { "Ref": "SSLCertificateName" }
+                           ]
+                         ]
+            }
+          }
+        ],
+        "HealthCheck": {
+          "Target": "TCP:80",
+          "HealthyThreshold": "3",
+          "UnhealthyThreshold": "10",
+          "Interval": "15",
+          "Timeout": "5"
+        },
+        "Instances": [ { "Ref": "EC2Instance" } ],
+        "SecurityGroups": [ { "Fn::GetAtt": [ "ELBSecurityGroup", "GroupId" ] } ]
+      }
+    },
+    "ELBDNSRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "ELB",
+      "Properties": {
+        "HostedZoneName": { "Fn::Join": [ "", [ { "Ref": "HostedZone" }, "." ] ] },
+        "Comment": "DNS name of the HTTPS ELB for the EC2 instance.",
+        "Name": { "Fn::Join": [ "", [
+          "tc-", { "Ref": "StackName" }, ".",
+          "dev", ".", { "Ref": "HostedZone" },  "."
+        ] ] },
+        "Type": "CNAME",
+        "TTL": "60",
+        "ResourceRecords": [ { "Fn::GetAtt": [ "ELB", "DNSName" ] } ]
+      }
+    },
+    "EC2DNSRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "DependsOn": "ELB",
+      "Properties": {
+        "HostedZoneName": { "Fn::Join": [ "", [ { "Ref": "HostedZone" }, "." ] ] },
+        "Comment": "DNS name of the EC2 instance.",
+        "Name": { "Fn::Join": [ "", [
+          "meta-tc-", { "Ref": "StackName" }, ".",
+          "dev", ".", { "Ref": "HostedZone" },  "."
+        ] ] },
+        "Type": "CNAME",
+        "TTL": "60",
+        "ResourceRecords": [ { "Fn::GetAtt": [ "EC2Instance", "PublicDnsName" ] } ]
+      }
+    }
+  },
+
+  "Outputs": {
+    "PublicDNS": {
+      "Description": "Public DNSName",
+      "Value": { "Ref": "ELBDNSRecord" }
+    },
+    "EC2SSHHostName": {
+      "Description": "Hostname assigned by EC2",
+      "Value": { "Ref": "EC2DNSRecord" }
+    },
+    "EC2HostName": {
+      "Description": "Hostname assigned by EC2",
+      "Value": { "Fn::GetAtt": [ "EC2Instance", "PublicDnsName" ] }
+    },
+    "ELBHostName": {
+      "Description": "Hostname for the ELB",
+      "Value": { "Fn::GetAtt": [ "ELB", "DNSName" ] }
+    },
+    "InstanceId": {
+      "Description": "InstanceId",
+      "Value": { "Ref": "EC2Instance" }
+    }
+  }
+}
