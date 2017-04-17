@@ -1,3 +1,10 @@
+header + section {
+  .success,
+  .error {
+    /*Display message at a safe distance from the header*/
+    top: -10px;
+  }
+}
 .error,
 .success,
 .info {
