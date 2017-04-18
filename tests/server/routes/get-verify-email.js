@@ -170,7 +170,7 @@ define([
 
       mocks.got = {
         post: () => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             resolve({});
           });
         }
@@ -198,7 +198,7 @@ define([
       const req = {
         query: {
           code: '12345678912345678912345678912312',
-          resume: '234asdf==',
+          resume: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=', // All possible base64 characters
           uid: '12345678912345678912345678912312'
         },
         url: '/verify_email'
@@ -206,7 +206,7 @@ define([
 
       mocks.got = {
         post: () => {
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             resolve({});
           });
         }
@@ -217,7 +217,7 @@ define([
         // been sent.
         setTimeout(() => {
           const c = ravenMock.ravenMiddleware.captureMessage;
-          assert.equal(c.calledOnce, false);
+          assert.equal(c.callCount, 0);
           dfd.resolve();
         }, 100);
       });
