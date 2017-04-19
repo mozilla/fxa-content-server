@@ -659,16 +659,16 @@ define(function (require, exports, module) {
         });
     }),
 
-    createEmail: withClient((client, sessionToken, email) => {
-      return client.createEmail(sessionToken, email)
+    recoveryEmailCreate: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailCreate(sessionToken, email)
         .fail((err) => {
           // TODO Handle errors
           throw err;
         });
     }),
 
-    deleteEmail: withClient((client, sessionToken, email) => {
-      return client.deleteEmail(sessionToken, email)
+    recoveryEmailDestroy: withClient((client, sessionToken, email) => {
+      return client.recoveryEmailDestroy(sessionToken, email)
         .fail((err) => {
           // TODO Handle errors
           throw err;

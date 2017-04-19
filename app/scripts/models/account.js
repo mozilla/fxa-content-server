@@ -1049,28 +1049,28 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Associates a new email to a users account.
+     * Associates a new email to a user's account.
      *
      * @param {String} email
      *
      * @returns {Promise}
      */
-    createEmail (email) {
-      return this._fxaClient.createEmail(
+    recoveryEmailCreate (email) {
+      return this._fxaClient.recoveryEmailCreate(
         this.get('sessionToken'),
         email
       );
     },
 
     /**
-     * Associates a new email to a users account.
+     * Deletes email from user's account.
      *
      * @param {String} email
      *
      * @returns {Promise}
      */
-    deleteEmail (email) {
-      return this._fxaClient.deleteEmail(
+    recoveryEmailDestroy (email) {
+      return this._fxaClient.recoveryEmailDestroy(
         this.get('sessionToken'),
         email
       );
