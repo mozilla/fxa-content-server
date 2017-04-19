@@ -261,12 +261,60 @@ define(function (require, exports, module) {
 
             const $getStartedEl = $suggestSyncEl.find('a');
             assert.equal($getStartedEl.attr('rel'), 'noopener noreferrer');
+
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
+          });
+      });
+
+      it('does not have sync auth supported', function () {
+        createView();
+        relier.set('service', null);
+        sinon.stub(view, 'isSyncAuthSupported', () => false);
+        return view.render()
+          .then(function () {
+            const $getStartedEl = view.$('#suggest-sync').find('a');
             assert.equal($getStartedEl.attr('href'),
               'https://mozilla.org/firefox/sync?' +
               'utm_source=fx-website&utm_medium=fx-accounts&' +
               'utm_campaign=fx-signup&utm_content=fx-sync-get-started');
+          });
+      });
 
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'signup.sync-suggest.visible'), 'enrolled');
+      it('has sync auth supported on Firefox for Desktop', function () {
+        createView();
+        relier.set('service', null);
+        sinon.stub(view, 'isSyncAuthSupported', () => true);
+        sinon.stub(view, 'getUserAgent', () => {
+          return {
+            isFirefoxAndroid: () => false,
+            isFirefoxDesktop: () => true,
+          };
+        });
+        return view.render()
+          .then(function () {
+            const $getStartedEl = view.$('#suggest-sync').find('a');
+            assert.equal($getStartedEl.attr('href'),
+              view.window.location.origin +
+              '/signup?context=fx_desktop_v3&entrypoint=fxa%3Asignup&service=sync');
+          });
+      });
+
+      it('has sync auth supported on Firefox for Android', function () {
+        createView();
+        relier.set('service', null);
+        sinon.stub(view, 'isSyncAuthSupported', () => true);
+        sinon.stub(view, 'getUserAgent', () => {
+          return {
+            isFirefoxAndroid: () => true,
+            isFirefoxDesktop: () => false,
+          };
+        });
+        return view.render()
+          .then(function () {
+            const $getStartedEl = view.$('#suggest-sync').find('a');
+            assert.equal($getStartedEl.attr('href'),
+              view.window.location.origin +
+              '/signup?context=fx_fennec_v1&entrypoint=fxa%3Asignup&service=sync');
           });
       });
 
@@ -371,24 +419,6 @@ define(function (require, exports, module) {
               view.afterVisible();
             });
         }, done);
-      });
-
-      it('loads the password strength checker if enabled', function () {
-        sinon.stub(view, 'isPasswordStrengthCheckEnabled', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'getPasswordStrengthChecker', function () {
-          return true;
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.isTrue(view.getPasswordStrengthChecker.called);
-          });
       });
     });
 
@@ -1235,19 +1265,6 @@ define(function (require, exports, module) {
             container.html(view.el);
             container.find('input[type=password]').trigger('click');
           });
-      });
-    });
-
-    describe('onPasswordBlur', function () {
-      beforeEach(function () {
-        sinon.spy(view, 'checkPasswordStrength');
-      });
-
-      it('calls checkPasswordStrength with provided password', function () {
-        var password = 'somerandomvalue';
-        view.$('.password').val(password);
-        view.onPasswordBlur();
-        assert.isTrue(view.checkPasswordStrength.calledWith(password));
       });
     });
 

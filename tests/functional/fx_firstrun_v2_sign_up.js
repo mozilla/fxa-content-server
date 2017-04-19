@@ -6,14 +6,17 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/ua-strings'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, UA_STRINGS) {
   const config = intern.config;
   const PAGE_URL = config.fxaContentRoot + 'signup?context=fx_firstrun_v2&service=sync';
 
   var email;
   const PASSWORD = '12345678';
 
+  const SELECTOR_400_HEADER = '#fxa-400-header';
+  const SELECTOR_400_ERROR = '.error';
   const SELECTOR_CHOOSE_WHAT_TO_SYNC_HEADER = '#fxa-choose-what-to-sync-header';
   const SELECTOR_CHOOSE_WHAT_TO_SYNC_HISTORY_ENTRY = 'div.two-col-block:nth-child(2) > div:nth-child(1) > label:nth-child(1)';
   const SELECTOR_CHOOSE_WHAT_TO_SYNC_PASSWORD_ENTRY = 'div.two-col-block:nth-child(1) > div:nth-child(3) > label:nth-child(1)';
@@ -21,17 +24,9 @@ define([
   const SELECTOR_CONFIRM_HEADER = '#fxa-confirm-header';
   const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
   const SELECTOR_SEND_SMS_HEADER = '#fxa-send-sms-header';
+  const SELECTOR_SEND_SMS_PHONE_NUMBER = 'input[type="tel"]';
   const SELECTOR_SIGN_UP_HEADER = '#fxa-signup-header';
   const SELECTOR_SIGN_UP_COMPLETE_HEADER = '#fxa-sign-up-complete-header';
-
-  /*eslint-disable max-len*/
-  const UA_STRINGS = {
-    'android_chrome': 'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
-    'android_firefox': 'Mozilla/5.0 (Android 4.4; Mobile; rv:43.0) Gecko/41.0 Firefox/43.0',
-    'ios_firefox': 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
-    'ios_safari': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3'
-  };
-  /*eslint-enable max-len*/
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
@@ -41,7 +36,9 @@ define([
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
   const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testAttributeEquals = FunctionalHelpers.testAttributeEquals;
   const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testEmailExpected = FunctionalHelpers.testEmailExpected;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
   const thenify = FunctionalHelpers.thenify;
@@ -71,10 +68,14 @@ define([
   const verifyMobileTest = thenify(function (uaString) {
     return this.parent
       .then(setupTest())
+      // These all synthesize the user verifying on a mobile device
+      // instead of on the same device. Clear browser state.
+      .then(clearBrowserState())
 
       // verify the user
       .then(openVerificationLinkInNewTab(email, 0, {
         query: {
+          country: 'US',
           forceExperiment: 'sendSms',
           forceExperimentGroup: 'treatment',
           forceUA: uaString
@@ -142,13 +143,14 @@ define([
         .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER));
     },
 
-    'sign up, verify same browser, force SMS': function () {
+    'sign up, verify same browser, force SMS, force supported country': function () {
       return this.remote
         .then(setupTest())
 
         // verify the user
         .then(openVerificationLinkInNewTab(email, 0, {
           query: {
+            country: 'CA',
             forceExperiment: 'sendSms',
             forceExperimentGroup: 'treatment'
           }
@@ -157,10 +159,35 @@ define([
 
         // user should be redirected to "Send SMS" screen.
         .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
+        .then(testAttributeEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, 'data-country', 'CA'))
 
         // switch back to the original window, it should transition.
         .then(closeCurrentWindow())
         .then(testElementExists(SELECTOR_SIGN_UP_COMPLETE_HEADER));
+    },
+
+    'sign up, verify same browser, force SMS, force unsupported country': function () {
+      return this.remote
+        .then(setupTest())
+
+        // verify the user
+        .then(openVerificationLinkInNewTab(email, 0, {
+          query: {
+            country: 'ZZ',
+            forceExperiment: 'sendSms',
+            forceExperimentGroup: 'treatment'
+          }
+        }))
+        .switchToWindow('newwindow')
+
+        // user should be redirected to the 400 page, `country` is invalid
+        .then(testElementExists(SELECTOR_400_HEADER))
+        .then(testElementTextInclude(SELECTOR_400_ERROR, 'country'))
+
+        // switch back to the original window, it should not transition,
+        // the invalid country prevents the verification code from being sent.
+        .then(closeCurrentWindow())
+        .then(testElementExists(SELECTOR_CONFIRM_HEADER));
     },
 
     'sign up, verify Chrome on Android, force SMS sends to connect_another_device': function () {
