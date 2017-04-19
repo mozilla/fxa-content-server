@@ -63,7 +63,7 @@ define(function (require, exports, module) {
     _onDisconnectEmail (event) {
       const email = $(event.currentTarget).data('id');
       const account = this.getSignedInAccount();
-      return account.deleteEmail(email)
+      return account.recoveryEmailDestroy(email)
         .then(()=> {
           return this.render()
             .then(()=> {
@@ -112,7 +112,7 @@ define(function (require, exports, module) {
       const newEmail = this.getElementValue('input.new-email');
       if (this.isPanelOpen() && newEmail) {
         const account = this.getSignedInAccount();
-        return account.createEmail(newEmail)
+        return account.recoveryEmailCreate(newEmail)
           .then(()=> {
             this.displaySuccess(t('Verification emailed to ') + newEmail, {
               closePanel: false
