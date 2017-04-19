@@ -58,6 +58,82 @@ define([
   }
 
   /**
+   * Take a screen shot, write a base64 encoded image to the console
+   */
+  const takeScreenshot = thenify(function () {
+    return this.parent.takeScreenshot()
+      .then(function (buffer) {
+        console.error('Capturing base64 screenshot:');
+        console.error(buffer.toString('base64'));
+      });
+  });
+
+  /**
+   * Use document.querySelectorAll to find visible elements
+   * used for error and success notification animations.
+   *
+   *
+   * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   * @param {Object} options
+   *        options include polling `timeout`
+   */
+  const visibleByQSA = thenify(function (selector, options) {
+    options = options || {};
+    var timeout = options.timeout || config.pageLoadTimeout;
+    var pollError;
+
+    return this.parent
+      .then(pollUntil(function (selector, options) {
+        var matchingEls = document.querySelectorAll(selector);
+
+        if (matchingEls.length === 0) {
+          return null;
+        }
+
+        if (matchingEls.length > 1) {
+          throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
+        }
+
+        var matchingEl = matchingEls[0];
+
+        // Check if the element is visible. This is from jQuery source - see
+        // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
+        if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
+          return null;
+        }
+
+        // use jQuery if available to check for jQuery animations.
+        if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
+          // If the element is animating, try again after a delay. Clicks
+          // do not always register if the element is in the midst of
+          // an animation.
+          return null;
+        }
+
+        return true;
+      }, [ selector, options ], timeout))
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        pollError = err;
+      })
+      .then(() => {
+        if (pollError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              throw pollError;
+            });
+        }
+      });
+  });
+
+
+  /**
    * Click an element
    *
    * @param {string} selector
@@ -160,8 +236,24 @@ define([
    * @returns {promise} rejects if element does not exist
    */
   const testElementExists = thenify(function (selector) {
+    var findError;
     return this.parent
       .findByCssSelector(selector)
+      .then(null, function (err) {
+        // The error has to be swallowed before a screenshot
+        // can be taken or else takeScreenshot is never called
+        // because `this.parent` is a promise that has already
+        // been rejected.
+        findError = err;
+      })
+      .then(function () {
+        if (findError) {
+          return this.parent.then(takeScreenshot())
+            .then(() => {
+              throw findError;
+            });
+        }
+      })
       .end();
   });
 
@@ -348,53 +440,6 @@ define([
   }
 
   /**
-   * Use document.querySelectorAll to find visible elements
-   * used for error and success notification animations.
-   *
-   *
-   * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
-   *
-   * @param {String} selector
-   *        QSA compatible selector string
-   * @param {Object} options
-   *        options include polling `timeout`
-   */
-  function visibleByQSA(selector, options) {
-    options = options || {};
-    var timeout = options.timeout || config.pageLoadTimeout;
-
-    return pollUntil(function (selector, options) {
-      var matchingEls = document.querySelectorAll(selector);
-
-      if (matchingEls.length === 0) {
-        return null;
-      }
-
-      if (matchingEls.length > 1) {
-        throw new Error('Multiple elements matched. Make a more precise selector - ' + selector);
-      }
-
-      var matchingEl = matchingEls[0];
-
-      // Check if the element is visible. This is from jQuery source - see
-      // https://github.com/jquery/jquery/blob/e1b1b2d7fe5aff907a9accf59910bc3b7e4d1dec/src/css/hiddenVisibleSelectors.js#L12
-      if (! (matchingEl.offsetWidth || matchingEl.offsetHeight || matchingEl.getClientRects().length)) {
-        return null;
-      }
-
-      // use jQuery if available to check for jQuery animations.
-      if (typeof $ !== 'undefined' && $(selector).is(':animated')) {
-        // If the element is animating, try again after a delay. Clicks
-        // do not always register if the element is in the midst of
-        // an animation.
-        return null;
-      }
-
-      return true;
-    }, [ selector, options ], timeout);
-  }
-
-  /**
    * Ensure no such element exists.
    *
    * @param   {string} selector of element to ensure does not exist.
@@ -448,6 +493,43 @@ define([
   });
 
   /**
+   * Get an email
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {promise} resolves with the email if email is found.
+   */
+  const getEmail = thenify(function (user, index, options) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
+    // restmail takes a length, not an index. Add 1.
+    return this.parent
+      .then(() => restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)())
+      .then((emails) => emails[index]);
+  });
+
+  /**
+   * Get the email headers
+   *
+   * @param {string} user - username or email address
+   * @param {number} index - email index.
+   * @param {object} [options]
+   *   @param {number} [options.maxAttempts] - number of email fetch attempts
+   *   to make. Defaults to 10.
+   * @returns {promise} resolves with the email headers if email is found.
+   */
+  const getEmailHeaders = thenify(function(user, index, options) {
+    return this.parent
+      .then(getEmail(user, index, options))
+      .then((email) => email.headers);
+  });
+
+  /**
    * Get an email verification link
    *
    * @param   {string} user username or email
@@ -459,9 +541,14 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    return getEmailHeaders(user, index)
+    return this.parent
+      .then(getEmailHeaders(user, index))
       .then(function (headers) {
-        return require.toUrl(headers['x-link']);
+        const link = headers['x-link'];
+        if (! link) {
+          throw new Error('Email does not contain verification link: ' + headers['x-template-name']);
+        }
+        return require.toUrl(link);
       });
   });
 
@@ -478,37 +565,21 @@ define([
       user = TestHelpers.emailToUser(user);
     }
 
-    return getEmailHeaders(user, index)
+    return this.parent
+      .then(getEmailHeaders(user, index))
       .then(function (headers) {
+        const unblockCode = headers['x-unblock-code'];
+        if (! unblockCode) {
+          throw new Error('Email does not contain unblock code: ' + headers['x-template-name']);
+        }
         return {
           reportSignInLink: require.toUrl(headers['x-report-signin-link']),
           uid: headers['x-uid'],
-          unblockCode: headers['x-unblock-code']
+          unblockCode: unblockCode
         };
       });
   });
 
-  /**
-   * Get the email headers
-   *
-   * @param {string} user - username or email address
-   * @param {number} index - email index.
-   * @param {object} [options]
-   *   @param {number} [options.maxAttempts] - number of email fetch attempts
-   *   to make. Defaults to 10.
-   * @returns {promise} resolves with the email headers if email is found.
-   */
-  function getEmailHeaders(user, index, options) {
-    if (/@/.test(user)) {
-      user = TestHelpers.emailToUser(user);
-    }
-
-    // restmail takes an index that is 1 based instead of 0 based.
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1, options)()
-      .then(function (emails) {
-        return emails[index].headers;
-      });
-  }
 
   /**
    * Test to ensure an expected email arrives
@@ -521,7 +592,8 @@ define([
    * Defaults to 10.
    */
   const testEmailExpected = thenify(function (user, index, options) {
-    return getEmailHeaders(user, index, options)
+    return this.parent
+      .then(getEmailHeaders(user, index, options))
       .then(function () {
         return true;
       }, function (err) {
@@ -543,7 +615,8 @@ define([
    *   to make. Defaults to 10.
    */
   const noEmailExpected = thenify(function (user, index, options) {
-    return getEmailHeaders(user, index, options)
+    return this.parent
+      .then(getEmailHeaders(user, index, options))
       .then(function () {
         throw new Error('NoEmailExpected');
       }, function (err) {
@@ -681,10 +754,14 @@ define([
     var client = getFxaClient();
     var user = TestHelpers.emailToUser(email);
 
-    return getEmailHeaders(user, emailNumber || 0)
+    return this.parent
+      .then(getEmailHeaders(user, emailNumber || 0))
       .then(function (headers) {
         var uid = headers['x-uid'];
         var code = headers['x-verify-code'];
+        if (! code) {
+          throw new Error('Email does not contain verify code: ' + headers['x-template-name']);
+        }
 
         return client.verifyCode(uid, code);
       });
@@ -702,7 +779,8 @@ define([
 
     var user = TestHelpers.emailToUser(email);
 
-    return getEmailHeaders(user, 0)
+    return this.parent
+      .then(getEmailHeaders(user, 0))
       .then(function (headers) {
         var code = headers['x-recovery-code'];
         // there is no x-recovery-token header, so we have to parse it
@@ -711,7 +789,9 @@ define([
         var search = Url.parse(link).query;
         var queryParams = Querystring.parse(search);
         var token = queryParams.token;
-
+        if (! code) {
+          throw new Error('Email does not contain reset password code: ' + headers['x-template-name']);
+        }
         return client.passwordForgotVerifyCode(code, token);
       })
       .then(function (result) {
@@ -758,17 +838,6 @@ define([
   });
 
   /**
-   * Take a screen shot, write a base64 encoded image to the console
-   */
-  const takeScreenshot = thenify(function () {
-    return this.parent.takeScreenshot()
-      .then(function (buffer) {
-        console.error('Capturing base64 screenshot:');
-        console.error(buffer.toString('base64'));
-      });
-  });
-
-  /**
    * Open `url` in the current tab, wait for `readySelector`
    *
    * @param {String} url - url to open
@@ -796,8 +865,6 @@ define([
               console.log('Error fetching %s, now at %s', url, resultUrl);
             })
           .end()
-
-          .then(takeScreenshot())
 
           .then(function () {
             throw err;
@@ -1705,6 +1772,7 @@ define([
     fillOutSignInUnblock: fillOutSignInUnblock,
     fillOutSignUp: fillOutSignUp,
     focus: focus,
+    getEmail: getEmail,
     getEmailHeaders: getEmailHeaders,
     getFxaClient: getFxaClient,
     getQueryParamValue: getQueryParamValue,
