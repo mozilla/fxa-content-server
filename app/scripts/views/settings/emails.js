@@ -56,7 +56,7 @@ define(function (require, exports, module) {
     },
 
     _hasSecondaryVerifiedEmail () {
-      return this._hasSecondaryEmail() ? this._emails[1].isVerified : false;
+      return this._hasSecondaryEmail() ? this._emails[1].verified : false;
     },
 
     _onDisconnectEmail (event) {

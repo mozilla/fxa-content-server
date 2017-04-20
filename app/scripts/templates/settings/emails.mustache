@@ -23,20 +23,20 @@
                             <li class="email-address">
                                 <div class="address">{{email}}</div>
                                 <div class="details">
-                                    {{#isVerified}}
+                                    {{#verified}}
                                         <div class="verified"> {{#t}}verified{{/t}}</div>
-                                    {{/isVerified}}
-                                    {{^isVerified}}
+                                    {{/verified}}
+                                    {{^verified}}
                                         <div class="not-verified">{{#t}}verification required{{/t}}</div>
-                                    {{/isVerified}}
+                                    {{/verified}}
                                 </div>
                                 <button class="settings-button warning email-disconnect" data-id="{{email}}">
                                     {{#t}}Remove{{/t}}
                                 </button>
                             </li>
-                            {{^isVerified}}
+                            {{^verified}}
                                 <a class="resend" data-id="{{email}}">{{#t}}Didn't arrive and not in spam folder? Resend?{{/t}}</a>
-                            {{/isVerified}}
+                            {{/verified}}
                         {{/isPrimary}}
                     {{/emails}}
                 </ul>
