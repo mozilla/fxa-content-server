@@ -668,12 +668,12 @@ section.modal-panel {
     }
 
     .details {
+        color: $color-grey;
+        font-size: 12px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         width: calc(95% - 95px);
-        color: $color-grey;
-        font-size: 12px;
 
         & .not-verified {
             color: $color-red;
