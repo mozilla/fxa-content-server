@@ -5,16 +5,12 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const Able = require('lib/able');
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const Metrics = require('lib/metrics');
   const Mixin = require('views/mixins/experiment-mixin');
-  const Notifier = require('lib/channels/notifier');
   const sinon = require('sinon');
   const TestTemplate = require('stache!templates/test_template');
-  const User = require('models/user');
   const WindowMock = require('../../../mocks/window');
 
   const View = BaseView.extend({
@@ -27,25 +23,13 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/experiment-mixin', () => {
-    let able;
-    let metrics;
-    let notifier;
-    let user;
     let view;
     let windowMock;
 
     beforeEach(() => {
-      able = new Able();
-      notifier = new Notifier();
-      metrics = new Metrics({ notifier });
-      user = new User();
       windowMock = new WindowMock();
 
       view = new View({
-        able: able,
-        metrics: metrics,
-        notifier: notifier,
-        user: user,
         window: windowMock
       });
     });
@@ -84,32 +68,11 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isInExperiment', () => {
-      it('returns `true` if user is in experiment, `false` if not', () => {
-        sinon.stub(view.experiments, 'isInExperiment', (experimentName, additionalData = {}) => {
-          return !! (experimentName === 'realExperiment' && additionalData.isEligible);
-        });
-
-        assert.isTrue(view.isInExperiment('realExperiment', { isEligible: true }));
-        assert.isFalse(view.isInExperiment('realExperiment', { isEligible: false }));
-        assert.isFalse(view.isInExperiment('realExperiment'));
-        assert.isFalse(view.isInExperiment('fakeExperiment'));
-      });
-    });
-
-    describe('isInExperimentGroup', () => {
-      it('returns `true` if user is in experiment group, `false` otw', () => {
-        sinon.stub(view.experiments, 'isInExperimentGroup', (experimentName, groupName, additionalData = {}) => {
-          return !! (experimentName === 'realExperiment' &&
-                     groupName === 'treatment' &&
-                     additionalData.isEligible);
-        });
-
-        assert.isTrue(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: true }));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment', { isEligible: false }));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'treatment'));
-        assert.isFalse(view.isInExperimentGroup('realExperiment', 'control'));
-      });
+    it('contains delegate functions', () => {
+      assert.isFunction(view.createExperiment);
+      assert.isFunction(view.getExperimentGroup);
+      assert.isFunction(view.isInExperiment);
+      assert.isFunction(view.isInExperimentGroup);
     });
   });
 });

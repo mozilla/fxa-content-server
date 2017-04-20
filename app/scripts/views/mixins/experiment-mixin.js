@@ -30,27 +30,18 @@ define(function (require, exports, module) {
         this.experiments.destroy();
         this.experiments = null;
       }
-    },
-
-    /**
-     * Is the user in an experiment?
-     *
-     * @param {String} experimentName
-     * @return {Boolean}
-     */
-    isInExperiment (...args) {
-      return this.experiments.isInExperiment(...args);
-    },
-
-    /**
-     * Is the user in an experiment group?
-     *
-     * @param {String} experimentName
-     * @param {String} groupName
-     * @return {Boolean}
-     */
-    isInExperimentGroup (...args) {
-      return this.experiments.isInExperimentGroup(...args);
     }
   };
+
+  // Create some delegate methods.
+  [
+    'createExperiment',
+    'getExperimentGroup',
+    'isInExperiment',
+    'isInExperimentGroup'
+  ].forEach((methodName) => {
+    module.exports[methodName] = function (...args) {
+      return this.experiments[methodName](...args);
+    };
+  });
 });
