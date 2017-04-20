@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const Email = require('models/email');
@@ -73,21 +72,11 @@ define(function (require, exports, module) {
     },
 
     _onEmailCreateError (err) {
-      if (AuthErrors.is(err, 'EMAIL_EXISTS')
-        || AuthErrors.is(err, 'EMAIL_DELETE_PRIMARY')
-        || AuthErrors.is(err, 'SESSION_UNVERIFIED')
-        || AuthErrors.is(err, 'EMAIL_PRIMARY_EXISTS')
-        || AuthErrors.is(err, 'EMAIL_VERIFIED_PRIMARY_EXISTS')
-      ) {
-        this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err);
-        return;
-      }
-      // all other errors are handled at a higher level.
-      throw err;
+      this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err);
     },
 
     _fetchEmails () {
-      var account = this.getSignedInAccount();
+      const account = this.getSignedInAccount();
       return account.recoveryEmails()
         .then((emails) => {
           this._emails = emails.map((email) => {
