@@ -73,7 +73,12 @@ define(function (require, exports, module) {
     },
 
     _onEmailCreateError (err) {
-      if (AuthErrors.is(err, 'EMAIL_ALREADY_EXISTS')) {
+      if (AuthErrors.is(err, 'EMAIL_EXISTS')
+        || AuthErrors.is(err, 'EMAIL_DELETE_PRIMARY')
+        || AuthErrors.is(err, 'SESSION_UNVERIFIED')
+        || AuthErrors.is(err, 'EMAIL_PRIMARY_EXISTS')
+        || AuthErrors.is(err, 'EMAIL_VERIFIED_PRIMARY_EXISTS')
+      ) {
         this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err);
         return;
       }
