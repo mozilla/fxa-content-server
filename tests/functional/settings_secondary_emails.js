@@ -25,6 +25,7 @@ define([
   const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   const openPage = FunctionalHelpers.openPage;
   const testElementExists = FunctionalHelpers.testElementExists;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
 
   registerSuite({
@@ -75,7 +76,7 @@ define([
         //.then(testElementExists('.verified'));
     },
 
-    'attempt to add secondary email that is primary to another account': function () {
+    'add secondary email that is primary to another account': function () {
       const unverifiedAccountEmail = TestHelpers.createEmail();
 
       return this.remote
@@ -93,6 +94,41 @@ define([
         .then(type('.new-email', unverifiedAccountEmail))
         .then(click('.email-add:not(.disabled)'));
         // TODO: ERROR VISIBLE: Email already exists
+    },
+
+    'signin and signup with existing secondary email': function () {
+      return this.remote
+        // sign up via the UI, we need a verified session to use secondary email
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#emails .settings-unit-stub button'))
+
+        .then(type('.new-email', secondaryEmail))
+        .then(click('.email-add:not(.disabled)'))
+        .then(testElementExists('.not-verified'))
+        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+
+        .then(click('#emails .settings-unit-stub button'))
+        // TODO: check VERIFIED here
+        .then(click('#signout'))
+        .then(testElementExists('#fxa-signin-header'))
+        // try to signin with the secondary email
+        .then(fillOutSignIn(secondaryEmail, PASSWORD))
+        // TODO: what to do here?
+        // try to signup with the secondary email
+        .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
+        .then(fillOutSignUp(email, PASSWORD));
+    },
+
+    'signin confirmation': function () {
+
+    },
+
+    'reset password': function () {
+
     },
 
   });
