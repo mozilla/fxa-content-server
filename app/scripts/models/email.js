@@ -15,7 +15,7 @@ define(function (require, exports, module) {
     defaults: {
       email: undefined,
       isPrimary: false,
-      isVerified: false
+      verified: false
     },
   });
 
