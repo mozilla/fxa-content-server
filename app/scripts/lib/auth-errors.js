@@ -145,6 +145,26 @@ define(function (require, exports, module) {
       errno: 135,
       message: t('Unable to deliver email')
     },
+    EMAIL_EXISTS: {
+      errno: 136,
+      message: 'This email was already verified by another user'
+    },
+    EMAIL_DELETE_PRIMARY: {
+      errno: 137,
+      message: 'Can not delete primary email'
+    },
+    SESSION_UNVERIFIED: {
+      errno: 138,
+      message: 'Unable to perform action, unverified session'
+    },
+    EMAIL_PRIMARY_EXISTS: {
+      errno: 139,
+      message: 'Secondary email must be different than your account email.'
+    },
+    EMAIL_VERIFIED_PRIMARY_EXISTS: {
+      errno: 140,
+      message: 'This email was already verified by another user'
+    },
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
@@ -382,10 +402,6 @@ define(function (require, exports, module) {
       // an attempt is made to write an account w/o a uid
       // to localStorage.
       message: 'Account has no uid'
-    },
-    EMAIL_ALREADY_EXISTS: {
-      errno: 301,
-      message: 'This email was already verified by another user'
     }
   };
   /*eslint-enable sorting/sort-object-props*/
