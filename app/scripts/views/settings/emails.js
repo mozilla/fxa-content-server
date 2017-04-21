@@ -71,10 +71,6 @@ define(function (require, exports, module) {
         });
     },
 
-    _onEmailCreateError (err) {
-      this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err);
-    },
-
     _fetchEmails () {
       const account = this.getSignedInAccount();
       return account.recoveryEmails()
@@ -107,13 +103,13 @@ define(function (require, exports, module) {
       if (this.isPanelOpen() && newEmail) {
         const account = this.getSignedInAccount();
         return account.recoveryEmailCreate(newEmail)
-          .then(()=> {
+          .then(() => {
             this.displaySuccess(t('Verification emailed to ') + newEmail, {
               closePanel: false
             });
             this.render();
           })
-          .fail((err) => this._onEmailCreateError(err));
+          .fail((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
       }
     },
   });
