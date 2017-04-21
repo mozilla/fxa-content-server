@@ -820,6 +820,7 @@ define(function (require, exports, module) {
               // if you ever need the tokenId just add it here with a different name
               item.id = item.deviceId;
               item.name = item.deviceName;
+              item.type = item.deviceType;
             } else {
               item.clientType = Constants.CLIENT_TYPE_WEB_SESSION;
               item.isWebSession = true;
@@ -1019,13 +1020,16 @@ define(function (require, exports, module) {
     /**
      * Check whether SMS is enabled for the current account.
      *
-     * @returns {Promise} resolves to `true` if SMS is enabled,
-     *  `false` otw.
+     * @param {Object} [options={}] options
+     *   @param {Boolean} [options.country]  country code to force for testing.
+     * @returns {Promise} resolves to an object with:
+     *   * {Boolean} ok - true if user can send an SMS
+     *   * {String} country - user's country
      */
     smsStatus() {
       const sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p(false);
+        return p({ ok: false });
       }
 
       return this._fxaClient.smsStatus(sessionToken);
