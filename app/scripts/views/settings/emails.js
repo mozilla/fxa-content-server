@@ -48,7 +48,22 @@ define(function (require, exports, module) {
     },
 
     beforeRender () {
-      return this._fetchEmails();
+      // Only show this view on verified session
+      return this._isSecondaryEmailEnabled()
+        .then(() => {
+          return this._fetchEmails();
+        });
+    },
+
+    _isSecondaryEmailEnabled () {
+      // Only show secondary email panel if the user is in a verified session.
+      const account = this.getSignedInAccount();
+      return account.sessionVerificationStatus()
+        .then((res) => {
+          if (! res.sessionVerified) {
+            return this.remove();
+          }
+        });
     },
 
     _hasSecondaryEmail () {

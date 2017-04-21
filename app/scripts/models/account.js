@@ -263,6 +263,43 @@ define(function (require, exports, module) {
     },
 
     /**
+     * This function simply returns the session status of the user. It differs
+     * from `sessionStatus` function above because it is not used to determine
+     * which view to take a user after the login. This function also does not
+     * have the restriction to be backwards compatible to legacy clients.
+     *
+     * @returns {Promise} resolves with the account's current session
+     * information if session is valid. Rejects with an INVALID_TOKEN error
+     * if session is invalid.
+     *
+     * Session information:
+     * {
+     *   email: <canonicalized email>,
+     *   verified: <boolean>
+     *   emailVerified: <boolean>
+     *   sessionVerified: <boolean>
+     * }
+     */
+    sessionVerificationStatus () {
+      const sessionToken = this.get('sessionToken');
+      if (! sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return this._fxaClient.sessionVerificationStatus(sessionToken)
+        .then((resp) => {
+          return resp;
+        }, (err) => {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            // sessionToken is no longer valid, kill it.
+            this.unset('sessionToken');
+          }
+
+          throw err;
+        });
+    },
+
+    /**
      * Wait for the session to become verified.
      *
      * @param {Number} pollIntervalInMs

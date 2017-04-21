@@ -565,6 +565,21 @@ define(function (require, exports, module) {
         });
     }),
 
+    /**
+     * This function gets the status of the user's sessionToken.
+     * It differs from `recoveryEmailStatus` because it also returns
+     * `sessionVerified`, which gives the true state of the sessionToken.
+     *
+     * Note that a session is considered verified if it has gone through
+     * an email verification loop.
+     *
+     * @param {String} sessionToken
+     * @returns {Promise} resolves with response when complete.
+     */
+    sessionVerificationStatus: withClient(function (client, sessionToken) {
+      return client.recoveryEmailStatus(sessionToken);
+    }),
+
     accountKeys: withClient((client, keyFetchToken, unwrapBKey) => {
       return client.accountKeys(keyFetchToken, unwrapBKey);
     }),
