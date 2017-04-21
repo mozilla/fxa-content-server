@@ -29,7 +29,8 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
-    require('./routes/get-verify-email')(),
+    // Disable server verification for now due to issues with customs
+    //require('./routes/get-verify-email')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(config),
@@ -37,6 +38,7 @@ module.exports = function (config, i18n) {
     require('./routes/get-client.json')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-fxa-client-configuration')(config),
+    require('./routes/get-lbheartbeat')(),
     require('./routes/get-openid-configuration')(config),
     require('./routes/get-metrics-errors')(),
     require('./routes/get-version.json'),

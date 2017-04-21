@@ -1640,6 +1640,7 @@ define(function (require, exports, module) {
           return p([
             {
               deviceName: 'alpha',
+              deviceType: 'desktop',
               id: 'device-1',
               isCurrentDevice: false,
               isDevice: true
@@ -1651,6 +1652,7 @@ define(function (require, exports, module) {
             },
             {
               deviceName: 'beta',
+              deviceType: 'mobile',
               id: 'device-2',
               isCurrentDevice: true,
               isDevice: true
@@ -1666,6 +1668,8 @@ define(function (require, exports, module) {
           assert.equal(result.length, 3);
           assert.equal(result[0].clientType, 'device');
           assert.equal(result[0].name, 'alpha');
+          assert.equal(result[0].type, 'desktop');
+          assert.equal(result[0].deviceType, 'desktop');
           assert.ok(result[0].isDevice);
           assert.notOk(result[0].isWebSession);
 
@@ -1676,6 +1680,8 @@ define(function (require, exports, module) {
 
           assert.equal(result[2].clientType, 'device');
           assert.equal(result[2].name, 'beta');
+          assert.equal(result[2].type, 'mobile');
+          assert.equal(result[2].deviceType, 'mobile');
           assert.ok(result[2].isDevice);
           assert.notOk(result[2].isWebSession);
         });
@@ -2221,7 +2227,10 @@ define(function (require, exports, module) {
 
     describe('smsStatus', () => {
       beforeEach(() => {
-        sinon.stub(fxaClient, 'smsStatus', () => p(true));
+        sinon.stub(fxaClient, 'smsStatus', () => p({
+          country: 'GB',
+          ok: true
+        }));
       });
 
       describe('sessionToken not available', () => {
@@ -2230,7 +2239,8 @@ define(function (require, exports, module) {
 
           return account.smsStatus()
             .then((response) => {
-              assert.isFalse(response);
+              assert.isFalse(response.ok);
+
               assert.isFalse(fxaClient.smsStatus.called);
             });
         });
@@ -2240,12 +2250,15 @@ define(function (require, exports, module) {
         it('delegates to the fxa-client, returns response', () => {
           account.set('sessionToken', 'sessionToken');
 
+          const smsStatusOptions = { country: 'GB' };
           return account.smsStatus()
             .then((response) => {
-              assert.isTrue(response);
+              assert.equal(response.country, 'GB');
+              assert.isTrue(response.ok);
 
               assert.isTrue(fxaClient.smsStatus.calledOnce);
-              assert.isTrue(fxaClient.smsStatus.calledWith('sessionToken'));
+              assert.isTrue(
+                fxaClient.smsStatus.calledWith('sessionToken'), smsStatusOptions);
             });
         });
       });
