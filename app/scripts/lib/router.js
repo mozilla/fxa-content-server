@@ -90,6 +90,7 @@ define(function (require, exports, module) {
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
+      'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
       'settings(/)': createViewHandler(SettingsView),
       'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
       'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
@@ -114,7 +115,8 @@ define(function (require, exports, module) {
       'sms(/)': createViewHandler(SmsSendView),
       'sms/sent(/)': createViewHandler(SmsSentView),
       'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
-      'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
+      'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
+      'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
     },
 
     initialize (options = {}) {
