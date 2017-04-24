@@ -6,28 +6,39 @@ define(function (require, exports, module) {
   'use strict';
 
   const AvatarMixin = require('views/mixins/avatar-mixin');
-  const BaseView = require('views/base');
   const Cocktail = require('cocktail');
   const FloatingPlaceholderMixin = require('views/mixins/floating-placeholder-mixin');
   const FormView = require('views/form');
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
+  const { t } = require('views/base');
   const Template = require('stache!templates/settings/display_name');
-
-  var t = BaseView.t;
 
   var View = FormView.extend({
     template: Template,
     className: 'display-name',
     viewName: 'settings.display-name',
 
+    initialize () {
+      const account = this.getSignedInAccount();
+      // To minimize flicker after updating the displayName,
+      // fetchProfile is not called in beforeRender. The latency
+      // in the XHR request made it so the user submit the name,
+      // the panel closed, and the button would only update a
+      // second or two later. Instead, call fetchProfile here,
+      // then re-do the initial render once the profile is fetched.
+      // When the user updates the displayName, `onProfileUpdate`
+      // will be called immediately, causing an immediate re-render.
+      account.once('change:displayName', () => this.render());
+      return account.fetchProfile()
+        .then(() => this.user.setAccount(account));
+    },
+
     onProfileUpdate () {
       this.render();
     },
 
     context () {
-      return {
-        displayName: this._displayName
-      };
+      return this.getSignedInAccount().pick('displayName');
     },
 
     events: {
@@ -36,15 +47,6 @@ define(function (require, exports, module) {
 
     onDisplayNameFocus () {
       this.isValidStart();
-    },
-
-    beforeRender () {
-      var account = this.getSignedInAccount();
-      return account.fetchProfile()
-        .then(() => {
-          this.user.setAccount(account);
-          this._displayName = account.get('displayName');
-        });
     },
 
     isValidStart () {
@@ -56,13 +58,12 @@ define(function (require, exports, module) {
     },
 
     submit () {
-      var account = this.getSignedInAccount();
-      var displayName = this.getElementValue('input.display-name').trim();
+      const account = this.getSignedInAccount();
+      const displayName = this.getElementValue('input.display-name').trim();
 
-      return account.postDisplayName(displayName)
+      return this.updateDisplayName(account, displayName)
         .then(() => {
           this.logViewEvent('success');
-          this.updateDisplayName(displayName);
           this.displaySuccess(t('Display name updated'));
           this.navigate('settings');
         });

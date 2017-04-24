@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
@@ -17,18 +17,22 @@ define(function (require, exports, module) {
   const User = require('models/user');
   const View = require('views/settings/display_name');
 
-  var assert = chai.assert;
+  const DISPLAY_NAME = 'joe';
 
-  describe('views/settings/display_name', function () {
-    var view;
-    var metrics;
-    var user;
-    var email;
-    var account;
-    var relier;
-    var notifier;
+  describe('views/settings/display_name', () => {
+    let account;
+    let email;
+    let initialName;
+    let metrics;
+    let notifier;
+    let relier;
+    let sandbox;
+    let user;
+    let view;
 
-    beforeEach(function () {
+    beforeEach(() => {
+      sandbox = sinon.sandbox.create();
+
       email = TestHelpers.createEmail();
       user = new User();
       relier = new Relier();
@@ -40,18 +44,30 @@ define(function (require, exports, module) {
         uid: 'uid',
         verified: true
       });
+      initialName = DISPLAY_NAME;
+
+      sandbox.stub(View.prototype, 'getSignedInAccount', () => account);
+      sandbox.stub(View.prototype, 'checkAuthorization', () => p(true));
     });
 
-    afterEach(function () {
+    afterEach(() => {
       metrics.destroy();
 
       view.remove();
       view.destroy();
+      sandbox.restore();
 
       view = metrics = null;
     });
 
     function initView () {
+      sandbox.stub(account, 'fetchProfile', () => {
+        // synthesize the displayName being set on profile fetch
+        account.set('displayName', initialName);
+        return p();
+      });
+      sandbox.stub(user, 'setAccount', () => p());
+
       view = new View({
         metrics: metrics,
         notifier: notifier,
@@ -59,53 +75,31 @@ define(function (require, exports, module) {
         user: user
       });
 
-      sinon.stub(view, 'getSignedInAccount', function () {
-        return account;
-      });
-
-      sinon.stub(view, 'checkAuthorization', function () {
-        return p(true);
-      });
-      sinon.stub(account, 'fetchProfile', function () {
-        return p();
-      });
-      sinon.stub(user, 'setAccount', function () {
-        return p();
-      });
-
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     }
 
-    describe('renders', function () {
-      it('redirects to /settings/avatar/gravatar if permissions already granted', function () {
-        var name = 'joe cool';
-        account.set('displayName', name);
-
+    describe('rendering', () => {
+      it('renders as expected', () => {
         return initView()
-          .then(function () {
-            assert.isTrue(account.fetchProfile.called);
+          .then(() => {
+            assert.isTrue(account.fetchProfile.calledOnce);
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.equal(view.getElementValue('input.display-name'), name);
+            assert.equal(view.getElementValue('input.display-name'), DISPLAY_NAME);
           });
       });
 
-      it('onProfileUpdate', function () {
+      it('onProfileUpdate', () => {
         return initView()
-          .then(function () {
-            sinon.stub(view, 'render', function () {
-              return p();
-            });
+          .then(() => {
+            sandbox.stub(view, 'render', () => p());
             view.onProfileUpdate();
-            assert.isTrue(view.render.called);
+            assert.isTrue(view.render.calledOnce);
           });
       });
 
-      it('has floating labels on input', function () {
+      it('has floating labels on input', () => {
         return initView()
-          .then(function () {
+          .then(() => {
             view.$('.display-name').val('a');
             var event = new $.Event('input');
             event.which = KeyCodes.ENTER;
@@ -117,32 +111,30 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('with session', function () {
-      it('has no display name set', function () {
-        account.set('displayName', null);
+    describe('with session', () => {
+      it('has no display name set', () => {
+        initialName = null;
         return initView()
-          .then(function () {
+          .then(() => {
             assert.equal(view.$('.add-button').length, 1);
             assert.equal(view.$('.settings-unit-toggle.primary').length, 1);
           });
       });
 
-      it('has a display name set', function () {
-        account.set('displayName', 'joe');
+      it('has a display name set', () => {
         return initView()
-          .then(function () {
+          .then(() => {
             assert.equal(view.$('.change-button').length, 1);
             assert.equal(view.$('.settings-unit-toggle.secondary').length, 1);
           });
       });
     });
 
-    describe('isValidStart', function () {
-      it('validates the display name field for changes', function () {
-        account.set('displayName', 'joe');
+    describe('isValidStart', () => {
+      it('validates the display name field for changes', () => {
         return initView()
-          .then(function () {
-            view.$('.display-name').val('joe');
+          .then(() => {
+            view.$('.display-name').val(DISPLAY_NAME);
             assert.equal(view.isValidStart(), false, 'name did not change');
 
             view.$('.display-name').val('joe change');
@@ -150,10 +142,10 @@ define(function (require, exports, module) {
           });
       });
 
-      it('validates the display name field when it is not set', function () {
-        account.set('displayName', null);
+      it('validates the display name field when it is not set', () => {
+        initialName = null;
         return initView()
-          .then(function () {
+          .then(() => {
             view.$('.display-name').val('');
             assert.equal(view.isValidStart(), false, 'name did not change');
 
@@ -163,39 +155,37 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('submit', function () {
-      it('submits correctly', function () {
-        var name = '  joe cool  ';
-        sinon.stub(account, 'postDisplayName', function () {
-          return p();
-        });
+    describe('submit', () => {
+      it('submits correctly', () => {
+        const name = `  ${DISPLAY_NAME}  `;
 
         return initView()
-          .then(function () {
-            sinon.stub(view, 'updateDisplayName', function () {
-              return p();
-            });
-            sinon.stub(view, 'displaySuccess', function () {
-              return p();
-            });
-            sinon.spy(view, 'render');
-            sinon.spy(view, 'navigate');
+          .then(() => {
+            sandbox.spy(view, 'logViewEvent');
+            sandbox.spy(view, 'navigate');
+            sandbox.spy(view, 'render');
+            sandbox.spy(view, 'updateDisplayName');
+            sandbox.stub(view, 'displaySuccess', () => p());
+            sandbox.stub(account, 'postDisplayName', () => p());
 
             view.$('input.display-name').val(name);
             return view.submit();
-          })
-          .then(function () {
-            var expectedName = name.trim();
-            assert.isTrue(account.postDisplayName.calledWith(expectedName));
-            assert.isTrue(view.updateDisplayName.calledWith(expectedName));
-            assert.isTrue(view.displaySuccess.called);
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'settings.display-name.success'));
+          }).then(() => {
+            var expectedName = DISPLAY_NAME.trim();
+            assert.isTrue(view.updateDisplayName.calledOnce);
+            assert.isTrue(view.updateDisplayName.calledWith(account, expectedName));
+
+            assert.isTrue(view.displaySuccess.calledOnce);
+
+            assert.isTrue(view.logViewEvent.calledOnce);
+            assert.isTrue(view.logViewEvent.calledWith('success'));
+
+            assert.isTrue(view.navigate.calledOnce);
             assert.isTrue(view.navigate.calledWith('settings'));
+
+            assert.isTrue(view.render.calledOnce);
           });
       });
-
     });
-
   });
 });

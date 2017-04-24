@@ -2263,5 +2263,17 @@ define(function (require, exports, module) {
         });
       });
     });
+
+    describe('updateDisplayName', () => {
+      it('sets the displayName, saves to the backend', () => {
+        sinon.stub(account, 'postDisplayName', () => p());
+
+        return account.updateDisplayName('new name')
+          .then(() => {
+            assert.equal(account.get('displayName'), 'new name');
+            assert.isTrue(account.postDisplayName.calledOnce);
+          });
+      });
+    });
   });
 });
