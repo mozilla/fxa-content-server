@@ -78,8 +78,7 @@ define(function (require, exports, module) {
         reminder: verificationInfo.get('reminder'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         serverVerificationStatus: this.getSearchParam('server_verification') || null,
-        service: this.relier.get('service'),
-        type: verificationInfo.get('type')
+        service: this.relier.get('service')
       };
 
       return this.user.completeAccountSignUp(account, code, options)
