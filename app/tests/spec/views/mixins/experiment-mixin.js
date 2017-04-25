@@ -23,13 +23,31 @@ define(function (require, exports, module) {
   );
 
   describe('views/mixins/experiment-mixin', () => {
+    let experiments;
+    let notifier;
     let view;
     let windowMock;
 
     beforeEach(() => {
+      // pass in an experimentsMock otherwise a new
+      // ExperimentInterface is created before
+      // a spy can be added to `chooseExperiments`
+      experiments = {
+        chooseExperiments: sinon.spy(),
+        createExperiment: sinon.spy(() => {
+          return {};
+        }),
+        destroy () {}
+      };
+
+      notifier = {
+        trigger: sinon.spy()
+      };
       windowMock = new WindowMock();
 
       view = new View({
+        experiments,
+        notifier,
         window: windowMock
       });
     });
@@ -40,22 +58,9 @@ define(function (require, exports, module) {
 
     describe('initialize', () => {
       it('chooses experiments', () => {
-        // pass in an experimentsMock otherwise a new
-        // ExperimentInterface is created before
-        // a spy can be added to `chooseExperiments`
-        const experimentsMock = {
-          chooseExperiments: sinon.spy(),
-          destroy () {}
-        };
-
-        view.initialize({
-          experiments: experimentsMock
-        });
-
-        assert.isTrue(experimentsMock.chooseExperiments.calledOnce);
+        assert.isTrue(experiments.chooseExperiments.calledOnce);
       });
     });
-
 
     describe('destroy', () => {
       it('destroys the experiments instance', () => {
@@ -68,8 +73,18 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('createExperiment', () => {
+      it('forces the flow model to initialize, then creates the experiment', () => {
+        assert.ok(view.createExperiment('experimentName', 'control'));
+
+        assert.isTrue(notifier.trigger.calledOnce);
+        assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+        assert.isTrue(experiments.createExperiment.calledOnce);
+        assert.isTrue(experiments.createExperiment.calledWith('experimentName', 'control'));
+      });
+    });
+
     it('contains delegate functions', () => {
-      assert.isFunction(view.createExperiment);
       assert.isFunction(view.getExperimentGroup);
       assert.isFunction(view.isInExperiment);
       assert.isFunction(view.isInExperimentGroup);
