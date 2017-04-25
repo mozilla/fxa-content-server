@@ -27,6 +27,7 @@ define(function (require, exports, module) {
   const CookiesDisabledView = require('../views/cookies_disabled');
   const DeleteAccountView = require('../views/settings/delete_account');
   const DisplayNameView = require('../views/settings/display_name');
+  const EmailsView = require('../views/settings/emails');
   const ForceAuthView = require('../views/force_auth');
   const GravatarPermissionsView = require('../views/settings/gravatar_permissions');
   const IndexView = require('../views/index');
@@ -91,6 +92,7 @@ define(function (require, exports, module) {
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
+      'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
       'settings(/)': createViewHandler(SettingsView),
       'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
       'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
@@ -103,6 +105,7 @@ define(function (require, exports, module) {
       'settings/communication_preferences(/)': createChildViewHandler(CommunicationPreferencesView, SettingsView),
       'settings/delete_account(/)': createChildViewHandler(DeleteAccountView, SettingsView),
       'settings/display_name(/)': createChildViewHandler(DisplayNameView, SettingsView),
+      'settings/emails(/)': createChildViewHandler(EmailsView, SettingsView),
       'signin(/)': createViewHandler(SignInView),
       'signin_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.SIGN_IN }),
       'signin_permissions(/)': createViewHandler(PermissionsView, { type: VerificationReasons.SIGN_IN }),
@@ -116,7 +119,8 @@ define(function (require, exports, module) {
       'sms(/)': createViewHandler(SmsSendView),
       'sms/sent(/)': createViewHandler(SmsSentView),
       'sms/why(/)': createChildViewHandler(WhyConnectAnotherDeviceView, SmsSendView),
-      'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP })
+      'verify_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_UP }),
+      'verify_secondary_email(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED })
     },
 
     initialize (options = {}) {

@@ -199,7 +199,7 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, serverVerificationStatus: null, service: validService});
+          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: null, serverVerificationStatus: null, service: validService});
         });
       });
 
@@ -218,7 +218,7 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, serverVerificationStatus: null, service: null});
+          assert.deepEqual(args[1], {reminder: validReminder, secondaryEmailVerified: null, serverVerificationStatus: null, service: null});
         });
       });
 
@@ -238,7 +238,7 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: validReminder, serverVerificationStatus: null, service: validService});
+          assert.deepEqual(args[1], {reminder: validReminder, secondaryEmailVerified: null, serverVerificationStatus: null, service: validService});
         });
       });
 
@@ -258,7 +258,27 @@ define(function (require, exports, module) {
           var args = account.verifySignUp.getCall(0).args;
           assert.isTrue(account.verifySignUp.called);
           assert.ok(args[0]);
-          assert.deepEqual(args[1], {reminder: null, serverVerificationStatus: 'verified', service: null});
+          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: null, serverVerificationStatus: 'verified', service: null});
+        });
+      });
+
+      describe('if secondary_email_verified is in the url', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
+            '&secondary_email_verified=some@email.com';
+          relier = new Relier({}, {
+            window: windowMock
+          });
+          relier.fetch();
+          initView(account);
+          return view.render();
+        });
+
+        it('attempt to pass secondary_email_verified to verifySignUp', function () {
+          var args = account.verifySignUp.getCall(0).args;
+          assert.isTrue(account.verifySignUp.called);
+          assert.ok(args[0]);
+          assert.deepEqual(args[1], {reminder: null, secondaryEmailVerified: 'some@email.com', serverVerificationStatus: null, service: null});
         });
       });
 
