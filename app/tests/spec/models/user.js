@@ -88,7 +88,7 @@ define(function (require, exports, module) {
 
     it('isSyncAccount', function () {
       const account = user.initAccount({
-        email: 'email',
+        email: EMAIL,
         sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC
       });
 
@@ -96,29 +96,29 @@ define(function (require, exports, module) {
     });
 
     it('getAccountByUid', function () {
-      return user.setAccount({ email: 'email', uid: 'uid' })
+      return user.setAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
 
     it('getAccountByEmail', function () {
-      return user.setAccount({ email: 'email', uid: 'uid' })
+      return user.setAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
-          assert.equal(user.getAccountByEmail('email').get('email'), 'email');
+          assert.equal(user.getAccountByEmail(EMAIL).get('email'), EMAIL);
         });
     });
 
     it('getAccountByEmail gets the last added if there are multiple', function () {
-      return user.setAccount({ email: 'email', uid: 'uid' })
+      return user.setAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
-          return user.setAccount({ email: 'email', uid: 'uid2' });
+          return user.setAccount({ email: EMAIL, uid: 'uid2' });
         })
         .then(function () {
-          return user.setAccount({ email: 'email', uid: 'uid3' });
+          return user.setAccount({ email: EMAIL, uid: 'uid3' });
         })
         .then(function () {
-          assert.equal(user.getAccountByEmail('email').get('uid'), 'uid3');
+          assert.equal(user.getAccountByEmail(EMAIL).get('uid'), 'uid3');
         });
     });
 
@@ -153,7 +153,7 @@ define(function (require, exports, module) {
       });
 
       it('propagates errors from the Account', () => {
-        const account = user.initAccount({ email: 'email', uid: 'uid' });
+        const account = user.initAccount({ email: EMAIL, uid: 'uid' });
         sinon.stub(user, 'getSignedInAccount', () => account);
         sinon.stub(account, 'sessionStatus', () => p.reject(AuthErrors.toError('INVALID_TOKEN')));
 
@@ -166,7 +166,7 @@ define(function (require, exports, module) {
 
     it('getSignedInAccount', function () {
       const account = user.initAccount({
-        email: 'email',
+        email: EMAIL,
         uid: 'uid'
       });
       return user.setSignedInAccount(account)
@@ -177,12 +177,12 @@ define(function (require, exports, module) {
 
     it('getChooserAccount', function () {
       return user.setSignedInAccount({
-        email: 'email',
+        email: EMAIL,
         sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
         uid: 'uid2'
       })
       .then(function () {
-        return user.setSignedInAccount({ email: 'email', uid: 'uid' });
+        return user.setSignedInAccount({ email: EMAIL, uid: 'uid' });
       })
       .then(function () {
         assert.equal(user.getChooserAccount().get('uid'), 'uid2');
@@ -192,7 +192,7 @@ define(function (require, exports, module) {
     it('clearSignedInAccount', function () {
       sinon.spy(notifier, 'triggerRemote');
       const uid = createUid();
-      return user.setSignedInAccount({ email: 'email', uid })
+      return user.setSignedInAccount({ email: EMAIL, uid })
         .then(function () {
           user.clearSignedInAccount();
           assert.isTrue(user.getSignedInAccount().isDefault());
@@ -205,9 +205,9 @@ define(function (require, exports, module) {
     });
 
     it('removeAllAccounts', function () {
-      return user.setAccount({ email: 'email', uid: 'uid' })
+      return user.setAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
-          return user.setAccount({ email: 'email', uid: 'uid2' });
+          return user.setAccount({ email: EMAIL, uid: 'uid2' });
         })
         .then(function () {
           user.removeAllAccounts();
@@ -217,7 +217,7 @@ define(function (require, exports, module) {
     });
 
     it('removeAccount', function () {
-      var account = { email: 'email', uid: createUid() };
+      var account = { email: EMAIL, uid: createUid() };
       return user.setSignedInAccount(account)
         .then(function () {
           user.removeAccount(account);
@@ -263,7 +263,7 @@ define(function (require, exports, module) {
     });
 
     it('setAccount', function () {
-      return user.setAccount({ email: 'email', uid: 'uid' });
+      return user.setAccount({ email: EMAIL, uid: 'uid' });
     });
 
     describe('_persistAccount', () => {
@@ -313,7 +313,7 @@ define(function (require, exports, module) {
 
     it('setSignedInAccount', function () {
       sinon.spy(notifier, 'triggerRemote');
-      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+      return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
           assert.equal(notifier.triggerRemote.callCount, 0);
@@ -323,7 +323,7 @@ define(function (require, exports, module) {
 
     describe('in memory caching of signed in account', function () {
       it('getSignedInAccount returns same instance from setSignedInAccount', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: EMAIL, uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), account);
@@ -331,9 +331,9 @@ define(function (require, exports, module) {
       });
 
       it('account is not cached in memory if setAccount fails', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
-        return user.setSignedInAccount({ email: 'email', uid: 'foo' })
+        return user.setSignedInAccount({ email: EMAIL, uid: 'foo' })
           .then(function () {
             sinon.stub(user, 'setAccount', function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
@@ -347,21 +347,21 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount returns same instance when called multiple times', function () {
-        return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+        return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), user.getSignedInAccount());
           });
       });
 
       it('getSignedInAccount returns same instance as getChooserAccount', function () {
-        return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+        return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
           .then(function () {
             assert.strictEqual(user.getSignedInAccount(), user.getChooserAccount());
           });
       });
 
       it('getSignedInAccount does not return previously cached account after clearSignedInAccount', function () {
-        var account = user.initAccount({ email: 'email', uid: createUid() });
+        var account = user.initAccount({ email: EMAIL, uid: createUid() });
         return user.setSignedInAccount(account)
           .then(function () {
             user.clearSignedInAccount();
@@ -370,7 +370,7 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount does not return previously cached account after removeAccount', function () {
-        var account = user.initAccount({ email: 'email', uid: createUid() });
+        var account = user.initAccount({ email: EMAIL, uid: createUid() });
         return user.setSignedInAccount(account)
           .then(function () {
             user.removeAccount(account);
@@ -379,7 +379,7 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount does not return previously cached account after removeAllAccounts', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: EMAIL, uid: 'uid' });
         return user.setSignedInAccount(account)
           .then(function () {
             user.removeAllAccounts();
@@ -389,11 +389,11 @@ define(function (require, exports, module) {
 
       it('getSignedInAccount does not return previously cached account after setSignedInAccountByUid with different account uid', function () {
         var uid = 'abc123';
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
         return user.setSignedInAccount(account)
           .then(function () {
-            return user.setAccount({ email: 'email', uid: uid })
+            return user.setAccount({ email: EMAIL, uid: uid })
               .then(function () {
                 user.setSignedInAccountByUid(uid);
                 assert.isFalse(user.getSignedInAccount() === account);
@@ -402,7 +402,7 @@ define(function (require, exports, module) {
       });
 
       it('getSignedInAccount returns previously cached account after setSignedInAccountByUid with same account uid', function () {
-        var account = user.initAccount({ email: 'email', uid: 'uid' });
+        var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
         return user.setSignedInAccount(account)
           .then(function () {
@@ -415,9 +415,9 @@ define(function (require, exports, module) {
     it('setSignedInAccountByUid works if account is already cached', function () {
       var uid = 'abc123';
       sinon.spy(notifier, 'triggerRemote');
-      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+      return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
-          return user.setAccount({ email: 'email', uid: uid })
+          return user.setAccount({ email: EMAIL, uid: uid })
             .then(function () {
               user.setSignedInAccountByUid(uid);
               assert.equal(user.getSignedInAccount().get('uid'), uid);
@@ -429,7 +429,7 @@ define(function (require, exports, module) {
     it('setSignedInAccountByUid does nothing if account is not cached', function () {
       var uid = 'abc123';
 
-      return user.setSignedInAccount({ email: 'email', uid: 'uid' })
+      return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
           user.setSignedInAccountByUid(uid);
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
@@ -750,7 +750,7 @@ define(function (require, exports, module) {
           });
 
           var oldAccount = user.initAccount({
-            email: 'email',
+            email: EMAIL,
             permissions: { foo: { bar: true } },
             uid: 'uid2'
           });
@@ -802,7 +802,7 @@ define(function (require, exports, module) {
       var relierMock = {};
 
       beforeEach(function () {
-        account = user.initAccount({ email: 'email', uid: createUid() });
+        account = user.initAccount({ email: EMAIL, uid: createUid() });
         sinon.stub(account, 'signUp', function () {
           return p();
         });
@@ -834,7 +834,7 @@ define(function (require, exports, module) {
 
       beforeEach(() => {
         sinon.stub(user, 'removeAccount', () => {});
-        account = user.initAccount({ email: 'email', uid: createUid() });
+        account = user.initAccount({ email: EMAIL, uid: createUid() });
       });
 
       describe('request completes as expected', () => {
@@ -1025,7 +1025,7 @@ define(function (require, exports, module) {
 
       beforeEach(function () {
         account = user.initAccount({
-          email: 'email',
+          email: EMAIL,
           sessionToken: 'sessionToken',
           sessionTokenContext: 'sessionTokenContext',
           uid: createUid()
