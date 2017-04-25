@@ -78,10 +78,7 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
@@ -103,8 +100,8 @@ define(function (require, exports, module) {
           });
 
           it('draws the correct template', function () {
-            assert.lengthOf($('#back'), 0);
-            assert.lengthOf($('#fxa-confirm-header'), 1);
+            assert.lengthOf(view.$('#back'), 0);
+            assert.lengthOf(view.$('#fxa-confirm-header'), 1);
           });
         });
 
@@ -116,8 +113,8 @@ define(function (require, exports, module) {
           });
 
           it('draws the correct template', function () {
-            assert.lengthOf($('#back'), 1);
-            assert.lengthOf($('#fxa-confirm-signin-header'), 1);
+            assert.lengthOf(view.$('#back'), 1);
+            assert.lengthOf(view.$('#fxa-confirm-signin-header'), 1);
           });
         });
       });
@@ -152,7 +149,7 @@ define(function (require, exports, module) {
 
         describe('sign in', function () {
           beforeEach(function () {
-            model.set('type', VerificationReasons.SIGN_IN);
+            model.set('type', SIGNIN_REASON);
 
             return view.render();
           });
@@ -219,6 +216,7 @@ define(function (require, exports, module) {
         sinon.stub(broker, expectedBrokerCall, () => p());
         sinon.stub(user, 'setAccount', () => p());
         sinon.stub(view, 'setTimeout', (callback) => callback());
+        sinon.stub(view, '_navigateToConfirmedScreen', () => p());
 
         return view.afterVisible()
           .then(function () {
@@ -228,6 +226,7 @@ define(function (require, exports, module) {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
             assert.isTrue(broker[expectedBrokerCall].calledWith(account));
+            assert.isTrue(view._navigateToConfirmedScreen.calledOnce);
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
             assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
@@ -366,35 +365,16 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('complete', function () {
+    describe('_navigateToConfirmedScreen', function () {
       beforeEach(function () {
-        sinon.stub(account, 'waitForSessionVerification', () => p());
-        sinon.stub(user, 'setAccount', () => p());
-        sinon.stub(view, 'navigate', function (page) {
-          // do nothing
-        });
-      });
-
-      it('direct access redirects to `/settings`', function () {
-        sinon.stub(relier, 'isDirectAccess', function () {
-          return true;
-        });
-
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
-          });
+        sinon.stub(view, 'navigate', () => {});
       });
 
       describe('signup', function () {
         beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
           model.set('type', SIGNUP_REASON);
 
-          return view.afterVisible();
+          return view._navigateToConfirmedScreen();
         });
 
         it('redirects to `signup_confirmed`', function () {
@@ -404,16 +384,12 @@ define(function (require, exports, module) {
 
       describe('signin', function () {
         beforeEach(function () {
-          sinon.stub(relier, 'isDirectAccess', function () {
-            return false;
-          });
-
           model.set('type', SIGNIN_REASON);
 
-          return view.afterVisible();
+          return view._navigateToConfirmedScreen();
         });
 
-        it('redirects to `/signin_confirmed`', function () {
+        it('redirects to `signin_confirmed`', function () {
           assert.isTrue(view.navigate.calledWith('signin_confirmed'));
         });
       });
@@ -421,7 +397,7 @@ define(function (require, exports, module) {
 
     describe('openWebmail feature', function () {
       it('it is not visible in basic contexts', function () {
-        assert.notOk($('#open-webmail').length);
+        assert.notOk(view.$('#open-webmail').length);
       });
 
       it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
@@ -452,7 +428,6 @@ define(function (require, exports, module) {
 
         return view.render()
           .then(function () {
-            $('#container').html(view.el);
             assert.lengthOf(view.$('#open-webmail'), 1);
           });
       });

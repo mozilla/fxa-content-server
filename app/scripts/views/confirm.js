@@ -21,8 +21,6 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/confirm');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  const t = BaseView.t;
-
   const proto = BaseView.prototype;
   const View = BaseView.extend({
     template: Template,
@@ -114,16 +112,7 @@ define(function (require, exports, module) {
 
           return this.invokeBrokerMethod(brokerMethod, this.getAccount());
         })
-        .then(() => {
-          // the user is definitely authenticated here.
-          if (this.relier.isDirectAccess()) {
-            this.navigate('settings', {
-              success: t('Account verified successfully')
-            });
-          } else {
-            return this._navigateToConfirmedScreen();
-          }
-        })
+        .then(() => this._navigateToConfirmedScreen())
         .fail((err) => {
           // The user's email may have bounced because it was invalid.
           // Redirect them to the sign up page with an error notice.

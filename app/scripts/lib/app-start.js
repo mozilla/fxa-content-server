@@ -601,8 +601,19 @@ define(function (require, exports, module) {
       // was used to sign up to allow the verification tab to have
       // the same capabilities as the signup tab.
       // If verifying in a separate browser, fall back to the default context.
-      const verificationInfo = this._getSameBrowserVerificationModel('context');
-      return verificationInfo.get('context');
+      const sameBrowserVerificationContext = this._getSameBrowserVerificationModel('context').get('context');
+      if (sameBrowserVerificationContext) {
+        // user is verifying in the same browser
+        return sameBrowserVerificationContext;
+      } else if (this._isServiceSync()) {
+        // service=sync, user is verifying in a different browser.
+        return Constants.FX_SYNC_CONTEXT;
+      } else if (this._isServiceOAuth()) {
+        // oauth, user is verifying in a different browser.
+        return Constants.OAUTH_CONTEXT;
+      }
+
+      return Constants.CONTENT_SERVER_CONTEXT;
     },
 
     _getSameBrowserVerificationModel (namespace) {
