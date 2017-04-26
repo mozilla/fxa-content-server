@@ -104,12 +104,8 @@ define(function (require, exports, module) {
         // if forced via query param
         return true;
       }
-
-      const userAgent = this.getUserAgent();
-      const version = userAgent.parseVersion();
-      return userAgent.isFirefox() && this._able.choose('sessionsListVisible', {
-        firefoxVersion: version.major
-      });
+      // currently disabled by default for all users, pending some fixes.
+      return false;
     },
 
     /**
