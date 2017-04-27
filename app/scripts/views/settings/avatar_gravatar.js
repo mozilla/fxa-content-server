@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const _ = require('underscore');
   const AuthErrors = require('lib/auth-errors');
   const AvatarMixin = require('views/mixins/avatar-mixin');
   const Cocktail = require('cocktail');
@@ -24,7 +23,6 @@ define(function (require, exports, module) {
   }
 
   var EXPORT_LENGTH = Constants.PROFILE_IMAGE_EXPORT_SIZE;
-  var DISPLAY_LENGTH = Constants.PROFILE_IMAGE_DISPLAY_SIZE;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
 
   const proto = FormView.prototype;
@@ -49,7 +47,7 @@ define(function (require, exports, module) {
 
     _showGravatar: showProgressIndicator(function () {
       return ImageLoader.load(this.gravatarUrl())
-        .then(_.bind(this._found, this), _.bind(this._notFound, this));
+        .then(() => this._found(), () => this._notFound());
     }, '.avatar-wrapper', '_gravatarProgressIndicator'),
 
     _found () {
@@ -67,9 +65,9 @@ define(function (require, exports, module) {
       var hashedEmail = this.hashedEmail();
       if (this.broker.isAutomatedBrowser()) {
         // Don't return a 404 so we can test the success flow
-        return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH;
+        return `${GRAVATAR_URL}${hashedEmail}?s=${EXPORT_LENGTH}`;
       }
-      return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
+      return `${GRAVATAR_URL}${hashedEmail}?s=${EXPORT_LENGTH}&d=404`;
     },
 
     hashedEmail () {
