@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es5",
+    "sourceMap": true,
+    "allowJs": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "app/scripts/models/email-resend.ts"
+  ]
+}
