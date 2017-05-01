@@ -172,13 +172,11 @@ define(function (require, exports, module) {
     },
     LOGIN_WITH_SECONDARY_EMAIL: {
       errno: 142,
-      // TODO
-      message: t('TODO')
+      message: t('Sign in with this email type is not currently supported. Use the primary email of this account')
     },
     SECONDARY_EMAIL_UNKNOWN: {
       errno: 143,
-      // TODO
-      message: t('TODO')
+      message: t('Cannot use this email to sign in')
     },
     VERIFIED_SECONDARY_EMAIL_EXISTS: {
       errno: 144,
