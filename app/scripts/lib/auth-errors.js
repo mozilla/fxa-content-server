@@ -182,6 +182,10 @@ define(function (require, exports, module) {
       errno: 144,
       message: t('Account already exists')
     },
+    RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
+      errno: 145,
+      message: t('Reset with this email type is not currently supported. Use the primary email of this account')
+    },
     // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
