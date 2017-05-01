@@ -145,26 +145,46 @@ define(function (require, exports, module) {
       errno: 135,
       message: t('Unable to deliver email')
     },
+    // Secondary Email errors
     EMAIL_EXISTS: {
       errno: 136,
-      message: 'This email was already verified by another user'
+      message: t('This email was already verified by another user')
     },
     EMAIL_DELETE_PRIMARY: {
       errno: 137,
-      message: 'Can not delete primary email'
+      message: t('Can not delete primary email')
     },
     SESSION_UNVERIFIED: {
       errno: 138,
-      message: 'Unable to perform action, unverified session'
+      message: t('Unable to perform action, unverified session')
     },
     EMAIL_PRIMARY_EXISTS: {
       errno: 139,
-      message: 'Secondary email must be different than your account email.'
+      message: t('Secondary email must be different than your account email')
     },
     EMAIL_VERIFIED_PRIMARY_EXISTS: {
       errno: 140,
-      message: 'This email was already verified by another user'
+      message: t('Account already exists')
     },
+    UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: {
+      errno: 141,
+      message: t('Account already exists')
+    },
+    LOGIN_WITH_SECONDARY_EMAIL: {
+      errno: 142,
+      // TODO
+      message: t('TODO')
+    },
+    SECONDARY_EMAIL_UNKNOWN: {
+      errno: 143,
+      // TODO
+      message: t('TODO')
+    },
+    VERIFIED_SECONDARY_EMAIL_EXISTS: {
+      errno: 144,
+      message: t('Account already exists')
+    },
+    // Secondary Email errors end
     SERVER_BUSY: {
       errno: 201,
       message: t('Server busy, try again soon')
