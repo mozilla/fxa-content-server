@@ -14,7 +14,7 @@ define(function (require, exports, module) {
     PASSWORD_RESET: 'reset_password',
     SECONDARY_EMAIL_VERIFIED: 'secondary_email_verified',
     SIGN_IN: 'login',
-    SIGN_UP: 'signup',
+    SIGN_UP: 'signup'
   };
 });
 
