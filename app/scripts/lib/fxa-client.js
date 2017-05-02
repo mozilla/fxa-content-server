@@ -667,35 +667,19 @@ define(function (require, exports, module) {
     }),
 
     recoveryEmails: withClient((client, sessionToken) => {
-      return client.recoveryEmails(sessionToken)
-        .fail((err) => {
-          // TODO Handle errors
-          throw err;
-        });
+      return client.recoveryEmails(sessionToken);
     }),
 
     recoveryEmailCreate: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailCreate(sessionToken, email)
-        .fail((err) => {
-          // TODO Handle errors
-          throw err;
-        });
+      return client.recoveryEmailCreate(sessionToken, email);
     }),
 
     recoveryEmailDestroy: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailDestroy(sessionToken, email)
-        .fail((err) => {
-          // TODO Handle errors
-          throw err;
-        });
+      return client.recoveryEmailDestroy(sessionToken, email);
     }),
 
     resendEmailCode: withClient((client, sessionToken, email) => {
-      return client.recoveryEmailResendCode(sessionToken, {email: email})
-        .fail((err) => {
-          // TODO Handle errors
-          throw err;
-        });
+      return client.recoveryEmailResendCode(sessionToken, {email: email});
     }),
 
     /**
@@ -713,11 +697,7 @@ define(function (require, exports, module) {
     }),
 
     deleteEmail: withClient((client, sessionToken, email) => {
-      return client.deleteEmail(sessionToken, email)
-        .fail((err) => {
-          // TODO Handle errors
-          throw err;
-        });
+      return client.deleteEmail(sessionToken, email);
     })
   };
 
