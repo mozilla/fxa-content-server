@@ -20,13 +20,18 @@ define([
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
-  const type = FunctionalHelpers.type;
-  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  const openPage = FunctionalHelpers.openPage;
-  const testElementExists = FunctionalHelpers.testElementExists;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutResetPassword = FunctionalHelpers.fillOutResetPassword;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
+  const testElementExists = FunctionalHelpers.testElementExists;
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
+  const type = FunctionalHelpers.type;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   registerSuite({
     name: 'settings secondary emails',
@@ -55,7 +60,8 @@ define([
         // attempt to the same email as primary
         .then(type('.new-email', email))
         .then(click('.email-add:not(.disabled)'))
-        // TODO: see error ALREADY PRIMARY
+        .then(visibleByQSA('.tooltip'))
+        .then(testElementTextInclude('.tooltip', 'secondary email must be different'))
 
         // add secondary email, resend and remove
         .then(type('.new-email', TestHelpers.createEmail()))
@@ -71,16 +77,34 @@ define([
 
         .then(click('#emails .settings-unit-stub button'))
 
-        .then(testElementTextEquals('#emails .address', secondaryEmail));
-        // TODO: NOT VERIFIED at the moment
-        //.then(testElementExists('.verified'));
+        .then(testElementTextEquals('#emails .address', secondaryEmail))
+        .then(testElementExists('.verified'))
+
+        // sign out, try to sign in with secondary
+        .then(click('#signout'))
+        .then(testElementExists('#fxa-signin-header'))
+        .then(fillOutSignIn(secondaryEmail, PASSWORD))
+        .then(testErrorTextInclude('not currently supported'))
+
+        // try to reset with secondary email
+        .then(fillOutResetPassword(secondaryEmail, PASSWORD))
+        .then(testErrorTextInclude('not currently supported'))
+
+        // make sure sign in still works
+        .then(fillOutSignIn(email, PASSWORD));
     },
 
     'add secondary email that is primary to another account': function () {
+      const existingUnverified = TestHelpers.createEmail();
+      const existingVerified = TestHelpers.createEmail();
       const unverifiedAccountEmail = TestHelpers.createEmail();
 
       return this.remote
-        // create unverified account with email that is going to be a secondary email for another account
+         // create an unverified and verified accounts
+         // these are going to be tried as a secondary emails for another account
+        .then(createUser(existingUnverified, PASSWORD, { preVerified: false }))
+        .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
+
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
@@ -125,11 +149,6 @@ define([
 
     'signin confirmation': function () {
 
-    },
-
-    'reset password': function () {
-
-    },
-
+    }
   });
 });
