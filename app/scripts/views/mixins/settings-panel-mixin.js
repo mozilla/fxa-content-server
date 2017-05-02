@@ -89,7 +89,7 @@ define(function (require, exports, module) {
       $('.settings-unit').removeClass('open');
     },
 
-    displaySuccess (msg, options = { closePanel: true}) {
+    displaySuccess (msg, options = {closePanel: true}) {
       if (! this.parentView) {
         return;
       }

@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       headerId: 'fxa-sign-up-complete-header',
       headerTitle: t('Account verified'),
       readyToSyncText: t('You are now ready to use %(serviceName)s')
-    },
+    }
   };
 
   /*eslint-enable camelcase*/

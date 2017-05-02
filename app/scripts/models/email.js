@@ -13,7 +13,7 @@ define(function (require, exports, module) {
 
   var Email = Backbone.Model.extend({
     defaults: {
-      email: undefined,
+      email: null,
       isPrimary: false,
       verified: false
     },
