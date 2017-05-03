@@ -14,6 +14,7 @@ define(function (require, exports, module) {
   const preventDefaultThen = require('views/base').preventDefaultThen;
   const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
   const showProgressIndicator = require('views/decorators/progress_indicator');
+  const Strings = require('lib/strings');
   const Template = require('stache!templates/settings/emails');
 
   var t = BaseView.t;
@@ -105,7 +106,7 @@ define(function (require, exports, module) {
       const account = this.getSignedInAccount();
       return account.resendEmailCode(email)
         .then(() => {
-          this.displaySuccess(t('Verification emailed to ') + email, {
+          this.displaySuccess(Strings.interpolate(t('Verification emailed to %(email)s'), { email: email }), {
             closePanel: false
           });
           this.render();
@@ -119,7 +120,7 @@ define(function (require, exports, module) {
         const account = this.getSignedInAccount();
         return account.recoveryEmailCreate(newEmail)
           .then(() => {
-            this.displaySuccess(t('Verification emailed to ') + newEmail, {
+            this.displaySuccess(Strings.interpolate(t('Verification emailed to %(email)s'), { email: newEmail }), {
               closePanel: false
             });
             this.render();

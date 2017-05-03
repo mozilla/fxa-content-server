@@ -19,9 +19,9 @@ define(function (require, exports, module) {
   const ProgressIndicator = require('views/progress_indicator');
 
   // Return a promise delayed by ms
-  function delay(ms) {
+  function delay(progressIndicator, ms) {
     var deferred = p.defer();
-    setTimeout(deferred.resolve, ms);
+    progressIndicator.setTimeout(deferred.resolve, ms);
     return deferred.promise;
   }
 
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
       var progressIndicator = getProgressIndicator(this, target);
       progressIndicator.start(target);
 
-      return delay(delayHandlerByMills)
+      return delay(progressIndicator, delayHandlerByMills)
         .then(() => this.invokeHandler(handler, args))
         .then(function (value) {
           // Stop the progress indicator unless the flow halts.
