@@ -45,7 +45,7 @@ define(function (require, exports, module) {
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
         isPanelOpen: this.isPanelOpen(),
-        newEmail: this.newEmail,
+        newEmail: this.newEmail
       };
     },
 
