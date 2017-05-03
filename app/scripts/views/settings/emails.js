@@ -40,11 +40,12 @@ define(function (require, exports, module) {
 
     context () {
       return {
+        buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
         isPanelOpen: this.isPanelOpen(),
-        newEmail: this.newEmail
+        newEmail: this.newEmail,
       };
     },
 
@@ -54,6 +55,13 @@ define(function (require, exports, module) {
         .then(() => {
           return this._fetchEmails();
         });
+    },
+
+    afterRender () {
+      // Panel should remain open if there are any unverified secondary emails
+      if (this._hasSecondaryEmail() && ! this._hasSecondaryVerifiedEmail()) {
+        this.openPanel();
+      }
     },
 
     _isSecondaryEmailEnabled () {

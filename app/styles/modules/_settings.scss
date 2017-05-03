@@ -245,6 +245,12 @@ body.settings #main-content.card {
     }
   }
 
+  &.secondary-disabled {
+      background: $secondary-button-background-color;
+      border: 1px solid $secondary-button-border-color;
+      color: $text-color;
+  }
+
   &.warning {
     background: $error-background-color;
     border: 0;
