@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const SIGNIN_REASON = VerificationReasons.SIGN_IN;
   const SIGNUP_REASON = VerificationReasons.SIGN_UP;
 
-  describe('views/confirm', function () {
+  describe.only('views/confirm', function () {
     var account;
     var broker;
     var metrics;
@@ -182,13 +182,8 @@ define(function (require, exports, module) {
 
       describe('signup', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', function () {
-            return true;
-          });
-
-          sinon.stub(view, 'isSignIn', function () {
-            return false;
-          });
+          sinon.stub(view, 'isSignUp', () => true);
+          sinon.stub(view, 'isSignIn', () => false);
 
           return testEmailVerificationPoll('afterSignUpConfirmationPoll');
         });
@@ -196,13 +191,8 @@ define(function (require, exports, module) {
 
       describe('signin', function () {
         it('notifies the broker after the account is confirmed', function () {
-          sinon.stub(view, 'isSignUp', function () {
-            return false;
-          });
-
-          sinon.stub(view, 'isSignIn', function () {
-            return true;
-          });
+          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignIn', () => true);
 
           return testEmailVerificationPoll('afterSignInConfirmationPoll');
         });
@@ -216,7 +206,6 @@ define(function (require, exports, module) {
         sinon.stub(broker, expectedBrokerCall, () => p());
         sinon.stub(user, 'setAccount', () => p());
         sinon.stub(view, 'setTimeout', (callback) => callback());
-        sinon.stub(view, '_navigateToConfirmedScreen', () => p());
 
         return view.afterVisible()
           .then(function () {
@@ -226,38 +215,50 @@ define(function (require, exports, module) {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
             assert.isTrue(broker[expectedBrokerCall].calledWith(account));
-            assert.isTrue(view._navigateToConfirmedScreen.calledOnce);
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
             assert.isTrue(notifySpy.withArgs('verification.success').calledOnce);
           });
       }
 
-      it('displays an error message allowing the user to re-signup if their email bounces', function () {
-        sinon.stub(account, 'waitForSessionVerification', function () {
-          return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
-        });
+      describe('with an error', () => {
+        it('passes error to `_onConfirmationError', () => {
+          const error = AuthErrors.toError('UNEXPECTED_ERROR');
+          sinon.stub(view, 'isSignUp', () => false);
+          sinon.stub(view, 'isSignIn', () => true);
 
+          sinon.stub(account, 'waitForSessionVerification', () => p.reject(error));
+          sinon.stub(broker, 'beforeSignUpConfirmationPoll', () => p());
+          sinon.stub(broker, 'afterSignInConfirmationPoll', () => p());
+
+          sinon.stub(view, '_onConfirmationError', () => p());
+
+          return view.afterVisible()
+            .then(() => {
+              assert.isTrue(view._onConfirmationError.calledOnce);
+              assert.isTrue(view._onConfirmationError.calledWith(error));
+
+              assert.isFalse(broker.afterSignInConfirmationPoll.called);
+            });
+        });
+      });
+    });
+
+    describe('_onConfirmationError', () => {
+      it('displays an error message allowing the user to re-signup if their email bounces', function () {
         sinon.spy(view, 'navigate');
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
-            assert.isTrue(account.waitForSessionVerification.calledOnce);
-          });
+        view._onConfirmationError(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
+
+        assert.isTrue(view.navigate.calledWith('signup', { bouncedEmail: 'a@a.com' }));
       });
 
       it('displays an error when an unknown error occurs', function () {
         var unknownError = 'Something failed';
-        sinon.stub(account, 'waitForSessionVerification', function () {
-          return p.reject(new Error(unknownError));
-        });
 
         sinon.spy(view, 'navigate');
-        return view.afterVisible()
-          .then(function () {
-            assert.isTrue(account.waitForSessionVerification.calledOnce);
-            assert.equal(view.$('.error').text(), unknownError);
-          });
+        view._onConfirmationError(unknownError);
+
+        assert.equal(view.$('.error').text(), unknownError);
       });
 
       describe('with an unexpected error', function () {
@@ -265,48 +266,23 @@ define(function (require, exports, module) {
 
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
-          sandbox.stub(account, 'waitForSessionVerification', () => {
-            var callCount = account.waitForSessionVerification.callCount;
-            if (callCount < 2) {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-            } else {
-              return p();
-            }
-          });
-
-          sandbox.spy(view, 'navigate');
           sandbox.spy(view.sentryMetrics, 'captureException');
-          sandbox.spy(view, '_startPolling');
+          sandbox.stub(view, '_startPolling', () => p());
+          sandbox.stub(view, 'setTimeout', (callback) => callback());
 
-          sandbox.stub(view, 'setTimeout', function (callback) {
-            callback();
-          });
-
-          sandbox.stub(user, 'setAccount', () => p());
-
-          return view.afterVisible();
+          view._onConfirmationError(AuthErrors.toError('UNEXPECTED_ERROR'));
         });
 
         afterEach(function () {
           sandbox.restore();
         });
 
-        it('polls the auth server', function () {
-          assert.equal(account.waitForSessionVerification.callCount, 2);
-        });
-
-        it('captures the exception to Sentry', function () {
+        it('polls the auth server, captures the exception, no error to user, restarts polling', function () {
           assert.isTrue(view.sentryMetrics.captureException.called);
           assert.equal(view.sentryMetrics.captureException.firstCall.args[0].errno,
              AuthErrors.toError('POLLING_FAILED').errno);
-        });
-
-        it('does not display an error to the user when unexpected error occurs', function () {
           assert.equal(view.$('.error').text(), '');
-        });
-
-        it('restarts polling when an unexpected error occurs', function () {
-          assert.equal(view._startPolling.callCount, 2);
+          assert.equal(view._startPolling.callCount, 1);
         });
       });
     });
@@ -361,36 +337,6 @@ define(function (require, exports, module) {
 
         it('re-throws the error', function () {
           assert.equal(error.message, 'synthesized error from auth server');
-        });
-      });
-    });
-
-    describe('_navigateToConfirmedScreen', function () {
-      beforeEach(function () {
-        sinon.stub(view, 'navigate', () => {});
-      });
-
-      describe('signup', function () {
-        beforeEach(function () {
-          model.set('type', SIGNUP_REASON);
-
-          return view._navigateToConfirmedScreen();
-        });
-
-        it('redirects to `signup_confirmed`', function () {
-          assert.isTrue(view.navigate.calledWith('signup_confirmed'));
-        });
-      });
-
-      describe('signin', function () {
-        beforeEach(function () {
-          model.set('type', SIGNIN_REASON);
-
-          return view._navigateToConfirmedScreen();
-        });
-
-        it('redirects to `signin_confirmed`', function () {
-          assert.isTrue(view.navigate.calledWith('signin_confirmed'));
         });
       });
     });

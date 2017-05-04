@@ -71,14 +71,6 @@ define(function (require, exports, module) {
       return this.broker.transformLink(screenUrl);
     },
 
-    _navigateToConfirmedScreen () {
-      if (this.isSignUp()) {
-        this.navigate('signup_confirmed');
-      } else {
-        this.navigate('signin_confirmed');
-      }
-    },
-
     beforeRender () {
       // user cannot confirm if they have not initiated a sign up.
       if (! this.getAccount().get('sessionToken')) {
@@ -112,30 +104,7 @@ define(function (require, exports, module) {
 
           return this.invokeBrokerMethod(brokerMethod, this.getAccount());
         })
-        .then(() => this._navigateToConfirmedScreen())
-        .fail((err) => {
-          // The user's email may have bounced because it was invalid.
-          // Redirect them to the sign up page with an error notice.
-          if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-            this._bouncedEmailSignup();
-          } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
-            // Hide the error from the user if it is an unexpected error.
-            // an error may happen here if the status api is overloaded or
-            // if the user is switching networks.
-            // Report a known error to Sentry, but not the user.
-            // Details: github.com/mozilla/fxa-content-server/issues/2638.
-            this.logError(AuthErrors.toError('POLLING_FAILED'));
-            var deferred = p.defer();
-
-            this.setTimeout(() => {
-              deferred.resolve(this._startPolling());
-            }, this.VERIFICATION_POLL_IN_MS);
-
-            return deferred.promise;
-          } else {
-            this.displayError(err);
-          }
-        });
+        .fail((err) => this._onConfirmationError(err));
     },
 
     _waitForConfirmation () {
@@ -144,6 +113,30 @@ define(function (require, exports, module) {
         .then(() => {
           this.user.setAccount(account);
         });
+    },
+
+    _onConfirmationError (err) {
+      // The user's email may have bounced because it was invalid.
+      // Redirect them to the sign up page with an error notice.
+      if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+        this._bouncedEmailSignup();
+      } else if (AuthErrors.is(err, 'UNEXPECTED_ERROR')) {
+        // Hide the error from the user if it is an unexpected error.
+        // an error may happen here if the status api is overloaded or
+        // if the user is switching networks.
+        // Report a known error to Sentry, but not the user.
+        // Details: github.com/mozilla/fxa-content-server/issues/2638.
+        this.logError(AuthErrors.toError('POLLING_FAILED'));
+        var deferred = p.defer();
+
+        this.setTimeout(() => {
+          deferred.resolve(this._startPolling());
+        }, this.VERIFICATION_POLL_IN_MS);
+
+        return deferred.promise;
+      } else {
+        this.displayError(err);
+      }
     },
 
     resend () {
