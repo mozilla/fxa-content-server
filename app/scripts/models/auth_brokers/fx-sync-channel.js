@@ -62,7 +62,6 @@ define(function (require, exports, module) {
      * @param {Object} options
      * @param {String} [options.channel]
      *        Channel used to send commands to remote listeners.
-     * @returns {undefined}
      */
     initialize (options = {}) {
       this._logger = new Logger();
@@ -74,7 +73,7 @@ define(function (require, exports, module) {
         this.commands = options.commands;
       }
 
-      return proto.initialize.call(this, options);
+      proto.initialize.call(this, options);
     },
 
     afterLoaded () {
