@@ -119,48 +119,55 @@ FxDesktopRelier is used when interfacing with Firefox Desktop Sync.
 
 #### Authentication Brokers
 
-##### base
-BaseAuthenticationBroker is the generic interface for other brokers.
+##### public
 
-##### fx-desktop-v1
-Interfaces with Sync on Fx Desktop. A custom protocol allows the content server to query the browser for information and send results back.
+###### fx-desktop-v1
+v1 of the Firefox Desktop authentication broker, communicates with Firefox using CustomEvents when
+the user is attempting to authenticate for Sync.
 
-##### fx-desktop-v2
-v2 of the Fx Desktop authentication broker, it speaks to the browser using WebChannels.
+###### fx-desktop-v2
+v2 of the Fx Desktop authentication broker, it communicates with the browser using WebChannels.
 
-##### fx-desktop-v3
+###### fx-desktop-v3
 v3 of the Fx Desktop authentication broker, it allows the uid of a user to change if the user's account has been deleted.
 
-##### fx-fennec-v1
-Interfaces with Sync on Fennec. Uses WebChannels to communicate with the browser.
+###### fx-fennec-v1
+Interfaces with Firefox for Android when authenticating for Sync, it communicates with the browser
+using WebChannels.
 
-##### fx-firstrun-v1
-Used by FxDesktop to embed FxA within an iframe on the firstrun page. Communicates with the browser using web channels.
+###### fx-firstrun-v1
+Used by FxDesktop to embed FxA within an iframe on the firstrun page. Communicates with the browser using WebChannels.
 
-##### fx-firstrun-v2
+###### fx-firstrun-v2
 v2 of the firstrun authentication broker, used to enable "Choose what to Sync".
 
-##### fx-ios-v1
-Interfaces with Sync on Fx for iOS. Uses the same custom protocol as FxDesktop v1.
+###### fx-ios-v1
+Interfaces with Sync on Fx for iOS. Uses the same custom protocol as fx-desktop-v1.
 
-##### fx-sync
-Generic Sync broker. Used to define behaviors for other Sync brokers, and if
-the user verifies a Sync sign up in a 2nd browser.
-
-##### fx-sync-channel
-Base for brokers that communicate with Firefox.
-
-##### fx-sync-web-channel
-Generic interface used for Syncing with browsers that support web channels.
-
-##### oauth
-OAuthAuthenticationBroker provides functionality common to all OAuth related flows. The OAuthAuthenticationBroker saves OAuth data before verification, generates OAuth results, and sends the OAuth result to the OAuth relying party.
+###### fx-sync
+A base class for all other Sync auth brokers to define common behaviors. Instantiated directly in the
+verification tab for users that authenticate for Sync and verify in a 2nd browser.
 
 ###### oauth-redirect
 RedirectAuthenticationBroker is used for redirect based OAuth flows. The RedirectAuthenticationBroker sends results to the OAuth relying party via the browser's URL.
 
-##### web
+###### web
 Authentication broker used when a user browses directly to the site.
+
+##### internal
+These brokers are for internal use, as the base for public brokers.
+
+###### base
+The generic interface for other brokers. Used to define common shared behaviors.
+
+###### fx-sync-channel
+Base for brokers that communicate with Firefox.
+
+###### fx-sync-web-channel
+Generic interface used for Syncing with browsers that support web channels.
+
+##### oauth
+OAuthAuthenticationBroker provides functionality common to all OAuth related flows. The OAuthAuthenticationBroker saves OAuth data before verification, generates OAuth results, and sends the OAuth result to the OAuth relying party.
 
 #### Channels
 
@@ -171,7 +178,7 @@ Communication between Sync and Firefox Accounts is done via [custom DOM events](
 Communication between the browser and FxA is done via a custom DOM event known as a `WebChannelMessageToChrome`.
 
 ##### postMessage
-Communication between the Firefox OAuth Lightbox and the RP is done via [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/window.postMessage).
+Communication between the FxA and the RP is done via [postMessage](https://developer.mozilla.org/en-US/docs/Web/API/window.postMessage).
 
 ### High Level Server Side Components
 

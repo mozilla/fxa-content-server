@@ -20,7 +20,7 @@ define((require, exports, module) => {
       assert.lengthOf(index.get, 1);
     });
 
-    it('get returns correct broker for fx-syncn context', () => {
+    it('get returns correct broker for fx-sync context', () => {
       const authBroker = index.get(constants.FX_SYNC_CONTEXT);
       assert.equal(authBroker, require('models/auth_brokers/fx-sync'));
     });

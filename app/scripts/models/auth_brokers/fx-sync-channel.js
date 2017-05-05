@@ -48,7 +48,7 @@ define(function (require, exports, module) {
         throw new Error('this.commands must be specified');
       }
 
-      var command = this.commands[commandName];
+      const command = this.commands[commandName];
       if (! command) {
         throw new Error('command not found for: ' + commandName);
       }
@@ -125,7 +125,7 @@ define(function (require, exports, module) {
 
     beforeSignUpConfirmationPoll (account) {
       // The Sync broker notifies the browser of an unverified login
-      // before the user has verified her email. This allows the user
+      // before the user has verified their email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
       return this._notifyRelierOfLogin(account)
@@ -203,7 +203,7 @@ define(function (require, exports, module) {
        * required data. The verification tab sends a WebChannel message
        * already, so no need here too.
        */
-      var loginData = this._getLoginData(account);
+      const loginData = this._getLoginData(account);
       if (! this._hasRequiredLoginFields(loginData)) {
         return p();
       }
@@ -212,13 +212,13 @@ define(function (require, exports, module) {
     },
 
     _hasRequiredLoginFields (loginData) {
-      var requiredFields = FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
-      var loginFields = Object.keys(loginData);
+      const requiredFields = FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS;
+      const loginFields = Object.keys(loginData);
       return ! _.difference(requiredFields, loginFields).length;
     },
 
     _getLoginData (account) {
-      var ALLOWED_FIELDS = [
+      const ALLOWED_FIELDS = [
         'customizeSync',
         'declinedSyncEngines',
         'email',
@@ -229,7 +229,7 @@ define(function (require, exports, module) {
         'verified'
       ];
 
-      var loginData = account.pick(ALLOWED_FIELDS);
+      const loginData = account.pick(ALLOWED_FIELDS);
       loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkEmail;
       return loginData;

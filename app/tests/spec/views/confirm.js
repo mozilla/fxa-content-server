@@ -24,7 +24,7 @@ define(function (require, exports, module) {
   const SIGNIN_REASON = VerificationReasons.SIGN_IN;
   const SIGNUP_REASON = VerificationReasons.SIGN_UP;
 
-  describe.only('views/confirm', function () {
+  describe('views/confirm', function () {
     var account;
     var broker;
     var metrics;

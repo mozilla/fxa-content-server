@@ -16,11 +16,11 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   describe('models/auth_brokers/fx-sync-channel', function () {
-    var account;
-    var broker;
-    var channelMock;
-    var user;
-    var windowMock;
+    let account;
+    let broker;
+    let channelMock;
+    let user;
+    let windowMock;
 
     function createAuthBroker (options) {
       options = options || {};
@@ -146,7 +146,7 @@ define(function (require, exports, module) {
 
     describe('_notifyRelierOfLogin', function () {
       // verified will be auto-populated if not in the account.
-      var requiredAccountFields = _.without(FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
+      const requiredAccountFields = _.without(FxSyncChannelAuthenticationBroker.REQUIRED_LOGIN_FIELDS, 'verified');
 
       requiredAccountFields.forEach(function (fieldName) {
         it('does not send a `login` message to the channel if the account does not have `' + fieldName + '`', function () {
@@ -163,7 +163,7 @@ define(function (require, exports, module) {
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('login'));
 
-            var data = channelMock.send.args[0][1];
+            const data = channelMock.send.args[0][1];
             assert.equal(data.email, 'testuser@testuser.com');
             assert.equal(data.keyFetchToken, 'key-fetch-token');
             assert.equal(data.unwrapBKey, 'unwrap-b-key');
@@ -187,7 +187,7 @@ define(function (require, exports, module) {
           })
           .then(function () {
             assert.equal(channelMock.send.args[0][0], 'can_link_account');
-            var data = channelMock.send.args[1][1];
+            const data = channelMock.send.args[1][1];
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verified);
             assert.isTrue(data.verifiedCanLinkAccount);
@@ -212,7 +212,7 @@ define(function (require, exports, module) {
             return broker._notifyRelierOfLogin(account);
           })
           .then(function () {
-            var data = channelMock.send.args[1][1];
+            const data = channelMock.send.args[1][1];
             assert.isTrue(data.verified);
           });
       });
@@ -234,7 +234,7 @@ define(function (require, exports, module) {
         return broker.afterSignIn(account)
           .then(function (result) {
 
-            var args = channelMock.send.args[0];
+            const args = channelMock.send.args[0];
             assert.equal(args[0], 'login');
             assert.equal(args[1].customizeSync, true);
             assert.deepEqual(
@@ -285,7 +285,7 @@ define(function (require, exports, module) {
 
         return broker.afterChangePassword(account)
           .then(function () {
-            var args = channelMock.send.args[0];
+            const args = channelMock.send.args[0];
             assert.equal(args[0], 'change_password');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
@@ -304,7 +304,7 @@ define(function (require, exports, module) {
 
         return broker.afterDeleteAccount(account)
           .then(function () {
-            var args = channelMock.send.args[0];
+            const args = channelMock.send.args[0];
             assert.equal(args[0], 'delete_account');
             assert.equal(args[1].email, 'testuser@testuser.com');
             assert.equal(args[1].uid, 'uid');
@@ -328,8 +328,8 @@ define(function (require, exports, module) {
 
     describe('getCommand', function () {
       it('throws if commands is not overridden', function () {
-        var SubBroker = FxSyncChannelAuthenticationBroker.extend({});
-        var subBroker = new SubBroker();
+        const SubBroker = FxSyncChannelAuthenticationBroker.extend({});
+        const subBroker = new SubBroker();
         assert.throws(function () {
           subBroker.getCommand('LOGIN');
         }, 'this.commands must be specified');
