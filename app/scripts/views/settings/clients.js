@@ -65,7 +65,7 @@ define(function (require, exports, module) {
               t('%(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           } else {
             item.lastAccessTimeFormatted = this.translate(
-              t('Last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
+              t('last active %(translatedTimeAgo)s'), {translatedTimeAgo: item.lastAccessTimeFormatted});
           }
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
