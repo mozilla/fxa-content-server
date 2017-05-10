@@ -51,10 +51,7 @@ define(function (require, exports, module) {
 
     beforeRender () {
       // Only show this view on verified session
-      return this._isSecondaryEmailEnabled()
-        .then(() => {
-          return this._fetchEmails();
-        });
+      return this._isSecondaryEmailEnabled();
     },
 
     afterRender () {
@@ -65,13 +62,20 @@ define(function (require, exports, module) {
     },
 
     _isSecondaryEmailEnabled () {
-      // Only show secondary email panel if the user is in a verified session.
+      // Only show secondary email panel if the user is in a verified session and feature is enabled.
       const account = this.getSignedInAccount();
       return account.sessionVerificationStatus()
         .then((res) => {
           if (! res.sessionVerified) {
             return this.remove();
           }
+
+          // If we fail to fetch emails, then this user does not have this feature enabled
+          // and we should not display this panel.
+          return this._fetchEmails()
+            .fail(() => {
+              return this.remove();
+            });
         });
     },
 

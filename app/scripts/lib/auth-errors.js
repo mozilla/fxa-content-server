@@ -172,7 +172,7 @@ define(function (require, exports, module) {
     },
     LOGIN_WITH_SECONDARY_EMAIL: {
       errno: 142,
-      message: t('Sign in with this email type is not currently supported. Use the primary email of this account')
+      message: t('Primary account email required for sign-in')
     },
     SECONDARY_EMAIL_UNKNOWN: {
       errno: 143,
@@ -180,7 +180,7 @@ define(function (require, exports, module) {
     },
     VERIFIED_SECONDARY_EMAIL_EXISTS: {
       errno: 144,
-      message: t('Account already exists')
+      message: t('Address in use by another account')
     },
     RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
       errno: 145,
