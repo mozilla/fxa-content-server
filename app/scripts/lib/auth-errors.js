@@ -150,14 +150,6 @@ define(function (require, exports, module) {
       errno: 136,
       message: t('This email was already verified by another user')
     },
-    EMAIL_DELETE_PRIMARY: {
-      errno: 137,
-      message: t('Can not delete primary email')
-    },
-    SESSION_UNVERIFIED: {
-      errno: 138,
-      message: t('Unable to perform action, unverified session')
-    },
     EMAIL_PRIMARY_EXISTS: {
       errno: 139,
       message: t('Secondary email must be different than your account email')
@@ -174,17 +166,13 @@ define(function (require, exports, module) {
       errno: 142,
       message: t('Primary account email required for sign-in')
     },
-    SECONDARY_EMAIL_UNKNOWN: {
-      errno: 143,
-      message: t('Cannot use this email to sign in')
-    },
     VERIFIED_SECONDARY_EMAIL_EXISTS: {
       errno: 144,
       message: t('Address in use by another account')
     },
     RESET_PASSWORD_WITH_SECONDARY_EMAIL: {
       errno: 145,
-      message: t('Reset with this email type is not currently supported. Use the primary email of this account')
+      message: t('Primary account email required for reset')
     },
     // Secondary Email errors end
     SERVER_BUSY: {
