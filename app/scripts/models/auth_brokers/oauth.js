@@ -121,7 +121,6 @@ define(function (require, exports, module) {
         })
         .then((rkeys) => {
           keys = rkeys;
-          debugger
           var pk = JSON.parse(relier.get('jwk'))
 
           return window.crypto.subtle.importKey(
@@ -138,7 +137,6 @@ define(function (require, exports, module) {
 
         })
         .then((pk) => {
-          //debugger
           function str2ab(str) {
             var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
             var bufView = new Uint16Array(buf);
