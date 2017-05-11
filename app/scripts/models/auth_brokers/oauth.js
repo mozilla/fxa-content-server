@@ -72,6 +72,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -81,19 +82,99 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
+      function ua2hex(uint8arr) {
+        if (!uint8arr) {
+          return '';
+        }
 
+        var hexStr = '';
+        for (var i = 0; i < uint8arr.length; i++) {
+          var hex = (uint8arr[i] & 0xff).toString(16);
+          hex = (hex.length === 1) ? '0' + hex : hex;
+          hexStr += hex;
+        }
+
+        return hexStr.toUpperCase();
+      }
+      var asser;
+      var keys;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
+          asser = assertion
+          var keyFetchToken = account.get('keyFetchToken');
+          var unwrapBKey = account.get('unwrapBKey');
+
+          console.log({
+            keyFetchToken: keyFetchToken,
+            unwrapBKey: unwrapBKey
+          });
+
+          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
+
+
+        })
+        .then((rkeys) => {
+          var uid = account.get('uid');
+          return this.relier.deriveRelierKeys(rkeys, uid);
+        })
+        .then((rkeys) => {
+          keys = rkeys;
+          debugger
+          var pk = JSON.parse(relier.get('jwk'))
+
+          return window.crypto.subtle.importKey(
+            "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
+            pk,
+            {   //these are the algorithm options
+              name: "RSA-OAEP",
+              hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+            },
+            false, //whether the key is extractable (i.e. can be used in exportKey)
+            ["encrypt"] //"encrypt" or "wrapKey" for public key import or
+            //"decrypt" or "unwrapKey" for private key imports
+          )
+
+        })
+        .then((pk) => {
+          //debugger
+          function str2ab(str) {
+            var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+            var bufView = new Uint16Array(buf);
+            for (var i=0, strLen=str.length; i<strLen; i++) {
+              bufView[i] = str.charCodeAt(i);
+            }
+            return buf;
+          }
+
+          var ptUtf8 = str2ab(JSON.stringify(keys.kBr));
+          //var ptUtf8 = new TextEncoder('utf-8').encode('53bc93673de807efe63b15db57e0a496d167326fe441aebf08be0425b4562e6f');
+          return window.crypto.subtle.encrypt(
+            {
+              name: "RSA-OAEP",
+              //label: Uint8Array([...]) //optional
+            },
+            pk, //from generateKey or importKey above
+            ptUtf8 //ArrayBuffer of data you want to encrypt
+          )
+
+        })
+        .then((encrypted) => {
+          console.log(encrypted);
+          console.log(ua2hex(new Uint8Array(encrypted)));
+
+          // TODO:
           var oauthParams = {
-            assertion: assertion,
+            assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
-            state: relier.get('state')
+            state: relier.get('state'),
+            derivedKeyBundle: ua2hex(new Uint8Array(encrypted))
           };
+
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
