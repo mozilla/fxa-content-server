@@ -315,6 +315,7 @@ define(function (require, exports, module) {
           iframeChannel: this._iframeChannel,
           metrics: this._metrics,
           notifier: this._notifier,
+          fxaClient: this._fxaClient,
           oAuthClient: this._oAuthClient,
           relier: this._relier,
           session: Session,

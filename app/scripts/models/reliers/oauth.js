@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   const Constants = require('lib/constants');
   const OAuthErrors = require('lib/oauth-errors');
   const Relier = require('models/reliers/relier');
+  const RelierKeys = require('lib/crypto/relier-keys');
   const Transform = require('lib/transform');
   const Vat = require('lib/vat');
 
@@ -33,7 +34,8 @@ define(function (require, exports, module) {
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
     service: Vat.string(),
-    state: Vat.string()
+    state: Vat.string(),
+    jwk: Vat.string()
   };
 
   var VERIFICATION_INFO_SCHEMA = {
@@ -67,7 +69,8 @@ define(function (require, exports, module) {
       // a rollup of all the permissions
       scope: null,
       // standard oauth parameters.
-      state: null
+      state: null,
+      jwk: null,
     }),
 
     initialize (attributes, options = {}) {
@@ -214,6 +217,10 @@ define(function (require, exports, module) {
 
       return ! account.hasSeenPermissions(
           this.get('clientId'), applicableProfilePermissions);
+    },
+
+    deriveRelierKeys: function (keys, uid) {
+      return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     }
   });
 

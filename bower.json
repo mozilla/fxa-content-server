@@ -34,7 +34,8 @@
     "underscore": "1.8.3",
     "webrtc-adapter": "0.2.5",
     "vat": "0.0.9",
-    "Duration.js": "duration.js#3.6.0"
+    "Duration.js": "duration.js#3.6.0",
+    "sjcl": "1.0.6"
   },
   "devDependencies": {
     "moment": "2.8.3"
