@@ -46,6 +46,7 @@ define(function (require, exports, module) {
    * @returns {Boolean}
    */
   function wantsKeys(relier, sessionTokenContext) {
+    return true;
     return relier.wantsKeys() ||
            _.contains(CONTEXTS_REQUIRE_KEYS, sessionTokenContext);
   }
@@ -121,6 +122,7 @@ define(function (require, exports, module) {
       verified: accountData.verified || false
     };
 
+    // TODO: update
     if (wantsKeys(relier, sessionTokenContext)) {
       updatedSessionData.unwrapBKey = accountData.unwrapBKey;
       updatedSessionData.keyFetchToken = accountData.keyFetchToken;

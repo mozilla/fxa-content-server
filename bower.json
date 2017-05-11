@@ -35,7 +35,8 @@
     "ua-parser-js": "https://github.com/vladikoff/ua-parser-js.git#643d1698aef5bed095e1264ae258902bf346175c",
     "underscore": "1.8.3",
     "vat": "0.0.9",
-    "webrtc-adapter": "0.2.5"
+    "webrtc-adapter": "0.2.5",
+    "sjcl": "1.0.6"
   },
   "devDependencies": {
     "moment": "2.8.3"
