@@ -31,6 +31,7 @@ define(function (require, exports, module) {
   const UserAgentMixin = require('views/mixins/user-agent-mixin');
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  const uuid = require('uuid');
 
   const CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
@@ -59,6 +60,70 @@ define(function (require, exports, module) {
       return this._account;
     },
 
+    _runs: 1,
+    checkExperiment () {
+
+      const MAX_RUNS = 50;
+      const TOTAL_ITERATIONS = 100000;
+
+      let inExperimentCount = 0;
+      let isMetricsEnabledCount = 0;
+      let inTreatmentCount = 0;
+      let inControlCount = 0;
+
+      const account = this.getAccount();
+
+      for (let i = 0; i < TOTAL_ITERATIONS; ++i) {
+        // reset able so that it doesn't remember previous runs.
+        window.able.enrolled.activeSubjectKeys = {};
+        window.able.enrolled.experimentsByName = {};
+        window.able.enrolled.experimentsByVariable = {};
+        if (window.able.experiments) {
+          window.able.experiments.experimentsByVariable.isSampledUser[0].choices = {};
+          window.able.experiments.experimentsByVariable.isSampledUser[0].log = [];
+          window.able.experiments.experimentsByVariable.sendSms[0].choices = {};
+          window.able.experiments.experimentsByVariable.sendSms[0].log = [];
+        }
+
+        const uniqueUserId = uuid.v4();
+        const isMetricsEnabledValue = window.able.choose('isSampledUser', { env: 'production', uniqueUserId });
+        if (isMetricsEnabledValue) {
+          isMetricsEnabledCount++;
+        }
+       // console.log(`metrics ${isMetricsEnabledValue}, uuid: ${uniqueUserId}`);
+        const isInExperiment = window.able.choose('sendSms', {
+          account,
+          isMetricsEnabledValue,
+          uniqueUserId
+        });
+        if (isInExperiment) {
+          //console.log(`isInExperiment: ${isInExperiment}`);
+          inExperimentCount++;
+          if (isInExperiment === 'treatment') {
+            inTreatmentCount++;
+          }
+          if (isInExperiment === 'control') {
+            inControlCount++;
+          }
+        }
+      }
+
+      console.log(`\nRun ${this._runs}`);
+      const isMetricsEnabledPct = Math.round(100 * isMetricsEnabledCount / TOTAL_ITERATIONS);
+      console.log(`  ${isMetricsEnabledPct}% w/ metrics enabled - ${isMetricsEnabledCount}`);
+      const inExperimentPct = Math.round(100 * inExperimentCount / TOTAL_ITERATIONS);
+      console.log(`  ${inExperimentPct}% in experiment - ${inExperimentCount}`);
+      const inTreatmentPct =  Math.round(100 * inTreatmentCount / inExperimentCount);
+      console.log(`  ${inTreatmentPct}% in treatment - ${inTreatmentCount}`);
+      const inControlPct =  Math.round(100 * inControlCount / inExperimentCount);
+      console.log(`  ${inControlPct}% in control - ${inControlCount}`);
+
+      this._runs++;
+      if (this._runs <= MAX_RUNS) {
+        setTimeout(() => this.checkExperiment(), 500);
+      }
+    },
+
     beforeRender () {
       const verificationInfo = this._verificationInfo;
       if (! verificationInfo.isValid()) {
@@ -80,6 +145,7 @@ define(function (require, exports, module) {
         service: this.relier.get('service')
       };
 
+      return this.checkExperiment();
       return this.user.completeAccountSignUp(account, code, options)
         .fail((err) => this._logAndAbsorbMarketingClientErrors(err))
         .then(() => this._notifyBrokerAndComplete(account))
