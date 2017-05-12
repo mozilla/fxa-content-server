@@ -34,8 +34,12 @@ define(function (require, exports, module) {
       'click .resend': preventDefaultThen('resend')
     },
 
-    initialize () {
-      this._emails = [];
+    initialize (options) {
+      if (options.emails) {
+        this._emails = options.emails;
+      } else {
+        this._emails = [];
+      }
     },
 
     context () {

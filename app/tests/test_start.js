@@ -177,6 +177,7 @@ function (Translator, Session) {
     '../tests/spec/views/settings/communication_preferences',
     '../tests/spec/views/settings/delete_account',
     '../tests/spec/views/settings/display_name',
+    '../tests/spec/views/settings/emails',
     '../tests/spec/views/sign_in',
     '../tests/spec/views/sign_in_reported',
     '../tests/spec/views/sign_in_unblock',
