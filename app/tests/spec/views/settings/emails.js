@@ -28,7 +28,7 @@ define(function (require, exports, module) {
     let notifier;
     let parentView;
     let translator;
-    let UID = '123';
+    const UID = '123';
     let user;
     let view;
     let windowMock;
