@@ -257,21 +257,28 @@ define(function (require, exports, module) {
         let relier;
         const context = this._getContext();
 
-        if (this._isServiceSync()) {
-          // Use the SyncRelier for sync verification so that
-          // the service name is translated correctly.
-          relier = new SyncRelier({ context }, {
-            isVerification: this._isVerification(),
-            sentryMetrics: this._sentryMetrics,
-            translator: this._translator,
-            window: this._window
-          });
-        } else if (this._isOAuth()) {
+        // The order of the checks is important. The OAuth check
+        // is more strict than the Sync check, and if the Sync
+        // check is done first, a bad acting OAuth relier could
+        // specify both a client_id and service=sync which would
+        // cause us to present the Sync UI to the user.
+        // Unfortunately, the Sync check cannot be made as strict
+        // as the OAuth check - when users sign up for Sync
+        // and verify in a 2nd browser, all we have to know the user
+        // is completing a Sync flow is `service=sync`.
+        if (this._isOAuth()) {
           relier = new OAuthRelier({ context }, {
             isVerification: this._isVerification(),
             oAuthClient: this._oAuthClient,
             sentryMetrics: this._sentryMetrics,
             session: Session,
+            window: this._window
+          });
+        } else if (this._isServiceSync()) {
+          relier = new SyncRelier({ context }, {
+            isVerification: this._isVerification(),
+            sentryMetrics: this._sentryMetrics,
+            translator: this._translator,
             window: this._window
           });
         } else {
@@ -597,12 +604,28 @@ define(function (require, exports, module) {
     },
 
     _getVerificationContext () {
-      // Users that verify in the same browser use the same context that
-      // was used to sign up to allow the verification tab to have
-      // the same capabilities as the signup tab.
-      // If verifying in a separate browser, fall back to the default context.
-      const verificationInfo = this._getSameBrowserVerificationModel('context');
-      return verificationInfo.get('context');
+      // If the user verifies in the same browser, use the same context that
+      // was used to sign up to allow the verification tab to have the same
+      // capabilities as the signup tab.
+      // For users that verify in a 2nd browser, choose the most appropriate
+      // broker based on the service to allow the verification tab to have
+      // service specific behaviors and messaging. For Sync, use the generic
+      // Sync broker, for OAuth, use the OAuth broker.
+      // If no service is specified and the user is verifies in a 2nd browser,
+      // then fall back to the default content server context.
+      const sameBrowserVerificationContext = this._getSameBrowserVerificationModel('context').get('context');
+      if (sameBrowserVerificationContext) {
+        // user is verifying in the same browser, use the same context they signed up with.
+        return sameBrowserVerificationContext;
+      } else if (this._isServiceSync()) {
+        // user is verifying in a different browser.
+        return Constants.FX_SYNC_CONTEXT;
+      } else if (this._isServiceOAuth()) {
+        // oauth, user is verifying in a different browser.
+        return Constants.OAUTH_CONTEXT;
+      }
+
+      return Constants.CONTENT_SERVER_CONTEXT;
     },
 
     _getSameBrowserVerificationModel (namespace) {
