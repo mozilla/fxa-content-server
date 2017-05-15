@@ -28,7 +28,6 @@ define([
   const openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
   const testElementExists = FunctionalHelpers.testElementExists;
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
   const type = FunctionalHelpers.type;
   const visibleByQSA = FunctionalHelpers.visibleByQSA;
@@ -61,7 +60,6 @@ define([
         .then(type('.new-email', email))
         .then(click('.email-add:not(.disabled)'))
         .then(visibleByQSA('.tooltip'))
-        .then(testElementTextInclude('.tooltip', 'secondary email must be different'))
 
         // add secondary email, resend and remove
         .then(type('.new-email', TestHelpers.createEmail()))
@@ -84,11 +82,11 @@ define([
         .then(click('#signout'))
         .then(testElementExists('#fxa-signin-header'))
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(testErrorTextInclude('not currently supported'))
+        .then(testErrorTextInclude('primary account email required'))
 
         // try to reset with secondary email
         .then(fillOutResetPassword(secondaryEmail, PASSWORD))
-        .then(testErrorTextInclude('not currently supported'))
+        .then(testErrorTextInclude('primary account email required'))
 
         // make sure sign in still works
         .then(fillOutSignIn(email, PASSWORD));
@@ -100,8 +98,8 @@ define([
       const unverifiedAccountEmail = TestHelpers.createEmail();
 
       return this.remote
-         // create an unverified and verified accounts
-         // these are going to be tried as a secondary emails for another account
+        // create an unverified and verified accounts
+        // these are going to be tried as a secondary emails for another account
         .then(createUser(existingUnverified, PASSWORD, { preVerified: false }))
         .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
 
@@ -116,8 +114,8 @@ define([
         .then(openVerificationLinkInSameTab(email, 0))
         .then(click('#emails .settings-unit-stub button'))
         .then(type('.new-email', unverifiedAccountEmail))
-        .then(click('.email-add:not(.disabled)'));
-        // TODO: ERROR VISIBLE: Email already exists
+        .then(click('.email-add:not(.disabled)'))
+        .then(visibleByQSA('.tooltip'));
     },
 
     'signin and signup with existing secondary email': function () {
@@ -136,19 +134,16 @@ define([
         .then(openVerificationLinkInSameTab(secondaryEmail, 0))
 
         .then(click('#emails .settings-unit-stub button'))
-        // TODO: check VERIFIED here
+        .then(testElementExists('.verified'))
         .then(click('#signout'))
         .then(testElementExists('#fxa-signin-header'))
         // try to signin with the secondary email
         .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        // TODO: what to do here?
+        .then(testErrorTextInclude('Primary account email required'))
         // try to signup with the secondary email
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
-        .then(fillOutSignUp(email, PASSWORD));
-    },
-
-    'signin confirmation': function () {
-
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-settings-content'));
     }
   });
 });
