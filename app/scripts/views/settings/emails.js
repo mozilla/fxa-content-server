@@ -122,10 +122,9 @@ define(function (require, exports, module) {
       const account = this.getSignedInAccount();
       return account.resendEmailCode(email)
         .then(() => {
-          this.displaySuccess(Strings.interpolate(t('Verification emailed to %(email)s'), { email: email }), {
+          this.displaySuccess(Strings.interpolate(t('A verification link has been sent to %(email)s'), { email: email }), {
             closePanel: false
           });
-          this.render();
           this.navigate('/settings/emails');
         });
     },

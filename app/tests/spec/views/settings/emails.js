@@ -261,7 +261,6 @@ define(function (require, exports, module) {
           $('.resend').click();
           sinon.spy(view, 'render');
           setTimeout(function () {
-            assert.isTrue(view.render.calledOnce);
             assert.isTrue(view.navigate.calledOnce);
             const args = view.navigate.args[0];
             assert.equal(args.length, 1);
