@@ -16,19 +16,19 @@ define(function (require, exports, module) {
   const ConnectAnotherDeviceBehavior = require('views/behaviors/connect-another-device');
 
   const proto = BaseAuthenticationBroker.prototype;
+  const defaultBehaviors = proto.defaultBehaviors;
 
   module.exports = BaseAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      afterCompleteSignUp: new ConnectAnotherDeviceBehavior(defaultBehaviors.afterCompleteSignUp)
+    }),
+
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       // Can CAD be displayed after the signup confirmation poll?
       cadAfterSignUpConfirmationPoll: false
     }),
 
     type: 'fx-sync',
-
-    initialize (options = {}) {
-      this._metrics = options.metrics;
-      proto.initialize.call(this, options);
-    },
 
     afterSignUpConfirmationPoll (account) {
       return proto.afterSignUpConfirmationPoll.call(this, account)
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
           if (this.hasCapability('cadAfterSignUpConfirmationPoll')) {
             // This is a hack to allow us to differentiate between users
             // who see CAD in the signup and verification tabs. CAD
-            // was added to the verifiation tab first, view names and view
+            // was added to the verification tab first, view names and view
             // events are all unprefixed. In the signup tab, we force add
             // the `signup` view name prefix so that events that contain
             // viewNames have `signup` view name prefix.
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
             // e.g.:
             // screen.sms <- view the sms screen in the verification tab.
             // screen.signup.sms <- view the sms screen in the signup tab.
-            this._metrics.setViewNamePrefix('signup');
+            this.metrics.setViewNamePrefix('signup');
             return new ConnectAnotherDeviceBehavior(defaultBehavior);
           }
 

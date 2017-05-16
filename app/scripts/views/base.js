@@ -940,7 +940,8 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Invoke a behavior returned by an auth broker.
+     * Invoke `behavior` returned by an auth broker. If `behavior` returns
+     * another behavior, the returned behavior is recursively invoked.
      *
      * @method invokeBehavior
      * @param {Function} behavior
@@ -951,10 +952,17 @@ define(function (require, exports, module) {
     invokeBehavior (behavior, ...args) {
       return p().then(() => {
         if (_.isFunction(behavior)) {
+          // recursively invokes behaviors that return behaviors.
           return behavior(this, ...args);
         }
-
         return behavior;
+      })
+      .then((result) => {
+        if (_.isFunction(result)) {
+          // recursively invoke any returned behaviors.
+          return this.invokeBehavior(result, ...args);
+        }
+        return result;
       });
     }
   });

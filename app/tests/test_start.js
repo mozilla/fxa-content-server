@@ -122,6 +122,8 @@ function (Translator, Session) {
     '../tests/spec/views/behaviors/halt',
     '../tests/spec/views/behaviors/navigate',
     '../tests/spec/views/behaviors/null',
+    '../tests/spec/views/behaviors/session-ternary',
+    '../tests/spec/views/behaviors/settings-after-verification',
     '../tests/spec/views/cannot_create_account',
     '../tests/spec/views/choose_what_to_sync',
     '../tests/spec/views/clear_storage',

@@ -29,7 +29,9 @@ define((require, exports, module) => {
       return view.invokeBehavior(defaultBehavior, account);
     };
 
+    // properties exposed for testing
     behavior.type = 'connect-another-device';
+    behavior.defaultBehavior = defaultBehavior;
 
     return behavior;
   };

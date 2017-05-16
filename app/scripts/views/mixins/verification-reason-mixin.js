@@ -46,6 +46,15 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Check if verification is to verify a secondary email
+     *
+     * @returns {Boolean}
+     */
+    isVerifySecondaryEmail () {
+      return this.model.get('type') === VerificationReasons.SECONDARY_EMAIL_VERIFIED;
+    },
+
+    /**
      * Get the key in VerificationReasons for the given verification reason
      *
      * @param {String} verificationReason

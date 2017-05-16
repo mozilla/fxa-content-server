@@ -25,10 +25,8 @@ define(function (require, exports, module) {
   const ConnectAnotherDeviceMixin = require('views/mixins/connect-another-device-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const MarketingEmailErrors = require('lib/marketing-email-errors');
-  const p = require('lib/promise');
   const ResendMixin = require('views/mixins/resend-mixin')();
   const ResumeTokenMixin = require('views/mixins/resume-token-mixin');
-  const t = BaseView.t;
   const UserAgentMixin = require('lib/user-agent-mixin');
   const VerificationInfo = require('models/verification/sign-up');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
@@ -132,71 +130,18 @@ define(function (require, exports, module) {
       this.logViewEvent('verification.success');
       this.notifier.trigger('verification.success');
 
-      // Emitting an explicit signin event here
-      // allows us to capture successes that might be
-      // triggered from confirmation emails.
-      if (this.isSignIn()) {
-        this.logEvent('signin.success');
-      }
-
       // Update the stored account data in case it was
       // updated by completeAccountSignUp.
-      this.user.setAccount(account);
-      return this.invokeBrokerMethod('afterCompleteSignUp', account)
-        .then(() => this._navigateToNextScreen());
+      return this.user.setAccount(account)
+        .then(() => {
+          const brokerMethod = this._getBrokerMethod();
+          return this.invokeBrokerMethod(brokerMethod, account);
+        });
     },
 
-    /**
-     * Navigate to the next screen after verification has completed.
-     *
-     * @returns {Promise}
-     * @private
-     */
-    _navigateToNextScreen () {
-      const account = this.getAccount();
-      const relier = this.relier;
-
-      return p().then(() => {
-        if (relier.isSync()) {
-          if (this.isEligibleForConnectAnotherDevice(account)) {
-            return this.navigateToConnectAnotherDeviceScreen(account);
-          } else {
-            this._navigateToVerifiedScreen();
-          }
-        } else if (relier.isOAuth()) {
-          // If an OAuth user makes it here, they are either not signed in
-          // or are verifying in a different tab. Show the "Account
-          // verified!" screen to the user, the correct tab will have
-          // already transitioned back to the relier.
-          this._navigateToVerifiedScreen();
-        } else {
-          return account.isSignedIn()
-            .then((isSignedIn) => {
-              if (isSignedIn) {
-                this.navigate('settings', {
-                  success: t('Account verified successfully')
-                });
-              } else {
-                this._navigateToVerifiedScreen();
-              }
-            });
-        }
-      });
-    },
-
-    /**
-     * Navigate to the correct *_verified screen.
-     *
-     * @private
-     */
-    _navigateToVerifiedScreen () {
-      if (this.getSearchParam('secondary_email_verified')) {
-        this.navigate('secondary_email_verified');
-      } else if (this.isSignUp()) {
-        this.navigate('signup_verified');
-      } else {
-        this.navigate('signin_verified');
-      }
+    _getBrokerMethod () {
+      const methodKey = this.keyOfVerificationReason(this.model.get('type'));
+      return CompleteSignUpView.BROKER_METHODS[methodKey];
     },
 
     /**
@@ -283,6 +228,12 @@ define(function (require, exports, module) {
         // unexpected error, rethrow for display.
         throw err;
       });
+    }
+  }, {
+    BROKER_METHODS: {
+      SECONDARY_EMAIL_VERIFIED: 'afterCompleteAddSecondaryEmail',
+      SIGN_IN: 'afterCompleteSignIn',
+      SIGN_UP: 'afterCompleteSignUp',
     }
   });
 

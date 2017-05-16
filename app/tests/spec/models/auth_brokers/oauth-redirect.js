@@ -177,6 +177,27 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('afterCompleteSignIn', () => {
+      it('logs, finishes the oauth flow if the user verifies in the original tab', () => {
+        return broker.persistVerificationData(account)
+          .then(() => {
+            return broker.afterCompleteSignIn(account);
+          })
+          .then(() => {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account, {
+              action: Constants.OAUTH_ACTION_SIGNIN
+            }));
+          });
+      });
+
+      it('does not finish the oauth flow if the user verifies in another tab', () => {
+        return broker.afterCompleteSignIn(account)
+          .then(() => {
+            assert.isFalse(broker.finishOAuthFlow.calledWith(account));
+          });
+      });
+    });
+
     describe('afterCompleteResetPassword', () => {
       it('finishes the oauth flow if the user verifies in the original tab', () => {
         return broker.persistVerificationData(account)
