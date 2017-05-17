@@ -77,6 +77,7 @@ node ./tests/teamcity/install-npm-deps.js \
   bluebird                        \
   bower                           \
   convict                         \
+  css                             \
   extend                          \
   firefox-profile                 \
   fxa-shared                      \
