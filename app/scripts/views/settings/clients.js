@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings/clients');
   const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
-  const MIN_REFRESH_INDICATOR_MS = 1800;
+  const MIN_REFRESH_INDICATOR_MS = 1600;
   const DEVICE_REMOVED_ANIMATION_MS = 150;
 
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -103,7 +103,6 @@ define(function (require, exports, module) {
       'click .clients-refresh': 'startRefresh',
       'click [data-get-app]': '_onGetApp'
     },
-
 
     /**
      * Determine if the clients list should show Web Sessions

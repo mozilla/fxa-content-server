@@ -28,7 +28,8 @@ define(function (require, exports, module) {
   function showProgressIndicator(handler, el = 'button[type=submit]', delayHandlerByMills = 0) {
     return function (...args) {
       const target = this.$(el);
-      const minProgressIndicatorMs = parseInt(target.data('minProgressIndicatorMs') || 0, 10);
+      const RADIX = 10;
+      const minProgressIndicatorMs = parseInt(target.data('minProgressIndicatorMs') || 0, RADIX);
 
       const progressIndicator = getProgressIndicator(this, target);
       progressIndicator.start(target);
