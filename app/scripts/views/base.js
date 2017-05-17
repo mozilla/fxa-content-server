@@ -877,7 +877,7 @@ define(function (require, exports, module) {
      * @param {String|Function} handler
      * @returns {undefined}
      */
-    invokeHandler (handler/*, args...*/) {
+    invokeHandler (handler, ...args) {
       // convert a name to a function.
       if (_.isString(handler)) {
         handler = this[handler];
@@ -888,15 +888,13 @@ define(function (require, exports, module) {
       }
 
       if (_.isFunction(handler)) {
-        var args = [].slice.call(arguments, 1);
-
         // If an `arguments` type object was passed in as the first item,
         // then use that as the arguments list. Otherwise, use all arguments.
         if (_.isArguments(args[0])) {
           args = args[0];
         }
 
-        return handler.apply(this, args);
+        return handler.call(this, ...args);
       }
     },
 
@@ -936,13 +934,9 @@ define(function (require, exports, module) {
      * @param {String} methodName
      * @returns {Promise}
      */
-    invokeBrokerMethod (methodName/*, ...*/) {
-      var args = [].slice.call(arguments, 1);
-
-      var broker = this.broker;
-
-      return p(broker[methodName].apply(broker, args))
-        .then(this.invokeBehavior.bind(this));
+    invokeBrokerMethod (methodName, ...args) {
+      return p(this.broker[methodName](...args))
+        .then((behavior) => this.invokeBehavior(behavior, ...args));
     },
 
     /**
@@ -950,15 +944,17 @@ define(function (require, exports, module) {
      *
      * @method invokeBehavior
      * @param {Function} behavior
-     * @returns {Variant} behavior's return value if behavior is a function,
-     *         otherwise return the behavior.
+     * @returns {Promise} resolves to the behavior's return value if behavior
+     *   is a function, otherwise resolves to the behavior value.
      */
-    invokeBehavior (behavior) {
-      if (_.isFunction(behavior)) {
-        return behavior(this);
-      }
+    invokeBehavior (behavior, ...args) {
+      return p().then(() => {
+        if (_.isFunction(behavior)) {
+          return behavior(this, ...args);
+        }
 
-      return behavior;
+        return behavior;
+      });
     },
 
     /**
