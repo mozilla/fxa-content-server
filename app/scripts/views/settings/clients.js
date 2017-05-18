@@ -19,7 +19,6 @@ define(function (require, exports, module) {
   const Template = require('stache!templates/settings/clients');
   const UserAgentMixin = require('views/mixins/user-agent-mixin');
 
-  const MIN_REFRESH_INDICATOR_MS = 1600;
   const DEVICE_REMOVED_ANIMATION_MS = 150;
 
   const UTM_PARAMS = '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
@@ -205,7 +204,7 @@ define(function (require, exports, module) {
       // only add the artificial delay once the user clicks refresh. This
       // allows the initial load/render to occur as fast as the server
       // can respond.
-      this.$('.clients-refresh').data('minProgressIndicatorMs', MIN_REFRESH_INDICATOR_MS);
+      this.$('.clients-refresh').data('minProgressIndicatorMs', View.MIN_REFRESH_INDICATOR_MS);
       this.logViewEvent('refresh');
       // the actual refresh is done by `submit`.
     },
@@ -228,6 +227,8 @@ define(function (require, exports, module) {
       return proto.afterSubmit.call(this)
         .then(() => this.render());
     }
+  }, {
+    MIN_REFRESH_INDICATOR_MS: 1600
   });
 
   Cocktail.mixin(

@@ -406,7 +406,7 @@ define(function (require, exports, module) {
 
         view.startRefresh();
 
-        assert.equal(view.$('.clients-refresh').data('minProgressIndicatorMs'), 1800);
+        assert.equal(view.$('.clients-refresh').data('minProgressIndicatorMs'), View.MIN_REFRESH_INDICATOR_MS);
         assert.isTrue(view.logViewEvent.calledOnce);
         assert.isTrue(view.logViewEvent.calledWith('refresh'));
       });
