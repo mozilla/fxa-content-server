@@ -875,6 +875,7 @@ define(function (require, exports, module) {
      *
      * @method invokeHandler
      * @param {String|Function} handler
+     * @param {...*} args - All additional arguments are passed to the handler.
      * @returns {undefined}
      */
     invokeHandler (handler, ...args) {
@@ -894,7 +895,7 @@ define(function (require, exports, module) {
           args = args[0];
         }
 
-        return handler.call(this, ...args);
+        return handler.apply(this, args);
       }
     },
 
@@ -932,6 +933,7 @@ define(function (require, exports, module) {
      *
      * @method invokeBrokerMethod
      * @param {String} methodName
+     * @param {...*} args - all additional arguments are passed to the broker and behavior.
      * @returns {Promise}
      */
     invokeBrokerMethod (methodName, ...args) {
@@ -944,6 +946,7 @@ define(function (require, exports, module) {
      *
      * @method invokeBehavior
      * @param {Function} behavior
+     * @param {...*} args - all additional arguments are passed to the behavior.
      * @returns {Promise} resolves to the behavior's return value if behavior
      *   is a function, otherwise resolves to the behavior value.
      */
