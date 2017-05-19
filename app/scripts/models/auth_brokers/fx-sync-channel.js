@@ -40,7 +40,9 @@ define(function (require, exports, module) {
     commands: null,
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      sendChangePasswordNotice: true
+      sendAfterSignInConfirmationPollNotice: false,
+      sendAfterSignUpConfirmationPollNotice: false,
+      sendChangePasswordNotice: true,
     }),
 
     getCommand (commandName) {
@@ -129,6 +131,26 @@ define(function (require, exports, module) {
       // the about:accounts tab and have Sync still successfully start.
       return this._notifyRelierOfLogin(account)
         .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
+    },
+
+    afterSignInconfirmationPoll (account) {
+      return proto.afterSignInconfirmationPoll.call(this, account)
+        .then(() => {
+          if (this.hasCapability('sendAfterSignInConfirmationPollNotice')) {
+            const loginData = this._getLoginData(account);
+            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData);
+          }
+        });
+    },
+
+    afterSignUpconfirmationPoll (account) {
+      return proto.afterSignUpconfirmationPoll.call(this, account)
+        .then(() => {
+          if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
+            const loginData = this._getLoginData(account);
+            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData);
+          }
+        });
     },
 
     afterResetPasswordConfirmationPoll (account) {
