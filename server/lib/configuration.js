@@ -453,7 +453,7 @@ const conf = module.exports = convict({
   sms: {
     redirect: {
       targetLink: {
-        default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=android&creative=button',
+        default: 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&adgroup=sms&creative=link',
         doc: 'Target URL for redirection',
         format: 'url'
       }
