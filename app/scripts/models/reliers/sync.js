@@ -27,7 +27,9 @@ define(function (require, exports, module) {
     context: Vat.string().min(1),
     country: Vat.string().valid(...AllowedCountries),
     customizeSync: Vat.boolean(),
-    service: Vat.string()
+    service: Vat.string(),
+    // signin code, from an SMS.
+    signin: Vat.string().renameTo('signinCode')
   };
   /*eslint-enable camelcase*/
 

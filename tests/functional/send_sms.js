@@ -12,7 +12,10 @@
    'intern/dojo/node!../../server/lib/configuration',
  ], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
    CountryTelephoneInfo, serverConfig) {
+   'use strict';
+
    const config = intern.config;
+   const fxaProduction = config.fxaProduction;
 
    const ADJUST_LINK_ANDROID =
     'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
@@ -52,7 +55,11 @@
 
    const PASSWORD = 'password';
 
-   var email;
+   let email;
+   let phoneNumber;
+   let formattedPhoneNumber;
+
+   const countryInfo = CountryTelephoneInfo['US'];
 
    const click = FunctionalHelpers.click;
    const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
@@ -66,11 +73,31 @@
    const testHrefEquals = FunctionalHelpers.testHrefEquals;
    const type = FunctionalHelpers.type;
 
+   /**
+    * If in production, skip the test to avoid sending an SMS
+    * to real phone numbers.
+    *
+    * @param {Function} callback
+    * @returns
+    */
+   function skipIfProduction(callback) {
+     if (fxaProduction) {
+       return function () {
+         return this.parent.end();
+       };
+     } else {
+       return callback;
+     }
+   }
+
    const suite = {
      name: 'send_sms',
 
      beforeEach: function () {
        email = TestHelpers.createEmail();
+       phoneNumber = serverConfig.get('sms.testPhoneNumber');//TestHelpers.createPhoneNumber();
+       formattedPhoneNumber =
+         countryInfo.format(countryInfo.normalize(phoneNumber));
 
        // User needs a sessionToken to be able to send an SMS. Sign up,
        // no need to verify.
@@ -194,7 +221,7 @@
         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'required'));
      },
 
-     'invalid phone number (too short)': function () {
+     'invalid US phone number (too short)': function () {
        return this.remote
          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567'))
@@ -203,7 +230,7 @@
          .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
      },
 
-     'invalid phone number (too long)': function () {
+     'invalid US phone number (too long)': function () {
        return this.remote
          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '21345678901'))
@@ -212,28 +239,19 @@
          .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
      },
 
-     'invalid phone number (contains letters)': function () {
+     'invalid US phone number (contains letters)': function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, '2134567a890'))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SEND_SMS_TOOLTIP))
         .then(testElementTextInclude(SELECTOR_SEND_SMS_TOOLTIP, 'invalid'));
-     }
-   };
+     },
 
-   const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
-   const testPhoneNumberCountry = serverConfig.get('sms.testPhoneNumberCountry');
-
-   if (testPhoneNumber && testPhoneNumberCountry) {
-     const countryInfo = CountryTelephoneInfo[testPhoneNumberCountry];
-     const formattedPhoneNumber =
-       countryInfo.format(countryInfo.normalize(testPhoneNumber));
-
-     suite['valid phone number, back'] = function () {
+     'valid US phone number, back': skipIfProduction(function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, phoneNumber))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
         .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
@@ -244,47 +262,42 @@
         .then(testElementExists(SELECTOR_SEND_SMS_HEADER))
 
         // original phone number should still be in place
-        .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber));
-     };
+        .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, phoneNumber));
+     }),
 
-     suite['valid phone number, resend'] = function () {
+     'valid US phone number, resend': skipIfProduction(function () {
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, testPhoneNumber))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, phoneNumber))
         .then(click(SELECTOR_SEND_SMS_SUBMIT))
         .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
 
-        // Give a slight delay or else nexmo throttles the request
-        .sleep(10000)
-
         .then(click(SELECTOR_SMS_SENT_RESEND))
         .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber));
-     };
+     }),
 
-     if (testPhoneNumberCountry === 'US') {
-       suite['valid phone number w/ country code of 1'] = function () {
-         return this.remote
-          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `1${testPhoneNumber}`))
-          .then(click(SELECTOR_SEND_SMS_SUBMIT))
-          .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
-          .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
-          .then(testElementExists(SELECTOR_MARKETING_LINK));
-       };
+     'valid US phone number w/ country code of 1': skipIfProduction(function () {
+       return this.remote
+        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `1${phoneNumber}`))
+        .then(click(SELECTOR_SEND_SMS_SUBMIT))
+        .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
+        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+        .then(testElementExists(SELECTOR_MARKETING_LINK));
+     }),
 
-       suite['valid phone number w/ country code of +1'] = function () {
-         return this.remote
-          .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
-          .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `+1${testPhoneNumber}`))
-          .then(click(SELECTOR_SEND_SMS_SUBMIT))
-          .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
-          .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
-          .then(testElementExists(SELECTOR_MARKETING_LINK));
-       };
-     }
+     'valid US phone number w/ country code of +1': skipIfProduction(function () {
+       return this.remote
+        .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
+        .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, `+1${phoneNumber}`))
+        .then(click(SELECTOR_SEND_SMS_SUBMIT))
+        .then(testElementExists(SELECTOR_SMS_SENT_HEADER))
+        .then(testElementTextInclude(SELECTOR_SMS_SENT_TO, formattedPhoneNumber))
+        .then(testElementExists(SELECTOR_MARKETING_LINK));
+     }),
 
-     suite['valid phone number (contains spaces and punctuation)'] = function () {
-       const unformattedPhoneNumber = ` ${testPhoneNumber.slice(0,3)} .,- ${testPhoneNumber.slice(3)} `;
+     'valid US phone number (contains spaces and punctuation)': skipIfProduction(function () {
+       const unformattedPhoneNumber = ` ${phoneNumber.slice(0,3)} .,- ${phoneNumber.slice(3)} `;
        return this.remote
         .then(openPage(SEND_SMS_URL, SELECTOR_SEND_SMS_HEADER))
         .then(type(SELECTOR_SEND_SMS_PHONE_NUMBER, unformattedPhoneNumber))
@@ -298,8 +311,8 @@
 
         // original phone number should still be in place
         .then(testElementValueEquals(SELECTOR_SEND_SMS_PHONE_NUMBER, unformattedPhoneNumber));
-     };
-   }
+     })
+   };
 
    registerSuite(suite);
  });

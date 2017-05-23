@@ -145,7 +145,9 @@
            return view.submit()
              .then(() => {
                assert.isTrue(account.sendSms.calledOnce);
-               assert.isTrue(account.sendSms.calledWith('+11234567890', SmsMessageIds.FIREFOX_MOBILE_INSTALL));
+               assert.isTrue(account.sendSms.calledWith('+11234567890', SmsMessageIds.FIREFOX_MOBILE_INSTALL, {
+                 features: ['signinCodes']
+               }));
                assert.isTrue(view._onSendSmsSuccess.calledOnce);
              });
          });

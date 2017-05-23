@@ -6,36 +6,40 @@ define([
   'intern',
   'intern!object',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync';
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+  const config = intern.config;
+  const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_fennec_v1&service=sync`;
 
-  var thenify = FunctionalHelpers.thenify;
+  let email;
+  const PASSWORD = '12345678';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const thenify = FunctionalHelpers.thenify;
 
-  var setupTest = thenify(function (successSelector, options) {
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+
+  const setupTest = thenify(function (successSelector, options) {
     options = options || {};
 
     return this.parent
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, '#fxa-signin-header'))
+      .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(successSelector))
@@ -53,6 +57,15 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
+    },
+
+    'open with a signinCode': function () {
+      const PAGE_URL_SIGNIN_CODE = `${PAGE_URL}&signin=codecode`;
+
+      return this.remote
+        .then(clearBrowserState())
+        .then(openPage(PAGE_URL_SIGNIN_CODE, selectors.SIGNIN.HEADER))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, 'a@a.com'));
     },
 
     'verified, verify same browser': function () {

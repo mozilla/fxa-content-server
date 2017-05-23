@@ -8,31 +8,35 @@ define([
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
   'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/selectors',
   'tests/functional/lib/ua-strings'
 ], function (intern, registerSuite,
-  TestHelpers, FunctionalHelpers, FxDesktopHelpers, UA_STRINGS) {
-  var config = intern.config;
-  var PAGE_URL = config.fxaContentRoot + 'signin?context=fx_ios_v1&service=sync';
+  TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors, UA_STRINGS) {
+  'use strict';
 
-  var email;
-  var PASSWORD = '12345678';
+  const config = intern.config;
+  const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_ios_v1&service=sync`;
 
-  var thenify = FunctionalHelpers.thenify;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var noPageTransition = FunctionalHelpers.noPageTransition;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-  var testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  let email;
+  const PASSWORD = '12345678';
+
+  const thenify = FunctionalHelpers.thenify;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  const noPageTransition = FunctionalHelpers.noPageTransition;
+  const openPage = FunctionalHelpers.openPage;
+  const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
+  const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
+  const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
+  const testIsBrowserNotified = FxDesktopHelpers.testIsBrowserNotifiedOfMessage;
+  const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
+  const visibleByQSA = FunctionalHelpers.visibleByQSA;
 
   const setupTest = thenify(function (options) {
     options = options || {};
@@ -43,7 +47,7 @@ define([
 
     return this.parent
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, '#fxa-signin-header', {
+      .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER, {
         query: {
           forceUA: options.userAgent || UA_STRINGS['ios_firefox_6_0']
         }
@@ -69,6 +73,16 @@ define([
       return this.remote
         .then(clearBrowserState({ force: true }));
     },
+
+    'open with a signinCode': function () {
+      const PAGE_URL_SIGNIN_CODE = `${PAGE_URL}&signin=codecode`;
+
+      return this.remote
+        .then(clearBrowserState())
+        .then(openPage(PAGE_URL_SIGNIN_CODE, selectors.SIGNIN.HEADER))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, 'a@a.com'));
+    },
+
 
     'verified, verify same browser': function () {
       return this.remote
@@ -128,13 +142,13 @@ define([
 
     'signup link is enabled': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER))
         .then(testElementExists('a[href^="/signup"]'));
     },
 
     'signin with an unknown account does not allow the user to sign up': function () {
       return this.remote
-        .then(openPage(PAGE_URL, '#fxa-signin-header'))
+        .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER))
         .execute(listenForFxaCommands)
 
         .then(fillOutSignIn(email, PASSWORD))

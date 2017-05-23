@@ -27,7 +27,11 @@ define([
     if (! template) {
       template = 'signin{id}';
     }
-    return template.replace('{id}', Math.random()) + '@restmail.net';
+    return template.replace('{id}', Date.now()) + '@restmail.net';
+  }
+
+  function createPhoneNumber() {
+    return ('' + Date.now()).substr(3);
   }
 
   function emailToUser(email) {
@@ -36,6 +40,7 @@ define([
 
   return {
     createEmail: createEmail,
+    createPhoneNumber,
     createRandomHexString: createRandomHexString,
     createUID: createUID,
     emailToUser: emailToUser

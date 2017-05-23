@@ -117,9 +117,11 @@ define(function (require, exports, module) {
      * @private
      */
     _sendSms (normalizedPhoneNumber, messageId) {
-      return this.getAccount().sendSms(normalizedPhoneNumber, messageId)
-        .then(() => this._onSendSmsSuccess())
-        .fail((err) => this._onSendSmsError(err));
+      return this.getAccount().sendSms(normalizedPhoneNumber, messageId, {
+        features: ['signinCodes']
+      })
+      .then(() => this._onSendSmsSuccess())
+      .fail((err) => this._onSendSmsError(err));
     },
 
     /**
