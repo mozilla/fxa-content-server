@@ -717,7 +717,6 @@ define([
               var command = e.detail.message.command;
               var messageId = e.detail.message.messageId;
 
-              console.log('responding to', command, response);
               if (command === expectedCommand) {
                 removeEventListener('WebChannelMessageToChrome', listener);
                 var event = new CustomEvent('WebChannelMessageToContent', {

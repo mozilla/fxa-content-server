@@ -56,6 +56,8 @@ define([
             .then(createUser(browserSignedInEmail, PASSWORD, { preVerified: true }))
             .then((_browserSignedInAccount) => {
               browserSignedInAccount = _browserSignedInAccount;
+              browserSignedInAccount.email = browserSignedInEmail;
+              browserSignedInAccount.verified = true;
             });
         }
       })
@@ -66,6 +68,8 @@ define([
             .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
             .then((_otherAccount) => {
               otherAccount = _otherAccount;
+              otherAccount.email = otherEmail;
+              otherAccount.verified = true;
             });
         }
       });

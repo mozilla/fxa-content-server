@@ -64,7 +64,6 @@ define(function (require, exports, module) {
     this._configLoader = new ConfigLoader();
     this._history = options.history || Backbone.history;
     this._metrics = options.metrics;
-    this._notificationWebChannel = options.notificationWebChannel;
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
@@ -117,7 +116,7 @@ define(function (require, exports, module) {
         // inter tab communication.
         .then(_.bind(this.initializeFxaClient, this))
         // depends on nothing
-        .then(_.bind(this.initializeWebChannel, this))
+        .then(_.bind(this.initializeNotificationChannel, this))
         // depends on iframeChannel and interTabChannel, web channel
         .then(_.bind(this.initializeNotifier, this))
         // metrics depends on relier and notifier
@@ -324,6 +323,7 @@ define(function (require, exports, module) {
           assertionLibrary: this._assertionLibrary,
           iframeChannel: this._iframeChannel,
           metrics: this._metrics,
+          notificationChannel: this._notificationChannel,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           relier: this._relier,
@@ -375,27 +375,22 @@ define(function (require, exports, module) {
           oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
           sentryMetrics: this._sentryMetrics,
-          storage: this._getStorageInstance(),
+          storage: this._getUserStorageInstance(),
           uniqueUserId: this._getUniqueUserId()
         });
 
-        const service = this._relier.get('service');
-        const webChannel = this._notificationWebChannel;
-        if (user.shouldSetSignedInAccountFromBrowser(webChannel, service)) {
-          // The delay is to give functional tests a moment to attach
-          // WebChannel responders.
-          const REQUEST_DELAY_MS = this._authenticationBroker.isAutomatedBrowser() ? 200 : 0;
-          return p().delay(REQUEST_DELAY_MS)
-            .then(() => user.setSignedInAccountFromBrowser(webChannel, service));
+        const accountData  = this._authenticationBroker.get('browserSignedInAccount');
+        if (user.shouldSetSignedInAccountFromBrowser(this._relier.get('service'))) {
+          user.setSignedInAccountFromBrowserAccountData(accountData);
         }
       }
     },
 
-    initializeWebChannel () {
-      if (! this._notificationWebChannel) {
-        this._notificationWebChannel =
+    initializeNotificationChannel () {
+      if (! this._notificationChannel) {
+        this._notificationChannel =
               new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);
-        this._notificationWebChannel.initialize({
+        this._notificationChannel.initialize({
           window: this._window
         });
       }
@@ -406,7 +401,7 @@ define(function (require, exports, module) {
         this._notifier = new Notifier({
           iframeChannel: this._iframeChannel,
           tabChannel: this._interTabChannel,
-          webChannel: this._notificationWebChannel
+          webChannel: this._notificationChannel
         });
       }
     },
@@ -580,13 +575,12 @@ define(function (require, exports, module) {
       return true;
     },
 
-    _getStorageInstance () {
+    _getUserStorageInstance () {
       // The Sync user should *always* come from the browser
       // if FXA_STATUS is supported. Don't even bother
       // with localStorage.
-      var shouldUseMemoryStorage =
-        this._notificationWebChannel.isFxaStatusSupported() &&
-        this._relier.isSync();
+      const shouldUseMemoryStorage =
+        this._authenticationBroker.hasCapability('fxaStatus') && this._relier.isSync();
 
       const storageType = shouldUseMemoryStorage ? undefined : 'localStorage';
       return Storage.factory(storageType, this._window);

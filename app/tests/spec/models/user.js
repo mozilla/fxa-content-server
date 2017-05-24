@@ -1455,154 +1455,73 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('setSignedInAccountFromBrowser', () => {
-      describe('browser does not support fxa_status query', () => {
-        it('should not request user data from the browser', () => {
-          sinon.stub(user, 'shouldSetSignedInAccountFromBrowser', () => false);
-          sinon.spy(user, 'setSignedInAccount');
-          const channel = {
-            request: sinon.spy()
-          };
+    describe('shouldSetSignedInAccountFromBrowser', () => {
+      it('returns true if service=sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
 
-          return user.setSignedInAccountFromBrowser(channel, Constants.SYNC_SERVICE)
-            .then(() => {
-              assert.isFalse(channel.request.called);
-              assert.isFalse(user.setSignedInAccount.called);
-            });
-        });
+        assert.isTrue(user.shouldSetSignedInAccountFromBrowser('sync'));
       });
 
-      describe('browser supports fxa_status query', () => {
-        const browserUserData = {
-          signedInUser: {
+      it('returns true if no local user, not sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({}));
+
+        assert.isTrue(user.shouldSetSignedInAccountFromBrowser(''));
+      });
+
+      it('returns false if local user, not sync', () => {
+        sinon.stub(user, 'getSignedInAccount', () => user.initAccount({ email: 'already-signed-in@testuser.com' }));
+
+        assert.isFalse(user.shouldSetSignedInAccountFromBrowser(''));
+      });
+    });
+
+    describe('setSignedInAccountFromBrowserAccountData', () => {
+      beforeEach(() => {
+        sinon.spy(user, 'setSignedInAccount');
+      });
+
+      describe('with account data', () => {
+        it('sets the signed in user', () => {
+          const browserAccountData = {
             email: 'testuser@testuser.com',
+            filtered: true,
             sessionToken: 'sessionToken',
             uid: 'uid',
             verified: true
-          }
-        };
-
-        it('should request user data from the browser, save data', () => {
-          sinon.stub(user, 'shouldSetSignedInAccountFromBrowser', () => true);
-          sinon.stub(user, '_setSignedInAccountFromFxaStatusResponse', () => {});
-
-          const channel = {
-            COMMANDS: {
-              FXA_STATUS: 'fxaccounts:fxa_status'
-            },
-            request: sinon.spy(() => p(browserUserData))
           };
 
-          return user.setSignedInAccountFromBrowser(channel, Constants.SYNC_SERVICE)
+          return user.setSignedInAccountFromBrowserAccountData(browserAccountData)
             .then(() => {
-              assert.isTrue(channel.request.calledOnce);
-              assert.isTrue(channel.request.calledWith('fxaccounts:fxa_status'));
+              assert.isTrue(user.setSignedInAccount.calledOnce);
 
-              assert.isTrue(user._setSignedInAccountFromFxaStatusResponse.calledOnce);
-              assert.isTrue(user._setSignedInAccountFromFxaStatusResponse.calledWith(browserUserData));
+              const signedInAccount = user.getSignedInAccount();
+              assert.deepEqual(
+                signedInAccount.pick(
+                  'email',
+                  'sessionToken',
+                  'sessionTokenContext',
+                  'uid',
+                  'verified'
+                ),
+                {
+                  email: 'testuser@testuser.com',
+                  sessionToken: 'sessionToken',
+                  sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
+                  uid: 'uid',
+                  verified: true
+                }
+              );
+              assert.isFalse(signedInAccount.has('filtered'));
             });
         });
       });
 
-      describe('shouldSetSignedInAccountFromBrowser', () => {
-        let channel;
-
-        describe('channel supports fxa status request', () => {
-          beforeEach(() => {
-            channel = {
-              isFxaStatusSupported: () => true
-            };
-          });
-
-          describe('service is sync', () => {
-            it('returns true', () => {
-              assert.isTrue(user.shouldSetSignedInAccountFromBrowser(channel, Constants.SYNC_SERVICE));
+      describe('no account data', () => {
+        it('does nothing', () => {
+          return user.setSignedInAccountFromBrowserAccountData(null)
+            .then(() => {
+              assert.isFalse(user.setSignedInAccount.called);
             });
-          });
-
-          describe('default account', () => {
-            it('returns true', () => {
-              sinon.stub(user, 'getSignedInAccount', () => {
-                return {
-                  isDefault: () => true
-                };
-              });
-              assert.isTrue(user.shouldSetSignedInAccountFromBrowser(channel, 'fake_client_id'));
-            });
-          });
-
-          describe('neither sync nor default account', () => {
-            it('returns false', () => {
-              sinon.stub(user, 'getSignedInAccount', () => {
-                return {
-                  isDefault: () => false
-                };
-              });
-              assert.isFalse(user.shouldSetSignedInAccountFromBrowser(channel, 'fake_client_id'));
-            });
-          });
-        });
-
-        describe('channel does not support fxa status request', () => {
-          it('returns false', () => {
-            channel = {
-              isFxaStatusSupported: () => false
-            };
-
-            assert.isFalse(user.shouldSetSignedInAccountFromBrowser(channel, Constants.SYNC_SERVICE));
-          });
-        });
-      });
-
-      describe('_setSignedInAccountFromFxaStatusResponse', () => {
-        beforeEach(() => {
-          sinon.spy(user, 'setSignedInAccount');
-        });
-
-        describe('response does not have `signedInUser`', () => {
-          it('does not attempt to save an account', () => {
-            return user._setSignedInAccountFromFxaStatusResponse({})
-              .then(() => {
-                assert.isFalse(user.setSignedInAccount.called);
-              });
-          });
-        });
-
-        describe('response has `signedInUser`', () => {
-          it('sets the signed in user', () => {
-            const browserResponse = {
-              signedInUser: {
-                email: 'testuser@testuser.com',
-                sessionToken: 'sessionToken',
-                uid: 'uid',
-                verified: true
-              }
-            };
-
-
-            return user._setSignedInAccountFromFxaStatusResponse(browserResponse)
-              .then(() => {
-                assert.isTrue(user.setSignedInAccount.calledOnce);
-
-                const signedInAccount = user.getSignedInAccount();
-                assert.deepEqual(
-                  signedInAccount.pick(
-                    'email',
-                    'sessionToken',
-                    'sessionTokenContext',
-                    'uid',
-                    'verified'
-                  ),
-                  {
-                    email: 'testuser@testuser.com',
-                    sessionToken: 'sessionToken',
-                    sessionTokenContext: Constants.SESSION_TOKEN_USED_FOR_SYNC,
-                    uid: 'uid',
-                    verified: true
-                  }
-                );
-              });
-          });
         });
       });
     });
