@@ -119,7 +119,6 @@ define(function (require, exports, module) {
 
       const channel = this._notificationChannel;
       return p().delay(TEST_REQUEST_DELAY_MS)
-        // OAuth reliers will have `service` set to the client_id, Sync to `sync`
         .then(() => channel.request(channel.COMMANDS.FXA_STATUS, this.relier.pick('service')))
         .then((response = {}) => {
           // The browser will respond with a signedInUser in the following cases:

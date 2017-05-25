@@ -746,7 +746,7 @@ define(function (require, exports, module) {
       // If trying to sign in to an OAuth relier, prefer any users that are
       // stored in localStorage and only use the browser's state if no
       // user is stored.
-      return !! (service === Constants.SYNC_SERVICE || this.getSignedInAccount().isDefault());
+      return service === Constants.SYNC_SERVICE || this.getSignedInAccount().isDefault();
     },
 
     /**
