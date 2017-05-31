@@ -97,7 +97,7 @@ define(function (require, exports, module) {
     return function (...args) {
       return this._getClient()
         .then((client) => {
-          if (! client[method]) {
+          if (! _.isFunction(client[method])) {
             throw new Error(`Invalid method on fxa-js-client: ${method}`);
           }
           return client[method](...args);
@@ -430,6 +430,7 @@ define(function (require, exports, module) {
      *
      * @param {String} originalEmail
      * @param {String} passwordForgotToken
+     * @param {Object} relier
      * @param {Object} [options={}] Options
      *   @param {String} [options.resume]
      *   Opaque url-encoded string that will be included in the verification link
