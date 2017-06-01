@@ -1,3 +1,13 @@
+<a name="1.87.4"></a>
+## 1.87.4 (2017-06-01)
+
+
+### Bug Fixes
+
+* **sms:** Handle errors to /sms/status (#5120) r=@philbooth ([4931d70](https://github.com/mozilla/fxa-content-server/commit/4931d70))
+
+
+
 <a name="1.87.3"></a>
 ## 1.87.3 (2017-05-24)
 
