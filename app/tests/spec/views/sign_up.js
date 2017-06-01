@@ -1341,6 +1341,15 @@ define(function (require, exports, module) {
         view.$('#submit-btn').click();
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
       });
+
+      it('logs the suggest-sync event', () => {
+        // Without the _flusthMetricsThenRedirect override, the test
+        // causes the page to rediret.
+        sinon.stub(view, '_flushMetricsThenRedirect', () => p());
+        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
+        view.$('[data-flow-event="link.signin"]').click();
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
+      });
     });
   });
 });
