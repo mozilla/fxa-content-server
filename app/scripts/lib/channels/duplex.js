@@ -56,8 +56,21 @@ define(function (require, exports, module) {
       for (var messageId in this._requests) {
         this.remove(this._requests[messageId]);
       }
+    },
+
+    /**
+     * Iterate through each of the outstanding requests
+     *
+     * @param {Function} callback
+     */
+    each (callback) {
+      _.each(this._requests, callback);
     }
   };
+
+  // Suffix to ensure each message has a unique messageId.
+  // Every send increments the suffix by 1.
+  let messageIdSuffix = 0;
 
   function DuplexChannel() {
   }
@@ -153,8 +166,11 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @return {String}
      */
+    _messageCount: 0,
     createMessageId (command, data) {
-      return Date.now();
+      // If two messages are created within the same millisecond, Date.now()
+      // returns the same value. Append a suffix that ensures uniqueness.
+      return `${Date.now()}${++messageIdSuffix}`;
     },
 
     onMessageReceived (message) {
@@ -209,7 +225,7 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Parse an incoming message into `command`, `error`, and `messageId`
+     * Parse an incoming message into `error`, and `messageId`
      *
      * @param {Object} message
      * @returns {Object} parsedMessage={}
@@ -219,6 +235,18 @@ define(function (require, exports, module) {
      */
     parseError (message) {
       return _.pick(message, 'error', 'messageId');
+    },
+
+    /**
+     * Reject all outstanding requests with `reason`
+     *
+     * @param {Any} reason
+     */
+    rejectAllOutstandingRequests (reason) {
+      this._outstandingRequests.each((outstanding, messageId) => {
+        this._outstandingRequests.remove(messageId);
+        outstanding.deferred.reject(reason);
+      });
     }
   });
 
