@@ -70,6 +70,12 @@ define(function (require, exports, module) {
 
   // Suffix to ensure each message has a unique messageId.
   // Every send increments the suffix by 1.
+  // A module variable is used instead of an instance variable because
+  // more than one channel can exist. Using an instance variable,
+  // it's possible for two messages on two channels to have the same
+  // messageId, if both channels send a message in the same millisecond.
+  // This might not cause any harm in reality, but this avoids
+  // that possibility.
   let messageIdSuffix = 0;
 
   function DuplexChannel() {
@@ -166,7 +172,6 @@ define(function (require, exports, module) {
      * @param {Object} [data]
      * @return {String}
      */
-    _messageCount: 0,
     createMessageId (command, data) {
       // If two messages are created within the same millisecond, Date.now()
       // returns the same value. Append a suffix that ensures uniqueness.

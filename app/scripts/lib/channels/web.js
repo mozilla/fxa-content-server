@@ -95,7 +95,7 @@ define(function (require, exports, module) {
       // or from this domain.
       if (/no such channel/i.test(errorMessage)) {
         // Since the channel is not supported, reject all outstanding
-        // requests otherwise they never receive a response.
+        // requests to avoid hanging until the requests time out.
         this.rejectAllOutstandingRequests(AuthErrors.toError('INVALID_WEB_CHANNEL'));
       }
 
