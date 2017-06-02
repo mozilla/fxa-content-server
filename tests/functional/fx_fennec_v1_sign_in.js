@@ -7,23 +7,31 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
+  'tests/functional/lib/selectors',
+  'intern/dojo/node!../../server/lib/configuration',
+], function (intern, registerSuite, TestHelpers, FunctionalHelpers,
+  selectors, serverConfig) {
   'use strict';
 
   const config = intern.config;
-  const PAGE_URL = `${config.fxaContentRoot}signin?context=fx_fennec_v1&service=sync`;
+  const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_fennec_v1&service=sync`;
+  const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync`;
 
   let email;
   const PASSWORD = '12345678';
 
+  const testPhoneNumber = serverConfig.get('sms.testPhoneNumber');
+
   const thenify = FunctionalHelpers.thenify;
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const createUser = FunctionalHelpers.createUser;
+  const deleteAllSms = FunctionalHelpers.deleteAllSms;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
+  const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
   const openPage = FunctionalHelpers.openPage;
   const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
   const openVerificationLinkInNewTab = FunctionalHelpers.openVerificationLinkInNewTab;
@@ -32,6 +40,7 @@ define([
   const testElementTextEquals = FunctionalHelpers.testElementTextEquals;
   const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const type = FunctionalHelpers.type;
 
   const setupTest = thenify(function (successSelector, options) {
     options = options || {};
@@ -39,7 +48,7 @@ define([
     return this.parent
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-      .then(openPage(PAGE_URL, selectors.SIGNIN.HEADER))
+      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
       .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
       .then(fillOutSignIn(email, PASSWORD))
       .then(testElementExists(successSelector))
@@ -57,15 +66,6 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
-    },
-
-    'open with a signinCode': function () {
-      const PAGE_URL_SIGNIN_CODE = `${PAGE_URL}&signin=codecode`;
-
-      return this.remote
-        .then(clearBrowserState())
-        .then(openPage(PAGE_URL_SIGNIN_CODE, selectors.SIGNIN.HEADER))
-        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, 'a@a.com'));
     },
 
     'verified, verify same browser': function () {
@@ -115,6 +115,30 @@ define([
 
         .then(testElementExists('#fxa-sign-in-complete-header'))
         .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'signup in desktop, send an SMS, open deferred deeplink in Fennec': function () {
+      if (testPhoneNumber) {
+        let signinUrlWithSigninCode;
+
+        return this.remote
+          // The phoneNumber is reused across tests, delete all
+          // if its SMS messages to ensure a clean slate.
+          .then(deleteAllSms(testPhoneNumber))
+          .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
+          .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+          .then(click(selectors.SMS_SEND.SUBMIT))
+          .then(testElementExists(selectors.SMS_SENT.HEADER))
+          .then(getSmsSigninCode(testPhoneNumber, 0))
+          .then(function (signinCode) {
+            signinUrlWithSigninCode = `${SIGNIN_PAGE_URL}&signin=${signinCode}`;
+            return this.parent
+              .then(clearBrowserState())
+              .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER))
+              .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
+          });
+      }
     }
   });
 });

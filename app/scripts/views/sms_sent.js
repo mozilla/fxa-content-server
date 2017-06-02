@@ -47,12 +47,14 @@ define(function (require, exports, module) {
     resend () {
       const account = this.model.get('account');
       const normalizedPhoneNumber = this.model.get('normalizedPhoneNumber');
-      return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL)
-        .then(() => {
-          this.displaySuccess(this.translate(UNTRANSLATED_RESENT_MESSAGE, {
-            phoneNumber: this._getFormattedPhoneNumber()
-          }));
-        });
+      return account.sendSms(normalizedPhoneNumber, FIREFOX_MOBILE_INSTALL, {
+        features: ['signinCodes']
+      })
+      .then(() => {
+        this.displaySuccess(this.translate(UNTRANSLATED_RESENT_MESSAGE, {
+          phoneNumber: this._getFormattedPhoneNumber()
+        }));
+      });
     },
 
     _getFormattedPhoneNumber () {

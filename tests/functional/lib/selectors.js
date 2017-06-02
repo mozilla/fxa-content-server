@@ -8,6 +8,12 @@
 define([], function () {
   /*eslint-disable max-len*/
   return {
+    CONFIRM_SIGNIN: {
+      HEADER: '#fxa-confirm-signin-header'
+    },
+    CONFIRM_SIGNUP: {
+      HEADER: '#fxa-confirm-header'
+    },
     FORCE_AUTH: {
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-force-auth-header'
@@ -27,6 +33,14 @@ define([], function () {
       EMAIL: 'input[type=email]',
       HEADER: '#fxa-signup-header',
       LINK_SIGN_IN: 'a#have-account'
+    },
+    SMS_SEND: {
+      HEADER: '#fxa-send-sms-header',
+      PHONE_NUMBER: 'input[type="tel"]',
+      SUBMIT: 'button[type="submit"]'
+    },
+    SMS_SENT: {
+      HEADER: '#fxa-sms-sent-header'
     }
   };
   /*eslint-enable max-len*/
