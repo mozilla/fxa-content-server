@@ -114,20 +114,18 @@ define(function (require, exports, module) {
       $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
       $('body').attr('data-flow-begin', '42');
 
-      return view.render()
-        .then(function () {
-          $('#container').html(view.el);
-        });
+      return view.render();
     });
 
     afterEach(function () {
       metrics.destroy();
+      metrics = null;
 
       view.remove();
       view.destroy();
-      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+      view = null;
 
-      view = metrics = null;
+      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
     });
 
     describe('render', function () {
@@ -1184,6 +1182,10 @@ define(function (require, exports, module) {
     });
 
     describe('suggestEmail', function () {
+      beforeEach(() => {
+        $('#container').html(view.el);
+      });
+
       it('measures how successful our mailcheck suggestion is', function () {
         var windowMock = new WindowMock();
         windowMock.navigator.userAgent = 'mocha';
@@ -1292,7 +1294,11 @@ define(function (require, exports, module) {
     describe('flow events', () => {
       beforeEach(() => {
         sinon.spy(notifier, 'trigger');
-        return view.afterRender();
+
+        return view.afterRender()
+          .then(() => {
+            $('#container').html(view.el);
+          });
       });
 
       it('called notifier.trigger correctly', () => {
@@ -1342,13 +1348,18 @@ define(function (require, exports, module) {
         assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.submit'));
       });
 
-      it('logs the suggest-sync event', () => {
+      it('logs the link.signin event', () => {
         // Without the _flusthMetricsThenRedirect override, the test
-        // causes the page to rediret.
+        // causes the page to redirect.
+        sinon.stub(view, 'isSyncSuggestionEnabled', () => true);
         sinon.stub(view, '_flushMetricsThenRedirect', () => p());
-        assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
-        view.$('[data-flow-event="link.signin"]').click();
-        assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
+        return view.render()
+          .then(() => {
+            assert.isFalse(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
+            assert.lengthOf(view.$('a[data-flow-event="link.signin"]'), 1);
+            view.$('a[data-flow-event="link.signin"]').click();
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'flow.signup.link.signin'));
+          });
       });
     });
   });
