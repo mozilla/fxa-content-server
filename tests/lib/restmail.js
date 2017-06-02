@@ -37,7 +37,6 @@ define([
 
     const uri = getUserUri(user);
     function checkIt () {
-      console.log('waiting for email', uri);
       if (requestAttempts > minAttemptsBeforeLog) {
         // only log if too many attempts, probably means the service is
         // not properly responding

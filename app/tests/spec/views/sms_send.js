@@ -140,6 +140,7 @@
          it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
            sinon.stub(account, 'sendSms', () => p());
            sinon.spy(view, '_onSendSmsSuccess');
+           sinon.stub(view, 'getSmsFeatures', () => ['signinCodes']);
            view.$('input[type=tel]').val('1234567890');
 
            return view.submit()
@@ -148,6 +149,8 @@
                assert.isTrue(account.sendSms.calledWith('+11234567890', SmsMessageIds.FIREFOX_MOBILE_INSTALL, {
                  features: ['signinCodes']
                }));
+
+               assert.isTrue(view.getSmsFeatures.calledOnce);
                assert.isTrue(view._onSendSmsSuccess.calledOnce);
              });
          });

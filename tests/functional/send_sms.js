@@ -27,7 +27,7 @@
     'ct=adjust_tracker&mt=8';
 
 
-   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US';
+   const SEND_SMS_URL = config.fxaContentRoot + 'sms?service=sync&country=US&signinCodes=true';
    const SEND_SMS_NO_QUERY_URL = config.fxaContentRoot + 'sms';
 
    const SELECTOR_CONFIRM_SIGNUP = '#fxa-confirm-header';
@@ -86,22 +86,11 @@
          .then(function () {
            if (testPhoneNumber) {
              return this.parent
-               // delete all emails for the phone number so that
-               // the next test can request email #1 to get
-               // the SMS message.
+               // The phoneNumber is reused across tests, delete all
+               // if its SMS messages to ensure a clean slate.
                .then(deleteAllSms(testPhoneNumber));
            }
          });
-     },
-
-     afterEach: function () {
-       if (testPhoneNumber) {
-         return this.remote
-           // delete all emails for the phone number so that
-           // the next test can request email #1 to get
-           // the SMS message.
-           .then(deleteAllSms(testPhoneNumber));
-       }
      },
 
      'with no query parameters': function () {

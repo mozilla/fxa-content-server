@@ -541,7 +541,7 @@ define([
     return this.parent
       .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
       .then((email) => {
-        return email.text;
+        return email.text.trim();
       });
   });
 
