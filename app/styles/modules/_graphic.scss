@@ -26,12 +26,15 @@
 }
 
 .graphic-mail {
-  @include hidpi-background-image('graphic_mail', 150px 130px);
+  background-image: url('/images/graphic_mail.svg');
   margin-bottom: 25px;
+  margin-left: 65px;
   padding-bottom: 10px;
+  padding-right: 55px;
 
   @include respond-to('small') {
-    background-size: 120px 104px;
+    margin-left: 60px;
+    padding-right: 50px;
   }
 }
 
