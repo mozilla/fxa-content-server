@@ -36,7 +36,7 @@ define(function (require, exports, module) {
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
     state: Vat.string(),
-    jwk: Vat.string()
+    keys_jwk: Vat.string()
   };
 
   var VERIFICATION_INFO_SCHEMA = {
@@ -72,7 +72,7 @@ define(function (require, exports, module) {
       scope: null,
       // standard oauth parameters.
       state: null,
-      jwk: null,
+      keys_jwk: null,
     }),
 
     initialize (attributes, options = {}) {
