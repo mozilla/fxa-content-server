@@ -20,6 +20,10 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const Vat = require('lib/vat');
 
+  const fxaCryptoRelier = require('fxaCryptoRelier');
+  const fxaKeyUtils = new fxaCryptoRelier.KeyUtils();
+  console.log('fxaCryptoRelier', fxaCryptoRelier)
+
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
    *
@@ -82,20 +86,6 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-      function ua2hex(uint8arr) {
-        if (!uint8arr) {
-          return '';
-        }
-
-        var hexStr = '';
-        for (var i = 0; i < uint8arr.length; i++) {
-          var hex = (uint8arr[i] & 0xff).toString(16);
-          hex = (hex.length === 1) ? '0' + hex : hex;
-          hexStr += hex;
-        }
-
-        return hexStr.toUpperCase();
-      }
       var asser;
       var keys;
       const relier = this.relier;
@@ -121,48 +111,10 @@ define(function (require, exports, module) {
         })
         .then((rkeys) => {
           keys = rkeys;
-          var pk = JSON.parse(relier.get('jwk'))
-
-          return window.crypto.subtle.importKey(
-            "jwk", //can be "jwk" (public or private), "spki" (public only), or "pkcs8" (private only)
-            pk,
-            {   //these are the algorithm options
-              name: "RSA-OAEP",
-              hash: {name: "SHA-256"}, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-            },
-            false, //whether the key is extractable (i.e. can be used in exportKey)
-            ["encrypt"] //"encrypt" or "wrapKey" for public key import or
-            //"decrypt" or "unwrapKey" for private key imports
-          )
-
-        })
-        .then((pk) => {
-          function str2ab(str) {
-            var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-            var bufView = new Uint16Array(buf);
-            for (var i=0, strLen=str.length; i<strLen; i++) {
-              bufView[i] = str.charCodeAt(i);
-            }
-            return buf;
-          }
-
-          var ptUtf8 = str2ab(JSON.stringify(keys.kBr));
-          //var ptUtf8 = new TextEncoder('utf-8').encode('53bc93673de807efe63b15db57e0a496d167326fe441aebf08be0425b4562e6f');
-          return window.crypto.subtle.encrypt(
-            {
-              name: "RSA-OAEP",
-              //label: Uint8Array([...]) //optional
-            },
-            pk, //from generateKey or importKey above
-            ptUtf8 //ArrayBuffer of data you want to encrypt
-          )
-
+          var appJwk = JSON.parse(fxaCryptoRelier.base64url2str(relier.get('keys_jwk')))
+          return fxaKeyUtils.encryptBundle(appJwk, keys);
         })
         .then((encrypted) => {
-          console.log(encrypted);
-          console.log(ua2hex(new Uint8Array(encrypted)));
-
-          // TODO:
           var oauthParams = {
             assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
@@ -170,12 +122,13 @@ define(function (require, exports, module) {
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state'),
-            derivedKeyBundle: ua2hex(new Uint8Array(encrypted))
+            derivedKeyBundle: fxaCryptoRelier.str2base64url(JSON.stringify(encrypted))
           };
 
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
+          debugger
           return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
