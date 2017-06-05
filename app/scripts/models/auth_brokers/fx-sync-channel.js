@@ -133,23 +133,27 @@ define(function (require, exports, module) {
         .then(() => proto.beforeSignUpConfirmationPoll.call(this, account));
     },
 
-    afterSignInconfirmationPoll (account) {
-      return proto.afterSignInconfirmationPoll.call(this, account)
-        .then(() => {
+    afterSignInConfirmationPoll (account) {
+      return proto.afterSignInConfirmationPoll.call(this, account)
+        .then((behavior) => {
           if (this.hasCapability('sendAfterSignInConfirmationPollNotice')) {
             const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData);
+            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData)
+              .then(() => behavior);
           }
+          return behavior;
         });
     },
 
-    afterSignUpconfirmationPoll (account) {
-      return proto.afterSignUpconfirmationPoll.call(this, account)
-        .then(() => {
+    afterSignUpConfirmationPoll (account) {
+      return proto.afterSignUpConfirmationPoll.call(this, account)
+        .then((behavior) => {
           if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
             const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData);
+            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData)
+              .then(() => behavior);
           }
+          return behavior;
         });
     },
 

@@ -41,6 +41,7 @@ define(function (require, exports, module) {
       assert.ok(WebChannel.CHANGE_PASSWORD);
       assert.ok(WebChannel.DELETE);
       assert.ok(WebChannel.DELETE_ACCOUNT);
+      assert.ok(WebChannel.EMAIL_VERIFIED);
       assert.ok(WebChannel.FXA_STATUS);
       assert.ok(WebChannel.LOADED);
       assert.ok(WebChannel.LOGIN);
@@ -54,11 +55,12 @@ define(function (require, exports, module) {
         window: windowMock
       });
 
-      assert.lengthOf(Object.keys(channel.COMMANDS), 9);
+      assert.lengthOf(Object.keys(channel.COMMANDS), 10);
       assert.ok(channel.COMMANDS.CAN_LINK_ACCOUNT);
       assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
       assert.ok(channel.COMMANDS.DELETE);
       assert.ok(channel.COMMANDS.DELETE_ACCOUNT);
+      assert.ok(channel.COMMANDS.EMAIL_VERIFIED);
       assert.ok(channel.COMMANDS.FXA_STATUS);
       assert.ok(channel.COMMANDS.LOADED);
       assert.ok(channel.COMMANDS.LOGIN);

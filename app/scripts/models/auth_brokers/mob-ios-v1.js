@@ -12,24 +12,14 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxSyncWebChannelAuthenticationBroker = require('./fx-sync-web-channel');
-  const HaltBehavior = require('views/behaviors/halt');
 
   const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
   module.exports = FxSyncWebChannelAuthenticationBroker.extend({
-    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      // about:accounts displays its own screen after sign in, no need
-      // to show anything.
-      afterForceAuth: new HaltBehavior(),
-      // about:accounts displays its own screen after sign in, no need
-      // to show anything.
-      afterSignIn: new HaltBehavior()
-    }),
-
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: false,
-      openWebmailButtonVisible: true,
+      chooseWhatToSyncWebV1: false, // TODO - check this
+      openWebmailButtonVisible: false,
       sendAfterSignInConfirmationPollNotice: true,
       sendAfterSignUpConfirmationPollNotice: true,
     }),
