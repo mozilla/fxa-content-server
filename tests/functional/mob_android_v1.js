@@ -40,10 +40,10 @@ define([
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
-    name: 'mob_android_v1 signup, signin',
+    name: 'mob_android_v1',
 
     beforeEach: function () {
-      email = TestHelpers.createEmail();
+      email = TestHelpers.createEmail('sync{id}');
       return this.remote
         .then(FunctionalHelpers.clearBrowserState());
     },

@@ -40,7 +40,7 @@ define([
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
   registerSuite({
-    name: 'mob_ios_v1 signup, signin',
+    name: 'mob_ios_v1',
 
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
