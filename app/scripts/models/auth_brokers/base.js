@@ -117,7 +117,7 @@ define(function (require, exports, module) {
       .then(() => {
         const signinCode = this.relier && this.relier.get('signinCode');
         if (signinCode) {
-          return this._tradeSigninCode(signinCode);
+          return this._consumeSigninCode(signinCode);
         }
       });
     },
@@ -155,14 +155,14 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Trade the `signinCode` for account data. If successfully traded,
+     * Consume the `signinCode` for account data. If successfully consumed,
      * `signinCodeAccount` will be available via this.get.
      *
      * @param {String} signinCode
      * @returns {Promise} resolves when complete.
      * @private
      */
-    _tradeSigninCode (signinCode) {
+    _consumeSigninCode (signinCode) {
       this._metrics._initializeFlowModel();
       const { flowId, flowBeginTime } = this._metrics.getFlowEventMetadata();
       return this._fxaClient.consumeSigninCode(signinCode, flowId, flowBeginTime)

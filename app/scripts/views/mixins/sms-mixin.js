@@ -18,7 +18,7 @@ define((require, exports, module) => {
      */
     getSmsFeatures () {
       const features = [];
-      if (this.getSearchParam('signinCodes') === 'true') {
+      if (this.relier.get('enableSigninCodes')) {
         features.push('signinCodes');
       }
       return features;

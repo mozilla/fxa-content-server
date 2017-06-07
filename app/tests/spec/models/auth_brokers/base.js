@@ -91,14 +91,14 @@ define(function (require, exports, module) {
         });
       });
 
-      it('if relier has a `signinCode`, it is traded', () => {
+      it('if relier has a `signinCode`, it is consumed', () => {
         relier.set('signinCode', 'signin-code');
-        sinon.stub(broker, '_tradeSigninCode', () => p());
+        sinon.stub(broker, '_consumeSigninCode', () => p());
 
         return broker.fetch()
           .then(() => {
-            assert.isTrue(broker._tradeSigninCode.calledOnce);
-            assert.isTrue(broker._tradeSigninCode.calledWith('signin-code'));
+            assert.isTrue(broker._consumeSigninCode.calledOnce);
+            assert.isTrue(broker._consumeSigninCode.calledWith('signin-code'));
           });
       });
     });
@@ -401,13 +401,13 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_tradeSigninCode', () => {
+    describe('_consumeSigninCode', () => {
       it('delegates to the user, clears signinCode when complete', () => {
         sinon.stub(fxaClient, 'consumeSigninCode', function () {
           return p({ email: 'signed-in-email@testuser.com' });
         });
 
-        return broker._tradeSigninCode('signin-code')
+        return broker._consumeSigninCode('signin-code')
           .then(() => {
             assert.isTrue(fxaClient.consumeSigninCode.calledOnce);
             assert.isTrue(fxaClient.consumeSigninCode.calledWith('signin-code'));
@@ -425,7 +425,7 @@ define(function (require, exports, module) {
         });
         sinon.spy(metrics, 'logError');
 
-        return broker._tradeSigninCode('signin-code')
+        return broker._consumeSigninCode('signin-code')
           .then(() => {
             assert.isFalse(broker.has('signinCodeAccount'));
 

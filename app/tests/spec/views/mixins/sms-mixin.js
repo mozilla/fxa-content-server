@@ -9,8 +9,8 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
+  const Relier = require('models/reliers/base');
   const SearchParamMixin = require('lib/search-param-mixin');
-  const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
 
   const SmsView = BaseView.extend({
@@ -22,27 +22,32 @@ define(function (require, exports, module) {
     SmsMixin
   );
 
-  describe('views/mixins/sms-mixin', function () {
+  describe('views/mixins/sms-mixin', () => {
+    let relier;
     let view;
 
     beforeEach(() => {
+      relier = new Relier();
+
       view = new SmsView({
+        relier,
         windowMock: window
       });
     });
 
-    describe('`signinCodes=true` on the search params', () => {
-      it('returns an array with `signinCodes`', () => {
-        sinon.stub(view, 'getSearchParam', (searchParam) => {
-          return searchParam === 'signinCodes' ? 'true' : undefined;
+    describe('getSmsFeatures', () => {
+      describe('relier.enableSigninCodes=true', () => {
+        it('returns an array with `signinCodes`', () => {
+          relier.set('enableSigninCodes', true);
+          assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
         });
-        assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
       });
-    });
 
-    describe('no features', () => {
-      it('returns an empty array', () => {
-        assert.deepEqual(view.getSmsFeatures(), []);
+      describe('relier.enableSigninCodes=false', () => {
+        it('returns an empty array', () => {
+          relier.set('enableSigninCodes', false);
+          assert.deepEqual(view.getSmsFeatures(), []);
+        });
       });
     });
   });
