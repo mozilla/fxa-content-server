@@ -114,7 +114,10 @@ define(function (require, exports, module) {
       $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
       $('body').attr('data-flow-begin', '42');
 
-      return view.render();
+      return view.render()
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {
@@ -1182,10 +1185,6 @@ define(function (require, exports, module) {
     });
 
     describe('suggestEmail', function () {
-      beforeEach(() => {
-        $('#container').html(view.el);
-      });
-
       it('measures how successful our mailcheck suggestion is', function () {
         var windowMock = new WindowMock();
         windowMock.navigator.userAgent = 'mocha';
@@ -1295,10 +1294,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         sinon.spy(notifier, 'trigger');
 
-        return view.afterRender()
-          .then(() => {
-            $('#container').html(view.el);
-          });
+        return view.afterRender();
       });
 
       it('called notifier.trigger correctly', () => {
