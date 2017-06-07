@@ -28,6 +28,8 @@ define(function (require, exports, module) {
   var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
     access_type: Vat.accessType().renameTo('accessType'),
     client_id: Vat.clientId().required().renameTo('clientId'),
+    code_challenge: Vat.string(),
+    code_challenge_method: Vat.string(),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
