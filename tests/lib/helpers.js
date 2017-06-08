@@ -5,6 +5,7 @@
 define([
   'app/scripts/lib/constants'
 ], function (Constants) {
+  'use strict';
 
   function createRandomHexString(length) {
     var str = '';
@@ -30,15 +31,34 @@ define([
     return template.replace('{id}', Math.random()) + '@restmail.net';
   }
 
+  function createPhoneNumber () {
+    // start with an area code and known good first number,
+    // append a 6 character suffix.
+    const prefix = '9164';
+    // For a total of 10 characters, we need
+    let suffix = Math.floor(Math.random() * Math.pow(10, 6));
+    suffix = padright(suffix, 6, '0');
+    return `${prefix}${suffix}`;
+  }
+
+  function padright (str, len, filler) {
+    let padded = '' + str;
+    while (padded.length < len) {
+      padded += filler;
+    }
+    return padded;
+  }
+
   function emailToUser(email) {
     return email.split('@')[0];
   }
 
   return {
-    createEmail: createEmail,
-    createRandomHexString: createRandomHexString,
-    createUID: createUID,
-    emailToUser: emailToUser
+    createEmail,
+    createPhoneNumber,
+    createRandomHexString,
+    createUID,
+    emailToUser
   };
 });
 
