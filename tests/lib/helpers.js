@@ -31,13 +31,25 @@ define([
     return template.replace('{id}', Math.random()) + '@restmail.net';
   }
 
-  function createPhoneNumber () {
+  /**
+   * Create a phone number with `prefix` with `length` digits.
+   *
+   * @param {String} [prefix='9164']
+   * @param {Number} [length=10]
+   * @returns {String}
+   */
+  function createPhoneNumber (prefix, length) {
+    if (typeof prefix === 'undefined') {
+      prefix = '9164';
+    }
+    if (typeof length === 'undefined') {
+      length = 10;
+    }
     // start with an area code and known good first number,
     // append a 6 character suffix.
-    const prefix = '9164';
-    // For a total of 10 characters, we need
-    let suffix = Math.floor(Math.random() * Math.pow(10, 6));
-    suffix = padright(suffix, 6, '0');
+    const suffixLength = length - prefix.length;
+    let suffix = Math.floor(Math.random() * Math.pow(10, suffixLength));
+    suffix = padright(suffix, suffixLength, '0');
     return `${prefix}${suffix}`;
   }
 

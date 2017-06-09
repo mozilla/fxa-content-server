@@ -145,8 +145,8 @@ define([
       let signinUrlWithSigninCode;
 
       return this.remote
-        // The phoneNumber is reused across tests, delete all
-        // if its SMS messages to ensure a clean slate.
+        // The phoneNumber can be reused by different tests, delete all
+        // of its SMS messages to ensure a clean slate.
         .then(deleteAllSms(testPhoneNumber))
 
         .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
