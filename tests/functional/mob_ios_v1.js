@@ -24,6 +24,7 @@ define([
 
   const COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
   const COMMAND_EMAIL_VERIFIED = 'fxaccounts:email_verified';
+  const COMMAND_LOADED = 'fxaccounts:loaded';
   const COMMAND_LOGIN = 'fxaccounts:login';
 
   let email;
@@ -61,6 +62,7 @@ define([
           }
         }))
         .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
+        .then(testIsBrowserNotified(COMMAND_LOADED))
         .then(fillOutSignUp(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -83,6 +85,7 @@ define([
             [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }
           }
         }))
+        .then(testIsBrowserNotified(COMMAND_LOADED))
         .then(fillOutSignIn(email, PASSWORD))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
