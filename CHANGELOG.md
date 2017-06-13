@@ -1,3 +1,13 @@
+<a name="1.89.1"></a>
+## 1.89.1 (2017-06-13)
+
+
+### Bug Fixes
+
+* **tests:** provide a way to pre-flight check entrained resources (#5131) r=vladikoff ([9bdf315](https://github.com/mozilla/fxa-content-server/commit/9bdf315))
+
+
+
 <a name="1.89.0"></a>
 # 1.89.0 (2017-06-13)
 
