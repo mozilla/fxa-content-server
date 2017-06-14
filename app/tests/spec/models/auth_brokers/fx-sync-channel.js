@@ -278,11 +278,29 @@ define(function (require, exports, module) {
       describe('browser supports `sendAfterSignInConfirmationPollNotice`', () => {
         it('notifies the channel of login, does not halt the flow by default', () => {
           broker.setCapability('sendAfterSignInConfirmationPollNotice', true);
+
+          account.set({
+            keyFetchToken: 'key_fetch_token',
+            sessionToken: 'session_token',
+            sessionTokenContext: 'sync',
+            uid: 'uid',
+            unwrapBKey: 'unwrap_b_key',
+            verified: true
+          });
+
           return broker.afterSignInConfirmationPoll(account)
             .then((result) => {
+              assert.ok(result);
+
               assert.isTrue(channelMock.send.calledOnce);
               assert.isTrue(channelMock.send.calledWith('email_verified'));
-              assert.ok(result);
+
+              const loginData = channelMock.send.args[0][1];
+              assert.equal(loginData.email, 'testuser@testuser.com');
+              assert.equal(loginData.sessionToken, 'session_token');
+              assert.equal(loginData.uid, 'uid');
+              assert.equal(loginData.unwrapBKey, 'unwrap_b_key');
+              assert.equal(loginData.verified, true);
             });
         });
       });
@@ -294,8 +312,8 @@ define(function (require, exports, module) {
           broker.setCapability('sendAfterSignUpConfirmationPollNotice', false);
           return broker.afterSignUpConfirmationPoll(account)
             .then((result) => {
-              assert.isFalse(channelMock.send.called);
               assert.ok(result);
+              assert.isFalse(channelMock.send.called);
             });
         });
       });
@@ -303,11 +321,29 @@ define(function (require, exports, module) {
       describe('browser supports `sendAfterSignUpConfirmationPollNotice`', () => {
         it('notifies the channel of login, does not halt the flow by default', () => {
           broker.setCapability('sendAfterSignUpConfirmationPollNotice', true);
+
+          account.set({
+            keyFetchToken: 'key_fetch_token',
+            sessionToken: 'session_token',
+            sessionTokenContext: 'sync',
+            uid: 'uid',
+            unwrapBKey: 'unwrap_b_key',
+            verified: true
+          });
+
           return broker.afterSignUpConfirmationPoll(account)
             .then((result) => {
+              assert.ok(result);
+
               assert.isTrue(channelMock.send.calledOnce);
               assert.isTrue(channelMock.send.calledWith('email_verified'));
-              assert.ok(result);
+
+              const loginData = channelMock.send.args[0][1];
+              assert.equal(loginData.email, 'testuser@testuser.com');
+              assert.equal(loginData.sessionToken, 'session_token');
+              assert.equal(loginData.uid, 'uid');
+              assert.equal(loginData.unwrapBKey, 'unwrap_b_key');
+              assert.equal(loginData.verified, true);
             });
         });
       });

@@ -18,7 +18,8 @@ define(function (require, exports, module) {
   module.exports = FxSyncWebChannelAuthenticationBroker.extend({
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       chooseWhatToSyncCheckbox: false,
-      chooseWhatToSyncWebV1: false, // TODO - check this
+      // No CWTS - see https://github.com/mozilla/fxa-content-server/issues/5029#issuecomment-306928551
+      chooseWhatToSyncWebV1: false,
       openWebmailButtonVisible: false,
       sendAfterSignInConfirmationPollNotice: true,
       sendAfterSignUpConfirmationPollNotice: true,

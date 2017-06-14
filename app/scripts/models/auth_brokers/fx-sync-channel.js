@@ -31,6 +31,7 @@ define(function (require, exports, module) {
      *   CAN_LINK_ACCOUNT: <specify in subclass>,
      *   CHANGE_PASSWORD: <specify in subclass>,
      *   DELETE_ACCOUNT: <specify in subclass>,
+     *   EMAIL_VERIFIED: <specify in subclass>,
      *   LOADED: <specify in subclass>,
      *   LOGIN: <specify in subclass>
      * }
