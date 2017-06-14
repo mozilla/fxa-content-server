@@ -13,25 +13,45 @@ const config = require('../configuration');
  * Enhances connect logger middleware - custom formats.
  * See lib/configuration for usage.
  */
-const formats = {
-  'default_fxa': ':remote-addr - - ":method :url HTTP/:http-version" :status :response-time :res[content-length] ":referrer" ":user-agent"',
-
-  'dev_fxa': ':method :url :status :response-time'
-};
 
 // Used when logging is disabled
 const disabled = function (req, res, next) {
   next();
 };
 
+const formats = {
+  'default_fxa': (tokens, req, res) => JSON.stringify({
+    'content-length': tokens.res(req, res, 'content-length'),
+    HTTP: req.httpVersion,
+    method: tokens.method(req, res),
+    path: tokens.url(req, res),
+    referrer: req.headers['referer'],
+    'remote-addr': req.ip || req.connection.remoteAddress,
+    'response-time': tokens['response-time'](req, res),
+    status: tokens.status(req, res),
+    'user-agent': req.headers['user-agent']
+  }),
+  'dev_fxa': (tokens, req, res) => [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens['response-time'](req, res),
+    tokens.status(req, res)
+  ].join(' ')
+};
+
+function loggerHeka(x) {
+  if (config.get('route_log_format') === 'dev_fxa') {
+    return logger.info('route', x.trim());
+  }
+  return logger.info('route',  JSON.parse(x));
+}
+
 module.exports = function () {
   return config.get('disable_route_logging') ?
           disabled :
           morgan(formats[config.get('route_log_format')], {
             stream: {
-              write: function (x) {
-                logger.info(typeof x === 'string' ? x.trim() : x);
-              }
+              write: loggerHeka
             }
           });
 };
