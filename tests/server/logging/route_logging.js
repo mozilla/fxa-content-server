@@ -25,10 +25,9 @@ define([
 
   const req = {
     headers: {
-      referer: 'testReferrer',
+      referer: 'testReferer',
       'user-agent': 'testAgent'
     },
-    httpVersion: '1.1',
     ip: '127.0.0.1'
   };
 
@@ -83,15 +82,14 @@ define([
       assert.equal(
         formatObjResp,
         JSON.stringify({
-          'content-length': '1995',
-          HTTP: '1.1',
+          contentLength: '1995',
           method: 'GET',
           path: 'www.mozilla.com',
-          referrer: 'testReferrer',
-          'remote-addr': '127.0.0.1',
-          'response-time': '1337',
+          referer: 'testReferer',
+          remoteAddressChain: '127.0.0.1',
           status: '200',
-          'user-agent': 'testAgent'
+          t: '1337',
+          'userAgent': 'testAgent'
         })
       );
 
