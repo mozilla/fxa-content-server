@@ -28,9 +28,9 @@ define(function (require, exports, module) {
       'CAN_LINK_ACCOUNT',
       'CHANGE_PASSWORD',
       'DELETE_ACCOUNT',
-      'EMAIL_VERIFIED',
       'LOADED',
-      'LOGIN'
+      'LOGIN',
+      'VERIFIED'
     ),
 
     createChannel () {

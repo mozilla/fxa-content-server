@@ -23,9 +23,9 @@ define([
   const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=mob_ios_v1&service=sync`;
 
   const COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
-  const COMMAND_EMAIL_VERIFIED = 'fxaccounts:email_verified';
   const COMMAND_LOADED = 'fxaccounts:loaded';
   const COMMAND_LOGIN = 'fxaccounts:login';
+  const COMMAND_VERIFIED = 'fxaccounts:verified';
 
   let email;
   const PASSWORD = '12345678';
@@ -67,14 +67,14 @@ define([
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
-        .then(noSuchBrowserNotification(COMMAND_EMAIL_VERIFIED))
+        .then(noSuchBrowserNotification(COMMAND_VERIFIED))
         .then(testIsBrowserNotified(COMMAND_LOGIN))
 
         // verify the user
         .then(openVerificationLinkInDifferentBrowser(email, 0))
 
         .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-        .then(testIsBrowserNotified(COMMAND_EMAIL_VERIFIED));
+        .then(testIsBrowserNotified(COMMAND_VERIFIED));
     },
 
     'signin, verify different browser': function () {
@@ -91,13 +91,13 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified(COMMAND_LOGIN))
         .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
-        .then(noSuchBrowserNotification(COMMAND_EMAIL_VERIFIED))
+        .then(noSuchBrowserNotification(COMMAND_VERIFIED))
 
         // verify the user
         .then(openVerificationLinkInDifferentBrowser(email, 0))
 
         .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-        .then(testIsBrowserNotified(COMMAND_EMAIL_VERIFIED));
+        .then(testIsBrowserNotified(COMMAND_VERIFIED));
     }
   });
 });

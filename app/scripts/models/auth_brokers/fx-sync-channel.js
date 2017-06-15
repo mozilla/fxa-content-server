@@ -31,9 +31,9 @@ define(function (require, exports, module) {
      *   CAN_LINK_ACCOUNT: <specify in subclass>,
      *   CHANGE_PASSWORD: <specify in subclass>,
      *   DELETE_ACCOUNT: <specify in subclass>,
-     *   EMAIL_VERIFIED: <specify in subclass>,
      *   LOADED: <specify in subclass>,
-     *   LOGIN: <specify in subclass>
+     *   LOGIN: <specify in subclass>,
+     *   VERIFIED: <specify in subclass>,
      * }
      *
      * @property commands
@@ -139,7 +139,7 @@ define(function (require, exports, module) {
         .then((behavior) => {
           if (this.hasCapability('sendAfterSignInConfirmationPollNotice')) {
             const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData)
+            return this.send(this.getCommand('VERIFIED'), loginData)
               .then(() => behavior);
           }
           return behavior;
@@ -151,7 +151,7 @@ define(function (require, exports, module) {
         .then((behavior) => {
           if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
             const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('EMAIL_VERIFIED'), loginData)
+            return this.send(this.getCommand('VERIFIED'), loginData)
               .then(() => behavior);
           }
           return behavior;

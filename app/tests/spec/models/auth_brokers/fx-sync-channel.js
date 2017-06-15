@@ -31,12 +31,12 @@ define(function (require, exports, module) {
           CAN_LINK_ACCOUNT: 'can_link_account',
           CHANGE_PASSWORD: 'change_password',
           DELETE_ACCOUNT: 'delete_account',
-          EMAIL_VERIFIED: 'email_verified',
           LOADED: 'loaded',
           LOGIN: 'login',
           /*
           SYNC_PREFERENCES: 'sync_preferences' // Removed in issue #4250
           */
+          VERIFIED: 'verified',
         },
         window: windowMock
       }, options));
@@ -293,7 +293,7 @@ define(function (require, exports, module) {
               assert.ok(result);
 
               assert.isTrue(channelMock.send.calledOnce);
-              assert.isTrue(channelMock.send.calledWith('email_verified'));
+              assert.isTrue(channelMock.send.calledWith('verified'));
 
               const loginData = channelMock.send.args[0][1];
               assert.equal(loginData.email, 'testuser@testuser.com');
@@ -336,7 +336,7 @@ define(function (require, exports, module) {
               assert.ok(result);
 
               assert.isTrue(channelMock.send.calledOnce);
-              assert.isTrue(channelMock.send.calledWith('email_verified'));
+              assert.isTrue(channelMock.send.calledWith('verified'));
 
               const loginData = channelMock.send.args[0][1];
               assert.equal(loginData.email, 'testuser@testuser.com');

@@ -41,12 +41,12 @@ define(function (require, exports, module) {
       assert.ok(WebChannel.CHANGE_PASSWORD);
       assert.ok(WebChannel.DELETE);
       assert.ok(WebChannel.DELETE_ACCOUNT);
-      assert.ok(WebChannel.EMAIL_VERIFIED);
       assert.ok(WebChannel.FXA_STATUS);
       assert.ok(WebChannel.LOADED);
       assert.ok(WebChannel.LOGIN);
       assert.ok(WebChannel.LOGOUT);
       assert.ok(WebChannel.PROFILE_CHANGE);
+      assert.ok(WebChannel.VERIFIED);
     });
 
     it('exports the expected commands on an instance', () => {
@@ -60,12 +60,12 @@ define(function (require, exports, module) {
       assert.ok(channel.COMMANDS.CHANGE_PASSWORD);
       assert.ok(channel.COMMANDS.DELETE);
       assert.ok(channel.COMMANDS.DELETE_ACCOUNT);
-      assert.ok(channel.COMMANDS.EMAIL_VERIFIED);
       assert.ok(channel.COMMANDS.FXA_STATUS);
       assert.ok(channel.COMMANDS.LOADED);
       assert.ok(channel.COMMANDS.LOGIN);
       assert.ok(channel.COMMANDS.LOGOUT);
       assert.ok(channel.COMMANDS.PROFILE_CHANGE);
+      assert.ok(channel.COMMANDS.VERIFIED);
     });
 
     describe('send', () => {

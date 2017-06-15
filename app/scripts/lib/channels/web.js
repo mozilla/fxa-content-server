@@ -29,7 +29,6 @@ define(function (require, exports, module) {
     // See https://github.com/mozilla/fxa-content-server/issues/3432
     DELETE: 'fxaccounts:delete',
     DELETE_ACCOUNT: 'fxaccounts:delete_account',
-    EMAIL_VERIFIED: 'fxaccounts:email_verified',
     FXA_STATUS: 'fxaccounts:fxa_status',
     LOADED: 'fxaccounts:loaded',
     LOGIN: 'fxaccounts:login',
@@ -38,6 +37,7 @@ define(function (require, exports, module) {
     /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
     */
+    VERIFIED: 'fxaccounts:verified',
   };
 
   function WebChannel(id) {

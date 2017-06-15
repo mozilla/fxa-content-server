@@ -69,7 +69,7 @@ Sent when a user successfully authenticates with Firefox Accounts and sync can b
 ##### data
 See [Login Data](#loginData).
 
-#### fxaccounts:email_verified
+#### fxaccounts:verified
 The user has successfully verified their email address.
 
 ##### data
