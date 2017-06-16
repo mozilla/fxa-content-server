@@ -26,7 +26,8 @@ define([
   const req = {
     headers: {
       referer: 'testReferer',
-      'user-agent': 'testAgent'
+      'user-agent': 'testAgent',
+      'x-forwarded-for': '0.0.0.0, 1.1.1.1, 2.2.2.2'
     },
     ip: '127.0.0.1'
   };
@@ -82,11 +83,12 @@ define([
       assert.equal(
         formatObjResp,
         JSON.stringify({
+          clientAddress: '127.0.0.1',
           contentLength: '1995',
           method: 'GET',
           path: 'www.mozilla.com',
           referer: 'testReferer',
-          remoteAddressChain: '127.0.0.1',
+          remoteAddressChain: ['0.0.0.0','1.1.1.1','2.2.2.2','127.0.0.1'],
           status: '200',
           t: '1337',
           'userAgent': 'testAgent'
