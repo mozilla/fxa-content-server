@@ -108,8 +108,8 @@ define(function (require, exports, module) {
               assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
 
               // PKCE parameters
-              assert.equal(relier.get('code_challenge'), CODE_CHALLENGE);
-              assert.equal(relier.get('code_challenge_method'), CODE_CHALLENGE_METHOD);
+              assert.equal(relier.get('codeChallenge'), CODE_CHALLENGE);
+              assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
             });
         });
 
@@ -131,7 +131,7 @@ define(function (require, exports, module) {
             });
         });
 
-        it('throws if invalid PKCE params are specified', () => {
+        it('throws if invalid PKCE code_challenge is specified', () => {
           windowMock.location.search = TestHelpers.toSearchString({
             access_type: ACCESS_TYPE,
             action: ACTION,
@@ -147,6 +147,25 @@ define(function (require, exports, module) {
             .then(assert.fail, (err) => {
               assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
               assert.equal(err.param, 'code_challenge');
+            });
+        });
+
+        it('throws if invalid PKCE code_challenge_method is specified', () => {
+          windowMock.location.search = TestHelpers.toSearchString({
+            access_type: ACCESS_TYPE,
+            action: ACTION,
+            client_id: CLIENT_ID,
+            code_challenge_method: 'foo',
+            prompt: PROMPT,
+            redirect_uri: REDIRECT_URI,
+            scope: SCOPE,
+            state: STATE
+          });
+
+          return relier.fetch()
+            .then(assert.fail, (err) => {
+              assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
+              assert.equal(err.param, 'code_challenge_method');
             });
         });
       });
