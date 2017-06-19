@@ -34,10 +34,12 @@ Returns a `signedInUser` field which is the Account currently signed into the br
 ##### response data
 ```js
 {
+  capabilities: <capabilities>
   signedInUser: <signed in user> || null
 }
 ```
 
+* `capabilities` - A list of capabilities supported by the browser. See [capabilities](#capabilities).
 * `signedInUser` - the user currently signed into Sync on the browser. See [signedInUser](#signedInUser).
 
 ##### support
@@ -171,6 +173,25 @@ expected.
 * `unwrapBKey` - The key used to encrypt and decrypt the user's sync data.
 * `verified` - Is the user verified?
 * `verifiedCanLinkAccount` - Has the user verified they want to link accounts, if signing into a different account than previously signed in to?
+
+#### capabilities
+An object containing browser supported capabilities. Only available with browser support.
+
+```js
+{
+  engines: [<list of optional supported engines>]
+}
+```
+
+* `engines` A list of optional supported engines.
+
+##### engines
+A list of optional supported engines. If we are unsure whether an optional engine should be displayed, it will only be displayed if the engine is in the list.
+
+###### Possible values
+
+* `addresses`
+* `creditcards`
 
 #### declinedSyncEngines
 
