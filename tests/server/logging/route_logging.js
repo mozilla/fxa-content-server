@@ -37,7 +37,7 @@ define([
       path.join(process.cwd(), 'server', 'lib', 'logging', 'route_logging'),
       {
         '../configuration': {
-          get: configSpy
+          getProperties: configSpy
         },
         'mozlog': function() {
           return {
@@ -55,11 +55,13 @@ define([
       loggerSpy = sinon.stub();
       configSpy = sinon.stub();
       morganSpy = sinon.stub();
-      configSpy.withArgs('disable_route_logging').returns(false);
     },
 
     'it logs a string if log format is dev_fxa' () {
-      configSpy.withArgs('route_log_format').returns('dev_fxa');
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'dev_fxa'
+      });
       requireTestFile();
       routeLogging();
       const formatObj = morganSpy.getCall(0).args[0];
@@ -74,7 +76,10 @@ define([
     },
 
     'it logs a json blob if log format is not dev_fxa' () {
-      configSpy.withArgs('route_log_format').returns('default_fxa');
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'default_fxa'
+      });
       requireTestFile();
       routeLogging();
       const formatObj = morganSpy.getCall(0).args[0];
