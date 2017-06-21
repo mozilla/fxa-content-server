@@ -153,9 +153,10 @@ expected.
 ```js
 {
   customizeSync: (true|false),
-  declinedSyncEngines [<array of declined sync engines>],
+  declinedSyncEngines: [<array of declined sync engines>],
   email: <email>,
   keyFetchToken: <key fetch token>,
+  offeredSyncEngines: [<array of displayed sync engines>],
   sessionToken: <session token>,
   uid: <user id>,
   unwrapBKey: <unwrap b key>,
@@ -165,9 +166,10 @@ expected.
 ```
 
 * `customizeSync` - Should the user be shown the browser's `Customize Sync` dialog?
-* `declinedSyncEngines` - An array of Sync engines the user has deselected.  See [declinedSyncEngines](#declinedSyncEngines).
+* `declinedSyncEngines` - An array of Sync engines the user has deselected. See [declinedSyncEngines, offeredSyncEngines](#declinedSyncEngines-offeredSyncEngines).
 * `email` - User's email address.
 * `keyFetchToken` -
+* `offeredSyncEngines` - An array of Sync engines that were displayed to the user. See [declinedSyncEngines, offeredSyncEngines](#declinedSyncEngines-offeredSyncEngines).
 * `sessionToken` - The current session token that can be used to interact with FxA's auth server.
 * `uid` - The user identifier.
 * `unwrapBKey` - The key used to encrypt and decrypt the user's sync data.
@@ -193,14 +195,16 @@ A list of optional supported engines. If we are unsure whether an optional engin
 * `addresses`
 * `creditcards`
 
-#### declinedSyncEngines
+#### declinedSyncEngines, offeredSyncEngines
 
-* bookmarks
-* history
-* passwords
-* tabs
-* desktop-addons
-* desktop-preferences
+* `addons`
+* `addresses`
+* `bookmarks`
+* `creditcards`
+* `history`
+* `passwords`
+* `preferences`
+* `tabs`
 
 #### signedInUser
 
