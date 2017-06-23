@@ -23,6 +23,7 @@ define(function (require, exports, module) {
 
   /*eslint-disable camelcase*/
   const QUERY_PARAMETER_SCHEMA = {
+    action: Vat.string().valid('signin', 'signup', 'email'),
     // context is not available when verifying.
     context: Vat.string().min(1),
     country: Vat.string().valid(...AllowedCountries),
@@ -40,6 +41,7 @@ define(function (require, exports, module) {
 
   module.exports = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
+      action: 'signup',
       customizeSync: false,
       enableSigninCodes: false,
       signinCode: undefined
