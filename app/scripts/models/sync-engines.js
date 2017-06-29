@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A model that keeps manage the displayed Sync engines
+ * A model to manage displayed Sync engines
  * in the Choose What to Sync screen.
  */
 

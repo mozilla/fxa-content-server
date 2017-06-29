@@ -61,7 +61,7 @@ define([
         .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
         .then(fillOutSignUp(email, PASSWORD))
 
-        // user should be transitioned to the choose what to Sync page
+        // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -106,7 +106,7 @@ define([
         }))
         .then(fillOutSignUp(email, PASSWORD))
 
-        // user should be transitioned to the choose what to Sync page
+        // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
@@ -129,7 +129,7 @@ define([
         }))
         .then(fillOutSignUp(email, PASSWORD))
 
-        // user should be transitioned to the choose what to Sync page
+        // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
@@ -152,7 +152,7 @@ define([
         }))
         .then(fillOutSignUp(email, PASSWORD))
 
-        // user should be transitioned to the choose what to Sync page
+        // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS));
