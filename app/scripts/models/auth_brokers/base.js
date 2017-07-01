@@ -20,9 +20,11 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
   const SameBrowserVerificationModel = require('models/verification/same-browser');
   const SearchParamMixin = require('models/mixins/search-param');
+  const SessionTernaryBehavior = require('views/behaviors/session-ternary');
+  const SettingsAfterVerificationBehavior = require('views/behaviors/settings-after-verification');
   const Vat = require('lib/vat');
 
-  var QUERY_PARAMETER_SCHEMA = {
+  const QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()
   };
 
@@ -30,6 +32,7 @@ define(function (require, exports, module) {
     type: 'base',
 
     initialize (options = {}) {
+      this.metrics = options.metrics;
       this.relier = options.relier;
       this.window = options.window || window;
       this.environment = new Environment(this.window);
@@ -37,7 +40,6 @@ define(function (require, exports, module) {
       this._behaviors = new Backbone.Model(this.defaultBehaviors);
       this._capabilities = new Backbone.Model(this.defaultCapabilities);
       this._fxaClient = options.fxaClient;
-      this._metrics = options.metrics;
 
       this._notificationChannel = options.notificationChannel;
       if (this._notificationChannel) {
@@ -63,8 +65,13 @@ define(function (require, exports, module) {
      */
     defaultBehaviors: {
       afterChangePassword: new NullBehavior(),
+      afterCompleteAddSecondaryEmail: new SessionTernaryBehavior(
+        new SettingsAfterVerificationBehavior(),
+        new NavigateBehavior('secondary_email_verified')
+      ),
       afterCompleteResetPassword: new NullBehavior(),
-      afterCompleteSignUp: new NullBehavior(),
+      afterCompleteSignIn: new NavigateBehavior('signin_verified'),
+      afterCompleteSignUp: new NavigateBehavior('signup_verified'),
       afterDeleteAccount: new NullBehavior(),
       afterForceAuth: new NullBehavior(),
       afterResetPasswordConfirmationPoll: new NullBehavior(),
@@ -163,15 +170,15 @@ define(function (require, exports, module) {
      * @private
      */
     _consumeSigninCode (signinCode) {
-      this._metrics._initializeFlowModel();
-      const { flowId, flowBeginTime } = this._metrics.getFlowEventMetadata();
+      this.metrics._initializeFlowModel();
+      const { flowId, flowBeginTime } = this.metrics.getFlowEventMetadata();
       return this._fxaClient.consumeSigninCode(signinCode, flowId, flowBeginTime)
         .then((response) => {
           this.set('signinCodeAccount', response);
         }, (err) => {
           // log and ignore any errors. The user should still
           // be able to sign in normally.
-          this._metrics.logError(err);
+          this.metrics.logError(err);
         });
     },
 
@@ -183,6 +190,17 @@ define(function (require, exports, module) {
      */
     afterLoaded () {
       return p();
+    },
+
+    /**
+     * Called after verifying a secondary email, in the verification tab.
+     *
+     * @param {Object} account
+     * @return {Promise}
+     */
+    afterCompleteAddSecondaryEmail (account) {
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteAddSecondaryEmail'));
     },
 
     /**
@@ -216,6 +234,22 @@ define(function (require, exports, module) {
      */
     afterSignInConfirmationPoll (/* account */) {
       return p(this.getBehavior('afterSignInConfirmationPoll'));
+    },
+
+    /**
+     * Called after signin email verification, in the verification tab.
+     *
+     * @param {Object} account
+     * @return {Promise}
+     */
+    afterCompleteSignIn (account) {
+      // Emitting an explicit signin event here
+      // allows us to capture successes that might be
+      // triggered from confirmation emails.
+      this.metrics.logEvent('signin.success');
+
+      return this.unpersistVerificationData(account)
+        .then(() => this.getBehavior('afterCompleteSignIn'));
     },
 
     /**

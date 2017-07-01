@@ -12,22 +12,31 @@ define(function (require, exports, module) {
   const _ = require('underscore');
   const BaseBroker = require('models/auth_brokers/base');
   const { CONTENT_SERVER_CONTEXT } = require('lib/constants');
-  const NavigateBehavior = require('views/behaviors/navigate');
+  const SessionTernaryBehavior = require('views/behaviors/session-ternary');
+  const SettingsAfterVerificationBehavior = require('views/behaviors/settings-after-verification');
 
-  const t = (msg) => msg;
+  const { defaultBehaviors } = BaseBroker.prototype;
 
-  const proto = BaseBroker.prototype;
-
-  const redirectToSettingsBehavior = new NavigateBehavior('settings', {
-    success: t('Account verified successfully')
-  });
+  const settingsAfterVerificationBehavior = new SettingsAfterVerificationBehavior();
 
   module.exports = BaseBroker.extend({
-    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
-      afterCompleteResetPassword: redirectToSettingsBehavior,
-      afterResetPasswordConfirmationPoll: redirectToSettingsBehavior,
-      afterSignInConfirmationPoll: redirectToSettingsBehavior,
-      afterSignUpConfirmationPoll: redirectToSettingsBehavior
+    defaultBehaviors: _.extend({}, defaultBehaviors, {
+      afterCompleteAddSecondaryEmail: new SessionTernaryBehavior(
+        settingsAfterVerificationBehavior,
+        defaultBehaviors.afterCompleteAddSecondaryEmail
+      ),
+      afterCompleteResetPassword: settingsAfterVerificationBehavior,
+      afterCompleteSignIn: new SessionTernaryBehavior(
+        settingsAfterVerificationBehavior,
+        defaultBehaviors.afterCompleteSignIn
+      ),
+      afterCompleteSignUp: new SessionTernaryBehavior(
+        settingsAfterVerificationBehavior,
+        defaultBehaviors.afterCompleteSignUp
+      ),
+      afterResetPasswordConfirmationPoll: settingsAfterVerificationBehavior,
+      afterSignInConfirmationPoll: settingsAfterVerificationBehavior,
+      afterSignUpConfirmationPoll: settingsAfterVerificationBehavior
     }),
 
     type: CONTENT_SERVER_CONTEXT

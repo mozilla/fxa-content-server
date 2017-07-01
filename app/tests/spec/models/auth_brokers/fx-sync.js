@@ -6,6 +6,7 @@ define((require, exports, module) => {
   'use strict';
 
   const { assert } = require('chai');
+  const { defaultBehaviors } = require('models/auth_brokers/base').prototype;
   const FxSyncAuthenticationBroker = require('models/auth_brokers/fx-sync');
   const Metrics = require('lib/metrics');
   const sinon = require('sinon');
@@ -18,7 +19,9 @@ define((require, exports, module) => {
     let windowMock;
 
     beforeEach(() => {
-      account = {};
+      account = {
+        get: sinon.spy()
+      };
       metrics = new Metrics();
       windowMock = new WindowMock();
 
@@ -45,7 +48,6 @@ define((require, exports, module) => {
           return broker.afterSignUpConfirmationPoll(account)
             .then((behavior) => {
               assert.equal(behavior.type, 'connect-another-device');
-
               assert.isTrue(metrics.setViewNamePrefix.calledOnce);
               assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
             });
@@ -63,6 +65,16 @@ define((require, exports, module) => {
               assert.isFalse(metrics.setViewNamePrefix.called);
             });
         });
+      });
+    });
+
+    describe('afterCompleteSignUp', () => {
+      it('resolves to a `ConnectAnotherDeviceBehavior`', () => {
+        return broker.afterCompleteSignUp(account)
+          .then((behavior) => {
+            assert.equal(behavior.type, 'connect-another-device');
+            assert.strictEqual(behavior.defaultBehavior, defaultBehaviors.afterCompleteSignUp);
+          });
       });
     });
   });

@@ -8,8 +8,9 @@ define([
   'app/scripts/lib/constants',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, Constants, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
+  'tests/functional/lib/fx-desktop',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, Constants, TestHelpers, FunctionalHelpers, FxDesktopHelpers, selectors) {
   var config = intern.config;
   var PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
   var PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
@@ -110,11 +111,11 @@ define([
       var url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
-        .then(openPage(url, '#fxa-settings-profile-header'))
+        .then(openPage(url, selectors.SIGNIN_COMPLETE.HEADER))
 
         // a successful user is immediately redirected to the
         // sign-in-complete page.
-        .then(testElementExists('#fxa-settings-profile-header'));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
     }
   });
 });

@@ -47,18 +47,11 @@ define(function (require, exports, module) {
   module.exports = OAuthAuthenticationBroker.extend({
     type: 'redirect',
 
-    initialize (options) {
-      options = options || {};
-
-      this._metrics = options.metrics;
-      return proto.initialize.call(this, options);
-    },
-
     DELAY_BROKER_RESPONSE_MS: 100,
 
     sendOAuthResultToRelier (result) {
       var win = this.window;
-      return this._metrics.flush()
+      return this.metrics.flush()
         .then(function () {
           var extraParams = {};
           if (result.error) {
@@ -109,6 +102,7 @@ define(function (require, exports, module) {
     },
 
     afterCompleteResetPassword: finishOAuthFlowIfOriginalTab('afterCompleteResetPassword', 'finishOAuthSignInFlow'),
+    afterCompleteSignIn: finishOAuthFlowIfOriginalTab('afterCompleteSignIn', 'finishOAuthSignInFlow'),
     afterCompleteSignUp: finishOAuthFlowIfOriginalTab('afterCompleteSignUp', 'finishOAuthSignUpFlow'),
   });
 });

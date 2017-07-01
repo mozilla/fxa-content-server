@@ -12,19 +12,19 @@ define(function (require, exports, module) {
   const VerificationReasons = require('lib/verification-reasons');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
-  var View = BaseView.extend({});
+  const View = BaseView.extend({});
   Cocktail.mixin(
     View,
     VerificationReasonMixin
   );
 
-  describe('views/mixins/verification-reason-mixin', function () {
-    describe('constructor', function () {
-      describe('model has a type', function () {
-        var view;
+  describe('views/mixins/verification-reason-mixin', () => {
+    describe('constructor', () => {
+      describe('model has a type', () => {
+        let view;
 
-        before(function () {
-          var model = new Backbone.Model();
+        before(() => {
+          const model = new Backbone.Model();
           model.set('type', VerificationReasons.SIGN_IN);
 
           view = new View({
@@ -32,82 +32,100 @@ define(function (require, exports, module) {
           });
         });
 
-        it('uses the type set in the model', function () {
+        it('uses the type set in the model', () => {
           assert.equal(view.model.get('type'), VerificationReasons.SIGN_IN);
         });
       });
 
-      describe('model has no type, option set', function () {
-        var view;
+      describe('model has no type, option set', () => {
+        let view;
 
-        before(function () {
+        before(() => {
           view = new View({
             type: VerificationReasons.SIGN_IN
           });
         });
 
-        it('uses the type set in the options', function () {
+        it('uses the type set in the options', () => {
           assert.equal(view.model.get('type'), VerificationReasons.SIGN_IN);
         });
       });
 
-      describe('model has no type, option not set', function () {
-        var view;
+      describe('model has no type, option not set', () => {
+        let view;
 
-        before(function () {
+        before(() => {
           view = new View({});
         });
 
-        it('uses the SIGN_UP type by default', function () {
+        it('uses the SIGN_UP type by default', () => {
           assert.equal(view.model.get('type'), VerificationReasons.SIGN_UP);
         });
       });
     });
 
-    describe('isSignIn', function () {
-      var view;
+    describe('isSignIn', () => {
+      let view;
 
-      before(function () {
+      before(() => {
         view = new View({});
       });
 
-      it('returns `true` for SIGN_IN type', function () {
+      it('returns `true` for SIGN_IN type', () => {
         view.model.set('type', VerificationReasons.SIGN_IN);
         assert.isTrue(view.isSignIn());
       });
 
-      it('returns `false` for other types', function () {
+      it('returns `false` for other types', () => {
         view.model.set('type', VerificationReasons.SIGN_UP);
         assert.isFalse(view.isSignIn());
       });
     });
 
-    describe('isSignUp', function () {
-      var view;
+    describe('isSignUp', () => {
+      let view;
 
-      before(function () {
+      before(() => {
         view = new View({});
       });
 
-      it('returns `true` for SIGN_UP type', function () {
+      it('returns `true` for SIGN_UP type', () => {
         view.model.set('type', VerificationReasons.SIGN_UP);
         assert.isTrue(view.isSignUp());
       });
 
-      it('returns `false` for other types', function () {
+      it('returns `false` for other types', () => {
         view.model.set('type', VerificationReasons.SIGN_IN);
         assert.isFalse(view.isSignUp());
       });
     });
 
-    describe('keyOfType', function () {
-      var view;
+    describe('isVerifySecondaryEmail', () => {
+      let view;
 
-      before(function () {
+      before(() => {
         view = new View({});
       });
 
-      it('returns the correct value', function () {
+      it('returns `true` for SECONDARY_EMAIL_VERIFIED type', () => {
+        view.model.set('type', VerificationReasons.SECONDARY_EMAIL_VERIFIED);
+        assert.isTrue(view.isVerifySecondaryEmail());
+      });
+
+      it('returns `false` for other types', () => {
+        view.model.set('type', VerificationReasons.SIGN_IN);
+        assert.isFalse(view.isVerifySecondaryEmail());
+      });
+    });
+
+    describe('keyOfType', () => {
+      let view;
+
+      before(() => {
+        view = new View({});
+      });
+
+      it('returns the correct value', () => {
         assert.equal(
           view.keyOfVerificationReason(VerificationReasons.SIGN_IN), 'SIGN_IN');
       });

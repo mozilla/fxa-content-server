@@ -1017,6 +1017,31 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('invokeBehavior', () => {
+      it('returns a non-function', () => {
+        return view.invokeBehavior('behavior')
+          .then((result) => {
+            assert.equal(result, 'behavior');
+          });
+      });
+
+      it('handles behaviors that return behaviors', () => {
+        const behavior2 = sinon.spy(() => 'result');
+        const behavior1 = sinon.spy(() => behavior2);
+
+        return view.invokeBehavior(behavior1, 'arg1', 'arg2')
+          .then((result) => {
+            assert.equal(result, 'result');
+
+            assert.isTrue(behavior1.calledOnce);
+            assert.isTrue(behavior1.calledWith(view, 'arg1', 'arg2'));
+
+            assert.isTrue(behavior2.calledOnce);
+            assert.isTrue(behavior2.calledWith(view, 'arg1', 'arg2'));
+          });
+      });
+    });
+
     describe('getViewName', function () {
       describe('with a `viewName` on the view prototype', function () {
         var view;

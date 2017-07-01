@@ -219,13 +219,13 @@ define(function (require, exports, module) {
     });
 
     describe('afterCompleteSignUp', function () {
-      beforeEach(function () {
+      it('unpersistVerificationDatas data, navigates', function () {
         sinon.spy(broker, 'unpersistVerificationData');
-        return broker.afterCompleteSignUp(account);
-      });
-
-      it('unpersistVerificationDatas data', function () {
-        assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+        return broker.afterCompleteSignUp(account)
+          .then(testNavigates('signup_verified'))
+          .then(() => {
+            assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+          });
       });
     });
 
@@ -254,6 +254,53 @@ define(function (require, exports, module) {
       it('returns a promise, behavior navigates to signin_confirmed', function () {
         return broker.afterSignInConfirmationPoll(account)
           .then(testNavigates('signin_confirmed'));
+      });
+    });
+
+    describe('afterCompleteSignIn', function () {
+      it('unpersistVerificationDatas data, logs, navigates', function () {
+        sinon.spy(broker, 'unpersistVerificationData');
+        sinon.spy(metrics, 'logEvent');
+
+        return broker.afterCompleteSignIn(account)
+          .then(testNavigates('signin_verified'))
+          .then(() => {
+            assert.isTrue(broker.unpersistVerificationData.calledOnce);
+            assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+
+            assert.isTrue(metrics.logEvent.calledOnce);
+            assert.isTrue(metrics.logEvent.calledWith('signin.success'));
+          });
+      });
+    });
+
+    describe('afterCompleteAddSecondaryEmail', function () {
+      describe('account is signed in', () => {
+        it('unpersistVerificationDatas data, behavior navigates to `settings`', function () {
+          sinon.spy(broker, 'unpersistVerificationData');
+          sinon.stub(account, 'isSignedIn', () => p(true));
+          return broker.afterCompleteAddSecondaryEmail(account)
+            .then((behavior) => {
+              assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+
+              return behavior({}, account);
+            })
+            .then(testNavigates('settings'));
+        });
+      });
+
+      describe('account is not signed in', () => {
+        it('unpersistVerificationDatas data, navigates to `secondary_email_verified`', function () {
+          sinon.spy(broker, 'unpersistVerificationData');
+          sinon.stub(account, 'isSignedIn', () => p(false));
+          return broker.afterCompleteAddSecondaryEmail(account)
+            .then((behavior) => {
+              assert.isTrue(broker.unpersistVerificationData.calledWith(account));
+
+              return behavior({}, account);
+            })
+            .then(testNavigates('secondary_email_verified'));
+        });
       });
     });
 
@@ -402,15 +449,26 @@ define(function (require, exports, module) {
     });
 
     describe('_consumeSigninCode', () => {
-      it('delegates to the user, clears signinCode when complete', () => {
-        sinon.stub(fxaClient, 'consumeSigninCode', function () {
-          return p({ email: 'signed-in-email@testuser.com' });
+      beforeEach(() => {
+        sinon.stub(metrics, '_initializeFlowModel', () => {});
+        sinon.stub(metrics, 'getFlowEventMetadata', () => {
+          return {
+            flowBeginTime: 'flow-begin-time',
+            flowId: 'flow-id',
+          };
         });
+      });
+
+      it('delegates to the user, clears signinCode when complete', () => {
+        sinon.stub(fxaClient, 'consumeSigninCode',
+          () => p({ email: 'signed-in-email@testuser.com' }));
 
         return broker._consumeSigninCode('signin-code')
           .then(() => {
+            assert.isTrue(metrics._initializeFlowModel.calledOnce);
+
             assert.isTrue(fxaClient.consumeSigninCode.calledOnce);
-            assert.isTrue(fxaClient.consumeSigninCode.calledWith('signin-code'));
+            assert.isTrue(fxaClient.consumeSigninCode.calledWith('signin-code', 'flow-id', 'flow-begin-time'));
 
             assert.deepEqual(broker.get('signinCodeAccount'), {
               email: 'signed-in-email@testuser.com'
@@ -420,9 +478,7 @@ define(function (require, exports, module) {
 
       it('logs and ignores errors, clears signinCode when complete', () => {
         const err = AuthErrors.toError('INVALID_SIGNIN_CODE');
-        sinon.stub(fxaClient, 'consumeSigninCode', function () {
-          return p.reject(err);
-        });
+        sinon.stub(fxaClient, 'consumeSigninCode', () => p.reject(err));
         sinon.spy(metrics, 'logError');
 
         return broker._consumeSigninCode('signin-code')
