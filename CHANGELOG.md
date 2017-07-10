@@ -1,3 +1,17 @@
+<a name="1.90.2"></a>
+## 1.90.2 (2017-07-10)
+
+
+### Bug Fixes
+
+* **experiments:** add old experiment bundle for older clients ([dc6da80](https://github.com/mozilla/fxa-content-server/commit/dc6da80))
+
+### Features
+
+* **docker:** switch to docker based fxa ci box (#5162) r=@shane-tomlinson ([1d3e84a](https://github.com/mozilla/fxa-content-server/commit/1d3e84a))
+
+
+
 <a name="1.90.1"></a>
 ## 1.90.1 (2017-06-29)
 

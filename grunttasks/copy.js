@@ -63,6 +63,10 @@ module.exports = function (grunt) {
         src: 'en/{500,502,503}.html'
       }]
     },
+    experimentsBundle: {
+      dest: '<%= yeoman.dist %>/experiments.bundle.js',
+      src: '<%= yeoman.app %>/scripts/experiments.bundle.js'
+    },
     head: {
       files: [{
         cwd: '<%= yeoman.tmp %>/concat/scripts',

@@ -99,6 +99,9 @@ module.exports = function (grunt) {
     'copy:build',
     // copy the non-minified head.js script file for sourcemap purposes
     'copy:head',
+    // copy the experiments bundle for older builds of the content server
+    // TODO: remove this after a train
+    'copy:experimentsBundle',
     // update the sourcemap path to match the hosted files
     'sourcemap-source',
 
