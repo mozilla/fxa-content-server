@@ -39,7 +39,8 @@ define([
     'tests/functional/robots_txt',
     'tests/functional/send_sms',
     'tests/functional/settings',
-    'tests/functional/settings_clients',
+    // Disabled due to upstream fixes in fxa-auth-server
+    //'./functional/settings_clients',
     'tests/functional/settings_common',
     'tests/functional/sign_in',
     'tests/functional/sign_in_blocked',
