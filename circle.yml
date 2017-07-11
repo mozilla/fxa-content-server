@@ -25,9 +25,6 @@ machine:
     version: 4
   services:
     - docker
-  # N.B., changing this will require a rebuild without cache
-  environment:
-    FXA_L10N_SHA: 2f7ac75835024d3f9125459b77c1d280f1cafb57
 
 test:
   override:
