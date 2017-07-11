@@ -1,3 +1,13 @@
+<a name="1.90.3"></a>
+## 1.90.3 (2017-07-11)
+
+
+### Bug Fixes
+
+* **l10n:** actually pin FXA_L10N_SHA: 2f7ac75835024d3f9125459b77c1d280f1cafb57 ([2a39780](https://github.com/mozilla/fxa-content-server/commit/2a39780))
+
+
+
 <a name="1.90.2"></a>
 ## 1.90.2 (2017-07-10)
 
