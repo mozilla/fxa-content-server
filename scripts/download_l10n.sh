@@ -2,6 +2,9 @@
 
 set -e
 
+# hard code this for train-90
+export FXA_L10N_SHA=2f7ac75835024d3f9125459b77c1d280f1cafb57
+
 if [ -z "$FXA_L10N_SHA" ]; then
     FXA_L10N_SHA="master"
 fi
