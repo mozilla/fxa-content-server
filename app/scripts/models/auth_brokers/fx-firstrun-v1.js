@@ -12,7 +12,7 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const FxSyncWebChannelAuthenticationBroker = require('models/auth_brokers/fx-sync-web-channel');
-  const HaltBehavior = require('views/behaviors/halt');
+  const NavigateBehavior = require('views/behaviors/navigate');
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
@@ -25,6 +25,10 @@ define(function (require, exports, module) {
       SIGNUP_MUST_VERIFY: 'signup_must_verify',
       VERIFICATION_COMPLETE: 'verification_complete'
     },
+
+    defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
+      afterSignIn: new NavigateBehavior('signin_confirmed')
+    }),
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
       cadAfterSignUpConfirmationPoll: true,
@@ -40,19 +44,6 @@ define(function (require, exports, module) {
       return proto.initialize.call(this, options);
     },
 
-    fetch () {
-      return proto.fetch.call(this).then(() => {
-        // Some settings do not work in an iframe due to x-frame and
-        // same-origin policies. Allow the firstrun flow to decide whether
-        // they want to display the settings page after the `login` message
-        // is sent. If `haltAfterSignIn` is set to true, the firstrun page
-        // will take care of displaying an update to the user.
-        if (this.getSearchParam('haltAfterSignIn') === 'true') {
-          this.setBehavior('afterSignIn', new HaltBehavior());
-        }
-      });
-    },
-
     afterLoaded () {
       this._iframeChannel.send(this._iframeCommands.LOADED);
 
@@ -60,7 +51,17 @@ define(function (require, exports, module) {
     },
 
     afterSignIn () {
-      this._iframeChannel.send(this._iframeCommands.LOGIN);
+      // Note, this is a hack. A bedrock request has been made
+      // to stop opening FxA w/ the haltAfterSignIn query parameter
+      // in https://bugzilla.mozilla.org/show_bug.cgi?id=1380825.
+      // Until that patch lands, we'll know bedrock will send
+      // users to /settings which on broken browsers with E10s enabled
+      // will send users to /signin (see #5229). Stop sending
+      // the `login` message to bedrock until they stop redirecting
+      // the page to /settings.
+      if (this.getSearchParam('haltAfterSignIn') !== 'true') {
+        this._iframeChannel.send(this._iframeCommands.LOGIN);
+      }
 
       return proto.afterSignIn.apply(this, arguments);
     },

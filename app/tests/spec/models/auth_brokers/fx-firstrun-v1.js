@@ -87,48 +87,36 @@ define(function (require, exports, module) {
         beforeEach(function () {
           sinon.spy(iframeChannel, 'send');
 
-          return broker.fetch()
-            .then(function () {
-              return broker.afterSignIn(account);
-            })
+          return broker.afterSignIn(account)
             .then(function (_result) {
               result = _result;
             });
         });
 
-        it('notifies the web channel', function () {
+        it('notifies the web channel, iframe channel, navigates to `signin_confirmed`', function () {
           assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-        });
-
-        it('notifies the iframe channel', function () {
           assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
-        });
-
-        it('does not halt by default', function () {
-          assert.isUndefined(result.halt);
+          assert.equal(result.type, 'navigate');
+          assert.equal(result.endpoint, 'signin_confirmed');
         });
       });
 
       describe('with the `haltAfterSignIn` query parameter set to `true`', function () {
         beforeEach(function () {
           windowMock.location.search = '?haltAfterSignIn=true';
-          broker = new FxFirstrunV1AuthenticationBroker({
-            iframeChannel: iframeChannel,
-            relier: relier,
-            window: windowMock
-          });
+          sinon.spy(iframeChannel, 'send');
 
-          return broker.fetch()
-            .then(function () {
-              return broker.afterSignIn(account);
-            })
+          return broker.afterSignIn(account)
             .then(function (_result) {
               result = _result;
             });
         });
 
-        it('halts', function () {
-          assert.isTrue(result.halt);
+        it('notifies the web channel, does not notify the iframe channel, navigates to `signin_confirmed', () => {
+          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+          assert.isFalse(iframeChannel.send.called);
+          assert.equal(result.type, 'navigate');
+          assert.equal(result.endpoint, 'signin_confirmed');
         });
       });
     });

@@ -18,6 +18,7 @@ define([
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
+  const createUser = FunctionalHelpers.createUser;
   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   const openPage = FunctionalHelpers.openPage;
@@ -103,6 +104,36 @@ define([
     afterEach: function () {
       return this.remote
         .then(clearBrowserState());
+    },
+
+    'sign up with a verified account, signin confirmation not needed': function () {
+      email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'sign up with a verified account, signin confirmation needed': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+
+        .then(fillOutSignUp(email, PASSWORD))
+
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'sign up, verify same browser': function () {
