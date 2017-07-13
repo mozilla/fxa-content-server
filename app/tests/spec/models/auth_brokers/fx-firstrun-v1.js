@@ -87,17 +87,34 @@ define(function (require, exports, module) {
         beforeEach(function () {
           sinon.spy(iframeChannel, 'send');
 
-          return broker.fetch()
-            .then(function () {
-              return broker.afterSignIn(account);
-            })
+          return broker.afterSignIn(account)
             .then(function (_result) {
               result = _result;
             });
         });
 
-        it('notifies the web channel, navigates to `signin_confirmed` by default', function () {
+        it('notifies the web channel, iframe channel, navigates to `signin_confirmed`', function () {
           assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+          assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
+          assert.equal(result.type, 'navigate');
+          assert.equal(result.endpoint, 'signin_confirmed');
+        });
+      });
+
+      describe('with the `haltAfterSignIn` query parameter set to `true`', function () {
+        beforeEach(function () {
+          windowMock.location.search = '?haltAfterSignIn=true';
+          sinon.spy(iframeChannel, 'send');
+
+          return broker.afterSignIn(account)
+            .then(function (_result) {
+              result = _result;
+            });
+        });
+
+        it('notifies the web channel, does not notify the iframe channel, navigates to `signin_confirmed', () => {
+          assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
+          assert.isFalse(iframeChannel.send.called);
           assert.equal(result.type, 'navigate');
           assert.equal(result.endpoint, 'signin_confirmed');
         });

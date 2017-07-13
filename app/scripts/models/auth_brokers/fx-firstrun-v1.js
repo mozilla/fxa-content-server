@@ -50,6 +50,22 @@ define(function (require, exports, module) {
       return proto.afterLoaded.apply(this, arguments);
     },
 
+    afterSignIn () {
+      // Note, this is a hack. A bedrock request has been made
+      // to stop opening FxA w/ the haltAfterSignIn query parameter
+      // in https://bugzilla.mozilla.org/show_bug.cgi?id=1380825.
+      // Until that patch lands, we'll know bedrock will send
+      // users to /settings which on broken browsers with E10s enabled
+      // will send users to /signin (see #5229). Stop sending
+      // the `login` message to bedrock until they stop redirecting
+      // the page to /settings.
+      if (this.getSearchParam('haltAfterSignIn') !== 'true') {
+        this._iframeChannel.send(this._iframeCommands.LOGIN);
+      }
+
+      return proto.afterSignIn.apply(this, arguments);
+    },
+
     afterSignInConfirmationPoll () {
       this._iframeChannel.send(this._iframeCommands.VERIFICATION_COMPLETE);
 
