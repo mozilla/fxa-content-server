@@ -1,3 +1,14 @@
+<a name="1.90.4"></a>
+## 1.90.4 (2017-07-13)
+
+
+### Bug Fixes
+
+* **l10n:** actually pin FXA_L10N_SHA: 2f7ac75835024d3f9125459b77c1d280f1cafb57 ([2a39780](https://github.com/mozilla/fxa-content-server/commit/2a39780))
+* **nodejs:** update to node:4.8.4-alpine ([f48bd32](https://github.com/mozilla/fxa-content-server/commit/f48bd32))
+
+
+
 <a name="1.90.3"></a>
 ## 1.90.3 (2017-07-11)
 
