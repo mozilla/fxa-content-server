@@ -96,39 +96,10 @@ define(function (require, exports, module) {
             });
         });
 
-        it('notifies the web channel', function () {
+        it('notifies the web channel, navigates to `signin_confirmed` by default', function () {
           assert.isTrue(channelMock.send.calledWith('fxaccounts:login'));
-        });
-
-        it('notifies the iframe channel', function () {
-          assert.isTrue(iframeChannel.send.calledWith(broker._iframeCommands.LOGIN));
-        });
-
-        it('does not halt by default', function () {
-          assert.isUndefined(result.halt);
-        });
-      });
-
-      describe('with the `haltAfterSignIn` query parameter set to `true`', function () {
-        beforeEach(function () {
-          windowMock.location.search = '?haltAfterSignIn=true';
-          broker = new FxFirstrunV1AuthenticationBroker({
-            iframeChannel: iframeChannel,
-            relier: relier,
-            window: windowMock
-          });
-
-          return broker.fetch()
-            .then(function () {
-              return broker.afterSignIn(account);
-            })
-            .then(function (_result) {
-              result = _result;
-            });
-        });
-
-        it('halts', function () {
-          assert.isTrue(result.halt);
+          assert.equal(result.type, 'navigate');
+          assert.equal(result.endpoint, 'signin_confirmed');
         });
       });
     });
