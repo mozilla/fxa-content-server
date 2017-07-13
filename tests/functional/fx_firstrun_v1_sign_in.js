@@ -17,7 +17,6 @@ define([
   const SELECTOR_CONFIRM_SIGNIN_HEADER = '#fxa-confirm-signin-header';
   const SELECTOR_CONFIRM_SIGNUP_HEADER = '#fxa-confirm-header';
   const SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER = '#fxa-connect-another-device-header';
-  const SELECTOR_SETTINGS_HEADER = '#fxa-settings-header';
   const SELECTOR_SIGNIN_HEADER = '#fxa-signin-header';
   const SELECTOR_SIGNIN_SUB_HEADER = '#fxa-signin-header .service';
   const SELECTOR_SIGNIN_UNBLOCK_HEADER = '#fxa-signin-unblock-header';
@@ -67,6 +66,16 @@ define([
         .then(clearBrowserState({
           force: true
         }));
+    },
+
+    'verified, signin confirmation not needed': function () {
+      email = TestHelpers.createEmail();
+
+      return this.remote
+        .then(setupTest({ preVerified: true }))
+
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'verified, verify same browser': function () {
@@ -144,10 +153,7 @@ define([
         .then(testElementTextInclude(SELECTOR_VERIFICATION_EMAIL, email))
         .then(fillOutSignInUnblock(email, 0))
 
-        // Only users that go through signin confirmation see
-        // `/signin_complete`, and users that go through signin unblock see
-        // the default `settings` page.
-        .then(testElementExists(SELECTOR_SETTINGS_HEADER))
+        .then(testElementExists(SELECTOR_SIGNIN_COMPLETE_HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
     }
   });
