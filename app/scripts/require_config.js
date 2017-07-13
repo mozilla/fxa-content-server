@@ -71,7 +71,6 @@ require.config({
     'cocktail-lib': '../bower_components/cocktail/Cocktail',
     cocktail: './lib/cocktail',
     duration: '../bower_components/Duration.js/duration',
-    fxaCryptoRelier: '../bower_components/fxa-crypto-relier/fxa-crypto-relier.amd',
     fxaCheckbox: '../bower_components/fxa-checkbox/checkbox',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
     jquery: '../bower_components/jquery/dist/jquery',

@@ -20,9 +20,10 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const Vat = require('lib/vat');
 
-  const fxaCryptoRelier = require('fxaCryptoRelier');
-  const fxaKeyUtils = new fxaCryptoRelier.KeyUtils();
-  console.log('fxaCryptoRelier', fxaCryptoRelier)
+  const fxaRelierCrypto = window.FxaCrypto.deriver;
+  const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
+  console.log('fxaRelierCrypto', fxaRelierCrypto)
+  console.log('fxaDeriverUtils', fxaDeriverUtils)
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -111,10 +112,11 @@ define(function (require, exports, module) {
         })
         .then((rkeys) => {
           keys = rkeys;
-          var appJwk = JSON.parse(fxaCryptoRelier.base64url2str(relier.get('keys_jwk')))
-          return fxaKeyUtils.encryptBundle(appJwk, keys);
+
+          const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
+          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(keys));
         })
-        .then((encrypted) => {
+        .then((encryptedJwe) => {
           var oauthParams = {
             assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
@@ -122,13 +124,12 @@ define(function (require, exports, module) {
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state'),
-            derivedKeyBundle: fxaCryptoRelier.str2base64url(JSON.stringify(encrypted))
+            derivedKeyBundle: encryptedJwe
           };
 
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
-          debugger
           return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
