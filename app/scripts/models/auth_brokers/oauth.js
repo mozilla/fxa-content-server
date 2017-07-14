@@ -20,11 +20,6 @@ define(function (require, exports, module) {
   const Url = require('lib/url');
   const Vat = require('lib/vat');
 
-  const fxaRelierCrypto = window.FxaCrypto.deriver;
-  const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
-  console.log('fxaRelierCrypto', fxaRelierCrypto)
-  console.log('fxaDeriverUtils', fxaDeriverUtils)
-
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
    *
@@ -112,6 +107,9 @@ define(function (require, exports, module) {
         })
         .then((rkeys) => {
           keys = rkeys;
+
+          const fxaRelierCrypto = window.FxaCrypto.deriver;
+          const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
 
           const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
           return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(keys));
