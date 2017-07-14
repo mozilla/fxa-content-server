@@ -1,3 +1,13 @@
+<a name="1.90.5"></a>
+## 1.90.5 (2017-07-14)
+
+
+### Bug Fixes
+
+* **tests:** handle new Firefox Sync website in tests (#5240) ([e4ba461](https://github.com/mozilla/fxa-content-server/commit/e4ba461))
+
+
+
 <a name="1.90.4"></a>
 ## 1.90.4 (2017-07-13)
 
