@@ -80,7 +80,7 @@ define(function (require, exports, module) {
           }
         } else {
           // unknown lastAccessTimeFormatted or not possible to format.
-          item.lastAccessTimeFormatted = '';
+          item.lastAccessTimeFormatted = t('last sync time unknown');
         }
         return item;
       });
