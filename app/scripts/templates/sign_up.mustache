@@ -37,7 +37,7 @@
           <input type="email" class="email hidden tooltip-below" value="{{ forceEmail }}" disabled />
         {{/forceEmail}}
         {{^forceEmail}}
-          <input type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
+          <input name="email" type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
         {{/forceEmail}}
       </div>
 
