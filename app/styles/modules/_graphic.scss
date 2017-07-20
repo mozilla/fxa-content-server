@@ -27,9 +27,15 @@
 
 .graphic-mail {
   background-image: url('/images/graphic_mail.svg');
-  background-size: cover;
+  background-position: center center;
+  height: auto;
+  width: auto;
   margin-bottom: 25px;
-  padding-bottom: 10px;
+  padding: 20% 0;
+
+  @include respond-to('small') {
+
+  }
 }
 
 .graphic-connect-another-device {
