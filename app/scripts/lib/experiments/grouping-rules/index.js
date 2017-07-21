@@ -13,6 +13,7 @@ define((require, exports, module) => {
 
   const ExperimentGroupingRules = [
     require('./communication-prefs'),
+    require('./disabled-button-state'),
     require('./is-sampled-user'),
     require('./send-sms-enabled-for-country'),
     require('./send-sms-install-link'),
