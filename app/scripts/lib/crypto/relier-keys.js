@@ -16,8 +16,7 @@ define([
   'lib/constants'
 ], function (sjcl, p, hkdf, base64url, Constants) {
 
-  var KEY_CLASS_TAG_A = 'kAr';
-  var KEY_CLASS_TAG_B = 'kBr';
+  var KEY_CLASS_TAG_B = 'kS';
 
   /**
    * Given the account master keys, the user id and the relier id, generate
@@ -39,9 +38,6 @@ define([
     var relierKeys = {};
     return p()
       .then(function () {
-        if (! keys.kA) {
-          throw new Error('Cant derive relier keys: missing kA');
-        }
         if (! keys.kB) {
           throw new Error('Cant derive relier keys: missing kB');
         }
@@ -51,14 +47,6 @@ define([
         if (! clientId) {
           throw new Error('Cant derive relier keys: missing rid');
         }
-        return generateDerivedKey({
-          inputKey: keys.kA,
-          keyClassTag: KEY_CLASS_TAG_A,
-          uid: uid,
-          clientId: clientId
-        });
-      }).then(function (kAr) {
-        relierKeys[KEY_CLASS_TAG_A] = kAr;
         return generateDerivedKey({
           inputKey: keys.kB,
           keyClassTag: KEY_CLASS_TAG_B,
