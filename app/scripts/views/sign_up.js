@@ -139,7 +139,6 @@ define(function (require, exports, module) {
       var autofocusEl = this._selectAutoFocusEl();
       var forceEmail = this.model.get('forceEmail');
       var prefillEmail = this.getPrefillEmail();
-      var prefillPassword = this.formPrefill.get('password');
 
       var relier = this.relier;
       var isSync = relier.isSync();
@@ -155,16 +154,9 @@ define(function (require, exports, module) {
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
-        password: prefillPassword,
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password'
       });
-    },
-
-    beforeDestroy () {
-      var formPrefill = this.formPrefill;
-      formPrefill.set('email', this.getElementValue('.email'));
-      formPrefill.set('password', this.getElementValue('.password'));
     },
 
     isValidEnd () {
