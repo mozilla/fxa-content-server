@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   const CheckboxMixin = require('views/mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const CoppaAgeInput = require('views/coppa/coppa-age-input');
+  const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const FlowBeginMixin = require('views/mixins/flow-begin-mixin');
   const FormView = require('views/form');
@@ -91,9 +92,6 @@ define(function (require, exports, module) {
     },
 
     afterRender () {
-      this.logViewEvent('email-optin.visible.' +
-          String(this._isEmailOptInEnabled()));
-
       return this._createCoppaView()
         .then(() => FormView.prototype.afterRender.call(this));
     },
@@ -151,7 +149,6 @@ define(function (require, exports, module) {
         forceEmail: forceEmail,
         isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
-        isEmailOptInVisible: this._isEmailOptInEnabled(),
         isSignInEnabled: ! forceEmail,
         isSync: isSync,
         isSyncMigration: this.isSyncMigration(),
@@ -342,7 +339,7 @@ define(function (require, exports, module) {
       var account = this.user.initAccount({
         customizeSync: this.$('.customize-sync').is(':checked'),
         email: this.getElementValue('.email'),
-        needsOptedInToMarketingEmail: this.$('.marketing-email-optin').is(':checked')
+        needsOptedInToMarketingEmail: this.hasOptedInToMarketingEmail()
       });
 
       if (this.relier.isSync()) {
@@ -356,12 +353,6 @@ define(function (require, exports, module) {
     _suggestSignIn (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.unsafeDisplayError(err);
-    },
-
-    _isEmailOptInEnabled () {
-      return !! this._experimentGroupingRules.choose('communicationPrefsVisible', {
-        lang: this.navigator.language
-      });
     }
   }, {
     ENTRYPOINT: 'fxa:signup'
@@ -371,6 +362,7 @@ define(function (require, exports, module) {
     View,
     AccountResetMixin,
     CheckboxMixin,
+    EmailOptInMixin,
     ExperimentMixin,
     FlowBeginMixin,
     MigrationMixin,
