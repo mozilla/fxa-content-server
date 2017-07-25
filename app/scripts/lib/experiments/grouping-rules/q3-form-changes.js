@@ -26,7 +26,15 @@ define((require, exports, module) => {
         return false;
       }
 
-      return this.uniformChoice(EXPERIMENTS, subject.uniqueUserId);
+      let choice;
+
+      if (subject.forceExperiment) {
+        choice = subject.forceExperiment;
+      } else {
+        choice = this.uniformChoice(EXPERIMENTS, subject.uniqueUserId);
+      }
+
+      return choice;
     }
   };
 });

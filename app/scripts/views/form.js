@@ -167,9 +167,9 @@ define(function (require, exports, module) {
       // take place.
       if (this.isFormEnabled()) {
         if (this.isInExperimentGroup && this.isInExperimentGroup('disabledButtonState', 'treatment')) {
-          this.logEvent('exp.dbs.treatment.engaged');
+          this.logEvent('exp.dbs.treatment.render');
         } else if (this.isInExperimentGroup && this.isInExperimentGroup('disabledButtonState', 'control')) {
-          this.logEvent('exp.dbs.control.engaged');
+          this.logEvent('exp.dbs.control.render');
           this.$('button[type=submit]').addClass('disabled');
         } else {
           this.$('button[type=submit]').addClass('disabled');

@@ -26,7 +26,7 @@ define((require, exports, module) => {
         return false;
       }
 
-      if (! subject.experimentGroupingRules.choose('q3FormChanges', 'disabledButtonState')) {
+      if (! subject.experimentGroupingRules.choose('q3FormChanges', subject)) {
         return false;
       }
 
