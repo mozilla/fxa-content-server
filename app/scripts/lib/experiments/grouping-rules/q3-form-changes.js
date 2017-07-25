@@ -7,10 +7,10 @@ define((require, exports, module) => {
 
   const BaseGroupingRule = require('./base');
 
-  module.exports = class DisabledButtonStateGroupingRule extends BaseGroupingRule {
+  module.exports = class Q3FormChanges extends BaseGroupingRule {
     constructor () {
       super();
-      this.name = 'disabledButtonState';
+      this.name = 'q3FormChanges';
     }
 
     /**
@@ -20,25 +20,13 @@ define((require, exports, module) => {
      * @returns {Any}
      */
     choose (subject) {
-      const GROUPS = ['control', 'treatment'];
+      const EXPERIMENTS = ['disabledButtonState'];
 
       if (! subject.uniqueUserId) {
         return false;
       }
 
-      if (! subject.experimentGroupingRules.choose('q3FormChanges', 'disabledButtonState')) {
-        return false;
-      }
-
-      let choice;
-
-      if (subject.forceExperimentGroup) {
-        choice = subject.forceExperimentGroup;
-      } else {
-        choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
-      }
-
-      return choice;
+      return this.uniformChoice(EXPERIMENTS, subject.uniqueUserId);
     }
   };
 });
