@@ -7,7 +7,7 @@
 module.exports = function () {
   const route = {};
   route.method = 'get';
-  route.path = '/.well-known/apple-site-association';
+  route.path = '/.well-known/apple-app-site-association';
 
   route.process = function (req, res) {
 
@@ -17,7 +17,7 @@ module.exports = function () {
     // From Apple developer docs,
     // https://developer.apple.com/library/content/documentation/General/Conceptual/AppSearch/UniversalLinks.html#//apple_ref/doc/uid/TP40016308-CH12-SW2
     // to enabled universal link support for a specific domain you need return a json doc
-    // from `/.well-known/apple-site-association` path, describing what apps can open which links.
+    // from `/.well-known/apple-app-site-association` path, describing what apps can open which links.
     // The structure below enables FxiOS Fennec (developer builds), FirefoxBeta (Test Flight builds)
     // and Firefox (App store builds) to open FxA links.
     res.json({
