@@ -29,7 +29,7 @@ define(function (require, exports, module) {
           account,
           forceExperimentGroup: 'control',
           uniqueUserId: 'user-id'
-        }), 'control');
+        }), 'disabledButtonState');
       });
 
       it('returns chooses some group ', () => {

@@ -174,8 +174,8 @@ define(function (require, exports, module) {
         } else {
           this.$('button[type=submit]').addClass('disabled');
         }
+        this.notifier.trigger('form.disabled');
       }
-      this.notifier.trigger('form.disabled');
     },
 
     /**
