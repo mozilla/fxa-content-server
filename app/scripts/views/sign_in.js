@@ -149,6 +149,11 @@ define(function (require, exports, module) {
       } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
         return this.showValidationError(this.$('#password'), err);
       }
+
+      if (AuthErrors.is(err, 'EMAIL_HARD_BOUNCE') || AuthErrors.is(err, 'EMAIL_SENT_COMPLAINT')) {
+        return this.navigate('signin_bounced', { email: account.get('email') });
+      }
+
       // re-throw error, it will be handled at a lower level.
       throw err;
     },

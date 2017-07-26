@@ -18,9 +18,18 @@ define([
   var deliveredEmail;
   var PASSWORD = '12345678';
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = FunctionalHelpers.openPage;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    fillOutSignIn,
+    fillOutSignUp,
+    openPage,
+    respondToWebChannelMessage,
+    testElementExists,
+    testIsBrowserNotified,
+    thenify
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
@@ -93,5 +102,47 @@ define([
         .end();
     }
 
+  });
+
+  const setUpBouncedSignIn = thenify(function () {
+    const client = new FxaClient(AUTH_SERVER_ROOT, {
+      xhr: nodeXMLHttpRequest.XMLHttpRequest
+    });
+
+    const email = TestHelpers.createEmail('sync{id}');
+
+    return this.parent
+      .then(clearBrowserState({ force: true }))
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(`${config.fxaContentRoot}signin?context=fx_desktop_v2&service=sync`, '#fxa-signin-header'))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists('#fxa-confirm-signin-header'))
+      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+      .then(testIsBrowserNotified('fxaccounts:login'))
+      .then(() => client.accountDestroy(email, PASSWORD))
+      .then(testElementExists('#fxa-signin-bounced-header'));
+  });
+
+  registerSuite({
+    name: 'sign_in with an email that bounces',
+
+    afterEach () {
+      return this.remote.then(clearBrowserState());
+    },
+
+    'click create-account': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click('#create-account'))
+        .then(testElementExists('#fxa-signup-header'));
+    },
+
+    'click back': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click('#back'))
+        .then(testElementExists('#fxa-signin-header'));
+    }
   });
 });
