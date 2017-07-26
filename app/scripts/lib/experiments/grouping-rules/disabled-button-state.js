@@ -22,11 +22,11 @@ define((require, exports, module) => {
     choose (subject) {
       const GROUPS = ['control', 'treatment'];
 
-      if (! subject.uniqueUserId) {
+      if (! subject || ! subject.uniqueUserId) {
         return false;
       }
 
-      if (! subject.experimentGroupingRules.choose('q3FormChanges', subject)) {
+      if (! subject.experimentGroupingRules || ! subject.experimentGroupingRules.choose('q3FormChanges', subject)) {
         return false;
       }
 

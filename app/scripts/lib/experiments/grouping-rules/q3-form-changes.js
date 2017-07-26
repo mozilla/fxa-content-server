@@ -22,7 +22,7 @@ define((require, exports, module) => {
     choose (subject) {
       const EXPERIMENTS = ['disabledButtonState'];
 
-      if (! subject.uniqueUserId) {
+      if (! subject || ! subject.uniqueUserId) {
         return false;
       }
 

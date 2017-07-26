@@ -7,7 +7,7 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const Account = require('models/account');
-  const Experiment = require('lib/experiments/grouping-rules/send-sms-install-link');
+  const Experiment = require('lib/experiments/grouping-rules/q3-form-changes');
   const sinon = require('sinon');
 
   describe('lib/experiments/grouping-rules/q3-form-changes', () => {
@@ -20,6 +20,25 @@ define(function (require, exports, module) {
     });
 
     describe('choose', () => {
+      it('returns false if no subject or uniqueUserId', () => {
+        assert.isFalse(experiment.choose());
+        assert.isFalse(experiment.choose({}));
+      });
+
+      it('returns experiment if forceExperiment', () => {
+        assert.equal(experiment.choose({
+          account,
+          forceExperimentGroup: 'control',
+          uniqueUserId: 'user-id'
+        }), 'control');
+      });
+
+      it('returns chooses some group ', () => {
+        assert.ok(experiment.choose({
+          account,
+          uniqueUserId: 'user-id'
+        }));
+      });
 
     });
   });
