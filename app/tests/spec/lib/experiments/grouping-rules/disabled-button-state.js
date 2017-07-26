@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const Account = require('models/account');
   const Experiment = require('lib/experiments/grouping-rules/disabled-button-state');
-  const sinon = require('sinon');
 
   describe('lib/experiments/grouping-rules/disabled-button-state', () => {
     let account;
@@ -21,7 +20,7 @@ define(function (require, exports, module) {
       experiment = new Experiment();
       experimentGroupingRules = {
         choose: function choose () {
-          return 'disabledButtonState'
+          return 'disabledButtonState';
         }
       };
     });

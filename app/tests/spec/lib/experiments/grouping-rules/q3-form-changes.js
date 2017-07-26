@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const Account = require('models/account');
   const Experiment = require('lib/experiments/grouping-rules/q3-form-changes');
-  const sinon = require('sinon');
 
   describe('lib/experiments/grouping-rules/q3-form-changes', () => {
     let account;
