@@ -108,6 +108,7 @@ define(function (require, exports, module) {
           assert.ok($(view.el).find('.intro').length, 'intro text');
           assert.ok($(view.el).find('.disconnect-reasons').length, 'radio');
           assert.notOk($(view.el).find('.reason-help').length, 'help');
+          assert.ok($(view.el).find('input[name=disconnect-reasons][value=no]').prop('checked'), 'Rather not Say');
         });
       });
 
