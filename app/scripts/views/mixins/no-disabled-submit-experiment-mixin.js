@@ -15,9 +15,9 @@ define(function (require, exports, module) {
     afterRender () {
       if (this.isInExperimentGroup(EXPERIMENT_NAME, 'treatment')) {
         this.$('button[type=submit]').removeClass('disabled');
-        this.logEvent('exp.dbs.treatment.render');
+        this.logEventOnce('exp.dbs.treatment.render');
       } else if (this.isInExperimentGroup(EXPERIMENT_NAME, 'control')) {
-        this.logEvent('exp.dbs.control.render');
+        this.logEventOnce('exp.dbs.control.render');
       }
     },
 

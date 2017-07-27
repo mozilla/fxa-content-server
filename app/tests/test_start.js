@@ -152,6 +152,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/experiment-mixin',
     '../tests/spec/views/mixins/external-links-mixin',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
+    '../tests/spec/views/mixins/no-disabled-submit-experiment-mixin.js',
     '../tests/spec/views/mixins/flow-begin-mixin',
     '../tests/spec/views/mixins/flow-events-mixin',
     '../tests/spec/views/mixins/form-prefill-mixin',
