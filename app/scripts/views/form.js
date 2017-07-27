@@ -166,14 +166,7 @@ define(function (require, exports, module) {
       // applied, no submit handler is fired, and the form validation does not
       // take place.
       if (this.isFormEnabled()) {
-        if (this.isInExperimentGroup && this.isInExperimentGroup('disabledButtonState', 'treatment')) {
-          this.logEvent('exp.dbs.treatment.render');
-        } else if (this.isInExperimentGroup && this.isInExperimentGroup('disabledButtonState', 'control')) {
-          this.logEvent('exp.dbs.control.render');
-          this.$('button[type=submit]').addClass('disabled');
-        } else {
-          this.$('button[type=submit]').addClass('disabled');
-        }
+        this.$('button[type=submit]').addClass('disabled');
         this.notifier.trigger('form.disabled');
       }
     },
