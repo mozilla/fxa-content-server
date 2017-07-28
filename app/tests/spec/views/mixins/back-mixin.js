@@ -65,6 +65,18 @@ define(function (require, exports, module) {
         assert.isTrue(view.logViewEvent.calledOnce);
         assert.isTrue(view.logViewEvent.calledWith('back'));
       });
+
+      describe('clicks on `#back`', () => {
+        it('calls `event.preventDefault`', () => {
+          $('#container').html(view.el);
+
+          const clickEvent = $.Event('click');
+          clickEvent.currentTarget = $('a#back');
+
+          view.$('#back').trigger(clickEvent);
+          assert.isTrue(clickEvent.isDefaultPrevented());
+        });
+      });
     });
 
     describe('backOnEnter', function () {
