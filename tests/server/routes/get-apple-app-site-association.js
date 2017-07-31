@@ -39,21 +39,22 @@ define([
         assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
         const result = JSON.parse(res.body);
+        const paths = ['/verify_email', '/complete_signin'];
         const expectedResult = {
           'applinks': {
             'apps': [],
             'details': [
               {
                 'appID': '43AQ936H96.org.mozilla.ios.Firefox',
-                'paths': ['*']
+                'paths': paths
               },
               {
                 'appID': '43AQ936H96.org.mozilla.ios.Fennec',
-                'paths': ['*']
+                'paths': paths
               },
               {
                 'appID': '43AQ936H96.org.mozilla.ios.FirefoxBeta',
-                'paths': ['*']
+                'paths': paths
               }
             ]
           }
