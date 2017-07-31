@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
 const config = require('../configuration');
 const flowEvent = require('../flow-event');
 const GACollector = require('../ga-collector');
@@ -12,7 +13,9 @@ const MetricsCollector = require('../metrics-collector-stderr');
 const StatsDCollector = require('../statsd-collector');
 const validation = require('../validation');
 
-const DISABLE_CLIENT_METRICS_STDERR = config.get('client_metrics').stderr_collector_disabled;
+const clientMetricsConfig = config.get('client_metrics');
+const DISABLE_CLIENT_METRICS_STDERR = clientMetricsConfig.stderr_collector_disabled;
+const MAX_EVENT_OFFSET = clientMetricsConfig.max_event_offset;
 
 const BROKER_PATTERN = validation.PATTERNS.BROKER;
 const CONTEXT_PATTERN = validation.PATTERNS.CONTEXT;
@@ -44,7 +47,7 @@ const BODY_SCHEMA = {
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   events: joi.array().items(joi.object().keys({
-    offset: OFFSET_TYPE.required(),
+    offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
   })).required(),
   experiments: joi.array().items(joi.object().keys({

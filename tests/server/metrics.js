@@ -17,6 +17,8 @@ define([
     name: 'metrics'
   };
 
+  const MAX_EVENT_OFFSET = config.get('client_metrics').max_event_offset;
+
   const VALID_METRICS =
     JSON.parse(fs.readFileSync('tests/server/fixtures/metrics_valid.json'));
   const INVALID_METRICS_OVERWRITE_TOSTRING_METHOD =
@@ -63,6 +65,7 @@ define([
     'invalid duration (-1)': testInvalidMetricsField('duration', -1),
     'invalid entryPoint (15612!$@%%asdf<>)': testInvalidMetricsField('entrypoint', '15612!$@%%asdf<>'),
     'invalid entrypoint (!%!%)': testInvalidMetricsField('entrypoint', '!%!%'),
+    'invalid event offset (<MAX_EVENT_OFFSET + 1>)': testInvalidMetricsField('events', [{ offset: MAX_EVENT_OFFSET + 1, type: 'allgood'}]),
     'invalid event offset (a)': testInvalidMetricsField('events', [{ offset: 'a', type: 'allgood'}]),
     'invalid event type (<owned>)': testInvalidMetricsField('events', [{ offset: 12, type: '<owned>'}]),
     'invalid events ({})': testInvalidMetricsField('events', {}),
