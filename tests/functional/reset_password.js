@@ -128,7 +128,7 @@ define([
     },
 
     'open /reset_password page from /signin': function () {
-      const updatedEmail = 'testuser@testuser.com';
+      const updatedEmail = TestHelpers.createEmail();
       return this.remote
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER))
         .then(type(selectors.SIGNIN.EMAIL, email))
