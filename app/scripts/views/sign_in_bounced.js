@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const BackMixin = require('views/mixins/back-mixin');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
+  const FlowEventsMixin = require('views/mixins/flow-events-mixin');
   const Session = require('lib/session');
   const Template = require('stache!templates/sign_in_bounced');
 
@@ -39,7 +40,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     SignInBouncedView,
-    BackMixin
+    BackMixin,
+    FlowEventsMixin
   );
 
   module.exports = SignInBouncedView;
