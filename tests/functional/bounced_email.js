@@ -18,18 +18,16 @@ define([
   var deliveredEmail;
   var PASSWORD = '12345678';
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    fillOutSignIn,
-    fillOutSignUp,
-    openPage,
-    respondToWebChannelMessage,
-    testElementExists,
-    testIsBrowserNotified,
-    thenify
-  } = FunctionalHelpers;
+  const clearBrowserState = FunctionalHelpers.clearBrowserState;
+  const click = FunctionalHelpers.click;
+  const createUser = FunctionalHelpers.createUser;
+  const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+  const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
+  const openPage = FunctionalHelpers.openPage;
+  const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const testElementExists = FunctionalHelpers.testElementExists;
+  const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
+  const thenify = FunctionalHelpers.thenify;
 
   registerSuite({
     name: 'sign_up with an email that bounces',
