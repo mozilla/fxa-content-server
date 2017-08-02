@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  './functional/mailcheck',
+  './functional/sync_v3_email_first',
+  './functional/fx_firstrun_v2_email_first',
+  // new and flaky tests above here
   './functional/sign_in',
   './functional/sign_in_cached',
   './functional/sign_in_blocked',
@@ -39,7 +43,6 @@ define([
   './functional/fx_fennec_v1_settings',
   './functional/mob_android_v1',
   './functional/mob_ios_v1',
-  './functional/mailcheck',
   './functional/bounced_email',
   './functional/legal',
   './functional/tos',

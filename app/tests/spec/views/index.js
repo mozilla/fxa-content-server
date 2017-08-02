@@ -121,7 +121,11 @@ define((require, exports, module) => {
 
         describe('action === `email`', () => {
           beforeEach(() => {
-            relier.set('action', 'email');
+            relier.set({
+              action: 'email',
+              service: 'sync',
+              serviceName: 'Firefox Sync'
+            });
           });
 
           it('renders as expected, starts the flow metrics', () => {
@@ -131,23 +135,12 @@ define((require, exports, module) => {
                 assert.lengthOf(view.$('input[type=email]'), 1);
                 assert.lengthOf(view.$('#fxa-tos'), 1);
                 assert.lengthOf(view.$('#fxa-pp'), 1);
-                assert.lengthOf(view.$('#suggest-sync'), 1);
+                assert.include(view.$('.service').text(), 'Firefox Sync');
 
                 assert.isTrue(view.logFlowEventOnce.calledOnce);
                 assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
 
                 assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
-              });
-          });
-
-          it('does not render sync suggestion if service, renders service name', () => {
-            relier.set('service', 'sync');
-            relier.set('serviceName', 'Firefox Sync');
-
-            return view.render()
-              .then(() => {
-                assert.lengthOf(view.$('#suggest-sync'), 0);
-                assert.include(view.$('.service').text(), 'Firefox Sync');
               });
           });
         });
