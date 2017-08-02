@@ -68,10 +68,6 @@ define(function (require, exports, module) {
           this.navigate(nextEndpoint, { account });
         });
     }
-
-    static get ENTRYPOINT () {
-      return 'fxa:email';
-    }
   }
 
   Cocktail.mixin(
