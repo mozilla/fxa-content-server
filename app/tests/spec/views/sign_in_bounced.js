@@ -25,11 +25,43 @@ define((require, exports, module) => {
       };
       view = new View({ formPrefill, model, user });
       clickHandler = view.events['click #create-account'];
+      sinon.spy(view, 'setInitialContext');
     });
 
     it('set properties correctly', () => {
       assert.isFunction(clickHandler);
       assert.equal(view.template, template);
+    });
+
+    describe('setInitialContext', () => {
+      let context;
+
+      beforeEach(() => {
+        context = {
+          has: sinon.spy(),
+          set: sinon.spy()
+        };
+        view.setInitialContext(context);
+      });
+
+      it('called context.has correctly', () => {
+        assert.equal(context.has.callCount, 1);
+        assert.lengthOf(context.has.args[0], 1);
+        assert.equal(context.has.args[0][0], 'canGoBack');
+      });
+
+      it('called context.set correctly', () => {
+        assert.equal(context.set.callCount, 2);
+
+        assert.lengthOf(context.set.args[0], 1);
+        assert.deepEqual(context.set.args[0][0], {
+          email: 'foo@example.com',
+          escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
+        });
+
+        assert.lengthOf(context.set.args[1], 2);
+        assert.equal(context.set.args[1][0], 'canGoBack');
+      });
     });
 
     describe('click handler', () => {

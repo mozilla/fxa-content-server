@@ -27,7 +27,10 @@ define(function (require, exports, module) {
     },
 
     setInitialContext (context) {
-      context.set({ email: this.model.get('email') });
+      context.set({
+        email: this.model.get('email'),
+        escapedSupportLinkAttrs: 'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"'
+      });
     },
 
     _createAccount: BaseView.preventDefaultThen(function () {
