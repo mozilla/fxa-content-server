@@ -424,7 +424,7 @@ define(function (require, exports, module) {
 
       describe('email-first flow', () => {
         it('shows the SignUpPasswordView', () => {
-          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model({ emailFirst: true }));
+          notifier.trigger('email-first-flow');
           router.onSignUp();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignUpPasswordView));
@@ -448,7 +448,7 @@ define(function (require, exports, module) {
 
       describe('email-first flow', () => {
         it('shows the SignInPasswordView', () => {
-          sinon.stub(router, 'getCurrentViewModel', () => new Backbone.Model({ emailFirst: true }));
+          notifier.trigger('email-first-flow');
           router.onSignIn();
           assert.isTrue(router.showView.calledOnce);
           assert.isTrue(router.showView.calledWith(SignInPasswordView));

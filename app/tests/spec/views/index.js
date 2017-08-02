@@ -61,6 +61,7 @@ define((require, exports, module) => {
 
     describe('render', () => {
       beforeEach(() => {
+        sinon.spy(notifier, 'trigger');
         sinon.spy(view, 'navigate');
         sinon.spy(view, 'replaceCurrentPage');
       });
@@ -73,6 +74,7 @@ define((require, exports, module) => {
             .then(() => {
               assert.isTrue(view.navigate.calledOnce);
               assert.isTrue(view.navigate.calledWith('cannot_create_account'));
+              assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
             });
         });
       });
@@ -87,6 +89,7 @@ define((require, exports, module) => {
             .then(() => {
               assert.isTrue(view.replaceCurrentPage.calledOnce);
               assert.isTrue(view.replaceCurrentPage.calledWith('settings'));
+              assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
             });
         });
       });
@@ -99,6 +102,7 @@ define((require, exports, module) => {
               .then(() => {
                 assert.isTrue(view.replaceCurrentPage.calledOnce);
                 assert.isTrue(view.replaceCurrentPage.calledWith('signin'));
+                assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
               });
           });
         });
@@ -110,6 +114,7 @@ define((require, exports, module) => {
               .then(() => {
                 assert.isTrue(view.replaceCurrentPage.calledOnce);
                 assert.isTrue(view.replaceCurrentPage.calledWith('signup'));
+                assert.isFalse(notifier.trigger.calledWith('email-first-flow'));
               });
           });
         });
@@ -130,6 +135,8 @@ define((require, exports, module) => {
 
                 assert.isTrue(view.logFlowEventOnce.calledOnce);
                 assert.isTrue(view.logFlowEventOnce.calledWith('begin'));
+
+                assert.isTrue(notifier.trigger.calledWith('email-first-flow'));
               });
           });
 

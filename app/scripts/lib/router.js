@@ -132,29 +132,19 @@ define(function (require, exports, module) {
       this.notifier.once('view-shown', this._afterFirstViewHasRendered.bind(this));
       this.notifier.on('navigate', this.onNavigate.bind(this));
       this.notifier.on('navigate-back', this.onNavigateBack.bind(this));
+      this.notifier.on('email-first-flow', () => this._isEmailFirstFlow = true);
 
       this.storage = Storage.factory('sessionStorage', this.window);
     },
 
     onSignUp () {
-      const View = this._isEmailFirstFlow() ? SignUpPasswordView : SignUpView;
+      const View = this._isEmailFirstFlow ? SignUpPasswordView : SignUpView;
       return this.showView(View);
     },
 
     onSignIn () {
-      const View = this._isEmailFirstFlow() ? SignInPasswordView : SignInView;
+      const View = this._isEmailFirstFlow ? SignInPasswordView : SignInView;
       return this.showView(View);
-    },
-
-    /**
-     * Is the user in the email-first flow?
-     *
-     * @returns {Boolean}
-     * @private
-     */
-    _isEmailFirstFlow () {
-      const viewModel = this.getCurrentViewModel();
-      return !! (viewModel && viewModel.get('emailFirst'));
     },
 
     onNavigate (event) {

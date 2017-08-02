@@ -70,19 +70,6 @@ define(function (require, exports, module) {
       });
 
       describe('action query parameter', () => {
-        describe('valid types', () => {
-          ['signin', 'signup', 'email'].forEach((action) => {
-            it(`accepts ${action}`, () => {
-              windowMock.location.search = TestHelpers.toSearchString({ action });
-
-              return relier.fetch()
-                .then(() => {
-                  assert.equal(relier.get('action'), action);
-                });
-            });
-          });
-        });
-
         describe('missing', () => {
           beforeEach(() => {
             windowMock.location.search = TestHelpers.toSearchString({});
@@ -95,48 +82,26 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('emtpy', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              action: ''
-            });
+        ['signin', 'signup', 'email'].forEach((action) => {
+          it(`accepts action=\`${action}\``, () => {
+            windowMock.location.search = TestHelpers.toSearchString({ action });
 
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'action');
+            return relier.fetch()
+              .then(() => {
+                assert.equal(relier.get('action'), action);
+              });
           });
         });
 
-        describe('invalid', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              action: 'reset_password'
-            });
+        ['', ' ', 'reset_password'].forEach((action) => {
+          it(`errors for action=\`${action}\``, () => {
+            windowMock.location.search = TestHelpers.toSearchString({ action });
 
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'action');
-          });
-        });
-
-        describe('whitespace', () => {
-          beforeEach(() => {
-            windowMock.location.search = TestHelpers.toSearchString({
-              action: ' '
-            });
-
-            return fetchExpectError();
-          });
-
-          it('errors correctly', () => {
-            assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
-            assert.equal(err.param, 'action');
+            return fetchExpectError()
+              .then(() => {
+                assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
+                assert.equal(err.param, 'action');
+              });
           });
         });
       });

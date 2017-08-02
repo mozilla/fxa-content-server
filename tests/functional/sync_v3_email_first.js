@@ -49,16 +49,15 @@ define([
         }))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
-        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -72,7 +71,7 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
     'signin - merge cancelled': function () {
@@ -86,10 +85,9 @@ define([
 
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.ERROR))
 
-        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(testElementExists(selectors.ENTER_EMAIL.ERROR));
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     },
 
     'signin verified': function () {
@@ -102,15 +100,13 @@ define([
         }))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
 
         .then(openVerificationLinkInNewTab(email, 0))
@@ -121,7 +117,7 @@ define([
         // We do not expect the verification poll to occur. The poll
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
-        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER, 5000));
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
     },
 
     'signin unverified': function () {
@@ -134,15 +130,14 @@ define([
         }))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         // The /account/status endpoint does not return whether the account
         // is verified, only whether the email has been registered
-        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
         // The user never verified their account and must do so.
         .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -154,7 +149,7 @@ define([
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
-        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER, 5000));
+        .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     }
   });
 });

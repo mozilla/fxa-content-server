@@ -36,6 +36,9 @@ define(function (require, exports, module) {
         this.replaceCurrentPage('settings');
       } else if (action !== 'email') {
         this.replaceCurrentPage(action);
+      } else {
+        // notifies the router that the user is in the email-first flow.
+        this.notifier.trigger('email-first-flow');
       }
     }
 
@@ -63,9 +66,7 @@ define(function (require, exports, module) {
         .then(() => this.user.checkAccountEmailExists(account))
         .then((exists) => {
           const nextEndpoint = exists ? 'signin' : 'signup';
-          this.navigate(nextEndpoint, {
-            account, emailFirst: true
-          });
+          this.navigate(nextEndpoint, { account });
         });
     }
 

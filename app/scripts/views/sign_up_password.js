@@ -43,7 +43,7 @@ define(function (require, exports, module) {
 
     showValidationErrorsEnd () {
       if (! this._doPasswordsMatch()) {
-        this.displayError(AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
+        this.showValidationError('#password', AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'));
       }
     }
 
