@@ -16,12 +16,15 @@ define([
 
   const clearBrowserState = FunctionalHelpers.clearBrowserState;
   const click = FunctionalHelpers.click;
+  const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
   const createUser = FunctionalHelpers.createUser;
   const fillOutSignIn = FunctionalHelpers.fillOutSignIn;
   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
   const getFxaClient = FunctionalHelpers.getFxaClient;
   const openPage = FunctionalHelpers.openPage;
+  const pollUntil = FunctionalHelpers.pollUntil;
   const respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
+  const switchToWindow = FunctionalHelpers.switchToWindow;
   const testElementExists = FunctionalHelpers.testElementExists;
   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
   const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
@@ -112,7 +115,10 @@ define([
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(testIsBrowserNotified('fxaccounts:login'))
       .then(() => client.accountDestroy(email, PASSWORD))
-      .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER));
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.BACK))
+      .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
   });
 
   registerSuite({
@@ -139,6 +145,15 @@ define([
         .then(testElementExists(selectors.SIGNIN.HEADER))
         .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
         .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, PASSWORD));
+    },
+
+    'click support': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click(selectors.SIGNIN_BOUNCED.SUPPORT))
+        .then(switchToWindow(1))
+        .then(pollUntil(() => window.location.href.startsWith('https://support.mozilla.org/')))
+        .then(closeCurrentWindow());
     }
   });
 });
