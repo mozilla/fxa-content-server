@@ -18,7 +18,6 @@ define(function (require, exports, module) {
   const FormView = require('views/form');
   const SearchParamMixin = require('lib/search-param-mixin');
   const ServiceMixin = require('views/mixins/service-mixin');
-  const SyncSuggestionMixin = require('views/mixins/sync-suggestion-mixin');
   const Template = require('stache!templates/index');
 
   class IndexView extends FormView {
@@ -81,12 +80,7 @@ define(function (require, exports, module) {
     FlowBeginMixin,
     FormPrefillMixin,
     SearchParamMixin,
-    ServiceMixin,
-    SyncSuggestionMixin({
-      entrypoint: IndexView.ENTRYPOINT,
-      flowEvent: 'link.signin',
-      pathname: 'email'
-    })
+    ServiceMixin
   );
 
   module.exports = IndexView;
