@@ -30,7 +30,7 @@ define((require, exports, module) => {
 
     it('set properties correctly', () => {
       assert.isFunction(clickHandler);
-      assert.equal(view.template, template);
+      assert.strictEqual(view.template, template);
     });
 
     describe('setInitialContext', () => {
