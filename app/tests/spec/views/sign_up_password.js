@@ -82,7 +82,7 @@ define(function (require, exports, module) {
       beforeEach(() => {
         sinon.stub(view, 'signUp', () => p());
         sinon.stub(view, 'tooYoung');
-        sinon.spy(view, 'showValidationError');
+        sinon.spy(view, 'displayError');
       });
 
       describe('passwords are different', () => {
@@ -96,9 +96,8 @@ define(function (require, exports, module) {
             .then(() => view.validateAndSubmit())
             .then(() => {
               assert.isFalse(view.signUp.calledOnce);
-              assert.isTrue(view.showValidationError.calledOnce);
-              assert.isTrue(view.showValidationError.calledWith('#password'));
-              const displayedError = view.showValidationError.args[0][1];
+              assert.isTrue(view.displayError.calledOnce);
+              const displayedError = view.displayError.args[0][0];
               assert.isTrue(AuthErrors.is(displayedError, 'PASSWORDS_DO_NOT_MATCH'));
             });
         });
@@ -116,7 +115,7 @@ define(function (require, exports, module) {
             .then(() => {
               assert.isTrue(view.tooYoung.calledOnce);
               assert.isFalse(view.signUp.calledOnce);
-              assert.isFalse(view.showValidationError.called);
+              assert.isFalse(view.displayError.called);
             });
         });
       });
@@ -137,7 +136,7 @@ define(function (require, exports, module) {
               assert.isTrue(view.signUp.calledWith(account, 'password'));
               assert.isTrue(account.get('needsOptedInToMarketingEmail', true));
 
-              assert.isFalse(view.showValidationError.called);
+              assert.isFalse(view.displayError.called);
             });
         });
       });

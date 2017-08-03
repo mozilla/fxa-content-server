@@ -37,11 +37,8 @@ define(function (require, exports, module) {
   const ReportSignInView = require('views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
-<<<<<<< HEAD
   const SignInBouncedView = require('views/sign_in_bounced');
-=======
   const SignInPasswordView = require('../views/sign_in_password');
->>>>>>> feat(client): Email first.
   const SignInReportedView = require('views/sign_in_reported');
   const SignInUnblockView = require('../views/sign_in_unblock');
   const SignInView = require('../views/sign_in');

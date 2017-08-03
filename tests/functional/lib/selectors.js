@@ -137,6 +137,7 @@ define([], function () {
     SIGNUP_PASSWORD: {
       AGE: '#age',
       EMAIL: 'input[type=email]',
+      ERROR_PASSWORDS_DO_NOT_MATCH: '.error',
       HEADER: '#fxa-signup-password-header',
       PASSWORD: '#password',
       SUBMIT: 'button[type="submit"]',
