@@ -16,6 +16,7 @@ module.exports = function (config) {
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
+  const MAX_UNBLOCK_CODE_ATTEMPTS = config.get('unblockCode.maxAttempts');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
 
@@ -25,6 +26,7 @@ module.exports = function (config) {
     env: ENV,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
     marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
+    maxUnblockCodeAttempts: MAX_UNBLOCK_CODE_ATTEMPTS,
     oAuthClientId: CLIENT_ID,
     oAuthUrl: OAUTH_SERVER_URL,
     profileUrl: PROFILE_SERVER_URL,

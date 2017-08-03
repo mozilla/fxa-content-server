@@ -49,6 +49,14 @@ define(function (require, exports, module) {
       const password = this.model.get('password');
       const unblockCode = this.getElementValue('#unblock_code');
 
+      // store unblock code in the format {unblockCode : num_attempts_left - 1}
+      // subtracting one since we'll be using it immediately after we set it
+      const maxUnblockCodeAttempts = this.user._maxUnblockCodeAttempts;
+      window.sessionStorage.setItem(
+        'unblockCode',
+        JSON.stringify({[unblockCode]: maxUnblockCodeAttempts - 1}
+        )
+      );
       return this.signIn(account, password, { unblockCode })
         .fail((err) => this.onSignInError(account, password, err));
     },
