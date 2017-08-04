@@ -4,6 +4,7 @@
 
 'use strict';
 
+const _ = require('lodash');
 const config = require('../configuration');
 const flowEvent = require('../flow-event');
 const GACollector = require('../ga-collector');
@@ -138,12 +139,19 @@ module.exports = function () {
     },
     process: function (req, res) {
       const requestReceivedTime = Date.now();
+      const metrics = req.body || {};
+
+      const maxOffset = metrics.flushTime - metrics.startTime;
+      const invalidEvent = findInvalidEventOffsets(metrics.events, maxOffset);
+      if (invalidEvent) {
+        const error = new MaxOffsetError(invalidEvent.offset, maxOffset);
+        return res.status(400).json(error);
+      }
 
       // don't wait around to send a response.
       res.json({ success: true });
 
       process.nextTick(() => {
-        const metrics = req.body || {};
 
         metrics.agent = req.get('user-agent');
 
@@ -161,3 +169,18 @@ module.exports = function () {
     }
   };
 };
+
+function findInvalidEventOffsets (events, maxOffset) {
+  return _.find(events, event => event.offset > maxOffset);
+}
+
+function MaxOffsetError(offset, maxOffset) {
+  return {
+    error: 'Bad Request',
+    message: `offset ${offset} > maxiumum possible of ${maxOffset}`,
+    statusCode: 400,
+    validation: {
+      keys: ['offset']
+    }
+  };
+}
