@@ -32,6 +32,8 @@ echo "FXA_AUTH_VERSION    $FXA_AUTH_VERSION"
 
 set -o xtrace # echo the following commands
 
+cd /app
+/bin/rm -rf ./node_modules
 ./tests/teamcity/install-npm-deps.sh
 
 ./node_modules/.bin/intern-client \
