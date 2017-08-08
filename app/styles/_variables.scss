@@ -3,37 +3,37 @@ $default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 $header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 
 //Default color variables
-$color-black: #000;
-$color-blue-dark: #0670cc;
-$color-blue-darker: #005bab;
-$color-blue-darkest: #004480;
-$color-blue: #0996f8;
+$color-blue: #0a84ff; // Blue 50
+$color-blue-dark: #0060df; // Blue 60
+$color-blue-darker: #003eaa; // Blue 70
+$color-blue-darkest: #002275; // Blue 80
+$color-black: #0c0c0d; // Grey 90
 
-$color-blue-focus-ring: hsla(208, 100%, 69%, .75);
+$color-blue-focus-ring: hsla(214, 100%, 87%, .75); // Blue 60
 
-$color-green-dark: #40a624;
-$color-green-darker: #399320;
-$color-green-darkest: #2e761a;
 $color-green-lightest: #e2fddc;
-$color-green: #57bd35;
+$color-green: #30e60b; // Green 50
+$color-green-dark: #12bc00; // Green 60
+$color-green-darker: #058b00; // Green 70
+$color-green-darkest: #006504; // Green 80
 
-$color-grey-dark: #858585;
-$color-grey-light: #d4d4d4;
-$color-grey-lighter: #ebebeb;
-$color-grey-lightest: #fbfbfb;
-$color-grey: #b1b1b1;
+$color-grey-lightest: #f9f9fa; // Grey 10
+$color-grey-lighter: #ededf0; // Grey 20
+$color-grey-light: #d7d7db; // Grey 30
+$color-grey: #b1b1b3; // Grey 40
+$color-grey-dark: #737373; // Grey 50
 
-$color-grey-disabled: #999;
-$color-grey-faint-text: #8a9ba8;
-$color-grey-spinner: #c3cfd8;
-$color-grey-text: #424f59;
+$color-grey-disabled: #b1b1b3; // Grey 40
+$color-grey-faint-text: #737373; // Grey 10
+$color-grey-spinner: #d7d7db; // Grey 30
+$color-grey-text: #0c0c0d; // Grey 90
 
-$color-orange: #ff9500;
+$color-orange: #ff9400; //Orange 50
 
-$color-red: #d63920;
+$color-red: #d70022; //Red 60
 
-$color-white-dark: #f2f2f2;
-$color-white: #fff;
+$color-white-dark: #f9f9fa; //Grey 10
+$color-white: #fff; // White
 
 //Button specific colors
 $button-background-active-color: $color-blue-darker;
