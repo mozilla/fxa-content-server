@@ -103,12 +103,20 @@ define(function (require, exports, module) {
         })
         .then((rkeys) => {
           var uid = account.get('uid');
-          return this.relier.deriveRelierKeys(rkeys, uid);
+          // scopedKey: {
+          //  scopes: [
+          //   'https://identity.mozilla.com/apps/notes',
+          //   'https://identity.mozilla.com/apps/notes.readonly',
+          // ]
+          // }
+          // TODO: scopedKeyIdentifier
+          // TODO: SERVER: scoped_key_salt, scoped_key_timestamp
+          return this.relier.deriveRelierKeys(rkeys, 'https://identity.mozilla.com/apps/notes');
         })
         .then((rkeys) => {
           keys = rkeys;
 
-          const fxaRelierCrypto = window.FxaCrypto.deriver;
+          const fxaRelierCrypto = window.fxaCryptoDeriver;
           const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
 
           const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
