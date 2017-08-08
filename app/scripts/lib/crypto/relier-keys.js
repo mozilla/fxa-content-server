@@ -9,14 +9,11 @@
 'use strict';
 
 define([
-  'sjcl',
   'p-promise',
-  'lib/crypto/hkdf',
-  'lib/crypto/base64url',
   'lib/constants'
-], function (sjcl, p, hkdf, base64url, Constants) {
+], function (p, Constants) {
 
-  var KEY_CLASS_TAG_B = 'kS';
+  const scopedKeys = new window.fxaCryptoDeriver.ScopedKeys();
 
   /**
    * Given the account master keys, the user id and the relier id, generate
@@ -34,29 +31,28 @@ define([
    *    properties, giving relier-specific keys derived from 'kA' and 'kB'
    *    respectively.  Each key is represented as a JWK object.
    */
-  function deriveRelierKeys(keys, uid, clientId) {
-    var relierKeys = {};
-    return p()
-      .then(function () {
-        if (! keys.kB) {
-          throw new Error('Cant derive relier keys: missing kB');
-        }
-        if (! uid) {
-          throw new Error('Cant derive relier keys: missing uid');
-        }
-        if (! clientId) {
-          throw new Error('Cant derive relier keys: missing rid');
-        }
-        return generateDerivedKey({
-          inputKey: keys.kB,
-          keyClassTag: KEY_CLASS_TAG_B,
-          uid: uid,
-          clientId: clientId
-        });
-      }).then(function (kBr) {
-        relierKeys[KEY_CLASS_TAG_B] = kBr;
-        return relierKeys;
-      });
+  function deriveRelierKeys(keys, scopedKeyIdentifier) {
+    if (! keys.kB) {
+      throw new Error('Cant derive relier keys: missing kB');
+    }
+    if (! uid) {
+      throw new Error('Cant derive relier keys: missing uid');
+    }
+    if (! clientId) {
+      throw new Error('Cant derive relier keys: missing rid');
+    }
+
+    // scopedKeyTimestamp -> comes from the assertion, in the fxageneration....
+    // after the login...
+
+    // TODO: deriveScopedKey
+    // TODO: server call for the auth'd oauth details
+    return scopedKeys.deriveScopedKeys({
+      inputKey: keys.kB, // hex
+      scopedKeyIdentifier: scopedKeyIdentifier, // string
+      scopedKeySalt: '000000000000...', // from the Server //hex
+      scopedKeyTimestamp: 1494446722583 // verifierSetAt // int / timestamp
+    });
   }
 
   /**
