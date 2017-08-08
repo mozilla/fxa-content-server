@@ -32,7 +32,7 @@ define((require, exports, module) => {
 
       let choice;
 
-      if (subject.forceExperiment === this.name) {
+      if (subject.forceExperiment === this.name && subject.forceExperimentGroup) {
         choice = subject.forceExperimentGroup;
       } else {
         choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
