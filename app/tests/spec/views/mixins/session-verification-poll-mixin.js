@@ -109,6 +109,10 @@ define(function (require, exports, module) {
 
       describe('with an unexpected error', function () {
         let sandbox;
+        const unexpected = AuthErrors.toError({
+          errno: 999,
+          error: 'Timeout error'
+        });
 
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
@@ -116,7 +120,7 @@ define(function (require, exports, module) {
           sandbox.stub(sessionVerificationPoll, 'start', () => {});
           sandbox.stub(view, 'setTimeout', (callback) => callback());
 
-          view._handleSessionVerificationPollErrors(account, AuthErrors.toError('UNEXPECTED_ERROR'));
+          view._handleSessionVerificationPollErrors(account, unexpected);
         });
 
         afterEach(function () {
@@ -125,8 +129,9 @@ define(function (require, exports, module) {
 
         it('polls the auth server, captures the exception, no error to user, restarts polling', function () {
           assert.isTrue(view.sentryMetrics.captureException.called);
-          assert.equal(view.sentryMetrics.captureException.firstCall.args[0].errno,
-             AuthErrors.toError('POLLING_FAILED').errno);
+          const arg = view.sentryMetrics.captureException.firstCall.args[0];
+          assert.equal(arg.errno, AuthErrors.ERRORS.POLLING_FAILED.errno);
+          assert.equal(arg.context, JSON.stringify(unexpected));
           assert.equal(view.$('.error').text(), '');
           assert.equal(sessionVerificationPoll.start.callCount, 1);
         });
