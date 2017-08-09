@@ -78,11 +78,11 @@ define(function (require, exports, module) {
           this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
         )
         .then(() =>
-          this.waitForSessionVerification(account, () => this._gotoNextStep())
+          this.waitForSessionVerification(account, () => this._gotoNextScreen())
         );
     },
 
-    _gotoNextStep () {
+    _gotoNextScreen () {
       const account = this.getAccount();
       return this.user.setAccount(account)
         .then(() => {

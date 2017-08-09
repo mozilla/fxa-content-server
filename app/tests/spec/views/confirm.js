@@ -196,26 +196,26 @@ define(function (require, exports, module) {
     });
 
     describe('session verifiation completes', () => {
-      it('invokes `_gotoNextStep`', () => {
-        sinon.stub(view, '_gotoNextStep', () => {});
+      it('invokes `_gotoNextScreen`', () => {
+        sinon.stub(view, '_gotoNextScreen', () => {});
         sinon.stub(sessionVerificationPoll, 'start', () => {});
 
         return view.afterVisible()
           .then(() => {
             sessionVerificationPoll.trigger('verified');
 
-            assert.isTrue(view._gotoNextStep.calledOnce);
+            assert.isTrue(view._gotoNextScreen.calledOnce);
           });
       });
     });
 
-    describe('_gotoNextStep', () => {
+    describe('_gotoNextScreen', () => {
       describe('signup', function () {
         it('notifies the broker after the account is confirmed', function () {
           sinon.stub(view, 'isSignUp', () => true);
           sinon.stub(view, 'isSignIn', () => false);
 
-          return testGotoNextStep('afterSignUpConfirmationPoll');
+          return testgotoNextScreen('afterSignUpConfirmationPoll');
         });
       });
 
@@ -224,17 +224,17 @@ define(function (require, exports, module) {
           sinon.stub(view, 'isSignUp', () => false);
           sinon.stub(view, 'isSignIn', () => true);
 
-          return testGotoNextStep('afterSignInConfirmationPoll');
+          return testgotoNextScreen('afterSignInConfirmationPoll');
         });
       });
 
-      function testGotoNextStep(expectedBrokerCall) {
+      function testgotoNextScreen(expectedBrokerCall) {
         const notifySpy = sinon.spy(view.notifier, 'trigger');
 
         sinon.stub(broker, expectedBrokerCall, () => p());
         sinon.stub(user, 'setAccount', () => p());
 
-        return view._gotoNextStep()
+        return view._gotoNextScreen()
           .then(function () {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(broker[expectedBrokerCall].calledWith(account));
