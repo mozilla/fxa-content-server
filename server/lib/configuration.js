@@ -528,6 +528,14 @@ const conf = module.exports = convict({
     }
   },
   use_https: false,
+  userIpJwtSigning: {
+    key: {
+      default: 'YOU MUST CHANGE ME',
+      doc: 'Key used to sign the user\'s ip',
+      env: 'USER_IP_SIGNING_KEY',
+      format: String
+    },
+  },
   var_path: {
     default: path.resolve(__dirname, '..', 'var'),
     doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',

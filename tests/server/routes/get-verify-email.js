@@ -15,7 +15,8 @@ define([
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
-], function (intern, registerSuite, assert, config, dojoPromise, got, fs, path, proxyquire, sinon) {
+  'intern/dojo/node!jsonwebtoken',
+], function (intern, registerSuite, assert, config, dojoPromise, got, fs, path, proxyquire, sinon, jwt) {
 
   function mockModule(mocks) {
     return proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-verify-email'), mocks)();
@@ -51,6 +52,7 @@ define([
         mozlog: () => {
           return logger;
         },
+        '../utils/parse-connection': () => ({clientAddress: '127.0.0.1'})
       };
     },
 
@@ -158,6 +160,10 @@ define([
     'logs error with invalid utm param' () {
       const dfd = this.async(1000);
       const req = {
+        headers: {
+          'x-forwarded-for': '127.0.0.1',
+        },
+        ip: '127.0.0.1',
         query: {
           /*eslint-disable camelcase*/
           code: '12345678912345678912345678912312',
@@ -195,6 +201,7 @@ define([
 
     'no logs with valid resume param' () {
       const dfd = this.async(1000);
+
       const req = {
         query: {
           code: '12345678912345678912345678912312',
@@ -204,19 +211,23 @@ define([
         url: '/verify_email'
       };
 
+      const userIpToken = jwt.sign({ ip: '127.0.0.1' }, config.get('userIpJwtSigning.key'), { expiresIn: '5m' });
       mocks.got = {
-        post: () => {
-          return new Promise((resolve) => {
-            resolve({});
-          });
-        }
+        post: () => {}
       };
+
+      mocks.got.post = sinon.stub(mocks.got, 'post', () => {
+        return new Promise((resolve) => {
+          resolve({});
+        });
+      });
 
       mockModule(mocks).process(req, res, () => {
         // We have to use a setTimeout here because the log is performed passively after the response has
         // been sent.
         setTimeout(() => {
           const c = ravenMock.ravenMiddleware.captureMessage;
+          assert.equal(mocks.got.post.lastCall.args[1].body.userIpToken, userIpToken);
           assert.equal(c.callCount, 0);
           dfd.resolve();
         }, 100);

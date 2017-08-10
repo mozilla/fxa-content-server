@@ -5,12 +5,18 @@
 const url = require('url');
 const got = require('got');
 const logger = require('mozlog')('server.get-verify-email');
-const config = require('../configuration');
-const ravenClient = require('../../lib/raven').ravenMiddleware;
 const joi = require('joi');
+const jwt = require('jsonwebtoken');
+
 const validation = require('../validation');
+const config = require('../configuration');
+const ravenClient = require('../raven').ravenMiddleware;
+const getConnection = require('../utils/parse-connection');
 
 const fxaAccountUrl = config.get('fxaccount_url');
+const jwtIpSigningKey = config.get('userIpJwtSigning.key');
+
+const JWT_EXPIRES_IN = '5m';
 const RESUME_TYPE = validation.TYPES.RESUME;
 const STRING_TYPE = validation.TYPES.STRING;
 const UTM_TYPE = validation.TYPES.UTM;
@@ -23,7 +29,8 @@ const VERIFICATION_LEVEL_INFO = 'VerificationValidationInfo';
 
 const REQUIRED_SCHEMA = {
   'code': joi.string().hex().min(32).max(32).required(),
-  'uid': joi.string().hex().min(32).max(32).required()
+  'uid': joi.string().hex().min(32).max(32).required(),
+  'userIpToken': joi.string().required()
 };
 
 const REPORT_ONLY_SCHEMA = {
@@ -51,10 +58,16 @@ module.exports = function () {
       if (req.query.server_verification) {
         return next();
       }
+      const code = req.query.code;
+      const uid = req.query.uid;
+      const clientAddress = getConnection(req).clientAddress;
+      // we must sign an object here as strings can't have expirations
+      const userIpToken = jwt.sign({ ip: clientAddress }, jwtIpSigningKey, { expiresIn: JWT_EXPIRES_IN });
 
       const data = {
-        code: req.query.code,
-        uid: req.query.uid
+        code,
+        uid,
+        userIpToken
       };
 
       joi.validate(data, REQUIRED_SCHEMA, (err) => {

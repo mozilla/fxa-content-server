@@ -8,6 +8,7 @@
 const logger = require('mozlog')('server.requests');
 const morgan = require('morgan');
 const config = require('../configuration').getProperties();
+const getConnection = require('../utils/parse-connection');
 
 /**
  * Enhances connect logger middleware - custom formats.
@@ -21,21 +22,14 @@ const disabled = function (req, res, next) {
 
 function defaultFxaFormat(tokens, req, res) {
   'use strict';
-  let xff = (req.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
-  xff.push(req.ip || req.connection.remoteAddress);
-  // Remove empty items from the list, in case of badly-formed header.
-  xff = xff.filter(x => x);
-  let clientAddressIndex = xff.length - (config.clientAddressDepth || 1);
-  if (clientAddressIndex < 0) {
-    clientAddressIndex = 0;
-  }
+  const connectionInfo = getConnection(req);
   return JSON.stringify({
-    clientAddress: xff[clientAddressIndex],
+    clientAddress: connectionInfo.clientAddress,
     contentLength: tokens.res(req, res, 'content-length'),
     method: tokens.method(req, res),
     path: tokens.url(req, res),
     referer: req.headers['referer'],
-    remoteAddressChain: xff,
+    remoteAddressChain: connectionInfo.remoteAddressChain,
     status: tokens.status(req, res),
     t: tokens['response-time'](req, res),
     'userAgent': req.headers['user-agent']
