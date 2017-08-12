@@ -18,7 +18,12 @@
     <p class="verification-email-message">{{#unsafeTranslate}}Check your email for the verification link sent&nbsp;to %(escapedEmail)s{{/unsafeTranslate}}</p>
     {{/isSignUp}}
     {{#isSignIn}}
-    <p class="verification-email-message">{{#t}}Check your email for the sign-in confirmation link sent to %(email)s{{/t}}</p>
+      {{#isEmail}}
+        <p class="verification-email-message">{{#t}}Check your email for the sign-in confirmation link sent to %(email)s{{/t}}</p>
+      {{/isEmail}}
+      {{#isPush}}
+        <p class="verification-email-message">{{#t}}To better protect your Firefox data, we've sent  a tab with a confirmation link to Firefox on your other devices{{/t}}</p>
+      {{/isPush}}
     {{/isSignIn}}
 
     {{#isOpenWebmailButtonVisible}}
@@ -29,10 +34,20 @@
 
     <div class="links">
       {{^canGoBack}}
-        <a id="resend" class="delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        {{#isEmail}}
+          <a id="resend" class="delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        {{/isEmail}}
+        {{#isPush}}
+          <a id="resend" class="delayed-fadein" href="#">{{#t}}Tab not arriving? Confirm by email instead.{{/t}}</a>
+        {{/isPush}}
       {{/canGoBack}}
       {{#canGoBack}}
-        <a id="resend" class="left delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        {{#isEmail}}
+          <a id="resend" class="left delayed-fadein" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+        {{/isEmail}}
+        {{#isPush}}
+          <a id="resend" class="left delayed-fadein" href="#">{{#t}}Tab not arriving? Confirm by email instead{{/t}}</a>
+        {{/isPush}}
         <a id="back" class="right delayed-fadein" href="#">{{#t}}Back{{/t}}</a>
       {{/canGoBack}}
     </div>
