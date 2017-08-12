@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const ServiceMixin = require('views/mixins/service-mixin');
   const SessionVerificationPollMixin = require('views/mixins/session-verification-poll-mixin');
   const Template = require('stache!templates/confirm');
+  const VerificationMethodMixin = require('views/mixins/verification-method-mixin');
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({
@@ -38,8 +39,11 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       var email = this.getAccount().get('email');
+      var isEmail = this.isEmail();
+      var isPush = this.isPush();
       var isSignIn = this.isSignIn();
       var isSignUp = this.isSignUp();
+
 
       context.set({
         // Back button is only available for signin for now. We haven't fully
@@ -50,6 +54,8 @@ define(function (require, exports, module) {
         canGoBack: isSignIn && this.canGoBack(),
         email,
         escapedEmail: _.escape(email),
+        isEmail,
+        isPush,
         isSignIn,
         isSignUp
       });
@@ -125,7 +131,8 @@ define(function (require, exports, module) {
     ResendMixin,
     ResumeTokenMixin,
     ServiceMixin,
-    SessionVerificationPollMixin
+    SessionVerificationPollMixin,
+    VerificationMethodMixin
   );
 
   module.exports = View;

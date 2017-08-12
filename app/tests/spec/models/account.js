@@ -615,6 +615,7 @@ define(function (require, exports, module) {
     describe('retrySignUp', function () {
       beforeEach(function () {
         account.set('sessionToken', SESSION_TOKEN);
+        account.set('verificationMethod', VerificationMethods.PUSH);
         sinon.stub(fxaClient, 'signUpResend', function () {
           return p();
         });
@@ -630,6 +631,7 @@ define(function (require, exports, module) {
             resume: 'resume token'
           }
         ));
+        assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
       });
     });
 

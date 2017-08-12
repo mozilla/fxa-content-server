@@ -22,6 +22,7 @@ define(function (require, exports, module) {
   const ResumeTokenMixin = require('models/mixins/resume-token');
   const SignInReasons = require('lib/sign-in-reasons');
   const UserAgent = require('lib/user-agent');
+  const VerificationMethods = require('lib/verification-methods');
   const vat = require('lib/vat');
 
   // Account attributes that can be persisted
@@ -527,8 +528,11 @@ define(function (require, exports, module) {
         this.get('sessionToken'),
         {
           resume: options.resume
-        }
-      );
+        })
+        .then((val) => {
+          this.set('verificationMethod', VerificationMethods.EMAIL);
+          return val;
+        });
     },
 
     /**

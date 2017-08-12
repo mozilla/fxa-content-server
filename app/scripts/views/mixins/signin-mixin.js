@@ -112,7 +112,8 @@ define(function (require, exports, module) {
         var verificationReason = account.get('verificationReason');
 
         if (verificationReason === VerificationReasons.SIGN_IN &&
-            verificationMethod === VerificationMethods.EMAIL) {
+            (verificationMethod === VerificationMethods.EMAIL ||
+              verificationMethod === VerificationMethods.PUSH)) {
           return this.navigate('confirm_signin', { account });
         }
 
