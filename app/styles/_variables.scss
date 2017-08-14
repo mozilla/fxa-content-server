@@ -1,38 +1,39 @@
+@import 'node_modules/photon-colors/colors.scss';
+
 //Font Family Variables
 $default-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 $header-font: 'Fira Sans', Helvetica, Arial, sans-serif;
 
 //Default color variables
-$color-blue: #0a84ff; // Blue 50
-$color-blue-dark: #0060df; // Blue 60
-$color-blue-darker: #003eaa; // Blue 70
-$color-blue-darkest: #002275; // Blue 80
-$color-black: #0c0c0d; // Grey 90
+$color-blue: $blue-50;
+$color-blue-dark: $blue-60;
+$color-blue-darker: $blue-70;
+$color-blue-darkest: $blue-80;
+$color-black: $grey-90;
 
 $color-blue-focus-ring: hsla(214, 100%, 87%, .75); // Blue 60
 
 $color-green-lightest: #e2fddc;
-$color-green: #30e60b; // Green 50
-$color-green-dark: #12bc00; // Green 60
-$color-green-darker: #058b00; // Green 70
-$color-green-darkest: #006504; // Green 80
+$color-green: $green-50;
+$color-green-dark: $green-60;
+$color-green-darker: $green-70;
+$color-green-darkest: $green-80;
 
-$color-grey-lightest: #f9f9fa; // Grey 10
-$color-grey-lighter: #ededf0; // Grey 20
-$color-grey-light: #d7d7db; // Grey 30
-$color-grey: #b1b1b3; // Grey 40
-$color-grey-dark: #737373; // Grey 50
+$color-grey-lightest: $grey-10;
+$color-grey-lighter: $grey-20;
+$color-grey-light: $grey-30;
+$color-grey-spinner: $grey-30;
+$color-grey: $grey-40;
+$color-grey-disabled: $grey-40;
+$color-grey-dark: $grey-50;
+$color-grey-faint-text: $grey-50;
+$color-grey-text: $grey-90;
 
-$color-grey-disabled: #b1b1b3; // Grey 40
-$color-grey-faint-text: #737373; // Grey 10
-$color-grey-spinner: #d7d7db; // Grey 30
-$color-grey-text: #0c0c0d; // Grey 90
+$color-orange: $orange-50;
 
-$color-orange: #ff9400; //Orange 50
+$color-red: $red-60;
 
-$color-red: #d70022; //Red 60
-
-$color-white-dark: #f9f9fa; //Grey 10
+$color-white-dark: $grey-10;
 $color-white: #fff; // White
 
 //Button specific colors
@@ -82,7 +83,7 @@ $mobile-html-background-color: $color-white;
 $secondary-button-background-color: $color-grey-lightest;
 $secondary-button-border-color: lighten($color-grey, 5);
 
-$show-password-background-color: #9aabb8;
+$show-password-background-color: $grey-40;
 $show-password-focus-label-color: $color-white;
 $show-password-label-color: $color-grey-faint-text;
 
@@ -94,12 +95,12 @@ $modal-border-color: $color-black;
 $modal-background-color-iframe: $color-white;
 
 //Settings Specific Colors
-$settings-header-border-bottom: #b4bdc3;
-$settings-success-background-color: #cdf8d0;
+$settings-header-border-bottom: $grey-40;
+$settings-success-background-color: $color-green-darker;
 $settings-success-border-color: $color-green-dark;
 
 //Radio Button Colors
-$radio-border-default-color: #c1c1c1;
+$radio-border-default-color: $grey-40;
 $radio-border-dot-color: #0097d0;
 $radio-box-shadow-color: #55b8eb;
 
@@ -110,7 +111,7 @@ $radio-padding: 4px;
 $radio-margin: 5px;
 
 //Reset Password Colors
-$reset-pw-text-background-color: #f25820;
+$reset-pw-text-background-color: $orange-70;
 $reset-pw-text-color: $color-white;
 
 //Font-Size Variables
