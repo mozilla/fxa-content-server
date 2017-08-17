@@ -478,10 +478,10 @@ define(function (require, exports, module) {
         describe('unverified', function () {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);
+            account.set('verificationMethod', 'email');
 
             sinon.stub(fxaClient, 'recoveryEmailStatus', function () {
               return p({
-                verificationMethod: VerificationMethods.EMAIL,
                 verificationReason: VerificationReasons.SIGN_IN,
                 verified: false
               });
