@@ -9,7 +9,6 @@
 'use strict';
 
 define([], function () {
-
   const scopedKeys = new window.fxaCryptoDeriver.ScopedKeys();
 
   /**
@@ -41,7 +40,7 @@ define([], function () {
     return scopedKeys.deriveScopedKeys({
       inputKey: keys.kB, // hex
       scopedKeyIdentifier: scopedKeyIdentifier, // string
-      scopedKeySalt: '000000000000...', // from the Server //hex
+      scopedKeySalt: '000000', // from the Server //hex
       scopedKeyTimestamp: 1494446722583 // verifierSetAt // int / timestamp
     });
   }
