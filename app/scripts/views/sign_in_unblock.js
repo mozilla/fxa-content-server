@@ -54,7 +54,7 @@ define(function (require, exports, module) {
     },
 
     onSignInError (account, password, err) {
-  if (AuthErrors.INVALID_UNBLOCK_CODE){
+      if (AuthErrors.INVALID_UNBLOCK_CODE){
     this.showValidationError('#unblock_code',err);
   }
       if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
