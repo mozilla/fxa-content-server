@@ -57,8 +57,8 @@ define((require, exports, module) => {
       view = null;
     });
 
-    it('getViewName returns `enter-email`', () => {
-      assert.equal(view.getViewName(), 'enter-email');
+    it('viewName is `enter-email`', () => {
+      assert.equal(view.viewName, 'enter-email');
     });
 
     describe('render', () => {
