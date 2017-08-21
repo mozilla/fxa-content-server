@@ -43,7 +43,6 @@ define((require, exports, module) => {
         notifier,
         relier,
         user,
-        viewName: 'email',
         window: windowMock
       });
 
@@ -58,6 +57,9 @@ define((require, exports, module) => {
       view = null;
     });
 
+    it('getViewName returns `enter-email`', () => {
+      assert.equal(view.getViewName(), 'enter-email');
+    });
 
     describe('render', () => {
       beforeEach(() => {
