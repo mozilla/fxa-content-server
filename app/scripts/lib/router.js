@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const ClientDisconnectView = require('../views/settings/client_disconnect');
   const ClientsView = require('../views/settings/clients');
   const CommunicationPreferencesView = require('../views/settings/communication_preferences');
+  const Complete2FAView = require('../views/complete_2fa');
   const CompleteResetPasswordView = require('../views/complete_reset_password');
   const CompleteSignUpView = require('../views/complete_sign_up');
   const ConfirmResetPasswordView = require('../views/confirm_reset_password');
@@ -73,6 +74,7 @@ define(function (require, exports, module) {
       'cannot_create_account(/)': createViewHandler(CannotCreateAccountView),
       'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
       'clear(/)': createViewHandler(ClearStorageView),
+      'complete_2fa(/)': createViewHandler(Complete2FAView),
       'complete_reset_password(/)': createViewHandler(CompleteResetPasswordView),
       'complete_signin(/)': createViewHandler(CompleteSignUpView, { type: VerificationReasons.SIGN_IN }),
       'confirm(/)': createViewHandler(ConfirmView, { type: VerificationReasons.SIGN_UP }),

@@ -1,0 +1,16 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-confirm-header">{{#t}}New Sign-in to Firefox{{/t}}</h1>
+    <h1 id="fxa-confirm-signin-header">{{#t}}For added security, please confirm this sign-in to 
+    begin syncing with this device.{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="button-row">
+      <a href="{{{ escapedWebmailLink }}}" data-webmail-type="{{webmailType}}" class="button" target="_blank" id="open-webmail" type="button">{{webmailButtonText}}</a>
+    </div>
+    <div class="links">
+        If you think someone is trying to gain access to your accound, <a href="/reset_password" class="right reset-password" data-flow-event="forgot-password">{{#t}}please change your password{{/t}}</a>
+    </div>
+  </section>
+</div>
