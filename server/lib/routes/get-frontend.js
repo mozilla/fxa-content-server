@@ -9,6 +9,7 @@ module.exports = function () {
     'cannot_create_account',
     'choose_what_to_sync',
     'clear',
+    'complete_2fa',
     'complete_reset_password',
     'complete_signin',
     'confirm',
