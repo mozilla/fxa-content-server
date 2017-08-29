@@ -76,7 +76,11 @@ define([
         .then(type('.new-email', TestHelpers.createEmail()))
         .then(click('.email-add:not(.disabled)'))
         .then(testElementExists('.not-verified'))
+
         .then(click('.email-address .settings-button.warning.email-disconnect'))
+        .waitForDeletedByCssSelector('.email-address .settings-button.warning.email-disconnect')
+
+        .then(click('#emails .settings-unit-stub button'))
 
         // add secondary email, verify
         .then(type('.new-email', secondaryEmail))
