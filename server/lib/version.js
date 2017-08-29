@@ -83,7 +83,7 @@ function getSourceRepo () {
 
 function getL10nVersion () {
   try {
-    const packagePath = '../../node_modules/fxa-content-server-l10n/package.json';
+    const packagePath = '../../fxa-content-server-l10n/package.json';
     const packageData = require(packagePath);
     return packageData && packageData.gitHead;
   } catch (e) {
