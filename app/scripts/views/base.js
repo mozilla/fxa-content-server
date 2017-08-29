@@ -478,31 +478,34 @@ define(function (require, exports, module) {
       // jQuery 3.x requires the view to be visible
       // before animating the status messages.
       this.displayStatusMessages();
-
-      // restyle side-by-side links to stack if they are too long
-      // to fit on one line
-      var linkContainer = this.$el.find('.links');
-      if (linkContainer.length > 0) {
-        // takes care of odd number widths
-        var halfContainerWidth = Math.floor(linkContainer.width() / 2);
-        var shouldResetLinkSize = false;
-
-        linkContainer.children('a').each(function (i, item) {
-          var linkWidth = linkContainer.find(item).width();
-          // if any link is equal to or more than half its parent's width,
-          // make *all* links in the same parent to be stacked
-          if (linkWidth >= halfContainerWidth) {
-            shouldResetLinkSize = true;
-          }
-        });
-
-        if (shouldResetLinkSize === true) {
-          linkContainer.addClass('centered');
-        }
-      }
-
+      this.stackWideLinks();
       this.focusAutofocusElement();
+
       return p();
+    },
+
+
+    /**
+     * Stack side-by-side links if they are too long to fit on one line
+     */
+    stackWideLinks () {
+      this.$('.links').each((index, linkContainer) => {
+        const $linkContainer = this.$(linkContainer);
+        const $links = $linkContainer.children('a');
+        // Math.floor takes care of odd number widths
+        const maxLinkWidthWithoutStacking = Math.floor($linkContainer.width() / 2);
+
+        // if any link is equal to or more than half its parent's width,
+        // make *all* links in the same parent to be stacked
+        const $tooWideLinks = $links.filter(
+          (i, item) => this.$(item).outerWidth() >= maxLinkWidthWithoutStacking
+        );
+
+        if ($tooWideLinks.length) {
+          $linkContainer.addClass('centered');
+          $links.removeClass('left').removeClass('right');
+        }
+      });
     },
 
     destroy (remove) {
