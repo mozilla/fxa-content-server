@@ -322,6 +322,7 @@ define(function (require, exports, module) {
           metrics: this._metrics,
           notificationChannel: this._notificationChannel,
           notifier: this._notifier,
+          fxaClient: this._fxaClient,
           oAuthClient: this._oAuthClient,
           relier: this._relier,
           session: Session,

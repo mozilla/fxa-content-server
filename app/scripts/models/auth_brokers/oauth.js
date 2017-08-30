@@ -72,6 +72,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -81,19 +82,57 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-
+      var asser;
+      var keys;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
+          asser = assertion
+          var keyFetchToken = account.get('keyFetchToken');
+          var unwrapBKey = account.get('unwrapBKey');
+
+          console.log({
+            keyFetchToken: keyFetchToken,
+            unwrapBKey: unwrapBKey
+          });
+
+          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
+
+
+        })
+        .then((rkeys) => {
+          var uid = account.get('uid');
+          // scopedKey: {
+          //  scopes: [
+          //   'https://identity.mozilla.com/apps/notes',
+          //   'https://identity.mozilla.com/apps/notes.readonly',
+          // ]
+          // }
+          // TODO: scopedKeyIdentifier
+          // TODO: SERVER: scoped_key_salt, scoped_key_timestamp
+          return this.relier.deriveRelierKeys(rkeys, 'https://identity.mozilla.com/apps/notes');
+        })
+        .then((rkeys) => {
+          keys = rkeys;
+
+          const fxaRelierCrypto = window.fxaCryptoDeriver;
+          const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
+
+          const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
+          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(keys));
+        })
+        .then((encryptedJwe) => {
           var oauthParams = {
-            assertion: assertion,
+            assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
             scope: relier.get('scope'),
-            state: relier.get('state')
+            state: relier.get('state'),
+            derivedKeyBundle: encryptedJwe
           };
+
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }

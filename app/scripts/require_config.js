@@ -116,9 +116,6 @@ require.config({
     sinon: {
       exports: 'sinon'
     },
-    sjcl: {
-      exports: 'sjcl'
-    },
     underscore: {
       exports: '_'
     }
