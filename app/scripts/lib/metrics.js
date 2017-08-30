@@ -39,6 +39,7 @@ define(function (require, exports, module) {
   const ALLOWED_FIELDS = [
     'broker',
     'context',
+    'deviceId',
     'duration',
     'entrypoint',
     'events',
@@ -58,6 +59,7 @@ define(function (require, exports, module) {
     'service',
     'startTime',
     'timers',
+    'uid',
     'uniqueUserId',
     'utm_campaign',
     'utm_content',
@@ -106,6 +108,7 @@ define(function (require, exports, module) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
     this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
+    this._deviceId = options.deviceId || NOT_REPORTED_VALUE;
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._env = options.environment || new Environment(this._window);
@@ -126,6 +129,7 @@ define(function (require, exports, module) {
     // if navigationTiming is supported, the baseTime will be from
     // navigationTiming.navigationStart, otherwise Date.now().
     this._startTime = options.startTime || this._speedTrap.baseTime;
+    this._uid = options.uid || NOT_REPORTED_VALUE;
     this._uniqueUserId = options.uniqueUserId || NOT_REPORTED_VALUE;
     this._utmCampaign = options.utmCampaign || NOT_REPORTED_VALUE;
     this._utmContent = options.utmContent || NOT_REPORTED_VALUE;
@@ -163,12 +167,9 @@ define(function (require, exports, module) {
       /* eslint-disable sorting/sort-object-props */
       'flow.initialize': '_initializeFlowModel',
       'flow.event': '_logFlowEvent',
-      /*
-       * `loaded` is used to determine how long until the
-       * first screen is rendered and the user can interact
-       * with FxA. Similar to window.onload, but FxA specific.
-       */
-      'once!view-shown': '_setInitialView'
+      'set-uid': '_setUid',
+      'clear-uid': '_clearUid',
+      'once!view-shown': '_setInitialView',
       /* eslint-enable sorting/sort-object-props */
     },
 
@@ -328,6 +329,7 @@ define(function (require, exports, module) {
       const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
+        deviceId: this._deviceId,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
         flowBeginTime: flowData.flowBeginTime,
@@ -349,6 +351,7 @@ define(function (require, exports, module) {
         },
         service: this._service,
         startTime: this._startTime,
+        uid: this._uid,
         uniqueUserId: this._uniqueUserId,
         utm_campaign: this._utmCampaign, //eslint-disable-line camelcase
         utm_content: this._utmContent, //eslint-disable-line camelcase
@@ -636,6 +639,16 @@ define(function (require, exports, module) {
      */
     logNumStoredAccounts (numStoredAccounts) {
       this._numStoredAccounts = numStoredAccounts;
+    },
+
+    _setUid (uid) {
+      if (uid) {
+        this._uid = uid;
+      }
+    },
+
+    _clearUid () {
+      this._uid = NOT_REPORTED_VALUE;
     }
   });
 

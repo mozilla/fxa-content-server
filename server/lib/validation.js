@@ -15,11 +15,13 @@ const PATTERNS = {
   BROKER: /^[0-9a-z-]+$/,
   CLIENT_ID: /^[0-9a-f]{16}/,
   CONTEXT: /^[0-9a-z_-]+$/,
+  DEVICE_ID: /^[0-9a-f]{32}$/,
   ENTRYPOINT: /^[\w.:-]+$/,
   EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
   EXPERIMENT: /^[\w.-]+$/,
   MIGRATION: /^(sync11|amo|none)$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
+  UID: /^[0-9a-f]{32}$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/
 };
 
