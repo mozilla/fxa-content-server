@@ -252,7 +252,7 @@ define([
         .then(click(selectors.CONNECT_ANOTHER_DEVICE_WHY_IS_THIS_REQUIRED.CLOSE))
 
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_FXIOS_TEXT))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.TEXT_SIGNIN_FXIOS))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID))
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS));
     },
