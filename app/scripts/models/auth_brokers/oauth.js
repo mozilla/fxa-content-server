@@ -82,8 +82,8 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-      var asser;
-      var keys;
+      let asser;
+      let keys;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
@@ -92,35 +92,25 @@ define(function (require, exports, module) {
           var keyFetchToken = account.get('keyFetchToken');
           var unwrapBKey = account.get('unwrapBKey');
 
-          console.log({
-            keyFetchToken: keyFetchToken,
-            unwrapBKey: unwrapBKey
-          });
-
           return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
-
-
-        })
-        .then((rkeys) => {
-          var uid = account.get('uid');
-          // scopedKey: {
-          //  scopes: [
-          //   'https://identity.mozilla.com/apps/notes',
-          //   'https://identity.mozilla.com/apps/notes.readonly',
-          // ]
-          // }
-          // TODO: scopedKeyIdentifier
-          // TODO: SERVER: scoped_key_salt, scoped_key_timestamp
-          return this.relier.deriveRelierKeys(rkeys, 'https://identity.mozilla.com/apps/notes');
         })
         .then((rkeys) => {
           keys = rkeys;
 
+          return this._oAuthClient.getClientKeyData(clientId, {
+            assertion: asser,
+            scope: decodeURIComponent(relier.get('scope'))
+          });
+        })
+        .then((clientKeyData) => {
+          return this.relier.deriveRelierKeys(keys, clientKeyData);
+        })
+        .then((scopedKey) => {
           const fxaRelierCrypto = window.fxaCryptoDeriver;
           const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
 
           const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
-          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(keys));
+          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKey));
         })
         .then((encryptedJwe) => {
           var oauthParams = {

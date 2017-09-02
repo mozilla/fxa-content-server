@@ -207,6 +207,15 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Check if the relier wants access to the account encryption keys.
+     *
+     * @returns {Boolean}
+     */
+    wantsKeys () {
+      return !! this.has('keys_jwk');
+    },
+
+    /**
      * Check whether additional permissions are requested from
      * the given account
      *
