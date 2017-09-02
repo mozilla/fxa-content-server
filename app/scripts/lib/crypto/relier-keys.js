@@ -16,32 +16,36 @@ define([], function () {
    * the matching relier-specific derived class-A and class-B keys.
    *
    * Input arguments:
-   *    keys:       object with properties 'kA' and 'kB' giving the account
-   *                keys as hex strings.
-   *    uid:        string identifying the user who owns the keys.
-   *    clientId:   string identifying the relier for whom keys should
-   *                be derived.
+   *    keys:           object with properties 'kA' and 'kB' giving the account
+   *                    keys as hex strings.
+   *    keyData:  OAuth client key data required to derive a key.
    *
    * Output:
-   *    A promise that will resolve with an object having 'kAr' and 'kBr'
-   *    properties, giving relier-specific keys derived from 'kA' and 'kB'
-   *    respectively.  Each key is represented as a JWK object.
+   *    A promise that will resolve with an object having a scoped key.
+   *    The key is represented as a JWK object.
    */
-  function deriveRelierKeys(keys, scopedKeyIdentifier) {
+  function deriveRelierKeys(keys = {}, keyData = {}) {
     if (! keys.kB) {
-      throw new Error('Cant derive relier keys: missing kB');
+      throw new Error('Scoped key: missing kB');
     }
 
-    // scopedKeyTimestamp -> comes from the assertion, in the fxageneration....
-    // after the login...
+    if (! keyData.keyIdentifier) {
+      throw new Error('Scoped key: missing keyIdentifier');
+    }
 
-    // TODO: deriveScopedKey
-    // TODO: server call for the auth'd oauth details
+    if (! keyData.keySalt) {
+      throw new Error('Scoped key: missing keySalt');
+    }
+
+    if (! keyData.keyTimestamp) {
+      throw new Error('Scoped key: missing keyTimestamp');
+    }
+
     return scopedKeys.deriveScopedKeys({
-      inputKey: keys.kB, // hex
-      scopedKeyIdentifier: scopedKeyIdentifier, // string
-      scopedKeySalt: '000000', // from the Server //hex
-      scopedKeyTimestamp: 1494446722583 // verifierSetAt // int / timestamp
+      inputKey: keys.kB,
+      scopedKeyIdentifier: keyData.keyIdentifier,
+      scopedKeySalt: keyData.keySalt,
+      scopedKeyTimestamp: keyData.keyTimestamp
     });
   }
 
