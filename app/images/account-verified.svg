@@ -216,8 +216,8 @@
     <animateTransform attributeName="transform"
       attributeType="XML"
       type="rotate"
-      from="0 46 26"
-      to="360 46 26"
+      from="0 46.5 26.5"
+      to="360 46.5 26.5"
       dur="10s"
       repeatCount="indefinite"/>
     </g>
@@ -281,8 +281,8 @@
     <animateTransform attributeName="transform"
       attributeType="XML"
       type="rotate"
-      from="0 46 26"
-      to="-360 46 26"
+      from="0 46.5 26"
+      to="-360 46.5 26"
       dur="10s"
       repeatCount="indefinite"/>
     </g>
@@ -363,8 +363,8 @@
     <animateTransform attributeName="transform"
       attributeType="XML"
       type="rotate"
-      from="0 86 55"
-      to="-360 86 55"
+      from="0 86 55.5"
+      to="-360 86 55.5"
       dur="10s"
       repeatCount="indefinite"/>
   </g>
