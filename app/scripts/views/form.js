@@ -213,7 +213,7 @@ define(function (require, exports, module) {
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event, options = {}) {
       const startTime = Date.now();
-      let artificialDelay = options.artificialDelay || 0;
+      const artificialDelay = options.artificialDelay || 0;
 
       if (event) {
         event.stopImmediatePropagation();
@@ -250,7 +250,7 @@ define(function (require, exports, module) {
             })
             .then(() => {
               return this.afterSubmit();
-            })
+            });
         });
     }),
 
