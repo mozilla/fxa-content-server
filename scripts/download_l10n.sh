@@ -20,4 +20,5 @@ echo "Downloading L10N files from $DOWNLOAD_PATH..."
 git clone --depth=20 $DOWNLOAD_PATH
 cd fxa-content-server-l10n
 git checkout $FXA_L10N_SHA
+git rev-parse $FXA_L10N_SHA >> git-head.txt
 cd ..
