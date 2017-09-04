@@ -407,6 +407,8 @@ define(function (require, exports, module) {
 
       describe('broker errors', () => {
         it('are logged to metrics', () => {
+          sinon.spy(appStart, 'captureError');
+
           return appStart.initializeAuthenticationBroker()
             .then(() => {
               var err = new Error('test error');
@@ -461,9 +463,9 @@ define(function (require, exports, module) {
         // sandbox is used because stubs are added to User.prototype.
         sandbox = sinon.sandbox.create();
 
-        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser', () => p());
-        sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData', () => true);
-        sandbox.stub(User.prototype, 'setSigninCodeAccount', () => p());
+        sandbox.stub(User.prototype, 'shouldSetSignedInAccountFromBrowser').callsFake(() => p());
+        sandbox.stub(User.prototype, 'setSignedInAccountFromBrowserAccountData').callsFake(() => true);
+        sandbox.stub(User.prototype, 'setSigninCodeAccount').callsFake(() => p());
 
         brokerMock.set('browserSignedInAccount', browserAccountData);
         brokerMock.set('signinCodeAccount', signinCodeAccountData);
@@ -477,7 +479,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(appStart, 'upgradeStorageFormats').callsFake(() => p());
-        sandbox.stub(appStart, '_getUserStorageInstance', () => new NullStorage());
+        sandbox.stub(appStart, '_getUserStorageInstance').callsFake(() => new NullStorage());
 
         appStart.useConfig({});
       });
@@ -673,6 +675,7 @@ define(function (require, exports, module) {
               })
             }
           });
+          sinon.spy(appStart, 'captureError');
 
           return appStart.testLocalStorage();
         });

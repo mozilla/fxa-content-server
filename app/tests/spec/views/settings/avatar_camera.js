@@ -239,7 +239,7 @@ define(function (require, exports, module) {
           return p();
         });
 
-        sinon.stub(view, 'stopAndDestroyStream', sinon.spy());
+        sinon.stub(view, 'stopAndDestroyStream').callsFake(sinon.spy());
 
         sinon.spy(view, 'navigate');
 

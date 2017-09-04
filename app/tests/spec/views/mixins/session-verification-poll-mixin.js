@@ -113,8 +113,8 @@ define(function (require, exports, module) {
         beforeEach(function () {
           sandbox = sinon.sandbox.create();
           sandbox.spy(view.sentryMetrics, 'captureException');
-          sandbox.stub(sessionVerificationPoll, 'start', () => {});
-          sandbox.stub(view, 'setTimeout', (callback) => callback());
+          sandbox.stub(sessionVerificationPoll, 'start').callsFake(() => {});
+          sandbox.stub(view, 'setTimeout').callsFake((callback) => callback());
 
           view._handleSessionVerificationPollErrors(account, AuthErrors.toError('UNEXPECTED_ERROR'));
         });

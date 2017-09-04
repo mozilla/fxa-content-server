@@ -47,8 +47,8 @@ define(function (require, exports, module) {
       relier = new Relier();
       windowMock = new WindowMock();
 
-      sinon.stub(windowMock, 'setTimeout', window.setTimeout.bind(window));
-      sinon.stub(windowMock, 'clearTimeout', window.clearTimeout.bind(window));
+      sinon.stub(windowMock, 'setTimeout').callsFake(window.setTimeout.bind(window));
+      sinon.stub(windowMock, 'clearTimeout').callsFake(window.clearTimeout.bind(window));
 
       broker = new Broker({
         relier: relier

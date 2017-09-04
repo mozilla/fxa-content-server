@@ -630,13 +630,13 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(view, 'isUserOldEnough', () => false);
-          sandbox.stub(view, 'signUp', () => p());
+          sandbox.stub(view, 'isUserOldEnough').callsFake(() => false);
+          sandbox.stub(view, 'signUp').callsFake(() => p());
         });
 
         describe('signin succeeds', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', () => p());
+            sandbox.stub(view, 'signIn').callsFake(() => p());
 
             return view.submit();
           });
@@ -668,15 +668,15 @@ define(function (require, exports, module) {
 
         describe('signin fails with UNKNOWN_ACCOUNT', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
           });
 
           describe('COPPA has no value', function () {
             beforeEach(function () {
-              sandbox.stub(view, 'coppaHasValue', () => false);
-              sandbox.stub(view, 'showValidationError', () => {});
+              sandbox.stub(view, 'coppaHasValue').callsFake(() => false);
+              sandbox.stub(view, 'showValidationError').callsFake(() => {});
               return view.submit();
             });
 
@@ -706,7 +706,7 @@ define(function (require, exports, module) {
 
           describe('COPPA is too young', function () {
             beforeEach(function () {
-              sandbox.stub(view, 'coppaHasValue', () => true);
+              sandbox.stub(view, 'coppaHasValue').callsFake(() => true);
 
               return view.submit();
             });
@@ -749,7 +749,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with INCORRECT_PASSWORD', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
@@ -853,7 +853,7 @@ define(function (require, exports, module) {
 
         describe('signin fails with some other error', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn', function () {
+            sandbox.stub(view, 'signIn').callsFake(function () {
               return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
@@ -892,7 +892,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           fillOutSignUp(email, 'password');
 
-          sandbox.stub(view, 'isUserOldEnough', () => true);
+          sandbox.stub(view, 'isUserOldEnough').callsFake(() => true);
           sinon.stub(view, 'signIn').callsFake(() => p());
         });
 

@@ -25,9 +25,10 @@ define(function (require, exports, module) {
     beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      sinon.stub(channelMock, 'send').callsFake(function () {
+      channelMock.send = () => {
         return p();
-      });
+      };
+      sinon.spy(channelMock, 'send');
 
       user = new User();
       account = user.initAccount({

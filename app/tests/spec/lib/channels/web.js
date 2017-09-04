@@ -160,8 +160,8 @@ define(function (require, exports, module) {
           window: windowMock
         });
 
-        sandbox.stub(channel, 'rejectAllOutstandingRequests', () => {});
-        sandbox.stub(DuplexChannel.prototype, 'onErrorReceived', () => {});
+        sandbox.stub(channel, 'rejectAllOutstandingRequests').callsFake(() => {});
+        sandbox.stub(DuplexChannel.prototype, 'onErrorReceived').callsFake(() => {});
       });
 
       afterEach(() => {

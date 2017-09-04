@@ -866,7 +866,7 @@ define(function (require, exports, module) {
           return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
         });
 
-        sinon.stub(realClient, 'sessionDestroy', sinon.spy());
+        sinon.stub(realClient, 'sessionDestroy').callsFake(sinon.spy());
 
         return client.checkPassword(email, password)
           .then(assert.fail, function (err) {

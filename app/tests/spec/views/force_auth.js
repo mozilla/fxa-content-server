@@ -457,7 +457,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           err = AuthErrors.toError('UNKNOWN_ACCOUNT');
 
-          sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
+          sinon.stub(SignInView.prototype, 'onSignInError').callsFake(sinon.spy());
         });
 
         afterEach(function () {
@@ -527,7 +527,7 @@ define(function (require, exports, module) {
         beforeEach(function () {
           err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-          sinon.stub(SignInView.prototype, 'onSignInError', sinon.spy());
+          sinon.stub(SignInView.prototype, 'onSignInError').callsFake(sinon.spy());
 
           return view.onSignInError(account, 'password', err);
         });

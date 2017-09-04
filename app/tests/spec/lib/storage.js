@@ -89,7 +89,7 @@ define(function (require, exports, module) {
         var err;
 
         beforeEach(function () {
-          sinon.stub(windowMock.localStorage, 'setItem', generateAccessDenied);
+          sinon.stub(windowMock.localStorage, 'setItem').callsFake(generateAccessDenied);
 
           try {
             Storage.testLocalStorage(windowMock);
@@ -117,7 +117,7 @@ define(function (require, exports, module) {
         var err;
 
         beforeEach(function () {
-          sinon.stub(windowMock.sessionStorage, 'setItem', generateAccessDenied);
+          sinon.stub(windowMock.sessionStorage, 'setItem').callsFake(generateAccessDenied);
           try {
             Storage.testSessionStorage(windowMock);
           } catch (e) {
