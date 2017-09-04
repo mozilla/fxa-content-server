@@ -47,7 +47,7 @@ define(function (require, exports, module) {
       });
 
       it('catches init errors', function () {
-        sinon.stub(Raven, 'config', function () {
+        sinon.stub(Raven, 'config').callsFake(function () {
           throw new Error('Config error');
         });
 

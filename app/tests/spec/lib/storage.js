@@ -58,7 +58,7 @@ define(function (require, exports, module) {
 
       it('returns undefined if the backend/parsing fails', function () {
         storage.set('key', 'value');
-        sinon.stub(nullStorage, 'getItem', function () {
+        sinon.stub(nullStorage, 'getItem').callsFake(function () {
           return 'not stringified JSON';
         });
         assert.isUndefined(storage.get('key'));
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
       });
 
       it('creates localStorage instance', function () {
-        sinon.stub(windowMock.localStorage, 'setItem', function () { });
+        sinon.stub(windowMock.localStorage, 'setItem').callsFake(function () { });
 
         var store = Storage.factory('localStorage', windowMock);
         store.set('foo', 'bar');
@@ -153,7 +153,7 @@ define(function (require, exports, module) {
       });
 
       it('creates sessionStorage instance', function () {
-        sinon.stub(windowMock.sessionStorage, 'setItem', function () { });
+        sinon.stub(windowMock.sessionStorage, 'setItem').callsFake(function () { });
 
         var store = Storage.factory('sessionStorage', windowMock);
         store.set('foo', 'bar');

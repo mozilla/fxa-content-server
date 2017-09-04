@@ -135,7 +135,7 @@ define(function (require, exports, module) {
 
     describe('the full cycle', function () {
       it('calls the callback with the data received from the parentWindow', function () {
-        sinon.stub(windowMock.parent, 'postMessage', function (message) {
+        sinon.stub(windowMock.parent, 'postMessage').callsFake(function (message) {
           var parsed = JSON.parse(message);
           channel.receiveEvent({
             data: JSON.stringify({

@@ -790,8 +790,8 @@ define(function (require, exports, module) {
       });
 
       it('correctly reports count', () => {
-        sinon.stub(metrics, '_send', () => p(true));
-        sinon.stub(metrics, '_isFlushRequired', () => true);
+        sinon.stub(metrics, '_send').callsFake(() => p(true));
+        sinon.stub(metrics, '_isFlushRequired').callsFake(() => true);
 
         return metrics.flush()
           .then(() => {
