@@ -47,15 +47,16 @@ define(function (require, exports, module) {
         type: this._verificationInfo.get('type') || null
       };
       return this.user.completeAccountSignUp(account, code, options)
-        .fail((err) => this._logAndAbsorbMarketingClientErrors(err))
         .then(() => {
           this.navigate('signin_verified');
-          this._notifyBrokerAndComplete(account);
         });
     },
 
     setInitialContext (context) {
-      //Need to add location, time etc.
+      context.set({
+        // No need to escape the string, it contains no user generated input
+        escapedResetLinkAttributes: 'href="/reset_password" class="right reset-password" data-flow-event="link.reset-password"'
+      });
     }
   });
 
