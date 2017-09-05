@@ -212,7 +212,7 @@ define(function (require, exports, module) {
 
     _isAssertionValid (assertionPromise) {
       // assertions live for about 6 hours.
-      // reuse the same assertion if used in the past hour
+      // reuse the same assertion if created in the past hour
       const expiredAt = new Date();
       expiredAt.setHours(expiredAt.getHours() + 1);
       return (assertionPromise &&

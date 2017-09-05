@@ -849,7 +849,7 @@ define(function (require, exports, module) {
       it('generates a new assertion if assertion is expired', function () {
         return account.createOAuthToken('scope1')
           .then(function () {
-            sinon.stub(account, '_isAssertionValid', function () {
+            sinon.stub(account, '_isAssertionValid').callsFake(function () {
               return false;
             });
             return account.createOAuthToken('scope2');
