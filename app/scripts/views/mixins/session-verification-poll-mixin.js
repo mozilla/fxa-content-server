@@ -96,7 +96,7 @@ define(function (require, exports, module) {
         // if the user is switching networks.
         // Report a known error to Sentry, but not the user.
         // Details: github.com/mozilla/fxa-content-server/issues/2638.
-        this.logError(AuthErrors.toError('POLLING_FAILED'));
+        this.logError(AuthErrors.toError('POLLING_FAILED', JSON.stringify(err)));
 
         this.setTimeout(
           () => this.getSessionVerificationPoll(account).start(),
