@@ -89,11 +89,11 @@ define(function (require, exports, module) {
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
-          asser = assertion
+          asser = assertion;
           var keyFetchToken = account.get('keyFetchToken');
           var unwrapBKey = account.get('unwrapBKey');
 
-          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
+          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey);
         })
         .then((rkeys) => {
           keys = rkeys;
@@ -120,9 +120,9 @@ define(function (require, exports, module) {
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
+            derivedKeyBundle: encryptedJwe,
             scope: relier.get('scope'),
-            state: relier.get('state'),
-            derivedKeyBundle: encryptedJwe
+            state: relier.get('state')
           };
 
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
