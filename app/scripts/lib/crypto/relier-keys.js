@@ -6,25 +6,20 @@
  * Derive relier-specific encryption keys from account master keys.
  */
 
-'use strict';
-
 define(function (require, exports, module) {
   'use strict';
 
   const requireOnDemand = require('lib/require-on-demand');
 
   /**
-   * Given the account master keys, the user id and the relier id, generate
-   * the matching relier-specific derived class-A and class-B keys.
    *
-   * Input arguments:
-   *    keys:           object with properties 'kA' and 'kB' giving the account
-   *                    keys as hex strings.
-   *    keyData:  OAuth client key data required to derive a key.
+   * Given the account master key kB, generate the matching relier-specific derived
+   * scoped key.
    *
-   * Output:
-   *    A promise that will resolve with an object having a scoped key.
-   *    The key is represented as a JWK object.
+   * @param {Object} keys object with properties 'kB' giving the account as hex
+   * @param {Object} keyData
+   * @returns {Promise} A promise that will resolve with an object having a scoped key.
+   *   The key is represented as a JWK object.
    */
   function deriveRelierKeys(keys = {}, keyData = {}) {
     if (! keys.kB) {
@@ -52,7 +47,7 @@ define(function (require, exports, module) {
         scopedKeySalt: keyData.keySalt,
         scopedKeyTimestamp: keyData.keyTimestamp
       });
-    })
+    });
   }
 
   return {

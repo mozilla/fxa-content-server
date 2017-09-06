@@ -31,12 +31,12 @@ define(function (require, exports, module) {
     client_id: Vat.clientId().required().renameTo('clientId'),
     code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
     code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
+    keys_jwk: Vat.string(),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
-    state: Vat.string(),
-    keys_jwk: Vat.string()
+    state: Vat.string()
   };
 
   var VERIFICATION_INFO_SCHEMA = {
@@ -59,6 +59,7 @@ define(function (require, exports, module) {
       accessType: null,
       clientId: null,
       context: Constants.OAUTH_CONTEXT,
+      keys_jwk: null, //eslint-disable-line camelcase
       // permissions are individual scopes
       permissions: null,
       // whether the permissions prompt will be shown to trusted reliers
@@ -71,8 +72,7 @@ define(function (require, exports, module) {
       // a rollup of all the permissions
       scope: null,
       // standard oauth parameters.
-      state: null,
-      keys_jwk: null,
+      state: null
     }),
 
     initialize (attributes, options = {}) {
