@@ -40,6 +40,7 @@ require.config({
   ],
   requireOnDemand: [
     'fxaClient',
+    'fxaCryptoDeriver',
     'jwcrypto'
   ],
   // the sriify task will replace sriConfig for production
