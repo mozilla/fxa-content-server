@@ -8,8 +8,10 @@
 
 'use strict';
 
-define([], function () {
-  const scopedKeys = new window.fxaCryptoDeriver.ScopedKeys();
+define(function (require, exports, module) {
+  'use strict';
+
+  const requireOnDemand = require('lib/require-on-demand');
 
   /**
    * Given the account master keys, the user id and the relier id, generate
@@ -41,12 +43,16 @@ define([], function () {
       throw new Error('Scoped key: missing keyTimestamp');
     }
 
-    return scopedKeys.deriveScopedKeys({
-      inputKey: keys.kB,
-      scopedKeyIdentifier: keyData.keyIdentifier,
-      scopedKeySalt: keyData.keySalt,
-      scopedKeyTimestamp: keyData.keyTimestamp
-    });
+    return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+      const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
+
+      return scopedKeys.deriveScopedKeys({
+        inputKey: keys.kB,
+        scopedKeyIdentifier: keyData.keyIdentifier,
+        scopedKeySalt: keyData.keySalt,
+        scopedKeyTimestamp: keyData.keyTimestamp
+      });
+    })
   }
 
   return {

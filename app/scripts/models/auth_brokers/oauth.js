@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
   const p = require('../../lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
@@ -106,11 +107,12 @@ define(function (require, exports, module) {
           return this.relier.deriveRelierKeys(keys, clientKeyData);
         })
         .then((scopedKey) => {
-          const fxaRelierCrypto = window.fxaCryptoDeriver;
-          const fxaDeriverUtils = new fxaRelierCrypto.DeriverUtils();
+          return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+            const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
+            const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
 
-          const appJwk = fxaRelierCrypto.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
-          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKey));
+            return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKey));
+          });
         })
         .then((encryptedJwe) => {
           var oauthParams = {
