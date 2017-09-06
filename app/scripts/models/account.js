@@ -474,7 +474,6 @@ define(function (require, exports, module) {
         }
 
         this.set(updatedSessionData);
-        this._notifier.trigger('set-uid', this.get('uid'));
         return updatedSessionData;
       })
       .fail((err) => {
@@ -608,7 +607,6 @@ define(function (require, exports, module) {
      * @returns {Promise} - resolves when complete
      */
     signOut () {
-      this._notifier.trigger('clear-uid');
       return this._fxaClient.sessionDestroy(this.get('sessionToken'));
     },
 
@@ -624,7 +622,6 @@ define(function (require, exports, module) {
         password
       )
       .then(() => {
-        this._notifier.trigger('clear-uid');
         this.trigger('destroy', this);
       });
     },
