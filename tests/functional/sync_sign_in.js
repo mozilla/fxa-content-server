@@ -134,7 +134,7 @@ define([
     'as a migrating user': function () {
       return this.remote
         .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNIN.HEADER))
-        .then(visibleByQSA('.info.nudge'));
+        .then(visibleByQSA(selectors.SIGNIN.MIGRATION_NUDGE));
     },
 
     'verified, blocked': function () {
