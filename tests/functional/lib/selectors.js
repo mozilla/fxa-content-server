@@ -53,7 +53,9 @@ define([], function () {
       RESEND_SUCCESS: '.success'
     },
     CONFIRM_SIGNIN: {
-      HEADER: '#fxa-confirm-signin-header'
+      HEADER: '#fxa-confirm-signin-header',
+      LINK_RESEND: '#resend',
+      RESEND_SUCCESS: '.success'
     },
     CONFIRM_SIGNUP: {
       HEADER: '#fxa-confirm-header'
