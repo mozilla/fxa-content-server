@@ -89,18 +89,18 @@ define(function (require, exports, module) {
       // profileClient depends on fxaClient and assertionLibrary
         .then(_.bind(this.initializeProfileClient, this))
         // marketingEmailClient depends on config
-        .then(_.bind(this.initializeMarketingEmailClient, this))
+        .then(_.bind(this.initializeMarketingEmailClient, this));
         // broker relies on the relier, fxaClient,
         // assertionLibrary, and metrics
     },
 
-/**/initializeProfileClient () {
+    initializeProfileClient () {
       this._profileClient = new ProfileClient({
         profileUrl: this._config.profileUrl
       });
     },
 
-/**/initializeMarketingEmailClient () {
+    initializeMarketingEmailClient () {
       this._marketingEmailClient = new MarketingEmailClient({
         baseUrl: this._config.marketingEmailServerUrl,
         preferencesUrl: this._config.marketingEmailPreferencesUrl
