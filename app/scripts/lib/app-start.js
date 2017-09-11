@@ -244,18 +244,18 @@ define(function (require, exports, module) {
       });
     },
 
-    initializeProfileClient () {
+    /*initializeProfileClient () {
       this._profileClient = new ProfileClient({
         profileUrl: this._config.profileUrl
       });
-    },
+    },*/
 
-    initializeMarketingEmailClient () {
+    /*initializeMarketingEmailClient () {
       this._marketingEmailClient = new MarketingEmailClient({
         baseUrl: this._config.marketingEmailServerUrl,
         preferencesUrl: this._config.marketingEmailPreferencesUrl
       });
-    },
+    },*/
 
     initializeRelier () {
       if (! this._relier) {
