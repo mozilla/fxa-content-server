@@ -30,9 +30,9 @@ define(function (require, exports, module) {
     initialize (options = {}) {
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
-     /* this._profileClient = options.profileClient;*/
+      this._profileClient = options.profileClient;
       this._fxaClient = options.fxaClient;
-      /*this._marketingEmailClient = options.marketingEmailClient;*/
+      this._marketingEmailClient = options.marketingEmailClient;
       this._metrics = options.metrics;
       this._assertion = options.assertion;
       this._notifier = options.notifier;
