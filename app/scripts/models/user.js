@@ -92,7 +92,7 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeMarketingEmailClient, this))
         // broker relies on the relier, fxaClient,
         // assertionLibrary, and metrics
-    }
+    },
 
 /**/initializeProfileClient () {
       this._profileClient = new ProfileClient({
