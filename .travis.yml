@@ -23,7 +23,7 @@ env:
 
 # Need to use "trusty" for Java 1.8
 # Ref: https://blog.travis-ci.com/2015-10-14-opening-up-ubuntu-trusty-beta/
-sudo: required
+sudo: false 
 dist: trusty
 
 cache:
