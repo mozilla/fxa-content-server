@@ -66,6 +66,8 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+      this.timeout = 60 * 1000;
+
       return this.remote.then(clearBrowserState());
     },
 
@@ -134,7 +136,7 @@ define([
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = TestHelpers.createEmail();
-      this.timeout = 90000;
+      this.timeout = 120000;
 
       return this.remote
         .then(fillOutSignUp(email, PASSWORD))

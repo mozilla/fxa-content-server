@@ -144,6 +144,8 @@ define([
     },
 
     'sign in with a second sign-in tab open': function () {
+      this.timeout = 60 * 1000;
+
       var windowName = 'sign-in inter-tab functional test';
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
