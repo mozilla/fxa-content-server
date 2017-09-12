@@ -209,6 +209,10 @@ define(function (require, exports, module) {
      * displayError will display the error to the user.
      *
      * @method validateAndSubmit
+     * @param {Object} [event]
+     * @param {Object} [options]
+     * @param {Object} [options.artificialDelay={}]
+     * Minimum artificial delay for the submit to resolve, useful for loading indicators
      * @return {Promise}
      */
     validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit (event, options = {}) {
