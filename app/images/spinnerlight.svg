@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="73px" height="73px" viewBox="0 0 73 73" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
-    <title>Shape</title>
-    <desc>Created with Sketch.</desc>
     <defs>
         <linearGradient x1="93.0928096%" y1="52.7734375%" x2="68.5133398%" y2="119.326007%" id="linearGradient-1">
             <stop stop-color="#0A84FF" stop-opacity="0" offset="0%"></stop>
@@ -28,7 +26,7 @@
   type="rotate"
   from="0 36.8 36.8"
   to="360 36.8 36.8"
-  dur="0.8s"
+  dur="1.2s"
   repeatCount="indefinite"/>
     </g>
 </svg>
