@@ -1,3 +1,13 @@
+<a name="1.95.3"></a>
+## 1.95.3 (2017-09-12)
+
+
+### Bug Fixes
+
+* **metrics:** include deviceId in metricsContext data ([384749f](https://github.com/mozilla/fxa-content-server/commit/384749f))
+
+
+
 <a name="1.95.2"></a>
 ## 1.95.2 (2017-09-12)
 
