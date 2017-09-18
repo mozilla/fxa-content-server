@@ -33,14 +33,14 @@ define(function (require, exports, module) {
   const HeightObserver = require('lib/height-observer');
   const IframeChannel = require('lib/channels/iframe');
   const InterTabChannel = require('lib/channels/inter-tab');
-  const MarketingEmailClient = require('lib/marketing-email-client');
+  /*const MarketingEmailClient = require('lib/marketing-email-client');*/
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
   const OAuthClient = require('lib/oauth-client');
   const OAuthRelier = require('models/reliers/oauth');
   const p = require('lib/promise');
-  const ProfileClient = require('lib/profile-client');
+  /*const ProfileClient = require('lib/profile-client');*/
   const RefreshObserver = require('models/refresh-observer');
   const Relier = require('models/reliers/relier');
   const requireOnDemand = require('lib/require-on-demand');
@@ -131,12 +131,12 @@ define(function (require, exports, module) {
         .then(_.bind(this.initializeMetrics, this))
         // assertionLibrary depends on fxaClient
         .then(_.bind(this.initializeAssertionLibrary, this))
-        // profileClient depends on fxaClient and assertionLibrary
+        /*// profileClient depends on fxaClient and assertionLibrary
         .then(_.bind(this.initializeProfileClient, this))
         // marketingEmailClient depends on config
         .then(_.bind(this.initializeMarketingEmailClient, this))
         // broker relies on the relier, fxaClient,
-        // assertionLibrary, and metrics
+        // assertionLibrary, and metrics*/
         .then(_.bind(this.initializeAuthenticationBroker, this))
         // user depends on the auth broker, profileClient, oAuthClient,
         // assertionLibrary and notifier.
@@ -244,18 +244,18 @@ define(function (require, exports, module) {
       });
     },
 
-    initializeProfileClient () {
+    /*initializeProfileClient () {
       this._profileClient = new ProfileClient({
         profileUrl: this._config.profileUrl
       });
-    },
+    },*/
 
-    initializeMarketingEmailClient () {
+    /*initializeMarketingEmailClient () {
       this._marketingEmailClient = new MarketingEmailClient({
         baseUrl: this._config.marketingEmailServerUrl,
         preferencesUrl: this._config.marketingEmailPreferencesUrl
       });
-    },
+    },*/
 
     initializeRelier () {
       if (! this._relier) {
@@ -372,12 +372,12 @@ define(function (require, exports, module) {
         const user = this._user = new User({
           assertion: this._assertionLibrary,
           fxaClient: this._fxaClient,
-          marketingEmailClient: this._marketingEmailClient,
+         /* marketingEmailClient: this._marketingEmailClient,*/
           metrics: this._metrics,
           notifier: this._notifier,
           oAuthClient: this._oAuthClient,
           oAuthClientId: this._config.oAuthClientId,
-          profileClient: this._profileClient,
+          /*profileClient: this._profileClient,*/
           sentryMetrics: this._sentryMetrics,
           storage: this._getUserStorageInstance(),
           uniqueUserId: this._getUniqueUserId()

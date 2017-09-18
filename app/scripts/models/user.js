@@ -23,6 +23,8 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('models/mixins/search-param');
   const Storage = require('lib/storage');
   const vat = require('lib/vat');
+  const MarketingEmailClient = require('lib/marketing-email-client');
+  const ProfileClient = require('lib/profile-client');
 
   var User = Backbone.Model.extend({
     initialize (options = {}) {
@@ -79,6 +81,30 @@ define(function (require, exports, module) {
 
     _accounts () {
       return this._storage.get('accounts') || {};
+    },
+
+    initializeDep() {
+      return p()
+
+      // profileClient depends on fxaClient and assertionLibrary
+        .then(_.bind(this.initializeProfileClient, this))
+        // marketingEmailClient depends on config
+        .then(_.bind(this.initializeMarketingEmailClient, this));
+        // broker relies on the relier, fxaClient,
+        // assertionLibrary, and metrics
+    },
+
+    initializeProfileClient () {
+      this._profileClient = new ProfileClient({
+        profileUrl: this._config.profileUrl
+      });
+    },
+
+    initializeMarketingEmailClient () {
+      this._marketingEmailClient = new MarketingEmailClient({
+        baseUrl: this._config.marketingEmailServerUrl,
+        preferencesUrl: this._config.marketingEmailPreferencesUrl
+      });
     },
 
     _getAccount (uid) {
