@@ -17,6 +17,7 @@ define(function (require, exports, module) {
   const HaltBehavior = require('views/behaviors/halt');
   const OAuthErrors = require('lib/oauth-errors');
   const p = require('lib/promise');
+  const requireOnDemand = require('lib/require-on-demand');
   const Url = require('lib/url');
   const Vat = require('lib/vat');
 
@@ -72,6 +73,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
+      this._fxaClient = options.fxaClient;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -81,19 +83,48 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-
+      let asser;
+      let keys;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
+          asser = assertion;
+          var keyFetchToken = account.get('keyFetchToken');
+          var unwrapBKey = account.get('unwrapBKey');
+
+          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey);
+        })
+        .then((rkeys) => {
+          keys = rkeys;
+
+          return this._oAuthClient.getClientKeyData(clientId, {
+            assertion: asser,
+            scope: decodeURIComponent(relier.get('scope'))
+          });
+        })
+        .then((clientKeyData) => {
+          return this.relier.deriveRelierKeys(keys, clientKeyData);
+        })
+        .then((scopedKey) => {
+          return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+            const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
+            const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
+
+            return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKey));
+          });
+        })
+        .then((encryptedJwe) => {
           var oauthParams = {
-            assertion: assertion,
+            assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
+            derivedKeyBundle: encryptedJwe,
             scope: relier.get('scope'),
             state: relier.get('state')
           };
+
           if (relier.get('accessType') === Constants.ACCESS_TYPE_OFFLINE) {
             oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
           }
