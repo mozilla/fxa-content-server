@@ -54,6 +54,9 @@ define(function (require, exports, module) {
     },
 
     onSignInError (account, password, err) {
+      if (AuthErrors.INVALID_UNBLOCK_CODE){
+        this.showValidationError('#unblock_code',err);
+      }
       if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
         // The user must go enter the correct password this time.
         this.navigate(this._getAuthPage(), {
