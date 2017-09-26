@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const ImageLoader = require('../../lib/image-loader');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const p = require('../../lib/promise');
   const Template = require('stache!templates/settings/avatar_change');
 
   const proto = FormView.prototype;
@@ -89,47 +88,46 @@ define(function (require, exports, module) {
     },
 
     fileSet (e) {
-      var defer = p.defer();
-      var file = e.target.files[0];
-      var account = this.getAccount();
-      this.logAccountImageChange(account);
+      return new Promise((resolve, reject) => {
+        var file = e.target.files[0];
+        var account = this.getAccount();
+        this.logAccountImageChange(account);
 
-      var imgOnError = (e) => {
-        var error = e && e.errno ? e : 'UNUSABLE_IMAGE';
-        var msg = AuthErrors.toMessage(error);
-        this.displayError(msg);
-        defer.reject(msg);
-      };
-
-      if (file.type.match('image.*')) {
-        var reader = new this.FileReader();
-
-        reader.onload = (event) => {
-          var src = event.target.result;
-
-          ImageLoader.load(src)
-            .then((img) => {
-              var cropImg = new CropperImage({
-                height: img.height,
-                src: src,
-                type: file.type,
-                width: img.width
-              });
-              require(['draggable', 'touch-punch'], () => {
-                this.navigate('settings/avatar/crop', {
-                  cropImg: cropImg
-                });
-              });
-              defer.resolve();
-            })
-            .fail(imgOnError);
+        var imgOnError = (e) => {
+          var error = e && e.errno ? e : 'UNUSABLE_IMAGE';
+          var msg = AuthErrors.toMessage(error);
+          this.displayError(msg);
+          reject(msg);
         };
-        reader.readAsDataURL(file);
-      } else {
-        imgOnError();
-      }
 
-      return defer.promise;
+        if (file.type.match('image.*')) {
+          var reader = new this.FileReader();
+
+          reader.onload = (event) => {
+            var src = event.target.result;
+
+            ImageLoader.load(src)
+              .then((img) => {
+                var cropImg = new CropperImage({
+                  height: img.height,
+                  src: src,
+                  type: file.type,
+                  width: img.width
+                });
+                require(['draggable', 'touch-punch'], () => {
+                  this.navigate('settings/avatar/crop', {
+                    cropImg: cropImg
+                  });
+                });
+                resolve();
+              })
+              .catch(imgOnError);
+          };
+          reader.readAsDataURL(file);
+        } else {
+          imgOnError();
+        }
+      });
     }
 
   });

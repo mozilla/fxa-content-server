@@ -18,7 +18,6 @@ define((require, exports, module) => {
 
   const Cocktail = require('cocktail');
   const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
-  const p = require('lib/promise');
 
   /**
    * Create a ConnectAnotherDeviceOnSignin behavior.
@@ -29,7 +28,7 @@ define((require, exports, module) => {
    */
   module.exports = function (defaultBehavior) {
     const behavior = function (view, account) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         behavior.ensureConnectAnotherDeviceMixin(view);
 
         if (view.isEligibleForConnectAnotherDeviceOnSignin(account)) {
@@ -42,7 +41,7 @@ define((require, exports, module) => {
         if (view.hasNavigated()) {
           // Cause the invokeBrokerMethod chain to stop, the screen
           // has already redirected.
-          return p.defer().promise;
+          return new Promise(() => {});
         }
         return defaultBehavior;
       });

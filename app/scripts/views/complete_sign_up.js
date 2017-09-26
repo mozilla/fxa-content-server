@@ -79,9 +79,9 @@ define(function (require, exports, module) {
       };
 
       return this.user.completeAccountSignUp(account, code, options)
-        .fail((err) => this._logAndAbsorbMarketingClientErrors(err))
+        .catch((err) => this._logAndAbsorbMarketingClientErrors(err))
         .then(() => this._notifyBrokerAndComplete(account))
-        .fail((err) => this._handleVerificationErrors(err));
+        .catch((err) => this._handleVerificationErrors(err));
     },
 
     setInitialContext (context) {
@@ -238,7 +238,7 @@ define(function (require, exports, module) {
       return account.retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account)
       })
-      .fail((err) => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err

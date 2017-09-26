@@ -15,7 +15,6 @@ define(function (require, exports, module) {
   const Environment = require('lib/environment');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
   const WindowMock = require('../../mocks/window');
@@ -423,7 +422,7 @@ define(function (require, exports, module) {
 
             beforeEach(function () {
               sandbox.stub(xhr, 'ajax').callsFake(function () {
-                return p(true);
+                return Promise.resolve(true);
               });
               metrics.logEvent('qux');
               return metrics.flush(true).then(function (r) {
@@ -471,7 +470,7 @@ define(function (require, exports, module) {
           describe('flush, ajax succeeds asynchronously', function () {
             beforeEach(function () {
               sandbox.stub(xhr, 'ajax').callsFake(function () {
-                return p(true);
+                return Promise.resolve(true);
               });
               return metrics.flush();
             });
@@ -487,7 +486,7 @@ define(function (require, exports, module) {
 
             beforeEach(function () {
               sandbox.stub(xhr, 'ajax').callsFake(function () {
-                return p.reject();
+                return Promise.reject();
               });
               return metrics.flush().then(function (r) {
                 result = r;
@@ -672,7 +671,7 @@ define(function (require, exports, module) {
             assert.notOk(sendCount);
           }
 
-          return p(true);
+          return Promise.resolve(true);
         });
 
         metrics.logEvent('wibble');
@@ -812,7 +811,7 @@ define(function (require, exports, module) {
       });
 
       it('correctly reports count', () => {
-        sinon.stub(metrics, '_send').callsFake(() => p(true));
+        sinon.stub(metrics, '_send').callsFake(() => Promise.resolve(true));
         sinon.stub(metrics, '_isFlushRequired').callsFake(() => true);
 
         return metrics.flush()

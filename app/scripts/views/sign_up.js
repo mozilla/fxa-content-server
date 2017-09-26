@@ -20,7 +20,6 @@ define(function (require, exports, module) {
   const mailcheck = require('../lib/mailcheck');
   const MigrationMixin = require('./mixins/migration-mixin');
   const NoDisabledSubmitExperimentMixin = require('./mixins/no-disabled-submit-experiment-mixin');
-  const p = require('../lib/promise');
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
@@ -173,7 +172,7 @@ define(function (require, exports, module) {
        *       1b3a. If not filled in, tell user to fill in age.
        *       1b3b. If too young, go to the too young screen.
        */
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         var account = this._initAccount();
         var password = this.getElementValue('#password');
 
@@ -189,7 +188,7 @@ define(function (require, exports, module) {
         // https://github.com/mozilla/fxa-content-server/issues/2778
         return this._signIn(account, password);
       })
-      .fail((err) => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
           this.logEvent('login.canceled');
           // if user canceled login, just stop
@@ -214,7 +213,7 @@ define(function (require, exports, module) {
     _signUp (account, password) {
       this._checkMailcheckResult(this);
       return this.signUp(account, password)
-        .fail(this.onSignUpError.bind(this, account, password));
+        .catch(this.onSignUpError.bind(this, account, password));
     },
 
     onSignUpError (account, password, err) {
@@ -230,7 +229,7 @@ define(function (require, exports, module) {
 
     _signIn (account, password) {
       return this.signIn(account, password)
-        .fail(this.onSignInError.bind(this, account, password));
+        .catch(this.onSignInError.bind(this, account, password));
     },
 
     onSignInError (account, password, err) {

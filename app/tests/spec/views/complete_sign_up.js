@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const MarketingEmailErrors = require('lib/marketing-email-errors');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const SyncRelier = require('models/reliers/sync');
@@ -102,14 +101,14 @@ define(function (require, exports, module) {
 
       sinon.stub(account, 'verifySignUp').callsFake(function () {
         if (verificationError) {
-          return p.reject(verificationError);
+          return Promise.reject(verificationError);
         } else {
-          return p();
+          return Promise.resolve();
         }
       });
 
       isSignedIn = true;
-      sinon.stub(account, 'isSignedIn').callsFake(() => p(isSignedIn));
+      sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(isSignedIn));
 
       windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
       initView(account);
@@ -193,7 +192,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -213,7 +212,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -234,7 +233,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -255,7 +254,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -276,7 +275,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -298,7 +297,7 @@ define(function (require, exports, module) {
           });
           relier.fetch();
           initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
           return view.render();
         });
 
@@ -315,7 +314,7 @@ define(function (require, exports, module) {
           verificationError = MarketingEmailErrors.toError('USAGE_ERROR');
 
           sinon.spy(view, 'logError');
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
 
           return view.render();
         });
@@ -430,8 +429,8 @@ define(function (require, exports, module) {
 
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(user, 'completeAccountSignUp').callsFake(() => p());
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => p());
+          sinon.stub(user, 'completeAccountSignUp').callsFake(() => Promise.resolve());
+          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
 
           return view.render();
         });
@@ -449,7 +448,7 @@ define(function (require, exports, module) {
     describe('_notifyBrokerAndComplete', () => {
       it('logs and notifies the broker', () => {
         sinon.stub(view, '_getBrokerMethod').callsFake(() => 'afterCompleteSignIn');
-        sinon.stub(view, 'invokeBrokerMethod').callsFake(() => p());
+        sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
         sinon.stub(view, 'isSignIn').callsFake(() => true);
         sinon.spy(view, 'logViewEvent');
         sinon.spy(view, 'logEvent');
@@ -516,8 +515,8 @@ define(function (require, exports, module) {
             uid: validUid
           });
 
-          sinon.stub(account, 'verifySignUp').callsFake(() => p());
-          sinon.stub(retrySignUpAccount, 'retrySignUp').callsFake(() => p());
+          sinon.stub(account, 'verifySignUp').callsFake(() => Promise.resolve());
+          sinon.stub(retrySignUpAccount, 'retrySignUp').callsFake(() => Promise.resolve());
           sinon.stub(user, 'getAccountByUid').callsFake(() => account);
           sinon.stub(user, 'getAccountByEmail').callsFake(() => retrySignUpAccount);
 
@@ -525,7 +524,7 @@ define(function (require, exports, module) {
           initView();
 
           sinon.stub(view, 'getStringifiedResumeToken').callsFake(() => 'resume token');
-          sinon.stub(broker, 'afterCompleteSignUp').callsFake(() => p());
+          sinon.stub(broker, 'afterCompleteSignUp').callsFake(() => Promise.resolve());
 
           return view.render()
             .then(function () {
@@ -548,7 +547,7 @@ define(function (require, exports, module) {
       describe('resend with invalid resend token', function () {
         beforeEach(function () {
           sinon.stub(account, 'retrySignUp').callsFake(function () {
-            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+            return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
           });
 
           sinon.stub(user, 'getAccountByEmail').callsFake(function () {
@@ -568,7 +567,7 @@ define(function (require, exports, module) {
       describe('other resend errors', function () {
         beforeEach(function () {
           sinon.stub(account, 'retrySignUp').callsFake(function () {
-            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
 
           sinon.stub(user, 'getAccountByEmail').callsFake(function () {

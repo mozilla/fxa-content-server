@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const FormPrefill = require('models/form-prefill');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const View = require('views/sign_up_password');
@@ -105,7 +104,7 @@ define(function (require, exports, module) {
 
     describe('validateAndSubmit', () => {
       beforeEach(() => {
-        sinon.stub(view, 'signUp').callsFake(() => p());
+        sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
         sinon.stub(view, 'tooYoung');
         sinon.spy(view, 'displayError');
       });
@@ -115,7 +114,7 @@ define(function (require, exports, module) {
           view.$('#password').val('password');
           view.$('#age').val('11');
 
-          return p().then()
+          return Promise.resolve().then()
             .then(() => view.enableSubmitIfValid())
             .then(() => view.validateAndSubmit())
             .then(() => {
@@ -133,7 +132,7 @@ define(function (require, exports, module) {
 
           sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
-          return p().then()
+          return Promise.resolve().then()
             .then(() => view.enableSubmitIfValid())
             .then(() => view.validateAndSubmit())
             .then(() => {

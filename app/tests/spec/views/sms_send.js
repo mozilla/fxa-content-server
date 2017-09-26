@@ -13,7 +13,6 @@
    const Backbone = require('backbone');
    const Metrics = require('lib/metrics');
    const Notifier = require('lib/channels/notifier');
-   const p = require('lib/promise');
    const Relier = require('models/reliers/relier');
    const sinon = require('sinon');
    const SmsErrors = require('lib/sms-errors');
@@ -40,7 +39,7 @@
          relier,
          viewName: 'sms-send'
        });
-       sinon.stub(view, 'checkAuthorization').callsFake(() => p(true));
+       sinon.stub(view, 'checkAuthorization').callsFake(() => Promise.resolve(true));
      }
 
      beforeEach(() => {
@@ -146,7 +145,7 @@
      describe('submit', () => {
        describe('succeeds', () => {
          it('it delegates to `account.sendSms`, calls `_onSendSmsSuccess`', () => {
-           sinon.stub(account, 'sendSms').callsFake(() => p());
+           sinon.stub(account, 'sendSms').callsFake(() => Promise.resolve());
            sinon.spy(view, '_onSendSmsSuccess');
            sinon.stub(view, 'getSmsFeatures').callsFake(() => ['signinCodes']);
            view.$('input[type=tel]').val('1234567890');
@@ -167,7 +166,7 @@
        describe('errors', () => {
          it('it delegates to `account.sendSms`, calls `_onSendSmsError` with the error', () => {
            const err = AuthErrors.toError('UNEXPECTED ERROR');
-           sinon.stub(account, 'sendSms').callsFake(() => p.reject(err));
+           sinon.stub(account, 'sendSms').callsFake(() => Promise.reject(err));
            sinon.spy(view, '_onSendSmsError');
            view.$('input[type=tel]').val('1234567890');
 

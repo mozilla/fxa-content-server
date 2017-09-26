@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const OAuthBroker = require('models/auth_brokers/oauth');
   const OAuthClient = require('lib/oauth-client');
   const OAuthRelier = require('models/reliers/oauth');
-  const p = require('lib/promise');
   const Session = require('lib/session');
   const SentryMetrics = require('lib/sentry');
   const sinon = require('sinon');
@@ -85,7 +84,7 @@ define(function (require, exports, module) {
 
       oAuthClient = new OAuthClient();
       sinon.stub(oAuthClient, 'getClientInfo').callsFake(function () {
-        return p({
+        return Promise.resolve({
           name: '123Done',
           redirect_uri: BASE_REDIRECT_URL //eslint-disable-line camelcase
         });
@@ -142,7 +141,7 @@ define(function (require, exports, module) {
       it('delegates to view.afterSignUp', () => {
         fillOutSignUp(email, 'password', { context: view });
 
-        sinon.stub(view, 'signUp').callsFake(() => p());
+        sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
 
         return view.submit()
           .then(function () {

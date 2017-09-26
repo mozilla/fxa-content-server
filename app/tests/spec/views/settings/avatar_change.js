@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const FileReaderMock = require('../../../mocks/file-reader');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const ProfileClient = require('lib/profile-client');
   const ProfileMock = require('../../../mocks/profile');
   const Relier = require('models/reliers/relier');
@@ -77,7 +76,7 @@ define(function (require, exports, module) {
         });
 
         sinon.stub(view, 'checkAuthorization').callsFake(function () {
-          return p(true);
+          return Promise.resolve(true);
         });
         account = user.initAccount({
           accessToken: accessToken,
@@ -85,10 +84,10 @@ define(function (require, exports, module) {
           verified: true
         });
         sinon.stub(account, 'getAvatar').callsFake(function () {
-          return p({ avatar: pngSrc, id: 'foo' });
+          return Promise.resolve({ avatar: pngSrc, id: 'foo' });
         });
         sinon.stub(account, 'profileClient').callsFake(function () {
-          return p(profileClientMock);
+          return Promise.resolve(profileClientMock);
         });
         sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
@@ -103,7 +102,7 @@ define(function (require, exports, module) {
 
       it('can remove the avatar', function () {
         sinon.stub(view, 'deleteDisplayedAccountProfileImage').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.spy(view, 'navigate');
@@ -120,7 +119,7 @@ define(function (require, exports, module) {
 
       it('shows error if delete fails', function () {
         sinon.stub(profileClientMock, 'deleteAvatar').callsFake(function () {
-          return p.reject(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'));
+          return Promise.reject(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'));
         });
 
         sinon.spy(view, 'navigate');
@@ -130,7 +129,7 @@ define(function (require, exports, module) {
             return view.removeAvatar();
           })
           .then(function () {
-            assert.fail('unexpected success');
+            assert.catch('unexpected success');
           }, function (err) {
             assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
             assert.isTrue(view.isErrorVisible(), 'error is visible');
@@ -158,7 +157,7 @@ define(function (require, exports, module) {
               var ev = FileReaderMock._mockBadPngEvent();
               return view.fileSet(ev)
                 .then(function () {
-                  assert.fail('unexpected success');
+                  assert.catch('unexpected success');
                 }, function () {
                   assert.equal(view.$('.error').text(), AuthErrors.toMessage('UNUSABLE_IMAGE'));
                   assert.isTrue(view.isErrorVisible());
@@ -174,7 +173,7 @@ define(function (require, exports, module) {
               var ev = FileReaderMock._mockTinyPngEvent();
               return view.fileSet(ev)
                 .then(function () {
-                  assert.fail('unexpected success');
+                  assert.catch('unexpected success');
                 }, function () {
                   assert.equal(view.$('.error').text(), AuthErrors.toMessage('INVALID_IMAGE_SIZE'));
                   assert.isTrue(view.isErrorVisible());
@@ -200,7 +199,7 @@ define(function (require, exports, module) {
 
               view.fileSet(ev);
             })
-            .fail(done);
+            .catch(done);
         });
       });
 
@@ -220,7 +219,7 @@ define(function (require, exports, module) {
 
             view.fileSet(ev);
           })
-          .fail(done);
+          .catch(done);
       });
 
       it('properly tracks avatar new events', function (done) {
@@ -228,7 +227,7 @@ define(function (require, exports, module) {
 
         account.getAvatar.restore();
         sinon.stub(account, 'getAvatar').callsFake(function () {
-          return p({ avatar: pngSrc, id: null });
+          return Promise.resolve({ avatar: pngSrc, id: null });
         });
 
         view.afterVisible()
@@ -245,7 +244,7 @@ define(function (require, exports, module) {
             account.set('hadProfileImageSetBefore', false);
             view.fileSet(ev);
           })
-          .fail(done);
+          .catch(done);
       });
 
       it('clears setting param if set to avatar', function () {

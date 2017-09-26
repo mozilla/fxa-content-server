@@ -90,7 +90,7 @@ define(function (require, exports, module) {
           // If we fail to fetch emails, then this user does not have this feature enabled
           // and we should not display this panel.
           return this._fetchEmails()
-            .fail(() => {
+            .catch(() => {
               return this.remove();
             });
         });
@@ -156,7 +156,7 @@ define(function (require, exports, module) {
             });
             this.render();
           })
-          .fail((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
+          .catch((err) => this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err));
       }
     },
 

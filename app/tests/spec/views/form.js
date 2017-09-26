@@ -282,7 +282,7 @@ define(function (require, exports, module) {
         view.formIsValid = true;
         view.enableSubmitIfValid();
         view.beforeSubmit = function () {
-          return p().delay(10);
+          return p.delay(10);
         };
 
         return testFormSubmitted();
@@ -305,9 +305,10 @@ define(function (require, exports, module) {
         view.formIsValid = true;
         view.enableSubmitIfValid();
         view.submit = function () {
-          return p().then(function () {
+          return Promise.resolve().then(function () {
             view.isFormSubmitted = true;
-          }).delay(10);
+            return p.delay(10);
+          });
         };
 
         return testFormSubmitted();
@@ -323,7 +324,7 @@ define(function (require, exports, module) {
         };
 
         return view.validateAndSubmit()
-          .then(null, function () {
+          .catch(function () {
             assert.isFalse(view.isFormEnabled());
           });
       });
@@ -336,7 +337,7 @@ define(function (require, exports, module) {
         };
 
         return view.validateAndSubmit()
-                  .then(null, function (err) {
+                  .catch(function (err) {
                     assert.equal(err.message, 'error that is not displayed');
                     assert.isFalse(view.isErrorVisible());
                   });
@@ -621,18 +622,16 @@ define(function (require, exports, module) {
         view.enableSubmitIfValid();
 
         view.submit = function () {
-          var defer = p.defer();
-
-          setTimeout(function () {
-            try {
-              assert.isTrue(view._isErrorVisible);
-              defer.resolve();
-            } catch (e) {
-              defer.reject(e);
-            }
-          }, 20);
-
-          return defer.promise;
+          return new Promise((resolve, reject) => {
+            setTimeout(function () {
+              try {
+                assert.isTrue(view._isErrorVisible);
+                resolve();
+              } catch (e) {
+                reject(e);
+              }
+            }, 20);
+          });
         };
 
         return view.validateAndSubmit()
@@ -648,22 +647,20 @@ define(function (require, exports, module) {
         view.enableSubmitIfValid();
 
         view.submit = function () {
-          var defer = p.defer();
-
-          setTimeout(function () {
-            try {
-              assert.isTrue(view._isErrorVisible);
-              defer.reject('BOOM');
-            } catch (e) {
-              defer.reject(e);
-            }
-          }, 20);
-
-          return defer.promise;
+          return new Promise((resolve, reject) => {
+            setTimeout(function () {
+              try {
+                assert.isTrue(view._isErrorVisible);
+                reject('BOOM');
+              } catch (e) {
+                reject(e);
+              }
+            }, 20);
+          });
         };
 
         return view.validateAndSubmit()
-          .then(null, function () {
+          .catch(function () {
             assert.isTrue(view._isErrorVisible);
             assert.equal(view.$('.error').text(), 'BOOM');
           });
@@ -674,7 +671,7 @@ define(function (require, exports, module) {
         view.enableSubmitIfValid();
 
         view.submit = function () {
-          return p()
+          return Promise.resolve()
             .then(function () {
               return view.displayError({ forceMessage: 'BOOM' });
             });

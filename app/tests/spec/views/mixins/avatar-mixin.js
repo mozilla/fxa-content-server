@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const NullChannel = require('lib/channels/null');
-  const p = require('lib/promise');
   const ProfileErrors = require('lib/profile-errors');
   const ProfileImage = require('models/profile-image');
   const Relier = require('models/reliers/relier');
@@ -79,7 +78,7 @@ define(function (require, exports, module) {
     describe('displayAccountProfileImage', function () {
       it('does not log an error for a non-authenticated account', function () {
         sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-          return p.reject(ProfileErrors.toError('UNAUTHORIZED'));
+          return Promise.reject(ProfileErrors.toError('UNAUTHORIZED'));
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
@@ -90,7 +89,7 @@ define(function (require, exports, module) {
 
       it('does not log an error for an unverified account', function () {
         sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-          return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
+          return Promise.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
@@ -101,7 +100,7 @@ define(function (require, exports, module) {
 
       it('logs other kind of errors', function () {
         sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-          return p.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
+          return Promise.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
         });
         return view.displayAccountProfileImage(account)
           .then(function () {
@@ -125,7 +124,7 @@ define(function (require, exports, module) {
           user: user
         });
         sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-          return p(new ProfileImage({ id: 'foo', img: new Image(), url: 'url' }));
+          return Promise.resolve(new ProfileImage({ id: 'foo', img: new Image(), url: 'url' }));
         });
         sinon.stub(spinnerView, '_shouldShowDefaultProfileImage').callsFake(function () {
           return false;
@@ -194,7 +193,7 @@ define(function (require, exports, module) {
 
       sinon.spy(account, 'setProfileImage');
       sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-        return p(image);
+        return Promise.resolve(image);
       });
 
       return view.displayAccountProfileImage(account)
@@ -217,10 +216,10 @@ define(function (require, exports, module) {
 
       it('deletes the url if null', function () {
         sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
-          return p(new ProfileImage({ id: 'foo', url: 'url' }));
+          return Promise.resolve(new ProfileImage({ id: 'foo', url: 'url' }));
         });
         sinon.stub(account, 'deleteAvatar').callsFake(function () {
-          return p();
+          return Promise.resolve();
         });
 
         return view.displayAccountProfileImage(account)

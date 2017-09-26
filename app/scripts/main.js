@@ -9,8 +9,13 @@ function () {
   'use strict';
 
   // Ensure config is loaded before trying to load any other scripts.
-  require(['./lib/app-start'], (AppStart) => {
+  require([
+    // promise is loaded to polyfill window.Promise on browsers w/o support.
+    'lib/promise',
+    './lib/app-start'
+  ], (p, AppStart) => {
     var appStart = new AppStart();
     appStart.startApp();
   });
+
 });

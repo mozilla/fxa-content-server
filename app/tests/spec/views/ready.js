@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const FxaClient = require('lib/fxa-client');
   const Notifier = require('lib/channels/notifier');
   const OAuthBroker = require('models/auth_brokers/oauth');
-  const p = require('lib/promise');
   const Session = require('lib/session');
   const sinon = require('sinon');
   const SyncRelier = require('models/reliers/sync');
@@ -44,7 +43,7 @@ define(function (require, exports, module) {
       notifier = new Notifier();
 
       metrics = {
-        flush: sinon.spy(p),
+        flush: sinon.spy(() => Promise.resolve()),
         logMarketingClick: sinon.spy(),
         logMarketingImpression: sinon.spy(),
       };

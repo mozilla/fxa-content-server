@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
   const OAuthRelier = require('models/reliers/oauth');
-  const p = require('lib/promise');
   const Session = require('lib/session');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -242,7 +241,7 @@ define(function (require, exports, module) {
                 err.validation = {
                   keys: ['client_id']
                 };
-                return p.reject(err);
+                return Promise.reject(err);
               });
 
               return fetchExpectError({
@@ -629,7 +628,7 @@ define(function (require, exports, module) {
           }
         }
 
-        return p(clientInfo);
+        return Promise.resolve(clientInfo);
       });
     }
 

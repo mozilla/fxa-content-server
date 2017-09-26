@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('./auth-errors');
   const Constants = require('./constants');
-  const p = require('./promise');
   const requireOnDemand = require('./require-on-demand');
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
@@ -66,8 +65,9 @@ define(function (require, exports, module) {
             return retval;
           }
 
-          // a promise was returned, ensure any errors are normalized.
-          return retval.then(null, function (err) {
+          // a promise was returned, convert the promise type to
+          // our internal type and normalize any errors.
+          return Promise.resolve(retval).catch((err) => {
             throw AuthErrors.toError(err);
           });
         }.bind(client, key);
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
   FxaClientWrapper.prototype = {
     _getClient () {
       if (this._client) {
-        return p(this._client);
+        return Promise.resolve(this._client);
       }
 
       return requireOnDemand('fxaClient')
@@ -614,7 +614,7 @@ define(function (require, exports, module) {
     isSignedIn (sessionToken) {
       // Check if the user is signed in.
       if (! sessionToken) {
-        return p(false);
+        return Promise.resolve(false);
       }
 
       // Validate session token
@@ -763,7 +763,7 @@ define(function (require, exports, module) {
      */
     sendSms: withClient((client, sessionToken, phoneNumber, messageId, options = {}) => {
       return client.sendSms(sessionToken, phoneNumber, messageId, options)
-        .fail((err) => {
+        .catch((err) => {
 
           function isInvalidPhoneNumberError (err) {
             // If the number fails joi validation, the error
