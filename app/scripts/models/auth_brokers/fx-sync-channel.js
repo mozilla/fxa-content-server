@@ -182,6 +182,15 @@ define(function (require, exports, module) {
     },
 
     afterResetPasswordConfirmationPoll (account) {
+      // We wouldn't expect `customizeSync` to be set when completing
+      // a password reset, but the field must be present for the login
+      // message to be sent. Since this is a password reset instead of
+      // a signup, assume the user already chosen their sync buckets.
+      // See #5528
+      if (! account.has('customizeSync')) {
+        account.set('customizeSync', true);
+      }
+
       return this._notifyRelierOfLogin(account)
         .then(() => proto.afterResetPasswordConfirmationPoll.call(this, account));
     },
