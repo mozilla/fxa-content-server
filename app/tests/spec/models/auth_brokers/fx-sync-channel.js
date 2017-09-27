@@ -379,7 +379,7 @@ define(function (require, exports, module) {
             assert.isTrue(channelMock.send.calledOnce);
             assert.isTrue(channelMock.send.calledWith('login'));
             const loginData = channelMock.send.args[0][1];
-            assert.isTrue(loginData.customizeSync);
+            assert.isFalse(loginData.customizeSync);
 
             assert.isUndefined(result.halt);
           });
