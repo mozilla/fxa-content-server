@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const FormView = require('../form');
   const MarketingEmailErrors = require('../../lib/marketing-email-errors');
   const Metrics = require('../../lib/metrics');
+  const p = require('../../lib/promise');
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('stache!templates/settings/communication_preferences');
   const Xss = require('../../lib/xss');
@@ -93,35 +94,35 @@ define(function (require, exports, module) {
       return this.setOptInStatus(NEWSLETTER_ID, ! emailPrefs.isOptedIn(NEWSLETTER_ID));
     },
 
-    setOptInStatus (newsletterId, isOptedIn) {
-      let eventPrefix;
-      let method;
+    setOptInStatus (newsletterId, isOptingIn) {
+      const emailPrefs = this.getMarketingEmailPrefs();
 
-      if (isOptedIn) {
-        eventPrefix = '';
-        method = 'optIn';
+      if (isOptingIn) {
+        this.logViewEvent('optIn');
+
+        return emailPrefs.optIn(newsletterId)
+          .then(() => {
+            this.logViewEvent('optIn.success');
+            // Emit an additional flow event for consistency with
+            // the call to optIn in the account model
+            this.logFlowEvent('newsletter.subscribed');
+            this.displaySuccess(t('Subscribed successfully'));
+            this.navigate('settings');
+            return this.render();
+          }, (err) => this.displayError(err));
+
       } else {
-        eventPrefix = 'un';
-        method = 'optOut';
+        return p().then(() => {
+          // preferencesURL is only available if the user is already
+          // registered with basket.
+          this.logViewEvent('manage');
+          this.logFlowEvent('newsletter.manage');
+
+          return this.window.open(emailPrefs.get('preferencesUrl'), '_blank');
+        });
       }
 
-      this.logViewEvent(method);
 
-      return this.getMarketingEmailPrefs()[method](newsletterId)
-        .then(() => {
-          this.logViewEvent(method + '.success');
-          // Emit an additional flow event for consistency with
-          // the call to optIn in the account model
-          this.logFlowEvent(`newsletter.${eventPrefix}subscribed`);
-
-          var successMessage = isOptedIn ?
-                                  t('Subscribed successfully') :
-                                  t('Unsubscribed successfully');
-
-          this.displaySuccess(successMessage);
-          this.navigate('settings');
-          return this.render();
-        }, (err) => this.displayError(err));
     }
   });
 

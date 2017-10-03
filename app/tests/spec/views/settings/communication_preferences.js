@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const TestHelpers = require('../../../lib/helpers');
   const User = require('models/user');
   const View = require('views/settings/communication_preferences');
+  const WindowMock = require('../../../mocks/window');
 
   var assert = chai.assert;
   var NEWSLETTER_ID = Constants.MARKETING_EMAIL_NEWSLETTER_ID;
@@ -35,6 +36,7 @@ define(function (require, exports, module) {
     var user;
     var view;
     var translator;
+    var windowMock;
 
     function render() {
       return view.render()
@@ -51,6 +53,7 @@ define(function (require, exports, module) {
       notifier = new Notifier();
       metrics = new Metrics({ notifier, sentryMetrics: new SentryMetrics() });
       translator = new Translator({forceEnglish: true});
+      windowMock = new WindowMock();
 
       emailPrefsModel = new MarketingEmailPrefs({
         newsletters: [ NEWSLETTER_ID ],
@@ -80,7 +83,8 @@ define(function (require, exports, module) {
         notifier,
         relier,
         translator,
-        user
+        user,
+        window: windowMock
       });
 
       sinon.stub(view, 'getSignedInAccount').callsFake(function () {
@@ -114,7 +118,7 @@ define(function (require, exports, module) {
 
         return render()
           .then(function () {
-            assert.include(view.$('#marketing-email-optin').text(), 'Unsubscribe');
+            assert.include(view.$('#marketing-email-optin').text(), 'Manage Subscriptions');
             assert.equal(view.$('#preferences-url').attr('href'), preferencesUrl);
           });
       });
@@ -209,21 +213,15 @@ define(function (require, exports, module) {
 
     describe('setOptInStatus', function () {
       it('displays a success message when complete', function () {
-        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
-          return p();
-        });
-        sinon.stub(view, 'navigate').callsFake(function () { });
-        sinon.stub(view, 'displaySuccess').callsFake(function () { });
+        sinon.spy(windowMock, 'open');
 
         return view.setOptInStatus(NEWSLETTER_ID, false)
           .then(function () {
-            assert.isTrue(view.navigate.calledWith('settings'));
-            assert.isTrue(view.displaySuccess.called);
-
+            assert.isTrue(windowMock.open.called);
             assert.equal(view.logFlowEvent.callCount, 1);
             const args = view.logFlowEvent.args[0];
             assert.lengthOf(args, 1);
-            assert.equal(args[0], 'newsletter.unsubscribed');
+            assert.equal(args[0], 'newsletter.manage');
           });
       });
 
@@ -244,23 +242,23 @@ define(function (require, exports, module) {
       });
 
       it('shows `Please try again later` for 429 (rate-limited) error', function () {
-        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
+        sinon.stub(emailPrefsModel, 'optIn').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('USAGE_ERROR'));
         });
 
-        return view.setOptInStatus(NEWSLETTER_ID, false)
+        return view.setOptInStatus(NEWSLETTER_ID, true)
           .then(function () {
             assert.isTrue(view.isErrorVisible());
-            assert.equal($('.error').text(), 'Please try again later');
+            assert.equal(view.$el.find('.error').text(), 'Please try again later');
           });
       });
 
       it('other errors are displayed', function () {
-        sinon.stub(emailPrefsModel, 'optOut').callsFake(function () {
+        sinon.stub(emailPrefsModel, 'optIn').callsFake(function () {
           return p.reject(MarketingEmailErrors.toError('UNEXPECTED_ERROR'));
         });
 
-        return view.setOptInStatus(NEWSLETTER_ID, false)
+        return view.setOptInStatus(NEWSLETTER_ID, true)
           .then(function () {
             assert.isTrue(view.isErrorVisible());
           });
