@@ -90,7 +90,7 @@
 
   &.animate-shadow {
     transition: all 250ms cubic-bezier(.07,.95,0,1);
-    box-shadow: 0 4px 16px rgba($grey-90,1);
+    box-shadow: 0 4px 16px rgba($grey-90,.1);
   }
 }
 
