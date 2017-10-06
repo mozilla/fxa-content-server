@@ -21,6 +21,7 @@ const PATTERNS = {
   EXPERIMENT: /^[\w.-]+$/,
   MIGRATION: /^(sync11|amo|none)$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
+  UID: /^[0-9a-f]{32}$/,
   UNIQUE_USER_ID: /^[0-9a-z-]{36}$/
 };
 

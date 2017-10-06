@@ -27,6 +27,7 @@ const {
   EXPERIMENT: EXPERIMENT_PATTERN,
   MIGRATION: MIGRATION_PATTERN,
   SERVICE: SERVICE_PATTERN,
+  UID: UID_PATTERN,
   UNIQUE_USER_ID: UNIQUE_USER_ID_PATTERN,
 } = validation.PATTERNS;
 
@@ -108,6 +109,7 @@ const BODY_SCHEMA = {
   service: STRING_TYPE.regex(SERVICE_PATTERN).required(),
   startTime: TIME_TYPE.required(),
   timers: joi.object().optional(), // this is never consumed.
+  uid: STRING_TYPE.regex(UID_PATTERN).allow('none').optional(),
   uniqueUserId: STRING_TYPE.regex(UNIQUE_USER_ID_PATTERN).allow('none').required(),
   // the crazy long allow comes from the firstrun page.
   'utm_campaign': UTM_TYPE.allow('page+referral+-+not+part+of+a+campaign').required(),
