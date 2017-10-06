@@ -50,7 +50,7 @@ const NAVIGATION_TIMING_TYPE = INTEGER_TYPE.allow(null).required();
 const BODY_SCHEMA = {
   broker: STRING_TYPE.regex(BROKER_PATTERN).required(),
   context: STRING_TYPE.regex(CONTEXT_PATTERN).required(),
-  deviceId: STRING_TYPE.regex(DEVICE_ID_PATTERN).allow('none').optional(),
+  deviceId: STRING_TYPE.regex(DEVICE_ID_PATTERN).allow('none').required(),
   duration: OFFSET_TYPE.required(),
   entryPoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
   entrypoint: STRING_TYPE.regex(ENTRYPOINT_PATTERN).optional(),
