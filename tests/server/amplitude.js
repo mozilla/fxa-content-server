@@ -47,6 +47,12 @@ define([
       }, {
         deviceId: 'bar',
         entrypoint: 'baz',
+        experiments: [
+          { choice: 'FirstExperiment', group: 'groupOne' },
+          { choice: 'second-experiment', group: 'Group-Two' },
+          { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
+          { choice: 'fourth.experiment', group: 'Group.FOUR' }
+        ],
         flowBeginTime: 'qux',
         flowId: 'wibble',
         lang: 'blee',
@@ -78,6 +84,10 @@ define([
         time: 'foo',
         user_id: 'soop',
         user_properties: {
+          experiment_first_experiment: 'group_one',
+          experiment_fourth_experiment: 'group_four',
+          experiment_second_experiment: 'group_two',
+          experiment_third_experiment: 'group_three',
           flow_id: 'wibble',
           utm_campaign: 'melm',
           utm_content: 'florg',
@@ -95,6 +105,7 @@ define([
       }, {
         deviceId: 'b',
         entrypoint: 'c',
+        experiments: [],
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',

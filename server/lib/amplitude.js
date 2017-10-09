@@ -183,9 +183,21 @@ function mapEventProperties (group, eventCategory, data) {
 }
 
 function mapUserProperties (group, eventCategory, data) {
-  return Object.assign({
-    flow_id: marshallOptionalValue(data.flowId),
-  }, USER_PROPERTIES[group](eventCategory, data));
+  return Object.assign(
+    { flow_id: marshallOptionalValue(data.flowId), },
+    USER_PROPERTIES[group](eventCategory, data),
+    data.experiments && data.experiments.reduce((result, e) => {
+      result[`experiment_${toSnakeCase(e.choice)}`] = toSnakeCase(e.group);
+      return result;
+    }, {})
+  );
+}
+
+function toSnakeCase (string) {
+  return string.replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
+    .replace(/([A-Z])/g, c => c.toLowerCase())
+    .replace(/\./g, '_')
+    .replace(/-/g, '_');
 }
 
 function marshallOptionalValue (value) {
