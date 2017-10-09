@@ -122,9 +122,9 @@ const EVENT_PROPERTIES = {
 
 const USER_PROPERTIES = {
   [GROUPS.email]: NOP,
-  [GROUPS.login]: mixProperties(mapUid, mapUtmProperties),
-  [GROUPS.registration]: mixProperties(mapUid, mapUtmProperties),
-  [GROUPS.settings]: mixProperties(mapUid, mapNewsletterState),
+  [GROUPS.login]: mapUtmProperties,
+  [GROUPS.registration]: mapUtmProperties,
+  [GROUPS.settings]: mapNewsletterState,
   [GROUPS.sms]: NOP
 };
 
@@ -223,13 +223,6 @@ function mapNewsletterState (eventCategory) {
   const newsletter_state = NEWSLETTER_STATES[eventCategory];
   if (newsletter_state) {
     return { newsletter_state };
-  }
-}
-
-function mapUid (eventCategory, data) {
-  const fxa_uid = marshallOptionalValue(data.uid);
-  if (fxa_uid) {
-    return { fxa_uid };
   }
 }
 

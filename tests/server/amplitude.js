@@ -79,7 +79,6 @@ define([
         user_id: 'soop',
         user_properties: {
           flow_id: 'wibble',
-          fxa_uid: 'soop',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
@@ -123,8 +122,7 @@ define([
         time: 'a',
         user_id: 'h',
         user_properties: {
-          flow_id: 'e',
-          fxa_uid: 'h'
+          flow_id: 'e'
         }
       });
     },
@@ -146,7 +144,6 @@ define([
       assert.isUndefined(arg.device_id);
       assert.isUndefined(arg.event_properties.device_id);
       assert.isUndefined(arg.user_id);
-      assert.isUndefined(arg.user_properties.fxa_uid);
     },
 
     'settings.signout.success': () => {
@@ -228,7 +225,6 @@ define([
         user_id: 'h',
         user_properties: {
           flow_id: 'e',
-          fxa_uid: 'h',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
