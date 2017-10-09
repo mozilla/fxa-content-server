@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Backbone = require('backbone');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
@@ -154,7 +153,7 @@ define(function (require, exports, module) {
     describe('submit', () => {
       beforeEach(() => {
         sinon.stub(view.user, 'destroyAccountClient').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
         sinon.spy(view, 'render');
         sinon.spy(view, 'navigateToSignIn');

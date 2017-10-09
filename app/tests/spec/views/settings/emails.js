@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const BaseView = require('views/base');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const TestHelpers = require('../../../lib/helpers');
   const Translator = require('lib/translator');
@@ -101,11 +100,11 @@ define(function (require, exports, module) {
       describe('for user', () => {
         beforeEach(() => {
           sinon.stub(account, 'recoveryEmails').callsFake(() => {
-            return p();
+            return Promise.resolve();
           });
 
           sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
-            return p(false);
+            return Promise.resolve(false);
           });
 
           view = new View({
@@ -135,24 +134,24 @@ define(function (require, exports, module) {
     describe('feature enabled', () => {
       beforeEach(() => {
         sinon.stub(account, 'recoveryEmails').callsFake(() => {
-          return p(emails);
+          return Promise.resolve(emails);
         });
 
         sinon.stub(account, 'recoveryEmailSecondaryEmailEnabled').callsFake(() => {
-          return p(true);
+          return Promise.resolve(true);
         });
 
         sinon.stub(account, 'recoveryEmailDestroy').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(account, 'resendEmailCode').callsFake(() => {
-          return p();
+          return Promise.resolve();
         });
 
         sinon.stub(account, 'setPrimaryEmail').callsFake((newEmail) => {
           email = newEmail;
-          return p();
+          return Promise.resolve();
         });
       });
 

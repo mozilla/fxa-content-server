@@ -14,7 +14,6 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('views/mixins/experiment-mixin');
   const Cocktail = require('cocktail');
   const Notifier = require('lib/channels/notifier');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
@@ -94,7 +93,7 @@ define(function (require, exports, module) {
     describe('navigateToConnectAnotherDeviceOnSigninScreen', () => {
       beforeEach(() => {
         sinon.stub(view, 'isEligibleForConnectAnotherDeviceOnSignin').callsFake(() => true);
-        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => p());
+        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => Promise.resolve());
         sinon.spy(view, 'createExperiment');
         sinon.spy(notifier, 'trigger');
       });
@@ -171,7 +170,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.spy(view, 'isInExperiment');
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: false }));
+          sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'US', ok: false }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -195,7 +194,7 @@ define(function (require, exports, module) {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.spy(view, 'isInExperiment');
           sinon.spy(view, 'logError');
-          sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
+          sinon.stub(account, 'smsStatus').callsFake(() => Promise.reject(err));
         });
 
         it('resolves to object with `ok: false`, logs error', () => {
@@ -219,7 +218,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.stub(view, 'isInExperiment').callsFake(() => false);
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
+          sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'US', ok: true }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -241,7 +240,7 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
           sinon.stub(view, 'isInExperiment').callsFake((experimentName) => experimentName === 'sendSmsEnabledForCountry');
-          sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'US', ok: true }));
+          sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'US', ok: true }));
         });
 
         it('resolves to object with `ok: true, country: US`', () => {
@@ -384,7 +383,7 @@ define(function (require, exports, module) {
 
     describe('_smsCountry', () => {
       it('resolves to the country on success', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'GB', ok: true }));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
         sinon.stub(view, 'isInExperiment').callsFake(() => true);
 
         return view._smsCountry(account)
@@ -397,7 +396,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to `undefined` if auth-server responds ok: false', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: false }));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'AZ', ok: false }));
 
         return view._smsCountry(account)
           .then((country) => {
@@ -410,7 +409,7 @@ define(function (require, exports, module) {
       });
 
       it('resolves to `undefined` if auth-server reported country is not supported', () => {
-        sinon.stub(account, 'smsStatus').callsFake(() => p({ country: 'AZ', ok: true }));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.resolve({ country: 'AZ', ok: true }));
         sinon.stub(view, 'isInExperiment').callsFake(() => false);
 
         return view._smsCountry(account)
@@ -429,7 +428,7 @@ define(function (require, exports, module) {
       it('handles XHR errors', () => {
         const err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-        sinon.stub(account, 'smsStatus').callsFake(() => p.reject(err));
+        sinon.stub(account, 'smsStatus').callsFake(() => Promise.reject(err));
         sinon.stub(view, 'logError').callsFake(() => {});
 
         return view._smsCountry(account)
@@ -466,7 +465,7 @@ define(function (require, exports, module) {
 
         describe('not eligible for SMS', () => {
           it('redirects to /connect_another_device', () => {
-            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ ok: false }));
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ ok: false }));
 
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
@@ -483,7 +482,7 @@ define(function (require, exports, module) {
 
         describe('eligible for SMS', () => {
           beforeEach(() => {
-            sinon.stub(view, '_isEligibleForSms').callsFake(() => p({ country: 'GB', ok: true }));
+            sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
           });
 
           describe('in treatment group', () => {

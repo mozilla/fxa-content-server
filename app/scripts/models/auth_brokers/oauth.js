@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const Constants = require('../../lib/constants');
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
-  const p = require('../../lib/promise');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
@@ -30,9 +29,9 @@ define(function (require, exports, module) {
 
     // get code and state from redirect params
     if (! result) {
-      return p.reject(OAuthErrors.toError('INVALID_RESULT'));
+      return Promise.reject(OAuthErrors.toError('INVALID_RESULT'));
     } else if (! result.redirect) {
-      return p.reject(OAuthErrors.toError('INVALID_RESULT_REDIRECT'));
+      return Promise.reject(OAuthErrors.toError('INVALID_RESULT_REDIRECT'));
     }
 
     var redirectParams = result.redirect.split('?')[1];
@@ -41,10 +40,10 @@ define(function (require, exports, module) {
     result.code = Url.searchParam('code', redirectParams);
 
     if (Vat.oauthCode().validate(result.code).error) {
-      return p.reject(OAuthErrors.toError('INVALID_RESULT_CODE'));
+      return Promise.reject(OAuthErrors.toError('INVALID_RESULT_CODE'));
     }
 
-    return p(result);
+    return Promise.resolve(result);
   }
 
   var proto = BaseAuthenticationBroker.prototype;
@@ -79,7 +78,7 @@ define(function (require, exports, module) {
 
     getOAuthResult (account) {
       if (! account || ! account.get('sessionToken')) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
       const relier = this.relier;
@@ -114,7 +113,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     sendOAuthResultToRelier (/*result*/) {
-      return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
+      return Promise.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
     finishOAuthSignInFlow (account) {
@@ -135,7 +134,7 @@ define(function (require, exports, module) {
     },
 
     persistVerificationData (account) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         var relier = this.relier;
         this.session.set('oauth', {
           access_type: relier.get('access_type'), //eslint-disable-line camelcase

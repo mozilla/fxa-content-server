@@ -8,7 +8,6 @@ define(function (require, exports, module) {
   const chai = require('chai');
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
-  const p = require('lib/promise');
   const sinon = require('sinon');
   const Xhr = require('lib/xhr');
 
@@ -40,7 +39,7 @@ define(function (require, exports, module) {
     describe('_request', function () {
       it('calls an endpoint', function () {
         sinon.stub(xhr, 'post').callsFake(function () {
-          return p({
+          return Promise.resolve({
             ok: true
           });
         });
@@ -55,7 +54,7 @@ define(function (require, exports, module) {
 
       it('converts returned errors to OAuthErrors', function () {
         sinon.stub(xhr, 'post').callsFake(function () {
-          return p.reject({
+          return Promise.reject({
             responseJSON: {
               code: 400,
               errno: OAuthErrors.toErrno('UNKNOWN_CLIENT')
@@ -85,7 +84,7 @@ define(function (require, exports, module) {
         var redirect = RP_URL + '?code=code&state=state';
 
         sinon.stub(client, '_request').callsFake(function () {
-          return p({
+          return Promise.resolve({
             redirect: redirect
           });
         });
@@ -103,7 +102,7 @@ define(function (require, exports, module) {
 
       it('response with a name and imageUri', function () {
         sinon.stub(client, '_request').callsFake(function () {
-          return p({
+          return Promise.resolve({
             imageUri: 'https://mozilla.org/firefox.png',
             name: 'MozRP'
           });
@@ -123,7 +122,7 @@ define(function (require, exports, module) {
         var token = 'access token';
 
         sinon.stub(client, '_request').callsFake(function () {
-          return p({ //eslint-disable-line camelcase
+          return Promise.resolve({ //eslint-disable-line camelcase
             access_token: token, //eslint-disable-line camelcase
             scope: 'profile',
             token_type: 'bearer' //eslint-disable-line camelcase
@@ -151,7 +150,7 @@ define(function (require, exports, module) {
     describe('destroyToken', function () {
       it('destroys a token', function () {
         sinon.stub(client, '_request').callsFake(function () {
-          return p({});
+          return Promise.resolve({});
         });
 
         return client.destroyToken('token')
@@ -164,7 +163,7 @@ define(function (require, exports, module) {
     describe('fetchOAuthApps', function () {
       it('fetches OAuth Apps', function () {
         sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
-          return p({});
+          return Promise.resolve({});
         });
 
         return client.fetchOAuthApps('token')
@@ -181,7 +180,7 @@ define(function (require, exports, module) {
     describe('destroyOAuthApp', function () {
       it('deletes OAuth Apps', function () {
         sinon.stub(client._xhr, 'oauthAjax').callsFake(function () {
-          return p({});
+          return Promise.resolve({});
         });
 
         return client.destroyOAuthApp('token', 'id')

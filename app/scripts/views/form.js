@@ -225,7 +225,7 @@ define(function (require, exports, module) {
 
       this.trigger('submitStart');
 
-      return p()
+      return Promise.resolve()
         .then(() => {
           if (this.isHalted()) {
             return;
@@ -250,7 +250,7 @@ define(function (require, exports, module) {
             .then(() => {
               const diff = Date.now() - startTime;
               const extraDelayTimeMS = Math.max(artificialDelay - diff, 0);
-              return p().delay(extraDelayTimeMS);
+              return p.delay(extraDelayTimeMS);
             })
             .then(() => {
               return this.afterSubmit();
@@ -259,7 +259,7 @@ define(function (require, exports, module) {
     }),
 
     _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
-      return p()
+      return Promise.resolve()
         .then(_.bind(this.beforeSubmit, this))
         .then((shouldSubmit) => {
           // submission is opt out, not opt in.
@@ -267,7 +267,7 @@ define(function (require, exports, module) {
             return this.submit();
           }
         })
-        .fail((err) => {
+        .catch((err) => {
           // display error and surface for testing.
           this.displayError(err);
           throw err;
@@ -464,7 +464,7 @@ define(function (require, exports, module) {
      *   an asynchronous operation.
      */
     afterSubmit (result) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // the flow may be halted by an authentication broker after form
         // submission. Views may display an error without throwing an exception.
         // Ensure the flow is not halted and and no errors are visible before

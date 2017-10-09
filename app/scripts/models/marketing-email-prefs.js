@@ -13,7 +13,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const Backbone = require('backbone');
-  const p = require('../lib/promise');
 
   var SCOPES = 'basket:write profile:email';
 
@@ -34,22 +33,32 @@ define(function (require, exports, module) {
     _withMarketingEmailClient (method) {
       var client = this._marketingEmailClient;
       var args = [].slice.call(arguments, 1);
-      return p().then(() => this._account.createOAuthToken(SCOPES))
+      const destroyAccessToken = () => {
+        // immediately destroy the access token when complete
+        // so they are not left in the DB. If the user needs
+        // to interact with the basket server again, a new
+        // access token will be created.
+        if (this._accessToken) {
+          this._accessToken.destroy();
+        }
+        this._accessToken = null;
+      };
+      return Promise.resolve().then(() => this._account.createOAuthToken(SCOPES))
         .then((accessToken) => {
           this._accessToken = accessToken;
           args.unshift(accessToken.get('token'));
           return client[method].apply(client, args);
         })
-        .fin(() => {
-          // immediately destroy the access token when complete
-          // so they are not left in the DB. If the user needs
-          // to interact with the basket server again, a new
-          // access token will be created.
-          if (this._accessToken) {
-            this._accessToken.destroy();
+        .then(
+          (result) => {
+            destroyAccessToken();
+            return result;
+          },
+          (err) => {
+            destroyAccessToken();
+            throw err;
           }
-          this._accessToken = null;
-        });
+        );
     },
 
     /**
@@ -79,7 +88,7 @@ define(function (require, exports, module) {
      */
     optIn (newsletterId) {
       if (this.isOptedIn(newsletterId)) {
-        return p();
+        return Promise.resolve();
       }
 
       return this._withMarketingEmailClient('optIn', newsletterId)
@@ -99,7 +108,7 @@ define(function (require, exports, module) {
      */
     optOut (newsletterId) {
       if (! this.isOptedIn(newsletterId)) {
-        return p();
+        return Promise.resolve();
       }
 
       return this._withMarketingEmailClient('optOut', newsletterId)

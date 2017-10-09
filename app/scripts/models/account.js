@@ -16,7 +16,6 @@ define(function (require, exports, module) {
   const MarketingEmailPrefs = require('./marketing-email-prefs');
   const OAuthErrors = require('../lib/oauth-errors');
   const OAuthToken = require('./oauth-token');
-  const p = require('../lib/promise');
   const ProfileErrors = require('../lib/profile-errors');
   const ProfileImage = require('./profile-image');
   const ResumeTokenMixin = require('./mixins/resume-token');
@@ -120,12 +119,12 @@ define(function (require, exports, module) {
     // Hydrate the account
     fetch () {
       if (! this.get('sessionToken') || this.get('verified')) {
-        return p();
+        return Promise.resolve();
       }
 
       // upgrade the credentials with verified state
       return this.sessionStatus()
-        .fail((err) => {
+        .catch((err) => {
           // if invalid token then invalidate session
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             return this._invalidateSession();
@@ -198,7 +197,7 @@ define(function (require, exports, module) {
     _generateAssertion () {
       var sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
       var existingAssertionPromise = this._assertionPromises[sessionToken];
@@ -267,7 +266,7 @@ define(function (require, exports, module) {
     sessionStatus () {
       var sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
       return this._fxaClient.recoveryEmailStatus(sessionToken)
@@ -308,7 +307,7 @@ define(function (require, exports, module) {
     sessionVerificationStatus () {
       const sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
       return this._fxaClient.sessionVerificationStatus(sessionToken)
@@ -333,7 +332,7 @@ define(function (require, exports, module) {
     recoveryEmailSecondaryEmailEnabled () {
       const sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
       return this._fxaClient.recoveryEmailSecondaryEmailEnabled(sessionToken)
@@ -445,7 +444,7 @@ define(function (require, exports, module) {
      */
     signIn (password, relier, options = {}) {
       var email = this.get('email');
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         var sessionToken = this.get('sessionToken');
         if (password) {
           const signinOptions = {
@@ -488,7 +487,7 @@ define(function (require, exports, module) {
 
         return updatedSessionData;
       })
-      .fail((err) => {
+      .catch((err) => {
         // The `INCORRECT_EMAIL_CASE` can be returned if a user is attempting to login with a different
         // email case than what the account was created with or if they changed their primary email address.
         // In both scenarios, the content-server needs to know the original account email to hash
@@ -563,7 +562,7 @@ define(function (require, exports, module) {
      */
     verifySignUp (code, options = {}) {
       const marketingOptIn = this.get('needsOptedInToMarketingEmail');
-      return p()
+      return Promise.resolve()
         .then(() => {
           if (options.serverVerificationStatus !== 'verified') {
             // if server verification was not present or not successful
@@ -870,7 +869,7 @@ define(function (require, exports, module) {
      */
     fetchOAuthApps () {
       return this._oAuthClient.fetchOAuthApps(this.get('accessToken'))
-        .fail((err) => {
+        .catch((err) => {
           if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
             // the accessToken is short lived.
             // retry once with a fresh token.
@@ -963,7 +962,7 @@ define(function (require, exports, module) {
       var accessToken = this.get('accessToken');
 
       return this._oAuthClient.destroyOAuthApp(accessToken, oAuthAppId)
-        .fail((err) => {
+        .catch((err) => {
           if (OAuthErrors.is(err, 'UNAUTHORIZED')) {
             // the accessToken is short lived.
             // retry once with a fresh token.
@@ -1028,7 +1027,7 @@ define(function (require, exports, module) {
      */
     accountKeys () {
       if (! this.has('keyFetchToken') || ! this.has('unwrapBKey')) {
-        return p(null);
+        return Promise.resolve(null);
       }
 
       return this._fxaClient.accountKeys(
@@ -1125,7 +1124,7 @@ define(function (require, exports, module) {
     smsStatus (options) {
       const sessionToken = this.get('sessionToken');
       if (! sessionToken) {
-        return p({ ok: false });
+        return Promise.resolve({ ok: false });
       }
 
       return this._fxaClient.smsStatus(sessionToken, options);
@@ -1257,7 +1256,7 @@ define(function (require, exports, module) {
             const accessToken = this.get('accessToken');
             return profileClient[method].call(profileClient, accessToken, ...args);
           })
-          .fail((err) => {
+          .catch((err) => {
             if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
               this._invalidateSession();
             } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
@@ -1268,7 +1267,7 @@ define(function (require, exports, module) {
                   const accessToken = this.get('accessToken');
                   return profileClient[method].call(profileClient, accessToken, ...args);
                 })
-                .fail((err) => {
+                .catch((err) => {
                   if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
                     this.unset('accessToken');
                   }

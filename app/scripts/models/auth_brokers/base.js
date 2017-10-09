@@ -17,7 +17,6 @@ define(function (require, exports, module) {
   const NotifierMixin = require('../../lib/channels/notifier-mixin');
   const NavigateBehavior = require('../../views/behaviors/navigate');
   const NullBehavior = require('../../views/behaviors/null');
-  const p = require('../../lib/promise');
   const SameBrowserVerificationModel = require('../verification/same-browser');
   const SearchParamMixin = require('../mixins/search-param');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
@@ -109,7 +108,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch () {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
@@ -184,7 +183,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     afterLoaded () {
-      return p();
+      return Promise.resolve();
     },
 
     /**
@@ -194,7 +193,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     beforeSignIn (/* account */) {
-      return p(this.getBehavior('beforeSignIn'));
+      return Promise.resolve(this.getBehavior('beforeSignIn'));
     },
 
     /**
@@ -205,7 +204,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterSignIn (/* account */) {
-      return p(this.getBehavior('afterSignIn'));
+      return Promise.resolve(this.getBehavior('afterSignIn'));
     },
 
     /**
@@ -217,7 +216,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterSignInConfirmationPoll (/* account */) {
-      return p(this.getBehavior('afterSignInConfirmationPoll'));
+      return Promise.resolve(this.getBehavior('afterSignInConfirmationPoll'));
     },
 
     /**
@@ -249,7 +248,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterForceAuth (/* account */) {
-      return p(this.getBehavior('afterForceAuth'));
+      return Promise.resolve(this.getBehavior('afterForceAuth'));
     },
 
     /**
@@ -261,7 +260,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     persistVerificationData (account) {
-      return p().then(() => {
+      return Promise.resolve().then(() => {
         // verification info is persisted to localStorage so that
         // the same `context` is used if the user verifies in the same browser.
         // If the user verifies in a different browser, the
@@ -284,7 +283,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     unpersistVerificationData (account) {
-      return p().then(function () {
+      return Promise.resolve().then(function () {
         clearSameBrowserVerificationModel(account, 'context');
       });
     },
@@ -301,7 +300,7 @@ define(function (require, exports, module) {
         // If the account is already verified, go to the step after /confirm
         return this.afterSignUpConfirmationPoll(account);
       }
-      return p(this.getBehavior('afterSignUp'));
+      return Promise.resolve(this.getBehavior('afterSignUp'));
     },
 
     /**
@@ -313,7 +312,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     beforeSignUpConfirmationPoll (/* account */) {
-      return p(this.getBehavior('beforeSignUpConfirmationPoll'));
+      return Promise.resolve(this.getBehavior('beforeSignUpConfirmationPoll'));
     },
 
     /**
@@ -325,7 +324,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterSignUpConfirmationPoll (/* account */) {
-      return p(this.getBehavior('afterSignUpConfirmationPoll'));
+      return Promise.resolve(this.getBehavior('afterSignUpConfirmationPoll'));
     },
 
     /**
@@ -348,7 +347,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterResetPasswordConfirmationPoll (/* account */) {
-      return p(this.getBehavior('afterResetPasswordConfirmationPoll'));
+      return Promise.resolve(this.getBehavior('afterResetPasswordConfirmationPoll'));
     },
 
     /**
@@ -369,7 +368,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterChangePassword (/* account */) {
-      return p(this.getBehavior('afterChangePassword'));
+      return Promise.resolve(this.getBehavior('afterChangePassword'));
     },
 
     /**
@@ -379,7 +378,7 @@ define(function (require, exports, module) {
      * @return {Promise}
      */
     afterDeleteAccount (/* account */) {
-      return p(this.getBehavior('afterDeleteAccount'));
+      return Promise.resolve(this.getBehavior('afterDeleteAccount'));
     },
 
     /**

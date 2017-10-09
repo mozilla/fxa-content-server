@@ -182,7 +182,7 @@ define(function (require, exports, module) {
         this.user.destroyAccountClient(this.user.getSignedInAccount(), client)
           .then(() => {
             if (clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
-              return this.user.sessionStatus().then(null, () => {
+              return this.user.sessionStatus().catch(() => {
                 // if err then it disconnected the current session, the user is signed out
                 this.clearSessionAndNavigateToSignIn();
               });

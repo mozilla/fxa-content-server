@@ -116,7 +116,7 @@ define(function (require, exports, module) {
         features: this.getSmsFeatures()
       })
       .then(() => this._onSendSmsSuccess())
-      .fail((err) => this._onSendSmsError(err));
+      .catch((err) => this._onSendSmsError(err));
     }
 
     /**

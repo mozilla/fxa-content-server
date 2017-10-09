@@ -631,12 +631,12 @@ define(function (require, exports, module) {
           fillOutSignUp(email, 'password');
 
           sandbox.stub(view, 'isUserOldEnough').callsFake(() => false);
-          sandbox.stub(view, 'signUp').callsFake(() => p());
+          sandbox.stub(view, 'signUp').callsFake(() => Promise.resolve());
         });
 
         describe('signin succeeds', function () {
           beforeEach(function () {
-            sandbox.stub(view, 'signIn').callsFake(() => p());
+            sandbox.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
             return view.submit();
           });
@@ -669,7 +669,7 @@ define(function (require, exports, module) {
         describe('signin fails with UNKNOWN_ACCOUNT', function () {
           beforeEach(function () {
             sandbox.stub(view, 'signIn').callsFake(function () {
-              return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+              return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
           });
 
@@ -750,7 +750,7 @@ define(function (require, exports, module) {
         describe('signin fails with INCORRECT_PASSWORD', function () {
           beforeEach(function () {
             sandbox.stub(view, 'signIn').callsFake(function () {
-              return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+              return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
             return view.submit();
@@ -788,7 +788,7 @@ define(function (require, exports, module) {
         describe('signin fails with USER_CANCELED_LOGIN', function () {
           beforeEach(function () {
             sinon.stub(view, 'signIn').callsFake(function () {
-              return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+              return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
             });
 
             return view.submit();
@@ -823,7 +823,7 @@ define(function (require, exports, module) {
         describe('signin fails with a reset account', function () {
           beforeEach(function () {
             sinon.stub(view, 'signIn').callsFake(function () {
-              return p.reject(AuthErrors.toError('ACCOUNT_RESET'));
+              return Promise.reject(AuthErrors.toError('ACCOUNT_RESET'));
             });
 
             sinon.spy(view, 'notifyOfResetAccount');
@@ -854,11 +854,11 @@ define(function (require, exports, module) {
         describe('signin fails with some other error', function () {
           beforeEach(function () {
             sandbox.stub(view, 'signIn').callsFake(function () {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+              return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
             return view.submit()
-              .fail(function (err) {
+              .catch(function (err) {
                 failed = err;
               });
           });
@@ -893,12 +893,12 @@ define(function (require, exports, module) {
           fillOutSignUp(email, 'password');
 
           sandbox.stub(view, 'isUserOldEnough').callsFake(() => true);
-          sinon.stub(view, 'signIn').callsFake(() => p());
+          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
         });
 
         describe('signup succeeds', function () {
           beforeEach(function () {
-            sinon.stub(view, 'signUp').callsFake(() => p());
+            sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
             sinon.stub(view, 'hasOptedInToMarketingEmail').callsFake(() => true);
 
             return view.submit();
@@ -925,7 +925,7 @@ define(function (require, exports, module) {
         describe('signup fails with ACCOUNT_ALREADY_EXISTS', function () {
           beforeEach(function () {
             sinon.stub(view, 'signUp').callsFake(function () {
-              return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
+              return Promise.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
             });
 
             return view.submit();
@@ -951,7 +951,7 @@ define(function (require, exports, module) {
         describe('signup fails with USER_CANCELED_LOGIN', function () {
           beforeEach(function () {
             sinon.stub(view, 'signUp').callsFake(function () {
-              return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+              return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
             });
 
             return view.submit();
@@ -986,11 +986,11 @@ define(function (require, exports, module) {
         describe('signup fails with some other error', function () {
           beforeEach(function () {
             sinon.stub(view, 'signUp').callsFake(function () {
-              return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+              return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
             return view.submit()
-              .fail(function (err) {
+              .catch(function (err) {
                 failed = err;
               });
           });
@@ -1027,7 +1027,7 @@ define(function (require, exports, module) {
           sinon.stub(relier, 'isCustomizeSyncChecked').callsFake(
             () => isCustomizeSyncChecked);
 
-          sinon.stub(view, 'signUp').callsFake(() => p());
+          sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
 
           return view.render()
             .then(function () {
@@ -1132,7 +1132,7 @@ define(function (require, exports, module) {
           return false;
         });
         enableExperiments();
-        sinon.stub(view, 'signUp').callsFake(() => p());
+        sinon.stub(view, 'signUp').callsFake(() => Promise.resolve());
         // user puts wrong email first
         fillOutSignUp('testuser@gnail.com', 'password');
         // mailcheck runs
@@ -1159,7 +1159,7 @@ define(function (require, exports, module) {
         view.$('.email').val('testuser@gnail.com');
         view.onEmailBlur();
         // wait for tooltip
-        return p().delay(50).then(() => {
+        return p.delay(50).then(() => {
           assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
           // there are exactly 3 elements with tabindex in the page (show
           // password button has not been added to the page).
