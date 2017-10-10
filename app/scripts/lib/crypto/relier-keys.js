@@ -26,15 +26,15 @@ define(function (require, exports, module) {
       throw new Error('Scoped key: missing kB');
     }
 
-    if (! keyData.keyIdentifier) {
+    if (! keyData.identifier) {
       throw new Error('Scoped key: missing keyIdentifier');
     }
 
-    if (! keyData.keySalt) {
-      throw new Error('Scoped key: missing keySalt');
+    if (! keyData.keyMaterial) {
+      throw new Error('Scoped key: missing keyMaterial');
     }
 
-    if (! keyData.keyTimestamp) {
+    if (! keyData.timestamp) {
       throw new Error('Scoped key: missing keyTimestamp');
     }
 
@@ -42,10 +42,10 @@ define(function (require, exports, module) {
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
       return scopedKeys.deriveScopedKeys({
+        identifier: keyData.identifier,
         inputKey: keys.kB,
-        scopedKeyIdentifier: keyData.keyIdentifier,
-        scopedKeySalt: keyData.keySalt,
-        scopedKeyTimestamp: keyData.keyTimestamp
+        keyMaterial: keyData.keyMaterial,
+        timestamp: keyData.timestamp
       });
     });
   }

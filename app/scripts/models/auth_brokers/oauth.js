@@ -90,37 +90,49 @@ define(function (require, exports, module) {
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
         .then((assertion) => {
           asser = assertion;
-          var keyFetchToken = account.get('keyFetchToken');
-          var unwrapBKey = account.get('unwrapBKey');
+          const keyFetchToken = account.get('keyFetchToken');
+          const unwrapBKey = account.get('unwrapBKey');
 
           return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey);
         })
         .then((rkeys) => {
           keys = rkeys;
 
-          return this._oAuthClient.getClientKeyData(clientId, {
+          return this._oAuthClient.getClientKeyData({
             assertion: asser,
+            client_id: clientId, //eslint-disable-line camelcase
             scope: decodeURIComponent(relier.get('scope'))
           });
         })
         .then((clientKeyData) => {
-          return this.relier.deriveRelierKeys(keys, clientKeyData);
+          const deriveRelierKeys = [];
+          Object.keys(clientKeyData).forEach((key) => {
+            deriveRelierKeys.push(this.relier.deriveRelierKeys(keys, clientKeyData[key]));
+          });
+
+          return p.all(deriveRelierKeys);
         })
-        .then((scopedKey) => {
+        .then((deriveResults) => {
+          const scopedKeys = {};
+
+          deriveResults.forEach((item) => {
+            scopedKeys[Object.keys(item)[0]] = item;
+          });
+
           return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
             const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
             const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
 
-            return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKey));
+            return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKeys));
           });
         })
-        .then((encryptedJwe) => {
-          var oauthParams = {
+        .then((keysJwe) => {
+          const oauthParams = {
             assertion: asser,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
-            derivedKeyBundle: encryptedJwe,
+            keys_jwe: keysJwe, //eslint-disable-line camelcase
             scope: relier.get('scope'),
             state: relier.get('state')
           };
