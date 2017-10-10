@@ -36,7 +36,7 @@
     "underscore": "1.8.3",
     "vat": "0.0.9",
     "webrtc-adapter": "0.2.5",
-    "fxa-crypto-relier": "vladikoff/fxa-crypto-relier#1.0.0"
+    "fxa-crypto-relier": "vladikoff/fxa-crypto-relier#1.0.2"
   },
   "devDependencies": {
     "moment": "2.8.3"

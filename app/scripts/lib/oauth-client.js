@@ -12,7 +12,7 @@ define(function (require, exports, module) {
   const DESTROY_TOKEN = '/v1/destroy';
   const GET_CLIENT = '/v1/client/';
   const GET_CODE = '/v1/authorization';
-  const GET_CLIENT_KEY_DATA = '/v1/client/key-data/';
+  const GET_CLIENT_KEY_DATA = '/v1/key-data';
 
   function normalizeErrors (xhr) {
     throw OAuthErrors.normalizeXHRError(xhr);
@@ -49,8 +49,8 @@ define(function (require, exports, module) {
       return this._request('get', GET_CLIENT + id);
     },
 
-    getClientKeyData: function getClientInfo(id, params) {
-      return this._request('post', GET_CLIENT_KEY_DATA + id, params);
+    getClientKeyData: function getClientKeyData(params) {
+      return this._request('post', GET_CLIENT_KEY_DATA, params);
     },
 
     /**
