@@ -84,10 +84,12 @@ define([
         time: 'foo',
         user_id: 'soop',
         user_properties: {
-          experiment_first_experiment: 'group_one',
-          experiment_fourth_experiment: 'group_four',
-          experiment_second_experiment: 'group_two',
-          experiment_third_experiment: 'group_three',
+          experiments: [
+            'first_experiment_group_one',
+            'second_experiment_group_two',
+            'third_experiment_group_three',
+            'fourth_experiment_group_four'
+          ],
           flow_id: 'wibble',
           utm_campaign: 'melm',
           utm_content: 'florg',
