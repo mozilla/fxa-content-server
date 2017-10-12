@@ -139,6 +139,10 @@ define([], function () {
       CLIENT_LIST: '.client-list',
       REFRESHING: '.clients-refresh.disabled',
     },
+    SETTINGS_COMMUNICATION: {
+      BUTTON_MANAGE: '#marketing-email-manage',
+      BUTTON_OPT_IN: '#marketing-email-optin',
+    },
     SETTINGS_DISPLAY_NAME: {
       INPUT_DISPLAY_NAME: '#display-name input[type=text]',
       MENU_BUTTON: '#display-name button.settings-unit-toggle',

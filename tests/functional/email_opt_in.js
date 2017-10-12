@@ -7,43 +7,33 @@ define([
   'intern!object',
   'tests/lib/helpers',
   'tests/lib/basket',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers) {
-  var SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
-  var SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
-  var fxaProduction = intern.config.fxaProduction;
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers, selectors) {
+  const SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
+  const SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
+  const fxaProduction = intern.config.fxaProduction;
 
-  var email;
-  var PASSWORD = '12345678';
+  let email;
+  const PASSWORD = '12345678';
 
-  var thenify = FunctionalHelpers.thenify;
+  const {
+    clearBrowserState,
+    click,
+    createUser,
+    fillOutSignIn,
+    fillOutSignUp,
+    noSuchElement,
+    openPage,
+    openVerificationLinkInSameTab,
+    testElementExists,
+    testSuccessWasShown,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var noSuchElement = FunctionalHelpers.noSuchElement;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInSameTab = FunctionalHelpers.openVerificationLinkInSameTab;
-  var testAttributeEquals = FunctionalHelpers.testAttributeEquals;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
-  var waitForBasket = _waitForBasket;
+  const waitForBasket = _waitForBasket;
 
-  var testOptedIn = thenify(function () {
-    return this.parent
-      .then(testElementTextEquals('#marketing-email-optin', 'Unsubscribe'));
-  });
-
-  var testNotOptedIn = thenify(function () {
-    return this.parent
-      .then(testElementTextEquals('#marketing-email-optin', 'Subscribe'));
-  });
-
-  var suiteName = 'communication preferences';
+  const suiteName = 'communication preferences';
   if (fxaProduction) {
     // The actual tests below depend on polling a real or mock implementation
     // of Basket. This isn't something feasible when running this server
@@ -86,35 +76,12 @@ define([
         .then(waitForBasket(email))
         .then(click('#communication-preferences .settings-unit-toggle'))
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-        .then(testOptedIn())
 
-        // user signed up to basket, so has a preferences URL
-        .then(testElementExists('#preferences-url'))
-
-        // ensure the changes stick across refreshes
-        .refresh()
-
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-        .then(testOptedIn())
-
-        // preference url would open in a new tab
-        .then(testAttributeEquals('#preferences-url', 'target', '_blank'))
-
-        .then(click('#marketing-email-optin'))
-        .then(testSuccessWasShown())
-
-        // ensure the opt-out sticks across refreshes
-        .refresh()
-
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(click('#communication-preferences .settings-unit-toggle'))
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        .then(testNotOptedIn());
+        // user signed up to basket, so has a manage URL
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
     },
 
-    'do not opt-in on signup': function () {
+    'opt-in from settings after signup': function () {
       return this.remote
         .then(openPage(SIGNUP_PAGE_URL, '#fxa-signup-header'))
         .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: false }))
@@ -127,10 +94,20 @@ define([
 
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
 
-        .then(testNotOptedIn());
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
+        .then(testSuccessWasShown())
+        .then(waitForBasket(email))
+
+        // ensure the opt-in sticks across refreshes
+        .refresh()
+        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(click('#communication-preferences .settings-unit-toggle'))
+        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        // user should now have a preferences URL
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
     },
 
-    'opt in from settings after sign-in': function () {
+    'opt-in from settings after signin': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
@@ -141,13 +118,11 @@ define([
 
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
 
-        .then(testNotOptedIn())
-
         // user does not have a basket account, so the
         // manage link does not exist.
 
-        .then(noSuchElement('#preferences-url'))
-        .then(click('#marketing-email-optin'))
+        .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
+        .then(click(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
         .then(testSuccessWasShown())
         .then(waitForBasket(email))
 
@@ -156,9 +131,8 @@ define([
         .then(testElementExists('#communication-preferences.basket-ready'))
         .then(click('#communication-preferences .settings-unit-toggle'))
         .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-        .then(testOptedIn())
         // user should now have a preferences URL
-        .then(testElementExists('#preferences-url'));
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
     }
   });
 
