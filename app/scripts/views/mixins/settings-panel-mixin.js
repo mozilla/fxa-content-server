@@ -77,7 +77,7 @@ define(function (require, exports, module) {
     },
 
     closePanel () {
-      this.$el.closest('#fxa-settings-content').addClass('animate-shadow');
+      this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
       this.$('.settings-unit').removeClass('open');
     },
 
