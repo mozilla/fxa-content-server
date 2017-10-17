@@ -6,9 +6,6 @@
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
-Table of Contents (ToC)
-=======================
-
 * [Quick Start](#quick-start)
 * [Development Notes](#development-notes)
 * [Changes to Stylesheets](#changes-to-stylesheets)
