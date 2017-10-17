@@ -142,6 +142,9 @@ define([], function () {
     SETTINGS_COMMUNICATION: {
       BUTTON_MANAGE: '#marketing-email-manage',
       BUTTON_OPT_IN: '#marketing-email-optin',
+      DETAILS: '#communication-preferences .settings-unit-details',
+      MENU_BUTTON: '#communication-preferences .settings-unit-toggle',
+      READY: '#communication-preferences.basket-ready'
     },
     SETTINGS_DISPLAY_NAME: {
       INPUT_DISPLAY_NAME: '#display-name input[type=text]',

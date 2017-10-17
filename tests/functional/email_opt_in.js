@@ -10,7 +10,6 @@ define([
   'tests/functional/lib/helpers',
   'tests/functional/lib/selectors'
 ], function (intern, registerSuite, TestHelpers, _waitForBasket, FunctionalHelpers, selectors) {
-  const SIGNIN_PAGE_URL = intern.config.fxaContentRoot + 'signin';
   const SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
   const fxaProduction = intern.config.fxaProduction;
 
@@ -20,8 +19,6 @@ define([
   const {
     clearBrowserState,
     click,
-    createUser,
-    fillOutSignIn,
     fillOutSignUp,
     noSuchElement,
     openPage,
@@ -66,16 +63,16 @@ define([
       // passed to basket. See a43061d3
       email = TestHelpers.createEmail('signup{id}+extra');
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: true }))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
 
-        .then(testElementExists('#communication-preferences.basket-ready'))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
         .then(waitForBasket(email))
-        .then(click('#communication-preferences .settings-unit-toggle'))
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
 
         // user signed up to basket, so has a manage URL
         .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
@@ -83,57 +80,31 @@ define([
 
     'opt-in from settings after signup': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, '#fxa-signup-header'))
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
         .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: false }))
 
-        .then(testElementExists('#fxa-confirm-header'))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
         .then(openVerificationLinkInSameTab(email, 0))
 
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(click('#communication-preferences .settings-unit-toggle'))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
 
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
 
+        // user does not have a basket account, so the
+        // manage link does not exist.
+        .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
         .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
         .then(testSuccessWasShown())
         .then(waitForBasket(email))
 
         // ensure the opt-in sticks across refreshes
         .refresh()
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(click('#communication-preferences .settings-unit-toggle'))
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-        // user should now have a preferences URL
-        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
-    },
-
-    'opt-in from settings after signin': function () {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_PAGE_URL, '#fxa-signin-header'))
-        .then(fillOutSignIn(email, PASSWORD))
-
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(click('#communication-preferences .settings-unit-toggle'))
-
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
-
-        // user does not have a basket account, so the
-        // manage link does not exist.
-
-        .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
-        .then(click(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
-        .then(testSuccessWasShown())
-        .then(waitForBasket(email))
-
-        // ensure the opt-in sticks across refreshes
-        .refresh()
-        .then(testElementExists('#communication-preferences.basket-ready'))
-        .then(click('#communication-preferences .settings-unit-toggle'))
-        .then(visibleByQSA('#communication-preferences .settings-unit-details'))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
         // user should now have a preferences URL
         .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
     }
   });
-
 });
