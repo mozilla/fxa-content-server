@@ -73,6 +73,7 @@ define(function (require, exports, module) {
 
       const code = verificationInfo.get('code');
       const options = {
+        primaryEmailVerified: this.getSearchParam('primary_email_verified') || null,
         reminder: verificationInfo.get('reminder'),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         serverVerificationStatus: this.getSearchParam('server_verification') || null,
@@ -153,7 +154,9 @@ define(function (require, exports, module) {
      */
     _getBrokerMethod () {
       let brokerMethod;
-      if (this.isSecondaryEmail()) {
+      if (this.isPrimaryEmail()) {
+        brokerMethod = 'afterCompletePrimaryEmail';
+      } else if (this.isSecondaryEmail()) {
         brokerMethod = 'afterCompleteSecondaryEmail';
       } else if (this.isSignIn()) {
         brokerMethod = 'afterCompleteSignIn';
