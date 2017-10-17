@@ -6,6 +6,20 @@
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
+Table of Contents (ToC)
+=======================
+
+* [Quick Start](#quick-start)
+* [Development Notes](#development-notes)
+* [Changes to Stylesheets](#changes-to-stylesheets)
+* [Changes to Scripts and Templates](#changes-to-scripts-and-templates)
+* [Testing](#testing)
+* [Prerequisites](#prerequisites)
+* [Setup](#setup)
+* [Grunt Commands](#grunt-commands)
+* [Servers](#servers)
+* [License](#license)
+
 ## Quick Start
 
 Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
