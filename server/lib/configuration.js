@@ -640,5 +640,7 @@ const options = {
   strict: true
 };
 
+console.log(JSON.stringify(conf, null, 2));
+
 // validate the configuration based on the above specification
 conf.validate(options);
