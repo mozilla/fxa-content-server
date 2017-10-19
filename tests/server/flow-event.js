@@ -1071,6 +1071,7 @@ define([
         migration: data.migration || 'sync11',
         navigationTiming: clobberNavigationTiming ? null : {
           /*eslint-disable sorting/sort-object-props*/
+          navigationStart: 0,
           domainLookupStart: navigationTimingValue || 100,
           domainLookupEnd: navigationTimingValue || 200,
           connectStart: navigationTimingValue || 300,

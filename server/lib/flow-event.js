@@ -156,13 +156,15 @@ module.exports = (req, metrics, requestReceivedTime) => {
     // the raw navigation timing data so that we can analyse which
     // to use long-term for our performance OKR.
     Object.keys(navigationTiming).forEach(key => {
-      const value = navigationTiming[key];
-      if (value >= 0) {
-        logFlowEvent({
-          flowTime: value,
-          time: metrics.flowBeginTime + value,
-          type: `flow.performance.raw.${key}`
-        }, metrics, req);
+      if (key !== 'navigationStart') {
+        const value = navigationTiming[key];
+        if (value >= 0) {
+          logFlowEvent({
+            flowTime: value,
+            time: metrics.flowBeginTime + value,
+            type: `flow.performance.raw.${key}`
+          }, metrics, req);
+        }
       }
     });
   }
