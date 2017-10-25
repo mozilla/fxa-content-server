@@ -56,14 +56,6 @@ define(function (require, exports, module) {
       return _.map(items, (item) => {
         item.title = item.name;
 
-        if (item.location) {
-          if (item.location.country && item.location.state) {
-            item.title += ' - ' + item.location.state + ', ' + item.location.country;
-          } else if (item.location.country) {
-            item.title += ' - ' + item.location.country;
-          }
-        }
-
         if (item.scope) {
           item.title += ' - ' + item.scope;
         }
@@ -80,28 +72,40 @@ define(function (require, exports, module) {
             this._setLastAccessTimeFormatted(
               item,
               t('%(translatedTimeAgo)s'),
-              t('over %(translatedTimeAgo)s')
+              t('Over %(translatedTimeAgo)s'),
+              t('%(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('Over %(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('%(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+              t('Over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
             );
           }
 
           if (item.isDevice) {
             this._setLastAccessTimeFormatted(
               item,
-              t('last sync %(translatedTimeAgo)s'),
-              t('last sync over %(translatedTimeAgo)s')
+              t('Last sync %(translatedTimeAgo)s'),
+              t('Last sync over %(translatedTimeAgo)s'),
+              t('Last sync %(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('Last sync over %(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('Last sync %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+              t('Last sync over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
             );
           }
 
           if (item.clientType === Constants.CLIENT_TYPE_OAUTH_APP) {
             this._setLastAccessTimeFormatted(
               item,
-              t('last active %(translatedTimeAgo)s'),
-              t('last active over %(translatedTimeAgo)s')
+              t('Last active %(translatedTimeAgo)s'),
+              t('Last active over %(translatedTimeAgo)s'),
+              t('Last active %(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('Last active over %(translatedTimeAgo)s in %(translatedCountry)s'),
+              t('Last active %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s'),
+              t('Last active over %(translatedTimeAgo)s near %(translatedCity)s, %(translatedState)s, %(translatedCountry)s')
             );
           }
         } else {
           if (item.isDevice) {
-            item.lastAccessTimeFormatted = t('last sync time unknown');
+            item.lastAccessTimeFormatted = t('Last sync time unknown');
           } else {
             // unknown lastAccessTimeFormatted or not possible to format.
             item.lastAccessTimeFormatted = '';
@@ -111,16 +115,34 @@ define(function (require, exports, module) {
       });
     },
 
-    _setLastAccessTimeFormatted (item, format, approximateFormat) {
+    _setLastAccessTimeFormatted (item, ...formats) {
+      let formatIndex;
+      let translatedCity;
+      let translatedCountry;
+      let translatedState;
       let translatedTimeAgo = item.lastAccessTimeFormatted;
-      let correctFormat = format;
+
+      if (item.location && item.location.country) {
+        translatedCountry = item.location.country;
+        if (item.location.city && item.location.stateCode) {
+          translatedCity = item.location.city;
+          translatedState = item.location.stateCode;
+          formatIndex = 4;
+        } else {
+          formatIndex = 2;
+        }
+      } else {
+        formatIndex = 0;
+      }
 
       if (item.approximateLastAccessTime > item.lastAccessTime) {
         translatedTimeAgo = item.approximateLastAccessTimeFormatted;
-        correctFormat = approximateFormat;
+        ++formatIndex;
       }
 
-      item.lastAccessTimeFormatted = this.translate(correctFormat, { translatedTimeAgo });
+      item.lastAccessTimeFormatted = this.translate(formats[formatIndex], {
+        translatedCity, translatedCountry, translatedState, translatedTimeAgo
+      });
     },
 
     setInitialContext (context) {
