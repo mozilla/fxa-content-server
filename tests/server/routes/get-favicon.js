@@ -81,7 +81,7 @@ define([
             });
           },
 
-          'should see old icon': function () {
+          'should see new icon': function () {
             assert.equal(request.url, 'favicon.ico');
           }
         },
@@ -117,7 +117,7 @@ define([
             });
           },
 
-          'should see old icon': function () {
+          'should see new icon': function () {
             assert.equal(request.url, 'favicon.ico');
           }
         },
@@ -153,7 +153,7 @@ define([
             });
           },
 
-          'should see old icon': function () {
+          'should see new icon': function () {
             assert.equal(request.url, 'favicon.ico');
           }
         },
