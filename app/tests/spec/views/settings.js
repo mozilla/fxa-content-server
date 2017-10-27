@@ -72,6 +72,7 @@ define(function (require, exports, module) {
         viewName: 'settings'
       });
 
+      sinon.spy(view, 'logFlowEvent');
       sinon.spy(view, 'navigate');
       sinon.stub(view, 'clearSessionAndNavigateToSignIn').callsFake(() => {});
       sinon.stub(view, '_initializeSubPanels').callsFake(() => {
@@ -430,6 +431,7 @@ define(function (require, exports, module) {
       });
 
       it('it calls showChildView on subPanels', function () {
+        assert.equal(view.logFlowEvent.callCount, 0);
         view._subPanels = {
           showChildView: sinon.spy(() => Promise.resolve())
         };
@@ -437,6 +439,17 @@ define(function (require, exports, module) {
         return view.showChildView(SettingsPanelView, options)
           .then(() => {
             assert.isTrue(view._subPanels.showChildView.calledWith(SettingsPanelView, options));
+
+            assert.equal(view.logFlowEvent.callCount, 1);
+            const args = view.logFlowEvent.args[0];
+            assert.lengthOf(args, 1);
+            const eventParts = args[0].split('.');
+            assert.lengthOf(eventParts, 5);
+            assert.equal(eventParts[0], 'timing');
+            assert.equal(eventParts[1], 'settings');
+            assert.equal(eventParts[2], 'show');
+            assert.equal(eventParts[3], 'panel');
+            assert.match(eventParts[4], /^[0-9]+$/);
           });
       });
 

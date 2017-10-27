@@ -104,7 +104,12 @@ define(function (require, exports, module) {
     },
 
     showChildView (ChildView, options) {
-      return this._subPanels.showChildView(ChildView, options);
+      const start = Date.now();
+      return this._subPanels.showChildView(ChildView, options)
+        .then(result => {
+          this.logFlowEvent(`timing.settings.show.${ChildView.prototype.className}.${Date.now() - start}`);
+          return result;
+        });
     },
 
     // When we navigate to settings from a childView
