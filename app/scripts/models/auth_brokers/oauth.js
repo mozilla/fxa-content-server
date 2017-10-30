@@ -116,7 +116,8 @@ define(function (require, exports, module) {
           const scopedKeys = {};
 
           deriveResults.forEach((item) => {
-            scopedKeys[Object.keys(item)[0]] = item;
+            const scopeName = Object.keys(item)[0];
+            scopedKeys[scopeName] = item[scopeName];
           });
 
           return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
