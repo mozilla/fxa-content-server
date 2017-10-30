@@ -1,0 +1,17 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-2fa-confirm-signin-header">{{#t}}New Sign-in to Firefox{{/t}}</h1>
+  </header>
+
+  <section>
+    <p class="fxa-2fa-confirmation-message">{{#t}}For added security, please confirm this sign-in to begin syncing with this device.{{/t}}</p>
+    <form novalidate>
+      <div class="button-row">
+        <button id="submit-btn" type="submit">{{#t}}Confirm{{/t}}</button>
+      </div>
+    </form>
+    <div class="links">
+        {{#unsafeTranslate}}If you think someone is trying to gain access to your account, <a %(escapedResetLinkAttributes)s>please change your password</a>{{/unsafeTranslate}}
+    </div>
+  </section>
+</div>
