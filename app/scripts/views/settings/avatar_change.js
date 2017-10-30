@@ -110,6 +110,7 @@ define(function (require, exports, module) {
 
           ImageLoader.load(src)
             .then((img) => {
+              this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
               const cropImg = new CropperImage({
                 height: img.height,
                 src,
@@ -121,7 +122,6 @@ define(function (require, exports, module) {
                   cropImg
                 });
               });
-              this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
               defer.resolve();
             })
             .fail(imgOnError);
