@@ -67,9 +67,8 @@ define(function (require, exports, module) {
         });
       });
 
-      it('fully rolled out countries return `signinCodes`', () => {
-        sinon.spy(experiment, 'uniformChoice');
-        assert.equal(experiment.choose({ account, country, uniqueUserId: 'user-id' }), 'signinCodes');
+      it('fully rolled out countries return `true`', () => {
+        assert.isTrue(experiment.choose({ account, country, uniqueUserId: 'user-id' }));
       });
     });
   });

@@ -12,12 +12,6 @@ define((require, exports, module) => {
   const BaseGroupingRule = require('./base');
   const CountryTelephoneInfo = require('../../country-telephone-info');
 
-  // 'control' was CAD phase 1, normal ConnectAnotherDevice.
-  // Both SMS groups perform better than CAD phase 1, so for
-  // those eligible for SMS at all, push them through one
-  // of the two better flows. See #5561
-  const GROUPS_FOR_FULL_ROLLOUT = ['signinCodes'];
-
   // Countries that are in the process of being rolled out
   // have a `control` group so that we can fully compare
   // the two treatment groups to the control group.
@@ -48,7 +42,7 @@ define((require, exports, module) => {
         choice = 'signinCodes';
       } else if (_.isUndefined(rolloutRate)) {
         // country is fully rolled out.
-        choice = this.uniformChoice(GROUPS_FOR_FULL_ROLLOUT, subject.uniqueUserId);
+        choice = true;
       } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
         // country is in the process of being rolled out.
         choice = this.uniformChoice(GROUPS_FOR_PARTIAL_ROLLOUT, subject.uniqueUserId);
