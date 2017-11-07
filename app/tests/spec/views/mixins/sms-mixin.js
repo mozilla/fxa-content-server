@@ -9,7 +9,6 @@ define(function (require, exports, module) {
   const { assert } = require('chai');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const sinon = require('sinon');
   const Template = require('stache!templates/test_template');
 
   const SmsView = BaseView.extend({
@@ -31,7 +30,6 @@ define(function (require, exports, module) {
     });
 
     it('getSmsFeatures returns an array with `signinCodes`', () => {
-      sinon.stub(view, 'isInExperimentGroup').callsFake(() => true);
       assert.isTrue(view.getSmsFeatures().indexOf('signinCodes') > -1);
     });
   });
