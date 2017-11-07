@@ -118,7 +118,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('getClientKeyData', function () {
+    describe('getClientKeyData', () => {
       const scope = 'https://identity.mozilla.org/apps/sample-scope-can-scope-key';
       const params = {
         assertion: 'eyJhbGciOiJSUzI1NiJ9.eyJwdWJsaWM1NiJ9.eyJhdWQiOiJvYXV0aC5meGEiLCJleHA',
@@ -126,7 +126,7 @@ define(function (require, exports, module) {
         scope: scope
       };
 
-      it('response with scope key data', function () {
+      it('response with scope key data', () => {
         sinon.stub(client, '_request').callsFake(function () {
           return p({
             [scope]: {

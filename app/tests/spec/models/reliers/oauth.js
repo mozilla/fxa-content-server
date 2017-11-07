@@ -65,6 +65,7 @@ define(function (require, exports, module) {
       user = new User();
 
       relier = new OAuthRelier({}, {
+        config: {},
         oAuthClient: oAuthClient,
         session: Session,
         window: windowMock
@@ -484,6 +485,29 @@ define(function (require, exports, module) {
           utmSource: ITEM,
           utmTerm: ITEM
         });
+      });
+    });
+
+    describe('wantsKeys', () => {
+      it('returns false by default', () => {
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('returns false with just keysJwk', () => {
+        relier._config.scopedKeysEnabled = false;
+        relier.set('keysJwk', 'jwk');
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('returns false with just scopedKeysEnabled', () => {
+        relier._config.scopedKeysEnabled = true;
+        assert.isFalse(relier.wantsKeys());
+      });
+
+      it('returns true with keysJwk and enabled scoped keys', () => {
+        relier._config.scopedKeysEnabled = true;
+        relier.set('keysJwk', 'jwk');
+        assert.isTrue(relier.wantsKeys());
       });
     });
 

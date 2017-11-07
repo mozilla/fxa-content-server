@@ -74,6 +74,7 @@ define(function (require, exports, module) {
       this._assertionLibrary = options.assertionLibrary;
       this._fxaClient = options.fxaClient;
       this._oAuthClient = options.oAuthClient;
+      this._relierKeys = RelierKeys;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -117,6 +118,14 @@ define(function (require, exports, module) {
         .then(_formatOAuthResult);
     },
 
+    /**
+     * Derive scoped keys and encrypt them with the relier's public JWK
+     *
+     * @param {Object} account
+     * @param {String} assertion
+     * @returns {Promise} Returns a promise that resolves into an encrypted bundle
+     * @private
+     */
     _provisionScopedKeys (account, assertion) {
       const relier = this.relier;
       const keyFetchToken = account.get('keyFetchToken');
@@ -134,7 +143,7 @@ define(function (require, exports, module) {
         }
 
         return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey).then((keys) => {
-          return RelierKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
+          return this._relierKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
         });
       });
     },
