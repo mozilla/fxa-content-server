@@ -22,20 +22,21 @@ define(function (require, exports, module) {
         timestamp: 1510011454564
       }
     };
+    const derivedKey = {
+      k: '7X4dQpHUe5ZSWQBYzJQp2PcF2tNanfQRK61Euhahc1c',
+      kid: '1510011455-Elesfq0A6LSNt9VlaPZIRTKbRt-Apg0ezscLBpdCilg',
+      kty: 'oct',
+      scope: scope
+    };
     const clientScopedKey = {
-      [scope]: {
-        k: '7X4dQpHUe5ZSWQBYzJQp2PcF2tNanfQRK61Euhahc1c',
-        kid: '1510011455-Elesfq0A6LSNt9VlaPZIRTKbRt-Apg0ezscLBpdCilg',
-        kty: 'oct',
-        scope: scope
-      }
+      [scope]: derivedKey
     };
     const keysJwk = 'eyJrdHkiOiJFQyIsImtpZCI6IjVEakVLQ1ZSRGtCUFBLVTc4ZjNQOW92eU5EeDhnb1NWbGh0QzhFMlJfZXciLCJjcnYiOiJQLTI1NiIsIngiOiIzTXkwZzBNN3JwX2MyemMxNVlZM2xKcjlKcURrSmFXQjhLcTJ6aFhRTldNIiwieSI6IlVGZ05UVGVRbWlZTEE5VzJVTmIyemFaVHhzWHVtYnVpbDFhT0xlY1gxRk0ifQ'; //eslint-disable-line max-len
 
     describe('deriveRelierKeys', () => {
       it('derives a key', () => {
         return RelierKeys._deriveRelierKeys(keys.kB, clientKeyData[scope]).then((derivedObject) => {
-          assert.deepEqual(derivedObject, clientScopedKey);
+          assert.deepEqual(derivedObject, derivedKey);
         });
       });
     });

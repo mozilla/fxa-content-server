@@ -380,7 +380,9 @@ define(function (require, exports, module) {
       });
 
       it('returns null if no unwrapBKey', () => {
-        return broker._provisionScopedKeys(account, 'assertion')
+        accountKey.set('unwrapBKey', null);
+
+        return broker._provisionScopedKeys(accountKey, 'assertion')
           .then((result) => {
             assert.equal(result, null);
           });
