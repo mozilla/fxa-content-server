@@ -55,6 +55,7 @@ define(function (require, exports, module) {
     // move forward, very hard to move back.
     sessionTokenContext: undefined,
     uid: undefined,
+    verificationMethod: undefined,
     verified: undefined
   };
 
@@ -66,7 +67,6 @@ define(function (require, exports, module) {
     offeredSyncEngines: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined,
-    verificationMethod: undefined,
     verificationReason: undefined
   }, PERSISTENT);
 
@@ -469,7 +469,10 @@ define(function (require, exports, module) {
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
-          return this._fxaClient.recoveryEmailStatus(sessionToken);
+          return this._fxaClient.recoveryEmailStatus(sessionToken).then((res) => {
+            res.verificationMethod = this.get('verificationMethod');
+            return res;
+          });
         } else {
           throw AuthErrors.toError('UNEXPECTED_ERROR');
         }

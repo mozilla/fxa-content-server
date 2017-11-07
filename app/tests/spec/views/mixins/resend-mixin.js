@@ -17,7 +17,10 @@ define(function (require, exports, module) {
 
   const View = BaseView.extend({
     resend: () => p(),
-    template: TestTemplate
+    template: TestTemplate,
+    setInitialContext (context) {
+      context.set('isPush', true);
+    }
   });
 
   describe('views/mixins/resend-mixin', () => {

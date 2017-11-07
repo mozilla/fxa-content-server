@@ -293,7 +293,7 @@ define(function (require, exports, module) {
                 });
             });
 
-            it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+            it('sets correct `verifiedMethod` and `verifiedReason`', function () {
               assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
               assert.isFalse(accountInfo.verified);
               assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
@@ -317,7 +317,7 @@ define(function (require, exports, module) {
                 });
             });
 
-            it('sets correct `verifiedReason` and `verifiedMethod`', function () {
+            it('sets correct `verifiedMethod` and `verifiedReason`', function () {
               assert.isTrue(clientMock.recoveryEmailStatus.calledWith('session token'));
               assert.isFalse(accountInfo.verified);
               assert.equal(accountInfo.verificationMethod, VerificationMethods.EMAIL);
