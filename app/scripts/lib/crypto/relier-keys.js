@@ -42,12 +42,8 @@ define(function (require, exports, module) {
    * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
    */
   function createEncryptedBundle(keys, clientKeyData, keysJwk) {
-    const relierKeys = [];
     const clientKeyDataScopes = Object.keys(clientKeyData);
-
-    clientKeyDataScopes.forEach((key) => {
-      relierKeys.push(_deriveRelierKeys(keys.kB, clientKeyData[key]));
-    });
+    const relierKeys = clientKeyDataScopes.map((key) => _deriveRelierKeys(keys.kB, clientKeyData[key]));
 
     return p.all(relierKeys)
       .then((derivedKeys) => {

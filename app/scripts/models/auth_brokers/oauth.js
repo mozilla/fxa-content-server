@@ -127,14 +127,21 @@ define(function (require, exports, module) {
       const keyFetchToken = account.get('keyFetchToken');
       const unwrapBKey = account.get('unwrapBKey');
 
-      // if check if requested scopes provide scoped keys
-      return this._oAuthClient.getClientKeyData({
-        assertion: assertion,
-        client_id: relier.get('clientId'), //eslint-disable-line camelcase
-        scope: decodeURIComponent(relier.get('scope'))
-      }).then((clientKeyData) => {
-        if (! unwrapBKey || ! keyFetchToken || Object.keys(clientKeyData).length === 0) {
-          // if we got no keys or key data then exit out
+      return p().then(() => {
+        if (!unwrapBKey || !keyFetchToken) {
+          return null;
+        }
+
+        // if check if requested scopes provide scoped keys
+        return this._oAuthClient.getClientKeyData({
+          assertion: assertion,
+          client_id: relier.get('clientId'), //eslint-disable-line camelcase
+          scope: decodeURIComponent(relier.get('scope'))
+        })
+      })
+      .then((clientKeyData) => {
+        if (Object.keys(clientKeyData).length === 0) {
+          // if we got no key data then exit out
           return null;
         }
 
