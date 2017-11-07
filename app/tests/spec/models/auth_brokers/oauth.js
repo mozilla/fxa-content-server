@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const AuthErrors = require('lib/auth-errors');
   const chai = require('chai');
   const Constants = require('lib/constants');
-  const FxaClient = require('lib/fxa-client');
   const OAuthAuthenticationBroker = require('models/auth_brokers/oauth');
   const OAuthClient = require('lib/oauth-client');
   const OAuthErrors = require('lib/oauth-errors');
@@ -41,7 +40,6 @@ define(function (require, exports, module) {
     var account;
     var assertionLibrary;
     var broker;
-    var fxaClient;
     var oAuthClient;
     var relier;
     var user;
@@ -55,7 +53,6 @@ define(function (require, exports, module) {
       });
 
       assertionLibrary = new Assertion({});
-      fxaClient = new FxaClient();
       sinon.stub(assertionLibrary, 'generate').callsFake(function () {
         return p('assertion');
       });
@@ -76,7 +73,6 @@ define(function (require, exports, module) {
 
       broker = new OAuthAuthenticationBroker({
         assertionLibrary: assertionLibrary,
-        fxaClient,
         oAuthClient: oAuthClient,
         relier: relier,
         session: Session
@@ -348,16 +344,15 @@ define(function (require, exports, module) {
           return p(keyData);
         });
 
-        sinon.stub(broker._fxaClient, 'accountKeys').callsFake((args) => {
-          assert.equal(args, 'key-fetch-token');
-          return p(keys);
-        });
-
         accountKey = new Account({
           email: 'testuser@testuser.com',
           keyFetchToken: 'key-fetch-token',
           uid: 'uid',
           unwrapBKey: 'unwrap-b-key'
+        });
+
+        sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
+          return p(keys);
         });
       });
 

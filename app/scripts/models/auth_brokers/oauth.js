@@ -72,7 +72,6 @@ define(function (require, exports, module) {
 
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
-      this._fxaClient = options.fxaClient;
       this._oAuthClient = options.oAuthClient;
       this._relierKeys = RelierKeys;
 
@@ -143,7 +142,7 @@ define(function (require, exports, module) {
           return null;
         }
 
-        return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey).then((keys) => {
+        return account.accountKeys().then((keys) => {
           return this._relierKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
         });
       });
