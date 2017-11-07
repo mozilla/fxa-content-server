@@ -438,6 +438,12 @@ const conf = module.exports = convict({
       'tiny'
     ]
   },
+  scopedKeysEnabled: {
+    default: false,
+    doc: 'Enable Scoped Key OAuth features',
+    env: 'SCOPED_KEYS_ENABLED',
+    format: Boolean,
+  },
   sentry: {
     api_key: {
       default: undefined,

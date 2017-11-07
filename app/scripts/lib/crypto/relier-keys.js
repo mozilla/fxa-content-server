@@ -17,28 +17,12 @@ define(function (require, exports, module) {
    * Given the account master key kB, generate the matching relier-specific derived
    * scoped key.
    *
-   * @param {Object} keys object with properties 'kB' giving the account as hex
-   * @param {Object} keyData
+   * @param {Object} keys - Account keys, used to derive scoped keys
+   * @param {Object} keyData - OAuth client data that is required to derive keys
    * @returns {Promise} A promise that will resolve with an object having a scoped key.
    *   The key is represented as a JWK object.
    */
-  function deriveRelierKeys(keys = {}, keyData = {}) {
-    if (! keys.kB) {
-      throw new Error('Scoped key: missing kB');
-    }
-
-    if (! keyData.identifier) {
-      throw new Error('Scoped key: missing keyIdentifier');
-    }
-
-    if (! keyData.keyMaterial) {
-      throw new Error('Scoped key: missing keyMaterial');
-    }
-
-    if (! keyData.timestamp) {
-      throw new Error('Scoped key: missing keyTimestamp');
-    }
-
+  function _deriveRelierKeys(keys = {}, keyData = {}) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
@@ -64,7 +48,7 @@ define(function (require, exports, module) {
     const clientKeyDataScopes = Object.keys(clientKeyData);
 
     clientKeyDataScopes.forEach((key) => {
-      relierKeys.push(deriveRelierKeys(keys, clientKeyData[key]));
+      relierKeys.push(_deriveRelierKeys(keys, clientKeyData[key]));
     });
 
     return p.all(relierKeys)
@@ -87,6 +71,6 @@ define(function (require, exports, module) {
 
   return {
     createEncryptedBundle: createEncryptedBundle,
-    deriveRelierKeys: deriveRelierKeys
+    _deriveRelierKeys: _deriveRelierKeys
   };
 });

@@ -77,8 +77,9 @@ define(function (require, exports, module) {
     initialize (attributes, options = {}) {
       Relier.prototype.initialize.call(this, attributes, options);
 
-      this._session = options.session;
+      this._config = options.config;
       this._oAuthClient = options.oAuthClient;
+      this._session = options.session;
     },
 
     fetch () {
@@ -211,7 +212,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     wantsKeys () {
-      return !! this.has('keysJwk');
+      return !! (this.has('keysJwk') && this._config.scopedKeysEnabled);
     },
 
     /**

@@ -72,8 +72,8 @@ define(function (require, exports, module) {
 
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
-      this._oAuthClient = options.oAuthClient;
       this._fxaClient = options.fxaClient;
+      this._oAuthClient = options.oAuthClient;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
