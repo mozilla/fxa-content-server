@@ -24,7 +24,7 @@ define(function (require, exports, module) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
-      return scopedKeys.deriveScopedKeys({
+      return scopedKeys.deriveScopedKey({
         identifier: keyData.identifier,
         inputKey: inputKey,
         keyMaterial: keyData.keyMaterial,
@@ -42,23 +42,21 @@ define(function (require, exports, module) {
    * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
    */
   function createEncryptedBundle(keys, clientKeyData, keysJwk) {
-    const clientKeyDataScopes = Object.keys(clientKeyData);
-    const relierKeys = clientKeyDataScopes.map((key) => _deriveRelierKeys(keys.kB, clientKeyData[key]));
+    const deriveKeys = Object.keys(clientKeyData).map((key) => _deriveRelierKeys(keys.kB, clientKeyData[key]));
 
-    return p.all(relierKeys)
+    return p.all(deriveKeys)
       .then((derivedKeys) => {
-        const scopedKeys = {};
+        const bundleObject = {};
 
-        derivedKeys.forEach((item) => {
-          const scopeName = Object.keys(item)[0];
-          scopedKeys[scopeName] = item[scopeName];
+        derivedKeys.forEach((derivedKey) => {
+          bundleObject[derivedKey.scope] = derivedKey;
         });
 
         return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
           const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
           const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(keysJwk));
 
-          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKeys));
+          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(bundleObject));
         });
       });
   }

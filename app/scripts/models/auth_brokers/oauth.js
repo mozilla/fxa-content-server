@@ -128,7 +128,7 @@ define(function (require, exports, module) {
       const unwrapBKey = account.get('unwrapBKey');
 
       return p().then(() => {
-        if (!unwrapBKey || !keyFetchToken) {
+        if (! unwrapBKey || ! keyFetchToken) {
           return null;
         }
 
@@ -137,7 +137,7 @@ define(function (require, exports, module) {
           assertion: assertion,
           client_id: relier.get('clientId'), //eslint-disable-line camelcase
           scope: decodeURIComponent(relier.get('scope'))
-        })
+        });
       })
       .then((clientKeyData) => {
         if (Object.keys(clientKeyData).length === 0) {
