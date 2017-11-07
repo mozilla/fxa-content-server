@@ -10,6 +10,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const requireOnDemand = require('lib/require-on-demand');
+  const p = require('lib/promise');
 
   /**
    *
@@ -50,7 +51,42 @@ define(function (require, exports, module) {
     });
   }
 
+  /**
+   * Derive scoped keys and create an encrypted bundle for key transport
+   *
+   * @param {Object} keys - Account keys, used to derive scoped keys
+   * @param {Object} clientKeyData - OAuth client data that is required to derive keys
+   * @param {Object} keysJwk - Public key used for scoped key encryption
+   * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
+   */
+  function createEncryptedBundle(keys, clientKeyData, keysJwk) {
+    const relierKeys = [];
+    const clientKeyDataScopes = Object.keys(clientKeyData);
+
+    clientKeyDataScopes.forEach((key) => {
+      relierKeys.push(deriveRelierKeys(keys, clientKeyData[key]));
+    });
+
+    return p.all(relierKeys)
+      .then((derivedKeys) => {
+        const scopedKeys = {};
+
+        derivedKeys.forEach((item) => {
+          const scopeName = Object.keys(item)[0];
+          scopedKeys[scopeName] = item[scopeName];
+        });
+
+        return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+          const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
+          const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(keysJwk));
+
+          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKeys));
+        });
+      });
+  }
+
   return {
+    createEncryptedBundle: createEncryptedBundle,
     deriveRelierKeys: deriveRelierKeys
   };
 });

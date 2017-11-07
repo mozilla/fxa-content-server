@@ -13,7 +13,6 @@ define(function (require, exports, module) {
   const Constants = require('../../lib/constants');
   const OAuthErrors = require('../../lib/oauth-errors');
   const Relier = require('./relier');
-  const RelierKeys = require('lib/crypto/relier-keys');
   const Transform = require('../../lib/transform');
   const Vat = require('../../lib/vat');
 
@@ -31,7 +30,7 @@ define(function (require, exports, module) {
     client_id: Vat.clientId().required().renameTo('clientId'),
     code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
     code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
-    keys_jwk: Vat.string(),
+    keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
       accessType: null,
       clientId: null,
       context: Constants.OAUTH_CONTEXT,
-      keys_jwk: null, //eslint-disable-line camelcase
+      keysJwk: null,
       // permissions are individual scopes
       permissions: null,
       // whether the permissions prompt will be shown to trusted reliers
@@ -212,7 +211,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     wantsKeys () {
-      return !! this.has('keys_jwk');
+      return !! this.has('keysJwk');
     },
 
     /**
@@ -234,10 +233,6 @@ define(function (require, exports, module) {
 
       return ! account.hasSeenPermissions(
           this.get('clientId'), applicableProfilePermissions);
-    },
-
-    deriveRelierKeys: function (keys, uid) {
-      return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     }
   });
 

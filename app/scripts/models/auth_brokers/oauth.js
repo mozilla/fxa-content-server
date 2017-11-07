@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
   const p = require('../../lib/promise');
-  const requireOnDemand = require('lib/require-on-demand');
+  const RelierKeys = require('lib/crypto/relier-keys');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
@@ -83,53 +83,24 @@ define(function (require, exports, module) {
       if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
-      let asser;
-      let keys;
+      let assertion;
       const relier = this.relier;
       const clientId = relier.get('clientId');
       return this._assertionLibrary.generate(account.get('sessionToken'), null, clientId)
-        .then((assertion) => {
-          asser = assertion;
-          const keyFetchToken = account.get('keyFetchToken');
-          const unwrapBKey = account.get('unwrapBKey');
+        .then((asser) => {
+          assertion = asser;
 
-          return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey);
-        })
-        .then((rkeys) => {
-          keys = rkeys;
+          let scopedKeyPromise = p();
 
-          return this._oAuthClient.getClientKeyData({
-            assertion: asser,
-            client_id: clientId, //eslint-disable-line camelcase
-            scope: decodeURIComponent(relier.get('scope'))
-          });
-        })
-        .then((clientKeyData) => {
-          const deriveRelierKeys = [];
-          Object.keys(clientKeyData).forEach((key) => {
-            deriveRelierKeys.push(this.relier.deriveRelierKeys(keys, clientKeyData[key]));
-          });
+          if (relier.wantsKeys()) {
+            scopedKeyPromise = this._provisionScopedKeys(account, assertion);
+          }
 
-          return p.all(deriveRelierKeys);
-        })
-        .then((deriveResults) => {
-          const scopedKeys = {};
-
-          deriveResults.forEach((item) => {
-            const scopeName = Object.keys(item)[0];
-            scopedKeys[scopeName] = item[scopeName];
-          });
-
-          return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
-            const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-            const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(relier.get('keys_jwk')));
-
-            return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(scopedKeys));
-          });
+          return scopedKeyPromise;
         })
         .then((keysJwe) => {
           const oauthParams = {
-            assertion: asser,
+            assertion: assertion,
             client_id: clientId, //eslint-disable-line camelcase
             code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
             code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
@@ -144,6 +115,28 @@ define(function (require, exports, module) {
           return this._oAuthClient.getCode(oauthParams);
         })
         .then(_formatOAuthResult);
+    },
+
+    _provisionScopedKeys (account, assertion) {
+      const relier = this.relier;
+      const keyFetchToken = account.get('keyFetchToken');
+      const unwrapBKey = account.get('unwrapBKey');
+
+      // if check if requested scopes provide scoped keys
+      return this._oAuthClient.getClientKeyData({
+        assertion: assertion,
+        client_id: relier.get('clientId'), //eslint-disable-line camelcase
+        scope: decodeURIComponent(relier.get('scope'))
+      }).then((clientKeyData) => {
+        if (! unwrapBKey || ! keyFetchToken || Object.keys(clientKeyData).length === 0) {
+          // if we got no keys or key data then exit out
+          return null;
+        }
+
+        return this._fxaClient.accountKeys(keyFetchToken, unwrapBKey).then((keys) => {
+          return RelierKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
+        });
+      });
     },
 
     /**

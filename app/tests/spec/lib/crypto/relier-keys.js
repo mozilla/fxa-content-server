@@ -5,8 +5,6 @@
 define(function (require, exports, module) {
   'use strict';
 
-  const { assert } = require('chai');
-
   describe('lib/crypto/relier-keys', () => {
 
     describe('deriveRelierKeys', () => {
