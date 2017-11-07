@@ -547,6 +547,13 @@ const conf = module.exports = convict({
       threshold: 50
     }
   },
+  unblockCode: {
+    maxAttempts: {
+      default: 5,
+      doc: 'How many times an ublock code will be tried before a new one is sent out',
+      format: Number
+    }
+  },
   use_https: false,
   var_path: {
     default: path.resolve(__dirname, '..', 'var'),

@@ -92,6 +92,17 @@ define(function (require, exports, module) {
         // If it is, the error should be displayed on this screen
         // and the user shouldn't even have the chance to continue.
 
+        // get unblock code here and try it
+        const storedCodes = JSON.parse(window.sessionStorage.getItem('unblockCode')) || {};
+        const unblockCode = Object.keys(storedCodes)[0];
+
+        const attemptsLeft = unblockCode && storedCodes[unblockCode];
+        if (storedCodes && attemptsLeft > 0) {
+          window.sessionStorage.setItem('unblockCode', JSON.stringify({[unblockCode]: attemptsLeft - 1 }));
+          return this.signIn(account, password, { unblockCode });
+        }
+
+        window.sessionStorage.removeItem('unblockCode');
         return account.sendUnblockEmail()
           .then(() => {
             return this.navigate('signin_unblock', {
@@ -108,6 +119,7 @@ define(function (require, exports, module) {
     },
 
     onSignInSuccess (account) {
+      window.sessionStorage.removeItem('unblockCode');
       if (! account.get('verified')) {
         var verificationMethod = account.get('verificationMethod');
         var verificationReason = account.get('verificationReason');

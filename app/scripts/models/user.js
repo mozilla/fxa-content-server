@@ -35,6 +35,7 @@ define(function (require, exports, module) {
       this._assertion = options.assertion;
       this._notifier = options.notifier;
       this._storage = options.storage || Storage.factory();
+      this._maxUnblockCodeAttempts = options.maxUnblockCodeAttempts;
 
       this.sentryMetrics = options.sentryMetrics;
 
