@@ -13,22 +13,20 @@ define(function (require, exports, module) {
   const p = require('lib/promise');
 
   /**
+   * Given an inputKey, generate the matching relier-specific derived scoped key.
    *
-   * Given the account master key kB, generate the matching relier-specific derived
-   * scoped key.
-   *
-   * @param {Object} keys - Account keys, used to derive scoped keys
+   * @param {Object} inputKey - Key used to derive from
    * @param {Object} keyData - OAuth client data that is required to derive keys
-   * @returns {Promise} A promise that will resolve with an object having a scoped key.
+   * @returns {Promise} A promise that will resolve with an object having a scoped key
    *   The key is represented as a JWK object.
    */
-  function _deriveRelierKeys(keys = {}, keyData = {}) {
+  function _deriveRelierKeys(inputKey, keyData = {}) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
       return scopedKeys.deriveScopedKeys({
         identifier: keyData.identifier,
-        inputKey: keys.kB,
+        inputKey: inputKey,
         keyMaterial: keyData.keyMaterial,
         timestamp: keyData.timestamp
       });
@@ -48,7 +46,7 @@ define(function (require, exports, module) {
     const clientKeyDataScopes = Object.keys(clientKeyData);
 
     clientKeyDataScopes.forEach((key) => {
-      relierKeys.push(_deriveRelierKeys(keys, clientKeyData[key]));
+      relierKeys.push(_deriveRelierKeys(keys.kB, clientKeyData[key]));
     });
 
     return p.all(relierKeys)
@@ -70,7 +68,7 @@ define(function (require, exports, module) {
   }
 
   return {
-    createEncryptedBundle: createEncryptedBundle,
-    _deriveRelierKeys: _deriveRelierKeys
+    createEncryptedBundle,
+    _deriveRelierKeys
   };
 });

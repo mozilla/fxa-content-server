@@ -91,13 +91,9 @@ define(function (require, exports, module) {
         .then((asser) => {
           assertion = asser;
 
-          let scopedKeyPromise = p();
-
           if (relier.wantsKeys()) {
-            scopedKeyPromise = this._provisionScopedKeys(account, assertion);
+            return this._provisionScopedKeys(account, assertion);
           }
-
-          return scopedKeyPromise;
         })
         .then((keysJwe) => {
           const oauthParams = {

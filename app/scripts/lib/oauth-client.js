@@ -49,6 +49,14 @@ define(function (require, exports, module) {
       return this._request('get', GET_CLIENT + id);
     },
 
+    /**
+     *
+     * @param {Object} params
+     * @param {String} params.assertion
+     * @param {String} params.client_id
+     * @param {String} params.scope
+     * @returns {Promise}
+     */
     getClientKeyData: function getClientKeyData(params) {
       return this._request('post', GET_CLIENT_KEY_DATA, params);
     },

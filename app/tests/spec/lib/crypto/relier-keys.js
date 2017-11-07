@@ -34,7 +34,7 @@ define(function (require, exports, module) {
 
     describe('deriveRelierKeys', () => {
       it('derives a key', () => {
-        return RelierKeys._deriveRelierKeys(keys, clientKeyData[scope]).then((derivedObject) => {
+        return RelierKeys._deriveRelierKeys(keys.kB, clientKeyData[scope]).then((derivedObject) => {
           assert.deepEqual(derivedObject, clientScopedKey);
         });
       });
