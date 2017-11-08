@@ -32,6 +32,7 @@ define(function (require, exports, module) {
    * @param {Object} [options]
    * *   @param {String} [options.caption] - caption describing what the panel is unlocking
    * *   @param {String} [options.gatedHref] - location that is redirected after session is verified
+   * *   @param {String} [options.gatedTemplate] - template that is rendered after session is verified
    * *   @param {String} [options.title] - title name of the panel
    * @returns {Object} UpgradeSessionMixin
    */
