@@ -25,15 +25,18 @@ define(function (require, exports, module) {
   const UpgradeSessionTemplate = require('stache!templates/settings/upgrade_session');
   const t = BaseView.t;
 
+  const showProgressIndicator = require('../decorators/progress_indicator');
+  const EMAIL_REFRESH_SELECTOR = 'button.settings-button.refresh-verification-state';
+  const EMAIL_REFRESH_DELAYMS = 350;
+
   /**
    * The UpgradeSessionMixin can be configured to display different titles and captions
    * depending on what panel is being gated.
    *
    * @param {Object} [options]
-   * *   @param {String} [options.caption] - caption describing what the panel is unlocking
-   * *   @param {String} [options.gatedHref] - location that is redirected after session is verified
-   * *   @param {String} [options.gatedTemplate] - template that is rendered after session is verified
-   * *   @param {String} [options.title] - title name of the panel
+   *  @param {String} [options.caption] - caption describing what the panel is unlocking
+   *  @param {String} [options.gatedHref] - location that is redirected after session is verified
+   *  @param {String} [options.title] - title name of the panel
    * @returns {Object} UpgradeSessionMixin
    */
   module.exports = (options = {}) => {
@@ -45,7 +48,11 @@ define(function (require, exports, module) {
         'click .send-verification-email': preventDefaultThen('_clickSendVerificationEmail')
       },
 
-      _clickRefreshVerificationState () {
+      initialize () {
+        this.gatedTemplate = this.template;
+      },
+
+      _clickRefreshVerificationState: showProgressIndicator(function() {
         this.model.set({
           isPanelOpen: true
         });
@@ -58,7 +65,7 @@ define(function (require, exports, module) {
             }
             return this.render();
           });
-      },
+      }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
       _clickSendVerificationEmail () {
         const account = this.getSignedInAccount();
@@ -96,7 +103,7 @@ define(function (require, exports, module) {
             if (! sessionVerified) {
               this.template = UpgradeSessionTemplate;
             } else {
-              this.template = options.gatedTemplate;
+              this.template = this.gatedTemplate;
             }
             return sessionVerified;
           });

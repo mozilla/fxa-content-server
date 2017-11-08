@@ -95,7 +95,8 @@ define(function (require, exports, module) {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! verificationInfo.isValid(),
         isLinkExpired: verificationInfo.isExpired(),
-        isLinkUsed: verificationInfo.isUsed()
+        isLinkUsed: verificationInfo.isUsed(),
+        isPrimaryEmailVerification: this.isPrimaryEmail()
       });
     },
 
@@ -185,10 +186,14 @@ define(function (require, exports, module) {
           AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
           AuthErrors.is(err, 'INVALID_PARAMETER')) {
 
-        // When coming from sign-in confirmation verification, show a
-        // verification link expired error instead of damaged verification link.
-        // This error is generated because the link has already been used.
-        if (this.isSignIn()) {
+        if (this.isPrimaryEmail()) {
+          verificationInfo.markUsed();
+          err = AuthErrors.toError('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE');
+        } else if (this.isSignIn()) {
+          // When coming from sign-in confirmation verification, show a
+          // verification link expired error instead of damaged verification link.
+          // This error is generated because the link has already been used.
+          //
           // Disable resending verification, can only be triggered from new sign-in
           verificationInfo.markUsed();
           err = AuthErrors.toError('REUSED_SIGNIN_VERIFICATION_CODE');

@@ -492,6 +492,34 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE error', () => {
+        beforeEach(function () {
+          verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+
+          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+          var model = new Backbone.Model();
+          model.set('type', VerificationReasons.PRIMARY_EMAIL_VERIFIED);
+
+          view = new View({
+            account: account,
+            broker: broker,
+            metrics: metrics,
+            model: model,
+            notifier: notifier,
+            relier: relier,
+            user: user,
+            window: windowMock
+          });
+
+          return view.render();
+        });
+
+        it('displays the verification link expired screen', () => {
+          assert.ok(view.$('#fxa-verification-link-reused-header').length);
+          testErrorLogged(AuthErrors.toError('REUSED_PRIMARY_EMAIL_VERIFICATION_CODE'));
+        });
+      });
+
       describe('all other server errors', function () {
         beforeEach(function () {
           verificationError = AuthErrors.toError('UNEXPECTED_ERROR');
