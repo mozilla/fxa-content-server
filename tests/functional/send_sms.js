@@ -37,21 +37,34 @@
    let testPhoneNumber;
    let formattedPhoneNumber;
 
-   const click = FunctionalHelpers.click;
-   const closeCurrentWindow = FunctionalHelpers.closeCurrentWindow;
-   const deleteAllSms = FunctionalHelpers.deleteAllSms;
-   const disableInProd = FunctionalHelpers.disableInProd;
-   const fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-   const getSms = FunctionalHelpers.getSms;
-   const getSmsSigninCode = FunctionalHelpers.getSmsSigninCode;
-   const openPage = FunctionalHelpers.openPage;
-   const switchToWindow = FunctionalHelpers.switchToWindow;
-   const testAttributeEquals = FunctionalHelpers.testAttributeEquals;
-   const testElementExists = FunctionalHelpers.testElementExists;
-   const testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-   const testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-   const testHrefEquals = FunctionalHelpers.testHrefEquals;
-   const type = FunctionalHelpers.type;
+   const {
+     click,
+     closeCurrentWindow,
+     deleteAllSms,
+     disableInProd,
+     fillOutSignUp,
+     getSms,
+     getSmsSigninCode,
+     openPage,
+     switchToWindow,
+     testAttributeEquals,
+     testElementExists,
+     testElementTextInclude,
+     testElementValueEquals,
+     testHrefEquals,
+     type,
+   } = FunctionalHelpers;
+
+   function testSmsSupportedCountryForm (country, expectedPrefix) {
+     return function () {
+       return this.remote
+         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
+           query: { country },
+         }))
+         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, expectedPrefix))
+         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', country));
+     };
+   }
 
    const suite = {
      name: 'send_sms',
@@ -95,49 +108,12 @@
          .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'US'));
      },
 
-     'with `country=CA`': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
-           query: {
-             country: 'CA'
-           }
-         }))
-         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, ''))
-         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'CA'));
-     },
-
-     'with `country=RO`': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
-           query: {
-             country: 'RO'
-           }
-         }))
-         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, '+40'))
-         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'RO'));
-     },
-
-     'with `country=GB`': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
-           query: {
-             country: 'GB'
-           }
-         }))
-         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, '+44'))
-         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'GB'));
-     },
-
-     'with `country=US`': function () {
-       return this.remote
-         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
-           query: {
-             country: 'US'
-           }
-         }))
-         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, ''))
-         .then(testAttributeEquals(selectors.SMS_SEND.PHONE_NUMBER, 'data-country', 'US'));
-     },
+     'with `country=AT`': testSmsSupportedCountryForm('AT', '+43'),
+     'with `country=CA`': testSmsSupportedCountryForm('CA', ''),
+     'with `country=DE`': testSmsSupportedCountryForm('DE', '+49'),
+     'with `country=GB`': testSmsSupportedCountryForm('GB', '+44'),
+     'with `country=RO`': testSmsSupportedCountryForm('RO', '+40'),
+     'with `country=US`': testSmsSupportedCountryForm('US', ''),
 
      'with an unsupported `country`': function () {
        return this.remote
