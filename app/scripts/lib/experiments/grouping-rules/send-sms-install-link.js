@@ -40,7 +40,7 @@ define((require, exports, module) => {
 
       if (isEmailInSigninCodesGroup(subject.account.get('email'))) {
         choice = 'signinCodes';
-      } else if (_.isUndefined(rolloutRate)) {
+      } else if (_.isUndefined(rolloutRate) || rolloutRate >= 1) {
         // country is fully rolled out.
         choice = true;
       } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {

@@ -122,7 +122,7 @@ define((require, exports, module) => {
           const group = this.getExperimentGroup('sendSms', { account, country });
 
           if (! ok) {
-            // auth server says user is not eligible to send and SMS.
+            // auth server says user is not eligible to send an SMS.
             // logging of the reason has taken place in _isEligibleForSms
             this.navigate('connect_another_device', { account, type });
           } else if (! group) {
