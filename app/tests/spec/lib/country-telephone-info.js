@@ -35,6 +35,42 @@ define((require, exports, module) => {
       });
     });
 
+    describe('BE', () => {
+      const { format, normalize, pattern } = CountryTelephoneInfo.BE;
+
+      describe('format', () => {
+        it('formats correctly', () => {
+          assert.equal(format('412345678'), '+32 412345678');
+        });
+      });
+
+      describe('normalize', () => {
+        it('normalizes a number accepted by pattern correctly', () => {
+          assert.equal(normalize('+32412345678'), '+32412345678');
+          assert.equal(normalize('412345678'), '+32412345678');
+        });
+      });
+
+      describe('pattern', () => {
+        it('validates correctly', () => {
+          // incorrect mobile prefix
+          assert.isFalse(pattern.test('512345678'));
+          assert.isFalse(pattern.test('+32512345678'));
+
+          // too short
+          assert.isFalse(pattern.test('41234567'));
+          assert.isFalse(pattern.test('+3241234567'));
+
+          // too long
+          assert.isFalse(pattern.test('4123456789'));
+          assert.isFalse(pattern.test('+324123456789'));
+
+          assert.ok(pattern.test('412345678'));
+          assert.ok(pattern.test('+32412345678'));
+        });
+      });
+    });
+
     describe('DE', () => {
       const { format, normalize, pattern } = CountryTelephoneInfo.DE;
 
@@ -58,6 +94,51 @@ define((require, exports, module) => {
           assert.ok(pattern.test('+49123456'));
           assert.ok(pattern.test('+491234567890123'));
           assert.isFalse(pattern.test('+331234567890'));
+        });
+      });
+    });
+
+    describe('FR', () => {
+      const { format, normalize, pattern } = CountryTelephoneInfo.FR;
+
+      describe('format', () => {
+        it('formats correctly', () => {
+          assert.equal(format('612345678'), '+33 612345678');
+          assert.equal(format('712345678'), '+33 712345678');
+        });
+      });
+
+      describe('normalize', () => {
+        it('normalizes a number accepted by pattern correctly', () => {
+          assert.equal(normalize('+33612345678'), '+33612345678');
+          assert.equal(normalize('712345678'), '+33712345678');
+        });
+      });
+
+      describe('pattern', () => {
+        it('validates correctly', () => {
+          // incorrect mobile prefix
+          assert.isFalse(pattern.test('512345678'));
+          assert.isFalse(pattern.test('+33512345678'));
+
+          // incorrect mobile prefix
+          assert.isFalse(pattern.test('812345678'));
+          assert.isFalse(pattern.test('+33812345678'));
+
+          // too short
+          assert.isFalse(pattern.test('61234567'));
+          assert.isFalse(pattern.test('+3361234567'));
+
+          // too long
+          assert.isFalse(pattern.test('6123456789'));
+          assert.isFalse(pattern.test('+336123456789'));
+
+          assert.ok(pattern.test('612345678'));
+          assert.ok(pattern.test('+33612345678'));
+
+          assert.ok(pattern.test('712345678'));
+          assert.ok(pattern.test('+33712345678'));
+
         });
       });
     });
@@ -86,6 +167,48 @@ define((require, exports, module) => {
           assert.isFalse(pattern.test('+4401234567890')); // that leading 0 kills me.
           assert.isFalse(pattern.test('+44123456789'));
           assert.isFalse(pattern.test('123456789'));
+        });
+      });
+    });
+
+    describe('LU', () => {
+      const { format, normalize, pattern } = CountryTelephoneInfo.LU;
+
+      describe('format', () => {
+        it('formats correctly', () => {
+          assert.equal(format('621123456'), '+352 621123456');
+        });
+      });
+
+      describe('normalize', () => {
+        it('normalizes a number accepted by pattern correctly', () => {
+          assert.equal(normalize('+352621123456'), '+352621123456');
+          assert.equal(normalize('621123456'), '+352621123456');
+        });
+      });
+
+      describe('pattern', () => {
+        it('validates correctly', () => {
+          // Incorrect mobile prefix (first character)
+          assert.isFalse(pattern.test('521123456'));
+          assert.isFalse(pattern.test('+352521123456'));
+
+          // Incorrect mobile prefix (third character)
+          assert.isFalse(pattern.test('622123456'));
+          assert.isFalse(pattern.test('+352622123456'));
+
+          // too short
+          assert.isFalse(pattern.test('62112345'));
+          assert.isFalse(pattern.test('+35262112345'));
+
+          // too long
+          assert.isFalse(pattern.test('6211234567'));
+          assert.isFalse(pattern.test('+3526211234567'));
+
+          assert.ok(pattern.test('621123456'));
+          assert.ok(pattern.test('+352621123456'));
+          assert.ok(pattern.test('631123456'));
+          assert.ok(pattern.test('+352631123456'));
         });
       });
     });
