@@ -166,7 +166,6 @@ define(function (require, exports, module) {
     UpgradeSessionMixin({
       caption: t('A secondary email is an additional address for receiving security notices and confirming new Sync devices'),
       gatedHref: 'settings/emails',
-      gatedTemplate: Template,
       title: t('Secondary email')
     }),
     AvatarMixin,
