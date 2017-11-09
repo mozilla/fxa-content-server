@@ -83,6 +83,15 @@ define((require, exports, module) => {
       prefix: '+43',
       rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=AT`
     },
+    // Belgium
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium#Mobile_numbers
+    BE: {
+      format: formatter('+32 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+32'),
+      pattern: /^(?:\+32)?4\d{8}$/,
+      prefix: '+32',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+    },
     // Germany
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
     DE: {
@@ -92,11 +101,28 @@ define((require, exports, module) => {
       prefix: '+49',
       rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
     },
+    // France
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
+    FR: {
+      format: formatter('+33 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+33'),
+      pattern: /^(?:\+33)?[67]\d{8}$/,
+      prefix: '+33',
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+    },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
       normalize: ensurePrefix('+44'),
       pattern: /^(?:\+44)?\d{10,10}$/,
       prefix: '+44'
+    },
+    // Luxembourg
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
+    LU: {
+      format: formatter('+352 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+352'),
+      pattern: /^(?:\+352)?6\d1\d{6}$/,
+      prefix: '+352'
     },
     RO: {
       format: formatter('+40 ${serverPhoneNumber}'),
