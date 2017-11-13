@@ -128,7 +128,7 @@ define(function (require, exports, module) {
 
       return p().then(() => {
         if (unwrapBKey && keyFetchToken) {
-          // if check if requested scopes provide scoped keys
+          // check if requested scopes provide scoped keys
           return this._oAuthClient.getClientKeyData({
             assertion: assertion,
             client_id: relier.get('clientId'), //eslint-disable-line camelcase
