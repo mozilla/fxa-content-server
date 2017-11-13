@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Derive relier-specific encryption keys from account master keys.
+ * Derive relier-specific scoped keys from account master keys.
  */
 
 define(function (require, exports, module) {
@@ -20,8 +20,16 @@ define(function (require, exports, module) {
    * @returns {Promise} A promise that will resolve with an object having a scoped key
    *   The key is represented as a JWK object.
    */
-  function _deriveScopedKeys(inputKey, keyData = {}) {
+  function _deriveScopedKeys(inputKey, keyData) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
+      if (! inputKey) {
+        throw new Error('Missing input key');
+      }
+
+      if (! keyData) {
+        throw new Error('Missing key data');
+      }
+
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
       return scopedKeys.deriveScopedKey({
@@ -36,13 +44,13 @@ define(function (require, exports, module) {
   /**
    * Derive scoped keys and create an encrypted bundle for key transport
    *
-   * @param {Object} keys - Account keys, used to derive scoped keys
-   * @param {Object} clientKeyData - OAuth client data that is required to derive keys
+   * @param {Object} accountKeys - Account keys, used to derive scoped keys
+   * @param {Object} scopedKeyData - OAuth client data that is required to derive keys
    * @param {Object} keysJwk - Public key used for scoped key encryption
    * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
    */
-  function createEncryptedBundle(keys, clientKeyData, keysJwk) {
-    const deriveKeys = Object.keys(clientKeyData).map((key) => _deriveScopedKeys(keys.kB, clientKeyData[key]));
+  function createEncryptedBundle(accountKeys, scopedKeyData, keysJwk) {
+    const deriveKeys = Object.keys(scopedKeyData).map((key) => _deriveScopedKeys(accountKeys.kB, scopedKeyData[key]));
 
     return p.all(deriveKeys)
       .then((derivedKeys) => {

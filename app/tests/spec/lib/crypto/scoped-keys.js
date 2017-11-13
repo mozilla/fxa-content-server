@@ -33,10 +33,22 @@ define(function (require, exports, module) {
     };
     const keysJwk = 'eyJrdHkiOiJFQyIsImtpZCI6IjVEakVLQ1ZSRGtCUFBLVTc4ZjNQOW92eU5EeDhnb1NWbGh0QzhFMlJfZXciLCJjcnYiOiJQLTI1NiIsIngiOiIzTXkwZzBNN3JwX2MyemMxNVlZM2xKcjlKcURrSmFXQjhLcTJ6aFhRTldNIiwieSI6IlVGZ05UVGVRbWlZTEE5VzJVTmIyemFaVHhzWHVtYnVpbDFhT0xlY1gxRk0ifQ'; //eslint-disable-line max-len
 
-    describe('deriveScopedKeys', () => {
+    describe('_deriveScopedKeys', () => {
       it('derives a key', () => {
         return ScopedKeys._deriveScopedKeys(keys.kB, clientKeyData[scope]).then((derivedObject) => {
           assert.deepEqual(derivedObject, derivedKey);
+        });
+      });
+
+      it('throws if no inputKey', () => {
+        return ScopedKeys._deriveScopedKeys().then(null, (err) => {
+          assert.equal(err.message, 'Missing input key');
+        });
+      });
+
+      it('throws if no client data', () => {
+        return ScopedKeys._deriveScopedKeys(keys.kB).then(null, (err) => {
+          assert.equal(err.message, 'Missing key data');
         });
       });
     });
