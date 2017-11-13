@@ -7,9 +7,9 @@ define(function (require, exports, module) {
 
   const { assert } = require('chai');
   const sinon = require('sinon');
-  const RelierKeys = require('lib/crypto/relier-keys');
+  const ScopedKeys = require('lib/crypto/scoped-keys');
 
-  describe('lib/crypto/relier-keys', () => {
+  describe('lib/crypto/scoped-keys', () => {
     const keys = {
       kA: 'bba2ea983743324201a921e816f2e00e25da54473c9aa3ef050209c0f3bb8d86',
       kB: 'f5c47b97aecaf7dca9e020e4ea427f8431334a505cda40f09f3d9577e0006185'
@@ -33,9 +33,9 @@ define(function (require, exports, module) {
     };
     const keysJwk = 'eyJrdHkiOiJFQyIsImtpZCI6IjVEakVLQ1ZSRGtCUFBLVTc4ZjNQOW92eU5EeDhnb1NWbGh0QzhFMlJfZXciLCJjcnYiOiJQLTI1NiIsIngiOiIzTXkwZzBNN3JwX2MyemMxNVlZM2xKcjlKcURrSmFXQjhLcTJ6aFhRTldNIiwieSI6IlVGZ05UVGVRbWlZTEE5VzJVTmIyemFaVHhzWHVtYnVpbDFhT0xlY1gxRk0ifQ'; //eslint-disable-line max-len
 
-    describe('deriveRelierKeys', () => {
+    describe('deriveScopedKeys', () => {
       it('derives a key', () => {
-        return RelierKeys._deriveRelierKeys(keys.kB, clientKeyData[scope]).then((derivedObject) => {
+        return ScopedKeys._deriveScopedKeys(keys.kB, clientKeyData[scope]).then((derivedObject) => {
           assert.deepEqual(derivedObject, derivedKey);
         });
       });
@@ -53,7 +53,7 @@ define(function (require, exports, module) {
       });
 
       it('can encrypt keys', () => {
-        return RelierKeys.createEncryptedBundle(keys, clientKeyData, keysJwk).then((bundle) => {
+        return ScopedKeys.createEncryptedBundle(keys, clientKeyData, keysJwk).then((bundle) => {
           assert.match(bundle, /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
           const jsonArgs = JSON.stringify.args[1];
           assert.deepEqual(jsonArgs, [clientScopedKey]);
@@ -77,7 +77,7 @@ define(function (require, exports, module) {
           scope: 'https://identity.mozilla.org/apps/lockbox'
         };
 
-        return RelierKeys.createEncryptedBundle(keys, multiKeyData, keysJwk).then((bundle) => {
+        return ScopedKeys.createEncryptedBundle(keys, multiKeyData, keysJwk).then((bundle) => {
           const jsonArgs = JSON.stringify.args[1];
 
           assert.match(bundle, /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);

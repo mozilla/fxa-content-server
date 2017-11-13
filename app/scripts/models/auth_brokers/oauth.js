@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const HaltBehavior = require('../../views/behaviors/halt');
   const OAuthErrors = require('../../lib/oauth-errors');
   const p = require('../../lib/promise');
-  const RelierKeys = require('lib/crypto/relier-keys');
+  const ScopedKeys = require('lib/crypto/scoped-keys');
   const Url = require('../../lib/url');
   const Vat = require('../../lib/vat');
 
@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
-      this._relierKeys = RelierKeys;
+      this._relierKeys = ScopedKeys;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);

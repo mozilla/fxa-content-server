@@ -31,7 +31,7 @@ function (Translator, Session) {
     '../tests/spec/lib/config-loader',
     '../tests/spec/lib/country-telephone-info',
     '../tests/spec/lib/cropper',
-    '../tests/spec/lib/crypto/relier-keys',
+    '../tests/spec/lib/crypto/scoped-keys',
     '../tests/spec/lib/dom-writer',
     '../tests/spec/lib/environment',
     '../tests/spec/lib/error-utils',

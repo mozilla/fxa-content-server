@@ -20,7 +20,7 @@ define(function (require, exports, module) {
    * @returns {Promise} A promise that will resolve with an object having a scoped key
    *   The key is represented as a JWK object.
    */
-  function _deriveRelierKeys(inputKey, keyData = {}) {
+  function _deriveScopedKeys(inputKey, keyData = {}) {
     return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
       const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
@@ -42,7 +42,7 @@ define(function (require, exports, module) {
    * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
    */
   function createEncryptedBundle(keys, clientKeyData, keysJwk) {
-    const deriveKeys = Object.keys(clientKeyData).map((key) => _deriveRelierKeys(keys.kB, clientKeyData[key]));
+    const deriveKeys = Object.keys(clientKeyData).map((key) => _deriveScopedKeys(keys.kB, clientKeyData[key]));
 
     return p.all(deriveKeys)
       .then((derivedKeys) => {
@@ -63,6 +63,6 @@ define(function (require, exports, module) {
 
   return {
     createEncryptedBundle,
-    _deriveRelierKeys
+    _deriveScopedKeys
   };
 });

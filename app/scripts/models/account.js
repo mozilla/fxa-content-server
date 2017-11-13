@@ -1035,7 +1035,7 @@ define(function (require, exports, module) {
             return null;
           }
 
-          return relier.deriveRelierKeys(accountKeys, this.get('uid'));
+          return relier.deriveScopedKeys(accountKeys, this.get('uid'));
         });
     },
 
