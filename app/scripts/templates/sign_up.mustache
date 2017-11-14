@@ -31,12 +31,15 @@
     {{/isAmoMigration}}
 
     <form novalidate>
-      <div class="input-row">
+      <div class="input-row {{^forceEmail}}{{#showPasswordConfirm}}label-helper-top{{/showPasswordConfirm}}{{/forceEmail}}">
         {{#forceEmail}}
           <p class="prefillEmail">{{ forceEmail }}</p>
           <input type="email" class="email hidden tooltip-below" value="{{ forceEmail }}" disabled />
         {{/forceEmail}}
         {{^forceEmail}}
+          {{#showPasswordConfirm}}
+            <label class="label-helper"></label>
+          {{/showPasswordConfirm}}
           <input name="email" type="email" class="email tooltip-below" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" spellcheck="false" required />
         {{/forceEmail}}
       </div>
