@@ -62,9 +62,8 @@ define(function (require, exports, module) {
 
         return requireOnDemand('fxaCryptoDeriver').then((fxaCryptoDeriver) => {
           const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-          const appJwk = fxaCryptoDeriver.jose.util.base64url.decode(JSON.stringify(keysJwk));
 
-          return fxaDeriverUtils.encryptBundle(appJwk, JSON.stringify(bundleObject));
+          return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
         });
       });
   }

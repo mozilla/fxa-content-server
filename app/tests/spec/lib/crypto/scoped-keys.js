@@ -67,7 +67,8 @@ define(function (require, exports, module) {
       it('can encrypt keys', () => {
         return ScopedKeys.createEncryptedBundle(keys, clientKeyData, keysJwk).then((bundle) => {
           assert.match(bundle, /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
-          const jsonArgs = JSON.stringify.args[1];
+
+          const jsonArgs = JSON.stringify.args[0];
           assert.deepEqual(jsonArgs, [clientScopedKey]);
         });
       });
@@ -90,7 +91,7 @@ define(function (require, exports, module) {
         };
 
         return ScopedKeys.createEncryptedBundle(keys, multiKeyData, keysJwk).then((bundle) => {
-          const jsonArgs = JSON.stringify.args[1];
+          const jsonArgs = JSON.stringify.args[0];
 
           assert.match(bundle, /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/);
           assert.deepEqual(jsonArgs[0][lockboxScope], multiScopedKey[lockboxScope]);
