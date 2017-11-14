@@ -200,6 +200,12 @@ body.settings #main-content.card {
         }
       }
 
+      html[dir] .clients & {
+        @include respond-to('small') {
+          float: none;
+          margin: 10px 0;
+        }
+      }
     }
   }
 
@@ -542,7 +548,7 @@ section.modal-panel {
     margin-right: 110px;
 
     @include respond-to('small') {
-      max-width: 78%;
+      margin-right: 0;
     }
   }
 
@@ -563,6 +569,10 @@ section.modal-panel {
     html[dir='rtl'] & {
       left: 0;
     }
+
+    @include respond-to('small') {
+      position: relative;
+    }
   }
 
   a.settings-button {
@@ -580,7 +590,7 @@ section.modal-panel {
     margin-right: 110px;
 
     @include respond-to('small') {
-      max-width: 78%;
+      margin-right: 0;
     }
   }
 
