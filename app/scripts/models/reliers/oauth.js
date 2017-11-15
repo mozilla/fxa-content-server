@@ -50,8 +50,8 @@ define(function (require, exports, module) {
     service: Vat.clientId(),
     state: Vat.string().min(1)
   };
-  /*eslint-enable camelcase*/
 
+  /*eslint-enable camelcase*/
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -212,8 +212,34 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     wantsKeys () {
-      return !! (this.has('keysJwk') && this._config.scopedKeysEnabled);
+      return !! (this.has('keysJwk') && this._config.scopedKeysEnabled && this._validateKeyScope());
     },
+
+    /**
+     * Validate the requested scope with the relier redirect uri
+     * @returns {boolean}
+     * @private
+     */
+    _validateKeyScope () {
+      const validation = this._config.scopedKeysValidation || {};
+
+      if (! this.get('scope')) {
+        throw new Error('Invalid scope parameter');
+      }
+
+      const scopes = scopeStrToArray(this.get('scope'));
+
+      scopes.forEach((scope) => {
+        const existingScope = validation.hasOwnProperty(scope);
+
+        if (existingScope && ! validation[scope].redirectUris.includes(this.get('redirectUri'))) {
+          throw new Error('Invalid redirect parameter');
+        }
+      });
+
+      return true;
+    },
+
 
     /**
      * Check whether additional permissions are requested from

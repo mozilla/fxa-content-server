@@ -15,7 +15,8 @@ module.exports = function (config) {
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
-  const SCOPED_KEYS_ENABLED = config.get('scopedKeysEnabled');
+  const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
+  const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
 
@@ -28,7 +29,8 @@ module.exports = function (config) {
     oAuthUrl: OAUTH_SERVER_URL,
     profileUrl: PROFILE_SERVER_URL,
     release: RELEASE,
-    scopedKeysEnabled: SCOPED_KEYS_ENABLED
+    scopedKeysEnabled: SCOPED_KEYS_ENABLED,
+    scopedKeysValidation: SCOPED_KEYS_VALIDATION,
   }));
 
   const route = {};
