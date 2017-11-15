@@ -35,8 +35,8 @@ define(function (require, exports, module) {
       return scopedKeys.deriveScopedKey({
         identifier: keyData.identifier,
         inputKey: inputKey,
-        keyMaterial: keyData.keyMaterial,
-        timestamp: keyData.timestamp
+        keyRotationSecret: keyData.keyRotationSecret,
+        keyRotationTimestamp: keyData.keyRotationTimestamp
       });
     });
   }

@@ -18,13 +18,13 @@ define(function (require, exports, module) {
     const clientKeyData = {
       [scope]: {
         identifier: scope,
-        keyMaterial: '0000000000000000000000000000000000000000000000000000000000000000',
-        timestamp: 1510011454564
+        keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+        keyRotationTimestamp: 1510011454564
       }
     };
     const derivedKey = {
-      k: '7X4dQpHUe5ZSWQBYzJQp2PcF2tNanfQRK61Euhahc1c',
-      kid: '1510011455-Elesfq0A6LSNt9VlaPZIRTKbRt-Apg0ezscLBpdCilg',
+      k: '6pXqtKRy9VJ2aXc9cQsNjdB1058MMEOtfSmYL8TFTgo',
+      kid: '1510011455-A19NCXeloCwS_-QqRdgqMQ',
       kty: 'oct',
       scope: scope
     };
@@ -78,14 +78,14 @@ define(function (require, exports, module) {
         const multiKeyData = Object.assign({}, clientKeyData);
         multiKeyData[lockboxScope] = {
           identifier: lockboxScope,
-          keyMaterial: '0000000000000000000000000000000000000000000000000000000000000000',
-          timestamp: 1510011454564
+          keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+          keyRotationTimestamp: 1510011454564
         };
 
         const multiScopedKey = Object.assign({}, clientScopedKey);
         multiScopedKey[lockboxScope] = {
-          k: 'ArXN0X3CfGGRMCq3c97ZiAmdCcPZuHKyPJ5VMmL9SvI',
-          kid: '1510011455-iLBbPGY_EVWaozJQitJNJK7aqqVIJZsIHzbqK1oqWXk',
+          k: 'wQtdTZjQO4VmxBLS_FvR16btBtEoUH76Ao4I_Upiszk',
+          kid: '1510011455-6AWjg8ZvOENFpRDXSF3zKQ',
           kty: 'oct',
           scope: 'https://identity.mozilla.org/apps/lockbox'
         };

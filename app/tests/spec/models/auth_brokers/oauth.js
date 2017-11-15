@@ -330,8 +330,8 @@ define(function (require, exports, module) {
       const keyData = {
         [scope]: {
           identifier: scope,
-          keyMaterial: '0000000000000000000000000000000000000000000000000000000000000000',
-          timestamp: 1506970363512
+          keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+          keyRotationTimestamp: 1506970363512
         }
       };
 

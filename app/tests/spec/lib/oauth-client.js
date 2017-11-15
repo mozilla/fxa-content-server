@@ -131,8 +131,8 @@ define(function (require, exports, module) {
           return p({
             [scope]: {
               identifier: scope,
-              keyMaterial: '0000000000000000000000000000000000000000000000000000000000000000',
-              timestamp: 1506970363512
+              keyRotationSecret: '0000000000000000000000000000000000000000000000000000000000000000',
+              keyRotationTimestamp: 1506970363512
             }
           });
         });
@@ -141,7 +141,7 @@ define(function (require, exports, module) {
           .then(function (result) {
             assert.isTrue(client._request.calledWith('post', '/v1/key-data'));
             assert.ok(result);
-            assert.equal(result[scope].timestamp, 1506970363512);
+            assert.equal(result[scope].keyRotationTimestamp, 1506970363512);
           });
       });
     });
