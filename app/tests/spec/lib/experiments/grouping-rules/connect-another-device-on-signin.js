@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const { assert } = require('chai');
   const Account = require('models/account');
   const Experiment = require('lib/experiments/grouping-rules/connect-another-device-on-signin');
@@ -29,12 +30,10 @@ define(function (require, exports, module) {
       it('returns false if invalid subject', () => {
         assert.isFalse(experiment.choose());
         assert.isFalse(experiment.choose({}));
-
-        assert.isFalse(experiment.choose(Object.assign(validSubject, { env: undefined })));
-        assert.isFalse(experiment.choose(Object.assign(validSubject, { uniqueUserId: undefined })));
-
-        assert.isFalse(experiment.choose(Object.assign(validSubject, { account: undefined })));
-        assert.isFalse(experiment.choose(Object.assign(validSubject, { account: new Account() })));
+        assert.isFalse(experiment.choose(_.omit(validSubject, 'env')));
+        assert.isFalse(experiment.choose(_.omit(validSubject, 'uniqueUserId')));
+        assert.isFalse(experiment.choose(_.omit(validSubject, 'account')));
+        assert.isFalse(experiment.choose(Object.assign({}, validSubject, { account: new Account() })));
       });
 
       it('returns `treatment` for test email addresses', () => {
