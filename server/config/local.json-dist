@@ -17,7 +17,9 @@
     "fmt": "pretty",
     "level": "debug"
   },
-  "scopedKeysEnabled": true,
+  "scopedKeys": {
+    "enabled": true
+  },
   "static_directory": "app",
   "allowed_parent_origins": ["http://127.0.0.1:8080"],
   "csp": {
