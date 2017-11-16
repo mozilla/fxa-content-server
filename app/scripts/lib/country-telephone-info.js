@@ -91,7 +91,7 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+32'),
       pattern: /^(?:\+32\d{9}|\d{10})$/,
       prefix: '+32',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=BE`
     },
     // Germany
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
@@ -102,6 +102,15 @@ define((require, exports, module) => {
       prefix: '+49',
       rolloutRate: 0.5
     },
+    // Spain
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Spain
+    ES: {
+      format: formatter('+34 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+34'),
+      pattern: /^(?:\+34)?\d{9}$/,
+      prefix: '+34',
+      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=ES`
+    },
     // France
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
     FR: {
@@ -109,13 +118,24 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+33'),
       pattern: /^(?:\+33\d{9}|\d{10})$/,
       prefix: '+33',
-      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=DE`
+      rolloutRate: 0 // being soft launched. Testers will need to open `/sms?service=sync&country=FR`
     },
     GB: {
       format: formatter('+44 ${serverPhoneNumber}'),
       normalize: ensurePrefix('+44'),
       pattern: /^(?:\+44\d{10}|\d{11})$/,
       prefix: '+44'
+    },
+    // Italy
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Italy
+    IT: {
+      format: formatter('+39 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+39'),
+      // Italy can have either 9 or 10 digit numbers. 9 digits
+      // are the old style and are still used.
+      pattern: /^(?:\+39)?\d{9,10}$/,
+      prefix: '+39',
+      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=IT`
     },
     // Luxembourg
     // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
@@ -124,6 +144,15 @@ define((require, exports, module) => {
       normalize: ensurePrefix('+352'),
       pattern: /^(?:\+352)?\d{9}$/,
       prefix: '+352'
+    },
+    // Portugal
+    // https://en.wikipedia.org/wiki/Telephone_numbers_in_Portugal
+    PT: {
+      format: formatter('+351 ${serverPhoneNumber}'),
+      normalize: ensurePrefix('+351'),
+      pattern: /^(?:\+351)?\d{9}$/,
+      prefix: '+351',
+      rolloutRate: 0  // being soft launched. Testers will need to open `/sms?service=sync&country=PT`
     },
     RO: {
       format: formatter('+40 ${serverPhoneNumber}'),
