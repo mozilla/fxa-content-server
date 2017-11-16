@@ -216,28 +216,29 @@ define(function (require, exports, module) {
     },
 
     /**
-     * Validate the requested scope with the relier redirect uri
+     * Validate the requested scope with the relier redirect uri.
+     * At least one valid match must be found to successfully validate
      * @returns {boolean}
      * @private
      */
     _validateKeyScope () {
       const validation = this._config.scopedKeysValidation || {};
+      let foundRedirectScopeMatch = false;
 
       if (! this.get('scope')) {
         throw new Error('Invalid scope parameter');
       }
 
-      const scopes = scopeStrToArray(this.get('scope'));
-
-      scopes.forEach((scope) => {
-        const existingScope = validation.hasOwnProperty(scope);
-
-        if (existingScope && ! validation[scope].redirectUris.includes(this.get('redirectUri'))) {
-          throw new Error('Invalid redirect parameter');
-        }
+      scopeStrToArray(this.get('scope')).forEach((scope) => {
+        if (validation.hasOwnProperty(scope)) {
+          if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
+            foundRedirectScopeMatch = true;
+          } else {
+            throw new Error('Invalid redirect parameter');
+          }}
       });
 
-      return true;
+      return foundRedirectScopeMatch;
     },
 
 

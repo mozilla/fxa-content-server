@@ -511,12 +511,12 @@ define(function (require, exports, module) {
         };
       });
 
-      it('returns true by default', () => {
+      it('returns false by default', () => {
         relier.set('scope', scopeNormal);
-        assert.isTrue(relier._validateKeyScope());
+        assert.isFalse(relier._validateKeyScope());
       });
 
-      it('returns true if scopes match the redirect uri', () => {
+      it('returns true if scopes match at least one redirect uri', () => {
         relier.set('scope', scopeApp1);
         relier.set('redirectUri', scopeApp1Redirect);
         assert.isTrue(relier._validateKeyScope());

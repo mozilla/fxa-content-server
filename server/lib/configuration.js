@@ -449,8 +449,7 @@ const conf = module.exports = convict({
       default: {
         'https://identity.mozilla.org/apps/lockbox': {
           redirectUris: [
-            'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org',
-            'lockbox://redirect.ios'
+            'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org'
           ]
         },
         'https://identity.mozilla.org/apps/notes': {

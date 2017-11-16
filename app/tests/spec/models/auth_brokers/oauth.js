@@ -356,10 +356,10 @@ define(function (require, exports, module) {
         });
       });
 
-      it('calls relierKeys to encrypt the bundle', () => {
+      it('calls _provisionScopedKeys to encrypt the bundle', () => {
         relier.set('keysJwk', keysJwk);
 
-        sinon.stub(broker._relierKeys, 'createEncryptedBundle').callsFake((_keys, _keyData, _jwk) => {
+        sinon.stub(broker._scopedKeys, 'createEncryptedBundle').callsFake((_keys, _keyData, _jwk) => {
           assert.equal(_keys, keys);
           assert.equal(_keyData, keyData);
           assert.equal(_jwk, keysJwk);
@@ -369,7 +369,7 @@ define(function (require, exports, module) {
 
         return broker._provisionScopedKeys(accountKey, 'assertion')
           .then((result) => {
-            assert.isTrue(broker._relierKeys.createEncryptedBundle.calledOnce);
+            assert.isTrue(broker._scopedKeys.createEncryptedBundle.calledOnce);
             assert.equal(result, 'bundle');
           });
       });

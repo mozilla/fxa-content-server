@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Derive relier-specific scoped keys from account master keys.
+ * Derive scope-specific keys from account master keys.
  */
 
 define(function (require, exports, module) {

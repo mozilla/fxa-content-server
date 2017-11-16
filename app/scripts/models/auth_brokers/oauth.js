@@ -73,7 +73,7 @@ define(function (require, exports, module) {
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
-      this._relierKeys = ScopedKeys;
+      this._scopedKeys = ScopedKeys;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);
@@ -143,7 +143,7 @@ define(function (require, exports, module) {
         }
 
         return account.accountKeys().then((keys) => {
-          return this._relierKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
+          return this._scopedKeys.createEncryptedBundle(keys, clientKeyData, relier.get('keysJwk'));
         });
       });
     },
