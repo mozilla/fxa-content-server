@@ -8,6 +8,7 @@ module.exports = function (grunt) {
       options: { eslintrc: '<%= yeoman.app %>/.eslintrc' },
       src: [
         '<%= yeoman.app %>/**/*.js',
+        '!<%= yeoman.app %>/**/*.bundle.js',
         '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/scripts/vendor/**'
       ]

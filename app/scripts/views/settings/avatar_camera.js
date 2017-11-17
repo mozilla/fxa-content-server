@@ -18,7 +18,7 @@ define(function (require, exports, module) {
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
   const ProfileImage = require('../../models/profile-image');
   const ProgressIndicator = require('../progress_indicator');
-  const Template = require('stache!templates/settings/avatar_camera');
+  const Template = require('templates/settings/avatar_camera.mustache');
   const WebRTC = require('webrtc');
 
   // a blank 1x1 png

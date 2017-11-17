@@ -76,3 +76,7 @@ locale/*/*/*.po
 
 ### Experiments
 /experiments
+
+### Webpack output
+*.bundle.js
+*.bundle.js.map

@@ -16,13 +16,13 @@ module.exports = function (grunt) {
     var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
 
     var jsDir = grunt.config('yeoman.dist');
-    var jsSourcePath = path.join(jsDir, 'scripts', 'main.js');
+    var jsSourcePath = path.join(jsDir, 'app.bundle.js');
 
     supportedLanguages.forEach((language) => {
       var locale = i18n.localeFrom(language);
       var translationPath = path.join(grunt.config.get('yeoman.app'), 'i18n', locale, 'client.json');
 
-      var jsDestPath = path.join(jsDir, 'scripts', 'main.' + locale + '.js');
+      var jsDestPath = path.join(jsDir, 'app.bundle.' + locale + '.js');
 
       var translations = grunt.file.readJSON(translationPath);
       grunt.log.writeln('writing', jsDestPath);
@@ -30,7 +30,7 @@ module.exports = function (grunt) {
         process: (contents) => {
           // `__translations__:{},` is written in
           // the replace:fetch_translations task.
-          return contents.replace(/__translations__:{},/, '__translations__:' + JSON.stringify(translations) + ',');
+          return contents.replace(/__translations__:\s*{},/, '__translations__:' + JSON.stringify(translations) + ',');
         }
       });
     });
