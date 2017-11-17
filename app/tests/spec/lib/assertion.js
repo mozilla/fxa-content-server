@@ -11,7 +11,6 @@ define(function (require, exports, module) {
   const Duration = require('duration');
   const FxaClientWrapper = require('lib/fxa-client');
   const jwcrypto = require('jwcrypto.rs');
-  const p = require('lib/promise');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
   const TestHelpers = require('../../lib/helpers');
@@ -79,66 +78,64 @@ define(function (require, exports, module) {
             assert.equal(args[3], SERVICE, 'service was set correctly');
           })
           .then(function () {
-            var defer = p.defer();
-            const issuer = Url.getOrigin(config.auth_server_base_url);
-            $.getJSON(issuer + '/.well-known/browserid', function (data) {
-              try {
-                assert.ok(data, 'Received .well-known data');
-                var fxaRootKey = jwcrypto.loadPublicKeyFromObject(data['public-key']);
-                var fullAssertion = jwcrypto.cert.unbundle(assertion);
-                var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
-                var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
-                // construct the checkDate based on the assertion's expiry time, not the certificate's
-                var assertionComponents = jwcrypto.extractComponents(fullAssertion.signedAssertion);
-                var checkDate = new Date(assertionComponents.payload.exp - 1);
+            return new Promise((resolve, reject) => {
+              const issuer = Url.getOrigin(config.auth_server_base_url);
+              $.getJSON(issuer + '/.well-known/browserid', function (data) {
+                try {
+                  assert.ok(data, 'Received .well-known data');
+                  var fxaRootKey = jwcrypto.loadPublicKeyFromObject(data['public-key']);
+                  var fullAssertion = jwcrypto.cert.unbundle(assertion);
+                  var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
+                  var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
+                  // construct the checkDate based on the assertion's expiry time, not the certificate's
+                  var assertionComponents = jwcrypto.extractComponents(fullAssertion.signedAssertion);
+                  var checkDate = new Date(assertionComponents.payload.exp - 1);
 
-                assert.ok(components.payload.iss, 'Issuer exists');
-                assert.ok(components.payload.iat, 'Issued date exists');
-                assert.ok(components.payload.exp, 'Expire date exists');
+                  assert.ok(components.payload.iss, 'Issuer exists');
+                  assert.ok(components.payload.iat, 'Issued date exists');
+                  assert.ok(components.payload.exp, 'Expire date exists');
 
-                assert.isNumber(components.payload.iat, 'cert lacks an "issued at" (.iat) field');
-                assert.isNumber(components.payload.exp, 'cert lacks an "expires" (.exp) field');
+                  assert.isNumber(components.payload.iat, 'cert lacks an "issued at" (.iat) field');
+                  assert.isNumber(components.payload.exp, 'cert lacks an "expires" (.exp) field');
 
-                if (components.payload.exp < components.payload.iat) {
-                  throw new Error('assertion expires before cert is valid');
-                }
-
-                if (components.payload.exp > (components.payload.exp + 5000)) {
-                  throw new Error('assertion was likely issued after cert expired');
-                }
-
-                if (assertionComponents.payload.exp < (Date.now() + LONG_LIVED_ASSERTION_DURATION - 5000)) {
-                  throw new Error('assertion should be long lived');
-                }
-
-                jwcrypto.assertion.verify(jwcrypto,
-                  fullAssertion.signedAssertion, assertionPublicKey, checkDate,
-                  function (err, payload, assertionParams) {
-                    if (err) {
-                      defer.reject(new Error('assertion is NOT properly signed: ' + err ));
-                    } else {
-                      assert.ok(payload, 'has payload');
-                      assert.ok(assertionParams, 'has assertion params');
-                      defer.resolve({
-                        assertion: assertion,
-                        assertionParams: assertionParams,
-                        checkDate: checkDate,
-                        fxaRootKey: fxaRootKey,
-                        payload: payload
-                      });
-                    }
+                  if (components.payload.exp < components.payload.iat) {
+                    throw new Error('assertion expires before cert is valid');
                   }
-                );
 
-              } catch (e) {
-                defer.reject(e);
-              }
-            })
-            .fail(function () {
-              defer.reject(new Error('failed to feth .well-known/browserid'));
+                  if (components.payload.exp > (components.payload.exp + 5000)) {
+                    throw new Error('assertion was likely issued after cert expired');
+                  }
+
+                  if (assertionComponents.payload.exp < (Date.now() + LONG_LIVED_ASSERTION_DURATION - 5000)) {
+                    throw new Error('assertion should be long lived');
+                  }
+
+                  jwcrypto.assertion.verify(jwcrypto,
+                    fullAssertion.signedAssertion, assertionPublicKey, checkDate,
+                    function (err, payload, assertionParams) {
+                      if (err) {
+                        reject(new Error('assertion is NOT properly signed: ' + err ));
+                      } else {
+                        assert.ok(payload, 'has payload');
+                        assert.ok(assertionParams, 'has assertion params');
+                        resolve({
+                          assertion: assertion,
+                          assertionParams: assertionParams,
+                          checkDate: checkDate,
+                          fxaRootKey: fxaRootKey,
+                          payload: payload
+                        });
+                      }
+                    }
+                  );
+                } catch (e) {
+                  reject(e);
+                }
+              })
+              .catch(function () {
+                reject(new Error('failed to feth .well-known/browserid'));
+              });
             });
-
-            return defer.promise;
           });
       });
     });
