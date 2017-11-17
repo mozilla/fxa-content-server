@@ -41,13 +41,13 @@ define(function (require, exports, module) {
       });
 
       it('throws if no inputKey', () => {
-        return ScopedKeys._deriveScopedKeys().then(null, (err) => {
+        return ScopedKeys._deriveScopedKeys().then(assert.fail, (err) => {
           assert.equal(err.message, 'Missing input key');
         });
       });
 
       it('throws if no client data', () => {
-        return ScopedKeys._deriveScopedKeys(keys.kB).then(null, (err) => {
+        return ScopedKeys._deriveScopedKeys(keys.kB).then(assert.fail, (err) => {
           assert.equal(err.message, 'Missing key data');
         });
       });

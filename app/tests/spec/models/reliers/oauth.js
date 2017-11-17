@@ -556,8 +556,11 @@ define(function (require, exports, module) {
       });
 
       it('throws if no scopes', (done) => {
+        relier._config.scopedKeysEnabled = true;
+        relier.set('keysJwk', 'jwk');
+
         try {
-          relier._validateKeyScope();
+          relier.wantsKeys();
         } catch (err) {
           assert.equal(err.message, 'Invalid scope parameter');
           done();

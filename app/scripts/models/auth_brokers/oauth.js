@@ -132,7 +132,7 @@ define(function (require, exports, module) {
           return this._oAuthClient.getClientKeyData({
             assertion: assertion,
             client_id: relier.get('clientId'), //eslint-disable-line camelcase
-            scope: decodeURIComponent(relier.get('scope'))
+            scope: relier.get('scope')
           });
         }
       })

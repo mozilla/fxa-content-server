@@ -235,7 +235,8 @@ define(function (require, exports, module) {
             foundRedirectScopeMatch = true;
           } else {
             throw new Error('Invalid redirect parameter');
-          }}
+          }
+        }
       });
 
       return foundRedirectScopeMatch;
