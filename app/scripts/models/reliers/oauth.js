@@ -244,7 +244,7 @@ define(function (require, exports, module) {
       });
 
       if (! foundRedirectScopeMatch) {
-        throw new Error('Scope not supported');
+        throw new Error('No key-bearing scopes requested');
       }
 
       return true;

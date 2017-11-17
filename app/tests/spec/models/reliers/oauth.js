@@ -535,7 +535,7 @@ define(function (require, exports, module) {
         try {
           relier._validateKeyScopeRequest();
         } catch (err) {
-          assert.equal(err.message, 'Scope not supported');
+          assert.equal(err.message, 'No key-bearing scopes requested');
           done();
         }
       });
@@ -570,16 +570,10 @@ define(function (require, exports, module) {
         assert.isFalse(relier.wantsKeys());
       });
 
-      it('throws if no scopes', (done) => {
+      it('throws if no scopes', () => {
         relier._config.scopedKeysEnabled = true;
         relier.set('keysJwk', 'jwk');
-
-        try {
-          relier.wantsKeys();
-        } catch (err) {
-          assert.equal(err.message, 'Invalid scope parameter');
-          done();
-        }
+        assert.throws(relier.wantsKeys.bind(relier), Error, 'Invalid scope parameter');
       });
 
       it('returns true with keysJwk, enabled scoped keys and valid scope', () => {
