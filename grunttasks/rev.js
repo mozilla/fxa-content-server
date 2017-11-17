@@ -28,8 +28,8 @@ module.exports = function (grunt) {
         src: [
           // JS bundle has references to vendor and bower_components
           // for requireOnDemand
-          '<%= yeoman.dist %>/scripts/**/*.js',
-          '!<%= yeoman.dist %>/scripts/vendor/**/*.js',
+          '<%= yeoman.dist %>/*.bundle.js',
+          '<%= yeoman.dist %>/*.bundle.*.js',
           // CSS has references to images and fonts
           '<%= yeoman.dist %>/styles/**/*.css'
         ]

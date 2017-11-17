@@ -142,7 +142,7 @@ define(function (require, exports, module) {
       describe('with an empty code', () => {
         beforeEach(() => {
           view.$('#unblock_code').val('');
-          return view.validateAndSubmit();
+          return view.validateAndSubmit().then(assert.fail, () => {});
         });
 
         it('displays a tooltip, does not call submit', () => {
@@ -154,7 +154,7 @@ define(function (require, exports, module) {
       describe('with an invalid code', () => {
         beforeEach(() => {
           view.$('#unblock_code').val('1');
-          return view.validateAndSubmit();
+          return view.validateAndSubmit().then(assert.fail, () => {});
         });
 
         it('displays a tooltip, does not call submit', () => {

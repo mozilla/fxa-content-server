@@ -10,10 +10,12 @@ define(function (require, exports, module) {
   const AvatarMixin = require('../mixins/avatar-mixin');
   const Cocktail = require('cocktail');
   const CropperImage = require('../../models/cropper-image');
+  const draggable = require('draggable'); //eslint-disable-line no-unused-vars
   const FormView = require('../form');
   const ImageLoader = require('../../lib/image-loader');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const Template = require('stache!templates/settings/avatar_change');
+  const Template = require('templates/settings/avatar_change.mustache');
+  const TouchPunch = require('touch-punch'); //eslint-disable-line no-unused-vars
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -116,10 +118,8 @@ define(function (require, exports, module) {
                   type: file.type,
                   width: img.width
                 });
-                require(['draggable', 'touch-punch'], () => {
-                  this.navigate('settings/avatar/crop', {
-                    cropImg
-                  });
+                this.navigate('settings/avatar/crop', {
+                  cropImg
                 });
                 resolve();
               })
