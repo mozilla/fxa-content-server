@@ -488,7 +488,7 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_validateKeyScope', () => {
+    describe('_validateKeyScopeRequest', () => {
       const scopeApp1 = 'profile openid https://identity.mozilla.org/apps/lockbox';
       const scopeApp1Redirect = 'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org';
       const scopeApp1Redirect2 = 'lockbox://redirect.ios';
@@ -513,25 +513,40 @@ define(function (require, exports, module) {
 
       it('returns false by default', () => {
         relier.set('scope', scopeNormal);
-        assert.isFalse(relier._validateKeyScope());
+        assert.isFalse(relier._validateKeyScopeRequest());
       });
 
       it('returns true if scopes match at least one redirect uri', () => {
+        relier.set('keysJwk', 'jwk');
         relier.set('scope', scopeApp1);
         relier.set('redirectUri', scopeApp1Redirect);
-        assert.isTrue(relier._validateKeyScope());
+        assert.isTrue(relier._validateKeyScopeRequest());
 
         relier.set('scope', scopeApp1);
         relier.set('redirectUri', scopeApp1Redirect2);
-        assert.isTrue(relier._validateKeyScope());
+        assert.isTrue(relier._validateKeyScopeRequest());
+      });
+
+      it('throws if a client requests keys for an unknown scoped key scope', (done) => {
+        relier.set('keysJwk', 'jwk');
+        relier.set('scope', 'https://identity.mozilla.org/not-found');
+        relier.set('redirectUri', scopeApp2Redirect);
+
+        try {
+          relier._validateKeyScopeRequest();
+        } catch (err) {
+          assert.equal(err.message, 'Scope not supported');
+          done();
+        }
       });
 
       it('throws if a client requests a scope that does not belong to it', (done) => {
+        relier.set('keysJwk', 'jwk');
         relier.set('scope', scopeApp1);
         relier.set('redirectUri', scopeApp2Redirect);
 
         try {
-          relier._validateKeyScope();
+          relier._validateKeyScopeRequest();
         } catch (err) {
           assert.equal(err.message, 'Invalid redirect parameter');
           done();

@@ -212,7 +212,7 @@ define(function (require, exports, module) {
      * @returns {Boolean}
      */
     wantsKeys () {
-      return !! (this.has('keysJwk') && this._config.scopedKeysEnabled && this._validateKeyScope());
+      return !! (this._config && this._config.scopedKeysEnabled && this._validateKeyScopeRequest());
     },
 
     /**
@@ -221,7 +221,11 @@ define(function (require, exports, module) {
      * @returns {boolean}
      * @private
      */
-    _validateKeyScope () {
+    _validateKeyScopeRequest () {
+      if (! this.has('keysJwk')) {
+        return false;
+      }
+
       const validation = this._config.scopedKeysValidation || {};
       let foundRedirectScopeMatch = false;
 
@@ -239,7 +243,11 @@ define(function (require, exports, module) {
         }
       });
 
-      return foundRedirectScopeMatch;
+      if (! foundRedirectScopeMatch) {
+        throw new Error('Scope not supported');
+      }
+
+      return true;
     },
 
 
