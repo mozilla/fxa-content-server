@@ -48,7 +48,10 @@
       {{#isFirefoxIos}}
         <!-- user verifies in Fx for iOS, assume they are not signed in -->
         <p id="signin-fxios">
-          {{#t}}Open settings and select Sign in to Firefox to complete set-up{{/t}}
+          {{#isSignIn}}
+            {{#t}}Still adding devices?{{/t}}
+          {{/isSignIn}}
+          {{#t}}Sign in to Firefox on another device to complete set-up{{/t}}
         </p>
       {{/isFirefoxIos}}
       {{#isOtherAndroid}}
