@@ -242,7 +242,8 @@ define([], function () {
       HEADER: '#fxa-sms-sent-header',
       LINK_BACK: '#back',
       LINK_RESEND: '#resend',
-      PHONE_NUMBER_SENT_TO: '.success'
+      PHONE_NUMBER_SENT_TO: '.success',
+      RESEND_SUCCESS: '.shake'
     },
     SMS_WHY_IS_THIS_REQUIRED: {
       CLOSE: '.connect-another-device button[type="submit"]',
