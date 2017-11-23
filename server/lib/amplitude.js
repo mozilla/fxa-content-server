@@ -26,6 +26,10 @@ const P = require('bluebird');
 const ua = require('node-uap');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
+if (! SERVICES.sync) {
+  // Ensure there is an entry for Sync, which isn't identified by client id
+  SERVICES.sync = 'sync';
+}
 
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').version)[1];
 
@@ -311,7 +315,7 @@ function mapEmailType (event, eventCategory) {
 function mapService (event, eventCategory, data) {
   const service = marshallOptionalValue(data.service);
   if (service) {
-    return { service: SERVICES[service] || service };
+    return { service: SERVICES[service] || 'undefined_oauth' };
   }
 }
 
