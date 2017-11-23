@@ -16,8 +16,11 @@ define([
     'tests/server/ver.json.js',
     'tests/server/amplitude',
     'tests/server/csp',
-    'tests/server/flow-event',
+    // HACK: Force flow-metrics tests before flow-event because the anonymous flow id
+    //       is cached in server/lib/flow-metrics and the tests need to assert against
+    //       a value that was initialised using a known salt.
     'tests/server/flow-metrics',
+    'tests/server/flow-event',
     'tests/server/frame-guard',
     'tests/server/geo-locate',
     'tests/server/hpkp',

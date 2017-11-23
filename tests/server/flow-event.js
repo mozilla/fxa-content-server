@@ -10,7 +10,8 @@ define([
   'intern/dojo/node!path',
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!sinon',
-], (registerSuite, assert, _, os, path, proxyquire, sinon) => {
+  'intern/dojo/node!../../server/lib/flow-metrics'
+], (registerSuite, assert, _, os, path, proxyquire, sinon, flowMetrics) => {
   var config, sandbox, mocks, flowEvent, flowMetricsValidateResult;
 
   registerSuite({
@@ -815,9 +816,40 @@ define([
         setup({}, 1000);
       },
 
-      'process.stderr.write was called correctly': () => {
-        assert.equal(process.stderr.write.callCount, 1);
+      'process.stderr.write was called twice': () => {
+        assert.equal(process.stderr.write.callCount, 2);
+      },
+
+      'process.stderr.write was called correctly first time': () => {
         const arg = JSON.parse(process.stderr.write.args[0][0]);
+        assert.equal(arg.event, 'request.headers.dnt');
+        assert.equal(arg.flow_id, flowMetrics.getAnonymousFlowId());
+        assert.equal(arg.flow_time, 0);
+        assert.equal(arg.time, new Date(mocks.time - 1000).toISOString());
+        assert.isUndefined(arg.context);
+        assert.isUndefined(arg.entrypoint);
+        assert.isUndefined(arg.migration);
+        assert.isUndefined(arg.service);
+        assert.isUndefined(arg.userAgent);
+        assert.isUndefined(arg.utm_campaign);
+        assert.isUndefined(arg.utm_content);
+        assert.isUndefined(arg.utm_medium);
+        assert.isUndefined(arg.utm_source);
+        assert.isUndefined(arg.utm_term);
+      },
+
+      'process.stderr.write was called correctly second time': () => {
+        const arg = JSON.parse(process.stderr.write.args[1][0]);
+        assert.equal(arg.event, 'flow.begin');
+        assert.equal(arg.flow_id, '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef');
+        assert.notEqual(arg.flow_id, flowMetrics.getAnonymousFlowId());
+        assert.equal(arg.flow_time, 0);
+        assert.equal(arg.time, new Date(mocks.time - 1000).toISOString());
+        assert.equal(arg.context, 'fx_desktop_v3');
+        assert.equal(arg.entrypoint, 'menupanel');
+        assert.equal(arg.migration, 'sync11');
+        assert.equal(arg.service, '1234567890abcdef');
+        assert.equal(arg.userAgent, 'bar');
         assert.isUndefined(arg.utm_campaign);
         assert.isUndefined(arg.utm_content);
         assert.isUndefined(arg.utm_medium);

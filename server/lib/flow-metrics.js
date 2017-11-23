@@ -7,6 +7,10 @@ const crypto = require('crypto');
 const SALT_SIZE = 16;
 const SALT_STRING_LENGTH = SALT_SIZE * 2;
 
+const ANONYMOUS_SALT = new Array(SALT_STRING_LENGTH).fill('0').join('');
+
+let anonymousFlowId;
+
 module.exports = {
   /**
    * Create flow data.
@@ -30,10 +34,28 @@ module.exports = {
    * @returns Boolean
    */
   validate (key, flowId, flowBeginTime, userAgent) {
+    if (flowId === this.getAnonymousFlowId(key)) {
+      return false;
+    }
+
     const salt = flowId.substr(0, SALT_STRING_LENGTH);
     const expected = createFlowEventData(key, salt, flowBeginTime, userAgent);
 
     return getFlowSignature(flowId) === getFlowSignature(expected.flowId);
+  },
+
+  /**
+   * Return the anonymous flowId, used for emitting special events
+   * that we do not want to link to any flows or users.
+   *
+   * @returns flowId
+   */
+  getAnonymousFlowId (key) {
+    if (! anonymousFlowId) {
+      anonymousFlowId = createFlowEventData(key, ANONYMOUS_SALT, 0, '').flowId;
+    }
+
+    return anonymousFlowId;
   }
 };
 

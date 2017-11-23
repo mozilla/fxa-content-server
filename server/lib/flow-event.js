@@ -93,6 +93,9 @@ module.exports = (req, metrics, requestReceivedTime) => {
     if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
+      if (isDNT(req)) {
+        logAnonymousFlowEvent('request.headers.dnt', metrics.flowBeginTime);
+      }
     } else {
       event.time = estimateTime({
         /*eslint-disable sorting/sort-object-props*/
@@ -236,6 +239,16 @@ function logFlowEvent (event, data, request) {
 
   // The data pipeline listens on stderr.
   process.stderr.write(JSON.stringify(eventData) + '\n');
+}
+
+function logAnonymousFlowEvent (type, time) {
+  logFlowEvent({
+    flowTime: 0,
+    time,
+    type
+  }, {
+    flowId: flowMetrics.getAnonymousFlowId(FLOW_ID_KEY),
+  }, { headers: {} });
 }
 
 function pickFlowData (data, request) {
