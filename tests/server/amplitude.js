@@ -98,6 +98,7 @@ define([
           device_id: 'bar',
           event_properties: {
             device_id: 'bar',
+            oauth_client_id: '1',
             service: 'pocket'
           },
           event_type: 'fxa_login - forgot_submit',
@@ -342,6 +343,7 @@ define([
           device_id: 'b',
           event_properties: {
             device_id: 'b',
+            oauth_client_id: '2',
             service: 'undefined_oauth'
           },
           event_type: 'fxa_reg - engage',
