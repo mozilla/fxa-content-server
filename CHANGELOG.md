@@ -1,3 +1,13 @@
+<a name="1.100.6"></a>
+## 1.100.6 (2017-11-24)
+
+
+### Bug Fixes
+
+* **config:** switch to .com scopes ([3687f5e](https://github.com/mozilla/fxa-content-server/commit/3687f5e))
+
+
+
 <a name="1.100.5"></a>
 ## 1.100.5 (2017-11-20)
 
