@@ -7,9 +7,7 @@ const crypto = require('crypto');
 const SALT_SIZE = 16;
 const SALT_STRING_LENGTH = SALT_SIZE * 2;
 
-const ANONYMOUS_SALT = new Array(SALT_STRING_LENGTH).fill('0').join('');
-
-let anonymousFlowId;
+const ANONYMOUS_FLOW_ID = new Array(64).fill('0').join('');
 
 module.exports = {
   /**
@@ -21,7 +19,13 @@ module.exports = {
    */
   create (key, userAgent) {
     const salt = crypto.randomBytes(SALT_SIZE).toString('hex');
-    return createFlowEventData(key, salt, Date.now(), userAgent);
+    const result = createFlowEventData(key, salt, Date.now(), userAgent);
+
+    if (result === ANONYMOUS_FLOW_ID) {
+      return this.create(key, userAgent);
+    }
+
+    return result;
   },
 
   /**
@@ -34,7 +38,7 @@ module.exports = {
    * @returns Boolean
    */
   validate (key, flowId, flowBeginTime, userAgent) {
-    if (flowId === this.getAnonymousFlowId(key)) {
+    if (flowId === ANONYMOUS_FLOW_ID) {
       return false;
     }
 
@@ -51,11 +55,7 @@ module.exports = {
    * @returns flowId
    */
   getAnonymousFlowId (key) {
-    if (! anonymousFlowId) {
-      anonymousFlowId = createFlowEventData(key, ANONYMOUS_SALT, 0, '').flowId;
-    }
-
-    return anonymousFlowId;
+    return ANONYMOUS_FLOW_ID;
   }
 };
 

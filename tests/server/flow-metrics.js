@@ -119,16 +119,6 @@ define([
     assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
   };
 
-  suite['getAnonymousFlowId returns the correct flowId'] = () => {
-    mockDateNow = 0;
-    mockRandomBytes = Buffer.from('00000000000000000000000000000000', 'hex');
-
-    assert.equal(
-      flowMetrics.getAnonymousFlowId(mockFlowIdKey),
-      flowMetrics.create(mockFlowIdKey, '').flowId
-    );
-  };
-
   suite['validate returns true for good data'] = () => {
     // Force the mocks to return bad data to be sure it really works
     mockDateNow = 1478626838531;
@@ -206,18 +196,21 @@ define([
   };
 
   suite['validate returns false for the anonymous flow id'] = () => {
-    // Force the mocks to return good data to be sure it really works
-    mockDateNow = 0;
-    mockRandomBytes = 'MozillaFirefox!!';
-
     const result = flowMetrics.validate(
-      mockFlowIdKey,
+      'S3CR37',
       flowMetrics.getAnonymousFlowId(mockFlowIdKey),
       0,
       ''
     );
 
     assert.strictEqual(result, false);
+  };
+
+  suite['getAnonymousFlowId returns the correct flowId'] = () => {
+    assert.equal(
+      flowMetrics.getAnonymousFlowId(mockFlowIdKey),
+      '0000000000000000000000000000000000000000000000000000000000000000'
+    );
   };
 
   registerSuite(suite);
