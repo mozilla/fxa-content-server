@@ -91,6 +91,7 @@ define(function (require, exports, module) {
 
     _setSignedInAccountUid (uid) {
       this._storage.set('currentAccountUid', uid);
+      this._notifier.trigger('set-uid', uid);
       // Clear the in-memory cache if the uid has changed
       if (this._cachedSignedInAccount && this._cachedSignedInAccount.get('uid') !== uid) {
         this._cachedSignedInAccount = null;
