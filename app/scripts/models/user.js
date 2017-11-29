@@ -542,7 +542,7 @@ define(function (require, exports, module) {
       };
 
       return account.verifySignUp(code, options)
-        .catch(function (err) {
+        .catch((err) => {
           if (MarketingEmailErrors.created(err)) {
             // A MarketingEmailError doesn't prevent a user from
             // completing the signup. If we receive a MarketingEmailError,

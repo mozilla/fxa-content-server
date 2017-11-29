@@ -9,7 +9,7 @@
     "chai": "1.8.1",
     "cocktail": "0.5.9",
     "easteregg": "https://github.com/mozilla/fxa-easter-egg.git#ab20cd517cf8ae9feee115e48745189d28e13bc3",
-    "es6-promise": "https://github.com/stefanpenner/es6-promise.git#7f82a5649202af5e4757d969e54419d38ed57277",
+    "es6-promise": "https://github.com/stefanpenner/es6-promise.git#4.1.1",
     "fxa-checkbox": "mozilla/fxa-checkbox#7f856afffd394a144f718e28e6fb79092d6ccddd",
     "fxa-crypto-relier": "https://github.com/mozilla/fxa-crypto-relier.git#v2.1.0",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.69",

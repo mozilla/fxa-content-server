@@ -123,7 +123,7 @@ define(function (require, exports, module) {
         return Promise.resolve();
       }
 
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         spinnerEl
           .addClass('completed')
           .on('transitionend', function (event) {

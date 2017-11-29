@@ -150,7 +150,7 @@ define(function (require, exports, module) {
         var token = 'access token';
 
         sinon.stub(client, '_request').callsFake(function () {
-          return Promise.resolve({ //eslint-disable-line camelcase
+          return Promise.resolve({
             access_token: token, //eslint-disable-line camelcase
             scope: 'profile',
             token_type: 'bearer' //eslint-disable-line camelcase

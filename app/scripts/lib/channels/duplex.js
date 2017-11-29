@@ -140,7 +140,7 @@ define(function (require, exports, module) {
     request (command, data) {
       const messageId = this.createMessageId(command, data);
       return new Promise((resolve, reject) => {
-        var outstanding = {
+        const outstanding = {
           command,
           data,
           messageId,
@@ -151,7 +151,7 @@ define(function (require, exports, module) {
         // save the data beforehand in case the response is synchronous.
         this._outstandingRequests.add(messageId, outstanding);
 
-        return this._sender.send(command, data, messageId);
+        this._sender.send(command, data, messageId);
       })
       .catch((err) => {
         // The request is no longer considered outstanding if

@@ -19,7 +19,7 @@ define(function (require, exports, module) {
 
   // Return a promise delayed by ms
   function delay(progressIndicator, ms) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       progressIndicator.setTimeout(resolve, ms);
     });
   }

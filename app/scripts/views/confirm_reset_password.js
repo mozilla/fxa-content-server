@@ -195,7 +195,7 @@ define(function (require, exports, module) {
             return null;
           }
 
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve) => {
             this._waitForServerConfirmationTimeout = this.setTimeout(() => {
               if (this._isWaitingForServerConfirmation) {
                 resolve(this._waitForServerConfirmation());
@@ -214,7 +214,7 @@ define(function (require, exports, module) {
 
     _isWaitingForLoginMessage: false,
     _waitForLoginMessage () {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         this._isWaitingForLoginMessage = true;
         this.notifier.on(Notifier.SIGNED_IN, resolve);
       });
