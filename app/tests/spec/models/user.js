@@ -424,10 +424,17 @@ define(function (require, exports, module) {
 
     it('setSignedInAccount', function () {
       sinon.spy(notifier, 'triggerRemote');
+      sinon.spy(notifier, 'trigger');
       return user.setSignedInAccount({ email: EMAIL, uid: 'uid' })
         .then(function () {
           assert.equal(user.getSignedInAccount().get('uid'), 'uid');
           assert.equal(notifier.triggerRemote.callCount, 0);
+
+          assert.equal(notifier.trigger.callCount, 1);
+          const args = notifier.trigger.args[0];
+          assert.equal(args.length, 2);
+          assert.equal(args[0], 'set-uid');
+          assert.equal(args[1], 'uid');
         });
     });
 
