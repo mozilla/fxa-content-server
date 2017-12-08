@@ -91,12 +91,17 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     waitForAutomatedBrowserReady () {
+      console.log('are we here?');
       return new Promise((resolve) => {
         if (! this._isAutomatedBrowser()) {
-          return resolve();
+          console.log('not an automated browser');
+          resolve();
+          return;
         }
+        console.log('automated browser');
 
         const checkForReady = () => {
+          console.log('checking');
           if (this.isAutomatedBrowserReady()) {
             resolve();
           }

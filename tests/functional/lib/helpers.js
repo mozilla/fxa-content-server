@@ -291,7 +291,8 @@ define([
         if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
           return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
                     .setFindTimeout(config.pageLoadTimeout)
-                    .findById('fxa-clear-storage-header');
+                    .findById('fxa-clear-storage-header')
+                    .end();
         }
       })
 
