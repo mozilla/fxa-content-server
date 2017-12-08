@@ -26,7 +26,8 @@ module.exports = function (grunt) {
     'config',
     'flowId',
     'flowBeginTime',
-    'message'
+    'message',
+    'testId'
   ];
   var PROPAGATED_UNSAFE_TEMPLATE_FIELDS = [
     'staticResourceUrl'

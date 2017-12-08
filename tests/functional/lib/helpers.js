@@ -1152,14 +1152,26 @@ define([
    *  @param {Object} [options.query] - extra query parameters to add
    * @returns {Promise} - resolves when complete
    */
-  const openPage = thenify(function (url, readySelector, options) {
-    options = options || {};
+  let testId = 0;
 
-    url = addQueryParamsToLink(url, options.query);
+  const openPage = thenify(function (url, readySelector, options = {}) {
+    const query = options.query || {};
+    testId++;
+    query.testId = testId;
+
+    if (options.webChannelResponses) {
+      query.automatedBrowser = true;
+    }
+
+    url = addQueryParamsToLink(url, query);
 
     return this.parent
       .get(require.toUrl(url))
       .setFindTimeout(config.pageLoadTimeout)
+
+      // ensure the page has been rendered with the current test ID
+      // before attempting to add the web channel listeners.
+      .then(testElementExists(`body[data-test-id="${testId}"]`))
 
       .then(function () {
         const webChannelResponses = options.webChannelResponses;
@@ -1169,6 +1181,14 @@ define([
           }, this.parent);
         }
       })
+
+      .execute(function () {
+        // If `automatedBrowser` is specified, the front end waits for
+        // `data-ready` to be set on the body before starting up to ensure
+        // web channel listeners are attached.
+        const body = document.body;
+        body.setAttribute('data-ready', 'true');
+      }, [])
 
       // Wait until the `readySelector` element is found to return.
       .then(testElementExists(readySelector))

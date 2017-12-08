@@ -4,6 +4,7 @@
 
 'use strict';
 
+const _ = require('lodash');
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
 
@@ -41,13 +42,15 @@ module.exports = function (config) {
 
   route.process = function (req, res) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
+    const testId = _.escape(req.query.testId);
 
     res.render('index', {
       config: serializedConfig,
       flowBeginTime: flowEventData.flowBeginTime,
       flowId: flowEventData.flowId,
       // Note that staticResourceUrl is added to templates as a build step
-      staticResourceUrl: STATIC_RESOURCE_URL
+      staticResourceUrl: STATIC_RESOURCE_URL,
+      testId,
     });
 
     if (req.headers.dnt === '1') {

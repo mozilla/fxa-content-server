@@ -176,6 +176,8 @@ define(function (require, exports, module) {
           automatedBrowser: true
         });
 
+        sinon.stub(appStart, 'waitForAutomatedBrowserReady').callsFake(() => Promise.resolve());
+
         return appStart.startApp()
           .then(() => {
             assert.instanceOf(appStart._metrics, StorageMetrics);
@@ -1068,6 +1070,45 @@ define(function (require, exports, module) {
         sandbox.stub(appStart, '_isVerification').callsFake(() => true);
         sandbox.stub(appStart, '_getSameBrowserVerificationModel').callsFake(() => new SameBrowserVerificationModel({}, {}));
         assert.isFalse(appStart._isVerificationSameBrowser());
+      });
+    });
+
+    describe('waitForAutomatedBrowserReady', () => {
+      it('non-automated browser resolves immediately', () => {
+        appStart = new AppStart({
+          broker: brokerMock,
+          history: backboneHistoryMock,
+          router: routerMock,
+          storage: Storage,
+          user: userMock,
+          window: windowMock
+        });
+        sinon.spy(appStart, 'isAutomatedBrowserReady');
+        return appStart.waitForAutomatedBrowserReady()
+          .then(() => {
+            assert.isFalse(appStart.isAutomatedBrowserReady.called);
+          });
+      });
+
+      it('automated browser waits until `isAutomatedBrowser` returns true', () => {
+        appStart = new AppStart({
+          broker: brokerMock,
+          history: backboneHistoryMock,
+          router: routerMock,
+          storage: Storage,
+          user: userMock,
+          window: windowMock
+        });
+        sinon.stub(appStart, '_isAutomatedBrowser').callsFake(() => true);
+
+        sinon.stub(appStart, 'isAutomatedBrowserReady').callsFake(() => {
+          return appStart.isAutomatedBrowserReady.callCount === 3;
+        });
+
+        return appStart.waitForAutomatedBrowserReady()
+          .then(() => {
+            assert.equal(appStart.isAutomatedBrowserReady.callCount, 3);
+          });
       });
     });
   });
