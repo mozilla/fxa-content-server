@@ -26,22 +26,25 @@ define([
   var email;
   var email2;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var clearSessionStorage = FunctionalHelpers.clearSessionStorage;
-  var click = FunctionalHelpers.click;
-  var createUser = FunctionalHelpers.createUser;
-  var denormalizeStoredEmail = FunctionalHelpers.denormalizeStoredEmail;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var fillOutSignUp = FunctionalHelpers.fillOutSignUp;
-  var openPage = FunctionalHelpers.openPage;
-  var openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificationLinkInDifferentBrowser;
-  var respondToWebChannelMessage = FunctionalHelpers.respondToWebChannelMessage;
-  var testElementExists = FunctionalHelpers.testElementExists;
-  var testElementTextEquals = FunctionalHelpers.testElementTextEquals;
-  var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
-  var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
-  var type = FunctionalHelpers.type;
-  var visibleByQSA = FunctionalHelpers.visibleByQSA;
+  const {
+    clearBrowserState,
+    clearSessionStorage,
+    click,
+    createUser,
+    denormalizeStoredEmail,
+    fillOutSignIn,
+    fillOutSignUp,
+    openPage,
+    openVerificationLinkInDifferentBrowser,
+    refresh,
+    respondToWebChannelMessage,
+    testElementExists,
+    testElementTextEquals,
+    testElementValueEquals,
+    testIsBrowserNotified,
+    type,
+    visibleByQSA,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'sign_in cached',
@@ -88,7 +91,7 @@ define([
         // done on the settings page, wait for the signin page to load,
         // denormalize, then refresh. See #4711
         .then(denormalizeStoredEmail(email))
-        .refresh()
+        .then(refresh())
         .then(testElementExists('#fxa-signin-header'))
 
         // email is not yet denormalized :(
@@ -265,7 +268,7 @@ define([
         .then(openPage(PAGE_SIGNIN, '#fxa-signin-header'))
         .then(testElementTextEquals('.prefillEmail', email2))
 
-        .refresh()
+        .then(refresh())
 
         .then(testElementExists('.use-different'))
         .then(testElementTextEquals('.prefillEmail', email2));

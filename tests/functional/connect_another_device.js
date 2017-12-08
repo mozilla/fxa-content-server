@@ -47,6 +47,7 @@ define([
     openPage,
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
+    refresh,
     respondToWebChannelMessage,
     switchToWindow,
     testElementExists,
@@ -312,7 +313,7 @@ define([
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_IOS))
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID))
 
-        .refresh()
+        .then(refresh())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER))
         .then(testElementTextInclude(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS_DIFFERENT_BROWSER, 'email verified'));

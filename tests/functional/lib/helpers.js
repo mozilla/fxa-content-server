@@ -949,6 +949,15 @@ define([
       .then(testElementExists('.attached' + attachedId));
   });
 
+  const respondToWebChannelMessages = thenify(function (webChannelResponses) {
+    return this.parent
+      .then(function () {
+        return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
+          return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
+        }, this.parent);
+      });
+  });
+
   /**
    * Store the data sent for a WebChannel event into sessionStorage.
    *
@@ -1154,9 +1163,10 @@ define([
    * @returns {Promise} - resolves when complete
    */
   let testId = 0;
+  let webChannelResponses;
 
   const openPage = thenify(function (url, readySelector, options = {}) {
-    const query = options.query || {};
+    const query = Object.assign({}, options.query || {});
     testId++;
     query.testId = testId;
 
@@ -1175,11 +1185,9 @@ define([
       .then(testElementExists(`body[data-test-id="${testId}"]`))
 
       .then(function () {
-        const webChannelResponses = options.webChannelResponses;
+        webChannelResponses = options.webChannelResponses || null;
         if (webChannelResponses) {
-          return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
-            return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
-          }, this.parent);
+          return this.parent.then(respondToWebChannelMessages(webChannelResponses));
         }
       })
 
@@ -1206,6 +1214,31 @@ define([
             throw err;
           });
       });
+  });
+
+  /**
+   * Refresh a page, hooking up the web channel messages that were
+   * added in `openPage`.
+   */
+  const refresh = thenify(function (options = {}) {
+    return this.parent.refresh()
+      // ensure the page has been rendered with the current test ID
+      // before attempting to add the web channel listeners.
+      .then(testElementExists(`body[data-test-id="${testId}"]`))
+
+      .then(function () {
+        if (webChannelResponses) {
+          return this.parent.then(respondToWebChannelMessages(webChannelResponses));
+        }
+      })
+
+      .execute(function () {
+        // If `automatedBrowser` is specified, the front end waits for
+        // `data-ready` to be set on the body before starting up to ensure
+        // web channel listeners are attached.
+        const body = document.body;
+        body.setAttribute('data-ready', 'true');
+      }, []);
   });
 
   /**
@@ -2149,6 +2182,7 @@ define([
     pollUntilGoneByQSA: pollUntilGoneByQSA,
     pollUntilHiddenByQSA,
     reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
+    refresh,
     respondToWebChannelMessage: respondToWebChannelMessage,
     storeWebChannelMessageData,
     switchToWindow: switchToWindow,
