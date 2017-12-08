@@ -34,6 +34,7 @@ define([
     openPage,
     pollUntil,
     pollUntilGoneByQSA,
+    refresh,
     testElementExists,
     testElementTextEquals,
     visibleByQSA,
@@ -206,7 +207,7 @@ define([
         .waitForDeletedByCssSelector('#client-disconnect')
         .end()
 
-        .refresh()
+        .then(refresh())
 
         .then(click('.client-device:nth-child(2) .client-disconnect'))
         .then(click('.disconnect-reasons > label > input[value="lost"]'))

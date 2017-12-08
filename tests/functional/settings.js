@@ -27,6 +27,7 @@ define([
     noSuchStoredAccountByEmail,
     openPage,
     openSettingsInNewTab,
+    refresh,
     switchToWindow,
     testElementExists,
     testElementTextEquals,
@@ -116,7 +117,7 @@ define([
         .then(denormalizeStoredEmail(email))
 
         // now, refresh to ensure the email is normalized
-        .refresh()
+        .then(refresh())
 
         .then(testElementExists('#fxa-settings-header'))
         .then(testElementTextEquals('.card-header', email));

@@ -23,6 +23,7 @@ define([
     noSuchElement,
     openPage,
     openVerificationLinkInSameTab,
+    refresh,
     testElementExists,
     testSuccessWasShown,
     visibleByQSA,
@@ -99,7 +100,7 @@ define([
         .then(waitForBasket(email))
 
         // ensure the opt-in sticks across refreshes
-        .refresh()
+        .then(refresh())
         .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
         .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
         .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))

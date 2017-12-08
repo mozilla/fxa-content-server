@@ -38,7 +38,8 @@ define([
       'route.process': {
         setup: function () {
           request = {
-            headers: {}
+            headers: {},
+            query: { testId: '1' },
           };
           response = { render: sinon.spy() };
           instance.process(request, response);
@@ -54,12 +55,14 @@ define([
 
           var renderParams = args[1];
           assert.isObject(renderParams);
-          assert.lengthOf(Object.keys(renderParams), 4);
+          assert.lengthOf(Object.keys(renderParams), 5);
           assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
           assert.isAbove(renderParams.flowBeginTime, 0);
           assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
 
           assert.isString(renderParams.config);
+          assert.equal(renderParams.testId, '1');
+
           var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
 
           assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
@@ -73,6 +76,22 @@ define([
           assert.equal(sentConfig.profileUrl, config.get('profile_url'));
           assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
           assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
+        }
+      },
+
+      'route.process w/ XSS potential testId': {
+        setup: function () {
+          request = {
+            headers: {},
+            query: { testId: '" onclick="javascript:alert(1)"' },
+          };
+          response = { render: sinon.spy() };
+          instance.process(request, response);
+        },
+
+        'response.render was called with sanitized input': function () {
+          var renderParams = response.render.args[0][1];
+          assert.equal(renderParams.testId, '&quot; onclick=&quot;javascript:alert(1)&quot;');
         }
       }
     }

@@ -29,6 +29,7 @@ define([
     fillOutSignIn,
     noSuchElementDisplayed,
     openPage,
+    refresh,
     testElementExists,
     testElementTextEquals,
     thenify,
@@ -125,7 +126,7 @@ define([
         // synthesize a user who signed in pre #4470 with an unnormalized email
         .then(denormalizeStoredEmail(email))
         // refresh to load denormalized email from localStorage
-        .refresh()
+        .then(refresh())
         // email should be normalized on refresh!
         .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, email))
 

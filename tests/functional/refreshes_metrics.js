@@ -7,15 +7,18 @@ define([
   'intern!object',
   'tests/functional/lib/helpers'
 ], function (intern, registerSuite, FunctionalHelpers) {
-  var AUTOMATED = '?automatedBrowser=true';
-  var SIGNUP_URL = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
-  var SIGNIN_URL = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
+  const AUTOMATED = '?automatedBrowser=true';
+  const SIGNUP_URL = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
+  const SIGNIN_URL = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
 
-  var cleanMemory = FunctionalHelpers.cleanMemory;
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var openPage = FunctionalHelpers.openPage;
-  var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
-  var testElementExists = FunctionalHelpers.testElementExists;
+  const {
+    cleanMemory,
+    clearBrowserState,
+    openPage,
+    refresh,
+    testAreEventsLogged,
+    testElementExists,
+  } = FunctionalHelpers;
 
   registerSuite({
     name: 'refreshing a screen logs a refresh event',
@@ -30,7 +33,7 @@ define([
         .then(cleanMemory())
         .then(openPage(SIGNUP_URL, '#fxa-signup-header'))
 
-        .refresh()
+        .then(refresh())
         .then(testElementExists('#fxa-signup-header'))
         // Unload the page to flush the metrics
         .then(openPage(SIGNIN_URL, '#fxa-signin-header'))

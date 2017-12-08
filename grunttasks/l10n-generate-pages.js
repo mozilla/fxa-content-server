@@ -26,7 +26,8 @@ module.exports = function (grunt) {
     'config',
     'flowId',
     'flowBeginTime',
-    'message'
+    'message',
+    'testId'
   ];
   var PROPAGATED_UNSAFE_TEMPLATE_FIELDS = [
     'staticResourceUrl'
@@ -138,6 +139,7 @@ module.exports = function (grunt) {
         PROPAGATED_UNSAFE_TEMPLATE_FIELDS.forEach(function (field) {
           data[field] = '{{{' + field + '}}}';
         });
+        console.log('using', data);
         return template(data);
       }
     });

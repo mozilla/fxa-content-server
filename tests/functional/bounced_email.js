@@ -26,6 +26,7 @@ define([
     getFxaClient,
     openPage,
     pollUntil,
+    refresh,
     respondToWebChannelMessage,
     switchToWindow,
     testElementExists,
@@ -174,7 +175,7 @@ define([
     'refresh': function () {
       return this.remote
         .then(setUpBouncedSignIn())
-        .refresh()
+        .then(refresh())
         .then(respondToWebChannelMessage('fxaccounts:fxa_status', { capabilities: null, signedInUser: null }))
         .then(testElementExists(selectors.SIGNIN.HEADER));
     }

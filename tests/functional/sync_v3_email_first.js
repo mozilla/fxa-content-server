@@ -29,6 +29,7 @@ define([
     noPageTransition,
     openPage,
     openVerificationLinkInNewTab,
+    refresh,
     switchToWindow,
     testElementExists,
     testElementValueEquals,
@@ -58,7 +59,7 @@ define([
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
 
-        .refresh()
+        .then(refresh())
 
         // refresh sends the user back to the first step
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
@@ -76,7 +77,7 @@ define([
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
 
-        .refresh()
+        .then(refresh())
 
         // refresh sends the user back to the first step
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));

@@ -39,7 +39,6 @@ define(function (require, exports, module) {
   const NullChannel = require('./channels/null');
   const OAuthClient = require('./oauth-client');
   const OAuthRelier = require('../models/reliers/oauth');
-  const p = require('./promise');
   const ProfileClient = require('./profile-client');
   const RefreshObserver = require('../models/refresh-observer');
   const Relier = require('../models/reliers/relier');
@@ -60,8 +59,6 @@ define(function (require, exports, module) {
   const uuid = require('uuid');
   const WebChannel = require('./channels/web');
 
-  const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
-
   function Start(options = {}) {
     this._authenticationBroker = options.broker;
     this._configLoader = new ConfigLoader();
@@ -80,14 +77,50 @@ define(function (require, exports, module) {
 
   Start.prototype = {
     startApp () {
-      // The delay is to give the functional tests time to hook up
-      // WebChannel message response listeners.
-      const START_DELAY_MS = this._isAutomatedBrowser() ? AUTOMATED_BROWSER_STARTUP_DELAY : 0;
-      return p.delay(START_DELAY_MS)
+      return this.waitForAutomatedBrowserReady()
         .then(() => this.initializeDeps())
         .then(() => this.testLocalStorage())
         .then(() => this.allResourcesReady())
         .catch((err) => this.fatalError(err));
+    },
+
+    /**
+     * Wait for functional tests to indicate they are all set up
+     * and it's safe to continue.
+     *
+     * @returns {Promise}
+     */
+    waitForAutomatedBrowserReady () {
+      console.log('are we here?');
+      return new Promise((resolve) => {
+        if (! this._isAutomatedBrowser()) {
+          console.log('not an automated browser');
+          resolve();
+          return;
+        }
+        console.log('automated browser');
+
+        const checkForReady = () => {
+          console.log('checking');
+          if (this.isAutomatedBrowserReady()) {
+            resolve();
+          }
+
+          setTimeout(checkForReady, 10);
+        };
+
+        checkForReady();
+      });
+    },
+
+    /**
+     * Check if the functional tests have added their `ready` flag
+     * to the page.
+     *
+     * @returns {Boolean}
+     */
+    isAutomatedBrowserReady () {
+      return this._window.document.body.hasAttribute('data-ready');
     },
 
     initializeInterTabChannel () {
