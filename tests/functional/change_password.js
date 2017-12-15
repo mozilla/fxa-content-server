@@ -1,24 +1,22 @@
+'use strict';
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const intern = require('intern');
+const registerSuite = require('intern!object');
+const TestHelpers = require('tests/lib/helpers');
+const FunctionalHelpers = require('tests/functional/lib/helpers');
+const selectors = require('tests/functional/lib/selectors');
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, selectors) {
-  'use strict';
+const config = intern.config;
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
 
-  const config = intern.config;
-  const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const ANIMATION_DELAY_MS = 500;
+const FIRST_PASSWORD = 'password';
+const SECOND_PASSWORD = 'new_password';
 
-  const ANIMATION_DELAY_MS = 500;
-  const FIRST_PASSWORD = 'password';
-  const SECOND_PASSWORD = 'new_password';
-
-  let email;
+let email;
 
   const {
     clearBrowserState,
@@ -37,38 +35,39 @@ define([
     visibleByQSA,
   } = FunctionalHelpers;
 
-  const setupTest = thenify(function (options = {}) {
-    const signUpEmail = options.signUpEmail || email;
-    const signInEmail = options.signInEmail || email;
+const setupTest = thenify(function (options = {}) {
+  const signUpEmail = options.signUpEmail || email;
+  const signInEmail = options.signInEmail || email;
 
-    return this.parent
-      .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
-      .then(clearBrowserState())
-      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-      .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
+  return this.parent
+    .then(createUser(signUpEmail, FIRST_PASSWORD, { preVerified: true }))
+    .then(clearBrowserState())
+    .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+    .then(fillOutSignIn(signInEmail, FIRST_PASSWORD))
 
-      .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
-  });
+    .then(testElementExists(selectors.SETTINGS.HEADER))
+    .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, signUpEmail));
+});
 
-  registerSuite({
-    name: 'change_password',
+registerSuite({
+  name: 'change_password',
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-    },
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
 
+  tests: {
     'sign in, try to change password with an incorrect old password': function () {
       return this.remote
         .then(setupTest())
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, { expectSuccess: false }))
+        .then(fillOutChangePassword('INCORRECT', SECOND_PASSWORD, {expectSuccess: false}))
         // the validation tooltip should be visible
         .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
 
@@ -123,7 +122,7 @@ define([
 
     'sign in with an unnormalized email, change password, sign in with new password': function () {
       return this.remote
-        .then(setupTest({ signInEmail: email.toUpperCase(), signUpEmail: email }))
+        .then(setupTest({signInEmail: email.toUpperCase(), signUpEmail: email}))
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
@@ -170,5 +169,5 @@ define([
 
         .then(testElementExists(selectors.RESET_PASSWORD.HEADER));
     }
-  });
+  }
 });

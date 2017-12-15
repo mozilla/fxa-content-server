@@ -1,15 +1,7 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-/**
- * Define selectors on a per-screen basis.
- */
-define([], function () {
-  'use strict';
+'use strict';
 
   /*eslint-disable max-len*/
-  return {
+  module.exports = {
     '123DONE': {
       AUTHENTICATED: '#loggedin',
       BUTTON_SIGNIN: '.sign-in-button.signin',
@@ -21,8 +13,7 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHANGE_PASSWORD: {
-      CANCEL_BUTTON: '#change-password .cancel',
-      DETAILS: '#change-password .settings-unit-details',
+      CANCEL_BUTTON: '#change-password .cancel',DETAILS: '#change-password .settings-unit-details',
       ERROR: '#change-password .error',
       LINK_RESET_PASSWORD: '.reset-password',
       MENU_BUTTON: '#change-password .settings-unit-toggle',
@@ -252,4 +243,3 @@ define([], function () {
     }
   };
   /*eslint-enable max-len*/
-});

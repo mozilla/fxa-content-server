@@ -1,80 +1,76 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const registerSuite = require('intern!object');
+const TestHelpers = require('tests/lib/helpers');
+const FunctionalHelpers = require('tests/functional/lib/helpers');
+var PASSWORD = 'password';
+var email;
 
-define([
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (registerSuite, TestHelpers, FunctionalHelpers)  {
-  var PASSWORD = 'password';
-  var email;
+var clearBrowserState = FunctionalHelpers.clearBrowserState;
+var createUser = FunctionalHelpers.createUser;
+var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
+var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
+var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
-  var clearBrowserState = FunctionalHelpers.clearBrowserState;
-  var createUser = FunctionalHelpers.createUser;
-  var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
-  var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
-  var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
+registerSuite({
+  name: 'delete_account',
 
-  registerSuite({
-    name: 'delete_account',
+  beforeEach: function () {
+    email = TestHelpers.createEmail();
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
+    return this.remote
+      .then(clearBrowserState())
+      .then(createUser(email, PASSWORD, { preVerified: true }));
+  },
 
-      return this.remote
-        .then(clearBrowserState())
-        .then(createUser(email, PASSWORD, { preVerified: true }));
-    },
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+  'sign in, delete account': function () {
+    return this.remote
+      .then(fillOutSignIn(email, PASSWORD))
+      .findById('fxa-settings-header')
+      .end()
 
-    'sign in, delete account': function () {
-      return this.remote
-        .then(fillOutSignIn(email, PASSWORD))
-        .findById('fxa-settings-header')
-        .end()
+      // Go to delete account screen
+      .findByCssSelector('#delete-account .settings-unit-toggle')
+        .click()
+      .end()
 
-        // Go to delete account screen
-        .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
-        .end()
+      // success is going to the delete account page
+      .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
-        // success is going to the delete account page
-        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
+      .then(fillOutDeleteAccount(PASSWORD))
 
-        .then(fillOutDeleteAccount(PASSWORD))
+      // success is going to the signup page
+      .findById('fxa-signup-header')
+      .end()
 
-        // success is going to the signup page
-        .findById('fxa-signup-header')
-        .end()
+      .then(testSuccessWasShown());
+  },
 
-        .then(testSuccessWasShown());
-    },
+  'sign in, cancel delete account': function () {
+    return this.remote
+      .then(fillOutSignIn(email, PASSWORD))
+      .findById('fxa-settings-header')
+      .end()
 
-    'sign in, cancel delete account': function () {
-      return this.remote
-        .then(fillOutSignIn(email, PASSWORD))
-        .findById('fxa-settings-header')
-        .end()
+      // Go to delete account screen
+      .findByCssSelector('#delete-account .settings-unit-toggle')
+        .click()
+      .end()
 
-        // Go to delete account screen
-        .findByCssSelector('#delete-account .settings-unit-toggle')
-          .click()
-        .end()
+      // success is going to the delete account page
+      .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
-        // success is going to the delete account page
-        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
+      .findByCssSelector('#delete-account .cancel')
+        .click()
+      .end()
 
-        .findByCssSelector('#delete-account .cancel')
-          .click()
-        .end()
-
-        // success is going to the signup page
-        .findById('fxa-settings-header')
-        .end();
-    }
-  });
+      // success is going to the signup page
+      .findById('fxa-settings-header')
+      .end();
+  }
 });

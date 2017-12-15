@@ -4,319 +4,316 @@
 
 'use strict';
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors',
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
+const intern = require('intern');
+const registerSuite = require('intern!object');
+const assert = require('intern/chai!assert');
+const TestHelpers = require('tests/lib/helpers');
+const FunctionalHelpers = require('tests/functional/lib/helpers');
+const selectors = require('tests/functional/lib/selectors');
 
-  const config = intern.config;
-  const SIGNUP_URL = config.fxaContentRoot + 'signup';
-  const SIGNIN_URL = config.fxaContentRoot + 'signin';
-  const PASSWORD = 'password';
+const config = intern.config;
+const SIGNUP_URL = config.fxaContentRoot + 'signup';
+const SIGNIN_URL = config.fxaContentRoot + 'signin';
+const PASSWORD = 'password';
 
-  let client;
-  let email;
-  let secondaryEmail;
+let client;
+let email;
+let secondaryEmail;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutResetPassword,
-    fillOutSignIn,
-    fillOutSignUp,
-    getUnblockInfo,
-    openPage,
-    openVerificationLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    respondToWebChannelMessage,
-    switchToWindow,
-    testElementExists,
-    testElementTextEquals,
-    testElementTextInclude,
-    testErrorTextInclude,
-    type,
-    visibleByQSA
-  } = FunctionalHelpers;
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutResetPassword,
+  fillOutSignIn,
+  fillOutSignUp,
+  getUnblockInfo,
+  openPage,
+  openVerificationLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  respondToWebChannelMessage,
+  switchToWindow,
+  testElementExists,
+  testElementTextEquals,
+  testElementTextInclude,
+  testErrorTextInclude,
+  type,
+  visibleByQSA
+} = FunctionalHelpers;
 
-  registerSuite({
-    name: 'settings secondary emails',
+registerSuite({
+  name: 'settings secondary emails',
 
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-      secondaryEmail = TestHelpers.createEmail('sync{id}');
-      client = FunctionalHelpers.getFxaClient();
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+    secondaryEmail = TestHelpers.createEmail('sync{id}');
+    client = FunctionalHelpers.getFxaClient();
 
-      return this.remote.then(clearBrowserState({ force: true }));
-    },
+    return this.remote.then(clearBrowserState({ force: true }));
+  },
 
-    afterEach: function () {
-      return this.remote.then(clearBrowserState());
-    },
+  afterEach: function () {
+    return this.remote.then(clearBrowserState());
+  },
 
-    'gated in unverified session open verification same tab': function () {
-      return this.remote
-        // when an account is created, the original session is verified
-        // re-login to destroy original session and created an unverified one
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
+  'gated in unverified session open verification same tab': function () {
+    return this.remote
+      // when an account is created, the original session is verified
+      // re-login to destroy original session and created an unverified one
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
 
-        // unlock panel
-        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+      // unlock panel
+      .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
 
-        // send and open verification in same tab
-        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-        .then(openVerificationLinkInSameTab(email, 0))
+      // send and open verification in same tab
+      .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+      .then(openVerificationLinkInSameTab(email, 0))
 
+      // panel becomes verified and opens add secondary panel
+      .then(visibleByQSA(selectors.EMAIL.INPUT));
+  },
+
+  'gated in unverified session open verification new tab': function () {
+    return this.remote
+      // when an account is created, the original session is verified
+      // re-login to destroy original session and created an unverified one
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
+
+      // unlock panel
+      .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+
+      // send and open verification in same tab
+      .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+      .then(openVerificationLinkInNewTab(email, 0))
+      .then(switchToWindow(1))
         // panel becomes verified and opens add secondary panel
-        .then(visibleByQSA(selectors.EMAIL.INPUT));
-    },
+        .then(testElementExists(selectors.EMAIL.INPUT))
+        .then(visibleByQSA(selectors.EMAIL.INPUT))
+        .then(closeCurrentWindow())
 
-    'gated in unverified session open verification new tab': function () {
-      return this.remote
-        // when an account is created, the original session is verified
-        // re-login to destroy original session and created an unverified one
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
-
-        // unlock panel
-        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+      .then(switchToWindow(0))
         .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-
-        // send and open verification in same tab
-        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-          // panel becomes verified and opens add secondary panel
-          .then(testElementExists(selectors.EMAIL.INPUT))
-          .then(visibleByQSA(selectors.EMAIL.INPUT))
-          .then(closeCurrentWindow())
-
-        .then(switchToWindow(0))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-          .then(visibleByQSA(selectors.EMAIL.INPUT));
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return this.remote
-        // when an account is created, the original session is verified
-        // re-login to destroy original session and created an unverified one
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
-
-        // unlock panel
-        .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-
-        // send and open verification in same tab
-        .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-        .then(openVerificationLinkInDifferentBrowser(email, 0))
         .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
         .then(visibleByQSA(selectors.EMAIL.INPUT));
-    },
+  },
 
-    'add and verify secondary email': function () {
-      return this.remote
-        // sign up via the UI, we need a verified session to use secondary email
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
+  'gated in unverified session open verification different browser': function () {
+    return this.remote
+      // when an account is created, the original session is verified
+      // re-login to destroy original session and created an unverified one
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
 
-        // attempt to the same email as primary
-        .then(type(selectors.EMAIL.INPUT, email))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
+      // unlock panel
+      .then(click(selectors.EMAIL.UNLOCK_BUTTON))
+      .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
 
-        // add secondary email, resend and remove
-        .then(type(selectors.EMAIL.INPUT, TestHelpers.createEmail()))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      // send and open verification in same tab
+      .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
+      .then(openVerificationLinkInDifferentBrowser(email, 0))
+      .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+      .then(visibleByQSA(selectors.EMAIL.INPUT));
+  },
 
-        .then(click(selectors.EMAIL.REMOVE_BUTTON))
-        .waitForDeletedByCssSelector(selectors.EMAIL.REMOVE_BUTTON)
+  'add and verify secondary email': function () {
+    return this.remote
+      // sign up via the UI, we need a verified session to use secondary email
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        .then(click(selectors.EMAIL.MENU_BUTTON))
+      // attempt to the same email as primary
+      .then(type(selectors.EMAIL.INPUT, email))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
 
-        // add secondary email, verify
-        .then(type(selectors.EMAIL.INPUT, secondaryEmail))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+      // add secondary email, resend and remove
+      .then(type(selectors.EMAIL.INPUT, TestHelpers.createEmail()))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
 
-        .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(click(selectors.EMAIL.REMOVE_BUTTON))
+      .waitForDeletedByCssSelector(selectors.EMAIL.REMOVE_BUTTON)
 
-        .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
-        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        // sign out, try to sign in with secondary
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(testErrorTextInclude('primary account email required'))
+      // add secondary email, verify
+      .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      .then(openVerificationLinkInSameTab(secondaryEmail, 0))
 
-        // try to reset with secondary email
-        .then(fillOutResetPassword(secondaryEmail, PASSWORD))
-        .then(testErrorTextInclude('primary account email required'))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
 
-        // make sure sign in still works
-        .then(fillOutSignIn(email, PASSWORD));
-    },
+      .then(testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail))
+      .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
 
-    'add secondary email that is primary to another account': function () {
-      const existingUnverified = TestHelpers.createEmail();
-      const existingVerified = TestHelpers.createEmail();
-      const unverifiedAccountEmail = TestHelpers.createEmail();
+      // sign out, try to sign in with secondary
+      .then(click(selectors.SETTINGS.SIGNOUT))
+      .then(testElementExists(selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(secondaryEmail, PASSWORD))
+      .then(testErrorTextInclude('primary account email required'))
 
-      return this.remote
-        // create an unverified and verified accounts
-        // these are going to be tried as a secondary emails for another account
-        .then(createUser(existingUnverified, PASSWORD, { preVerified: false }))
-        .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
+      // try to reset with secondary email
+      .then(fillOutResetPassword(secondaryEmail, PASSWORD))
+      .then(testErrorTextInclude('primary account email required'))
 
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      // make sure sign in still works
+      .then(fillOutSignIn(email, PASSWORD));
+  },
 
-        // sign up and verify
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
-        .then(type(selectors.EMAIL.INPUT, unverifiedAccountEmail))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(visibleByQSA(selectors.EMAIL.TOOLTIP));
-    },
+  'add secondary email that is primary to another account': function () {
+    const existingUnverified = TestHelpers.createEmail();
+    const existingVerified = TestHelpers.createEmail();
+    const unverifiedAccountEmail = TestHelpers.createEmail();
 
-    'signin and signup with existing secondary email': function () {
-      return this.remote
-        // sign up via the UI, we need a verified session to use secondary email
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
+    return this.remote
+      // create an unverified and verified accounts
+      // these are going to be tried as a secondary emails for another account
+      .then(createUser(existingUnverified, PASSWORD, { preVerified: false }))
+      .then(createUser(existingVerified, PASSWORD, { preVerified: true }))
 
-        .then(type(selectors.EMAIL.INPUT, secondaryEmail))
-        .then(click(selectors.EMAIL.ADD_BUTTON))
-        .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(unverifiedAccountEmail, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
 
-        .then(click(selectors.EMAIL.MENU_BUTTON))
-        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        // try to signin with the secondary email
-        .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(testErrorTextInclude('Primary account email required'))
-        // try to signup with the secondary email
-        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-        .then(fillOutSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.CONTENT));
-    },
+      // sign up and verify
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(type(selectors.EMAIL.INPUT, unverifiedAccountEmail))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(visibleByQSA(selectors.EMAIL.TOOLTIP));
+  },
 
-    'unblock code is sent to secondary emails': function () {
-      email = TestHelpers.createEmail('blocked{id}');
+  'signin and signup with existing secondary email': function () {
+    return this.remote
+      // sign up via the UI, we need a verified session to use secondary email
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function (result) {
-          return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
-        })
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(getUnblockInfo(email, 0))
-        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
-        .then(getUnblockInfo(email, 0))
-        .then(function (unblockInfo) {
-          return this.parent
-            .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
-        })
-        .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
+      .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+      .then(click(selectors.EMAIL.ADD_BUTTON))
+      .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+      .then(openVerificationLinkInSameTab(secondaryEmail, 0))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
-        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
-        .then(getUnblockInfo(email, 0))
-        .then(function (unblockInfo) {
-          // original email gets the unblock code
-          assert.ok(unblockInfo.unblockCode);
-        })
-        .then(getUnblockInfo(secondaryEmail, 1))
-        .then(function (unblockInfo) {
-          return this.parent
-            .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
-        })
-        .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+      .then(click(selectors.SETTINGS.SIGNOUT))
+      .then(testElementExists(selectors.SIGNIN.HEADER))
+      // try to signin with the secondary email
+      .then(fillOutSignIn(secondaryEmail, PASSWORD))
+      .then(testErrorTextInclude('Primary account email required'))
+      // try to signup with the secondary email
+      .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+      .then(fillOutSignUp(email, PASSWORD))
+      .then(testElementExists(selectors.SETTINGS.CONTENT));
+  },
 
-        .then(testElementExists(selectors.SETTINGS.HEADER));
-    },
+  'unblock code is sent to secondary emails': function () {
+    email = TestHelpers.createEmail('blocked{id}');
 
-    'signin confirmation is sent to secondary emails': function () {
-      const PAGE_SIGNIN_DESKTOP = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
-      const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(function (result) {
+        return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
+      })
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(getUnblockInfo(email, 0))
+      .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+      .then(getUnblockInfo(email, 0))
+      .then(function (unblockInfo) {
+        return this.parent
+          .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
+      })
+      .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
 
-      email = TestHelpers.createEmail('sync{id}');
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+      .then(click(selectors.SETTINGS.SIGNOUT))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+      .then(getUnblockInfo(email, 0))
+      .then(function (unblockInfo) {
+        // original email gets the unblock code
+        assert.ok(unblockInfo.unblockCode);
+      })
+      .then(getUnblockInfo(secondaryEmail, 1))
+      .then(function (unblockInfo) {
+        return this.parent
+          .then(type('#unblock_code', '   ' + unblockInfo.unblockCode));
+      })
+      .then(click(selectors.SIGNIN_UNBLOCK.SUBMIT))
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function (result) {
-          return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
-        })
-        .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.SETTINGS.HEADER));
+  },
 
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInDifferentBrowser(email))
+  'signin confirmation is sent to secondary emails': function () {
+    const PAGE_SIGNIN_DESKTOP = `${SIGNIN_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+    const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
 
-        // wait until account data is in localstorage before redirecting
-        .then(FunctionalHelpers.pollUntil(function () {
-          var accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
-          return accounts.length === 1 ? true : null;
-        }, [], 10000))
+    email = TestHelpers.createEmail('sync{id}');
 
-        .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(openVerificationLinkInSameTab(secondaryEmail, 0))
-        .then(click(selectors.EMAIL.MENU_BUTTON))
-        .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(function (result) {
+        return client.recoveryEmailCreate(result.sessionToken, secondaryEmail);
+      })
+      .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutSignIn(email, PASSWORD))
 
-        // force: true is needed to avoid localStorage being
-        // written by the verification tab after it was just cleared using JS.
-        // force: true goes to the /clear page.
-        .then(clearBrowserState({ force: true }))
+      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+      .then(openVerificationLinkInDifferentBrowser(email))
 
-        .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+      // wait until account data is in localstorage before redirecting
+      .then(FunctionalHelpers.pollUntil(function () {
+        var accounts = Object.keys(JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {});
+        return accounts.length === 1 ? true : null;
+      }, [], 10000))
 
-        .then(openVerificationLinkInNewTab(secondaryEmail, 1))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow());
-    }
-  });
+      .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+      .then(click(selectors.EMAIL.MENU_BUTTON))
+      .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+
+      // force: true is needed to avoid localStorage being
+      // written by the verification tab after it was just cleared using JS.
+      // force: true goes to the /clear page.
+      .then(clearBrowserState({ force: true }))
+
+      .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+
+      .then(openVerificationLinkInNewTab(secondaryEmail, 1))
+      .then(switchToWindow(1))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow());
+  }
 });

@@ -1,156 +1,151 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const intern = require('intern');
+const registerSuite = require('intern!object');
+const TestHelpers = require('tests/lib/helpers');
+const FunctionalHelpers = require('tests/functional/lib/helpers');
+const FxDesktopHelpers = require('tests/functional/lib/fx-desktop');
+var config = intern.config;
 
-define([
-  'intern',
-  'intern!object',
-  'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/functional/lib/fx-desktop'
-], function (intern, registerSuite, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
-  var config = intern.config;
+var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
+var PASSWORD = 'password';
 
-  var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
-  var PASSWORD = 'password';
+var email;
 
-  var email;
+const {
+  clearBrowserState,
+  click,
+  closeCurrentWindow,
+  createUser,
+  fillOutCompleteResetPassword,
+  fillOutResetPassword,
+  openExternalSite,
+  openPage,
+  openPasswordResetLinkInDifferentBrowser,
+  openVerificationLinkInNewTab,
+  openVerificationLinkInSameTab,
+  switchToWindow,
+  testElementExists,
+  testSuccessWasShown,
+  type,
+} = FunctionalHelpers;
 
-  const {
-    clearBrowserState,
-    click,
-    closeCurrentWindow,
-    createUser,
-    fillOutCompleteResetPassword,
-    fillOutResetPassword,
-    openExternalSite,
-    openPage,
-    openPasswordResetLinkInDifferentBrowser,
-    openVerificationLinkInNewTab,
-    openVerificationLinkInSameTab,
-    switchToWindow,
-    testElementExists,
-    testSuccessWasShown,
-    type,
-  } = FunctionalHelpers;
+const {
+  listenForFxaCommands,
+  testIsBrowserNotifiedOfLogin,
+} = FxDesktopHelpers;
 
-  const {
-    listenForFxaCommands,
-    testIsBrowserNotifiedOfLogin,
-  } = FxDesktopHelpers;
+registerSuite({
+  name: 'Firefox Desktop Sync v1 reset_password',
 
-  registerSuite({
-    name: 'Firefox Desktop Sync v1 reset_password',
+  beforeEach: function () {
+    // timeout after 90 seconds
+    this.timeout = 90000;
 
-    beforeEach: function () {
-      // timeout after 90 seconds
-      this.timeout = 90000;
+    email = TestHelpers.createEmail('sync{id}');
 
-      email = TestHelpers.createEmail('sync{id}');
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(clearBrowserState());
+  },
 
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState());
-    },
+  'reset password, verify same browser': function () {
+    // verify account
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutResetPassword(email))
 
-    'reset password, verify same browser': function () {
-      // verify account
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutResetPassword(email))
+      .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+      .then(openVerificationLinkInNewTab(email, 0))
+      .then(switchToWindow(1))
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+      .then(testElementExists('#fxa-complete-reset-password-header'))
+      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-        .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+      .then(testElementExists('#fxa-reset-password-complete-header'))
+      .then(testElementExists('.account-ready-service'))
+      .then(closeCurrentWindow())
 
-        .then(testElementExists('#fxa-reset-password-complete-header'))
-        .then(testElementExists('.account-ready-service'))
-        .then(closeCurrentWindow())
+      .then(testSuccessWasShown())
+      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
+  },
 
-        .then(testSuccessWasShown())
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
-    },
+  'reset password, verify same browser with original tab closed': function () {
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutResetPassword(email))
 
-    'reset password, verify same browser with original tab closed': function () {
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutResetPassword(email))
+      .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+      // user browses to another site.
+      .then(openExternalSite())
+      .then(openVerificationLinkInNewTab(email, 0))
+      .then(switchToWindow(1))
 
-        // user browses to another site.
-        .then(openExternalSite())
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+      .then(testElementExists('#fxa-reset-password-complete-header'))
 
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-        .then(testElementExists('#fxa-reset-password-complete-header'))
+      .then(closeCurrentWindow());
+  },
 
-        .then(closeCurrentWindow());
-    },
+  'reset password, verify same browser by replacing the original tab': function () {
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutResetPassword(email))
 
-    'reset password, verify same browser by replacing the original tab': function () {
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutResetPassword(email))
+      .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+      .then(testElementExists('#fxa-reset-password-complete-header'));
+  },
 
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-        .then(testElementExists('#fxa-reset-password-complete-header'));
-    },
+  'reset password, verify different browser - from original tab\'s P.O.V.': function () {
+    // verify account
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutResetPassword(email))
+      .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-    'reset password, verify different browser - from original tab\'s P.O.V.': function () {
-      // verify account
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutResetPassword(email))
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+      .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD))
 
-        .then(openPasswordResetLinkInDifferentBrowser(email, PASSWORD))
+      .then(testElementExists('#fxa-signin-header'))
+      .then(testSuccessWasShown())
 
-        .then(testElementExists('#fxa-signin-header'))
-        .then(testSuccessWasShown())
+      .then(type('#password', PASSWORD))
+      .then(click('button[type=submit]'))
 
-        .then(type('#password', PASSWORD))
-        .then(click('button[type=submit]'))
+      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
 
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+      // user verified the reset password in another browser, they must
+      // re-verify they want to sign in on this device to avoid
+      // opening up an attack vector.
+      .then(testElementExists('#fxa-confirm-signin-header'));
+  },
 
-        // user verified the reset password in another browser, they must
-        // re-verify they want to sign in on this device to avoid
-        // opening up an attack vector.
-        .then(testElementExists('#fxa-confirm-signin-header'));
-    },
+  'reset password, verify different browser - from new browser\'s P.O.V.': function () {
 
-    'reset password, verify different browser - from new browser\'s P.O.V.': function () {
+    // verify account
+    return this.remote
+      .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
+      .execute(listenForFxaCommands)
+      .then(fillOutResetPassword(email))
+      .then(testElementExists('#fxa-confirm-reset-password-header'))
 
-      // verify account
-      return this.remote
-        .then(openPage(PAGE_URL, '#fxa-reset-password-header'))
-        .execute(listenForFxaCommands)
-        .then(fillOutResetPassword(email))
-        .then(testElementExists('#fxa-confirm-reset-password-header'))
+      // clear all browser state, simulate opening in a new
+      // browser
+      .then(clearBrowserState())
+      .then(openVerificationLinkInSameTab(email, 0))
+      .then(testElementExists('#fxa-complete-reset-password-header'))
+      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-        // clear all browser state, simulate opening in a new
-        // browser
-        .then(clearBrowserState())
-        .then(openVerificationLinkInSameTab(email, 0))
-        .then(testElementExists('#fxa-complete-reset-password-header'))
-        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
-
-        .then(testElementExists('#fxa-reset-password-complete-header'))
-        .then(testElementExists('.account-ready-service'));
-    }
-  });
-
+      .then(testElementExists('#fxa-reset-password-complete-header'))
+      .then(testElementExists('.account-ready-service'));
+  }
 });
