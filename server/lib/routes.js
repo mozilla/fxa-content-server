@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-const celebrate = require('celebrate');
+const { celebrate } = require('celebrate');
 const cors = require('cors');
 const logger = require('./logging/log')('server.routes');
 
