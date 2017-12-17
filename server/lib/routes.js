@@ -125,7 +125,7 @@ module.exports = function (config, i18n) {
     const defaultErrorHandler = celebrateErrors();
     app.use((err, req, res, next) => {
       if (err && isCelebrate(err)) {
-        logger.error(`validation.failed.${req.url}`, { err });
+        logger.error('validation.failed', { err, method: req.method, path: req.url });
       }
       defaultErrorHandler(err, req, res, next);
     });
