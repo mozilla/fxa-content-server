@@ -28,6 +28,7 @@ define([
     fillOutChangePassword,
     fillOutSignIn,
     noSuchElementDisplayed,
+    noSuchElement,
     openPage,
     testElementExists,
     testElementTextEquals,
@@ -100,8 +101,8 @@ define([
         .sleep(ANIMATION_DELAY_MS)
         // try to change password again
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
-        // check no tooltip
-        .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.TOOLTIP));
+        // check no tooltip exists
+        .then(noSuchElement(selectors.CHANGE_PASSWORD.TOOLTIP));
     },
 
     'sign in, change password, sign in with new password': function () {
