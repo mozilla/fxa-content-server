@@ -178,10 +178,10 @@ const testElementExists = thenify(function (selector) {
 const click = thenify(function (selector, readySelector) {
   return this.parent
     .findByCssSelector(selector)
-      // Ensure the element is visible and not animating before attempting to click.
-      // Sometimes clicks do not register if the element is in the middle of an animation.
-      .then(visibleByQSA(selector))
-      .click()
+  // Ensure the element is visible and not animating before attempting to click.
+  // Sometimes clicks do not register if the element is in the middle of an animation.
+    .then(visibleByQSA(selector))
+    .click()
     .end()
     .then(function () {
       if (readySelector) {
@@ -234,39 +234,39 @@ const type = thenify(function (selector, text, options) {
     .then(click(selector))
     .findByCssSelector(selector)
 
-      .then(function () {
-        if (clearValue) {
-          return this.parent.clearValue();
-        }
-      })
+    .then(function () {
+      if (clearValue) {
+        return this.parent.clearValue();
+      }
+    })
 
-      .getAttribute('type')
-      .then(function (type) {
-        // xxx: bug in selenium 2.47.1, if firefox is out of
-        // focus it will just type 1 number, split the type
-        // commands for each character to avoid issues with the
-        // test runner
-        if (type === 'number') {
-          var index = 0;
-          var parent = this.parent;
+    .getAttribute('type')
+    .then(function (type) {
+      // xxx: bug in selenium 2.47.1, if firefox is out of
+      // focus it will just type 1 number, split the type
+      // commands for each character to avoid issues with the
+      // test runner
+      if (type === 'number') {
+        var index = 0;
+        var parent = this.parent;
 
-          var typeNext = function () {
-            if (index >= text.length) {
-              return;
-            }
-            var charToType = text.charAt(index);
-            index++;
+        var typeNext = function () {
+          if (index >= text.length) {
+            return;
+          }
+          var charToType = text.charAt(index);
+          index++;
 
-            return parent
-              .type(charToType)
-              .then(typeNext);
-          };
+          return parent
+            .type(charToType)
+            .then(typeNext);
+        };
 
-          return typeNext.call(this);
-        } else {
-          return this.parent.type(text);
-        }
-      })
+        return typeNext.call(this);
+      } else {
+        return this.parent.type(text);
+      }
+    })
 
     .end();
 });
@@ -286,8 +286,8 @@ const clearContentServerState = thenify(function (options) {
       // already at the content server.
       if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
         return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
-                  .setFindTimeout(config.pageLoadTimeout)
-                  .findById('fxa-clear-storage-header');
+          .setFindTimeout(config.pageLoadTimeout)
+          .findById('fxa-clear-storage-header');
       }
     })
 
@@ -333,9 +333,9 @@ const clear123DoneState = thenify(function (options) {
     .execute(function () {
       /* global $ */
       $.post('/api/logout/')
-          .always(function () {
-            $('body').append('<div id="loggedout">Logged out</div>');
-          });
+        .always(function () {
+          $('body').append('<div id="loggedout">Logged out</div>');
+        });
     })
     .then(testElementExists('#loggedout'));
 });
@@ -527,16 +527,16 @@ const noSuchElement = thenify(function (selector) {
     .setFindTimeout(0)
 
     .findByCssSelector(selector)
-      .then(function () {
-        throw new Error(selector + ' should not be present');
-      }, function (err) {
-        if (/NoSuchElement/.test(String(err))) {
-          // swallow the error
-          return;
-        }
+    .then(function () {
+      throw new Error(selector + ' should not be present');
+    }, function (err) {
+      if (/NoSuchElement/.test(String(err))) {
+        // swallow the error
+        return;
+      }
 
-        throw err;
-      })
+      throw err;
+    })
     .end()
 
     .setFindTimeout(config.pageLoadTimeout);
@@ -819,7 +819,7 @@ const noEmailExpected = thenify(function (user, index, options) {
 const openExternalSite = thenify(function () {
   return this.parent
     .get(require.toUrl(EXTERNAL_SITE_URL))
-      .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
+    .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
     .end();
 });
 
@@ -1172,9 +1172,9 @@ const openPage = thenify(function (url, readySelector, options) {
     .then(null, function (err) {
       return this.parent
         .getCurrentUrl()
-          .then(function (resultUrl) {
-            console.log('Error fetching %s, now at %s', url, resultUrl);
-          })
+        .then(function (resultUrl) {
+          console.log('Error fetching %s, now at %s', url, resultUrl);
+        })
         .end()
 
         .then(function () {
@@ -1430,12 +1430,12 @@ const fillOutForceAuth = thenify(function (password) {
  */
 const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
   return this.parent
-  .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern.config.pageLoadTimeout)
 
-  .then(testElementExists('#fxa-complete-reset-password-header'))
-  .then(type('#password', password))
-  .then(type('#vpassword', vpassword))
-  .then(click('button[type="submit"]'));
+    .then(testElementExists('#fxa-complete-reset-password-header'))
+    .then(type('#password', password))
+    .then(type('#vpassword', vpassword))
+    .then(click('button[type="submit"]'));
 });
 
 /**
@@ -1701,11 +1701,11 @@ function testErrorWasShown(selector) {
 const testElementDisabled = thenify(function (selector) {
   return this.parent
     .findByCssSelector(selector)
-      .getAttribute('disabled')
-      .then(function (disabledValue) {
-        // attribute value is null if it does not exist
-        assert.notStrictEqual(disabledValue, null);
-      })
+    .getAttribute('disabled')
+    .then(function (disabledValue) {
+      // attribute value is null if it does not exist
+      assert.notStrictEqual(disabledValue, null);
+    })
     .end();
 });
 
@@ -1719,10 +1719,10 @@ const testElementDisplayed = thenify(function (selector) {
   return this.parent
     .then(visibleByQSA(selector))
     .findByCssSelector(selector)
-      .isDisplayed()
-      .then(function (isDisplayed) {
-        assert.isTrue(isDisplayed);
-      })
+    .isDisplayed()
+    .then(function (isDisplayed) {
+      assert.isTrue(isDisplayed);
+    })
     .end();
 });
 
@@ -1735,10 +1735,10 @@ const testElementDisplayed = thenify(function (selector) {
 const noSuchElementDisplayed = thenify(function (selector) {
   return this.parent
     .findByCssSelector(selector)
-      .isDisplayed()
-      .then(function (isDisplayed) {
-        assert.isFalse(isDisplayed);
-      })
+    .isDisplayed()
+    .then(function (isDisplayed) {
+      assert.isFalse(isDisplayed);
+    })
     .end();
 });
 
@@ -1829,9 +1829,9 @@ const testHrefEquals = thenify(function (selector, expected) {
 const testUrlEquals = thenify(function (expected) {
   return this.parent
     .getCurrentUrl()
-      .then(function (url) {
-        assert.equal(url, expected);
-      })
+    .then(function (url) {
+      assert.equal(url, expected);
+    })
     .end();
 });
 
@@ -1844,9 +1844,9 @@ const testUrlEquals = thenify(function (expected) {
 const testUrlPathnameEquals = thenify(function (expected) {
   return this.parent
     .getCurrentUrl()
-      .then(function (url) {
-        assert.equal(Url.parse(url).pathname, expected);
-      })
+    .then(function (url) {
+      assert.equal(Url.parse(url).pathname, expected);
+    })
     .end();
 });
 
@@ -1917,10 +1917,10 @@ const closeCurrentWindow = thenify(function () {
 const testAttribute = thenify(function (selector, attributeName, assertion, value) {
   return this.parent
     .findByCssSelector(selector)
-      .getAttribute(attributeName)
-      .then(function (attributeValue) {
-        assert[assertion](attributeValue, value);
-      })
+    .getAttribute(attributeName)
+    .then(function (attributeValue) {
+      assert[assertion](attributeValue, value);
+    })
     .end();
 });
 
@@ -1958,10 +1958,10 @@ function testAttributeMatches (selector, attributeName, regex) {
 const testAttributeExists = thenify(function (selector, attributeName) {
   return this.parent
     .findByCssSelector(selector)
-      .getAttribute(attributeName)
-      .then(function (attributeValue) {
-        assert.notStrictEqual(attributeValue, null);
-      })
+    .getAttribute(attributeName)
+    .then(function (attributeValue) {
+      assert.notStrictEqual(attributeValue, null);
+    })
     .end();
 });
 

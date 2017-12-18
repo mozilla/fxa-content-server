@@ -41,22 +41,22 @@ registerSuite({
     email = TestHelpers.createEmail('sync{id}');
   },
 
-    'with a registered email, no uid, verify same browser ': function () {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function (accountInfo) {
-          return openForceAuth({
-            query: {
-              context: 'fx_desktop_v3',
-              email: email,
-              forceAboutAccounts: 'true',
+  'with a registered email, no uid, verify same browser': function () {
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(function (accountInfo) {
+        return openForceAuth({
+          query: {
+            context: 'fx_desktop_v3',
+            email: email,
+            forceAboutAccounts: 'true',
 
-              service: 'sync'
-            }
-          }).call(this);
-        })
-        .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-        .then(fillOutForceAuth(PASSWORD))
+            service: 'sync'
+          }
+        }).call(this);
+      })
+      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
+      .then(fillOutForceAuth(PASSWORD))
 
       .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -64,8 +64,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
@@ -95,8 +95,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
@@ -125,8 +125,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));

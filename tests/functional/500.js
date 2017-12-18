@@ -16,7 +16,7 @@ registerSuite({
       .get(require.toUrl(url))
       .setFindTimeout(intern.config.pageLoadTimeout)
       .findById(expected)
-        .click()
+      .click()
       .end()
 
       // success is going to the signup screen

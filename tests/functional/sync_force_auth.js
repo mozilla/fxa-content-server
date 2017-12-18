@@ -35,8 +35,8 @@ let email;
 
 const setupTest = thenify(function (options = {}) {
   const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
-                          options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
-                          selectors.CONFIRM_SIGNUP.HEADER;
+    options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+      selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
     .then(clearBrowserState())
@@ -71,8 +71,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));

@@ -36,7 +36,7 @@ registerSuite({
 
       // Go to delete account screen
       .findByCssSelector('#delete-account .settings-unit-toggle')
-        .click()
+      .click()
       .end()
 
       // success is going to the delete account page
@@ -59,14 +59,14 @@ registerSuite({
 
       // Go to delete account screen
       .findByCssSelector('#delete-account .settings-unit-toggle')
-        .click()
+      .click()
       .end()
 
       // success is going to the delete account page
       .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
       .findByCssSelector('#delete-account .cancel')
-        .click()
+      .click()
       .end()
 
       // success is going to the signup page

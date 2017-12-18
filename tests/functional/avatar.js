@@ -129,7 +129,7 @@ registerSuite({
 
       // Selenium's way of interacting with a file picker
       .findByCssSelector('#imageLoader')
-        .type(UPLOAD_IMAGE_PATH)
+      .type(UPLOAD_IMAGE_PATH)
       .end()
 
       .then(testElementExists('.cropper'))
@@ -153,7 +153,7 @@ registerSuite({
 
       // Selenium's way of interacting with a file picker
       .findByCssSelector('#imageLoader')
-        .type(UPLOAD_IMAGE_PATH)
+      .type(UPLOAD_IMAGE_PATH)
       .end()
 
       .then(testElementExists('.cropper'))

@@ -154,19 +154,19 @@ registerSuite({
       .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
   },
 
-    'signin Fx Desktop, verify same browser ': function () {
-      const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = {  forceUA };
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
-        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+  'signin Fx Desktop, verify same browser ': function () {
+    const forceUA = UA_STRINGS['desktop_firefox'];
+    const query = {  forceUA };
+    return this.remote
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
+      .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+      .then(openVerificationLinkInNewTab(email, 0, { query }))
+      .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },

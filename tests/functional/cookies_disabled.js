@@ -27,7 +27,7 @@ registerSuite({
       .then(openPage(SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))
       // try again, cookies are still disabled.
       .findById('submit-btn')
-        .click()
+      .click()
       .end()
 
       // show an error message after second try
@@ -44,7 +44,7 @@ registerSuite({
 
       // try again, cookies are enabled.
       .findById('submit-btn')
-        .click()
+      .click()
       .end()
 
       // Should be redirected back to the signup page.

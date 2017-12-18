@@ -396,9 +396,9 @@ registerSuite({
     email = TestHelpers.createEmail();
 
     return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(initiateResetPassword(email, 0))
-        .then(clearBrowserState());
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(initiateResetPassword(email, 0))
+      .then(clearBrowserState());
   },
 
   'complete reset, then re-open verification link, click resend': function () {

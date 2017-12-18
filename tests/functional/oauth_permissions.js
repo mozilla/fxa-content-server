@@ -116,11 +116,11 @@ registerSuite({
       .then(openFxaFromUntrustedRp('signup'))
       .then(testElementExists(selectors.SIGNUP.SUB_HEADER))
       .getCurrentUrl()
-        .then(function (url) {
-          assert.ok(url.indexOf('client_id=') > -1);
-          assert.ok(url.indexOf('redirect_uri=') > -1);
-          assert.ok(url.indexOf('state=') > -1);
-        })
+      .then(function (url) {
+        assert.ok(url.indexOf('client_id=') > -1);
+        assert.ok(url.indexOf('redirect_uri=') > -1);
+        assert.ok(url.indexOf('state=') > -1);
+      })
       .end()
 
       .then(fillOutSignUp(email, PASSWORD))
@@ -130,16 +130,16 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        // wait for the verified window in the new tab
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-        .sleep(5000)
+    // wait for the verified window in the new tab
+      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+      .sleep(5000)
 
-        // user sees the name of the RP,
-        // but cannot redirect
-        .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
+    // user sees the name of the RP,
+    // but cannot redirect
+      .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-        // switch to the original window
-        .then(closeCurrentWindow())
+    // switch to the original window
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
   },
@@ -154,16 +154,16 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        // wait for the verified window in the new tab
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+    // wait for the verified window in the new tab
+      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
 
-        .sleep(5000)
-        // user sees the name of the RP,
-        // but cannot redirect
-        .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
+      .sleep(5000)
+    // user sees the name of the RP,
+    // but cannot redirect
+      .then(testElementTextInclude(selectors.SIGNUP_COMPLETE.SERVICE_NAME, '321done Untrusted'))
 
-        // switch to the original window
-        .then(closeCurrentWindow())
+    // switch to the original window
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       .then(click(selectors['123DONE'].LINK_LOGOUT))
@@ -212,10 +212,10 @@ registerSuite({
       .then(openSettingsInNewTab())
       .then(switchToWindow(1))
 
-        .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON, selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
-        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
-        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
-        .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
+      .then(click(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON, selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
+      .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, 'test user'))
+      .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+      .then(visibleByQSA(selectors.SETTINGS.SUCCESS))
 
       .then(closeCurrentWindow())
 

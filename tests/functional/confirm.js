@@ -78,7 +78,7 @@ registerSuite({
 
       .then(switchToWindow(1))
 
-        // wait until url is correct
+    // wait until url is correct
       .then(FunctionalHelpers.pollUntil(function (email) {
         return window.location.pathname.endsWith(email);
       }, [email], 10000))

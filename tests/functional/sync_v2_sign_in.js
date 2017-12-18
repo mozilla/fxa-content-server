@@ -35,8 +35,8 @@ var setupTest = thenify(function (options) {
   const signUpEmail = options.signUpEmail || email;
 
   const successSelector = options.blocked ? '#fxa-signin-unblock-header' :
-                          options.preVerified ? '#fxa-confirm-signin-header' :
-                          '#fxa-confirm-header';
+    options.preVerified ? '#fxa-confirm-signin-header' :
+      '#fxa-confirm-header';
 
   return this.parent
     .then(clearBrowserState({ force: true }))
@@ -67,8 +67,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition('#fxa-confirm-signin-header'));

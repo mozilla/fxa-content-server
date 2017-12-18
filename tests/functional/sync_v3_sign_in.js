@@ -42,8 +42,8 @@ const setupTest = thenify(function (options = {}) {
   const signUpEmail = options.signUpEmail || email;
 
   const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
-                          options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
-                          selectors.CONFIRM_SIGNUP.HEADER;
+    options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+      selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
     .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
@@ -97,13 +97,12 @@ registerSuite({
     }))
 
 
-
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow());
-        // tests for the original tab are below.
-    },
+      .then(openVerificationLinkInNewTab(email, 0))
+      .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow());
+      // tests for the original tab are below.
+  },
 
   'Fx <= 57, verified, verify same browser, original tab\'s P.O.V.': function () {
     const forceUA = uaStrings['desktop_firefox_57'];
@@ -140,8 +139,8 @@ registerSuite({
       // email 0 is the original signin email, open the resent email instead
       .then(openVerificationLinkInNewTab(email, 1))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
@@ -171,8 +170,8 @@ registerSuite({
       .then(testEmailExpected(email, 2))
 
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // about:accounts will take over post-verification, no transition
       .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));

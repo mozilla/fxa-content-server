@@ -49,8 +49,8 @@ const {
 
 const setupTest = thenify(function (options = {}) {
   const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
-                          options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
-                          selectors.CONFIRM_SIGNUP.HEADER;
+    options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+      selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
@@ -86,8 +86,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0, { query }))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
   },
@@ -106,15 +106,15 @@ registerSuite({
     const forceUA = UA_STRINGS['ios_firefox_6_0'];
     const query = { forceUA };
     return this.remote
-    .then(setupTest({ preVerified: false, query }))
+      .then(setupTest({ preVerified: false, query }))
 
       // email 0 - initial sign up email
       // email 1 - sign in w/ unverified address email
       // email 2 - "You have verified your Firefox Account"
       .then(openVerificationLinkInNewTab(email, 1, { query }))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
   },
@@ -131,12 +131,12 @@ registerSuite({
       // email 2 - "You have verified your Firefox Account"
       .then(openVerificationLinkInNewTab(email, 1, { query }))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
-        // In Fx for iOS >= 6.1, user should redirect to the signup-complete
-        // page after verification.
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
+    // In Fx for iOS >= 6.1, user should redirect to the signup-complete
+    // page after verification.
+      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
   },
 
   'signup link is enabled': function () {

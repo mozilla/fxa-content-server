@@ -23,11 +23,11 @@ registerSuite({
       .get(require.toUrl(SIGNUP_URL))
       .setFindTimeout(intern.config.pageLoadTimeout)
       .findByCssSelector('#fxa-tos')
-        .click()
+      .click()
       .end()
 
       .findByCssSelector('#fxa-tos-back')
-        .click()
+      .click()
       .end()
 
       // success is going back to the signup
@@ -53,7 +53,7 @@ registerSuite({
       .get(require.toUrl(SIGNUP_URL))
       .setFindTimeout(intern.config.pageLoadTimeout)
       .findByCssSelector('#fxa-tos')
-        .click()
+      .click()
       .end()
 
       // wait for terms to load
@@ -63,7 +63,7 @@ registerSuite({
       .refresh()
 
       .findByCssSelector('#fxa-tos-back')
-        .click()
+      .click()
       .end()
 
       // success is going back to the signup

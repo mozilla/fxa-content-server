@@ -24,7 +24,7 @@ registerSuite({
       .get(require.toUrl(SIGNUP_URL))
       .setFindTimeout(intern.config.pageLoadTimeout)
       .findById('fxa-pp')
-        .click()
+      .click()
       .end()
 
       // success is going to the Privacy screen
@@ -32,7 +32,7 @@ registerSuite({
       .end()
 
       .findById('fxa-pp-back')
-        .click()
+      .click()
       .end()
 
       // success is going back to the signup
@@ -57,7 +57,7 @@ registerSuite({
       .get(require.toUrl(SIGNUP_URL))
       .setFindTimeout(intern.config.pageLoadTimeout)
       .findByCssSelector('#fxa-pp')
-        .click()
+      .click()
       .end()
 
       // wait for policy to load
@@ -67,7 +67,7 @@ registerSuite({
       .refresh()
 
       .findByCssSelector('#fxa-pp-back')
-        .click()
+      .click()
       .end()
 
       // success is going back to the signup

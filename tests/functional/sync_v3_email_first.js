@@ -104,8 +104,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // We do not expect the verification poll to occur. The poll
       // will take a few seconds to complete if it erroneously occurs.
@@ -153,8 +153,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // We do not expect the verification poll to occur. The poll
       // will take a few seconds to complete if it erroneously occurs.
@@ -188,23 +188,23 @@ registerSuite({
       // Get the 2nd email, the 1st was sent for createUser
       .then(openVerificationLinkInNewTab(email, 1))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
   },
 
   'email specified by relier, not registered': function () {
     return this.remote
-    .then(openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
-      query: {
-        email
-      },
-      webChannelResponses: {
-        'fxaccounts:can_link_account': { ok: true }
-      }
-    }))
-    .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+      .then(openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
+        query: {
+          email
+        },
+        webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true }
+        }
+      }))
+      .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
   },
 
   'email specified by relier, registered': function () {

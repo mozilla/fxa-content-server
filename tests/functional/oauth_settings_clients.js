@@ -67,7 +67,7 @@ registerSuite({
       .end()
 
       .findByCssSelector('.signin')
-        .click()
+      .click()
       .end()
 
       .then(type('#password', PASSWORD))

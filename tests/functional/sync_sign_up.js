@@ -63,10 +63,10 @@ registerSuite({
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
 
-        .then(closeCurrentWindow())
+      .then(closeCurrentWindow())
 
       // We do not expect the verification poll to occur. The poll
       // will take a few seconds to complete if it erroneously occurs.

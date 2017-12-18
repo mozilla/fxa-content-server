@@ -146,21 +146,21 @@ registerSuite({
 
       // complete the reset password in the new tab
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
-        .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
+      .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+      .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
 
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
 
-        // sign out and fails login with old password
-        .then(click(selectors.SETTINGS.SIGNOUT))
-        .then(testElementExists(selectors.SIGNIN.HEADER))
-        .then(fillOutSignIn(secondaryEmail, PASSWORD))
-        .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
+    // sign out and fails login with old password
+      .then(click(selectors.SETTINGS.SIGNOUT))
+      .then(testElementExists(selectors.SIGNIN.HEADER))
+      .then(fillOutSignIn(secondaryEmail, PASSWORD))
+      .then(visibleByQSA(selectors.SIGNIN.TOOLTIP))
 
-        // sign in with new password succeeds
-        .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
+    // sign in with new password succeeds
+      .then(fillOutSignIn(secondaryEmail, NEW_PASSWORD))
+      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, secondaryEmail))
       .then(closeCurrentWindow());
   },
 

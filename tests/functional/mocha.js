@@ -136,7 +136,7 @@ function validateCoverageLocally(context) {
       text = text.replace('%', '').trim();
       var covered = parseFloat(text);
       assert.ok(covered > config.get('tests.coverage.globalThreshold'),
-          'code coverage is insufficient at ' + text + '%');
+        'code coverage is insufficient at ' + text + '%');
     })
     .end()
 
@@ -144,15 +144,15 @@ function validateCoverageLocally(context) {
     .setFindTimeout(3000)
     .findByCssSelector('.bl-error .bl-file a')
     .then(
-    function () {
-      dfd.reject(new Error('Blanket.js Errors'));
-    },
-    function (err) {
+      function () {
+        dfd.reject(new Error('Blanket.js Errors'));
+      },
+      function (err) {
       // No Blanket.js errors
-      assert.strictEqual(err.name, 'NoSuchElement', 'Error was: ' + err.message);
-      dfd.resolve();
-    }
-  )
+        assert.strictEqual(err.name, 'NoSuchElement', 'Error was: ' + err.message);
+        dfd.resolve();
+      }
+    )
     .end();
 
   return dfd;

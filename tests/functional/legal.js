@@ -18,20 +18,20 @@ registerSuite({
       .then(openPage(url, '#fxa-legal-header'))
 
       .findByCssSelector('a[href="/legal/terms"]')
-        .click()
+      .click()
       .end()
 
       // success is going to the TOS screen
       .findByCssSelector('#fxa-tos-back')
-        .click()
+      .click()
       .end()
 
       .findByCssSelector('a[href="/legal/privacy"]')
-        .click()
+      .click()
       .end()
 
       .findByCssSelector('#fxa-pp-back')
-        .click()
+      .click()
       .end()
 
       // success is going back to the legal screen.
@@ -47,11 +47,11 @@ registerSuite({
       .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
       .findByCssSelector('#legal-copy[data-shown]')
 
-        .getVisibleText()
-        .then(function (resultText) {
-          // the legal text shouldn't be empty
-          assert.ok(resultText.trim().length);
-        })
+      .getVisibleText()
+      .then(function (resultText) {
+        // the legal text shouldn't be empty
+        assert.ok(resultText.trim().length);
+      })
       .end();
   },
 
@@ -62,11 +62,11 @@ registerSuite({
 
       .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
       .findByCssSelector('#legal-copy[data-shown]')
-        .getVisibleText()
-        .then(function (resultText) {
-          // the legal text shouldn't be empty
-          assert.ok(resultText.trim().length);
-        })
+      .getVisibleText()
+      .then(function (resultText) {
+        // the legal text shouldn't be empty
+        assert.ok(resultText.trim().length);
+      })
       .end();
   }
 });

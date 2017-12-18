@@ -62,8 +62,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },
@@ -84,7 +84,8 @@ registerSuite({
       .then(testIsBrowserNotified('fxaccounts:can_link_account'));
   },
 
-    'signin verified ': function () {
+  'signin verified ': function () {
+
 
 
       return this.remote
@@ -107,8 +108,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },
@@ -138,8 +139,8 @@ registerSuite({
       // Get the 2nd email, the 1st was sent for createUser
       .then(openVerificationLinkInNewTab(email, 1))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },

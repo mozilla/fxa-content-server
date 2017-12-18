@@ -71,8 +71,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },
@@ -95,8 +95,8 @@ registerSuite({
       // email 2 - "You have verified your Firefox Account"
       .then(openVerificationLinkInNewTab(email, 1))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },

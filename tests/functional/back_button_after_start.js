@@ -22,9 +22,9 @@ registerSuite({
       .goBack()
 
       .getCurrentUrl()
-        .then(function (resultUrl) {
-          assert.equal(resultUrl, FROM_URL);
-        })
+      .then(function (resultUrl) {
+        assert.equal(resultUrl, FROM_URL);
+      })
       .end();
   }
 });

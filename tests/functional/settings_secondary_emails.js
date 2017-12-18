@@ -96,15 +96,15 @@ registerSuite({
       .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        // panel becomes verified and opens add secondary panel
-        .then(testElementExists(selectors.EMAIL.INPUT))
-        .then(visibleByQSA(selectors.EMAIL.INPUT))
-        .then(closeCurrentWindow())
+    // panel becomes verified and opens add secondary panel
+      .then(testElementExists(selectors.EMAIL.INPUT))
+      .then(visibleByQSA(selectors.EMAIL.INPUT))
+      .then(closeCurrentWindow())
 
       .then(switchToWindow(0))
-        .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-        .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-        .then(visibleByQSA(selectors.EMAIL.INPUT));
+      .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+      .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
+      .then(visibleByQSA(selectors.EMAIL.INPUT));
   },
 
   'gated in unverified session open verification different browser': function () {

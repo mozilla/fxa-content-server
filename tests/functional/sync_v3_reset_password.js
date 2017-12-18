@@ -49,19 +49,19 @@ const setupTest = thenify(function (query) {
     .then(openVerificationLinkInNewTab(email, 0))
     .then(switchToWindow(1))
 
-      .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
-      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+    .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+    .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-      .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
-      .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
+    .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+    .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
 
-      // the verification tab sends the WebChannel message. This fixes
-      // two problems: 1) initiating tab is closed, 2) The initiating
-      // tab when running in E10s does not have all the necessary data
-      // because localStorage is not shared.
-      .then(testIsBrowserNotified('fxaccounts:login'))
+  // the verification tab sends the WebChannel message. This fixes
+  // two problems: 1) initiating tab is closed, 2) The initiating
+  // tab when running in E10s does not have all the necessary data
+  // because localStorage is not shared.
+    .then(testIsBrowserNotified('fxaccounts:login'))
 
-      .then(closeCurrentWindow());
+    .then(closeCurrentWindow());
 });
 
 registerSuite({

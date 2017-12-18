@@ -55,8 +55,8 @@ const setupTest = thenify(function (userAgent) {
     .then(openVerificationLinkInNewTab(email, 0))
     .then(switchToWindow(1))
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow());
+    .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+    .then(closeCurrentWindow());
 });
 
 registerSuite({

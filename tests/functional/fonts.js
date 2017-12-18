@@ -18,17 +18,17 @@ registerSuite({
       .setFindTimeout(intern.config.pageLoadTimeout)
 
       .findByCssSelector('#fxa-signin-header')
-        .getComputedStyle('font-family')
-        .then(function (value) {
-          assert.ok(value.indexOf('Fira Sans') > -1);
-        })
+      .getComputedStyle('font-family')
+      .then(function (value) {
+        assert.ok(value.indexOf('Fira Sans') > -1);
+      })
       .end()
 
       .findByCssSelector('body')
-        .getComputedStyle('font-family')
-        .then(function (value) {
-          assert.ok(value.indexOf('Fira Sans') > -1);
-        })
+      .getComputedStyle('font-family')
+      .then(function (value) {
+        assert.ok(value.indexOf('Fira Sans') > -1);
+      })
       .end();
   },
 
@@ -38,17 +38,17 @@ registerSuite({
       .get(require.toUrl(nonFiraUrl))
 
       .findByCssSelector('#fxa-pp-header')
-        .getComputedStyle('font-family')
-        .then(function (value) {
-          assert.ok(value.indexOf('Fira Sans') === -1);
-        })
+      .getComputedStyle('font-family')
+      .then(function (value) {
+        assert.ok(value.indexOf('Fira Sans') === -1);
+      })
       .end()
 
       .findByCssSelector('body')
-        .getComputedStyle('font-family')
-        .then(function (value) {
-          assert.ok(value.indexOf('Fira Sans') === -1);
-        })
+      .getComputedStyle('font-family')
+      .then(function (value) {
+        assert.ok(value.indexOf('Fira Sans') === -1);
+      })
       .end();
   }
 });

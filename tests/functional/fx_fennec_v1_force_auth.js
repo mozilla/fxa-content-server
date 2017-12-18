@@ -31,8 +31,8 @@ const setupTest = thenify(function (options) {
   options = options || {};
 
   const successSelector = options.blocked ? selectors.SIGNIN_UNBLOCK.HEADER :
-                          options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
-                          selectors.CONFIRM_SIGNUP.HEADER;
+    options.preVerified ? selectors.CONFIRM_SIGNIN.HEADER :
+      selectors.CONFIRM_SIGNUP.HEADER;
 
 
   return this.parent
@@ -69,8 +69,8 @@ registerSuite({
 
       .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },

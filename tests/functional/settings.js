@@ -185,10 +185,10 @@ registerSuite({
 
       .then(openSettingsInNewTab())
       .then(switchToWindow(1))
-        .then(testElementExists('#fxa-settings-header'))
-        .then(click('#signout'))
+      .then(testElementExists('#fxa-settings-header'))
+      .then(click('#signout'))
 
-        .then(testElementExists('#fxa-signin-header'))
+      .then(testElementExists('#fxa-signin-header'))
       .then(closeCurrentWindow())
 
       .then(testElementExists('#fxa-signin-header'))

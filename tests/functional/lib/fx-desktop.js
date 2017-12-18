@@ -71,19 +71,19 @@ function testIsBrowserNotifiedOfLogin(email, options) {
 
     return this.parent
       .findByCssSelector('#message-login')
-        .getProperty('innerText')
-        .then((innerText) => {
-          options = options || {};
-          var data = JSON.parse(innerText);
-          assert.equal(data.email, email);
-          assert.ok(data.unwrapBKey);
-          assert.ok(data.keyFetchToken);
-          if (options.expectVerified) {
-            assert.isTrue(data.verified);
-          } else {
-            assert.isFalse(data.verified);
-          }
-        })
+      .getProperty('innerText')
+      .then((innerText) => {
+        options = options || {};
+        var data = JSON.parse(innerText);
+        assert.equal(data.email, email);
+        assert.ok(data.unwrapBKey);
+        assert.ok(data.keyFetchToken);
+        if (options.expectVerified) {
+          assert.isTrue(data.verified);
+        } else {
+          assert.isFalse(data.verified);
+        }
+      })
       .end();
   };
 }

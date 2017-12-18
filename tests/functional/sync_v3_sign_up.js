@@ -67,11 +67,11 @@ registerSuite({
       .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-        // switch back to the original window, it should transition to CAD.
-        .then(closeCurrentWindow())
+      .then(switchToWindow(1))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+    // switch back to the original window, it should transition to CAD.
+      .then(closeCurrentWindow())
       // about:accounts takes over, so no screen transition
       .then(noPageTransition(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
       // but the login message is sent automatically.
@@ -96,11 +96,11 @@ registerSuite({
       .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
       .then(testIsBrowserNotified('fxaccounts:can_link_account'))
       .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
-        // switch back to the original window, it should transition to CAD.
-        .then(closeCurrentWindow())
+      .then(switchToWindow(1))
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SIGNIN_BUTTON))
+    // switch back to the original window, it should transition to CAD.
+      .then(closeCurrentWindow())
 
       // In Fx >= 58, about:accounts does not take over.
       // Expect a screen transition.

@@ -71,10 +71,10 @@ registerSuite({
       .then(testIsBrowserNotified('fxaccounts:login'))
       .then(clearBrowserNotifications())
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+      .then(openVerificationLinkInNewTab(email, 0))
+      .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       .then(noSuchBrowserNotification('fxaccounts:login'));
@@ -106,8 +106,8 @@ registerSuite({
       // email 2 - "You have verified your Firefox Account"
       .then(openVerificationLinkInNewTab(email, 1))
       .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
+      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+      .then(closeCurrentWindow())
 
       // Since this is really a signup flow, the original tab
       // redirects to CAD too.
