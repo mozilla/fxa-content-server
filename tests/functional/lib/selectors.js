@@ -21,7 +21,7 @@ define([], function () {
       HEADER: '#fxa-400-header'
     },
     CHANGE_PASSWORD: {
-      CANCEL_BUTTON: '#cancel-change-password .cancel',
+      CANCEL_BUTTON: '#change-password .cancel',
       DETAILS: '#change-password .settings-unit-details',
       ERROR: '#change-password .error',
       LINK_RESET_PASSWORD: '.reset-password',
