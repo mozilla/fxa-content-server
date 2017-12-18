@@ -86,6 +86,24 @@ define([
         .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.ERROR));
     },
 
+    'sign in, try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function () {
+      return this.remote
+        .then(setupTest())
+
+        // Go to change password screen
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        .then(fillOutChangePassword('A', SECOND_PASSWORD, { expectSuccess: false }))
+        // the validation tooltip should be visible
+        .then(visibleByQSA(selectors.CHANGE_PASSWORD.TOOLTIP))
+        // click the cancel button
+        .then(click(selectors.CHANGE_PASSWORD.CANCEL_BUTTON))
+        .sleep(ANIMATION_DELAY_MS)
+        // try to change password again
+        .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
+        // check no tooltip
+        .then(noSuchElementDisplayed(selectors.CHANGE_PASSWORD.TOOLTIP));
+    },
+
     'sign in, change password, sign in with new password': function () {
       return this.remote
         .then(setupTest())
