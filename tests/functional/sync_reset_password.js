@@ -36,9 +36,7 @@ const {
   testIsBrowserNotifiedOfLogin,
 } = FxDesktopHelpers;
 
-registerSuite({
-  name: 'Firefox Desktop Sync v1 reset_password',
-
+registerSuite('Firefox Desktop Sync v1 reset_password', {
   beforeEach: function () {
     // timeout after 90 seconds
     this.timeout = 90000;

@@ -34,9 +34,7 @@ const {
   testIsBrowserNotifiedOfLogin,
 } = FxDesktopHelpers;
 
-registerSuite({
-  name: 'signin with OAuth after Sync',
-
+registerSuite('signin with OAuth after Sync', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
     email2 = TestHelpers.createEmail();

@@ -8,9 +8,7 @@ const require = require('require');
 var FROM_URL = 'http://example.com/';
 var FXA_ROOT_URL = intern.config.fxaContentRoot;
 
-registerSuite({
-  name: 'back button after navigating to the root',
-
+registerSuite('back button after navigating to the root', {
   'start at github, visit Fxa root, click `back` - should go back to example': function () {
     return this.remote
       .get(require.toUrl(FROM_URL))

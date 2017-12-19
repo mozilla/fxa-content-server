@@ -26,9 +26,7 @@ var testElementExists = FunctionalHelpers.testElementExists;
 var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
-registerSuite({
-  name: 'Firefox Desktop Sync v2 reset password',
-
+registerSuite('Firefox Desktop Sync v2 reset password', {
   beforeEach: function () {
     // timeout after 90 seconds
     this.timeout = 90000;
@@ -37,7 +35,7 @@ registerSuite({
     return this.remote.then(clearBrowserState());
   },
 
-  teardown: function () {
+  undefined: function () {
     // clear localStorage to avoid polluting other tests.
     return this.remote.then(clearBrowserState());
   },

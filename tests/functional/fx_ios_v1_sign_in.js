@@ -67,9 +67,7 @@ const setupTest = thenify(function (options = {}) {
     });
 });
 
-registerSuite({
-  name: 'FxiOS v1 signin',
-
+registerSuite('FxiOS v1 signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

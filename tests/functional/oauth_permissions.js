@@ -41,9 +41,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'oauth permissions for untrusted reliers',
-
+registerSuite('oauth permissions for untrusted reliers', {
   beforeEach: function () {
     this.timeout = TIMEOUT;
     email = TestHelpers.createEmail();
@@ -300,9 +298,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'oauth permissions for trusted reliers',
-
+registerSuite('oauth permissions for trusted reliers', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -384,7 +380,6 @@ registerSuite({
 
       .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
   },
-
 
   'force_auth without `prompt=consent`': function () {
     return this.remote

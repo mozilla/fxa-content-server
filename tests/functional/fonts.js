@@ -8,9 +8,7 @@ const require = require('require');
 var url = intern.config.fxaContentRoot + 'signin';
 var nonFiraUrl = intern.config.fxaContentRoot + 'zh-CN/legal/privacy';
 
-registerSuite({
-  name: 'fonts',
-
+registerSuite('fonts', {
   'Uses Fira for en': function () {
 
     return this.remote

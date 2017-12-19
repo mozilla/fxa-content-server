@@ -32,9 +32,7 @@ const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLog
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
-registerSuite({
-  name: 'complete_sign_in',
-
+registerSuite('complete_sign_in', {
     beforeEach: function () {
       email = TestHelpers.createEmail('sync{id}');
       user = TestHelpers.emailToUser(email);

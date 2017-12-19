@@ -37,9 +37,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'Firefox Desktop Sync v3 signup',
-
+registerSuite('Firefox Desktop Sync v3 signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());
@@ -348,5 +346,5 @@ registerSuite({
 
       // about:accounts does not take over, expect a screen transition.
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+  }
 });

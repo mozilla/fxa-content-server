@@ -62,9 +62,7 @@ const setupTest = thenify(function (options = {}) {
     });
 });
 
-registerSuite({
-  name: 'Firefox Desktop Sync v3 signin',
-
+registerSuite('Firefox Desktop Sync v3 signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

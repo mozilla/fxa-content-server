@@ -48,9 +48,7 @@ const setupTest = thenify(function (options = {}) {
     .then(testIsBrowserNotified('fxaccounts:can_link_account'));
 });
 
-registerSuite({
-  name: 'Firstrun Sync v1 signin',
-
+registerSuite('Firstrun Sync v1 signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

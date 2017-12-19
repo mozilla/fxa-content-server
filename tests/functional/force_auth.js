@@ -26,9 +26,7 @@ function testAccountNoLongerExistsErrorShown() {
 var PASSWORD = 'password';
 var email;
 
-registerSuite({
-  name: 'force_auth',
-
+registerSuite('force_auth', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

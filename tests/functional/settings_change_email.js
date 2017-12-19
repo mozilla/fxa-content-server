@@ -44,9 +44,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'settings change email',
-
+registerSuite('settings change email', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     secondaryEmail = TestHelpers.createEmail();

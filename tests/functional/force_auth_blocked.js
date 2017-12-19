@@ -22,9 +22,7 @@ var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
 var forceAuthPageUrl;
 
-registerSuite({
-  name: 'force_auth blocked',
-
+registerSuite('force_auth blocked', {
   beforeEach: function () {
     email = TestHelpers.createEmail('blocked{id}');
 

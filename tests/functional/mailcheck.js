@@ -13,9 +13,7 @@ var openPage = FunctionalHelpers.openPage;
 var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 var type = FunctionalHelpers.type;
 
-registerSuite({
-  name: 'mailcheck',
-
+registerSuite('mailcheck', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },

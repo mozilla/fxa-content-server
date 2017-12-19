@@ -60,9 +60,7 @@ function signUpWithExistingAccount (context, email, firstPassword, secondPasswor
     .then(fillOutSignUp(email, secondPassword, options));
 }
 
-registerSuite({
-  name: 'signup',
-
+registerSuite('signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());
@@ -308,7 +306,6 @@ registerSuite({
 
       .then(testElementExists(selectors.SETTINGS.HEADER));
   },
-
 
   'signup with new account, coppa is empty': function () {
     return this.remote

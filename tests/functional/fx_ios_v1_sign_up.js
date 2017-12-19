@@ -59,9 +59,7 @@ const setupTest = thenify(function (userAgent) {
     .then(closeCurrentWindow());
 });
 
-registerSuite({
-  name: 'FxiOS v1 sign_up',
-
+registerSuite('FxiOS v1 sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());

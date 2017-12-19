@@ -107,9 +107,7 @@ const testAtSettingsWithVerifiedMessage = thenify(function() {
     .then(testSuccessWasShown());
 });
 
-registerSuite({
-  name: 'reset_password',
-
+registerSuite('reset_password', {
   beforeEach: function () {
     this.timeout = TIMEOUT;
 
@@ -387,10 +385,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'try to re-use a link',
-
-
+registerSuite('try to re-use a link', {
   beforeEach: function () {
     this.timeout = TIMEOUT;
     email = TestHelpers.createEmail();
@@ -423,9 +418,7 @@ registerSuite({
 });
 
 
-registerSuite({
-  name: 'reset_password with email specified on URL',
-
+registerSuite('reset_password with email specified on URL', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote
@@ -450,9 +443,7 @@ registerSuite({
 });
 
 
-registerSuite({
-  name: 'password change while at confirm_reset_password screen',
-
+registerSuite('password change while at confirm_reset_password screen', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -481,9 +472,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'reset_password with unknown email',
-
+registerSuite('reset_password with unknown email', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote

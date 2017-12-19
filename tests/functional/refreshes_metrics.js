@@ -14,9 +14,7 @@ var openPage = FunctionalHelpers.openPage;
 var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
 var testElementExists = FunctionalHelpers.testElementExists;
 
-registerSuite({
-  name: 'refreshing a screen logs a refresh event',
-
+registerSuite('refreshing a screen logs a refresh event', {
   beforeEach: function () {
     return this.remote
       .then(clearBrowserState());

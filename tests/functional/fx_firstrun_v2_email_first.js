@@ -30,9 +30,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'Firstrun Sync v2 email first',
-
+registerSuite('Firstrun Sync v2 email first', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 
@@ -170,5 +168,5 @@ registerSuite({
         }
       }))
       .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
-  },
+  }
 });

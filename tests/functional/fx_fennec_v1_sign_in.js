@@ -58,9 +58,7 @@ const setupTest = thenify(function (successSelector, options) {
     });
 });
 
-registerSuite({
-  name: 'Fx Fennec Sync v1 sign_in',
-
+registerSuite('Fx Fennec Sync v1 sign_in', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },

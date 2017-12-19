@@ -28,9 +28,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'oauth reset password',
-
+registerSuite('oauth reset password', {
   beforeEach: function () {
     // timeout after 90 seconds
     this.timeout = TIMEOUT;

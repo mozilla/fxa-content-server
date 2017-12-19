@@ -6,9 +6,7 @@ const registerSuite = require('intern!object');
 const require = require('require');
 var url = intern.config.fxaContentRoot + 'boom';
 
-registerSuite({
-  name: '500',
-
+registerSuite('500', {
   'visit an invalid page': function () {
     var expected = intern.config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
 

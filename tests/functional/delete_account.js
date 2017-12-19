@@ -13,9 +13,7 @@ var fillOutDeleteAccount = FunctionalHelpers.fillOutDeleteAccount;
 var fillOutSignIn = FunctionalHelpers.fillOutSignIn;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
-registerSuite({
-  name: 'delete_account',
-
+registerSuite('delete_account', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

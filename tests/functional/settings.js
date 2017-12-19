@@ -34,9 +34,7 @@ var FIRST_PASSWORD = 'password';
 var email;
 var accountData;
 
-registerSuite({
-  name: 'settings',
-
+registerSuite('settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -196,9 +194,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'settings unverified',
-
+registerSuite('settings unverified', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -217,9 +213,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'settings with expired session',
-
+registerSuite('settings with expired session', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

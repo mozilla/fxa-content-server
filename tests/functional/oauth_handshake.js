@@ -59,9 +59,7 @@ const ensureUsers = thenify(function () {
     });
 });
 
-registerSuite({
-  name: 'Firefox desktop user info handshake - OAuth flows',
-
+registerSuite('Firefox desktop user info handshake - OAuth flows', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState())
       .then(ensureUsers());

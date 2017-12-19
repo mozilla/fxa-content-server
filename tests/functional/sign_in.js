@@ -30,9 +30,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'signin',
-
+registerSuite('signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

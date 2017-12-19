@@ -38,9 +38,7 @@ const openVerificationLinkInDifferentBrowser = FunctionalHelpers.openVerificatio
 const testElementExists = FunctionalHelpers.testElementExists;
 const testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 
-registerSuite({
-  name: 'mob_android_v1',
-
+registerSuite('mob_android_v1', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
     return this.remote

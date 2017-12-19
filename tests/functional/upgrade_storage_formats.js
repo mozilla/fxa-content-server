@@ -15,9 +15,7 @@ var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 
 var email;
 
-registerSuite({
-  name: 'upgrade storage formats',
-
+registerSuite('upgrade storage formats', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());

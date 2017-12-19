@@ -50,9 +50,7 @@ function signUp(context, email) {
     .then(testElementExists('#fxa-settings-header'));
 }
 
-registerSuite({
-  name: 'settings/avatar',
-
+registerSuite('settings/avatar', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -171,5 +169,4 @@ registerSuite({
       //success is not displaying avatar change panel
       .then(noSuchElement('#change-avatar'));
   }
-
 });

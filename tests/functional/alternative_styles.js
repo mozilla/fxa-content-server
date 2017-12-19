@@ -10,9 +10,7 @@ var CHROMELESS_IFRAME_SYNC_URL = intern.config.fxaContentRoot + 'signup?service=
 
 var noSuchElement = FunctionalHelpers.noSuchElement;
 
-registerSuite({
-  name: 'alternate styles',
-
+registerSuite('alternate styles', {
   beforeEach: function () {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },

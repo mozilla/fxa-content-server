@@ -19,9 +19,7 @@ var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 var openPage = FunctionalHelpers.openPage;
 var testErrorWasShown = FunctionalHelpers.testErrorWasShown;
 
-registerSuite({
-  name: 'cookies_disabled',
-
+registerSuite('cookies_disabled', {
   'visit signup page with localStorage disabled': function () {
     return this.remote
       .then(openPage(SIGNUP_COOKIES_DISABLED_URL, '#fxa-cookies-disabled-header'))

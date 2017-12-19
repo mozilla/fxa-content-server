@@ -24,9 +24,7 @@ var testElementExists = FunctionalHelpers.testElementExists;
 var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 
-registerSuite({
-  name: 'confirm',
-
+registerSuite('confirm', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     // clear localStorage to avoid polluting other tests.

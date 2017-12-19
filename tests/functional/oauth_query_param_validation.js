@@ -47,9 +47,7 @@ var testErrorInclude = function (expected) {
 };
 
 /*eslint-disable camelcase */
-registerSuite({
-  name: 'oauth query parameter validation',
-
+registerSuite('oauth query parameter validation', {
   beforeEach: function () {
     return this.remote
       .then(clearBrowserState({

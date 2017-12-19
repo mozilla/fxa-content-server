@@ -28,9 +28,7 @@ const FIRST_PASSWORD = 'password';
 const SECOND_PASSWORD = 'new_password';
 let email;
 
-registerSuite({
-  name: 'Firstrun Sync v2 settings',
-
+registerSuite('Firstrun Sync v2 settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

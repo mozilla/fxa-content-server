@@ -29,9 +29,7 @@ const SECOND_PASSWORD = 'new_password';
 let email;
 
 
-registerSuite({
-  name: 'Firefox Desktop Sync v2 settings',
-
+registerSuite('Firefox Desktop Sync v2 settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 

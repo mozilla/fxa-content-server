@@ -33,10 +33,8 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'signup with an email that bounces',
-
-  beforeEach () {
+registerSuite('signup with an email that bounces', {
+  beforeEach: function() {
     bouncedEmail = TestHelpers.createEmail();
     deliveredEmail = TestHelpers.createEmail();
     return this.remote
@@ -52,7 +50,7 @@ registerSuite({
       }));
   },
 
-  afterEach () {
+  afterEach: function() {
     return this.remote.then(clearBrowserState());
   },
 
@@ -133,10 +131,8 @@ const setUpBouncedSignIn = thenify(function (email) {
     .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
 });
 
-registerSuite({
-  name: 'signin with an email that bounces',
-
-  afterEach () {
+registerSuite('signin with an email that bounces', {
+  afterEach: function() {
     return this.remote.then(clearBrowserState());
   },
 

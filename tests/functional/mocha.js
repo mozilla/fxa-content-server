@@ -28,9 +28,7 @@ if (travis) {
 }
 var MOCHA_LOADER_SLEEP = 50;
 
-registerSuite({
-  name: 'mocha tests',
-
+registerSuite('mocha tests', {
   'run the mocha tests': function () {
     var self = this;
     // timeout after 300 seconds

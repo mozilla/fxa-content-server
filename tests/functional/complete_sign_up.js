@@ -25,9 +25,7 @@ var testElementExists = FunctionalHelpers.testElementExists;
 var testSuccessWasShown = FunctionalHelpers.testSuccessWasShown;
 var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-registerSuite({
-  name: 'complete_sign_up',
-
+registerSuite('complete_sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote
@@ -87,9 +85,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'complete_sign_up with expired link, but without signing up in browser',
-
+registerSuite('complete_sign_up with expired link, but without signing up in browser', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote
@@ -121,9 +117,7 @@ registerSuite({
   }
 });
 
-registerSuite({
-  name: 'complete_sign_up with expired link and click resend',
-
+registerSuite('complete_sign_up with expired link and click resend', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
   },

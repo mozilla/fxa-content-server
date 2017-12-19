@@ -29,9 +29,7 @@ const {
 var PASSWORD = 'password';
 var email;
 
-registerSuite({
-  name: 'oauth force_auth',
-
+registerSuite('oauth force_auth', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote

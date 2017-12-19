@@ -57,9 +57,7 @@ var setupTest = thenify(function (shouldVerifySignin) {
     });
 });
 
-registerSuite({
-  name: 'Firefox Desktop Sync v1 settings',
-
+registerSuite('Firefox Desktop Sync v1 settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },

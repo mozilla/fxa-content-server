@@ -35,9 +35,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'Firefox Desktop Sync v3 email first',
-
+registerSuite('Firefox Desktop Sync v3 email first', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 
@@ -219,5 +217,5 @@ registerSuite({
         }
       }))
       .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
-  },
+  }
 });

@@ -59,9 +59,7 @@ const {
 let email;
 const PASSWORD = '12345678';
 
-registerSuite({
-  name: 'connect_another_device',
-
+registerSuite('connect_another_device', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 
@@ -238,7 +236,6 @@ registerSuite({
       .then(testUrlInclude(SYNC_SERVICE))
       .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
   },
-
 
   'signup Fx Desktop, verify in Fx for iOS': function () {
     return this.remote

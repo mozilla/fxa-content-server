@@ -29,9 +29,7 @@ const {
 
 var email;
 
-registerSuite({
-  name: 'oauth settings clients',
-
+registerSuite('oauth settings clients', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -94,5 +92,4 @@ registerSuite({
       .then(click('li.client-oAuthApp[data-name^="321"] .client-disconnect'))
       .then(pollUntilGoneByQSA('li.client-oAuthApp'));
   }
-
 });

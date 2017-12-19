@@ -64,9 +64,7 @@ const setupTest = thenify(function (options = {}) {
     });
 });
 
-registerSuite({
-  name: 'Firefox Desktop Sync v2 force_auth',
-
+registerSuite('Firefox Desktop Sync v2 force_auth', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },

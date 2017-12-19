@@ -7,9 +7,7 @@ const assert = require('intern/chai!assert');
 const require = require('require');
 var url = intern.config.fxaContentRoot + 'robots.txt';
 
-registerSuite({
-  name: 'robots.txt',
-
+registerSuite('robots.txt', {
   'should allow bots to access all pages': function () {
 
     return this.remote
@@ -22,5 +20,4 @@ registerSuite({
       })
       .end();
   }
-
 });

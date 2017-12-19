@@ -36,9 +36,7 @@ const {
   testIsBrowserNotifiedOfLogin,
 } = FxDesktopHelpers;
 
-registerSuite({
-  name: 'Firefox Desktop Sync sign_up',
-
+registerSuite('Firefox Desktop Sync sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -105,7 +103,6 @@ registerSuite({
       .then(openVerificationLinkInSameTab(email, 0))
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
   },
-
 
   'signup, verify different browser - from original tab\'s P.O.V.': function () {
     return this.remote

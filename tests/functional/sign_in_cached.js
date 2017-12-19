@@ -39,9 +39,7 @@ var testIsBrowserNotified = FunctionalHelpers.testIsBrowserNotified;
 var type = FunctionalHelpers.type;
 var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-registerSuite({
-  name: 'sign_in cached',
-
+registerSuite('sign_in cached', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
     email2 = TestHelpers.createEmail();

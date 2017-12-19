@@ -92,9 +92,7 @@ const verifyMobileTest = thenify(function (verificationUaString) {
     .then(testElementExists(selectors.SMS_SEND.HEADER));
 });
 
-registerSuite({
-  name: 'Firstrun Sync v2 signup',
-
+registerSuite('Firstrun Sync v2 signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote
@@ -269,5 +267,5 @@ registerSuite({
   'verify Safari on iOS, force SMS sends to connect_another_device': function () {
     return this.remote
       .then(verifyMobileTest(UA_STRINGS['ios_safari']));
-  },
+  }
 });

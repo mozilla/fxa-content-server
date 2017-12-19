@@ -18,9 +18,7 @@ var openFxaFromRp = FunctionalHelpers.openFxaFromRp;
 var testElementExists = FunctionalHelpers.testElementExists;
 var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-registerSuite({
-  name: 'oauth amo authentication',
-
+registerSuite('oauth amo authentication', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },

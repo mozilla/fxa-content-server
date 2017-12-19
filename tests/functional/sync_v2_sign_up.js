@@ -30,9 +30,7 @@ const {
   testIsBrowserNotified,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'Firefox Desktop Sync v2 sign_up',
-
+registerSuite('Firefox Desktop Sync v2 sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote.then(clearBrowserState());

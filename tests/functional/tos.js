@@ -10,9 +10,7 @@ var SIGNUP_URL = intern.config.fxaContentRoot + 'signup';
 
 var noSuchElement = FunctionalHelpers.noSuchElement;
 
-registerSuite({
-  name: 'tos',
-
+registerSuite('tos', {
   beforeEach: function () {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },

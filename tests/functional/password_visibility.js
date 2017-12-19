@@ -17,9 +17,7 @@ var testElementExists = FunctionalHelpers.testElementExists;
 var type = FunctionalHelpers.type;
 var visibleByQSA = FunctionalHelpers.visibleByQSA;
 
-registerSuite({
-  name: 'password visibility',
-
+registerSuite('password visibility', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },

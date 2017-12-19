@@ -27,9 +27,7 @@ const {
   testIsBrowserNotified,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'Fx Fennec Sync v1 sign_up',
-
+registerSuite('Fx Fennec Sync v1 sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote

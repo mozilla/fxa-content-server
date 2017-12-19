@@ -43,9 +43,7 @@ const signUpWithExistingAccount = thenify(function(email, firstPassword, secondP
     .then(fillOutSignUp(email, secondPassword, options));
 });
 
-registerSuite({
-  name: 'oauth signup',
-
+registerSuite('oauth signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     bouncedEmail = TestHelpers.createEmail();
@@ -238,5 +236,4 @@ registerSuite({
 
       .then(testElementExists('#loggedin'));
   }
-
 });

@@ -18,9 +18,7 @@ var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 var email;
 var oAuthUrl = CONTENT_SERVER_ROOT + 'oauth?&scope=profile&client_id=';
 
-registerSuite({
-  name: 'oauth choose redirect',
-
+registerSuite('oauth choose redirect', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

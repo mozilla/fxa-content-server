@@ -33,9 +33,7 @@ const FIRST_PASSWORD = 'password';
 const SECOND_PASSWORD = 'new_password';
 let email;
 
-registerSuite({
-  name: 'Firefox Fennec Sync v1 settings',
-
+registerSuite('Firefox Fennec Sync v1 settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
 
@@ -62,7 +60,6 @@ registerSuite({
 
       .then(openPage(SETTINGS_URL, '#fxa-settings-header'));
   },
-
 
   'sign in, change the password': function () {
     return this.remote

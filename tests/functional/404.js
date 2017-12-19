@@ -6,8 +6,7 @@ const { registerSuite } = intern.getInterface('object');
 
 registerSuite('404', {
   'visit an invalid page': function () {
-    //var url = intern.config.fxaContentRoot + 'four-oh-four';
-    var url =  'https://latest.dev.lcip.org/four-oh-four';
+    var url = intern._config.fxaContentRoot + '/four-oh-four';
 
     return this.remote
       .get(url)

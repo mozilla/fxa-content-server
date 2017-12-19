@@ -29,9 +29,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'signin blocked',
-
+registerSuite('signin blocked', {
   beforeEach: function () {
     email = TestHelpers.createEmail('blocked{id}');
 

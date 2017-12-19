@@ -41,9 +41,7 @@ const testAtOAuthApp = thenify(function () {
     });
 });
 
-registerSuite({
-  name: 'oauth signin',
-
+registerSuite('oauth signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
 

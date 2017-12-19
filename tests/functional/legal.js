@@ -9,9 +9,7 @@ var url = intern.config.fxaContentRoot + 'legal';
 
 var openPage = FunctionalHelpers.openPage;
 
-registerSuite({
-  name: 'legal',
-
+registerSuite('legal', {
   'start at legal page': function () {
 
     return this.remote

@@ -36,9 +36,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-registerSuite({
-  name: 'settings clients',
-
+registerSuite('settings clients', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     client = FunctionalHelpers.getFxaClient();

@@ -64,9 +64,7 @@ const setupTest = thenify(function (query) {
     .then(closeCurrentWindow());
 });
 
-registerSuite({
-  name: 'Firefox Desktop Sync v3 reset password',
-
+registerSuite('Firefox Desktop Sync v3 reset password', {
   beforeEach: function () {
     // timeout after 90 seconds
     this.timeout = 90000;
@@ -105,5 +103,5 @@ registerSuite({
       // Only expect the login message in the verification tab to avoid
       // a race condition within the browser when it receives two login messages.
       .then(noSuchBrowserNotification('fxaccounts:login'));
-  },
+  }
 });
