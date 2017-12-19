@@ -40,8 +40,7 @@
              mocha and blanket must both be included manually, outside
              of the requirejs scope.
         -->
-        <script src="/bower_components/mocha/mocha.js"></script>
-        <script data-main="main" src="/bower_components/requirejs/require.js"></script>
+        <!--script src="/bower_components/mocha/mocha.js"></script-->
         {{#check_coverage}}
           <!--
                Blanket rewrites the JS to do analysis, rendering the
@@ -51,14 +50,17 @@
                example:
                http://localhost:3030/tests/index.html?coverage
           -->
-          <script src="/bower_components/blanket/dist/qunit/blanket.js" data-cover-flags="existingRequireJS" data-cover-only="['/scripts/']" data-cover-never='{{{ cover_never }}}'></script>
+          <!--script src="/bower_components/blanket/dist/qunit/blanket.js" data-cover-flags="existingRequireJS" data-cover-only="['/scripts/']" data-cover-never='{{{ cover_never }}}'></script>
           <script src="/bower_components/mocha-blanketjs-adapter/mocha-blanket.js"></script>
           <script>
             if (window.location.search.indexOf('travis') >= 0) {
               blanket.options('reporter', '/tests/lib/blanket_lcov.js');
             }
 
-          </script>
+          </script-->
         {{/check_coverage}}
-    </body>
+        <script type="text/javascript" src="/appDependencies.bundle.js"></script></body>
+        <script type="text/javascript" src="/testDependencies.bundle.js"></script></body>
+        <script type="text/javascript" src="/test.bundle.js"></script></body>
+      </body>
 </html>

@@ -13,6 +13,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
   const Strings = require('./strings');
+  const xhr = require('./xhr');
 
   /**
    *
@@ -22,19 +23,34 @@ define(function (require, exports, module) {
    */
   const Translator = function (options = {}) {
     if (options.forceEnglish) {
-      this.__translations__ = {};
+      this._forceEnglish = true;
     }
   };
 
   Translator.prototype = {
-    // In dev mode, this will request localized translations.
-    // In prod mode, this will be replaced with the actual translations.
+    // In dev mode, translations are requested in `fetch`.
+    // In prod mode, __translations__ will be replaced with the actual translations.
     // `__translations__` is used in hopes that it's a slight bit less likely
     // than `translations` to be used in another module, a collision would
     // bork the build.
     // DO NOT EDIT BELOW HERE W/O CHECKING LOCALIZED BUILDS
-    __translations__: JSON.parse(require('text!/i18n/client.json')),
+    __translations__: {},
     // DO NOT EDIT ABOVE HERE W/O CHECKING LOCALIZED BUILDS
+
+    fetch () {
+      // fetch translations for dev mode.
+      return new Promise((resolve, reject) => {
+        if (this._forceEnglish || Object.keys(this.__translations__).length) {
+          resolve();
+        } else {
+          xhr.getJSON('/i18n/client.json')
+            .then((translations) => {
+              this.__translations__ = translations;
+              resolve();
+            }, reject);
+        }
+      });
+    },
 
     set (translations) {
       this.__translations__ = translations;

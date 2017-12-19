@@ -43,7 +43,6 @@ define(function (require, exports, module) {
   const ProfileClient = require('./profile-client');
   const RefreshObserver = require('../models/refresh-observer');
   const Relier = require('../models/reliers/relier');
-  const requireOnDemand = require('./require-on-demand');
   const Router = require('./router');
   const SameBrowserVerificationModel = require('../models/verification/same-browser');
   const ScreenInfo = require('./screen-info');
@@ -70,7 +69,6 @@ define(function (require, exports, module) {
     this._notifier = options.notifier;
     this._refreshObserver = options.refreshObserver;
     this._relier = options.relier;
-    this._requireOnDemand = options.requireOnDemand || requireOnDemand;
     this._router = options.router;
     this._sentryMetrics = options.sentryMetrics;
     this._storage = options.storage || Storage;
@@ -179,7 +177,8 @@ define(function (require, exports, module) {
     },
 
     initializeL10n () {
-      this._translator = this._window.translator = new Translator();
+      this._translator = new Translator();
+      return this._translator.fetch();
     },
 
     initializeMetrics () {
@@ -488,6 +487,7 @@ define(function (require, exports, module) {
         relier: this._relier,
         sentryMetrics: this._sentryMetrics,
         session: Session,
+        translator: this._translator,
         user: this._user,
         window: this._window
       }, this._router.getViewOptions(options));
@@ -517,6 +517,7 @@ define(function (require, exports, module) {
           environment: new Environment(this._window),
           notifier: this._notifier,
           router: this._router,
+          translator: this._translator,
           window: this._window
         });
       }
@@ -576,7 +577,7 @@ define(function (require, exports, module) {
       // fxaClient is not loaded as part of the main bundle and is almost
       // certainly going to be needed. Start to opportunistically load
       // it now.
-      this._requireOnDemand('fxaClient');
+      import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
 
       // If a new start page is specified, do not attempt to render
       // the route displayed in the URL because the user is

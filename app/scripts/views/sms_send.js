@@ -23,7 +23,7 @@ define(function (require, exports, module) {
   const SELECTOR_PHONE_NUMBER = 'input[type=tel]';
   const SmsErrors = require('../lib/sms-errors');
   const SmsMixin = require('./mixins/sms-mixin');
-  const Template = require('stache!templates/sms_send');
+  const Template = require('templates/sms_send.mustache');
   const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
 
   class SmsSendView extends FormView {

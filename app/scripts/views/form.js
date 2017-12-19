@@ -191,7 +191,7 @@ define(function (require, exports, module) {
 
           if (! this.isValid()) {
             // Validation error is surfaced for testing.
-            throw this.showValidationErrors();
+            return Promise.reject(this.showValidationErrors() || new Error('Invalid input'));
           }
 
           // the form enabled check is done after the validation check

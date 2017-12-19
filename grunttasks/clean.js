@@ -22,6 +22,8 @@ module.exports = function (grunt) {
       files: [{
         dot: true,
         src: [
+          '<%= yeoman.app %>/*.bundle.js',
+          '<%= yeoman.app %>/*.bundle.js.map',
           '<%= yeoman.tmp %>',
           '<%= yeoman.es5 %>/*',
           '<%= yeoman.dist %>/*',

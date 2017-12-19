@@ -7,9 +7,7 @@ module.exports = function (grunt) {
     grunt: { files: ['Gruntfile.js'] },
     livereload: {
       files: [
-        '<%= yeoman.app %>/**/*.js',
-        '!<%= yeoman.app %>/bower_components/**',
-        '!<%= yeoman.app %>/scripts/vendor/**'
+        '<%= yeoman.app %>/*.bundle.js' // only watch for bundles changing.
       ],
       options: {
         livereload: true
