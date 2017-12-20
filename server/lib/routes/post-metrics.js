@@ -11,6 +11,7 @@ const GACollector = require('../ga-collector');
 const joi = require('joi');
 const logger = require('../logging/log')('server.post-metrics');
 const MetricsCollector = require('../metrics-collector-stderr');
+const FrontEndMetrics = require('../metrics-front-end');
 const StatsDCollector = require('../statsd-collector');
 const validation = require('../validation');
 
@@ -122,6 +123,7 @@ module.exports = function () {
   const metricsCollector = new MetricsCollector();
   const statsd = new StatsDCollector();
   const ga = new GACollector();
+  const ampy = new FrontEndMetrics();
   statsd.init();
 
   return {
@@ -168,6 +170,7 @@ module.exports = function () {
           }
           // send the metrics body to the StatsD collector for processing
           statsd.write(metrics);
+          ampy.write(metrics);
         }
         ga.write(metrics);
 
