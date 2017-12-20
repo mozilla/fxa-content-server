@@ -31,6 +31,7 @@ define([
     fillOutSignIn,
     fillOutSignUp,
     getUnblockInfo,
+    keyupEscapeEvent,
     openPage,
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
@@ -40,8 +41,10 @@ define([
     testElementExists,
     testElementTextEquals,
     testElementTextInclude,
+    testElementValueEquals,
     testErrorTextInclude,
     type,
+    noSuchElement,
     visibleByQSA
   } = FunctionalHelpers;
 
@@ -315,8 +318,30 @@ define([
 
         .then(openVerificationLinkInNewTab(secondaryEmail, 1))
         .then(switchToWindow(1))
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());
-    }
+    },
+    'add secondary email, hit Esc, input should be cleared': function () {
+      const TEXT = 'TEST';
+      return this.remote
+        // create user, verify, sign in, open settings page
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        // click to add email, input something, check it's been added
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(type(selectors.EMAIL.INPUT, TEXT))
+        .sleep(500)
+        .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
+        // hit esc
+        .then(keyupEscapeEvent('.settings'))
+        // panel should be closed
+        .then(noSuchElement('.settings-unit.open'))
+        // input should have been cleared
+        .then(testElementValueEquals(selectors.EMAIL.INPUT, ''));
+    },
   });
 });

@@ -25,6 +25,7 @@ define([
     'ct=adjust_tracker&mt=8';
 
   const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
+  const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
   const SIGNIN_DESKTOP_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
   const SIGNUP_FENNEC_URL = `${config.fxaContentRoot}signup?context=fx_fennec_v1&service=sync`;
   const SIGNUP_DESKTOP_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
@@ -85,6 +86,20 @@ define([
         .then(testHrefEquals(selectors.CONNECT_ANOTHER_DEVICE.LINK_INSTALL_ANDROID, ADJUST_LINK_ANDROID));
     },
 
+    'signup Fx Desktop, load /connect_another_device page, SMS enabled': function () {
+      // should have both links to mobile apps
+      const forceUA = UA_STRINGS['desktop_firefox'];
+      return this.remote
+        .then(openPage(SIGNUP_DESKTOP_URL, selectors.SIGNUP.HEADER, { query: { forceUA } }))
+        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(openPage(CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL, selectors.SMS_SEND.HEADER))
+        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_IOS, ADJUST_LINK_IOS))
+        .then(testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_ANDROID, ADJUST_LINK_ANDROID));
+    },
+
     'signup Fx Desktop, verify same browser': function () {
       // should have both links to mobile apps
       const forceUA = UA_STRINGS['desktop_firefox'];
@@ -141,26 +156,9 @@ define([
         .then(testUrlInclude(CONNECT_ANOTHER_DEVICE_ENTRYPOINT));
     },
 
-    'signin Fx Desktop, verify same browser - control': function () {
+    'signin Fx Desktop, verify same browser': function () {
       const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control', forceUA };
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
-        .then(respondToWebChannelMessage(CHANNEL_COMMAND_CAN_LINK_ACCOUNT, { ok: true } ))
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInNewTab(email, 0, { query }))
-        .then(switchToWindow(1))
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-    },
-
-    'signin Fx Desktop, verify same browser - treatment': function () {
-      const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'treatment', forceUA };
+      const query = { forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
@@ -192,12 +190,12 @@ define([
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
         .then(openVerificationLinkInSameTab(signInEmail, 0, { query: { forceUA } }))
 
-        // Does not work if another user is signed in, even if forced.
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // NOW - go back and open the verification link for the signup user in a
         // browser where another user is already signed in.
         .then(openVerificationLinkInSameTab(signUpEmail, 0))
+        // Does not work if another user is signed in, even if forced.
         // User goes to the old "Account verified" screen.
         .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
     },

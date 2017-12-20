@@ -40,50 +40,6 @@ define(function(require, exports, module) {
     ],
 
     /**
-     * Is `account` eligible for connect another device on signin?
-     *
-     * @param {any} account
-     * @returns {Boolean}
-     */
-    isEligibleForConnectAnotherDeviceOnSignin (account) {
-      const isEligibleForCadOnSignin = !! this.getExperimentGroup('cadOnSignin', { account });
-
-      return this.isEligibleForConnectAnotherDevice(account) &&
-             isEligibleForCadOnSignin;
-    },
-
-    /**
-     * Navigate to the appropriate CAD screen for `account` in the signin flow.
-     *
-     * @param {Object} account
-     * @returns {Promise}
-     */
-    navigateToConnectAnotherDeviceOnSigninScreen (account) {
-      if (! this.isEligibleForConnectAnotherDeviceOnSignin(account)) {
-        // this shouldn't happen IRL.
-        return Promise.reject(new Error('navigateToConnectAnotherDeviceOnSigninScreen can only be called if user is eligible to connect another device'));
-      }
-
-      return Promise.resolve().then(() => {
-        // Initialize the flow metrics so any flow events are logged.
-        // The flow-events-mixin, even if it were mixed in, does this in
-        // `afterRender` whereas this method can be called in `beforeRender`
-        this.notifier.trigger('flow.initialize');
-        const group = this.getExperimentGroup('cadOnSignin', { account });
-
-        // Note, the cadOnSignin prefix is to help us measure in DataDog.
-        // Metrics sent to DataDog can have one or more exp_group tags,
-        // the prefix allows us to differentiate between results from
-        // the `sendSms` experiment which uses the same group names.
-        this.createExperiment('sendSms', `cadOnSignin.${group}`);
-
-        if (group === 'treatment') {
-          return this.navigateToConnectAnotherDeviceScreen(account);
-        }
-      });
-    },
-
-    /**
      * Is `account` eligible for connect another device?
      *
      * @param {Object} account - account to check
@@ -102,48 +58,66 @@ define(function(require, exports, module) {
      * @returns {Promise}
      */
     navigateToConnectAnotherDeviceScreen (account) {
-      // users have to be eligible for CAD to be part of SMS too.
-      // Users selected to be part of the SMS experiment who are
-      // in the control group will go to the existing CAD screen.
-      if (! this.isEligibleForConnectAnotherDevice(account)) {
-        // this shouldn't happen IRL.
-        return Promise.reject(new Error('chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device'));
-      }
+      return Promise.resolve().then(() => {
+        // users have to be eligible for CAD to be part of SMS too.
+        // Users selected to be part of the SMS experiment who are
+        // in the control group will go to the existing CAD screen.
+        if (! this.isEligibleForConnectAnotherDevice(account)) {
+          // this shouldn't happen IRL.
+          throw new Error('chooseConnectAnotherDeviceScreen can only be called if user is eligible to connect another device');
+        }
 
+        const type = this.model.get('type');
+        this.navigate('connect_another_device', { account, type });
+      });
+    },
+
+    /**
+     * Replace the current page with the send SMS screen.
+     *
+     * @param {Object} account
+     * @param {String} country
+     */
+    replaceCurrentPageWithSmsScreen (account, country) {
+      const type = this.model.get('type');
+      this.replaceCurrentPage('sms', { account, country, type });
+    },
+
+    /**
+     * Get the country to send an sms to if `account` is eligible for SMS?
+     *
+     * @param {Object} account
+     * @returns {Promise} resolves with a country if the user is eligible.
+     */
+    getEligibleSmsCountry (account) {
       // Initialize the flow metrics so any flow events are logged.
       // The flow-events-mixin, even if it were mixed in, does this in
       // `afterRender` whereas this method can be called in `beforeRender`
       this.notifier.trigger('flow.initialize');
 
       return this._isEligibleForSms(account)
-        .then(({ ok, country }) => {
-          const type = this.model.get('type');
-          const group = this.getExperimentGroup('sendSms', { account, country });
+        .then(({ country }) => {
+          if (! country) {
+            // If no country is returned, the reason is already logged.
+            return;
+          }
 
-          if (! ok) {
-            // auth server says user is not eligible to send an SMS.
-            // logging of the reason has taken place in _isEligibleForSms
-            this.navigate('connect_another_device', { account, type });
-          } else if (! group) {
+          const group = this.getExperimentGroup('sendSms', { account, country });
+          if (! group) {
             // Auth server said "OK" but user was not selected
             // for the experiment, this mode is not logged in
             // `_areSmsRequirementsMet`
             this.logFlowEvent(REASON_NOT_IN_EXPERIMENT);
-            // user is not selected for the experiment.
-            this.navigate('connect_another_device', { account, type });
           } else if (group === true) {
-            // country is fully rolled out. Do not log experiment metrics.
-            this.navigate('sms', { account, country, type });
+            return country;
           } else {
             // User is eligible and a member of the experiment.
             this.createExperiment('sendSms', group);
 
             if (group === 'control') {
               this.logFlowEvent(REASON_CONTROL_GROUP);
-              this.navigate('connect_another_device', { account, type });
             } else {
-              // all non-control groups go to the sms page.
-              this.navigate('sms', { account, country, type });
+              return country;
             }
           }
         });

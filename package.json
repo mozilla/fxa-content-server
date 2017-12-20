@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.102.0",
+  "version": "1.102.1",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build-production": "grunt build",
@@ -34,7 +34,7 @@
     "bluebird": "3.5.0",
     "body-parser": "1.18.2",
     "bower": "1.8.2",
-    "celebrate": "4.0.1",
+    "celebrate": "7.0.3",
     "connect-cachify": "0.0.17",
     "connect-fonts-firasans": "0.0.6",
     "consolidate": "0.14.5",
