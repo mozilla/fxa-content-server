@@ -275,8 +275,7 @@ define([
       .end();
   });
 
-  const clearContentServerState = thenify(function (options) {
-    options = options || {};
+  const clearContentServerState = thenify(function (options = { force: true }) {
     // clear localStorage to avoid polluting other tests.
     return this.parent
       // always go to the content server so the browser state is cleared,
@@ -365,8 +364,7 @@ define([
       });
   });
 
-  const clearBrowserState = thenify(function (options) {
-    options = options || {};
+  const clearBrowserState = thenify(function (options = { force: true }) {
     if (! ('contentServer' in options)) {
       options.contentServer = true;
     }
