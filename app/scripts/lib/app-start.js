@@ -30,7 +30,6 @@ define(function (require, exports, module) {
   const ErrorUtils = require('./error-utils');
   const FormPrefill = require('../models/form-prefill');
   const FxaClient = require('./fxa-client');
-  const HeightObserver = require('./height-observer');
   const IframeChannel = require('./channels/iframe');
   const InterTabChannel = require('./channels/inter-tab');
   const MarketingEmailClient = require('./marketing-email-client');
@@ -141,8 +140,6 @@ define(function (require, exports, module) {
         // user depends on the auth broker, profileClient, oAuthClient,
         // assertionLibrary and notifier.
         .then(() => this.initializeUser())
-        // depends on the authentication broker
-        .then(() => this.initializeHeightObserver())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -342,21 +339,6 @@ define(function (require, exports, module) {
         this._metrics.setBrokerType(this._authenticationBroker.type);
 
         return this._authenticationBroker.fetch();
-      }
-    },
-
-    initializeHeightObserver () {
-      if (this._isInAnIframe()) {
-        const heightObserver = new HeightObserver({
-          target: this._window.document.body,
-          window: this._window
-        });
-
-        heightObserver.on('change', (height) => {
-          this._iframeChannel.send('resize', { height: height });
-        });
-
-        heightObserver.start();
       }
     },
 
