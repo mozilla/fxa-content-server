@@ -27,10 +27,13 @@ define([
     noSuchStoredAccountByEmail,
     openPage,
     openSettingsInNewTab,
+    pressEscKey,
     switchToWindow,
     testElementExists,
     testElementTextEquals,
     testErrorTextInclude,
+    type,
+    noSuchElement
   } = FunctionalHelpers;
 
   var FIRST_PASSWORD = 'password';
@@ -163,6 +166,22 @@ define([
     },
 
     'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
+      const TEXT = 'YO';
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+        .then(click('[data-href="settings/display_name"]'))
+        // fill in display name input
+        .then(type('input.display-name', TEXT))
+        // press Esc
+        .then(pressEscKey())
+        // check panel is closed
+        .then(noSuchElement('.settings-unit.open'))
+        // check input has been cleared
+        .then(testElementTextEquals('input.display-name', TEXT))
+        .end();
+    },
+
+    'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
         .then(click('[data-href="settings/display_name"]'))

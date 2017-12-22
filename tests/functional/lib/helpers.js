@@ -1503,6 +1503,24 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
+  function pressKey(keyCode){
+    return thenify(function (selector) {
+      return this.parent
+        .execute(function (selector, keyCode) {
+          var target = selector ? document.querySelector(selector) : window;
+          var event = new KeyboardEvent('keyup', {
+            bubbles: true,
+            cancelable: true,
+            keyCode: keyCode,
+            view: window
+          });
+          target.dispatchEvent(event);
+        }, [ selector, keyCode ]);
+    });
+  }
+
+  var pressEscKey = pressKey(27);
+
   const clearBrowserNotifications = thenify(function () {
     return this.parent
       .execute(function (command, done) {
@@ -2127,6 +2145,8 @@ define([
     pollUntil: pollUntil,
     pollUntilGoneByQSA: pollUntilGoneByQSA,
     pollUntilHiddenByQSA,
+    pressEscKey: pressEscKey,
+    pressKey: pressKey,
     reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
     respondToWebChannelMessage: respondToWebChannelMessage,
     storeWebChannelMessageData,
