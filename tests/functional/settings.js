@@ -39,6 +39,7 @@ define([
   var FIRST_PASSWORD = 'password';
   var email;
   var accountData;
+  var TEXT = 'TEXT';
 
   registerSuite({
     name: 'settings',
@@ -183,7 +184,6 @@ define([
     },
 
     'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
-      const TEXT = 'TEST';
       return this.remote
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
         .then(click('[data-href="settings/display_name"]'))
