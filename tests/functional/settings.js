@@ -188,6 +188,7 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
         .then(click('[data-href="settings/display_name"]'))
         // fill in display name input
+        .then(testElementExists('input.display-name'))
         .then(type('input.display-name', TEXT))
         .then(testElementTextEquals('input.display-name', TEXT))
         // press Esc
