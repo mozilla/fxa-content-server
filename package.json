@@ -44,6 +44,7 @@
     "express": "4.16.2",
     "extend": "3.0.1",
     "fxa-geodb": "0.0.8",
+    "fxa-shared": "1.0.4",
     "got": "6.7.1",
     "grunt": "1.0.1",
     "grunt-autoprefixer": "3.0.4",
