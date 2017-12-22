@@ -67,71 +67,6 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('isEligibleForConnectAnotherDeviceOnSignin', () => {
-      it('returns true if eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-
-        assert.isTrue(view.isEligibleForConnectAnotherDeviceOnSignin(account));
-      });
-
-      it('returns false not eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => false);
-        sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-
-        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
-      });
-
-      it('returns false not eligible for CAD, and is part of the experiment', () => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
-        sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
-
-        assert.isFalse(view.isEligibleForConnectAnotherDeviceOnSignin(account));
-      });
-    });
-
-    describe('navigateToConnectAnotherDeviceOnSigninScreen', () => {
-      beforeEach(() => {
-        sinon.stub(view, 'isEligibleForConnectAnotherDeviceOnSignin').callsFake(() => true);
-        sinon.stub(view, 'navigateToConnectAnotherDeviceScreen').callsFake(() => Promise.resolve());
-        sinon.spy(view, 'createExperiment');
-        sinon.spy(notifier, 'trigger');
-      });
-
-      describe('user is part of treatment', () => {
-        it('sets up experiment, delegates to `navigateToConnectAnotherDeviceScreen`', () => {
-          sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-
-          return view.navigateToConnectAnotherDeviceOnSigninScreen(account)
-            .then(() => {
-              assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-
-              assert.isTrue(view.createExperiment.calledOnce);
-              assert.isTrue(view.createExperiment.calledWith('sendSms', 'cadOnSignin.treatment'));
-
-              assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledOnce);
-              assert.isTrue(view.navigateToConnectAnotherDeviceScreen.calledWith(account));
-            });
-        });
-      });
-
-      describe('user is part of control', () => {
-        it('sets up experiment, does nothing more', () => {
-          sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
-
-          return view.navigateToConnectAnotherDeviceOnSigninScreen(account)
-            .then(() => {
-              assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-
-              assert.isTrue(view.createExperiment.calledOnce);
-              assert.isTrue(view.createExperiment.calledWith('sendSms', 'cadOnSignin.control'));
-
-              assert.isFalse(view.navigateToConnectAnotherDeviceScreen.called);
-            });
-        });
-      });
-    });
-
     describe('isEligibleForConnectAnotherDevice', () => {
       it('returns true for signup if a different user is not signed in', () => {
         sinon.stub(user, 'isAnotherAccountSignedIn').callsFake(() => false);
@@ -368,95 +303,99 @@ define(function (require, exports, module) {
         beforeEach(() => {
           sinon.stub(view, 'isEligibleForConnectAnotherDevice').callsFake(() => true);
           sinon.stub(view, 'navigate').callsFake(() => {});
-          sinon.stub(view, 'createExperiment').callsFake(() => {});
-          sinon.spy(notifier, 'trigger');
         });
 
         describe('not eligible for SMS', () => {
           it('redirects to /connect_another_device without additional logging', () => {
-            sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ ok: false }));
-
             return view.navigateToConnectAnotherDeviceScreen(account)
               .then(() => {
-                assert.isFalse(view.createExperiment.called);
-
-                assert.isTrue(notifier.trigger.calledOnce);
-                assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-
                 assert.isTrue(view.navigate.calledOnce);
                 assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
-
-                assert.isFalse(view.logFlowEvent.called);
               });
           });
         });
+      });
 
+      describe('getEligibleSmsCountry', () => {
         describe('eligible for SMS', () => {
           beforeEach(() => {
             sinon.stub(view, '_isEligibleForSms').callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
+            sinon.stub(view, 'createExperiment').callsFake(() => {});
+            sinon.spy(notifier, 'trigger');
           });
 
           describe('user is not part of experiment', () => {
-            it('does not enroll the user in an experiment, logs a flow event, navigates to connect_another_device', () => {
+            it('does not enroll the user in an experiment, logs a flow event', () => {
               sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
-              return view.navigateToConnectAnotherDeviceScreen(account)
-                .then(() => {
+              return view.getEligibleSmsCountry(account)
+                .then((country) => {
+                  assert.isUndefined(country);
+
+                  assert.isTrue(notifier.trigger.calledOnce);
+                  assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+
                   assert.isFalse(view.createExperiment.called);
 
                   assert.isTrue(view.logFlowEvent.calledOnce);
                   assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.not_in_experiment'));
-
-                  assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
                 });
             });
           });
 
           describe('country is fully rolled out', () => {
-            it('creates the experiment, redirects to /sms', () => {
+            it('does not create the experiment, returns the country', () => {
               sinon.stub(view, 'getExperimentGroup').callsFake(() => true);
-              return view.navigateToConnectAnotherDeviceScreen(account)
-                .then(() => {
+              return view.getEligibleSmsCountry(account)
+                .then((country) => {
+                  assert.equal(country, 'GB');
+
                   assert.isFalse(view.createExperiment.called);
 
                   assert.isFalse(view.logFlowEvent.called);
-
-                  assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB', type: 'signin' }));
                 });
             });
           });
 
           describe('in treatment group', () => {
-            it('creates the experiment, redirects to /sms', () => {
+            it('creates the experiment, returns the country', () => {
               sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
-              return view.navigateToConnectAnotherDeviceScreen(account)
-                .then(() => {
+              return view.getEligibleSmsCountry(account)
+                .then((country) => {
+                  assert.equal(country, 'GB');
+
                   assert.isTrue(view.createExperiment.calledOnce);
                   assert.isTrue(view.createExperiment.calledWith('sendSms', 'treatment'));
-
-                  assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('sms', { account, country: 'GB', type: 'signin' }));
                 });
             });
           });
 
           describe('in control group', () => {
-            it('creates the experiment, redirects to /connect_another_device', () => {
+            it('creates the experiment, does not return a country', () => {
               sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
-              return view.navigateToConnectAnotherDeviceScreen(account)
-                .then(() => {
+              return view.getEligibleSmsCountry(account)
+                .then((country) => {
+                  assert.isUndefined(country);
+
                   assert.isTrue(view.createExperiment.calledOnce);
                   assert.isTrue(view.createExperiment.calledWith('sendSms', 'control'));
-
-                  assert.isTrue(view.navigate.calledOnce);
-                  assert.isTrue(view.navigate.calledWith('connect_another_device', { account, type: 'signin' }));
 
                   assert.isTrue(view.logFlowEvent.calledOnce);
                   assert.isTrue(view.logFlowEvent.calledWith('sms.ineligible.control_group'));
                 });
             });
           });
+        });
+      });
+
+      describe('replaceCurrentPageWithSmsScreen', () => {
+        it('delegates to replaceCurrentPage', () => {
+          sinon.spy(view, 'replaceCurrentPage');
+
+          const account = {};
+          view.replaceCurrentPageWithSmsScreen (account, 'GB');
+
+          assert.isTrue(view.replaceCurrentPage.calledOnce);
+          assert.isTrue(view.replaceCurrentPage.calledWith('sms', { account, country: 'GB', type: 'signin' }));
         });
       });
     });
