@@ -7,8 +7,9 @@ define([
   'intern!object',
   'intern/chai!assert',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -188,15 +189,15 @@ define([
         .then(fillOutSignIn(email, FIRST_PASSWORD, true))
         .then(click('[data-href="settings/display_name"]'))
         // fill in display name input
-        .then(testElementExists('input.display-name'))
-        .then(type('input.display-name', TEXT))
+        .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
         .then(testElementTextEquals('input.display-name', TEXT))
         // press Esc
         .then(pressEscKey())
         // check panel is closed
         .then(noSuchElement('.settings-unit.open'))
         // check input has been cleared
-        .then(testElementTextEquals('input.display-name', ''))
+        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
         .end();
     },
 
