@@ -195,7 +195,7 @@ define([
         // check panel is closed
         .then(noSuchElement('.settings-unit.open'))
         // check input has been cleared
-        .then(testElementTextEquals('input.display-name', ""))
+        .then(testElementTextEquals('input.display-name', ''))
         .end();
     },
 
