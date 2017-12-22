@@ -8,8 +8,8 @@ define([
   'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  'tests/functional/lib/selectors'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
+  // 'tests/functional/lib/selectors'
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
