@@ -35,6 +35,7 @@ define([
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
+    pressEscKey,
     respondToWebChannelMessage,
     switchToWindow,
     testElementExists,
@@ -42,6 +43,7 @@ define([
     testElementTextInclude,
     testErrorTextInclude,
     type,
+    noSuchElement,
     visibleByQSA
   } = FunctionalHelpers;
 
@@ -317,6 +319,26 @@ define([
         .then(switchToWindow(1))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());
-    }
+    },
+    'add secondary email, hit Esc, input should be cleared': function () {
+      const TEXT = 'TEST';
+      return this.remote
+            // create user, sign in, open settings page
+            .then(createUser(email, PASSWORD, { preVerified: true }))
+            .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER))
+            .then(fillOutSignIn(email, PASSWORD))
+            .then(testElementExists('#fxa-settings-header'))
+
+            // click to add email, input something, check it's been added
+            .then(click(selectors.EMAIL.MENU_BUTTON))
+            .then(type(selectors.EMAIL.INPUT, TEXT))
+            .then(testElementTextEquals(selectors.EMAIL.INPUT, TEXT))
+            // hit esc
+            .then(pressEscKey())
+            // panel should be closed
+            .then(noSuchElement('.settings-unit.open'))
+            // input should have been cleared
+            .then(testElementTextEquals(selectors.EMAIL.INPUT, ''));
+    },
   });
 });

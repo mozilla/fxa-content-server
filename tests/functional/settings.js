@@ -28,19 +28,19 @@ define([
     noSuchStoredAccountByEmail,
     openPage,
     openSettingsInNewTab,
-    pressEscKey,
+    // pressEscKey,
     switchToWindow,
     testElementExists,
     testElementTextEquals,
     testErrorTextInclude,
-    type,
-    noSuchElement
+    // type,
+    // noSuchElement
   } = FunctionalHelpers;
 
   var FIRST_PASSWORD = 'password';
   var email;
   var accountData;
-  var TEXT = 'TEXT';
+  // var TEXT = 'TEXT';
 
   registerSuite({
     name: 'settings',
@@ -184,22 +184,22 @@ define([
         .end();
     },
 
-    'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
-      return this.remote
-        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-        .then(click('[data-href="settings/display_name"]'))
-        // fill in display name input
-        .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
-        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-        // press Esc
-        .then(pressEscKey())
-        // check panel is closed
-        .then(noSuchElement('.settings-unit.open'))
-        // check input has been cleared
-        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
-        .end();
-    },
+    // 'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
+    //   return this.remote
+    //     .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+    //     .then(click('[data-href="settings/display_name"]'))
+    //     // fill in display name input
+    //     .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
+    //     .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
+    //     .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
+    //     // press Esc
+    //     .then(pressEscKey())
+    //     // check panel is closed
+    //     .then(noSuchElement('.settings-unit.open'))
+    //     // check input has been cleared
+    //     .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
+    //     .end();
+    // },
 
     'sign in, open settings in a second tab, sign out': function () {
       return this.remote
