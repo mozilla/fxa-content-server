@@ -191,7 +191,7 @@ define([
         // fill in display name input
         .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
         .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-        .then(testElementTextEquals('input.display-name', TEXT))
+        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
         // press Esc
         .then(pressEscKey())
         // check panel is closed
