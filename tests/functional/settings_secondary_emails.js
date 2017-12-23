@@ -338,6 +338,7 @@ define([
             .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
             // hit esc
             .then(pressEscKey())
+            .sleep(500)
             // panel should be closed
             .then(noSuchElement('.settings-unit.open'))
             // input should have been cleared
