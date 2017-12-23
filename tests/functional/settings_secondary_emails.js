@@ -38,10 +38,10 @@ define([
     pressEscKey,
     respondToWebChannelMessage,
     switchToWindow,
-    testAttributeEquals,
     testElementExists,
     testElementTextEquals,
     testElementTextInclude,
+    testElementValueEquals,
     testErrorTextInclude,
     type,
     noSuchElement,
@@ -334,13 +334,14 @@ define([
             // click to add email, input something, check it's been added
             .then(click(selectors.EMAIL.MENU_BUTTON))
             .then(type(selectors.EMAIL.INPUT, TEXT))
-            .then(testAttributeEquals(selectors.EMAIL.INPUT, 'value', TEXT))
+            .sleep(500)
+            .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
             // hit esc
             .then(pressEscKey())
             // panel should be closed
             .then(noSuchElement('.settings-unit.open'))
             // input should have been cleared
-            .then(testAttributeEquals(selectors.EMAIL.INPUT, 'value', TEXT));
+            .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT));
     },
   });
 });
