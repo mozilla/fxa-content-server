@@ -342,7 +342,7 @@ define([
             // panel should be closed
             .then(noSuchElement('.settings-unit.open'))
             // input should have been cleared
-            .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT));
+            .then(testElementValueEquals(selectors.EMAIL.INPUT, ''));
     },
   });
 });
