@@ -8,8 +8,8 @@
  * because it's impossible to open the verification link in the app where the verification
  * was triggered.
  */
-const intern = require('intern');
-const registerSuite = require('intern!object');
+
+const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('tests/lib/helpers');
 const FunctionalHelpers = require('tests/functional/lib/helpers');
 const selectors = require('tests/functional/lib/selectors');

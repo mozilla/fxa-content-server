@@ -4,8 +4,8 @@
 
 'use strict';
 
-const intern = require('intern');
-const registerSuite = require('intern!object');
+
+const { registerSuite } = intern.getInterface('object');
 const assert = require('intern/chai!assert');
 const TestHelpers = require('tests/lib/helpers');
 const FunctionalHelpers = require('tests/functional/lib/helpers');

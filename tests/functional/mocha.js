@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const intern = require('intern');
-const registerSuite = require('intern!object');
+
+const { registerSuite } = intern.getInterface('object');
 const assert = require('intern/chai!assert');
 const config = require('intern/dojo/node!../../server/lib/configuration');
 const Promise = require('intern/dojo/Promise');

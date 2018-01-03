@@ -1,19 +1,18 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const intern = require('intern');
-const require = require('require');
-const restmail = require('tests/lib/restmail');
-const TestHelpers = require('tests/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-const pollUntil = require('intern/dojo/node!leadfoot/helpers/pollUntil');
-const Url = require('intern/browser_modules/dojo/node!url');
-const Querystring = require('intern/browser_modules/dojo/node!querystring');
-const nodeXMLHttpRequest = require('intern/browser_modules/dojo/node!xmlhttprequest');
-const assert = require('intern/chai!assert');
+
+const restmail = require('../../lib/restmail');
+const TestHelpers = require('../../lib/helpers');
+const selectors = require('./selectors');
+const pollUntil = require('leadfoot/helpers/pollUntil');
+const Url = require('url');
+const Querystring = require('querystring');
+const nodeXMLHttpRequest = require('xmlhttprequest');
+const assert = require('assert');
 const FxaClient = require('app/bower_components/fxa-js-client/fxa-client');
 const got = require('intern/dojo/node!got');
-const config = intern.config;
+const config = intern._config;
 
 const AUTH_SERVER_ROOT = config.fxaAuthRoot;
 const CONTENT_SERVER = config.fxaContentRoot;

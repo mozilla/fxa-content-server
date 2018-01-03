@@ -1,9 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-define(function (require, exports, module) {
-  'use strict';
+//
+// define(function (require, exports, module) {
+//   'use strict';
 
 
   /*eslint-disable sorting/sort-object-props*/
@@ -118,4 +118,4 @@ define(function (require, exports, module) {
     MOZ_ORG_SYNC_GET_STARTED_LINK: 'https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
   };
   /*eslint-enable sorting/sort-object-props*/
-});
+// });

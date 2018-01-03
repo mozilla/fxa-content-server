@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-const intern = require('intern');
-const registerSuite = require('intern!object');
+
+const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('tests/functional/lib/helpers');
 const require = require('require');
 var PAGE_URL = intern.config.fxaContentRoot + 'legal/terms';

@@ -2,14 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
-  'intern',
-  'tests/lib/request',
-  'intern/browser_modules/dojo/Promise'
-], function (intern, request, Promise) {
-  'use strict';
+  const request = require('./request');
 
-  const config = intern.config;
+  const config = intern._config;
   const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   /**
@@ -77,8 +72,7 @@ define([
     return EMAIL_SERVER_ROOT + '/mail/' + user;
   }
 
-  return {
+  module.exports = {
     deleteAllEmails,
     waitForEmail
   };
-});
