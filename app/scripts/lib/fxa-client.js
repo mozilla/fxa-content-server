@@ -786,7 +786,7 @@ define(function (require, exports, module) {
                    err.validation.keys &&
                    err.validation.keys[0] === 'phoneNumber';
           }
-
+        if (isInvalidPhoneNumberError(err)) {
           throw AuthErrors.toError('INVALID_PHONE_NUMBER');
         }
 
