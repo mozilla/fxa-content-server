@@ -788,7 +788,7 @@ define(function (require, exports, module) {
           }
           if (isInvalidPhoneNumberError(err)) {
             throw AuthErrors.toError('INVALID_PHONE_NUMBER');
-        }
+          }
 
           throw err;
         });
