@@ -32,8 +32,8 @@ define([
   // speed up the tests.
   var checkedUrlPromises = {};
 
-  var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
-  if (intern.config.fxaProduction) {
+  var httpUrl, httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
+  if (intern._config.fxaProduction) {
     assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
     httpUrl = httpsUrl.replace('https://', 'http://');
   } else {
@@ -53,7 +53,7 @@ define([
   }
 
   function isProductionLike() {
-    return intern.config.fxaProduction && intern.config.fxaDevBox;
+    return intern._config.fxaProduction && intern._config.fxaDevBox;
   }
 
   function makeRequest(url, requestOptions) {

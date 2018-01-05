@@ -3,16 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const require = require('require');
-var url = intern.config.fxaContentRoot + 'robots.txt';
+const assert = intern.getPlugin('chai').assert;
+var url = intern._config.fxaContentRoot + 'robots.txt';
 
 registerSuite('robots.txt', {
   'should allow bots to access all pages': function () {
 
     return this.remote
-      .get(require.toUrl(url))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(url)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findByTagName('body')
       .getVisibleText()
       .then(function (source) {

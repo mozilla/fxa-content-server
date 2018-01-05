@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
 var PASSWORD = 'password';
 var TIMEOUT = 90 * 1000;
 var email;

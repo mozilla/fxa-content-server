@@ -3,17 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const require = require('require');
+const assert = intern.getPlugin('chai').assert;
 var FROM_URL = 'http://example.com/';
-var FXA_ROOT_URL = intern.config.fxaContentRoot;
+var FXA_ROOT_URL = intern._config.fxaContentRoot;
 
 registerSuite('back button after navigating to the root', {
   'start at github, visit Fxa root, click `back` - should go back to example': function () {
     return this.remote
-      .get(require.toUrl(FROM_URL))
-      .get(require.toUrl(FXA_ROOT_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(FROM_URL)
+      .get(FXA_ROOT_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findById('fxa-signup-header')
 
       // click back.

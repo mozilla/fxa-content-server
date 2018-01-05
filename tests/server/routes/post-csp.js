@@ -16,7 +16,7 @@ define([
 ], function (intern, registerSuite, assert, fs, path, config,
   proxyquire, sinon, got, TestHelpers) {
 
-  const REPORT_URL = intern.config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
+  const REPORT_URL = intern._config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
   const VALID_CSP_REPORT = {
     'csp-report': {
       'blocked-uri': 'http://bing.com',

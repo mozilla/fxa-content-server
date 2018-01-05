@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const path = require('intern/browser_modules/dojo/node!path');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const uaStrings = require('tests/functional/lib/ua-strings');
-const config = intern.config;
+const path = require('path');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const uaStrings = require('./lib/ua-strings');
+const config = intern._config;
 
 const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
@@ -18,7 +18,7 @@ const PASSWORD = 'password';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
-const UPLOAD_IMAGE_PATH = path.join(this.process.cwd(), 'app', 'apple-touch-icon-152x152.png');
+const UPLOAD_IMAGE_PATH = path.join(process.cwd(), 'app', 'apple-touch-icon-152x152.png');
 
 let email;
 

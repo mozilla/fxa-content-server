@@ -11,7 +11,7 @@ define([
   'intern/dojo/node!fs',
   'intern/dojo/node!path'
 ], function (intern, registerSuite, assert, config, got, fs, path) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'metrics'

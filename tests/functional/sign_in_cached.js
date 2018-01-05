@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const Constants = require('app/scripts/lib/constants');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const requirejs = require('../rjs_load');
+const Constants = requirejs('app/scripts/lib/constants');
 var FX_DESKTOP_V2_CONTEXT = Constants.FX_DESKTOP_V2_CONTEXT;
 
-var config = intern.config;
+var config = intern._config;
 
 // The automatedBrowser query param tells signin/up to stub parts of the flow
 // that require a functioning desktop channel

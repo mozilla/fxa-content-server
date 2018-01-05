@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var url = intern.config.fxaContentRoot + 'legal';
+const assert = intern.getPlugin('chai').assert;
+const FunctionalHelpers = require('./lib/helpers');
+var url = intern._config.fxaContentRoot + 'legal';
 
 var openPage = FunctionalHelpers.openPage;
 

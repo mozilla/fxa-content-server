@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-const uaStrings = require('tests/functional/lib/ua-strings');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
-const config = intern.config;
+const config = intern._config;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
 
 let email;

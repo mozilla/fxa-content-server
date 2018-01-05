@@ -9,7 +9,7 @@ define([
   'intern/dojo/node!../../../server/lib/configuration',
   'intern/dojo/node!got'
 ], function (intern, registerSuite, assert, config, got) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
   var openIdConfig = config.get('openid_configuration');
 
   var suite = {
@@ -17,7 +17,7 @@ define([
   };
 
   suite['#options /.well-known/openid-configuration - CORS enabled'] = function () {
-    const dfd = this.async(intern.config.asyncTimeout);
+    const dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + '/.well-known/openid-configuration', { method: 'options' })
       .then(function (res) {
@@ -28,7 +28,7 @@ define([
   };
 
   suite['#get /.well-known/openid-configuration - returns a JSON doc with expected values'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + '/.well-known/openid-configuration', {})
       .then(function (res) {

@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 var OAUTH_APP = config.fxaOauthApp;
 
 const {

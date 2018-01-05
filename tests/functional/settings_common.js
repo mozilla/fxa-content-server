@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const nodeXMLHttpRequest = require('intern/browser_modules/dojo/node!xmlhttprequest');
-const FxaClient = require('app/bower_components/fxa-js-client/fxa-client');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const requirejs = require('../rjs_load');
+const nodeXMLHttpRequest = require('xmlhttprequest');
+const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 var SETTINGS_URL = config.fxaContentRoot + 'settings';
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -37,8 +38,6 @@ var SETTINGS_PAGES = {
 
 
 var unverifiedSuite = {
-  name: 'visiting settings pages unverified',
-
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -62,8 +61,6 @@ function unverifiedAccountTest (suite, page) {
 }
 
 var verifiedSuite = {
-  name: 'settings common',
-
   beforeEach: function () {
     email = TestHelpers.createEmail();
 
@@ -126,5 +123,5 @@ Object.keys(SETTINGS_PAGES).forEach(function (page) {
   verifiedAccountTest(verifiedSuite, page, SETTINGS_PAGES[page]);
 });
 
-registerSuite(unverifiedSuite);
-registerSuite(verifiedSuite);
+registerSuite('visiting settings pages unverified', unverifiedSuite);
+registerSuite('settings common', verifiedSuite);

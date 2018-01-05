@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const config = require('intern/dojo/node!../../server/lib/configuration');
+const assert = intern.getPlugin('chai').assert;
+const config = require('../../server/lib/configuration');
 const Promise = require('intern/dojo/Promise');
-const require = require('require');
-const child_process = require('intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/node!child_process');
+const child_process = require('child_process');
 //eslint-disable-line camelcase
 var ERROR_COLOR = '\x1b[1;31m';       // red
 var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan
@@ -22,7 +21,7 @@ function descriptionColor(text) {
 }
 
 var travis = process && process.env.TRAVIS_COMMIT;
-var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
+var url = intern._config.fxaContentRoot + 'tests/index.html?coverage';
 if (travis) {
   url += '&travis=true';
 }
@@ -36,7 +35,7 @@ registerSuite('mocha tests', {
 
     return this.remote
       .setFindTimeout(this.timeout)
-      .get(require.toUrl(url))
+      .get(url)
       .refresh()
       // let the mocha reporter load up
       .sleep(MOCHA_LOADER_SLEEP)

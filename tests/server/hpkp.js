@@ -45,7 +45,7 @@ define([
     config.set('hpkp.reportOnly', false);
     config.set('hpkp.maxAge', 100);
     var middleware = hpkp(config);
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     var res = new ResMock();
     var req = new ReqMock();
@@ -57,7 +57,7 @@ define([
   suite['#does not send header when disabled'] = function () {
     config.set('hpkp.enabled', false);
     var middleware = hpkp(config);
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     var res = new ResMock();
     var req = new ReqMock();
@@ -72,7 +72,7 @@ define([
     config.set('hpkp.reportOnly', true);
     config.set('hpkp.reportUri', 'http://report.com');
     var middleware = hpkp(config);
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     var res = new ResMock();
     var req = new ReqMock();

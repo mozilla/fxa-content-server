@@ -2,70 +2,71 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-  var Constants = require('../../app/scripts/lib/constants');
+const requirejs = require('../rjs_load');
+var Constants = requirejs('app/scripts/lib/constants');
 
-  function createRandomHexString(length) {
-    var str = '';
-    var lettersToChooseFrom = 'abcdefABCDEF01234567890';
-    var numberOfPossibilities = lettersToChooseFrom.length;
+function createRandomHexString(length) {
+  var str = '';
+  var lettersToChooseFrom = 'abcdefABCDEF01234567890';
+  var numberOfPossibilities = lettersToChooseFrom.length;
 
-    for (var i = 0; i < length; ++i) {
-      var indexToUse = Math.floor(Math.random() * numberOfPossibilities);
-      str += lettersToChooseFrom.charAt(indexToUse);
-    }
-
-    return str;
+  for (var i = 0; i < length; ++i) {
+    var indexToUse = Math.floor(Math.random() * numberOfPossibilities);
+    str += lettersToChooseFrom.charAt(indexToUse);
   }
 
-  function createUID () {
-    return createRandomHexString(Constants.UID_LENGTH);
-  }
+  return str;
+}
 
-  function createEmail(template) {
-    if (! template) {
-      template = 'signin{id}';
-    }
-    return template.replace('{id}', Math.random()) + '@restmail.net';
-  }
+function createUID() {
+  return createRandomHexString(Constants.UID_LENGTH);
+}
 
-  /**
-   * Create a phone number with `prefix` with `length` digits.
-   *
-   * @param {String} [prefix='9164']
-   * @param {Number} [length=10]
-   * @returns {String}
-   */
-  function createPhoneNumber (prefix, length) {
-    if (typeof prefix === 'undefined') {
-      prefix = '9164';
-    }
-    if (typeof length === 'undefined') {
-      length = 10;
-    }
-    // start with an area code and known good first number,
-    // append a 6 character suffix.
-    const suffixLength = length - prefix.length;
-    let suffix = Math.floor(Math.random() * Math.pow(10, suffixLength));
-    suffix = padright(suffix, suffixLength, '0');
-    return `${prefix}${suffix}`;
+function createEmail(template) {
+  if (!template) {
+    template = 'signin{id}';
   }
+  return template.replace('{id}', Math.random()) + '@restmail.net';
+}
 
-  function padright (str, len, filler) {
-    let padded = '' + str;
-    while (padded.length < len) {
-      padded += filler;
-    }
-    return padded;
+/**
+ * Create a phone number with `prefix` with `length` digits.
+ *
+ * @param {String} [prefix='9164']
+ * @param {Number} [length=10]
+ * @returns {String}
+ */
+function createPhoneNumber(prefix, length) {
+  if (typeof prefix === 'undefined') {
+    prefix = '9164';
   }
-
-  function emailToUser(email) {
-    return email.split('@')[0];
+  if (typeof length === 'undefined') {
+    length = 10;
   }
+  // start with an area code and known good first number,
+  // append a 6 character suffix.
+  const suffixLength = length - prefix.length;
+  let suffix = Math.floor(Math.random() * Math.pow(10, suffixLength));
+  suffix = padright(suffix, suffixLength, '0');
+  return `${prefix}${suffix}`;
+}
 
-  module.exports =  {
-    createEmail,
-    createPhoneNumber,
-    createRandomHexString,
-    createUID,
-    emailToUser
-  };
+function padright(str, len, filler) {
+  let padded = '' + str;
+  while (padded.length < len) {
+    padded += filler;
+  }
+  return padded;
+}
+
+function emailToUser(email) {
+  return email.split('@')[0];
+}
+
+module.exports = {
+  createEmail,
+  createPhoneNumber,
+  createRandomHexString,
+  createUID,
+  emailToUser
+};

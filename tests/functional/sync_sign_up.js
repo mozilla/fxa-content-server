@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const FxDesktopHelpers = require('tests/functional/lib/fx-desktop');
-const selectors = require('tests/functional/lib/selectors');
-var config = intern.config;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
+const selectors = require('./lib/selectors');
+var config = intern._config;
 var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
 var PAGE_URL_WITH_MIGRATION = PAGE_URL + '&migration=sync11';
 

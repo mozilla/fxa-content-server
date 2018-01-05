@@ -16,7 +16,7 @@ define([
   'intern/dojo/node!fxa-shared',
 ], function (intern, registerSuite, assert, config, got, url, util, fxaShared) {
   var languages = fxaShared.l10n.supportedLanguages;
-  var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'load / and /i18n/client.json with various accept-languages'
@@ -38,13 +38,13 @@ define([
     }
 
     suite['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
       got(httpsUrl + '/', options)
         .then(function (res) {
           assert.equal(res.statusCode, 200);
           var langRegExp = new RegExp(util.format('lang="%s"', lang));
           assert.ok(langRegExp.test(res.body), 'html has correct lang attribute');
-          if (intern.config.fxaProduction) {
+          if (intern._config.fxaProduction) {
             var locale = normalizeLanguage(lang).replace('-', '_');
             var scriptRegExp = new RegExp(util.format('[0-9a-f]{8,8}\.main\.%s\.js', locale));
             assert.ok(scriptRegExp.test(res.body), 'html has localized JavaScript');
@@ -54,11 +54,11 @@ define([
     };
 
     suite['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
       got(httpsUrl + '/i18n/client.json', options)
         .then(function (res) {
           assert.equal(res.statusCode, 200);
-          if (intern.config.fxaProduction) {
+          if (intern._config.fxaProduction) {
             // using the empty string '' as the key below is intentional
             var language = JSON.parse(res.body)[''].language;
             language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR

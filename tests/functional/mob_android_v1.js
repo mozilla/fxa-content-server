@@ -10,11 +10,11 @@
  */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-const config = intern.config;
+const config = intern._config;
 
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=mob_android_v1&service=sync`;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=mob_android_v1&service=sync`;

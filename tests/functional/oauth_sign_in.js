@@ -3,11 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const require = require('require');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const config = intern.config;
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const config = intern._config;
 const OAUTH_APP = config.fxaOauthApp;
 const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
@@ -162,7 +161,7 @@ registerSuite('oauth signin', {
 
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
-      .get(require.toUrl(OAUTH_APP))
+      .get(OAUTH_APP)
       // again, use the 'Choose my sign-in flow for me' button
       .then(click('.ready #splash .sign-choose'))
 

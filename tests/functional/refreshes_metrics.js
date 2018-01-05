@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
 var AUTOMATED = '?automatedBrowser=true';
-var SIGNUP_URL = intern.config.fxaContentRoot + 'signup' + AUTOMATED;
-var SIGNIN_URL = intern.config.fxaContentRoot + 'signin' + AUTOMATED;
+var SIGNUP_URL = intern._config.fxaContentRoot + 'signup' + AUTOMATED;
+var SIGNIN_URL = intern._config.fxaContentRoot + 'signin' + AUTOMATED;
 
 var cleanMemory = FunctionalHelpers.cleanMemory;
 var clearBrowserState = FunctionalHelpers.clearBrowserState;

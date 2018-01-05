@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 var CONFIRM_URL = config.fxaContentRoot + 'confirm';
 var SIGNUP_URL = config.fxaContentRoot + 'signup';
 var PASSWORD = '12345678';
@@ -59,7 +59,7 @@ registerSuite('confirm', {
   },
 
   'sign up with a restmail address, get the open restmail button': function () {
-    var SIGNUP_URL = intern.config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
+    var SIGNUP_URL = intern._config.fxaContentRoot + 'signup?context=fx_desktop_v2&service=sync';
     this.timeout = 90000;
 
     return this.remote

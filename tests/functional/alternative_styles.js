@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const require = require('require');
-var INVALID_CHROMELESS_URL = intern.config.fxaContentRoot + 'signup?style=chromeless';
-var CHROMELESS_IFRAME_SYNC_URL = intern.config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
+const FunctionalHelpers = require('./lib/helpers');
+var INVALID_CHROMELESS_URL = intern._config.fxaContentRoot + 'signup?style=chromeless';
+var CHROMELESS_IFRAME_SYNC_URL = intern._config.fxaContentRoot + 'signup?service=sync&context=iframe&style=chromeless';
 
 var noSuchElement = FunctionalHelpers.noSuchElement;
 
@@ -18,8 +17,8 @@ registerSuite('alternate styles', {
   'the `chromeless` style is not applied if not iframed sync': function () {
 
     return this.remote
-      .get(require.toUrl(INVALID_CHROMELESS_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(INVALID_CHROMELESS_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findByCssSelector('#fxa-signup-header')
       .end()
 
@@ -31,8 +30,8 @@ registerSuite('alternate styles', {
   'the `chromeless` style can be applied to an iframed sync': function () {
 
     return this.remote
-      .get(require.toUrl(CHROMELESS_IFRAME_SYNC_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(CHROMELESS_IFRAME_SYNC_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findByCssSelector('#fxa-signup-header')
       .end()
 

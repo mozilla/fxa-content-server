@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const requirejs = require('../../rjs_load');
 const restmail = require('../../lib/restmail');
 const TestHelpers = require('../../lib/helpers');
 const selectors = require('./selectors');
@@ -10,8 +11,10 @@ const Url = require('url');
 const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
 const assert = require('assert');
-const FxaClient = require('app/bower_components/fxa-js-client/fxa-client');
-const got = require('intern/dojo/node!got');
+
+const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+console.log(FxaClient)
+const got = require('got');
 const config = intern._config;
 
 const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -284,7 +287,7 @@ const clearContentServerState = thenify(function (options) {
       // only load up the content server if we aren't
       // already at the content server.
       if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-        return this.parent.get(require.toUrl(CONTENT_SERVER + 'clear'))
+        return this.parent.get(CONTENT_SERVER + 'clear')
           .setFindTimeout(config.pageLoadTimeout)
           .findById('fxa-clear-storage-header');
       }
@@ -325,7 +328,7 @@ const clear123DoneState = thenify(function (options) {
     // iframe flow.
     .switchToFrame(null)
     .setFindTimeout(config.pageLoadTimeout)
-    .get(require.toUrl(app))
+    .get(app)
 
     .then(testElementExists('#footer-main'))
 
@@ -613,7 +616,7 @@ const deleteAllEmails = thenify(function (user) {
  * @returns {Function}
  */
 function disableInProd(test) {
-  if (intern.config.fxaProduction) {
+  if (intern._config.fxaProduction) {
     return function () {
     };
   }
@@ -730,7 +733,7 @@ const getVerificationLink = thenify(function(user, index) {
       if (! link) {
         throw new Error('Email does not contain verification link: ' + headers['x-template-name']);
       }
-      return require.toUrl(link);
+      return link;
     });
 });
 
@@ -755,7 +758,7 @@ const getUnblockInfo = thenify(function (user, index) {
         throw new Error('Email does not contain unblock code: ' + headers['x-template-name']);
       }
       return {
-        reportSignInLink: require.toUrl(headers['x-report-signin-link']),
+        reportSignInLink: headers['x-report-signin-link'],
         uid: headers['x-uid'],
         unblockCode: unblockCode
       };
@@ -817,7 +820,7 @@ const noEmailExpected = thenify(function (user, index, options) {
  */
 const openExternalSite = thenify(function () {
   return this.parent
-    .get(require.toUrl(EXTERNAL_SITE_URL))
+    .get(EXTERNAL_SITE_URL)
     .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
     .end();
 });
@@ -1153,7 +1156,7 @@ const openPage = thenify(function (url, readySelector, options) {
   url = addQueryParamsToLink(url, options.query);
 
   return this.parent
-    .get(require.toUrl(url))
+    .get(url)
     .setFindTimeout(config.pageLoadTimeout)
 
     .then(function () {
@@ -1212,7 +1215,7 @@ function addQueryParamsToLink(link, query) {
     parsedLink.query[paramName] = query[paramName];
   }
   parsedLink.search = undefined;
-  return require.toUrl(Url.format(parsedLink));
+  return Url.format(parsedLink);
 }
 
 /**
@@ -1312,8 +1315,8 @@ const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
       // flow. The iframe flow must use the window hash for routing.
       if (! /[\/#]signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
         return this.parent
-          .get(require.toUrl(SIGNIN_URL))
-          .setFindTimeout(intern.config.pageLoadTimeout);
+          .get(SIGNIN_URL)
+          .setFindTimeout(intern._config.pageLoadTimeout);
       }
     })
 
@@ -1350,8 +1353,8 @@ const fillOutSignUp = thenify(function (email, password, options) {
       // flow. The iframe flow must use the window hash for routing.
       if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
         return this.parent
-          .get(require.toUrl(SIGNUP_URL))
-          .setFindTimeout(intern.config.pageLoadTimeout);
+          .get(SIGNUP_URL)
+          .setFindTimeout(intern._config.pageLoadTimeout);
       }
     })
 
@@ -1398,8 +1401,8 @@ const fillOutResetPassword = thenify(function (email, options) {
       // flow. The iframe flow must use the window hash for routing.
       if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl) && ! options.skipPageRedirect) {
         return this.parent
-          .get(require.toUrl(RESET_PASSWORD_URL))
-          .setFindTimeout(intern.config.pageLoadTimeout);
+          .get(RESET_PASSWORD_URL)
+          .setFindTimeout(intern._config.pageLoadTimeout);
       }
     })
 
@@ -1415,7 +1418,7 @@ const fillOutResetPassword = thenify(function (email, options) {
  */
 const fillOutForceAuth = thenify(function (password) {
   return this.parent
-    .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern._config.pageLoadTimeout)
     .then(testElementExists('#fxa-force-auth-header'))
     .then(type('input[type=password]', password))
     .then(click('button[type=submit]'));
@@ -1429,7 +1432,7 @@ const fillOutForceAuth = thenify(function (password) {
  */
 const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
   return this.parent
-    .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern._config.pageLoadTimeout)
 
     .then(testElementExists('#fxa-complete-reset-password-header'))
     .then(type('#password', password))
@@ -1449,7 +1452,7 @@ const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
  */
 const fillOutChangePassword = thenify(function (oldPassword, newPassword, options = {}) {
   return this.parent
-    .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern._config.pageLoadTimeout)
 
     .then(type('#old_password', oldPassword))
     .then(type('#new_password', newPassword))
@@ -1472,7 +1475,7 @@ const fillOutChangePassword = thenify(function (oldPassword, newPassword, option
  */
 const fillOutDeleteAccount = thenify(function (password) {
   return this.parent
-    .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern._config.pageLoadTimeout)
 
     .then(type('#delete-account form input.password', password))
     // delete account
@@ -1970,7 +1973,7 @@ const testAttributeExists = thenify(function (selector, attributeName) {
  */
 const cleanMemory = thenify(function (selector, attributeName) {
   return this.parent
-    .get(require.toUrl('about:memory'))
+    .get('about:memory')
     // Click the Minimize Memory Usage button
     .then(click('div.opsRow:nth-child(3) > button:nth-child(4)'))
     .then(testElementExists('.section'))

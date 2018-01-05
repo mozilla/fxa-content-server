@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 var SIGNIN_URL = config.fxaContentRoot + 'signin';
 
 var clearBrowserState = FunctionalHelpers.clearBrowserState;

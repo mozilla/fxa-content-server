@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const require = require('require');
-var url = intern.config.fxaContentRoot;
+var url = intern._config.fxaContentRoot;
 
 var pages = [
   '',
@@ -76,14 +75,13 @@ var pages = [
 ];
 
 var suite = {
-  name: 'pages'
 };
 
 var visitFn = function (path) {
   return function () {
     return this.remote
-      .get(require.toUrl(url + path))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(url + path)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findByCssSelector('#stage header')
       .end();
   };
@@ -94,4 +92,4 @@ pages.forEach(function (path) {
   suite['visit page ' + url + path + '/'] = visitFn(path + '/');
 });
 
-registerSuite(suite);
+registerSuite('pages', suite);

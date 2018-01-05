@@ -21,9 +21,9 @@ define([
   var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
   var makeRequest = routesHelpers.makeRequest;
 
-  var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var httpUrl, httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
-  if (intern.config.fxaProduction) {
+  if (intern._config.fxaProduction) {
     assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
     httpUrl = httpsUrl.replace('https://', 'http://');
   } else {
@@ -104,7 +104,7 @@ define([
     routes['/503.html'] = { statusCode: 200 };
   }
 
-  if (! intern.config.fxaProduction) {
+  if (! intern._config.fxaProduction) {
     routes['/tests/index.html'] = { csp: false, statusCode: 200 };
     routes['/tests/index.html?coverage'] = { csp: false, statusCode: 200 };
     routes['/boom'] = { statusCode: 500 };
@@ -152,7 +152,7 @@ define([
 
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
 
       makeRequest(httpsUrl + route, requestOptions)
         .then(function (res) {
@@ -169,7 +169,7 @@ define([
 
     // test to ensure http->https redirection works as expected.
     suite['#http get ' + httpUrl + route] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
 
       makeRequest(httpUrl + route, requestOptions)
         .then(function (res) {
@@ -182,7 +182,7 @@ define([
 
   function redirectTest(route) {
     suite['https get ' + httpsUrl + route] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
 
       var routeConfig = redirectedRoutes[route];
 

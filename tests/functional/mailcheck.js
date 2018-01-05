@@ -4,8 +4,8 @@
 
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-var EXP_MAILCHECK_URL = intern.config.fxaContentRoot + 'signup?automatedBrowser=true';
+const selectors = require('./lib/selectors');
+var EXP_MAILCHECK_URL = intern._config.fxaContentRoot + 'signup?automatedBrowser=true';
 
 var clearBrowserState = FunctionalHelpers.clearBrowserState;
 var click = FunctionalHelpers.click;

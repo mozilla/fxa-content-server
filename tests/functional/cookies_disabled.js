@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
 // there is no way to disable cookies using wd. Add `disable_cookies`
 // to the URL to synthesize cookies being disabled.
-var config = intern.config;
+var config = intern._config;
 var SIGNUP_COOKIES_DISABLED_URL = config.fxaContentRoot + 'signup?disable_local_storage=1';
 var SIGNUP_COOKIES_ENABLED_URL = config.fxaContentRoot + 'signup';
 

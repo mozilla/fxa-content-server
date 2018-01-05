@@ -36,7 +36,7 @@ define([
   var middleware = frameguard(config);
 
   function testXFrameOptionsHeader(context, req, res, expectedValue) {
-    var dfd = context.async(intern.config.asyncTimeout);
+    var dfd = context.async(intern._config.asyncTimeout);
 
     middleware(req, res, dfd.callback(function () {
       assert.equal(res.headers['x-frame-options'], expectedValue);

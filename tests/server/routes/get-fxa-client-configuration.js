@@ -11,7 +11,7 @@ define([
   'intern/dojo/node!got',
   'intern/dojo/node!sinon'
 ], function (intern, registerSuite, assert, config, getFxAClientConfig, got, sinon) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'fxa-client-configuration'
@@ -121,7 +121,7 @@ define([
   };
 
   suite['#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + '/.well-known/fxa-client-configuration', {})
       .then(function (res) {
@@ -134,7 +134,7 @@ define([
         var result = JSON.parse(res.body);
         assert.equal(Object.keys(result).length, 4);
 
-        var conf = intern.config;
+        var conf = intern._config;
         var expectAuthRoot = conf.fxaAuthRoot;
         expectAuthRoot = expectAuthRoot.replace(/\/v1$/, '');
 

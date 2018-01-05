@@ -5,13 +5,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const nodeXMLHttpRequest = require('intern/browser_modules/dojo/node!xmlhttprequest');
-const FxaClient = require('app/bower_components/fxa-js-client/fxa-client');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
+const requirejs = require('../rjs_load');
+const nodeXMLHttpRequest = require('xmlhttprequest');
+const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-const config = intern.config;
+const config = intern._config;
 const AUTH_SERVER_ROOT = config.fxaAuthRoot;
 const SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
 const RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
@@ -100,7 +101,7 @@ const openCompleteResetPassword = thenify(function (email, token, code, header) 
 
 const testAtSettingsWithVerifiedMessage = thenify(function() {
   return this.parent
-    .setFindTimeout(intern.config.pageLoadTimeout)
+    .setFindTimeout(intern._config.pageLoadTimeout)
     .sleep(1000)
 
     .then(testElementExists(selectors.SETTINGS.HEADER))

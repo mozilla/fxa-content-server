@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const _waitForBasket = require('tests/lib/basket');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-const SIGNUP_PAGE_URL = intern.config.fxaContentRoot + 'signup';
-const fxaProduction = intern.config.fxaProduction;
+const TestHelpers = require('../lib/helpers');
+const _waitForBasket = require('../lib/basket');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const SIGNUP_PAGE_URL = intern._config.fxaContentRoot + 'signup';
+const fxaProduction = intern._config.fxaProduction;
 
 let email;
 const PASSWORD = '12345678';
@@ -34,16 +34,12 @@ if (fxaProduction) {
   // against a remote server (api keys unavailable, or server only listening
   // to its localhost interface). So, we skip these tests by registering an
   // empty test suite.
-  registerSuite({
-    name: suiteName
-  });
+  registerSuite(suiteName, {});
   return;
 }
 
 // okay, not remote so run these for real.
-registerSuite({
-  name: suiteName,
-
+registerSuite('suiteName', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote

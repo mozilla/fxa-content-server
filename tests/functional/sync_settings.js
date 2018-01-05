@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const FxDesktopHelpers = require('tests/functional/lib/fx-desktop');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
 
 const {
   clearBrowserState,
@@ -28,7 +28,7 @@ const {
   testIsBrowserNotifiedOfMessage,
 } = FxDesktopHelpers;
 
-var config = intern.config;
+var config = intern._config;
 var SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 var SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_desktop_v1&service=sync';
 

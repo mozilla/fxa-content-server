@@ -1,7 +1,6 @@
 const intern = require('intern').default;
 const args = require('yargs').argv;
-
-//const firefoxProfile = require('./tools/firefox_profile');
+const firefoxProfile = require('./tools/firefox_profile');
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
 const fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
@@ -110,6 +109,7 @@ const config = {
     'drivers': ['firefox']
   },
   bail: bailAfterFirstFailure,
+  pageLoadTimeout: 28000,
 
   // custom config
   fxaAuthRoot: fxaAuthRoot,
@@ -129,9 +129,10 @@ if (args.grep) {
   config.grep = new RegExp(args.grep, 'i');
 }
 
-//config.capabilities['moz:firefoxOptions'] = {};
+config.capabilities = {};
+config.capabilities['moz:firefoxOptions'] = {};
 // to create a profile, give it the `config` option.
-//config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
+config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
 
 
 intern.configure(config);

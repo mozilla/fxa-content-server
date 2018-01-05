@@ -3,16 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const require = require('require');
-var url = intern.config.fxaContentRoot + 'boom';
+var url = intern._config.fxaContentRoot + 'boom';
 
 registerSuite('500', {
   'visit an invalid page': function () {
-    var expected = intern.config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
+    var expected = intern._config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
 
     return this.remote
-      .get(require.toUrl(url))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(url)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findById(expected)
       .click()
       .end()

@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const Constants = require('app/scripts/lib/constants');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const requirejs = require('../rjs_load');
+const Constants = requirejs('app/scripts/lib/constants');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
 var PASSWORD = 'password';
 var email;
@@ -126,7 +127,7 @@ registerSuite('complete_sign_up with expired link and click resend', {
     var verificationLink;
 
     return this.remote
-      // Sign up and obtain a verification link
+    // Sign up and obtain a verification link
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists('#fxa-confirm-header'))
 

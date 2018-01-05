@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const require = require('require');
-var PAGE_URL = intern.config.fxaContentRoot + 'legal/privacy';
-var SIGNUP_URL = intern.config.fxaContentRoot + 'signup';
+const FunctionalHelpers = require('./lib/helpers');
+var PAGE_URL = intern._config.fxaContentRoot + 'legal/privacy';
+var SIGNUP_URL = intern._config.fxaContentRoot + 'signup';
 
 var noSuchElement = FunctionalHelpers.noSuchElement;
 
@@ -19,8 +18,8 @@ registerSuite('pp', {
   'start at signup': function () {
 
     return this.remote
-      .get(require.toUrl(SIGNUP_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(SIGNUP_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findById('fxa-pp')
       .click()
       .end()
@@ -40,8 +39,8 @@ registerSuite('pp', {
 
   'browse directly to page - no back button': function () {
     return this.remote
-      .get(require.toUrl(PAGE_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(PAGE_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
 
       .findById('fxa-pp-header')
       .end()
@@ -52,8 +51,8 @@ registerSuite('pp', {
   'refresh, back button is available': function () {
     return this.remote
 
-      .get(require.toUrl(SIGNUP_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(SIGNUP_URL)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findByCssSelector('#fxa-pp')
       .click()
       .end()

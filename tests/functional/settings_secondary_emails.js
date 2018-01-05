@@ -6,12 +6,12 @@
 
 
 const { registerSuite } = intern.getInterface('object');
-const assert = require('intern/chai!assert');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
+const assert = intern.getPlugin('chai').assert;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
-const config = intern.config;
+const config = intern._config;
 const SIGNUP_URL = config.fxaContentRoot + 'signup';
 const SIGNIN_URL = config.fxaContentRoot + 'signin';
 const PASSWORD = 'password';

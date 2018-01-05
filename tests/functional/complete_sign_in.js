@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const Constants = require('app/scripts/lib/constants');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const FxDesktopHelpers = require('tests/functional/lib/fx-desktop');
-const selectors = require('tests/functional/lib/selectors');
-const config = intern.config;
+const requirejs = require('../rjs_load');
+const Constants = requirejs('app/scripts/lib/constants');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
+const selectors = require('./lib/selectors');
+const config = intern._config;
 const PAGE_COMPLETE_SIGNIN_URL = config.fxaContentRoot + 'complete_signin';
 const PAGE_SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_desktop_v1&service=sync';
 const PASSWORD = 'password';

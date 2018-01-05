@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const Querystring = require('intern/browser_modules/dojo/node!querystring');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const Querystring = require('querystring');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 
 var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
 

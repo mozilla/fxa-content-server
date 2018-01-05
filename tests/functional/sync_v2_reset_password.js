@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-var config = intern.config;
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+var config = intern._config;
 
 var PASSWORD = 'password';
 var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v2&service=sync&forceAboutAccounts=true&automatedBrowser=true';

@@ -9,7 +9,7 @@ define([
   'intern/dojo/node!../../../server/lib/routes/get-apple-app-site-association',
   'intern/dojo/node!got'
 ], function (intern, registerSuite, assert, getAppleSiteAssociation, got) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'apple-app-site-association'
@@ -31,7 +31,7 @@ define([
   };
 
   suite['#get /.well-known/apple-app-site-association - returns a JSON doc with expected values'] = function () {
-    var dfd = this.async(intern.config.asyncTimeout);
+    var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + '/.well-known/apple-app-site-association', {})
       .then(function (res) {

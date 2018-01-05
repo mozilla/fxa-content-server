@@ -5,22 +5,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-const CountryTelephoneInfo = require('app/scripts/lib/country-telephone-info');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const requirejs = require('../rjs_load');
+const CountryTelephoneInfo = requirejs('app/scripts/lib/country-telephone-info');
+console.log('CountryTelephoneInfo', CountryTelephoneInfo)
+//const CountryTelephoneInfo = require('app/scripts/lib/country-telephone-info');
 
-const config = intern.config;
+const config = intern._config;
 
 const ADJUST_LINK_ANDROID =
- 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
- 'creative=button-autumn-2016-connect-another-device&adgroup=android';
+  'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
+  'creative=button-autumn-2016-connect-another-device&adgroup=android';
 
 const ADJUST_LINK_IOS =
- 'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
- 'creative=button-autumn-2016-connect-another-device&adgroup=ios&' +
- 'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
- 'ct=adjust_tracker&mt=8';
+  'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
+  'creative=button-autumn-2016-connect-another-device&adgroup=ios&' +
+  'fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&' +
+  'ct=adjust_tracker&mt=8';
 
 
 const SEND_SMS_URL = `${config.fxaContentRoot}sms?service=sync&country=US`;
@@ -64,14 +67,12 @@ function testSmsSupportedCountryForm (country, expectedPrefix) {
 }
 
 const suite = {
-  name: 'send_sms',
-
   beforeEach: function () {
     email = TestHelpers.createEmail();
     testPhoneNumber = TestHelpers.createPhoneNumber();
     const countryInfo = CountryTelephoneInfo['US'];
     formattedPhoneNumber =
-       countryInfo.format(countryInfo.normalize(testPhoneNumber));
+      countryInfo.format(countryInfo.normalize(testPhoneNumber));
 
     // User needs a sessionToken to be able to send an SMS. Sign up,
     // no need to verify.
@@ -199,11 +200,11 @@ const suite = {
       .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
       .then(getSms(testPhoneNumber, 0))
 
-    // user realizes they made a mistake
+      // user realizes they made a mistake
       .then(click(selectors.SMS_SENT.LINK_BACK))
       .then(testElementExists(selectors.SMS_SEND.HEADER))
 
-    // original phone number should still be in place
+      // original phone number should still be in place
       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
   }),
 
@@ -219,11 +220,11 @@ const suite = {
       .then(testElementTextInclude(selectors.SMS_SENT.RESEND_SUCCESS, formattedPhoneNumber))
       .then(getSms(testPhoneNumber, 1))
 
-    // user realizes they made a mistake
+      // user realizes they made a mistake
       .then(click(selectors.SMS_SENT.LINK_BACK))
       .then(testElementExists(selectors.SMS_SEND.HEADER))
 
-    // original phone number should still be in place
+      // original phone number should still be in place
       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber));
   }),
 
@@ -268,13 +269,13 @@ const suite = {
       .then(testElementTextInclude(selectors.SMS_SENT.PHONE_NUMBER_SENT_TO, formattedPhoneNumber))
       .then(getSms(testPhoneNumber, 0))
 
-    // user realizes they made a mistake
+      // user realizes they made a mistake
       .then(click(selectors.SMS_SENT.LINK_BACK))
       .then(testElementExists(selectors.SMS_SEND.HEADER))
 
-    // original phone number should still be in place
+      // original phone number should still be in place
       .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, unformattedPhoneNumber));
   })
 };
 
-registerSuite(suite);
+registerSuite('send_sms', suite);

@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
-const uaStrings = require('tests/functional/lib/ua-strings');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 let bouncedEmail;
 let deliveredEmail;
 const PASSWORD = '12345678';
-const SIGNIN_URL = `${intern.config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
-const SIGNUP_URL = `${intern.config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
+const SIGNIN_URL = `${intern._config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
+const SIGNUP_URL = `${intern._config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true&forceUA=${encodeURIComponent(uaStrings.desktop_firefox_56)}`; //eslint-disable-line max-len
 
 const {
   clearBrowserState,

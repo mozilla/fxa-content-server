@@ -10,7 +10,7 @@ define([
   'intern/dojo/node!got',
   'intern/dojo/node!../../package.json',
 ], function (intern, registerSuite, assert, config, got, pkg) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'ver.json'
@@ -18,7 +18,7 @@ define([
 
   function versionJson(route) {
     return function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
 
       got(serverUrl + route)
         .then(function (res) {

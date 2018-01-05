@@ -23,11 +23,11 @@ define([
   var makeRequest = routesHelpers.makeRequest;
 
   var languages = fxaShared.l10n.supportedLanguages;
-  var httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var hookDns = process.env.FXA_DNS_ELB && process.env.FXA_DNS_ALIAS;
 
-  if (intern.config.fxaProduction) {
+  if (intern._config.fxaProduction) {
     assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
   }
 
@@ -97,7 +97,7 @@ define([
 
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route + ' ' + requestOptions.headers['Accept-Language']] = function () {
-      var dfd = this.async(intern.config.asyncTimeout);
+      var dfd = this.async(intern._config.asyncTimeout);
 
       makeRequest(httpsUrl + route, requestOptions)
         .then((res) => {

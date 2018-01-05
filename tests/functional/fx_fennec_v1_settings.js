@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('tests/lib/helpers');
-const FunctionalHelpers = require('tests/functional/lib/helpers');
-const selectors = require('tests/functional/lib/selectors');
+const TestHelpers = require('../lib/helpers');
+const FunctionalHelpers = require('./lib/helpers');
+const selectors = require('./lib/selectors');
 
 const {
   click,
@@ -24,7 +24,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const config = intern.config;
+const config = intern._config;
 const SIGNIN_URL = config.fxaContentRoot + 'signin?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
 const SETTINGS_URL = config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
 const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';

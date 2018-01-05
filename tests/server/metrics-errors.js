@@ -13,7 +13,7 @@ define([
   'intern/dojo/node!proxyquire',
   'intern/dojo/node!url'
 ], function (intern, registerSuite, assert, config, got, fs, path, proxyquire, url) {
-  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+  var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'metrics-errors'
@@ -81,7 +81,7 @@ define([
   };
 
   // This test cannot be run remotely like the other tests in tests/server.
-  if (! intern.config.fxaProduction) {
+  if (! intern._config.fxaProduction) {
     suite['it gets the release information from package.json'] = function () {
       var contentServerVersion = JSON.parse(fs.readFileSync('./package.json')).version;
 
