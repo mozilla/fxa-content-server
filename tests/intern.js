@@ -5,6 +5,10 @@ const firefoxProfile = require('./tools/firefox_profile');
 // Tests
 const testsMain = require('./functional');
 const testsOAuth = require('./functional_oauth');
+const testsCircleCi = require('./functional_circle');
+const testsTravisCi = require('./functional_travis');
+const testsServer = require('./tests_server');
+const testsServerResources = require('./tests_server_resources');
 const testsAll = testsMain.concat(testsOAuth);
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
@@ -67,10 +71,6 @@ if (args.grep) {
   config.grep = new RegExp(args.grep, 'i');
 }
 
-if (args.useTeamCityReporter) {
-  config.reporters = 'teamcity';
-}
-
 if (args.suites) {
   switch(args.suites) {
     case 'oauth':
@@ -79,7 +79,27 @@ if (args.suites) {
     case 'all':
       config.functionalSuites = testsAll;
       break;
+    case 'circle':
+      config.functionalSuites = testsCircleCi;
+      break;
+    case 'travis':
+      config.functionalSuites = testsTravisCi;
+      break;
+    case 'server':
+      config.functionalSuites = [];
+      config.suites = serverTests;
+      config.reporters = 'pretty';
+      break;
+    case 'server-resources':
+      config.functionalSuites = [];
+      config.suites = testsServerResources;
+      config.reporters = 'pretty';
+      break;
   }
+}
+
+if (args.useTeamCityReporter) {
+  config.reporters = 'teamcity';
 }
 
 config.capabilities = {};
