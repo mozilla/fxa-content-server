@@ -5,9 +5,7 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const config = require('../../server/lib/configuration');
-const Promise = require('intern/dojo/Promise');
-const child_process = require('child_process');
-//eslint-disable-line camelcase
+const child_process = require('child_process'); // eslint-disable-line camelcase
 var ERROR_COLOR = '\x1b[1;31m';       // red
 var DESCRIPTION_COLOR = '\x1b[1;36m'; // cyan
 var DEFAULT_COLOR = '\x1b[0;0m';      // off
@@ -87,32 +85,31 @@ registerSuite('mocha tests', {
  * @returns {Deferred}
  */
 function sendCoverageToCoveralls(context) {
-  var dfd = new Promise.Deferred();
-  var spawn = child_process.spawn; //eslint-disable-line camelcase
+  return new Promise(function (resolve) {
+    var spawn = child_process.spawn; //eslint-disable-line camelcase
 
-  console.log('Sending code coverage to coveralls.io');
-  context.remote
+    console.log('Sending code coverage to coveralls.io');
+    context.remote
     // get code coverage data
-    .execute(function () {
-      return window._$blanket_LCOV;
-    }, [])
-    .then(function (coverageData) {
-      var child = spawn('node', ['node_modules/coveralls/bin/coveralls.js']);
-      child.on('error', function (err) {
-        throw err;
-      });
-      child.stderr.pipe(process.stdout);
-      child.stdout.pipe(process.stdout);
+      .execute(function () {
+        return window._$blanket_LCOV;
+      }, [])
+      .then(function (coverageData) {
+        var child = spawn('node', ['node_modules/coveralls/bin/coveralls.js']);
+        child.on('error', function (err) {
+          throw err;
+        });
+        child.stderr.pipe(process.stdout);
+        child.stdout.pipe(process.stdout);
 
-      child.on('exit', function () {
-        console.log('Code coverage sent');
-        dfd.resolve();
+        child.on('exit', function () {
+          console.log('Code coverage sent');
+          resolve();
+        });
+        child.stdin.write(coverageData);
+        child.stdin.end();
       });
-      child.stdin.write(coverageData);
-      child.stdin.end();
-    });
-
-  return dfd;
+  });
 }
 
 /**
@@ -122,35 +119,33 @@ function sendCoverageToCoveralls(context) {
  * @returns {Deferred}
  */
 function validateCoverageLocally(context) {
-  var dfd = new Promise.Deferred();
-
   console.log('Validating code coverage...');
-  context
-    .remote
-    .findByCssSelector('.grand-total .rs')
-    .getVisibleText()
-    .then(function (text) {
-      text = text.replace('%', '').trim();
-      var covered = parseFloat(text);
-      assert.ok(covered > config.get('tests.coverage.globalThreshold'),
-        'code coverage is insufficient at ' + text + '%');
-    })
-    .end()
+  return new Promise(function (resolve, reject) {
+    context
+      .remote
+      .findByCssSelector('.grand-total .rs')
+      .getVisibleText()
+      .then(function (text) {
+        text = text.replace('%', '').trim();
+        var covered = parseFloat(text);
+        assert.ok(covered > config.get('tests.coverage.globalThreshold'),
+          'code coverage is insufficient at ' + text + '%');
+      })
+      .end()
 
-    // any individual failures?
-    .setFindTimeout(3000)
-    .findByCssSelector('.bl-error .bl-file a')
-    .then(
-      function () {
-        dfd.reject(new Error('Blanket.js Errors'));
-      },
-      function (err) {
-      // No Blanket.js errors
-        assert.strictEqual(err.name, 'NoSuchElement', 'Error was: ' + err.message);
-        dfd.resolve();
-      }
-    )
-    .end();
-
-  return dfd;
+      // any individual failures?
+      .setFindTimeout(3000)
+      .findByCssSelector('.bl-error .bl-file a')
+      .then(
+        function () {
+          reject(new Error('Blanket.js Errors'));
+        },
+        function (err) {
+          // No Blanket.js errors
+          assert.strictEqual(err.name, 'NoSuchElement', 'Error was: ' + err.message);
+          resolve();
+        }
+      )
+      .end();
+  });
 }

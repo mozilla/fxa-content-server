@@ -25,50 +25,51 @@ registerSuite('delete_account', {
   afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'sign in, delete account': function () {
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD))
+        .findById('fxa-settings-header')
+        .end()
 
-  'sign in, delete account': function () {
-    return this.remote
-      .then(fillOutSignIn(email, PASSWORD))
-      .findById('fxa-settings-header')
-      .end()
+        // Go to delete account screen
+        .findByCssSelector('#delete-account .settings-unit-toggle')
+        .click()
+        .end()
 
-      // Go to delete account screen
-      .findByCssSelector('#delete-account .settings-unit-toggle')
-      .click()
-      .end()
+        // success is going to the delete account page
+        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
-      // success is going to the delete account page
-      .then(FunctionalHelpers.visibleByQSA('#delete-account'))
+        .then(fillOutDeleteAccount(PASSWORD))
 
-      .then(fillOutDeleteAccount(PASSWORD))
+        // success is going to the signup page
+        .findById('fxa-signup-header')
+        .end()
 
-      // success is going to the signup page
-      .findById('fxa-signup-header')
-      .end()
+        .then(testSuccessWasShown());
+    },
 
-      .then(testSuccessWasShown());
-  },
+    'sign in, cancel delete account': function () {
+      return this.remote
+        .then(fillOutSignIn(email, PASSWORD))
+        .findById('fxa-settings-header')
+        .end()
 
-  'sign in, cancel delete account': function () {
-    return this.remote
-      .then(fillOutSignIn(email, PASSWORD))
-      .findById('fxa-settings-header')
-      .end()
+        // Go to delete account screen
+        .findByCssSelector('#delete-account .settings-unit-toggle')
+        .click()
+        .end()
 
-      // Go to delete account screen
-      .findByCssSelector('#delete-account .settings-unit-toggle')
-      .click()
-      .end()
+        // success is going to the delete account page
+        .then(FunctionalHelpers.visibleByQSA('#delete-account'))
 
-      // success is going to the delete account page
-      .then(FunctionalHelpers.visibleByQSA('#delete-account'))
+        .findByCssSelector('#delete-account .cancel')
+        .click()
+        .end()
 
-      .findByCssSelector('#delete-account .cancel')
-      .click()
-      .end()
-
-      // success is going to the signup page
-      .findById('fxa-settings-header')
-      .end();
+        // success is going to the signup page
+        .findById('fxa-settings-header')
+        .end();
+    }
   }
 });

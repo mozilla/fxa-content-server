@@ -14,24 +14,25 @@ var testElementValueEquals = FunctionalHelpers.testElementValueEquals;
 var type = FunctionalHelpers.type;
 
 registerSuite('mailcheck', {
-  beforeEach: function () {
+  beforeEach () {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
+  afterEach () {
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'tooltip works': function () {
+      var BAD_EMAIL = 'something@gnail.com';
+      var CORRECTED_EMAIL = 'something@gmail.com';
 
-  'tooltip works': function () {
-    var BAD_EMAIL = 'something@gnail.com';
-    var CORRECTED_EMAIL = 'something@gmail.com';
+      return this.remote
+        .then(openPage(EXP_MAILCHECK_URL, selectors.SIGNUP.HEADER))
+        .then(type(selectors.SIGNUP.EMAIL, BAD_EMAIL))
+        .then(click(selectors.SIGNUP.PASSWORD, selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION))
+        .then(click(selectors.SIGNUP.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
 
-    return this.remote
-      .then(openPage(EXP_MAILCHECK_URL, selectors.SIGNUP.HEADER))
-      .then(type(selectors.SIGNUP.EMAIL, BAD_EMAIL))
-      .then(click(selectors.SIGNUP.PASSWORD, selectors.SIGNUP.SUGGEST_EMAIL_DOMAIN_CORRECTION))
-      .then(click(selectors.SIGNUP.LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION))
-
-      .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, CORRECTED_EMAIL));
+    }
   }
 });

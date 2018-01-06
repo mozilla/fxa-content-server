@@ -54,56 +54,59 @@ registerSuite('signup with an email that bounces', {
     return this.remote.then(clearBrowserState());
   },
 
-  'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function () {
-    const client = getFxaClient();
+  tests: {
 
-    return this.remote
-      .then(fillOutSignUp(bouncedEmail, PASSWORD))
-      .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+    'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function () {
+      const client = getFxaClient();
 
-      .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
+      return this.remote
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-      .then(testElementExists(selectors.SIGNUP.HEADER))
-      // The first can_link_account handler is removed, hook up another.
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
-      // expect an error message to already be present on redirect
-      .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-      .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
-      // user must change the email address
-      .then(click(selectors.SIGNUP.SUBMIT))
-      // error message should still be around
-      .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-      .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
-      .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
 
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
-  },
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        // The first can_link_account handler is removed, hook up another.
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+        // expect an error message to already be present on redirect
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
+        // user must change the email address
+        .then(click(selectors.SIGNUP.SUBMIT))
+        // error message should still be around
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+        .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-  'sign up, bounce email at /confirm': function () {
-    const client = getFxaClient();
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
+    },
 
-    return this.remote
-      .then(fillOutSignUp(bouncedEmail, PASSWORD))
+    'sign up, bounce email at /confirm': function () {
+      const client = getFxaClient();
 
-      .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
+      return this.remote
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
-      .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
+        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
-      .then(testElementExists(selectors.SIGNUP.HEADER))
-      // The first can_link_account handler is removed, hook up another.
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true }))
-      // expect an error message to already be present on redirect
-      .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-      .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
-      // user must change the email address
-      .then(click(selectors.SIGNUP.SUBMIT))
-      // error message should still be around
-      .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
-      .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
-      .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+        .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
 
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        // The first can_link_account handler is removed, hook up another.
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+        // expect an error message to already be present on redirect
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, bouncedEmail))
+        // user must change the email address
+        .then(click(selectors.SIGNUP.SUBMIT))
+        // error message should still be around
+        .then(visibleByQSA(selectors.SIGNUP.TOOLTIP_BOUNCED_EMAIL))
+        .then(type(selectors.SIGNUP.EMAIL, deliveredEmail))
+        .then(click(selectors.SIGNUP.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER));
+    }
   }
 });
 
@@ -135,40 +138,41 @@ registerSuite('signin with an email that bounces', {
   afterEach: function() {
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'click create-account': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+        .then(testElementExists(selectors.SIGNUP.HEADER))
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
+        .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, ''));
+    },
 
-  'click create-account': function () {
-    return this.remote
-      .then(setUpBouncedSignIn())
-      .then(click(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
-      .then(testElementExists(selectors.SIGNUP.HEADER))
-      .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
-      .then(testElementValueEquals(selectors.SIGNUP.PASSWORD, ''));
-  },
+    'click back': function () {
+      const email = TestHelpers.createEmail('sync{id}');
+      return this.remote
+        .then(setUpBouncedSignIn(email))
+        .then(click(selectors.SIGNIN_BOUNCED.BACK))
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
+        .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, PASSWORD));
+    },
 
-  'click back': function () {
-    const email = TestHelpers.createEmail('sync{id}');
-    return this.remote
-      .then(setUpBouncedSignIn(email))
-      .then(click(selectors.SIGNIN_BOUNCED.BACK))
-      .then(testElementExists(selectors.SIGNIN.HEADER))
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, email))
-      .then(testElementValueEquals(selectors.SIGNIN.PASSWORD, PASSWORD));
-  },
+    'click support': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .then(click(selectors.SIGNIN_BOUNCED.SUPPORT))
+        .then(switchToWindow(1))
+        .then(pollUntil(() => window.location.href.startsWith('https://support.mozilla.org/')))
+        .then(closeCurrentWindow());
+    },
 
-  'click support': function () {
-    return this.remote
-      .then(setUpBouncedSignIn())
-      .then(click(selectors.SIGNIN_BOUNCED.SUPPORT))
-      .then(switchToWindow(1))
-      .then(pollUntil(() => window.location.href.startsWith('https://support.mozilla.org/')))
-      .then(closeCurrentWindow());
-  },
-
-  'refresh': function () {
-    return this.remote
-      .then(setUpBouncedSignIn())
-      .refresh()
-      .then(respondToWebChannelMessage('fxaccounts:fxa_status', { capabilities: null, signedInUser: null }))
-      .then(testElementExists(selectors.SIGNIN.HEADER));
+    'refresh': function () {
+      return this.remote
+        .then(setUpBouncedSignIn())
+        .refresh()
+        .then(respondToWebChannelMessage('fxaccounts:fxa_status', {capabilities: null, signedInUser: null}))
+        .then(testElementExists(selectors.SIGNIN.HEADER));
+    }
   }
 });

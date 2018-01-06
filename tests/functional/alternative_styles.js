@@ -14,28 +14,31 @@ registerSuite('alternate styles', {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
 
-  'the `chromeless` style is not applied if not iframed sync': function () {
+  tests: {
 
-    return this.remote
-      .get(INVALID_CHROMELESS_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findByCssSelector('#fxa-signup-header')
-      .end()
+    'the `chromeless` style is not applied if not iframed sync': function () {
 
-      .then(noSuchElement('.chromeless'))
+      return this.remote
+        .get(INVALID_CHROMELESS_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findByCssSelector('#fxa-signup-header')
+        .end()
 
-      .end();
-  },
+        .then(noSuchElement('.chromeless'))
 
-  'the `chromeless` style can be applied to an iframed sync': function () {
+        .end();
+    },
 
-    return this.remote
-      .get(CHROMELESS_IFRAME_SYNC_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findByCssSelector('#fxa-signup-header')
-      .end()
+    'the `chromeless` style can be applied to an iframed sync': function () {
 
-      .findByCssSelector('.chromeless')
-      .end();
+      return this.remote
+        .get(CHROMELESS_IFRAME_SYNC_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        .findByCssSelector('.chromeless')
+        .end();
+    }
   }
 });

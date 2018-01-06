@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([
+module.exports = [
   './functional/oauth_handshake',
   './functional/amo_sign_up',
   './functional/oauth_choose_redirect',
@@ -14,4 +14,4 @@ define([
   './functional/oauth_force_auth',
   './functional/oauth_permissions',
   './functional/oauth_sync_sign_in'
-], function () {});
+];

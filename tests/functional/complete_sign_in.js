@@ -53,46 +53,47 @@ registerSuite('complete_sign_in', {
 
         });
     },
+  tests: {
+    'open verification link with malformed code': function () {
+      code = createRandomHexString(Constants.CODE_LENGTH - 1);
+      const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with malformed code': function () {
-    code = createRandomHexString(Constants.CODE_LENGTH - 1);
-    const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_DAMAGED))
+        .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
+    },
 
-    return this.remote
-      .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_DAMAGED))
-      .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-  },
+    'open verification link with server reported bad code': function () {
+      const code = createRandomHexString(Constants.CODE_LENGTH);
+      const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with server reported bad code': function () {
-    const code = createRandomHexString(Constants.CODE_LENGTH);
-    const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_REUSED))
+        .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
+    },
 
-    return this.remote
-      .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_REUSED))
-      .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-  },
+    'open verification link with malformed uid': function () {
+      const uid = createRandomHexString(Constants.UID_LENGTH - 1);
+      const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with malformed uid': function () {
-    const uid = createRandomHexString(Constants.UID_LENGTH - 1);
-    const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_DAMAGED))
+        .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
+    },
 
-    return this.remote
-      .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_DAMAGED))
-      .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-  },
-
-  'open verification link with server reported bad uid': function () {
-    const uid = createRandomHexString(Constants.UID_LENGTH);
-    const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
+    'open verification link with server reported bad uid': function () {
+      const uid = createRandomHexString(Constants.UID_LENGTH);
+      const url = PAGE_COMPLETE_SIGNIN_URL + '?uid=' + uid + '&code=' + code;
 
       return this.remote
         .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_EXPIRED))
         .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-  },
+    },
 
-  'open valid email verification link': function () {
-    return this.remote
-      .then(clearBrowserState())
-      .then(openPage(verificationLink, selectors.SIGNIN_COMPLETE.HEADER));
+    'open valid email verification link': function () {
+      return this.remote
+        .then(clearBrowserState())
+        .then(openPage(verificationLink, selectors.SIGNIN_COMPLETE.HEADER));
+    }
   }
 });

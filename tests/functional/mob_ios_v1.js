@@ -48,50 +48,51 @@ registerSuite('mob_ios_v1', {
     return this.remote
       .then(FunctionalHelpers.clearBrowserState());
   },
+  tests: {
+    'signup, verify different browser': function () {
+      return this.remote
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            [COMMAND_CAN_LINK_ACCOUNT]: {ok: true}
+          }
+        }))
+        .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
+        .then(testIsBrowserNotified(COMMAND_LOADED))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'signup, verify different browser': function () {
-    return this.remote
-      .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
-        webChannelResponses: {
-          [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }
-        }
-      }))
-      .then(noSuchElement(selectors.SIGNUP.CUSTOMIZE_SYNC_CHECKBOX))
-      .then(testIsBrowserNotified(COMMAND_LOADED))
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
+        .then(noSuchBrowserNotification(COMMAND_VERIFIED))
+        .then(testIsBrowserNotified(COMMAND_LOGIN))
 
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-      .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
-      .then(noSuchBrowserNotification(COMMAND_VERIFIED))
-      .then(testIsBrowserNotified(COMMAND_LOGIN))
+        // verify the user
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
 
-      // verify the user
-      .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
+        .then(testIsBrowserNotified(COMMAND_VERIFIED));
+    },
 
-      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-      .then(testIsBrowserNotified(COMMAND_VERIFIED));
-  },
+    'signin, verify different browser': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            [COMMAND_CAN_LINK_ACCOUNT]: {ok: true}
+          }
+        }))
+        .then(testIsBrowserNotified(COMMAND_LOADED))
+        .then(fillOutSignIn(email, PASSWORD))
 
-  'signin, verify different browser': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          [COMMAND_CAN_LINK_ACCOUNT]: { ok: true }
-        }
-      }))
-      .then(testIsBrowserNotified(COMMAND_LOADED))
-      .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified(COMMAND_LOGIN))
+        .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
+        .then(noSuchBrowserNotification(COMMAND_VERIFIED))
 
-      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-      .then(testIsBrowserNotified(COMMAND_LOGIN))
-      .then(testIsBrowserNotified(COMMAND_CAN_LINK_ACCOUNT))
-      .then(noSuchBrowserNotification(COMMAND_VERIFIED))
+        // verify the user
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
 
-      // verify the user
-      .then(openVerificationLinkInDifferentBrowser(email, 0))
-
-      .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-      .then(testIsBrowserNotified(COMMAND_VERIFIED));
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
+        .then(testIsBrowserNotified(COMMAND_VERIFIED));
+    }
   }
 });

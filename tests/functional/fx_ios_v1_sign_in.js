@@ -74,132 +74,133 @@ registerSuite('FxiOS v1 signin', {
     return this.remote
       .then(clearBrowserState({ force: true }));
   },
+  tests: {
+    'verified, verify same browser': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'verified, verify same browser': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
+      return this.remote
+        .then(setupTest({preVerified: true, query}))
 
-    return this.remote
-      .then(setupTest({ preVerified: true, query }))
+        .then(openVerificationLinkInNewTab(email, 0, {query}))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(openVerificationLinkInNewTab(email, 0, { query }))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
 
-      .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-  },
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      return this.remote
+        .then(setupTest({preVerified: true, query: {forceUA}}))
 
-  'verified, verify different browser - from original tab\'s P.O.V.': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    return this.remote
-      .then(setupTest({ preVerified: true, query: { forceUA } }))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-      .then(openVerificationLinkInDifferentBrowser(email))
+        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
+    },
 
-      .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-  },
+    'Fx iOS <= 6.0 unverified, verify same browser': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_0'];
+      const query = {forceUA};
+      return this.remote
+        .then(setupTest({preVerified: false, query}))
 
-  'Fx iOS <= 6.0 unverified, verify same browser': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_0'];
-    const query = { forceUA };
-    return this.remote
-      .then(setupTest({ preVerified: false, query }))
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(email, 1, {query}))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      // email 0 - initial sign up email
-      // email 1 - sign in w/ unverified address email
-      // email 2 - "You have verified your Firefox Account"
-      .then(openVerificationLinkInNewTab(email, 1, { query }))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
+    },
 
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
-  },
+    'Fx iOS >= 6.1 unverified, verify same browser': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'Fx iOS >= 6.1 unverified, verify same browser': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
+      return this.remote
+        .then(setupTest({preVerified: false, query}))
 
-    return this.remote
-      .then(setupTest({ preVerified: false, query }))
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(email, 1, {query}))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      // email 0 - initial sign up email
-      // email 1 - sign in w/ unverified address email
-      // email 2 - "You have verified your Firefox Account"
-      .then(openVerificationLinkInNewTab(email, 1, { query }))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // In Fx for iOS >= 6.1, user should redirect to the signup-complete
+        // page after verification.
+        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
+    },
 
-    // In Fx for iOS >= 6.1, user should redirect to the signup-complete
-    // page after verification.
-      .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER));
-  },
+    'signup link is enabled': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'signup link is enabled': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
+      return this.remote
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {query}))
+        .then(testElementExists('a[href^="/signup"]'));
+    },
 
-    return this.remote
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
-      .then(testElementExists('a[href^="/signup"]'));
-  },
+    'signin with an unknown account does not allow the user to sign up': function () {
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'signin with an unknown account does not allow the user to sign up': function () {
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
+      return this.remote
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {query}))
+        .execute(listenForFxaCommands)
 
-    return this.remote
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
-      .execute(listenForFxaCommands)
+        .then(fillOutSignIn(email, PASSWORD))
 
-      .then(fillOutSignIn(email, PASSWORD))
+        .then(visibleByQSA(selectors.SIGNIN.ERROR));
+    },
 
-      .then(visibleByQSA(selectors.SIGNIN.ERROR));
-  },
+    'blocked, valid code entered': function () {
+      email = TestHelpers.createEmail('block{id}');
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'blocked, valid code entered': function () {
-    email = TestHelpers.createEmail('block{id}');
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
+      return this.remote
+        .then(setupTest({blocked: true, preVerified: true, query}))
 
-    return this.remote
-      .then(setupTest({ blocked: true, preVerified: true, query }))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+        .then(fillOutSignInUnblock(email, 0))
 
-      .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-      .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
-      .then(fillOutSignInUnblock(email, 0))
+        // about:accounts will take over post-unblock, no transition
+        .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testIsBrowserNotifiedOfLogin(email, {expectVerified: true}));
+    },
 
-      // about:accounts will take over post-unblock, no transition
-      .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
-      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
-  },
+    'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(function () {
+      const testPhoneNumber = TestHelpers.createPhoneNumber();
+      const forceUA = UA_STRINGS['ios_firefox_6_1'];
+      const query = {forceUA};
 
-  'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(function () {
-    const testPhoneNumber = TestHelpers.createPhoneNumber();
-    const forceUA = UA_STRINGS['ios_firefox_6_1'];
-    const query = { forceUA };
-
-    return this.remote
+      return this.remote
       // The phoneNumber is reused across tests, delete all
       // if its SMS messages to ensure a clean slate.
-      .then(deleteAllSms(testPhoneNumber))
-      .then(setupTest({ preVerified: true, query }))
+        .then(deleteAllSms(testPhoneNumber))
+        .then(setupTest({preVerified: true, query}))
 
-      .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
-      .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-      .then(click(selectors.SMS_SEND.SUBMIT))
+        .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+        .then(click(selectors.SMS_SEND.SUBMIT))
 
-      .then(testElementExists(selectors.SMS_SENT.HEADER))
-      .then(getSmsSigninCode(testPhoneNumber, 0))
-      .then(function (signinCode) {
-        query.signin = signinCode;
+        .then(testElementExists(selectors.SMS_SENT.HEADER))
+        .then(getSmsSigninCode(testPhoneNumber, 0))
+        .then(function (signinCode) {
+          query.signin = signinCode;
 
-        return this.parent
-          .then(clearBrowserState())
-          .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, { query }))
-          .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
-      });
-  })
+          return this.parent
+            .then(clearBrowserState())
+            .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {query}))
+            .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, email));
+        });
+    })
+  }
 });

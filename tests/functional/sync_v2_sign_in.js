@@ -58,69 +58,70 @@ registerSuite('Firefox Desktop Sync v2 sign_in', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },
+  tests: {
+    'verified, verify same browser': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify same browser': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition('#fxa-confirm-signin-header'));
-  },
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify different browser - from original tab\'s P.O.V.': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-      .then(openVerificationLinkInDifferentBrowser(email))
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-confirm-signin-header'));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition('#fxa-confirm-signin-header'));
-  },
+    'unverified': function () {
+      return this.remote
+        .then(setupTest({preVerified: false}));
+    },
 
-  'unverified': function () {
-    return this.remote
-      .then(setupTest({ preVerified: false }));
-  },
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
 
-  'verified, blocked': function () {
-    email = TestHelpers.createEmail('blocked{id}');
+      return this.remote
+        .then(setupTest({blocked: true, preVerified: true}))
 
-    return this.remote
-      .then(setupTest({ blocked: true, preVerified: true }))
+        .then(fillOutSignInUnblock(email, 0))
 
-      .then(fillOutSignInUnblock(email, 0))
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition('#fxa-signin-unblock-header'))
-      .then(testIsBrowserNotified('fxaccounts:login'));
-  },
+    'verified, blocked, incorrect email case': function () {
+      const signUpEmail = TestHelpers.createEmail('blocked{id}');
+      const signInEmail = signUpEmail.toUpperCase();
+      return this.remote
+        .then(setupTest({
+          blocked: true,
+          preVerified: true,
+          signInEmail: signInEmail,
+          signUpEmail: signUpEmail
+        }))
 
-  'verified, blocked, incorrect email case': function () {
-    const signUpEmail = TestHelpers.createEmail('blocked{id}');
-    const signInEmail = signUpEmail.toUpperCase();
-    return this.remote
-      .then(setupTest({
-        blocked: true,
-        preVerified: true,
-        signInEmail: signInEmail,
-        signUpEmail: signUpEmail
-      }))
+        // a second `can_link_account` request is sent to the browser after the
+        // unblock code is filled in, this time with the canonicalized email address.
+        // If a different user was signed in to the browser, two "merge" dialogs
+        // are presented, the first for the non-canonicalized email, the 2nd for
+        // the canonicalized email. Ugly UX, but at least the user can proceed.
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+        .then(fillOutSignInUnblock(signUpEmail, 0))
 
-      // a second `can_link_account` request is sent to the browser after the
-      // unblock code is filled in, this time with the canonicalized email address.
-      // If a different user was signed in to the browser, two "merge" dialogs
-      // are presented, the first for the non-canonicalized email, the 2nd for
-      // the canonicalized email. Ugly UX, but at least the user can proceed.
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignInUnblock(signUpEmail, 0))
-
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition('#fxa-signin-unblock-header'))
-      .then(testIsBrowserNotified('fxaccounts:login'));
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition('#fxa-signin-unblock-header'))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    }
   }
 });

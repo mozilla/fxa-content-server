@@ -40,42 +40,43 @@ registerSuite('Firstrun Sync v1 sign_up', {
     return this.remote
       .then(clearBrowserState());
   },
+  tests: {
+    'sign up, verify same browser in a different tab': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
+        .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'sign up, verify same browser in a different tab': function () {
-    return this.remote
-      .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
-      .then(visibleByQSA(SELECTOR_SIGN_UP_SUB_HEADER))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))
-      .then(fillOutSignUp(email, PASSWORD))
-
-      .then(testElementExists(SELECTOR_CONFIRM_HEADER))
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(SELECTOR_CONFIRM_HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
 
-      // verify the user
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
+        // verify the user
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
 
-      // user should see the CAD screen in both signup and verification tabs.
-      .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
-      // switch back to the original window, it should transition.
-      .then(closeCurrentWindow())
+        // user should see the CAD screen in both signup and verification tabs.
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        // switch back to the original window, it should transition.
+        .then(closeCurrentWindow())
 
-      .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
+        .then(testElementExists(SELECTOR_CONNECT_ANOTHER_DEVICE_HEADER))
 
-      // A post-verification email should be sent, this is Sync.
-      .then(testEmailExpected(email, 1));
-  },
+        // A post-verification email should be sent, this is Sync.
+        .then(testEmailExpected(email, 1));
+    },
 
-  'sign up, cancel merge warning': function () {
-    return this.remote
-      .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
-      .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: false } ))
-      .then(fillOutSignUp(email, PASSWORD))
+    'sign up, cancel merge warning': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, SELECTOR_SIGN_UP_HEADER))
+        .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: false}))
+        .then(fillOutSignUp(email, PASSWORD))
 
-      // user should not transition to the next screen
-      .then(noSuchElement(SELECTOR_CONFIRM_HEADER))
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'));
+        // user should not transition to the next screen
+        .then(noSuchElement(SELECTOR_CONFIRM_HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'));
+    }
   }
 });

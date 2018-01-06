@@ -57,183 +57,184 @@ registerSuite('oauth signup', {
         contentServer: true
       }));
   },
+  tests: {
+    'signup, verify same browser': function () {
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(testElementExists('#fxa-signup-header .service'))
+        .then(testUrlInclude('client_id='))
+        .then(testUrlInclude('redirect_uri='))
+        .then(testUrlInclude('state='))
 
-  'signup, verify same browser': function () {
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(testElementExists('#fxa-signup-header .service'))
-      .then(testUrlInclude('client_id='))
-      .then(testUrlInclude('redirect_uri='))
-      .then(testUrlInclude('state='))
+        .then(fillOutSignUp(email, PASSWORD))
 
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(email, 0))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        // wait for the verified window in the new tab
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        // user sees the name of the RP, but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'))
 
-      .then(switchToWindow(1))
-      // wait for the verified window in the new tab
-      .then(testElementExists('#fxa-sign-up-complete-header'))
-      // user sees the name of the RP, but cannot redirect
-      .then(testElementTextInclude('.account-ready-service', '123done'))
+        // switch to the original window
+        .then(closeCurrentWindow())
+        .then(testElementExists('#loggedin'))
 
-      // switch to the original window
-      .then(closeCurrentWindow())
-      .then(testElementExists('#loggedin'))
+        // Do not expect a post-verification email, those are for Sync.
+        .then(noEmailExpected(email, 1));
+    },
 
-      // Do not expect a post-verification email, those are for Sync.
-      .then(noEmailExpected(email, 1));
-  },
+    'signup, verify same browser with original tab closed': function () {
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'signup, verify same browser with original tab closed': function () {
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        // user browses to another site.
+        .switchToFrame(null)
+        .then(openExternalSite())
+        .then(openVerificationLinkInNewTab(email, 0))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      // user browses to another site.
-      .switchToFrame(null)
-      .then(openExternalSite())
-      .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
-      .then(switchToWindow(1))
-      .then(testElementExists('#fxa-sign-up-complete-header'))
+        // switch to the original window
+        .then(closeCurrentWindow());
+    },
 
-      // switch to the original window
-      .then(closeCurrentWindow());
-  },
+    'signup, verify same browser by replacing the original tab': function () {
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'signup, verify same browser by replacing the original tab': function () {
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInSameTab(email, 0))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists('#loggedin'));
+    },
 
-      .then(testElementExists('#loggedin'));
-  },
+    'signup, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'signup, verify different browser - from original tab\'s P.O.V.': function () {
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(openVerificationLinkInDifferentBrowser(email))
+        // original tab redirects back to 123done
+        .then(testElementExists('#loggedin'));
+    },
 
-      // original tab redirects back to 123done
-      .then(testElementExists('#loggedin'));
-  },
+    'signup, verify different browser - from new browser\'s P.O.V.': function () {
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(email, PASSWORD))
 
-  'signup, verify different browser - from new browser\'s P.O.V.': function () {
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
 
-      .then(testElementExists('#fxa-confirm-header'))
+        // clear browser state to simulate opening link in a new browser
+        .then(clearBrowserState({
+          '123done': true,
+          contentServer: true
+        }))
 
-      // clear browser state to simulate opening link in a new browser
-      .then(clearBrowserState({
-        '123done': true,
-        contentServer: true
-      }))
+        .then(openVerificationLinkInSameTab(email, 0))
+        // new browser dead ends at the 'account verified' screen.
+        .then(testElementExists('#fxa-sign-up-complete-header'))
+        .then(testElementTextInclude('.account-ready-service', '123done'))
 
-      .then(openVerificationLinkInSameTab(email, 0))
-      // new browser dead ends at the 'account verified' screen.
-      .then(testElementExists('#fxa-sign-up-complete-header'))
-      .then(testElementTextInclude('.account-ready-service', '123done'))
+        // make sure the relier name is not a link
+        .then(noSuchElement('#redirectTo'));
+    },
 
-      // make sure the relier name is not a link
-      .then(noSuchElement('#redirectTo'));
-  },
+    'signup with existing account, coppa is valid': function () {
+      return this.remote
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD))
 
-  'signup with existing account, coppa is valid': function () {
-    return this.remote
-      .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD))
+        // should have navigated to 123done
+        .then(testElementExists('#loggedin'));
+    },
 
-      // should have navigated to 123done
-      .then(testElementExists('#loggedin'));
-  },
+    'signup with existing account, coppa is valid, credentials are wrong': function () {
+      return this.remote
+        .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD))
 
-  'signup with existing account, coppa is valid, credentials are wrong': function () {
-    return this.remote
-      .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD))
+        .then(visibleByQSA('.error'))
+        .then(click('.error a[href^="/oauth/signin"]'))
 
-      .then(visibleByQSA('.error'))
-      .then(click('.error a[href^="/oauth/signin"]'))
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testUrlPathnameEquals('/oauth/signin'))
 
-      .then(testElementExists('#fxa-signin-header'))
-      .then(testUrlPathnameEquals('/oauth/signin'))
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
+    },
 
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
-  },
+    'signup with existing account, coppa is empty': function () {
+      return this.remote
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: ' '}))
 
-  'signup with existing account, coppa is empty': function () {
-    return this.remote
-      .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: ' ' }))
+        // should have navigated to 123done
+        .then(testElementExists('#loggedin'));
+    },
 
-      // should have navigated to 123done
-      .then(testElementExists('#loggedin'));
-  },
+    'signup with existing account, coppa is empty, credentials are wrong': function () {
+      return this.remote
+        .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD, {age: ' '}))
 
-  'signup with existing account, coppa is empty, credentials are wrong': function () {
-    return this.remote
-      .then(signUpWithExistingAccount(email, PASSWORD, 'bad' + PASSWORD, { age: ' ' }))
+        .then(visibleByQSA('.error'))
+        .then(click('.error a[href^="/oauth/signin"]'))
 
-      .then(visibleByQSA('.error'))
-      .then(click('.error a[href^="/oauth/signin"]'))
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testUrlPathnameEquals('/oauth/signin'))
 
-      .then(testElementExists('#fxa-signin-header'))
-      .then(testUrlPathnameEquals('/oauth/signin'))
+        // the email and password fields should be populated
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
+    },
 
-      // the email and password fields should be populated
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementValueEquals('input[type=password]', 'bad' + PASSWORD));
-  },
+    'signup with existing account, coppa is too young': function () {
+      return this.remote
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: 12}))
 
-  'signup with existing account, coppa is too young': function () {
-    return this.remote
-      .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, { age: 12 }))
+        // should have navigated to 123done
+        .then(testElementExists('#loggedin'));
+    },
 
-      // should have navigated to 123done
-      .then(testElementExists('#loggedin'));
-  },
+    'signup, bounce email, allow user to restart flow but force a different email': function () {
+      this.timeout = 60 * 1000;
 
-  'signup, bounce email, allow user to restart flow but force a different email': function () {
-    this.timeout = 60 * 1000;
+      return this.remote
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(bouncedEmail, PASSWORD))
 
-    return this.remote
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(bouncedEmail, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(function () {
+          return getFxaClient().accountDestroy(bouncedEmail, PASSWORD);
+        })
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(function () {
-        return getFxaClient().accountDestroy(bouncedEmail, PASSWORD);
-      })
+        .then(testElementExists('#fxa-signup-header'))
+        // expect an error message to already be present on redirect
+        .then(visibleByQSA('.tooltip'))
+        .then(testElementExists('button[type="submit"]'))
 
-      .then(testElementExists('#fxa-signup-header'))
-      // expect an error message to already be present on redirect
-      .then(visibleByQSA('.tooltip'))
-      .then(testElementExists('button[type="submit"]'))
+        .then(type('input[type="email"]', email))
+        .then(click('button[type="submit"]'))
 
-      .then(type('input[type="email"]', email))
-      .then(click('button[type="submit"]'))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(email, 0))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        // wait for the verification step to complete
+        .then(testElementExists('.account-ready-service'))
 
-      .then(switchToWindow(1))
-      // wait for the verification step to complete
-      .then(testElementExists('.account-ready-service'))
+        // user sees the name of the RP,
+        // but cannot redirect
+        .then(testElementTextInclude('.account-ready-service', '123done'))
+        // switch to the original window
+        .then(closeCurrentWindow())
 
-      // user sees the name of the RP,
-      // but cannot redirect
-      .then(testElementTextInclude('.account-ready-service', '123done'))
-      // switch to the original window
-      .then(closeCurrentWindow())
-
-      .then(testElementExists('#loggedin'));
+        .then(testElementExists('#loggedin'));
+    }
   }
 });

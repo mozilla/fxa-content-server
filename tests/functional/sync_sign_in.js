@@ -66,82 +66,83 @@ registerSuite('Firefox Desktop Sync v1 signin', {
     return this.remote
       .then(clearBrowserState({ force: true }));
   },
+  tests: {
+    'verified, verify same browser': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify same browser': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
-  },
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify different browser - from original tab\'s P.O.V.': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-      .then(openVerificationLinkInDifferentBrowser(email))
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
-  },
+    'verified, resend email, verify same browser': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, resend email, verify same browser': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(click(selectors.CONFIRM_SIGNIN.LINK_RESEND))
+        .then(visibleByQSA(selectors.CONFIRM_SIGNIN.RESEND_SUCCESS))
 
-      .then(click(selectors.CONFIRM_SIGNIN.LINK_RESEND))
-      .then(visibleByQSA(selectors.CONFIRM_SIGNIN.RESEND_SUCCESS))
+        // email 0 is the original signin email, open the resent email instead
+        .then(openVerificationLinkInNewTab(email, 1))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      // email 0 is the original signin email, open the resent email instead
-      .then(openVerificationLinkInNewTab(email, 1))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
+    },
 
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER));
-  },
+    'verified, do not confirm signin, load root': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, do not confirm signin, load root': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openPage(ROOT_URL, selectors.CONFIRM_SIGNIN.HEADER));
+    },
 
-      .then(openPage(ROOT_URL, selectors.CONFIRM_SIGNIN.HEADER));
-  },
+    'unverified': function () {
+      return this.remote
+        .then(setupTest({preVerified: false}));
+    },
 
-  'unverified': function () {
-    return this.remote
-      .then(setupTest({ preVerified: false }));
-  },
+    'unverified, do not confirm signin, load root': function () {
+      return this.remote
+        .then(setupTest({preVerified: false}))
 
-  'unverified, do not confirm signin, load root': function () {
-    return this.remote
-      .then(setupTest({ preVerified: false }))
+        .then(openPage(ROOT_URL, selectors.CONFIRM_SIGNUP.HEADER));
+    },
 
-      .then(openPage(ROOT_URL, selectors.CONFIRM_SIGNUP.HEADER));
-  },
+    'as a migrating user': function () {
+      return this.remote
+        .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNIN.HEADER))
+        .then(visibleByQSA(selectors.SIGNIN.MIGRATION_NUDGE));
+    },
 
-  'as a migrating user': function () {
-    return this.remote
-      .then(openPage(PAGE_URL_WITH_MIGRATION, selectors.SIGNIN.HEADER))
-      .then(visibleByQSA(selectors.SIGNIN.MIGRATION_NUDGE));
-  },
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
 
-  'verified, blocked': function () {
-    email = TestHelpers.createEmail('blocked{id}');
+      return this.remote
+        .then(setupTest({blocked: true, preVerified: true}))
 
-    return this.remote
-      .then(setupTest({ blocked: true, preVerified: true }))
+        .then(fillOutSignInUnblock(email, 0))
 
-      .then(fillOutSignInUnblock(email, 0))
-
-      // about:accounts will take over post-verification, no transition
-      .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
-      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: true }));
+        // about:accounts will take over post-verification, no transition
+        .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testIsBrowserNotifiedOfLogin(email, {expectVerified: true}));
+    }
   }
 });

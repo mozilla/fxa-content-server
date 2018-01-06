@@ -23,33 +23,35 @@ registerSuite('oauth amo authentication', {
     return this.remote.then(clearBrowserState());
   },
 
-  'sign up as a migrating user': function () {
-    return this.remote
-      .then(openFxaFromRp('signup', { query: QUERY_PARAMS }))
-      .then(visibleByQSA('#amo-migration'));
-  },
+  tests: {
+    'sign up as a migrating user': function () {
+      return this.remote
+        .then(openFxaFromRp('signup', {query: QUERY_PARAMS}))
+        .then(visibleByQSA('#amo-migration'));
+    },
 
-  'open sign in as a migrating user, click `/signup` from help text': function () {
-    return this.remote
-      .then(openFxaFromRp('signin', { query: QUERY_PARAMS }))
-      .then(visibleByQSA('#amo-migration'))
-      .then(click('#amo-migration a'))
+    'open sign in as a migrating user, click `/signup` from help text': function () {
+      return this.remote
+        .then(openFxaFromRp('signin', {query: QUERY_PARAMS}))
+        .then(visibleByQSA('#amo-migration'))
+        .then(click('#amo-migration a'))
 
-      .then(testElementExists('#fxa-signup-header'));
-  },
+        .then(testElementExists('#fxa-signup-header'));
+    },
 
-  'open sign in as a migrating user, click `/signup` from error text': function () {
-    var email = TestHelpers.createEmail();
+    'open sign in as a migrating user, click `/signup` from error text': function () {
+      var email = TestHelpers.createEmail();
 
-    return this.remote
-      .then(openFxaFromRp('signin', { query: QUERY_PARAMS }))
-      .then(visibleByQSA('#amo-migration'))
+      return this.remote
+        .then(openFxaFromRp('signin', {query: QUERY_PARAMS}))
+        .then(visibleByQSA('#amo-migration'))
 
-      .then(fillOutSignIn(email, 'password'))
+        .then(fillOutSignIn(email, 'password'))
 
-      .then(visibleByQSA('.error'))
-      .then(click('.error a'))
+        .then(visibleByQSA('.error'))
+        .then(click('.error a'))
 
-      .then(testElementExists('#fxa-signup-header'));
+        .then(testElementExists('#fxa-signup-header'));
+    }
   }
 });

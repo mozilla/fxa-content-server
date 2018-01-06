@@ -23,7 +23,7 @@ function createUID() {
 }
 
 function createEmail(template) {
-  if (!template) {
+  if (! template) {
     template = 'signin{id}';
   }
   return template.replace('{id}', Math.random()) + '@restmail.net';

@@ -54,55 +54,56 @@ registerSuite('signin with OAuth after Sync', {
         contentServer: true
       }));
   },
+  tests: {
+    'signin to OAuth with Sync creds': function () {
+      this.timeout = 60 * 1000;
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openPage(PAGE_URL, '#fxa-signin-header'))
+        .execute(listenForFxaCommands)
 
-  'signin to OAuth with Sync creds': function () {
-    this.timeout = 60 * 1000;
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(PAGE_URL, '#fxa-signin-header'))
-      .execute(listenForFxaCommands)
+        .then(fillOutSignIn(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-signin-header'))
+        .then(testIsBrowserNotifiedOfLogin(email))
 
-      .then(fillOutSignIn(email, PASSWORD))
-      .then(testElementExists('#fxa-confirm-signin-header'))
-      .then(testIsBrowserNotifiedOfLogin(email))
+        // Sync signins must be verified.
+        .then(openVerificationLinkInNewTab(email, 0))
 
-      // Sync signins must be verified.
-      .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // Sign up for a new account via OAuth
+        .then(openFxaFromRp('signup'))
+        .then(fillOutSignUp(email2, PASSWORD))
 
-      // Sign up for a new account via OAuth
-      .then(openFxaFromRp('signup'))
-      .then(fillOutSignUp(email2, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
+        .then(openVerificationLinkInNewTab(email2, 0))
+        .then(switchToWindow(1))
 
-      .then(testElementExists('#fxa-confirm-header'))
-      .then(openVerificationLinkInNewTab(email2, 0))
-      .then(switchToWindow(1))
+        // wait for the verified window in the new tab
+        .then(testElementExists('#fxa-sign-up-complete-header'))
 
-      // wait for the verified window in the new tab
-      .then(testElementExists('#fxa-sign-up-complete-header'))
+        // switch to the original window
+        .then(closeCurrentWindow())
 
-      // switch to the original window
-      .then(closeCurrentWindow())
+        // RP is logged in, logout then back in again.
+        .then(testElementExists('#loggedin'))
+        .then(click('#logout'))
 
-      // RP is logged in, logout then back in again.
-      .then(testElementExists('#loggedin'))
-      .then(click('#logout'))
+        .then(visibleByQSA('.ready #splash .signin'))
+        .then(click('.ready #splash .signin'))
 
-      .then(visibleByQSA('.ready #splash .signin'))
-      .then(click('.ready #splash .signin'))
+        .then(testElementExists('#fxa-signin-header'))
 
-      .then(testElementExists('#fxa-signin-header'))
+        // By default, we should see the email we signed up for Sync with
+        .then(testElementTextEquals('.prefillEmail', email))
 
-      // By default, we should see the email we signed up for Sync with
-      .then(testElementTextEquals('.prefillEmail', email))
+        // no need to enter the password!
+        .then(click('button[type="submit"]'))
 
-      // no need to enter the password!
-      .then(click('button[type="submit"]'))
-
-      // We should see the email we signed up for Sync with
-      .then(testElementTextEquals('#loggedin', email));
+        // We should see the email we signed up for Sync with
+        .then(testElementTextEquals('#loggedin', email));
+    }
   }
 });

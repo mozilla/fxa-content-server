@@ -61,112 +61,115 @@ registerSuite('settings/avatar', {
     return this.remote.then(clearBrowserState());
   },
 
-  'go to settings then avatar change': function () {
-    return this.remote
-      .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+  tests: {
 
-      // go to add avatar
-      .then(click(ADD_AVATAR_BUTTON_SELECTOR))
+    'go to settings then avatar change': function () {
+      return this.remote
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
-      // success is going to the change avatar page
-      .then(testElementExists('#avatar-options'));
-  },
+        // go to add avatar
+        .then(click(ADD_AVATAR_BUTTON_SELECTOR))
 
-  'go to settings with an email selected to see change link then click on avatar to change': function () {
-    return this.remote
-      .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+        // success is going to the change avatar page
+        .then(testElementExists('#avatar-options'));
+    },
 
-      // go to change avatar
-      .then(click('a.change-avatar'))
+    'go to settings with an email selected to see change link then click on avatar to change': function () {
+      return this.remote
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
-      // success is going to the change avatar page
-      .then(testElementExists('#avatar-options'));
-  },
+        // go to change avatar
+        .then(click('a.change-avatar'))
 
-  'go to settings with an email selected to see change link then click on text link to change': function () {
-    return this.remote
-      .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
+        // success is going to the change avatar page
+        .then(testElementExists('#avatar-options'));
+    },
 
-      // go to add avatar
-      .then(click(ADD_AVATAR_BUTTON_SELECTOR))
+    'go to settings with an email selected to see change link then click on text link to change': function () {
+      return this.remote
+        .then(openPage(SETTINGS_URL, '#fxa-settings-header'))
 
-      // success is going to the change avatar page
-      .then(testElementExists('#avatar-options'));
-  },
+        // go to add avatar
+        .then(click(ADD_AVATAR_BUTTON_SELECTOR))
 
-  'attempt to use webcam for avatar': function () {
-    return this.remote
-      .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
-      .then(click('#camera'))
+        // success is going to the change avatar page
+        .then(testElementExists('#avatar-options'));
+    },
 
-      .then(click('.modal-panel #submit-btn'))
+    'attempt to use webcam for avatar': function () {
+      return this.remote
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .then(click('#camera'))
 
-      .then(testElementExists('#fxa-settings-header'))
-      .then(testIsBrowserNotifiedOfAvatarChange())
-      //success is seeing the image loaded
-      .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
-  },
+        .then(click('.modal-panel #submit-btn'))
 
-  'attempt to use webcam for avatar, then cancel': function () {
-    return this.remote
-      .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
+        .then(testElementExists('#fxa-settings-header'))
+        .then(testIsBrowserNotifiedOfAvatarChange())
+        //success is seeing the image loaded
+        .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
+    },
 
-      // go to change avatar
-      .then(click('#camera'))
+    'attempt to use webcam for avatar, then cancel': function () {
+      return this.remote
+        .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
 
-      .then(testElementExists('#avatar-camera'))
-      .then(click('.modal-panel #back'))
+        // go to change avatar
+        .then(click('#camera'))
 
-      // success is returning to the avatar change page
-      .then(testElementExists('#avatar-options'));
-  },
+        .then(testElementExists('#avatar-camera'))
+        .then(click('.modal-panel #back'))
 
-  'upload a profile image': function () {
-    return this.remote
-      .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
+        // success is returning to the avatar change page
+        .then(testElementExists('#avatar-options'));
+    },
 
-      // Selenium's way of interacting with a file picker
-      .findByCssSelector('#imageLoader')
-      .type(UPLOAD_IMAGE_PATH)
-      .end()
+    'upload a profile image': function () {
+      return this.remote
+        .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
 
-      .then(testElementExists('.cropper'))
+        // Selenium's way of interacting with a file picker
+        .findByCssSelector('#imageLoader')
+        .type(UPLOAD_IMAGE_PATH)
+        .end()
 
-      .then(click('.zoom-out'))
-      .then(click('.zoom-in'))
-      .then(click('.rotate'))
-      .then(click('.modal-panel #submit-btn'))
+        .then(testElementExists('.cropper'))
 
-      .then(pollUntilHiddenByQSA('#imageLoader'))
+        .then(click('.zoom-out'))
+        .then(click('.zoom-in'))
+        .then(click('.rotate'))
+        .then(click('.modal-panel #submit-btn'))
 
-      .then(testIsBrowserNotifiedOfAvatarChange())
-      //success is seeing the image loaded
-      .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
+        .then(pollUntilHiddenByQSA('#imageLoader'))
 
-  },
+        .then(testIsBrowserNotifiedOfAvatarChange())
+        //success is seeing the image loaded
+        .then(FunctionalHelpers.imageLoadedByQSA('.change-avatar > img'));
 
-  'cancel uploading a profile image': function () {
-    return this.remote
-      .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
+    },
 
-      // Selenium's way of interacting with a file picker
-      .findByCssSelector('#imageLoader')
-      .type(UPLOAD_IMAGE_PATH)
-      .end()
+    'cancel uploading a profile image': function () {
+      return this.remote
+        .then(openPage(AVATAR_CHANGE_URL, '#imageLoader'))
 
-      .then(testElementExists('.cropper'))
+        // Selenium's way of interacting with a file picker
+        .findByCssSelector('#imageLoader')
+        .type(UPLOAD_IMAGE_PATH)
+        .end()
 
-      .then(click('.modal-panel #back'))
+        .then(testElementExists('.cropper'))
 
-      //success is returning to the avatar change page
-      .then(testElementExists('#avatar-options'));
-  },
+        .then(click('.modal-panel #back'))
 
-  'avatar panel removed on iOS 10': function () {
-    return this.remote
-      .then(openPage(SETTINGS_URL_IOS10, '#fxa-settings-header'))
+        //success is returning to the avatar change page
+        .then(testElementExists('#avatar-options'));
+    },
 
-      //success is not displaying avatar change panel
-      .then(noSuchElement('#change-avatar'));
+    'avatar panel removed on iOS 10': function () {
+      return this.remote
+        .then(openPage(SETTINGS_URL_IOS10, '#fxa-settings-header'))
+
+        //success is not displaying avatar change panel
+        .then(noSuchElement('#change-avatar'));
+    }
   }
 });

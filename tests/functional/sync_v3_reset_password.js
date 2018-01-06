@@ -77,31 +77,32 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
     // clear localStorage to avoid polluting other tests.
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'reset password, verify same browser, Fx <= 57': function () {
+      const query = {forceUA: uaStrings['desktop_firefox_57'],};
 
-  'reset password, verify same browser, Fx <= 57': function () {
-    const query = { forceUA: uaStrings['desktop_firefox_57'], };
+      return this.remote
+        .then(setupTest(query))
 
-    return this.remote
-      .then(setupTest(query))
+        // In fx <= 56, about:accounts takes over the screen, no need to transition
+        .then(noPageTransition(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+        .then(testSuccessWasShown())
+        // Only expect the login message in the verification tab to avoid
+        // a race condition within the browser when it receives two login messages.
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
 
-      // In fx <= 56, about:accounts takes over the screen, no need to transition
-      .then(noPageTransition(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-      .then(testSuccessWasShown())
-      // Only expect the login message in the verification tab to avoid
-      // a race condition within the browser when it receives two login messages.
-      .then(noSuchBrowserNotification('fxaccounts:login'));
-  },
+    'reset password, verify same browser, Fx >= 58': function () {
+      const query = {forceUA: uaStrings['desktop_firefox_58']};
 
-  'reset password, verify same browser, Fx >= 58': function () {
-    const query = { forceUA: uaStrings['desktop_firefox_58'] };
+      return this.remote
+        .then(setupTest(query))
 
-    return this.remote
-      .then(setupTest(query))
-
-      // In fx >= 58, about:accounts expects FxA to transition after email verification
-      .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
-      // Only expect the login message in the verification tab to avoid
-      // a race condition within the browser when it receives two login messages.
-      .then(noSuchBrowserNotification('fxaccounts:login'));
+        // In fx >= 58, about:accounts expects FxA to transition after email verification
+        .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+        // Only expect the login message in the verification tab to avoid
+        // a race condition within the browser when it receives two login messages.
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    }
   }
 });

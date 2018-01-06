@@ -54,20 +54,22 @@ registerSuite('Firstrun Sync v2 settings', {
       .then(openPage(SETTINGS_URL, '#fxa-settings-header'));
   },
 
-  'sign in, change the password': function () {
-    return this.remote
-      .then(click('#change-password .settings-unit-toggle'))
-      .then(visibleByQSA('#change-password .settings-unit-details'))
+  tests: {
+    'sign in, change the password': function () {
+      return this.remote
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(visibleByQSA('#change-password .settings-unit-details'))
 
-      .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
-  },
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+    },
 
-  'sign in, change the password by browsing directly to settings': function () {
-    return this.remote
-      .then(openPage(SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
-      .then(click('#change-password .settings-unit-toggle'))
-      .then(visibleByQSA('#change-password .settings-unit-details'))
+    'sign in, change the password by browsing directly to settings': function () {
+      return this.remote
+        .then(openPage(SETTINGS_NOCONTEXT_URL, '#fxa-settings-header'))
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(visibleByQSA('#change-password .settings-unit-details'))
 
-      .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+    }
   }
 });

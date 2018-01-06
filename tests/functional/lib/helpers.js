@@ -10,10 +10,9 @@ const pollUntil = require('leadfoot/helpers/pollUntil');
 const Url = require('url');
 const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
-const assert = require('assert');
+const assert = intern.getPlugin('chai').assert;
 
 const FxaClient = requirejs('app/bower_components/fxa-js-client/fxa-client');
-console.log(FxaClient)
 const got = require('got');
 const config = intern._config;
 
@@ -1171,7 +1170,7 @@ const openPage = thenify(function (url, readySelector, options) {
     // Wait until the `readySelector` element is found to return.
     .then(testElementExists(readySelector))
 
-    .then(null, function (err) {
+    .then(null, function errorOpenPage (err) {
       return this.parent
         .getCurrentUrl()
         .then(function (resultUrl) {
@@ -1518,8 +1517,8 @@ const clearBrowserNotifications = thenify(function () {
 const testIsBrowserNotified = thenify(function (command) {
   let err;
   return this.parent
-    // Allow 5 seconds for the event to come through.
-    .setExecuteAsyncTimeout(5000)
+    // Allow some time for the event to come through.
+    .setExecuteAsyncTimeout(4000)
     .executeAsync(function (command, done) {
       function check() {
         var storedEvents;

@@ -32,180 +32,181 @@ registerSuite('force_auth', {
 
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'with a missing email': function () {
+      return this.remote
+        .then(openForceAuth({
+          header: '#fxa-400-header'
+        }))
+        .then(testErrorTextInclude('missing'))
+        .then(testErrorTextInclude('email'));
+    },
 
-  'with a missing email': function () {
-    return this.remote
-      .then(openForceAuth({
-        header: '#fxa-400-header'
-      }))
-      .then(testErrorTextInclude('missing'))
-      .then(testErrorTextInclude('email'));
-  },
-
-  'with an invalid email': function () {
-    return this.remote
-      .then(openForceAuth({
-        header: '#fxa-400-header',
-        query: {
-          email: 'invalid'
-        }
-      }))
-      .then(testErrorTextInclude('invalid'))
-      .then(testErrorTextInclude('email'));
-  },
-
-  'with a registered email, no uid': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openForceAuth({ query: { email: email }}))
-      .then(fillOutForceAuth(PASSWORD))
-
-      .then(testElementExists('#fxa-settings-header'));
-  },
-
-  'with a registered email, invalid uid': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(function (accountInfo) {
-        return openForceAuth({
+    'with an invalid email': function () {
+      return this.remote
+        .then(openForceAuth({
           header: '#fxa-400-header',
           query: {
-            email: email,
-            uid: 'a' + accountInfo.uid
+            email: 'invalid'
           }
-        }).call(this);
-      })
-      .then(testErrorTextInclude('invalid'))
-      .then(testErrorTextInclude('uid'));
-  },
+        }))
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('email'));
+    },
 
-  'with a registered email, registered uid': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(function (accountInfo) {
-        return openForceAuth({
+    'with a registered email, no uid': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openForceAuth({query: {email: email}}))
+        .then(fillOutForceAuth(PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
+    'with a registered email, invalid uid': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(function (accountInfo) {
+          return openForceAuth({
+            header: '#fxa-400-header',
+            query: {
+              email: email,
+              uid: 'a' + accountInfo.uid
+            }
+          }).call(this);
+        })
+        .then(testErrorTextInclude('invalid'))
+        .then(testErrorTextInclude('uid'));
+    },
+
+    'with a registered email, registered uid': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(function (accountInfo) {
+          return openForceAuth({
+            query: {
+              email: email,
+              uid: accountInfo.uid
+            }
+          }).call(this);
+        })
+        .then(fillOutForceAuth(PASSWORD))
+
+        .then(testElementExists('#fxa-settings-header'));
+    },
+
+    'with a registered email, unregistered uid': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openForceAuth({
           query: {
             email: email,
-            uid: accountInfo.uid
+            uid: TestHelpers.createUID()
           }
-        }).call(this);
-      })
-      .then(fillOutForceAuth(PASSWORD))
+        }))
+        .then(testAccountNoLongerExistsErrorShown);
+    },
 
-      .then(testElementExists('#fxa-settings-header'));
-  },
+    'with an unregistered email, no uid': function () {
+      return this.remote
+        .then(openForceAuth({
+          header: '#fxa-signup-header',
+          query: {email: email}
+        }))
+        .then(visibleByQSA('.error'))
+        .then(testErrorTextInclude('recreate'))
 
-  'with a registered email, unregistered uid': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openForceAuth({
-        query: {
-          email: email,
-          uid: TestHelpers.createUID()
-        }
-      }))
-      .then(testAccountNoLongerExistsErrorShown);
-  },
+        // ensure the email is filled in, and not editible.
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
 
-  'with an unregistered email, no uid': function () {
-    return this.remote
-      .then(openForceAuth({
-        header: '#fxa-signup-header',
-        query: { email: email }
-      }))
-      .then(visibleByQSA('.error'))
-      .then(testErrorTextInclude('recreate'))
+        .then(fillOutSignUp(email, PASSWORD, {enterEmail: false}))
+        .then(testElementExists('#fxa-confirm-header'));
+    },
 
-      // ensure the email is filled in, and not editible.
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementDisabled('input[type=email]'))
+    'with an unregistered email, registered uid': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(function (accountInfo) {
+          return openForceAuth({
+            query: {
+              email: 'a' + email,
+              uid: accountInfo.uid
+            }
+          }).call(this);
+        })
 
-      .then(fillOutSignUp(email, PASSWORD, { enterEmail: false }))
-      .then(testElementExists('#fxa-confirm-header'));
-  },
+        // user stays on the force_auth page but cannot continue, broker
+        // does not support uid change
+        .then(testAccountNoLongerExistsErrorShown);
+    },
 
-  'with an unregistered email, registered uid': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(function (accountInfo) {
-        return openForceAuth({
+    'with an unregistered email, unregistered uid': function () {
+      return this.remote
+        .then(openForceAuth({
           query: {
-            email: 'a' + email,
-            uid: accountInfo.uid
+            email: email,
+            uid: TestHelpers.createUID()
           }
-        }).call(this);
-      })
+        }))
 
-      // user stays on the force_auth page but cannot continue, broker
-      // does not support uid change
-      .then(testAccountNoLongerExistsErrorShown);
-  },
+        // user stays on the force_auth page but cannot continue, broker
+        // does not support uid change
+        .then(testAccountNoLongerExistsErrorShown);
+    },
 
-  'with an unregistered email, unregistered uid': function () {
-    return this.remote
-      .then(openForceAuth({
-        query: {
-          email: email,
-          uid: TestHelpers.createUID()
-        }
-      }))
+    'forgot password flow via force_auth': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openForceAuth({query: {email: email}}))
+        .then(click('.reset-password'))
 
-      // user stays on the force_auth page but cannot continue, broker
-      // does not support uid change
-      .then(testAccountNoLongerExistsErrorShown);
-  },
+        .then(testElementExists('#fxa-reset-password-header'))
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
+        .then(testElementTextInclude('.prefillEmail', email))
 
-  'forgot password flow via force_auth': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openForceAuth({ query: { email: email }}))
-      .then(click('.reset-password'))
+        // User thinks they have remembered their password, clicks the
+        // "sign in" link. Go back to /force_auth.
+        .then(click('.sign-in'))
 
-      .then(testElementExists('#fxa-reset-password-header'))
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementDisabled('input[type=email]'))
-      .then(testElementTextInclude('.prefillEmail', email))
+        .then(testElementExists('#fxa-force-auth-header'))
+        // User goes back to reset password to submit.
+        .then(click('.reset-password'))
 
-      // User thinks they have remembered their password, clicks the
-      // "sign in" link. Go back to /force_auth.
-      .then(click('.sign-in'))
+        .then(testElementExists('#fxa-reset-password-header'))
+        .then(click('button[type=submit]'))
 
-      .then(testElementExists('#fxa-force-auth-header'))
-      // User goes back to reset password to submit.
-      .then(click('.reset-password'))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        // User has remembered their password, for real this time.
+        // Go back to /force_auth.
+        .then(click('.sign-in'))
 
-      .then(testElementExists('#fxa-reset-password-header'))
-      .then(click('button[type=submit]'))
+        .then(testElementExists('#fxa-force-auth-header'))
+        .then(testElementValueEquals('input[type=email]', email))
+        .then(testElementDisabled('input[type=email]'))
+        .then(testElementTextInclude('.prefillEmail', email));
+    },
 
-      .then(testElementExists('#fxa-confirm-reset-password-header'))
-      // User has remembered their password, for real this time.
-      // Go back to /force_auth.
-      .then(click('.sign-in'))
+    'visiting the tos/pp links saves information for return': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(testRepopulateFields('/legal/terms', 'fxa-tos-header'))
+        .then(testRepopulateFields('/legal/privacy', 'fxa-pp-header'));
+    },
 
-      .then(testElementExists('#fxa-force-auth-header'))
-      .then(testElementValueEquals('input[type=email]', email))
-      .then(testElementDisabled('input[type=email]'))
-      .then(testElementTextInclude('.prefillEmail', email));
-  },
+    'form prefill information is cleared after sign in->sign out': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openForceAuth({query: {email: email}}))
+        .then(fillOutForceAuth(PASSWORD))
 
-  'visiting the tos/pp links saves information for return': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(testRepopulateFields('/legal/terms', 'fxa-tos-header'))
-      .then(testRepopulateFields('/legal/privacy', 'fxa-pp-header'));
-  },
+        .then(testElementExists('#fxa-settings-header'))
+        .then(click('#signout'))
 
-  'form prefill information is cleared after sign in->sign out': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openForceAuth({ query: { email: email }}))
-      .then(fillOutForceAuth(PASSWORD))
-
-      .then(testElementExists('#fxa-settings-header'))
-      .then(click('#signout'))
-
-      .then(testElementExists('#fxa-signin-header'))
-      .then(testElementValueEquals('input[type=password]', ''));
+        .then(testElementExists('#fxa-signin-header'))
+        .then(testElementValueEquals('input[type=password]', ''));
+    }
   }
 });
 

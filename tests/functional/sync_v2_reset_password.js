@@ -35,60 +35,61 @@ registerSuite('Firefox Desktop Sync v2 reset password', {
     return this.remote.then(clearBrowserState());
   },
 
-  undefined: function () {
+  afterEach: function () {
     // clear localStorage to avoid polluting other tests.
     return this.remote.then(clearBrowserState());
   },
+  tests: {
+    'reset password, verify same browser': function () {
+      return this.remote
+        .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(fillOutResetPassword(email))
 
-  'reset password, verify same browser': function () {
-    return this.remote
-      .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(fillOutResetPassword(email))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(openVerificationLinkInNewTab(email, 0))
 
-      .then(testElementExists('#fxa-confirm-reset-password-header'))
-      .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
 
-      .then(switchToWindow(1))
+        .then(testElementExists('#fxa-complete-reset-password-header'))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
 
-      .then(testElementExists('#fxa-complete-reset-password-header'))
-      .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+        .then(testElementExists('#fxa-reset-password-complete-header'))
+        .then(testElementExists('.account-ready-service'))
 
-      .then(testElementExists('#fxa-reset-password-complete-header'))
-      .then(testElementExists('.account-ready-service'))
+        // the verification tab sends the WebChannel message. This fixes
+        // two problems: 1) initiating tab is closed, 2) The initiating
+        // tab when running in E10s does not have all the necessary data
+        // because localStorage is not shared.
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
-      // the verification tab sends the WebChannel message. This fixes
-      // two problems: 1) initiating tab is closed, 2) The initiating
-      // tab when running in E10s does not have all the necessary data
-      // because localStorage is not shared.
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(closeCurrentWindow())
 
-      .then(closeCurrentWindow())
+        .then(testSuccessWasShown())
+        // Only expect the login message in the verification tab to avoid
+        // a race condition within the browser when it receives two login messages.
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
 
-      .then(testSuccessWasShown())
-      // Only expect the login message in the verification tab to avoid
-      // a race condition within the browser when it receives two login messages.
-      .then(noSuchBrowserNotification('fxaccounts:login'));
-  },
+    'reset password with a restmail address, get the open webmail button': function () {
+      this.timeout = 90000;
 
-  'reset password with a restmail address, get the open webmail button': function () {
-    this.timeout = 90000;
+      return this.remote
+        .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(fillOutResetPassword(email))
 
-    return this.remote
-      .then(openPage(RESET_PASSWORD_URL, '#fxa-reset-password-header'))
-      .then(createUser(email, PASSWORD, { preVerified: true } ))
-      .then(fillOutResetPassword(email))
+        .then(testElementExists('#fxa-confirm-reset-password-header'))
+        .then(click('[data-webmail-type="restmail"]'))
 
-      .then(testElementExists('#fxa-confirm-reset-password-header'))
-      .then(click('[data-webmail-type="restmail"]'))
+        .then(switchToWindow(1))
+        // wait until url is correct
+        .then(FunctionalHelpers.pollUntil(function (email) {
+          return window.location.pathname.endsWith(email);
+        }, [email], 10000))
+        .then(closeCurrentWindow())
 
-      .then(switchToWindow(1))
-      // wait until url is correct
-      .then(FunctionalHelpers.pollUntil(function (email) {
-        return window.location.pathname.endsWith(email);
-      }, [email], 10000))
-      .then(closeCurrentWindow())
-
-      .then(testElementExists('#fxa-confirm-reset-password-header'));
+        .then(testElementExists('#fxa-confirm-reset-password-header'));
+    }
   }
 });

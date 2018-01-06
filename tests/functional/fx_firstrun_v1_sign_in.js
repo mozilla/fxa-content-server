@@ -57,83 +57,84 @@ registerSuite('Firstrun Sync v1 signin', {
         force: true
       }));
   },
+tests: {
+  'verified, verify same browser ': function () {
 
-    'verified, verify same browser ': function () {
 
-
-      return this.remote
-        .then(setupTest({ preVerified: true }))
-
-      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-
-      .then(testIsBrowserNotified('fxaccounts:login'))
-      .then(clearBrowserNotifications())
-
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
-
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(noSuchBrowserNotification('fxaccounts:login'));
-  },
-
-  'verified, verify different browser - from original tab\'s P.O.V.': function () {
     return this.remote
       .then(setupTest({ preVerified: true }))
 
-      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
-      .then(openVerificationLinkInDifferentBrowser(email))
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(clearBrowserNotifications())
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
-
-  'unverified': function () {
-    this.timeout = 90 * 1000;
-    return this.remote
-      .then(setupTest({ preVerified: false }))
-
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'))
-      .then(clearBrowserNotifications())
-
-      // email 0 - initial sign up email
-      // email 1 - sign in w/ unverified address email
-      // email 2 - "You have verified your Firefox Account"
-      .then(openVerificationLinkInNewTab(email, 1))
+      .then(openVerificationLinkInNewTab(email, 0))
       .then(switchToWindow(1))
       .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       .then(closeCurrentWindow())
 
-      // Since this is really a signup flow, the original tab
-      // redirects to CAD too.
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(noSuchBrowserNotification('fxaccounts:login'));
-  },
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
 
-  'signin, cancel merge warning': function () {
-    return this.remote
-      .then(setupTest({ canLinkAccountResponse: false, preVerified: true }))
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-      .then(noSuchBrowserNotification('fxaccounts:login'))
+        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
-      // user should not transition to the next screen
-      .then(noPageTransition(selectors.SIGNIN.HEADER));
-  },
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-  'blocked, valid code entered': function () {
-    email = TestHelpers.createEmail('block{id}');
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+    'unverified': function () {
+      this.timeout = 90 * 1000;
+      return this.remote
+        .then(setupTest({preVerified: false}))
 
-      .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-      .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
-      .then(fillOutSignInUnblock(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(clearBrowserNotifications())
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'));
+        // email 0 - initial sign up email
+        // email 1 - sign in w/ unverified address email
+        // email 2 - "You have verified your Firefox Account"
+        .then(openVerificationLinkInNewTab(email, 1))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
+
+        // Since this is really a signup flow, the original tab
+        // redirects to CAD too.
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(noSuchBrowserNotification('fxaccounts:login'));
+    },
+
+    'signin, cancel merge warning': function () {
+      return this.remote
+        .then(setupTest({canLinkAccountResponse: false, preVerified: true}))
+
+        .then(noSuchBrowserNotification('fxaccounts:login'))
+
+        // user should not transition to the next screen
+        .then(noPageTransition(selectors.SIGNIN.HEADER));
+    },
+
+    'blocked, valid code entered': function () {
+      email = TestHelpers.createEmail('block{id}');
+
+      return this.remote
+        .then(setupTest({preVerified: true}))
+
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email))
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    }
   }
 });

@@ -60,42 +60,43 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },
+  tests: {
+    'verified, verify same browser': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify same browser': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+    'verified, verify different browser - from original tab\'s P.O.V.': function () {
+      return this.remote
+        .then(setupTest({preVerified: true}))
 
-  'verified, verify different browser - from original tab\'s P.O.V.': function () {
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+        .then(openVerificationLinkInDifferentBrowser(email))
 
-      .then(openVerificationLinkInDifferentBrowser(email))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+    'unverified': function () {
+      return this.remote
+        .then(setupTest({preVerified: false}));
+    },
 
-  'unverified': function () {
-    return this.remote
-      .then(setupTest({ preVerified: false }));
-  },
+    'verified, blocked': function () {
+      email = TestHelpers.createEmail('blocked{id}');
 
-  'verified, blocked': function () {
-    email = TestHelpers.createEmail('blocked{id}');
+      return this.remote
+        .then(setupTest({blocked: true, preVerified: true}))
 
-    return this.remote
-      .then(setupTest({ blocked: true, preVerified: true }))
+        .then(fillOutSignInUnblock(email, 0))
 
-      .then(fillOutSignInUnblock(email, 0))
-
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    }
   }
 });

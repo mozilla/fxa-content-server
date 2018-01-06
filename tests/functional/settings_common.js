@@ -44,7 +44,8 @@ var unverifiedSuite = {
     return this.remote
       .then(clearBrowserState())
       .then(createUser(email, PASSWORD));
-  }
+  },
+  tests: {}
 };
 
 function unverifiedAccountTest (suite, page) {
@@ -74,7 +75,8 @@ var verifiedSuite = {
       .then(function (result) {
         accountData = result;
       });
-  }
+  },
+  tests: {}
 };
 
 function verifiedAccountTest (suite, page, pageHeader) {
@@ -123,5 +125,5 @@ Object.keys(SETTINGS_PAGES).forEach(function (page) {
   verifiedAccountTest(verifiedSuite, page, SETTINGS_PAGES[page]);
 });
 
-registerSuite('visiting settings pages unverified', unverifiedSuite);
-registerSuite('settings common', verifiedSuite);
+registerSuite('visiting settings pages unverified', unverifiedSuite.tests);
+registerSuite('settings common', verifiedSuite.tests);

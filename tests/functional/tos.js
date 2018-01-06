@@ -13,58 +13,59 @@ registerSuite('tos', {
   beforeEach: function () {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
+  tests: {
+    'start at signup': function () {
 
-  'start at signup': function () {
+      return this.remote
+        .get(SIGNUP_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findByCssSelector('#fxa-tos')
+        .click()
+        .end()
 
-    return this.remote
-      .get(SIGNUP_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findByCssSelector('#fxa-tos')
-      .click()
-      .end()
+        .findByCssSelector('#fxa-tos-back')
+        .click()
+        .end()
 
-      .findByCssSelector('#fxa-tos-back')
-      .click()
-      .end()
+        // success is going back to the signup
+        .findByCssSelector('#fxa-signup-header')
+        .end();
+    },
 
-      // success is going back to the signup
-      .findByCssSelector('#fxa-signup-header')
-      .end();
-  },
+    'browse directly to page - no back button': function () {
+      return this.remote
 
-  'browse directly to page - no back button': function () {
-    return this.remote
+        .get(PAGE_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
 
-      .get(PAGE_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
+        .findById('fxa-tos-header')
+        .end()
 
-      .findById('fxa-tos-header')
-      .end()
+        .then(noSuchElement('#fxa-tos-back'));
+    },
 
-      .then(noSuchElement('#fxa-tos-back'));
-  },
+    'refresh, back button is available': function () {
+      return this.remote
 
-  'refresh, back button is available': function () {
-    return this.remote
+        .get(SIGNUP_URL)
+        .setFindTimeout(intern._config.pageLoadTimeout)
+        .findByCssSelector('#fxa-tos')
+        .click()
+        .end()
 
-      .get(SIGNUP_URL)
-      .setFindTimeout(intern._config.pageLoadTimeout)
-      .findByCssSelector('#fxa-tos')
-      .click()
-      .end()
+        // wait for terms to load
+        .findByCssSelector('#fxa-tos-back')
+        .end()
 
-      // wait for terms to load
-      .findByCssSelector('#fxa-tos-back')
-      .end()
+        .refresh()
 
-      .refresh()
+        .findByCssSelector('#fxa-tos-back')
+        .click()
+        .end()
 
-      .findByCssSelector('#fxa-tos-back')
-      .click()
-      .end()
-
-      // success is going back to the signup
-      .findByCssSelector('#fxa-signup-header')
-      .end();
+        // success is going back to the signup
+        .findByCssSelector('#fxa-signup-header')
+        .end();
+    }
   }
 });

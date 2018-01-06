@@ -50,53 +50,54 @@ registerSuite('suiteName', {
     return this.remote
       .then(clearBrowserState());
   },
+  tests: {
+    'opt-in on signup': function () {
+      // The plus sign is to ensure the email address is URI-encoded when
+      // passed to basket. See a43061d3
+      email = TestHelpers.createEmail('signup{id}+extra');
+      return this.remote
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(fillOutSignUp(email, PASSWORD, {optInToMarketingEmail: true}))
 
-  'opt-in on signup': function () {
-    // The plus sign is to ensure the email address is URI-encoded when
-    // passed to basket. See a43061d3
-    email = TestHelpers.createEmail('signup{id}+extra');
-    return this.remote
-      .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
-      .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: true }))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
 
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-      .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
+        .then(waitForBasket(email))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
 
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-      .then(waitForBasket(email))
-      .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
-      .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
+        // user signed up to basket, so has a manage URL
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
+    },
 
-      // user signed up to basket, so has a manage URL
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
-  },
+    'opt-in from settings after signup': function () {
+      return this.remote
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
+        .then(fillOutSignUp(email, PASSWORD, {optInToMarketingEmail: false}))
 
-  'opt-in from settings after signup': function () {
-    return this.remote
-      .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER))
-      .then(fillOutSignUp(email, PASSWORD, { optInToMarketingEmail: false }))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
 
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-      .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
 
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-      .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
 
-      .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
+        // user does not have a basket account, so the
+        // manage link does not exist.
+        .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
+        .then(testSuccessWasShown())
+        .then(waitForBasket(email))
 
-      // user does not have a basket account, so the
-      // manage link does not exist.
-      .then(noSuchElement(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE))
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_OPT_IN))
-      .then(testSuccessWasShown())
-      .then(waitForBasket(email))
-
-      // ensure the opt-in sticks across refreshes
-      .refresh()
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
-      .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
-      .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
-      // user should now have a preferences URL
-      .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
+        // ensure the opt-in sticks across refreshes
+        .refresh()
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.READY))
+        .then(click(selectors.SETTINGS_COMMUNICATION.MENU_BUTTON))
+        .then(visibleByQSA(selectors.SETTINGS_COMMUNICATION.DETAILS))
+        // user should now have a preferences URL
+        .then(testElementExists(selectors.SETTINGS_COMMUNICATION.BUTTON_MANAGE));
+    }
   }
 });

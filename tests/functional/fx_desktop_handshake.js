@@ -88,281 +88,282 @@ registerSuite('Firefox desktop user info handshake', {
   afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
-
-  'Sync signup page - user signed into browser': function () {
-    return this.remote
-      .then(openPage(SYNC_SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+  tests: {
+    'Sync signup page - user signed into browser': function () {
+      return this.remote
+        .then(openPage(SYNC_SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      // browserSignedInEmail not prefilled on signup page
-      .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
-      .then(click(selectors.SIGNUP.LINK_SIGN_IN))
+        }))
+        // browserSignedInEmail not prefilled on signup page
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
+        .then(click(selectors.SIGNUP.LINK_SIGN_IN))
 
 
-      .then(testElementExists(selectors.SIGNIN.HEADER))
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
-  },
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
+    },
 
-  'Non-Sync signup page - user signed into browser': function () {
-    return this.remote
-      .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Non-Sync signup page - user signed into browser': function () {
+      return this.remote
+        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      // browserSignedInEmail not prefilled on signup page
-      .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
-      .then(click(selectors.SIGNUP.LINK_SIGN_IN))
+        }))
+        // browserSignedInEmail not prefilled on signup page
+        .then(testElementValueEquals(selectors.SIGNUP.EMAIL, ''))
+        .then(click(selectors.SIGNUP.LINK_SIGN_IN))
 
-      .then(testElementExists(selectors.SIGNIN.HEADER))
-      .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
-      .then(noSuchElement(selectors.SIGNIN.PASSWORD));
-  },
+        .then(testElementExists(selectors.SIGNIN.HEADER))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
+        .then(noSuchElement(selectors.SIGNIN.PASSWORD));
+    },
 
-  'Sync signin page - user signed into browser': function () {
-    return this.remote
-      .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Sync signin page - user signed into browser': function () {
+      return this.remote
+        .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
-  },
+        }))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, browserSignedInEmail));
+    },
 
-  'Sync signin page w/ signin code - user signed into browser': disableInProd(function () {
-    const testPhoneNumber = TestHelpers.createPhoneNumber();
-    let signinUrlWithSigninCode;
+    'Sync signin page w/ signin code - user signed into browser': disableInProd(function () {
+      const testPhoneNumber = TestHelpers.createPhoneNumber();
+      let signinUrlWithSigninCode;
 
-    return this.remote
+      return this.remote
       // The phoneNumber can be reused by different tests, delete all
       // of its SMS messages to ensure a clean slate.
-      .then(deleteAllSms(testPhoneNumber))
+        .then(deleteAllSms(testPhoneNumber))
 
-      .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
-          }
-        }
-      }))
-      .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
-      .then(click(selectors.SMS_SEND.SUBMIT))
-
-      .then(testElementExists(selectors.SMS_SENT.HEADER))
-      .then(getSmsSigninCode(testPhoneNumber, 0))
-      .then(function (signinCode) {
-        signinUrlWithSigninCode = `${SYNC_SIGNIN_PAGE_URL}&signin=${signinCode}`;
-        return this.parent
-          .then(clearBrowserState())
-          // Synthesize opening the SMS message in a browser where another
-          // user is already signed in.
-          .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: otherAccount
-              }
+        .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
             }
-          }))
-          // user opened an SMS w/ deferred deeplink in a browser that supports
-          // fxa_status. This can't happen currently because only Fx Desktop
-          // supports the query, but I want a test to ensure the behavior is
-          // defined so that we are ready when Fennec or iOS adds fxa_status support.
-          .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
-      });
-  }),
-
-  'Non-Sync signin page - user signed into browser, no user signed in locally': function () {
-    return this.remote
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
           }
-        }
-      }))
-      .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
-      // User can sign in with cached credentials, no password needed.
-      .then(noSuchElement(selectors.SIGNIN.PASSWORD));
-  },
+        }))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
+        .then(click(selectors.SMS_SEND.SUBMIT))
 
-  'Non-Sync signin page - user signed into browser, user signed in locally': function () {
-    return this.remote
+        .then(testElementExists(selectors.SMS_SENT.HEADER))
+        .then(getSmsSigninCode(testPhoneNumber, 0))
+        .then(function (signinCode) {
+          signinUrlWithSigninCode = `${SYNC_SIGNIN_PAGE_URL}&signin=${signinCode}`;
+          return this.parent
+            .then(clearBrowserState())
+            // Synthesize opening the SMS message in a browser where another
+            // user is already signed in.
+            .then(openPage(signinUrlWithSigninCode, selectors.SIGNIN.HEADER, {
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  signedInUser: otherAccount
+                }
+              }
+            }))
+            // user opened an SMS w/ deferred deeplink in a browser that supports
+            // fxa_status. This can't happen currently because only Fx Desktop
+            // supports the query, but I want a test to ensure the behavior is
+            // defined so that we are ready when Fennec or iOS adds fxa_status support.
+            .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail));
+        });
+    }),
+
+    'Non-Sync signin page - user signed into browser, no user signed in locally': function () {
+      return this.remote
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
+          }
+        }))
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, browserSignedInEmail))
+        // User can sign in with cached credentials, no password needed.
+        .then(noSuchElement(selectors.SIGNIN.PASSWORD));
+    },
+
+    'Non-Sync signin page - user signed into browser, user signed in locally': function () {
+      return this.remote
       // First, sign in the user to populate localStorage
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
-      .then(fillOutSignIn(otherEmail, PASSWORD))
-      .then(testElementExists(selectors.SETTINGS.HEADER))
+        }))
+        .then(fillOutSignIn(otherEmail, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-      // Then, sign in the user again, synthesizing the user having signed
-      // into Sync after the initial sign in.
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+        // Then, sign in the user again, synthesizing the user having signed
+        // into Sync after the initial sign in.
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      // browsers version of the world is ignored for non-Sync signins if another
-      // user has already signed in.
-      .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, otherEmail))
-      // normal email element is in the DOM to help password managers.
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
-      .then(testElementExists(selectors.SIGNIN.PASSWORD));
-  },
+        }))
+        // browsers version of the world is ignored for non-Sync signins if another
+        // user has already signed in.
+        .then(testElementTextEquals(selectors.SIGNIN.EMAIL_NOT_EDITABLE, otherEmail))
+        // normal email element is in the DOM to help password managers.
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, otherEmail))
+        .then(testElementExists(selectors.SIGNIN.PASSWORD));
+    },
 
-  'Sync signin page - no user signed into browser': function () {
-    return this.remote
-      .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+    'Sync signin page - no user signed into browser': function () {
+      return this.remote
+        .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
-  },
+        }))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
+    },
 
-  'Sync signin page - no user signed into browser, user signed in locally': function () {
-    return this.remote
+    'Sync signin page - no user signed into browser, user signed in locally': function () {
+      return this.remote
       // First, sign in the user to populate localStorage
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
-      .then(fillOutSignIn(otherEmail, PASSWORD))
-      .then(testElementExists(selectors.SETTINGS.HEADER))
+        }))
+        .then(fillOutSignIn(otherEmail, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-      .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+        .then(openPage(SYNC_SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
+        }))
 
-      // unfortunately, this is one hole in our implementation. localStorage
-      // is totally ignored for Sync.
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
-  },
+        // unfortunately, this is one hole in our implementation. localStorage
+        // is totally ignored for Sync.
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
+    },
 
-  'Non-Sync signin page - no user signed into browser': function () {
-    return this.remote
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+    'Non-Sync signin page - no user signed into browser': function () {
+      return this.remote
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
-      .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
-  },
+        }))
+        .then(testElementValueEquals(selectors.SIGNIN.EMAIL, ''));
+    },
 
-  'Sync force_auth page - user signed into browser is different to requested user': function () {
-    return this.remote
-      .then(openPage(`${SYNC_FORCE_AUTH_PAGE_URL}&email=${encodeURIComponent(otherEmail)}`, selectors.FORCE_AUTH.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Sync force_auth page - user signed into browser is different to requested user': function () {
+      return this.remote
+        .then(openPage(`${SYNC_FORCE_AUTH_PAGE_URL}&email=${encodeURIComponent(otherEmail)}`, selectors.FORCE_AUTH.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
-  },
+        }))
+        .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
+    },
 
-  'Non-Sync force_auth page - user signed into browser is different to requested user': function () {
-    return this.remote
-      .then(openPage(`${FORCE_AUTH_PAGE_URL}&email=${encodeURIComponent(otherEmail)}`, selectors.FORCE_AUTH.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Non-Sync force_auth page - user signed into browser is different to requested user': function () {
+      return this.remote
+        .then(openPage(`${FORCE_AUTH_PAGE_URL}&email=${encodeURIComponent(otherEmail)}`, selectors.FORCE_AUTH.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
-  },
+        }))
+        .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
+    },
 
-  'Sync settings page - user signed into browser': function () {
-    return this.remote
-      .then(openPage(SYNC_SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Sync settings page - user signed into browser': function () {
+      return this.remote
+        .then(openPage(SYNC_SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, browserSignedInEmail));
-  },
+        }))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, browserSignedInEmail));
+    },
 
-  'Non-Sync settings page - user signed into browser': function () {
-    return this.remote
-      .then(openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: browserSignedInAccount
+    'Non-Sync settings page - user signed into browser': function () {
+      return this.remote
+        .then(openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: browserSignedInAccount
+            }
           }
-        }
-      }))
-      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, browserSignedInEmail));
-  },
+        }))
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, browserSignedInEmail));
+    },
 
-  'Sync settings page - no user signed into browser': function () {
-    return this.remote
-      .then(openPage(SYNC_SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+    'Sync settings page - no user signed into browser': function () {
+      return this.remote
+        .then(openPage(SYNC_SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }));
-  },
+        }));
+    },
 
-  'Non-Sync settings page - no user signed into browser, no user signed in locally': function () {
-    return this.remote
-      .then(openPage(SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+    'Non-Sync settings page - no user signed into browser, no user signed in locally': function () {
+      return this.remote
+        .then(openPage(SETTINGS_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }));
-  },
+        }));
+    },
 
-  'Non-Sync settings page - no user signed into browser, user signed in locally': function () {
-    return this.remote
-      .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+    'Non-Sync settings page - no user signed into browser, user signed in locally': function () {
+      return this.remote
+        .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
-      .then(fillOutSignIn(otherEmail, PASSWORD))
-      .then(testElementExists(selectors.SETTINGS.HEADER))
+        }))
+        .then(fillOutSignIn(otherEmail, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-      .then(openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:fxa_status': {
-            signedInUser: null
+        .then(openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:fxa_status': {
+              signedInUser: null
+            }
           }
-        }
-      }))
+        }))
 
-      .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, otherEmail));
+        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, otherEmail));
+    }
   }
 });

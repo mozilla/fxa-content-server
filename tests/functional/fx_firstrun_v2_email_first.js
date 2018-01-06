@@ -38,54 +38,53 @@ registerSuite('Firstrun Sync v2 email first', {
       .then(clearBrowserState({ force: true }));
   },
 
-  'signup': function () {
-    return this.remote
-      .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true }
-        }
-      }))
-      .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-      .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-      .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+  tests: {
 
-      .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
-      .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-      .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
-      .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+    'signup': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-      .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-  'signin - merge cancelled': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: false }
-        }
-      }))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-      .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-      .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-      .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.ERROR))
+    'signin - merge cancelled': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: false}
+          }
+        }))
 
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'));
-  },
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.ENTER_EMAIL.ERROR))
 
-  'signin verified ': function () {
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'));
+    },
 
-
-
+    'signin verified ': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -99,74 +98,75 @@ registerSuite('Firstrun Sync v2 email first', {
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-      .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-      .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-      .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-  'signin unverified': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: false }))
-      .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true }
-        }
-      }))
-      .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
-      .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-      .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
-      .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+    'signin unverified': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: false}))
+        .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-      // The /account/status endpoint does not return whether the account
-      // is verified, only whether the email has been registered
-      .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
-      .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-      // The user never verified their account and must do so.
-      .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
+        // The /account/status endpoint does not return whether the account
+        // is verified, only whether the email has been registered
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        // The user never verified their account and must do so.
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNUP.HEADER))
 
-      .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
-      // Get the 2nd email, the 1st was sent for createUser
-      .then(openVerificationLinkInNewTab(email, 1))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        // Get the 2nd email, the 1st was sent for createUser
+        .then(openVerificationLinkInNewTab(email, 1))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-  },
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
 
-  'email specified by relier, not registered': function () {
-    return this.remote
-      .then(openPage(PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
-        query: {
-          email
-        },
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true }
-        }
-      }))
-      .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
-  },
+    'email specified by relier, not registered': function () {
+      return this.remote
+        .then(openPage(PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
+          query: {
+            email
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+    },
 
-  'email specified by relier, registered': function () {
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(openPage(PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
-        query: {
-          email
-        },
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true }
-        }
-      }))
-      .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
+    'email specified by relier, registered': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, {preVerified: true}))
+        .then(openPage(PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
+          query: {
+            email
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
+    }
   }
 });

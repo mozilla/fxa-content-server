@@ -47,12 +47,11 @@
           } else if (requestAttempts >= maxAttempts) {
             return Promise.reject(new Error('EmailTimeout'));
           } else {
-            var dfd = new Promise.Deferred();
-            setTimeout(function () {
-              checkIt().then(dfd.resolve, dfd.reject);
-            }, 1000);
-
-            return dfd.promise;
+            return new Promise(function (resolve, reject) {
+              setTimeout(function () {
+                checkIt().then(resolve, reject);
+              }, 1000);
+            });
           }
         }, (err) => {
           console.log('error', err);

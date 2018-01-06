@@ -42,47 +42,48 @@ registerSuite('complete_sign_up', {
         code = link.match(/code=([A-Za-z0-9]+)/)[1];
       });
   },
+  tests: {
+    'open verification link with malformed code': function () {
+      var code = createRandomHexString(Constants.CODE_LENGTH - 1);
+      var uid = accountData.uid;
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with malformed code': function () {
-    var code = createRandomHexString(Constants.CODE_LENGTH - 1);
-    var uid = accountData.uid;
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-damaged-header'))
+        .then(noSuchElement('#fxa-verification-link-expired-header'));
+    },
 
-    return this.remote
-      .then(openPage(url, '#fxa-verification-link-damaged-header'))
-      .then(noSuchElement('#fxa-verification-link-expired-header'));
-  },
+    'open verification link with server reported bad code': function () {
+      var code = createRandomHexString(Constants.CODE_LENGTH);
+      var uid = accountData.uid;
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with server reported bad code': function () {
-    var code = createRandomHexString(Constants.CODE_LENGTH);
-    var uid = accountData.uid;
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-damaged-header'));
+    },
 
-    return this.remote
-      .then(openPage(url, '#fxa-verification-link-damaged-header'));
-  },
+    'open verification link with malformed uid': function () {
+      var uid = createRandomHexString(Constants.UID_LENGTH - 1);
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with malformed uid': function () {
-    var uid = createRandomHexString(Constants.UID_LENGTH - 1);
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-damaged-header'));
+    },
 
-    return this.remote
-      .then(openPage(url, '#fxa-verification-link-damaged-header'));
-  },
+    'open verification link with server reported bad uid': function () {
+      var uid = createRandomHexString(Constants.UID_LENGTH);
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open verification link with server reported bad uid': function () {
-    var uid = createRandomHexString(Constants.UID_LENGTH);
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-expired-header'));
+    },
 
-    return this.remote
-      .then(openPage(url, '#fxa-verification-link-expired-header'));
-  },
+    'open valid email verification link': function () {
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open valid email verification link': function () {
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
-
-    return this.remote
-      .then(openPage(url, '#fxa-sign-up-complete-header'));
+      return this.remote
+        .then(openPage(url, '#fxa-sign-up-complete-header'));
+    }
   }
 });
 
@@ -104,17 +105,18 @@ registerSuite('complete_sign_up with expired link, but without signing up in bro
       // the original verification link.
       .then(createUser(email, 'secondpassword', { preVerified: false }));
   },
+  tests: {
+    'open expired email verification link': function () {
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-  'open expired email verification link': function () {
-    var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      return this.remote
+        .then(openPage(url, '#fxa-verification-link-expired-header'))
+        .then(noSuchElement('#fxa-verification-link-damaged-header'))
 
-    return this.remote
-      .then(openPage(url, '#fxa-verification-link-expired-header'))
-      .then(noSuchElement('#fxa-verification-link-damaged-header'))
-
-      // Give resend time to show up
-      .setFindTimeout(200)
-      .then(noSuchElement('#resend'));
+        // Give resend time to show up
+        .setFindTimeout(200)
+        .then(noSuchElement('#resend'));
+    }
   }
 });
 
@@ -122,41 +124,42 @@ registerSuite('complete_sign_up with expired link and click resend', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
   },
+  tests: {
+    'open expired email verification link': function () {
+      var verificationLink;
 
-  'open expired email verification link': function () {
-    var verificationLink;
+      return this.remote
+      // Sign up and obtain a verification link
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists('#fxa-confirm-header'))
 
-    return this.remote
-    // Sign up and obtain a verification link
-      .then(fillOutSignUp(email, PASSWORD))
-      .then(testElementExists('#fxa-confirm-header'))
+        .then(getVerificationLink(email, 0))
+        .then((_verificationLink) => {
+          verificationLink = _verificationLink;
+        })
 
-      .then(getVerificationLink(email, 0))
-      .then((_verificationLink) => {
-        verificationLink = _verificationLink;
-      })
+        // Sign up again to invalidate the old verification link
+        .then(fillOutSignUp(email, 'different_password'))
+        .then(testElementExists('#fxa-confirm-header'))
 
-      // Sign up again to invalidate the old verification link
-      .then(fillOutSignUp(email, 'different_password'))
-      .then(testElementExists('#fxa-confirm-header'))
+        .then(function () {
+          return this.parent
+            .then(openPage(verificationLink, '#fxa-verification-link-expired-header'));
+        })
+        .then(click('#resend'))
 
-      .then(function () {
-        return this.parent
-          .then(openPage(verificationLink, '#fxa-verification-link-expired-header'));
-      })
-      .then(click('#resend'))
+        .then(testSuccessWasShown())
 
-      .then(testSuccessWasShown())
+        // two extra clicks still shows success message
+        .then(click('#resend'))
+        .then(click('#resend'))
 
-      // two extra clicks still shows success message
-      .then(click('#resend'))
-      .then(click('#resend'))
-
-      // Stills shows success message
-      //
-      // this uses .visibleByQSA instead of testSuccessWasShown because
-      // the element is not re-shown, but rather should continue to
-      // be visible.
-      .then(visibleByQSA('.success'));
+        // Stills shows success message
+        //
+        // this uses .visibleByQSA instead of testSuccessWasShown because
+        // the element is not re-shown, but rather should continue to
+        // be visible.
+        .then(visibleByQSA('.success'));
+    }
   }
 });

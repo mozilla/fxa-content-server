@@ -1,102 +1,97 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+const intern = require('intern').default;
+const args = require('yargs').argv;
+const firefoxProfile = require('./tools/firefox_profile');
 
-// Learn more about configuring this file at <https://github.com/theintern/intern/wiki/Configuring-Intern>.
-// These default settings work OK for most people. The options that *must* be changed below are the
-// packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
-define([
-  'intern',
-  'intern/browser_modules/dojo/has!host-node?intern/browser_modules/dojo/topic',
-  './tools/firefox_profile'
-],
-function (intern, topic, firefoxProfile) {
-  var args = intern.args;
-  var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
-  var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
-  var fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9010';
-  var fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
-  var fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
-  var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
-  var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
-  var fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
+// Tests
+const testsMain = require('./functional');
+const testsOAuth = require('./functional_oauth');
+const testsAll = testsMain.concat(testsOAuth);
 
-  // "fxaProduction" is a little overloaded in how it is used in the tests.
-  // Sometimes it means real "stage" or real production configuration, but
-  // sometimes it also means fxa-dev style boxes like "latest". Configuration
-  // parameter "fxaDevBox" can be used as a crude way to distinguish between
-  // two.
-  var fxaProduction = !! args.fxaProduction;
-  var fxaDevBox = !! args.fxaDevBox;
+const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
+const fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
+const fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9010';
+const fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
+const fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
+const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
+const fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
+const fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
 
-  var fxaToken = args.fxaToken || 'http://';
-  var asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
+// "fxaProduction" is a little overloaded in how it is used in the tests.
+// Sometimes it means real "stage" or real production configuration, but
+// sometimes it also means fxa-dev style boxes like "latest". Configuration
+// parameter "fxaDevBox" can be used as a crude way to distinguish between
+// two.
+const fxaProduction = !! args.fxaProduction;
+const fxaDevBox = !! args.fxaDevBox;
 
-  // On Circle, we bail after the first failure.
-  // args.bailAfterFirstFailure comes in as a string.
-  var bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
+const fxaToken = args.fxaToken || 'http://';
+const asyncTimeout = parseInt(args.asyncTimeout || 5000, 10);
 
-  if (topic) {
-    topic.subscribe('/suite/start', function (suite) {
-      console.log('Running: ' + suite.name);
-    });
+// On Circle, we bail after the first failure.
+// args.bailAfterFirstFailure comes in as a string.
+const bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
+
+// Intern specific options are here: https://theintern.io/docs.html#Intern/4/docs/docs%2Fconfiguration.md/properties
+const config = {
+  asyncTimeout: asyncTimeout,
+  bail: bailAfterFirstFailure,
+  defaultTimeout: 45000, // 30 seconds just isn't long enough for some tests.
+  environments: {
+    browserName: 'firefox',
+  },
+  filterErrorStack: true,
+  functionalSuites: testsMain,
+
+  fxaAuthRoot: fxaAuthRoot,
+  fxaContentRoot: fxaContentRoot,
+  fxaDevBox: fxaDevBox,
+  fxaEmailRoot: fxaEmailRoot,
+  fxaOAuthRoot: fxaOAuthRoot,
+  fxaOauthApp: fxaOauthApp,
+  fxaProduction: fxaProduction,
+  fxaProfileRoot: fxaProfileRoot,
+  fxaToken: fxaToken,
+  fxaTokenRoot: fxaTokenRoot,
+  fxaUntrustedOauthApp: fxaUntrustedOauthApp,
+
+  pageLoadTimeout: 20000,
+  serverPort: 9090,
+  serverUrl: 'http://127.0.0.1:9090',
+  reporters: 'runner',
+  tunnelOptions: {
+    'drivers': ['firefox']
+  },
+};
+
+if (args.grep) {
+  config.grep = new RegExp(args.grep, 'i');
+}
+
+if (args.useTeamCityReporter) {
+  config.reporters = 'teamcity';
+}
+
+if (args.suites) {
+  switch(args.suites) {
+    case 'oauth':
+      config.functionalSuites = testsOAuth;
+      break;
+    case 'all':
+      config.functionalSuites = testsAll;
+      break;
   }
+}
 
-  var config = {
-    asyncTimeout: asyncTimeout,
-    bail: bailAfterFirstFailure,
-    capabilities: {},
-    defaultTimeout: 45000, // 30 seconds just isn't long enough for some tests.
-    environments: [{
-      browserName: 'firefox',
-      marionette: true
-    }],
-    excludeInstrumentation: true,
-    filterErrorStack: true,
-    fixSessionCapabilities: false,
-    functionalSuites: [
-      'tests/functional/mocha',
-      'tests/functional'
-    ],
-    fxaAuthRoot: fxaAuthRoot,
-    fxaContentRoot: fxaContentRoot,
-    fxaDevBox: fxaDevBox,
-    fxaEmailRoot: fxaEmailRoot,
-    fxaOAuthRoot: fxaOAuthRoot,
-    fxaOauthApp: fxaOauthApp,
-    fxaProduction: fxaProduction,
-    fxaProfileRoot: fxaProfileRoot,
-    fxaToken: fxaToken,
-    fxaTokenRoot: fxaTokenRoot,
-    fxaUntrustedOauthApp: fxaUntrustedOauthApp,
-    maxConcurrency: 3,
-    pageLoadTimeout: 28000,
-    proxyPort: 9090,
-    proxyUrl: 'http://127.0.0.1:9090/',
-    tunnel: 'SeleniumTunnel',
-    tunnelOptions: {
-      // this tells SeleniumTunnel to download geckodriver
-      drivers: [{
-        name: 'firefox',
-        version: '0.19.0'
-      }],
-      // version of Selenium
-      version: '3.6.0',
-    }
-  };
-  config.capabilities['moz:firefoxOptions'] = {};
-  // to create a profile, give it the `config` option.
-  config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
+config.capabilities = {};
+config.capabilities['moz:firefoxOptions'] = {};
+// to create a profile, give it the `config` option.
+config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
 
-  // custom Firefox binary location, if specified then the default is ignored.
-  // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
-  if (args.firefoxBinary) {
-    config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
-  }
+// custom Firefox binary location, if specified then the default is ignored.
+// ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
+if (args.firefoxBinary) {
+  config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
+}
 
-  if (args.useTeamCityReporter) {
-    config.reporters = [ { id: 'TeamCity' } ];
-  }
-
-  return config;
-});
+intern.configure(config);
+intern.run();

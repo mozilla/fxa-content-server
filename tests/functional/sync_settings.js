@@ -61,39 +61,40 @@ registerSuite('Firefox Desktop Sync v1 settings', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },
+  tests: {
+    'sign in, change the password': function () {
+      return this.remote
+        .then(setupTest(true))
+        .then(click('#change-password .settings-unit-toggle'))
+        .then(visibleByQSA('#change-password .settings-unit-details'))
 
-  'sign in, change the password': function () {
-    return this.remote
-      .then(setupTest(true))
-      .then(click('#change-password .settings-unit-toggle'))
-      .then(visibleByQSA('#change-password .settings-unit-details'))
+        .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
+    },
 
-      .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
-  },
+    'sign in, delete the account': function () {
+      return this.remote
+        .then(setupTest(true))
+        .then(click('#delete-account .settings-unit-toggle'))
+        .then(visibleByQSA('#delete-account .settings-unit-details'))
 
-  'sign in, delete the account': function () {
-    return this.remote
-      .then(setupTest(true))
-      .then(click('#delete-account .settings-unit-toggle'))
-      .then(visibleByQSA('#delete-account .settings-unit-details'))
+        .then(fillOutDeleteAccount(FIRST_PASSWORD))
+        .then(testIsBrowserNotifiedOfMessage('delete_account'))
 
-      .then(fillOutDeleteAccount(FIRST_PASSWORD))
-      .then(testIsBrowserNotifiedOfMessage('delete_account'))
+        .then(testElementExists('#fxa-signup-header'));
+    },
 
-      .then(testElementExists('#fxa-signup-header'));
-  },
+    'sign in, no way to sign out': function () {
+      return this.remote
+        .then(setupTest(true))
+        // make sure the sign out element doesn't exist
+        .then(noSuchElement('#signout'));
+    },
 
-  'sign in, no way to sign out': function () {
-    return this.remote
-      .then(setupTest(true))
-      // make sure the sign out element doesn't exist
-      .then(noSuchElement('#signout'));
-  },
-
-  'sign in, do not confirm signin, load settings': function () {
-    return this.remote
-      .then(setupTest(false))
-      // the user did not confirm signin and must do so
-      .then(openPage(SETTINGS_URL, '#fxa-confirm-signin-header'));
+    'sign in, do not confirm signin, load settings': function () {
+      return this.remote
+        .then(setupTest(false))
+        // the user did not confirm signin and must do so
+        .then(openPage(SETTINGS_URL, '#fxa-confirm-signin-header'));
+    }
   }
 });
