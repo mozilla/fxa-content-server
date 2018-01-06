@@ -13,5 +13,5 @@ module.exports = [
   'tests/functional/oauth_settings_clients.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_permissions.js',
-  // 'tests/functional/oauth_sync_sign_in.js' // ERROR: 72
+  'tests/functional/oauth_sync_sign_in.js'
 ];
