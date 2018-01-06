@@ -87,7 +87,7 @@ if (args.suites) {
       break;
     case 'server':
       config.functionalSuites = [];
-      config.suites = serverTests;
+      config.suites = testsServer;
       config.reporters = 'pretty';
       break;
     case 'server-resources':
