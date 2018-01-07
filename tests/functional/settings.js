@@ -8,8 +8,8 @@ define([
   'intern/chai!assert',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
-  // 'tests/functional/lib/selectors'
-], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/selectors'
+], function (intern, registerSuite, assert, TestHelpers, FunctionalHelpers, selectors) {
 
   var config = intern.config;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
@@ -25,22 +25,21 @@ define([
     fillOutSignIn,
     focus,
     getFxaClient,
+    keyupEscape,
     noSuchStoredAccountByEmail,
     openPage,
     openSettingsInNewTab,
-    // pressEscKey,
     switchToWindow,
     testElementExists,
     testElementTextEquals,
     testErrorTextInclude,
-    // type,
-    // noSuchElement
+    type,
+    noSuchElement
   } = FunctionalHelpers;
 
   var FIRST_PASSWORD = 'password';
   var email;
   var accountData;
-  // var TEXT = 'TEXT';
 
   registerSuite({
     name: 'settings',
@@ -184,22 +183,25 @@ define([
         .end();
     },
 
-    // 'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
-    //   return this.remote
-    //     .then(fillOutSignIn(email, FIRST_PASSWORD, true))
-    //     .then(click('[data-href="settings/display_name"]'))
-    //     // fill in display name input
-    //     .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
-    //     .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-    //     .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
-    //     // press Esc
-    //     .then(pressEscKey())
-    //     // check panel is closed
-    //     .then(noSuchElement('.settings-unit.open'))
-    //     // check input has been cleared
-    //     .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
-    //     .end();
-    // },
+    'sign in, go to settings, and add display name. On Esc, should close panel and input cleared': function () {
+      const TEXT = 'TEST';
+      return this.remote
+        .then(fillOutSignIn(email, FIRST_PASSWORD, true))
+        .then(click('[data-href="settings/display_name"]'))
+        // fill in display name input
+        .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
+        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
+        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
+        .sleep(500)
+        // press Esc
+        .then(keyupEscape('.settings'))
+        .sleep(500)
+        // check panel is closed
+        .then(noSuchElement('.settings-unit.open'))
+        // check input has been cleared
+        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
+        .end();
+    },
 
     'sign in, open settings in a second tab, sign out': function () {
       return this.remote
