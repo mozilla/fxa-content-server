@@ -1503,8 +1503,7 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
-  function keyupEscape(){
-    return thenify(function (selector) {
+  const keyupEscape = thenify(function (selector) {
       return this.parent
         .execute(function (selector) {
           var target = selector ? document.querySelector(selector) : window;
@@ -1516,7 +1515,6 @@ define([
           });
           target.dispatchEvent(event);
         }, [ selector ]);
-    });
   }
 
   const clearBrowserNotifications = thenify(function () {
