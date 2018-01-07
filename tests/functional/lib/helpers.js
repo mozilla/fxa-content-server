@@ -1511,8 +1511,8 @@ define([
           var event = new KeyboardEvent('keyup', {
             bubbles: true,
             cancelable: true,
-            which: 27,
-            view: window
+            view: window,
+            which: 27
           });
           target.dispatchEvent(event);
         }, [ selector ]);
@@ -2117,7 +2117,7 @@ define([
     getVerificationLink: getVerificationLink,
     getWebChannelMessageData,
     imageLoadedByQSA: imageLoadedByQSA,
-    keyupEscape : keyupEscape,
+    keyupEscape: keyupEscape,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,
