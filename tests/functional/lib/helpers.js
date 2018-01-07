@@ -1503,23 +1503,21 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
-  function pressKey(keyCode){
+  function keyupEscape(){
     return thenify(function (selector) {
       return this.parent
-        .execute(function (selector, keyCode) {
+        .execute(function (selector) {
           var target = selector ? document.querySelector(selector) : window;
           var event = new KeyboardEvent('keyup', {
             bubbles: true,
             cancelable: true,
-            keyCode: keyCode,
+            which: 27,
             view: window
           });
           target.dispatchEvent(event);
-        }, [ selector, keyCode ]);
+        }, [ selector ]);
     });
   }
-
-  var pressEscKey = pressKey(27);
 
   const clearBrowserNotifications = thenify(function () {
     return this.parent
@@ -2119,6 +2117,7 @@ define([
     getVerificationLink: getVerificationLink,
     getWebChannelMessageData,
     imageLoadedByQSA: imageLoadedByQSA,
+    keyupEscape : keyupEscape,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,
@@ -2145,8 +2144,6 @@ define([
     pollUntil: pollUntil,
     pollUntilGoneByQSA: pollUntilGoneByQSA,
     pollUntilHiddenByQSA,
-    pressEscKey: pressEscKey,
-    pressKey: pressKey,
     reOpenWithAdditionalQueryParams: reOpenWithAdditionalQueryParams,
     respondToWebChannelMessage: respondToWebChannelMessage,
     storeWebChannelMessageData,

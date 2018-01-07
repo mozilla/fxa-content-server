@@ -31,11 +31,11 @@ define([
     fillOutSignIn,
     fillOutSignUp,
     getUnblockInfo,
+    keyupEscape,
     openPage,
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
     openVerificationLinkInSameTab,
-    pressEscKey,
     respondToWebChannelMessage,
     switchToWindow,
     testElementExists,
@@ -337,7 +337,7 @@ define([
             .sleep(500)
             .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
             // hit esc
-            .then(pressEscKey())
+            .then(keyupEscape('.settings'))
             .sleep(500)
             // panel should be closed
             .then(noSuchElement('.settings-unit.open'))
