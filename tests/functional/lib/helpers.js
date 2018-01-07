@@ -1504,7 +1504,7 @@ define([
   var mouseup = mouseevent('mouseup');
 
   const keyupEscape = thenify(function (selector) {
-      return this.parent
+    return this.parent
         .execute(function (selector) {
           var target = selector ? document.querySelector(selector) : window;
           var event = new KeyboardEvent('keyup', {
