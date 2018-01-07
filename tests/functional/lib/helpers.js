@@ -1515,7 +1515,7 @@ define([
           });
           target.dispatchEvent(event);
         }, [ selector ]);
-  }
+  });
 
   const clearBrowserNotifications = thenify(function () {
     return this.parent
