@@ -4,227 +4,219 @@
 
 'use strict';
 
-define([
-  'intern',
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!../../../server/lib/configuration',
-  'intern/dojo/Promise',
-  'intern/dojo/node!got',
-  'intern/dojo/node!fs',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon',
-], function (intern, registerSuite, assert, config, dojoPromise, got, fs, path, proxyquire, sinon) {
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const config = require('../../../server/lib/configuration');
+const dojoPromise = require('intern/dojo/Promise');
+const got = require('got');
+const fs = require('fs');
+const path = require('path');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
 
-  function mockModule(mocks) {
-    return proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-verify-email'), mocks)();
-  }
+function mockModule(mocks) {
+  return proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'get-verify-email'), mocks)();
+}
 
-  let logger;
-  let mocks;
-  let ravenMock;
-  let gotMock;
-  const res = {
-    json: () => {}
-  };
+let logger;
+let mocks;
+let ravenMock;
+let gotMock;
+const res = {
+  json: () => {}
+};
 
-  registerSuite({
-    name: 'verify_email',
+registerSuite('verify_email', {
+  beforeEach: function() {
+    gotMock = {
+      post: sinon.spy()
+    };
+    logger = {
+      error: sinon.spy()
+    };
+    ravenMock = {
+      ravenMiddleware: {
+        captureError: sinon.spy(),
+        captureMessage: sinon.spy()
+      }
+    };
+    mocks = {
+      '../../lib/raven': ravenMock,
+      'got': gotMock,
+      mozlog: () => {
+        return logger;
+      },
+    };
+  },
 
-    beforeEach() {
-      gotMock = {
-        post: sinon.spy()
-      };
-      logger = {
-        error: sinon.spy()
-      };
-      ravenMock = {
-        ravenMiddleware: {
-          captureError: sinon.spy(),
-          captureMessage: sinon.spy()
-        }
-      };
-      mocks = {
-        '../../lib/raven': ravenMock,
-        'got': gotMock,
-        mozlog: () => {
-          return logger;
-        },
-      };
-    },
+  'logs error without query params': function() {
+    const dfd = new dojoPromise.Deferred();
+    const req = {
+      query: {
+        code: '',
+        uid: ''
+      },
+      url: '/verify_email'
+    };
 
-    'logs error without query params' () {
-      const dfd = new dojoPromise.Deferred();
-      const req = {
-        query: {
-          code: '',
-          uid: ''
-        },
-        url: '/verify_email'
-      };
+    mockModule(mocks).process(req, res, () => {
+      var c = ravenMock.ravenMiddleware.captureMessage;
+      var arg = c.args[0];
+      assert.equal(c.calledOnce, true);
+      assert.equal(arg[0], 'VerificationValidationError');
+      assert.equal(arg[1].extra.details[0].message, '"code" is not allowed to be empty');
+      dfd.resolve();
+    });
 
-      mockModule(mocks).process(req, res, () => {
-        var c = ravenMock.ravenMiddleware.captureMessage;
-        var arg = c.args[0];
-        assert.equal(c.calledOnce, true);
-        assert.equal(arg[0], 'VerificationValidationError');
-        assert.equal(arg[1].extra.details[0].message, '"code" is not allowed to be empty');
-        dfd.resolve();
-      });
+    return dfd.dojoPromise;
+  },
 
-      return dfd.dojoPromise;
-    },
-
-    'no logs if successful' () {
-      const dfd = new dojoPromise.Deferred();
-      mocks.got = {
-        post: (req, res, next) =>  {
-          return new Promise((resolve, reject) => {
-            resolve({
-              'statusCode': 200,
-              'statusMessage': 'OK'
-            });
+  'no logs if successful': function() {
+    const dfd = new dojoPromise.Deferred();
+    mocks.got = {
+      post: (req, res, next) =>  {
+        return new Promise((resolve, reject) => {
+          resolve({
+            'statusCode': 200,
+            'statusMessage': 'OK'
           });
-        }
-      };
+        });
+      }
+    };
 
-      const req = {
-        query: {
-          code: '12345678912345678912345678912312',
-          uid: '12345678912345678912345678912312'
-        },
-        url: '/verify_email'
-      };
+    const req = {
+      query: {
+        code: '12345678912345678912345678912312',
+        uid: '12345678912345678912345678912312'
+      },
+      url: '/verify_email'
+    };
+
+    mockModule(mocks).process(req, res, () => {
+      assert.equal(logger.error.callCount, 0);
+      assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
+      assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
+
+      req.query.something = 'else';
 
       mockModule(mocks).process(req, res, () => {
         assert.equal(logger.error.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
         assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
-
-        req.query.something = 'else';
-
-        mockModule(mocks).process(req, res, () => {
-          assert.equal(logger.error.callCount, 0);
-          assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
-          assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 0);
-          dfd.resolve();
-        });
-      });
-
-      return dfd.dojoPromise;
-    },
-
-    'logs errors when post fails' () {
-      const dfd = new dojoPromise.Deferred();
-      mocks.got = {
-        post: (req, res, next) => {
-          return new Promise((resolve, reject) => {
-            reject({
-              'host': '127.0.0.1:9000',
-              'hostname': '127.0.0.1',
-              'message': 'Response code 400 (Bad Request)',
-              'method': 'POST',
-              'path': '/v1/recovery_email/verify_code',
-              'statusCode': 400,
-              'statusMessage': 'Bad Request'
-            });
-          });
-        }
-      };
-
-      const req = {
-        query: {
-          code: '12345678912345678912345678912312',
-          uid: '12345678912345678912345678912312'
-        },
-        url: '/verify_email'
-      };
-
-      mockModule(mocks).process(req, res, () => {
-        assert.equal(logger.error.callCount, 1);
-        assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
-        assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 1);
-        const result = ravenMock.ravenMiddleware.captureError.args[0][0];
-        assert.equal(result.statusCode, 400);
-        assert.equal(result.statusMessage, 'Bad Request');
-
         dfd.resolve();
       });
+    });
 
-      return dfd.dojoPromise;
-    },
+    return dfd.dojoPromise;
+  },
 
-    'logs error with invalid utm param' () {
-      const dfd = this.async(1000);
-      const req = {
-        query: {
-          /*eslint-disable camelcase*/
-          code: '12345678912345678912345678912312',
-          uid: '12345678912345678912345678912312',
-          utm_campaign: '!'
-          /*eslint-enable camelcase*/
-        },
-        url: '/verify_email'
-      };
-
-      mocks.got = {
-        post: () => {
-          return new Promise((resolve) => {
-            resolve({});
+  'logs errors when post fails': function() {
+    const dfd = new dojoPromise.Deferred();
+    mocks.got = {
+      post: (req, res, next) => {
+        return new Promise((resolve, reject) => {
+          reject({
+            'host': '127.0.0.1:9000',
+            'hostname': '127.0.0.1',
+            'message': 'Response code 400 (Bad Request)',
+            'method': 'POST',
+            'path': '/v1/recovery_email/verify_code',
+            'statusCode': 400,
+            'statusMessage': 'Bad Request'
           });
-        }
-      };
+        });
+      }
+    };
 
-      mockModule(mocks).process(req, res, () => {
-        // We have to use a setTimeout here because the log is performed passively after the response has
-        // been sent.
-        setTimeout(() => {
-          const c = ravenMock.ravenMiddleware.captureMessage;
-          const arg = c.args[0];
-          assert.equal(c.calledOnce, true);
-          assert.equal(arg[0], 'VerificationValidationInfo');
-          const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
-          assert.equal(arg[1].extra.details[0].message, errorMessage);
-          dfd.resolve();
-        }, 100);
-      });
+    const req = {
+      query: {
+        code: '12345678912345678912345678912312',
+        uid: '12345678912345678912345678912312'
+      },
+      url: '/verify_email'
+    };
 
-      return dfd.promise;
-    },
+    mockModule(mocks).process(req, res, () => {
+      assert.equal(logger.error.callCount, 1);
+      assert.equal(ravenMock.ravenMiddleware.captureMessage.callCount, 0);
+      assert.equal(ravenMock.ravenMiddleware.captureError.callCount, 1);
+      const result = ravenMock.ravenMiddleware.captureError.args[0][0];
+      assert.equal(result.statusCode, 400);
+      assert.equal(result.statusMessage, 'Bad Request');
 
-    'no logs with valid resume param' () {
-      const dfd = this.async(1000);
-      const req = {
-        query: {
-          code: '12345678912345678912345678912312',
-          resume: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=', // All possible base64 characters
-          uid: '12345678912345678912345678912312'
-        },
-        url: '/verify_email'
-      };
+      dfd.resolve();
+    });
 
-      mocks.got = {
-        post: () => {
-          return new Promise((resolve) => {
-            resolve({});
-          });
-        }
-      };
+    return dfd.dojoPromise;
+  },
 
-      mockModule(mocks).process(req, res, () => {
-        // We have to use a setTimeout here because the log is performed passively after the response has
-        // been sent.
-        setTimeout(() => {
-          const c = ravenMock.ravenMiddleware.captureMessage;
-          assert.equal(c.callCount, 0);
-          dfd.resolve();
-        }, 100);
-      });
+  'logs error with invalid utm param': function() {
+    const dfd = this.async(1000);
+    const req = {
+      query: {
+        /*eslint-disable camelcase*/
+        code: '12345678912345678912345678912312',
+        uid: '12345678912345678912345678912312',
+        utm_campaign: '!'
+        /*eslint-enable camelcase*/
+      },
+      url: '/verify_email'
+    };
 
-      return dfd.promise;
-    }
+    mocks.got = {
+      post: () => {
+        return new Promise((resolve) => {
+          resolve({});
+        });
+      }
+    };
 
-  });
+    mockModule(mocks).process(req, res, () => {
+      // We have to use a setTimeout here because the log is performed passively after the response has
+      // been sent.
+      setTimeout(() => {
+        const c = ravenMock.ravenMiddleware.captureMessage;
+        const arg = c.args[0];
+        assert.equal(c.calledOnce, true);
+        assert.equal(arg[0], 'VerificationValidationInfo');
+        const errorMessage = '"utm_campaign" with value "&#x21;" fails to match the required pattern: /^[\\w\\/.%-]+/';
+        assert.equal(arg[1].extra.details[0].message, errorMessage);
+        dfd.resolve();
+      }, 100);
+    });
 
+    return dfd.promise;
+  },
+
+  'no logs with valid resume param': function() {
+    const dfd = this.async(1000);
+    const req = {
+      query: {
+        code: '12345678912345678912345678912312',
+        resume: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=', // All possible base64 characters
+        uid: '12345678912345678912345678912312'
+      },
+      url: '/verify_email'
+    };
+
+    mocks.got = {
+      post: () => {
+        return new Promise((resolve) => {
+          resolve({});
+        });
+      }
+    };
+
+    mockModule(mocks).process(req, res, () => {
+      // We have to use a setTimeout here because the log is performed passively after the response has
+      // been sent.
+      setTimeout(() => {
+        const c = ravenMock.ravenMiddleware.captureMessage;
+        assert.equal(c.callCount, 0);
+        dfd.resolve();
+      }, 100);
+    });
+
+    return dfd.promise;
+  }
 });
