@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const config = require('../../server/lib/configuration');
 const got = require('got');
 const pkg = require('../../package.json');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  name: 'ver.json'
+  tests: {}
 };
 
 function versionJson(route) {
@@ -32,11 +31,13 @@ function versionJson(route) {
         // check that the git hash just looks like a hash
         assert.ok(body.commit.match(/^[0-9a-f]{40}$/), 'The git hash actually looks like one');
       })
-      .then(dfd.resolve, dfd.reject);
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+    return dfd;
   };
 }
 
-suite['#get /ver.json'] = versionJson('/ver.json');
-suite['#get /__version__'] = versionJson('/__version__');
+suite.tests['#get /ver.json'] = versionJson('/ver.json');
+suite.tests['#get /__version__'] = versionJson('/__version__');
 
-registerSuite(suite);
+registerSuite('ver.json', suite);

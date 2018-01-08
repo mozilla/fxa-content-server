@@ -18,10 +18,10 @@ const csp = proxyquire(
 );
 
 const suite = {
-  name: 'csp'
+  tests: {}
 };
 
-suite['isCspRequired'] = function () {
+suite.tests['isCspRequired'] = function () {
   assert.isFalse(csp.isCspRequired({ method: 'GET', path: '/tests/index.html'}));
 
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/404.html' }));
@@ -30,7 +30,7 @@ suite['isCspRequired'] = function () {
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/confirm' }));
 };
 
-suite['blockingRules'] = function () {
+suite.tests['blockingRules'] = function () {
   // force the CDN to be enabled for tests.
   const CDN_SERVER = 'https://static.accounts.firefox.com';
   config.set('static_resource_url', CDN_SERVER);
@@ -90,4 +90,4 @@ suite['blockingRules'] = function () {
   assert.include(styleSrc, CDN_SERVER);
 };
 
-registerSuite(suite);
+registerSuite('csp', suite);

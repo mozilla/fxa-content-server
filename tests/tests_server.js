@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
-  'tests/server/routes.js',
+  //'tests/server/routes.js',
   //'tests/server/l10n-entrained.js',
-  // 'tests/server/ver.json.js',
-  // 'tests/server/amplitude.js',
-  // 'tests/server/csp.js',
-  // 'tests/server/flow-event.js',
+  //'tests/server/ver.json.js',
+  //'tests/server/amplitude.js',
+  //'tests/server/csp.js',
+   'tests/server/flow-event.js',
   // 'tests/server/flow-metrics.js',
   // 'tests/server/frame-guard.js',
   // 'tests/server/geo-locate.js',

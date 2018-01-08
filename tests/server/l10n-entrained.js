@@ -3,13 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const config = require('../../server/lib/configuration');
-const csp = require('../../server/lib/csp');
-const htmlparser2 = require('htmlparser2');
-const got = require('got');
-const url = require('url');
-const Promise = require('intern/browser_modules/dojo/Promise');
-const routesHelpers = require('tests/server/helpers/routesHelpers');
+const routesHelpers = require('./helpers/routesHelpers');
 const fxaShared = require('fxa-shared');
 const dnshook = require('./lib/dnshook');
 
@@ -27,18 +21,18 @@ if (intern._config.fxaProduction) {
 }
 
 var dnsSuite = {
-  name: 'confirm that dns.lookup is called via makeRequest by aliasing non-existent domain',
-  setup: function () {
+  before: function () {
     if (hookDns) {
       dnshook('nxdomain.nxdomain.nxdomain', process.env.FXA_DNS_ALIAS);
     }
   },
-  teardown: function () {
+  after: function () {
     dnshook(false);
-  }
+  },
+  tests: {}
 };
 
-dnsSuite['#https get ' + httpsUrl + '/signin fails if non-existent domain'] = function () {
+dnsSuite.tests['#https get ' + httpsUrl + '/signin fails if non-existent domain'] = function () {
   var dfd = this.async(2000);
 
   makeRequest(httpsUrl + '/signin', {})
@@ -57,18 +51,18 @@ dnsSuite['#https get ' + httpsUrl + '/signin fails if non-existent domain'] = fu
   return dfd;
 };
 
-registerSuite(dnsSuite);
+registerSuite('confirm that dns.lookup is called via makeRequest by aliasing non-existent domain', dnsSuite);
 
 var suite = {
-  name: 'check resources entrained by /signin in all locales',
-  setup: function () {
+  before: function () {
     if (hookDns) {
       dnshook(process.env.FXA_DNS_ELB, process.env.FXA_DNS_ALIAS);
     }
   },
-  teardown: function () {
+  after: function () {
     dnshook(false);
-  }
+  },
+  tests: {}
 };
 
 var routes = {
@@ -88,10 +82,10 @@ Object.keys(routes).forEach(function (key) {
   });
 });
 
-registerSuite(suite);
+registerSuite('check resources entrained by /signin in all locales', suite);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
-  suite['#https get ' + httpsUrl + route + ' ' + requestOptions.headers['Accept-Language']] = function () {
+  suite.tests['#https get ' + httpsUrl + route + ' ' + requestOptions.headers['Accept-Language']] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
