@@ -32,6 +32,7 @@ define([
     switchToWindow,
     testElementExists,
     testElementTextEquals,
+    testElementValueEquals,
     testErrorTextInclude,
     type,
     noSuchElement
@@ -192,14 +193,14 @@ define([
         .then(testElementExists(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME))
         .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
         .sleep(500)
-        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
+        .then(testElementValueEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
         // press Esc
         .then(keyupEscape('.settings'))
         .sleep(500)
         // check panel is closed
         .then(noSuchElement('.settings-unit.open'))
         // check input has been cleared
-        .then(testElementTextEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
+        .then(testElementValueEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, ''))
         .end();
     },
 
