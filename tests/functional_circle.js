@@ -26,8 +26,6 @@ function selectCircleTests (allTests) {
     });
   }
 
-  console.log('Running tests:', testsToRun);
-
   return testsToRun;
 }
 

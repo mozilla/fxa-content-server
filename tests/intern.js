@@ -81,19 +81,26 @@ if (args.suites) {
       break;
     case 'circle':
       config.functionalSuites = testsCircleCi;
+      console.log('Running tests:', config.functionalSuites);
       break;
     case 'travis':
       config.functionalSuites = testsTravisCi;
       break;
     case 'server':
       config.functionalSuites = [];
-      config.suites = testsServer;
-      config.reporters = 'pretty';
+      config.node = {};
+      config.node.suites = testsServer;
+      config.tunnelOptions = {};
+      config.environments = {
+        browserName: 'node',
+      };
+      //config.reporters = 'pretty';
+      console.log(config)
       break;
     case 'server-resources':
       config.functionalSuites = [];
       config.suites = testsServerResources;
-      config.reporters = 'pretty';
+      //config.reporters = 'pretty';
       break;
   }
 }
