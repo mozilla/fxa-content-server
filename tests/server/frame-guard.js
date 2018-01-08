@@ -61,10 +61,10 @@ ResMock.prototype = {
 };
 
 var suite = {
-  name: 'frame-guard'
+  tests: {}
 };
 
-suite['no user-agent header'] = function () {
+suite.tests['no user-agent header'] = function () {
   var req = new ReqMock();
   delete req.headers['user-agent'];
 
@@ -73,7 +73,7 @@ suite['no user-agent header'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['Firefox Desktop < 40'] = function () {
+suite.tests['Firefox Desktop < 40'] = function () {
   var req = new ReqMock();
   req.headers['user-agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:39.0) Gecko/20100101 Firefox/39.0';
 
@@ -82,7 +82,7 @@ suite['Firefox Desktop < 40'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['Fennec'] = function () {
+suite.tests['Fennec'] = function () {
   var req = new ReqMock();
   req.headers['user-agent'] = 'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0';
 
@@ -91,7 +91,7 @@ suite['Fennec'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['Firefox for iOS'] = function () {
+suite.tests['Firefox for iOS'] = function () {
   var req = new ReqMock();
   req.headers['user-agent'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4'; //eslint-disable-line max-len
 
@@ -100,7 +100,7 @@ suite['Firefox for iOS'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['Firefox OS'] = function () {
+suite.tests['Firefox OS'] = function () {
   var req = new ReqMock();
   req.headers['user-agent'] = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
 
@@ -109,7 +109,7 @@ suite['Firefox OS'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['Chrome'] = function () {
+suite.tests['Chrome'] = function () {
   var req = new ReqMock();
   req.headers['user-agent'] = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.76 Mobile Safari/537.36'; //eslint-disable-line max-len
 
@@ -118,7 +118,7 @@ suite['Chrome'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['no origin specified'] = function () {
+suite.tests['no origin specified'] = function () {
   var req = new ReqMock();
   delete req.query.origin;
 
@@ -127,7 +127,7 @@ suite['no origin specified'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['origin not in the allowed list'] = function () {
+suite.tests['origin not in the allowed list'] = function () {
   var req = new ReqMock();
   req.query.origin = 'http://site.not.allowed';
 
@@ -136,7 +136,7 @@ suite['origin not in the allowed list'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['no service specified'] = function () {
+suite.tests['no service specified'] = function () {
   var req = new ReqMock();
   delete req.query.service;
 
@@ -145,7 +145,7 @@ suite['no service specified'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['service !== sync'] = function () {
+suite.tests['service !== sync'] = function () {
   var req = new ReqMock();
   req.query.service = 'oauth';
 
@@ -154,14 +154,14 @@ suite['service !== sync'] = function () {
   testXFrameOptionsHeader(this, req, res, 'DENY');
 };
 
-suite['allowed.site, Fx Desktop >= 40'] = function () {
+suite.tests['allowed.site, Fx Desktop >= 40'] = function () {
   var req = new ReqMock();
   var res = new ResMock();
 
   testXFrameOptionsHeader(this, req, res, 'ALLOW-FROM http://allowed.site');
 };
 
-suite['another.allowed.site, Fx Desktop >= 40'] = function () {
+suite.tests['another.allowed.site, Fx Desktop >= 40'] = function () {
   var req = new ReqMock();
   req.query.origin = 'http://another.allowed.site';
 
@@ -170,4 +170,4 @@ suite['another.allowed.site, Fx Desktop >= 40'] = function () {
   testXFrameOptionsHeader(this, req, res, 'ALLOW-FROM http://another.allowed.site');
 };
 
-registerSuite(suite);
+registerSuite('frame-guard', suite);

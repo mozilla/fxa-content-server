@@ -8,7 +8,7 @@ const flowMetrics = require('../../server/lib/flow-metrics');
 const sinon = require('sinon');
 
 var suite = {
-  name: 'flow-metrics'
+  tests: {}
 };
 
 var mockDateNow, mockRandomBytes, mockFlowIdKey, mockUserAgent;
@@ -39,20 +39,20 @@ suite.afterEach = function () {
   Date.now.restore();
 };
 
-suite['create and validate functions are exported'] = () => {
+suite.tests['create and validate functions are exported'] = () => {
   assert.isObject(flowMetrics);
   assert.lengthOf(Object.keys(flowMetrics), 2);
   assert.equal(typeof flowMetrics.create, 'function');
   assert.equal(typeof flowMetrics.validate, 'function');
 };
 
-suite['create returns current timestamp for flowBeginTime'] = () => {
+suite.tests['create returns current timestamp for flowBeginTime'] = () => {
   mockDateNow = 42;
   var flowEventData = flowMetrics.create(mockFlowIdKey, mockUserAgent);
   assert.equal(flowEventData.flowBeginTime, 42);
 };
 
-suite['create correctly generates a known test vector'] = () => {
+suite.tests['create correctly generates a known test vector'] = () => {
   mockDateNow = 1451566800000;
   mockFlowIdKey = 'S3CR37';
   mockUserAgent = 'Firefox';
@@ -77,7 +77,7 @@ suite['create correctly generates a known test vector'] = () => {
   assert.equal(flowEventData.flowId, expectedSalt + expectedHmac);
 };
 
-suite['create generates different flowIds for different keys'] = () => {
+suite.tests['create generates different flowIds for different keys'] = () => {
   var flowEventData1 = flowMetrics.create('key1', mockUserAgent);
   var flowEventData2 = flowMetrics.create('key2', mockUserAgent);
 
@@ -85,7 +85,7 @@ suite['create generates different flowIds for different keys'] = () => {
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite['create generates different flowIds for different user agents'] = () => {
+suite.tests['create generates different flowIds for different user agents'] = () => {
   var flowEventData1 = flowMetrics.create(mockFlowIdKey, 'Firefox');
   var flowEventData2 = flowMetrics.create(mockFlowIdKey, 'Chrome');
 
@@ -93,7 +93,7 @@ suite['create generates different flowIds for different user agents'] = () => {
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite['create generates different flowIds for different random salts'] = () => {
+suite.tests['create generates different flowIds for different random salts'] = () => {
   mockRandomBytes = 'MozillaFirefox!!';
   var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
@@ -104,7 +104,7 @@ suite['create generates different flowIds for different random salts'] = () => {
   assert.equal(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite['create generates different flowIds for different timestamps'] = () => {
+suite.tests['create generates different flowIds for different timestamps'] = () => {
   mockDateNow = +(new Date(2016, 0, 1));
   var flowEventData1 = flowMetrics.create(mockFlowIdKey, mockUserAgent);
 
@@ -115,7 +115,7 @@ suite['create generates different flowIds for different timestamps'] = () => {
   assert.notEqual(flowEventData1.flowBeginTime, flowEventData2.flowBeginTime);
 };
 
-suite['validate returns true for good data'] = () => {
+suite.tests['validate returns true for good data'] = () => {
   // Force the mocks to return bad data to be sure it really works
   mockDateNow = 1478626838531;
   mockFlowIdKey = 'foo';
@@ -133,7 +133,7 @@ suite['validate returns true for good data'] = () => {
   assert.strictEqual(result, true);
 };
 
-suite['validate returns false for a bad flow id'] = () => {
+suite.tests['validate returns false for a bad flow id'] = () => {
   // Force the mocks to return good data to be sure it really works
   mockDateNow = 1451566800000;
   mockFlowIdKey = 'S3CR37';
@@ -150,7 +150,7 @@ suite['validate returns false for a bad flow id'] = () => {
   assert.strictEqual(result, false);
 };
 
-suite['validate returns false for a bad key'] = () => {
+suite.tests['validate returns false for a bad key'] = () => {
   // Force the mocks to return good data to be sure it really works
   mockDateNow = 1451566800000;
   mockFlowIdKey = 'S3CR37';
@@ -167,7 +167,7 @@ suite['validate returns false for a bad key'] = () => {
   assert.strictEqual(result, false);
 };
 
-suite['validate returns false for a bad flow begin time'] = () => {
+suite.tests['validate returns false for a bad flow begin time'] = () => {
   // Force the mocks to return good data to be sure it really works
   mockDateNow = 1451566800000;
   mockFlowIdKey = 'S3CR37';
@@ -184,7 +184,7 @@ suite['validate returns false for a bad flow begin time'] = () => {
   assert.strictEqual(result, false);
 };
 
-suite['validate returns false for a bad user agent string'] = () => {
+suite.tests['validate returns false for a bad user agent string'] = () => {
   // Force the mocks to return good data to be sure it really works
   mockDateNow = 1451566800000;
   mockFlowIdKey = 'S3CR37';
@@ -201,4 +201,4 @@ suite['validate returns false for a bad user agent string'] = () => {
   assert.strictEqual(result, false);
 };
 
-registerSuite(suite);
+registerSuite('flow-metrics', suite);
