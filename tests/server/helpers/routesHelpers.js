@@ -97,7 +97,7 @@ function extractUrls(body) {
           resource.url = attribs.href;
         }
 
-        if (! resource) {
+        if (! resource || ! resource.url) {
           return;
         }
 
