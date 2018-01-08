@@ -26,7 +26,8 @@ define([
   let ravenMock;
   let gotMock;
   const res = {
-    json: () => {}
+    json: () => {},
+    redirect: sinon.spy()
   };
 
   registerSuite({
