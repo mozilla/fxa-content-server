@@ -87,20 +87,19 @@ if (args.suites) {
       config.functionalSuites = testsTravisCi;
       break;
     case 'server':
+    case 'server-resources':
       config.functionalSuites = [];
-      config.node = {};
-      config.node.suites = testsServer;
+      config.node = {
+        suites: testsServer
+      };
       config.tunnelOptions = {};
       config.environments = {
         browserName: 'node',
       };
-      //config.reporters = 'pretty';
-      console.log(config)
-      break;
-    case 'server-resources':
-      config.functionalSuites = [];
-      config.suites = testsServerResources;
-      //config.reporters = 'pretty';
+      config.reporters = 'pretty';
+      if (args.suites === 'server-resources') {
+        config.node.suites = testsServerResources;
+      }
       break;
   }
 }
