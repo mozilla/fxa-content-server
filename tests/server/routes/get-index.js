@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const Promise = require('bluebird');
-const path = require('path');
 const sinon = require('sinon');
 const route = require('../../../server/lib/routes/get-index');
 const config = require('../../../server/lib/configuration');
@@ -16,58 +14,64 @@ registerSuite('routes/get-index', {
     assert.lengthOf(route, 1);
   },
 
-  'initialise route': {
-    setup: function () {
-      instance = route(config);
-    },
-
-    'instance interface is correct': function () {
-      assert.isObject(instance);
-      assert.lengthOf(Object.keys(instance), 3);
-      assert.equal(instance.method, 'get');
-      assert.equal(instance.path, '/');
-      assert.isFunction(instance.process);
-      assert.lengthOf(instance.process, 2);
-    },
-
-    'route.process': {
-      setup: function () {
-        request = {
-          headers: {}
-        };
-        response = { render: sinon.spy() };
-        instance.process(request, response);
+  tests: {
+    'initialise route': {
+      before: function () {
+        instance = route(config);
       },
 
-      'response.render was called correctly': function () {
-        assert.equal(response.render.callCount, 1);
+      tests: {
+        'instance interface is correct': function () {
+          assert.isObject(instance);
+          assert.lengthOf(Object.keys(instance), 3);
+          assert.equal(instance.method, 'get');
+          assert.equal(instance.path, '/');
+          assert.isFunction(instance.process);
+          assert.lengthOf(instance.process, 2);
+        },
 
-        var args = response.render.args[0];
-        assert.lengthOf(args, 2);
+        'route.process': {
+          before: function () {
+            request = {
+              headers: {}
+            };
+            response = {render: sinon.spy()};
+            instance.process(request, response);
+          },
 
-        assert.equal(args[0], 'index');
+          tests: {
+            'response.render was called correctly': function () {
+              assert.equal(response.render.callCount, 1);
 
-        var renderParams = args[1];
-        assert.isObject(renderParams);
-        assert.lengthOf(Object.keys(renderParams), 4);
-        assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
-        assert.isAbove(renderParams.flowBeginTime, 0);
-        assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
+              var args = response.render.args[0];
+              assert.lengthOf(args, 2);
 
-        assert.isString(renderParams.config);
-        var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
+              assert.equal(args[0], 'index');
 
-        assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
-        assert.equal(sentConfig.env, config.get('env'));
-        assert.equal(sentConfig.marketingEmailPreferencesUrl,
-                     config.get('marketing_email.preferences_url'));
-        assert.equal(sentConfig.marketingEmailServerUrl,
-                     config.get('marketing_email.api_url'));
-        assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
-        assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
-        assert.equal(sentConfig.profileUrl, config.get('profile_url'));
-        assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
-        assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
+              var renderParams = args[1];
+              assert.isObject(renderParams);
+              assert.lengthOf(Object.keys(renderParams), 4);
+              assert.ok(/[0-9a-f]{64}/.exec(renderParams.flowId));
+              assert.isAbove(renderParams.flowBeginTime, 0);
+              assert.equal(renderParams.staticResourceUrl, config.get('static_resource_url'));
+
+              assert.isString(renderParams.config);
+              var sentConfig = JSON.parse(decodeURIComponent(renderParams.config));
+
+              assert.equal(sentConfig.authServerUrl, config.get('fxaccount_url'));
+              assert.equal(sentConfig.env, config.get('env'));
+              assert.equal(sentConfig.marketingEmailPreferencesUrl,
+                config.get('marketing_email.preferences_url'));
+              assert.equal(sentConfig.marketingEmailServerUrl,
+                config.get('marketing_email.api_url'));
+              assert.equal(sentConfig.oAuthClientId, config.get('oauth_client_id'));
+              assert.equal(sentConfig.oAuthUrl, config.get('oauth_url'));
+              assert.equal(sentConfig.profileUrl, config.get('profile_url'));
+              assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
+              assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
+            }
+          }
+        }
       }
     }
   }

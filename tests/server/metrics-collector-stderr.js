@@ -11,7 +11,7 @@ proxyquire.noPreserveCache();
 
 var und;
 var suite = {
-  name: 'metrics-collector-stderr'
+  tests: {}
 };
 
 // This test cannot be run remotely like the other tests in tests/server. So,
@@ -35,7 +35,7 @@ var mockMetricsResponse = {
   json: function () {}
 };
 
-suite['writes formatted data to stderr'] = function () {
+suite.tests['writes formatted data to stderr'] = function () {
   var dfd = this.async(1000);
 
   // process.stderr.write is overwritten because the 'data' message
@@ -133,7 +133,7 @@ suite['writes formatted data to stderr'] = function () {
 };
 
 
-suite['it is enabled  with config options set to false'] = function () {
+suite.tests['it is enabled  with config options set to false'] = function () {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = false;
   var mocks = {
@@ -160,7 +160,7 @@ suite['it is enabled  with config options set to false'] = function () {
   return dfd.promise;
 };
 
-suite['it can be disabled with config options'] = function () {
+suite.tests['it can be disabled with config options'] = function () {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = true;
   var mocks = {
@@ -189,4 +189,4 @@ suite['it can be disabled with config options'] = function () {
   return dfd.promise;
 };
 
-registerSuite(suite);
+registerSuite('metrics-collector-stderr', suite);

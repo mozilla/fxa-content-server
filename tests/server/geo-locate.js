@@ -48,56 +48,58 @@ registerSuite('geo-locate', {
     remoteAddress.reset();
   },
 
-  'interface is correct': () => {
-    assert.isFunction(geolocate);
-    assert.lengthOf(geolocate, 1);
-  },
+  tests: {
+    'interface is correct': () => {
+      assert.isFunction(geolocate);
+      assert.lengthOf(geolocate, 1);
+    },
 
-  'behaves correctly if geodb succeeds': () => {
-    return geolocate('blee')
-      .then(result => {
-        assert.equal(result, 'mock geodb result');
+    'behaves correctly if geodb succeeds': () => {
+      return geolocate('blee')
+        .then(result => {
+          assert.equal(result, 'mock geodb result');
 
-        assert.equal(remoteAddress.callCount, 1);
-        let args = remoteAddress.args[0];
-        assert.equal(args.length, 1);
-        assert.equal(args[0], 'blee');
+          assert.equal(remoteAddress.callCount, 1);
+          let args = remoteAddress.args[0];
+          assert.equal(args.length, 1);
+          assert.equal(args[0], 'blee');
 
-        assert.equal(geodb.callCount, 1);
-        args = geodb.args[0];
-        assert.equal(args.length, 1);
-        assert.equal(args[0], 'mock remoteAddress result');
+          assert.equal(geodb.callCount, 1);
+          args = geodb.args[0];
+          assert.equal(args.length, 1);
+          assert.equal(args[0], 'mock remoteAddress result');
 
-        assert.equal(logger.error.callCount, 0);
-      });
-  },
+          assert.equal(logger.error.callCount, 0);
+        });
+    },
 
-  'behaves correctly if geodb fails': () => {
-    results.geodb = P.reject('ohno');
-    return geolocate('fuffle')
-      .then(result => {
-        assert.deepEqual(result, {});
+    'behaves correctly if geodb fails': () => {
+      results.geodb = P.reject('ohno');
+      return geolocate('fuffle')
+        .then(result => {
+          assert.deepEqual(result, {});
 
-        assert.equal(remoteAddress.callCount, 1);
-        assert.equal(geodb.callCount, 1);
+          assert.equal(remoteAddress.callCount, 1);
+          assert.equal(geodb.callCount, 1);
 
-        assert.equal(logger.error.callCount, 1);
-        const args = logger.error.args[0];
-        assert.equal(args.length, 2);
-        assert.equal(args[0], 'geodb.error');
-        assert.equal(args[1], 'ohno');
-      });
-  },
+          assert.equal(logger.error.callCount, 1);
+          const args = logger.error.args[0];
+          assert.equal(args.length, 2);
+          assert.equal(args[0], 'geodb.error');
+          assert.equal(args[1], 'ohno');
+        });
+    },
 
-  'behaves correctly if config is disabled': () => {
-    config.enabled = false;
-    return geolocate('blee')
-      .then(result => {
-        assert.deepEqual(result, {});
+    'behaves correctly if config is disabled': () => {
+      config.enabled = false;
+      return geolocate('blee')
+        .then(result => {
+          assert.deepEqual(result, {});
 
-        assert.equal(remoteAddress.callCount, 0);
-        assert.equal(geodb.callCount, 0);
-        assert.equal(logger.error.callCount, 0);
-      });
+          assert.equal(remoteAddress.callCount, 0);
+          assert.equal(geodb.callCount, 0);
+          assert.equal(logger.error.callCount, 0);
+        });
+    }
   }
 });

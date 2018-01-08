@@ -8,11 +8,11 @@ const path = require('path');
 const config = require('../../server/lib/configuration');
 const proxyquire = require('proxyquire');
 var suite = {
-  name: 'ga metrics'
+  tests: {}
 };
 var SIGNUP_FLOW = 'Firefox Accounts Sign-up Flow';
 
-suite['it works with GA'] = function () {
+suite.tests['it works with GA'] = function () {
   var data = JSON.parse(fs.readFileSync('tests/server/fixtures/ga_body_1.json'));
 
   function analyticsMock() {
@@ -53,7 +53,7 @@ suite['it works with GA'] = function () {
   collect.write(data);
 };
 
-suite['it works with GA path page events'] = function () {
+suite.tests['it works with GA path page events'] = function () {
   var data = JSON.parse(fs.readFileSync('tests/server/fixtures/ga_body_screen.json'));
 
   function analyticsMock() {
@@ -79,7 +79,7 @@ suite['it works with GA path page events'] = function () {
   collect.write(data);
 };
 
-suite['describes _calculateQueueTime'] = function () {
+suite.tests['describes _calculateQueueTime'] = function () {
   var GACollector = proxyquire(path.join(process.cwd(), 'server', 'lib', 'ga-collector'), {});
   var collect = new GACollector({
     analyticsId: 'mockId'
@@ -119,7 +119,7 @@ function testMalformedEventData (fixturePath) {
   }
 }
 
-suite['malformed event data'] = function () {
+suite.tests['malformed event data'] = function () {
   /**
    * event.type checks in malformed_event_data.json:
    * - missing `type`
@@ -132,4 +132,4 @@ suite['malformed event data'] = function () {
   testMalformedEventData('tests/server/fixtures/malformed_event_data.json');
 };
 
-registerSuite(suite);
+registerSuite('ga metrics', suite);

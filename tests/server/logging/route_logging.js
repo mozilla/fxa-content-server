@@ -54,61 +54,61 @@ function requireTestFile() {
 }
 
 var suite = {
-  name: 'routeLogging',
   beforeEach: () => {
     loggerSpy = sinon.stub();
     configSpy = sinon.stub();
     morganSpy = sinon.stub();
   },
+  tests: {
+    'it logs a string if log format is dev_fxa'() {
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'dev_fxa'
+      });
+      requireTestFile();
+      routeLogging();
+      const formatObj = morganSpy.getCall(0).args[0];
+      const writeFunct = morganSpy.getCall(0).args[1].stream.write;
 
-  'it logs a string if log format is dev_fxa' () {
-    configSpy.returns({
-      'disable_route_logging': false,
-      'route_log_format': 'dev_fxa'
-    });
-    requireTestFile();
-    routeLogging();
-    const formatObj = morganSpy.getCall(0).args[0];
-    const writeFunct = morganSpy.getCall(0).args[1].stream.write;
+      const formatObjResp = formatObj(tokens);
+      assert.equal(formatObjResp, 'GET www.mozilla.com 1337 200');
 
-    const formatObjResp = formatObj(tokens);
-    assert.equal(formatObjResp, 'GET www.mozilla.com 1337 200');
+      writeFunct('    spaceToTrim\n');
+      assert.equal(loggerSpy.getCall(0).args[0], 'route');
+      assert.equal(loggerSpy.getCall(0).args[1], 'spaceToTrim');
+    },
 
-    writeFunct('    spaceToTrim\n');
-    assert.equal(loggerSpy.getCall(0).args[0], 'route');
-    assert.equal(loggerSpy.getCall(0).args[1], 'spaceToTrim');
-  },
+    'it logs a json blob if log format is not dev_fxa'() {
+      configSpy.returns({
+        'disable_route_logging': false,
+        'route_log_format': 'default_fxa'
+      });
+      requireTestFile();
+      routeLogging();
+      const formatObj = morganSpy.getCall(0).args[0];
+      const writeFunct = morganSpy.getCall(0).args[1].stream.write;
+      const formatObjResp = formatObj(tokens, req);
+      assert.equal(
+        formatObjResp,
+        JSON.stringify({
+          clientAddress: '127.0.0.1',
+          contentLength: '1995',
+          method: 'GET',
+          path: 'www.mozilla.com',
+          referer: 'testReferer',
+          remoteAddressChain: ['0.0.0.0', '1.1.1.1', '2.2.2.2', '127.0.0.1'],
+          status: '200',
+          t: '1337',
+          'userAgent': 'testAgent'
+        })
+      );
 
-  'it logs a json blob if log format is not dev_fxa' () {
-    configSpy.returns({
-      'disable_route_logging': false,
-      'route_log_format': 'default_fxa'
-    });
-    requireTestFile();
-    routeLogging();
-    const formatObj = morganSpy.getCall(0).args[0];
-    const writeFunct = morganSpy.getCall(0).args[1].stream.write;
-    const formatObjResp = formatObj(tokens, req);
-    assert.equal(
-      formatObjResp,
-      JSON.stringify({
-        clientAddress: '127.0.0.1',
-        contentLength: '1995',
-        method: 'GET',
-        path: 'www.mozilla.com',
-        referer: 'testReferer',
-        remoteAddressChain: ['0.0.0.0','1.1.1.1','2.2.2.2','127.0.0.1'],
-        status: '200',
-        t: '1337',
-        'userAgent': 'testAgent'
-      })
-    );
-
-    writeFunct('{"p": 5}');
-    assert.equal(loggerSpy.getCall(0).args[0], 'route');
-    assert.deepEqual(loggerSpy.getCall(0).args[1], {p: 5});
+      writeFunct('{"p": 5}');
+      assert.equal(loggerSpy.getCall(0).args[0], 'route');
+      assert.deepEqual(loggerSpy.getCall(0).args[1], {p: 5});
+    }
   }
 };
 
 
-registerSuite(suite);
+registerSuite('routeLogging', suite);

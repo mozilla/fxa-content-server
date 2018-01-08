@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const Promise = require('intern/dojo/Promise');
 const fs = require('fs');
 const dgram = require('dgram');
 const path = require('path');
@@ -23,17 +22,17 @@ function readExpectedData(fileToRead) {
 }
 
 var suite = {
-  name: 'statsd-collector'
+  tests: {}
 };
 
 // This test cannot be run remotely like the other tests in tests/server. So,
 // if production, just skip these tests (register a suite with no tests).
 if (intern._config.fxaProduction) {
-  registerSuite(suite);
+  registerSuite('statsd-collector', suite);
   return;
 }
 
-suite['properly maintains connected state'] = function () {
+suite.tests['properly maintains connected state'] = function () {
   var metricsCollector = new StatsDCollector();
   assert.isFalse(metricsCollector.connected);
   metricsCollector.init();
@@ -42,8 +41,8 @@ suite['properly maintains connected state'] = function () {
   assert.isFalse(metricsCollector.connected);
 };
 
-suite['properly collects metrics events'] = function () {
-  var dfd = new Promise.Deferred();
+suite.tests['properly collects metrics events'] = function () {
+  var dfd = this.async(10000);
 
   var metricsCollector = new StatsDCollector();
   metricsCollector.init();
@@ -87,19 +86,19 @@ suite['properly collects metrics events'] = function () {
 
 };
 
-suite['properly collects navigationTiming stats'] = function () {
+suite.tests['properly collects navigationTiming stats'] = function () {
   return testStatsDEvents('statsd_body_1.json', 'statsd_navigation_timing_data_1.txt');
 };
 
-suite['properly filters out of range timing stats'] = function () {
+suite.tests['properly filters out of range timing stats'] = function () {
   return testStatsDEvents('statsd_body_filter_out_of_range.json', 'statsd_filter_out_of_range.txt');
 };
 
-suite['properly collects utm params'] = function () {
+suite.tests['properly collects utm params'] = function () {
   return testStatsDEvents('statsd_body_2.json', 'statsd_utm_data_2.txt');
 };
 
-registerSuite(suite);
+registerSuite('statsd-collector', suite);
 
 /**
  * Creates a test harness, that binds to an ephemeral port
@@ -156,42 +155,42 @@ function statsdMessageToObject(message) {
  * @returns {promise}
  */
 function testStatsDEvents(fixtureFilename, expectedFilename) {
-  var dfd = new Promise.Deferred();
+  return new Promise((resolve) => {
+    var metricsCollector = new StatsDCollector();
+    metricsCollector.init();
 
-  var metricsCollector = new StatsDCollector();
-  metricsCollector.init();
+    var fixtureMessage = readFixture(fixtureFilename);
+    // expectedEvents are written to disk in alphabetical order already.
+    var expectedEventBody = readExpectedData(expectedFilename);
 
-  var fixtureMessage = readFixture(fixtureFilename);
-  // expectedEvents are written to disk in alphabetical order already.
-  var expectedEventBody = readExpectedData(expectedFilename);
+    var expectedEvents = expectedEventBody.split('\n');
+    var receivedEvents = [];
 
-  var expectedEvents = expectedEventBody.split('\n');
-  var receivedEvents = [];
+    udpTest(function (message, server) {
+      message = statsdMessageToObject(message);
 
-  udpTest(function (message, server) {
-    message = statsdMessageToObject(message);
+      // event data is sent if available, interfering
+      // with the test. Only collect navigationTiming data.
+      if (/navigationTiming\./.test(message.raw)) {
+        receivedEvents.push(message.raw);
+      }
 
-    // event data is sent if available, interfering
-    // with the test. Only collect navigationTiming data.
-    if (/navigationTiming\./.test(message.raw)) {
-      receivedEvents.push(message.raw);
-    }
+      if (receivedEvents.length === expectedEvents.length) {
+        // udp messages can be received out of order, sort them, the check
+        // to ensure all the expected ones arrive.
+        receivedEvents = receivedEvents.sort();
+        assert.deepEqual(receivedEvents, expectedEvents);
 
-    if (receivedEvents.length === expectedEvents.length) {
-      // udp messages can be received out of order, sort them, the check
-      // to ensure all the expected ones arrive.
-      receivedEvents = receivedEvents.sort();
-      assert.deepEqual(receivedEvents, expectedEvents);
-
-      metricsCollector.close();
-      server.close();
-      dfd.resolve();
-    }
+        metricsCollector.close();
+        server.close();
+        resolve();
+      }
 
 
-  }, function (){
-    metricsCollector.write(fixtureMessage);
+    }, function (){
+      metricsCollector.write(fixtureMessage);
+    });
+
   });
 
-  return dfd.promise;
 }

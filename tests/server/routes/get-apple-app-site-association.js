@@ -8,12 +8,12 @@ const got = require('got');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  name: 'apple-app-site-association'
+  tests: {}
 };
 
 var route;
 
-suite['get-apple-app-site-association route function'] = {
+suite.tests['get-apple-app-site-association route function'] = {
 
   'route interface is correct': function () {
     route = getAppleSiteAssociation();
@@ -26,7 +26,7 @@ suite['get-apple-app-site-association route function'] = {
   }
 };
 
-suite['#get /.well-known/apple-app-site-association - returns a JSON doc with expected values'] = function () {
+suite.tests['#get /.well-known/apple-app-site-association - returns a JSON doc with expected values'] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/apple-app-site-association', {})
@@ -56,7 +56,9 @@ suite['#get /.well-known/apple-app-site-association - returns a JSON doc with ex
         }
       };
       assert.deepEqual(result, expectedResult);
-    }).then(dfd.resolve, dfd.reject);
+    }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+  return dfd
 };
 
-registerSuite(suite);
+registerSuite('apple-app-site-association', suite);

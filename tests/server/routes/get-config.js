@@ -16,41 +16,44 @@ registerSuite('routes/get-config', {
   },
 
   'initialise route': {
-    setup: function () {
+    before: function () {
       instance = route();
     },
 
-    'instance interface is correct': function () {
-      assert.isObject(instance);
-      assert.lengthOf(Object.keys(instance), 3);
-      assert.equal(instance.method, 'get');
-      assert.equal(instance.path, '/config');
-      assert.isFunction(instance.process);
-      assert.lengthOf(instance.process, 2);
-    },
-
-    'route.process': {
-      setup: function () {
-        request = {};
-        response = {
-          json: sinon.spy(function () {
-            return this;
-          }),
-          status: sinon.spy(function () {
-            return this;
-          })
-        };
-        instance.process(request, response);
+    tests: {
+      'instance interface is correct': function () {
+        assert.isObject(instance);
+        assert.lengthOf(Object.keys(instance), 3);
+        assert.equal(instance.method, 'get');
+        assert.equal(instance.path, '/config');
+        assert.isFunction(instance.process);
+        assert.lengthOf(instance.process, 2);
       },
 
-      'response.status was called correctly': function () {
-        assert.equal(response.status.callCount, 1);
-        assert.equal(response.status.args[0][0], 410);
-      },
+      'route.process': {
+        before: function () {
+          request = {};
+          response = {
+            json: sinon.spy(function () {
+              return this;
+            }),
+            status: sinon.spy(function () {
+              return this;
+            })
+          };
+          instance.process(request, response);
+        },
+        tests: {
+          'response.status was called correctly': function () {
+            assert.equal(response.status.callCount, 1);
+            assert.equal(response.status.args[0][0], 410);
+          },
 
-      'response.json was called correctly': function () {
-        assert.equal(response.json.callCount, 1);
-        assert.deepEqual(response.json.args[0][0], {});
+          'response.json was called correctly': function () {
+            assert.equal(response.json.callCount, 1);
+            assert.deepEqual(response.json.args[0][0], {});
+          }
+        }
       }
     }
   }

@@ -8,13 +8,15 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 // ensure we don't get any module from the cache, but to load it fresh every time
 proxyquire.noPreserveCache();
-var suite = {};
+var suite = {
+  tests: {}
+};
 
 suite.afterEach = function () {
   process.nextTick.restore();
 };
 
-suite['sanity check'] = function () {
+suite.tests['sanity check'] = function () {
   var test = setUp();
 
   assert.equal(test.metrics.method, 'post');
@@ -24,7 +26,7 @@ suite['sanity check'] = function () {
   assert.lengthOf(test.mocks.statsdCollector.init.getCall(0).args, 0);
 };
 
-suite['process responds with success immediately, calls process.nextTick'] = function () {
+suite.tests['process responds with success immediately, calls process.nextTick'] = function () {
   var test = setUp();
 
   test.metrics.process(test.mocks.request, test.mocks.response);
@@ -38,7 +40,7 @@ suite['process responds with success immediately, calls process.nextTick'] = fun
   assert.equal(process.nextTick.callCount, 1);
 };
 
-suite['Content-Type is unset, user is not sampled'] = function () {
+suite.tests['Content-Type is unset, user is not sampled'] = function () {
   var test = setUp();
 
   test.mocks.request.body = {};
@@ -60,7 +62,7 @@ suite['Content-Type is unset, user is not sampled'] = function () {
   assert.lengthOf(test.mocks.gaCollector.write.getCall(0).args, 1);
 };
 
-suite['Content-Type is unset, user is sampled'] = function () {
+suite.tests['Content-Type is unset, user is sampled'] = function () {
   var test = setUp(function () {
     return 'foo';
   });
@@ -88,7 +90,7 @@ suite['Content-Type is unset, user is sampled'] = function () {
   assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
 };
 
-suite['Content-Type is text/plain, data is invalid JSON'] = function () {
+suite.tests['Content-Type is text/plain, data is invalid JSON'] = function () {
   var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain';
@@ -111,7 +113,7 @@ suite['Content-Type is text/plain, data is invalid JSON'] = function () {
 
 };
 
-suite['Content-Type is text/plain, data is valid JSON, user is sampled'] = function () {
+suite.tests['Content-Type is text/plain, data is valid JSON, user is sampled'] = function () {
   var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain';
@@ -140,7 +142,7 @@ suite['Content-Type is text/plain, data is valid JSON, user is sampled'] = funct
   assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
 };
 
-suite['Content-Type is text/plain;charset=UTF-8, data is valid JSON, user is sampled'] = function () {
+suite.tests['Content-Type is text/plain;charset=UTF-8, data is valid JSON, user is sampled'] = function () {
   var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain;charset=UTF-8';
@@ -168,7 +170,7 @@ suite['Content-Type is text/plain;charset=UTF-8, data is valid JSON, user is sam
   assert.equal(test.mocks.gaCollector.write.getCall(0).args[0], data);
 };
 
-registerSuite(suite);
+registerSuite('metrics-unit', suite);
 
 function setUp (requestGet) {
   var mocks = {

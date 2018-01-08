@@ -17,8 +17,6 @@ const noindex = proxyquire(
 );
 
 var suite = {
-  name: 'noindex',
-
   'it adds the X-Robots-Tag header' () {
     const res = {
       setHeader: sinon.spy()
@@ -35,4 +33,4 @@ var suite = {
 };
 
 
-registerSuite(suite);
+registerSuite('noindex', suite);

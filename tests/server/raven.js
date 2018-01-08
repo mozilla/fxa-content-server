@@ -6,16 +6,16 @@ const assert = intern.getPlugin('chai').assert;
 const raven = require('../../server/lib/raven');
 
 var suite = {
-  name: 'raven'
+  tests: {}
 };
 
-suite['exports correctly'] = function () {
+suite.tests['exports correctly'] = function () {
   assert.ok(raven.ravenMiddleware);
   assert.ok(raven.ravenModule);
   assert.ok(raven._middlewareConfig);
 };
 
-suite['middlewareConfig'] = function () {
+suite.tests['middlewareConfig'] = function () {
   var config = raven._middlewareConfig;
   var badUrl = 'https://accounts.firefox.com/page?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
   var goodUrl = 'https://accounts.firefox.com/page';
@@ -42,4 +42,4 @@ suite['middlewareConfig'] = function () {
   assert.equal(response.exception[0].stacktrace.frames.length, 10);
 };
 
-registerSuite(suite);
+registerSuite('raven', suite);

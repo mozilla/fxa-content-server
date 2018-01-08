@@ -6,11 +6,10 @@ const assert = intern.getPlugin('chai').assert;
 const config = require('../../server/lib/configuration');
 const got = require('got');
 const fs = require('fs');
-const path = require('path');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  name: 'metrics'
+  tests: {}
 };
 
 const MAX_EVENT_OFFSET = config.get('client_metrics').max_event_offset;
@@ -22,15 +21,15 @@ const INVALID_METRICS_OVERWRITE_TOSTRING_METHOD =
 
 const FLUSH_TIME_START_TIME_DIFF = VALID_METRICS.flushTime - VALID_METRICS.startTime;
 
-suite['#post /metrics - returns 200'] = function () {
+suite.tests['#post /metrics - returns 200'] = function () {
   return testValidMetricsData(VALID_METRICS, 'application/json');
 };
 
-suite['#post /metrics - returns 200 if Content-Type is text/plain'] = function () {
+suite.tests['#post /metrics - returns 200 if Content-Type is text/plain'] = function () {
   return testValidMetricsData(VALID_METRICS, 'text/plain;charset=UTF-8');
 };
 
-suite['#post /metrics - returns 200 with valid data'] = {
+suite.tests['#post /metrics - returns 200 with valid data'] = {
   'valid entrypoint (fxa:connect_another_device)': testValidMetricsField('entrypoint', 'fxa:connect_another_device'),
   'valid entrypoint (fxa:signup)': testValidMetricsField('entrypoint', 'fxa:signup'),
   'valid entrypoint (fxa:signup-complete)': testValidMetricsField('entrypoint', 'fxa:signup-complete'),
@@ -56,7 +55,7 @@ suite['#post /metrics - returns 200 with valid data'] = {
   'valid utm_content': testValidMetricsField('utm_campaign', 'firefox/sync')
 };
 
-suite['#post /metrics - returns 400 with invalid data'] = {
+suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'empty body': () => testInvalidMetricsData(''),
   'invalid broker (#)': testInvalidMetricsField('broker', '#'),
   'invalid context (!)': testInvalidMetricsField('context', '!'),
@@ -199,4 +198,4 @@ function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
-registerSuite(suite);
+registerSuite('metrics', suite);

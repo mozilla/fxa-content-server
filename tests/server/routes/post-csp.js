@@ -9,7 +9,7 @@ const config = require('../../../server/lib/configuration');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const got = require('got');
-const TestHelpers = require('tests/lib/helpers');
+const TestHelpers = require('../../lib/helpers');
 
 const REPORT_URL = intern._config.fxaContentRoot.replace(/\/$/, '') + '/_/csp-violation';
 const VALID_CSP_REPORT = {
@@ -26,7 +26,7 @@ const VALID_CSP_REPORT = {
 // ensure we don't get any module from the cache, but to load it fresh every time
 proxyquire.noPreserveCache();
 var suite = {
-  name: 'post-csp'
+  tests: {}
 };
 var mockRequest = {
   body: {
@@ -43,7 +43,7 @@ var mockResponse = {
 
 const createRandomHexString = TestHelpers.createRandomHexString;
 
-suite['it works with csp reports'] = function () {
+suite.tests['it works with csp reports'] = function () {
   var writer = sinon.spy();
   var postCsp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'routes', 'post-csp'), {})({ write: writer });
   // check 5 times that all messages drop
@@ -56,7 +56,7 @@ suite['it works with csp reports'] = function () {
   assert.equal(writer.callCount, 5);
 };
 
-suite['it strips PII from the referrer and source fields'] = function () {
+suite.tests['it strips PII from the referrer and source fields'] = function () {
   var mockRequest = {
     body: {
       'csp-report': {
@@ -78,7 +78,7 @@ suite['it strips PII from the referrer and source fields'] = function () {
   assert.equal(entry.source, 'https://accounts.firefox.com/settings?notaffected=1');
 };
 
-suite['works correctly if query params do not contain PII'] = function () {
+suite.tests['works correctly if query params do not contain PII'] = function () {
   var mockRequest = {
     body: {
       'csp-report': {
@@ -100,7 +100,7 @@ suite['works correctly if query params do not contain PII'] = function () {
   assert.equal(entry.source, 'https://accounts.firefox.com/settings?notaffected=1');
 };
 
-suite['works correctly if no query params'] = function () {
+suite.tests['works correctly if no query params'] = function () {
   var mockRequest = {
     body: VALID_CSP_REPORT,
     'get': function () {}
@@ -116,7 +116,7 @@ suite['works correctly if no query params'] = function () {
   assert.equal(entry.source, 'https://accounts.firefox.com');
 };
 
-suite['#post csp - returns 400 if CSP report is invalid'] = {
+suite.tests['#post csp - returns 400 if CSP report is invalid'] = {
   'blocked-uri not a URL (1)': testInvalidCspValue('blocked-uri', 1),
   'column-number negative (-1)': testInvalidCspValue('column-number', -1),
   'column-number not a number (a)': testInvalidCspValue('column-number', 'a'),
@@ -140,13 +140,13 @@ suite['#post csp - returns 400 if CSP report is invalid'] = {
   'violated-directive not a string (321)': testInvalidCspValue('violated-directive', 321),
 };
 
-suite['#post csp - returns 400 if csp-report is empty'] = function () {
+suite.tests['#post csp - returns 400 if csp-report is empty'] = function () {
   testInvalidCspReport({
     'csp-report': {}
   });
 };
 
-suite['#post csp - returns 200 if CSP report is valid'] = {
+suite.tests['#post csp - returns 200 if CSP report is valid'] = {
   'blocked-uri (asset)': testValidCspValue('blocked-uri', 'asset'),
   'blocked-uri (data)': testValidCspValue('blocked-uri', 'data'),
   'blocked-uri (empty)': testValidCspValue('blocked-uri', ''),
@@ -215,4 +215,4 @@ function deepCopy(obj) {
 }
 
 
-registerSuite(suite);
+registerSuite('post-csp', suite);

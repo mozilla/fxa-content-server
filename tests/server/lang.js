@@ -14,7 +14,7 @@ var languages = fxaShared.l10n.supportedLanguages;
 var httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  name: 'load / and /i18n/client.json with various accept-languages'
+  tests: {}
 };
 
 function langTest(lang) {
@@ -32,7 +32,7 @@ function langTest(lang) {
     return lang;
   }
 
-  suite['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
+  suite.tests['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
     got(httpsUrl + '/', options)
       .then(function (res) {
@@ -45,10 +45,12 @@ function langTest(lang) {
           assert.ok(scriptRegExp.test(res.body), 'html has localized JavaScript');
         }
       })
-      .then(dfd.resolve, dfd.reject);
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+    return dfd;
   };
 
-  suite['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] = function () {
+  suite.tests['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
     got(httpsUrl + '/i18n/client.json', options)
       .then(function (res) {
@@ -60,7 +62,9 @@ function langTest(lang) {
           assert.equal(normalizeLanguage(lang), language);
         }
       })
-      .then(dfd.resolve, dfd.reject);
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+    return dfd;
   };
 }
 
@@ -68,4 +72,4 @@ languages.forEach(function (lang) {
   langTest(lang);
 });
 
-registerSuite(suite);
+registerSuite('load / and /i18n/client.json with various accept-languages', suite);

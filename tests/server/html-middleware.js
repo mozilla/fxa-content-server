@@ -38,21 +38,22 @@ registerSuite('html-middleware', {
     };
     next = sinon.spy();
   },
+  tests: {
+    'it calls middleware if an html response type': function () {
+      sinon.stub(res, 'getHeader', () => 'text/html; charset=UTF-8');
+      wrappedMiddleware(req, res, next);
 
-  'it calls middleware if an html response type': function() {
-    sinon.stub(res, 'getHeader', () => 'text/html; charset=UTF-8');
-    wrappedMiddleware(req, res, next);
+      assert.isTrue(originalMiddleware.calledOnce);
+      assert.isTrue(originalMiddleware.calledWith(req, res));
+      assert.isTrue(next.calledOnce);
+    },
 
-    assert.isTrue(originalMiddleware.calledOnce);
-    assert.isTrue(originalMiddleware.calledWith(req, res));
-    assert.isTrue(next.calledOnce);
-  },
+    'it does not call middleware if a non-html response type': function () {
+      sinon.stub(res, 'getHeader', () => 'application/json; charset=UTF-8');
+      wrappedMiddleware(req, res, next);
 
-  'it does not call middleware if a non-html response type': function() {
-    sinon.stub(res, 'getHeader', () => 'application/json; charset=UTF-8');
-    wrappedMiddleware(req, res, next);
-
-    assert.isFalse(originalMiddleware.called);
-    assert.isTrue(next.calledOnce);
+      assert.isFalse(originalMiddleware.called);
+      assert.isTrue(next.calledOnce);
+    }
   }
 });

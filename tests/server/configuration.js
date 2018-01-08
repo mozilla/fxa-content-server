@@ -5,7 +5,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const cp = require('child_process');
 var suite = {
-  name: 'configuration'
+  tests: {}
 };
 
 // This test cannot be run remotely like the other tests in tests/server. So,
@@ -43,7 +43,7 @@ function spawnServer (cb) {
 
 }
 
-suite['#test incompatible locale lists 2'] = function () {
+suite.tests['#test incompatible locale lists 2'] = function () {
   var dfd = this.async(10000);
 
   spawnServer(dfd.callback(function (err, data) {
@@ -52,6 +52,8 @@ suite['#test incompatible locale lists 2'] = function () {
 
     dfd.resolve();
   }, dfd.reject.bind(dfd)));
+
+  return dfd;
 };
 
-registerSuite(suite);
+registerSuite('configuration', suite);

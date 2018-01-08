@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const config = require('../../server/lib/configuration');
 const got = require('got');
 const fs = require('fs');
 const path = require('path');
@@ -12,7 +11,7 @@ const url = require('url');
 var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
-  name: 'metrics-errors'
+  tests: {}
 };
 
 const VALID_METRICS_ERROR =
@@ -20,14 +19,14 @@ const VALID_METRICS_ERROR =
 const INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD =
   fs.readFileSync('tests/server/fixtures/metrics_error_overwrite_slice.json');
 
-suite['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
+suite.tests['#get deprecated /metrics-errors endpoint - returns 200'] = function () {
   return got.get(serverUrl + '/metrics-errors')
     .then((res) => {
       assert.equal(res.statusCode, 200);
     });
 };
 
-suite['#post /metrics-errors - returns 200'] = {
+suite.tests['#post /metrics-errors - returns 200'] = {
   'culprit (undefined)': testValidMetricsErrorField('culprit', undefined),
   'event_id value (empty)': testValidException('event_id', ''),
   'event_id value (undefined)': testValidException('event_id', undefined),
@@ -54,7 +53,7 @@ suite['#post /metrics-errors - returns 200'] = {
   'tags.errno (undefined)': testValidTagValue('errno', undefined),
 };
 
-suite['#post /metrics-errors - returns 400 with invalid body'] = function () {
+suite.tests['#post /metrics-errors - returns 400 with invalid body'] = function () {
   return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
     body: JSON.stringify({}),
     headers: {
@@ -65,7 +64,7 @@ suite['#post /metrics-errors - returns 400 with invalid body'] = function () {
   });
 };
 
-suite['#post /metrics-errors - returns 400 with invalid frames'] = function () {
+suite.tests['#post /metrics-errors - returns 400 with invalid frames'] = function () {
   return got.post(serverUrl + '/metrics-errors?sentry_version=4', {
     body: INVALID_METRICS_ERROR_OVEWRITE_SLICE_METHOD,
     headers: {
@@ -78,7 +77,7 @@ suite['#post /metrics-errors - returns 400 with invalid frames'] = function () {
 
 // This test cannot be run remotely like the other tests in tests/server.
 if (! intern._config.fxaProduction) {
-  suite['it gets the release information from package.json'] = function () {
+  suite.tests['it gets the release information from package.json'] = function () {
     var contentServerVersion = JSON.parse(fs.readFileSync('./package.json')).version;
 
     var requestMock = function (req, cb) {
@@ -109,7 +108,7 @@ if (! intern._config.fxaProduction) {
     route(req, res);
   };
 
-  suite['it trims long stacktraces'] = function () {
+  suite.tests['it trims long stacktraces'] = function () {
     var requestMock = function (req, cb) {
       var resp = {
         statusCode: 200
@@ -185,4 +184,4 @@ function deepCopy(obj) {
 }
 
 
-registerSuite(suite);
+registerSuite('metrics-errors', suite);

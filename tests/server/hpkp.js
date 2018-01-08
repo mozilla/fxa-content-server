@@ -6,7 +6,7 @@ const assert = intern.getPlugin('chai').assert;
 const config = require('../../server/lib/configuration');
 const hpkp = require('../../server/lib/hpkp');
 var suite = {
-  name: 'hpkp'
+  tests: {}
 };
 
 function ReqMock() {
@@ -27,7 +27,7 @@ ResMock.prototype = {
   }
 };
 
-suite['#fails with no sha pins'] = function () {
+suite.tests['#fails with no sha pins'] = function () {
   config.set('hpkp.sha256s', []);
   assert.throws(function () {
     hpkp(config);
@@ -35,7 +35,7 @@ suite['#fails with no sha pins'] = function () {
 };
 
 
-suite['#sends header when enabled'] = function () {
+suite.tests['#sends header when enabled'] = function () {
   config.set('hpkp.enabled', true);
   config.set('hpkp.sha256s', ['sha1=', 'sha2=']);
   config.set('hpkp.reportOnly', false);
@@ -50,7 +50,7 @@ suite['#sends header when enabled'] = function () {
   }, dfd.reject.bind(dfd)));
 };
 
-suite['#does not send header when disabled'] = function () {
+suite.tests['#does not send header when disabled'] = function () {
   config.set('hpkp.enabled', false);
   var middleware = hpkp(config);
   var dfd = this.async(intern._config.asyncTimeout);
@@ -63,7 +63,7 @@ suite['#does not send header when disabled'] = function () {
   }, dfd.reject.bind(dfd)));
 };
 
-suite['#sends report only header'] = function () {
+suite.tests['#sends report only header'] = function () {
   config.set('hpkp.enabled', true);
   config.set('hpkp.reportOnly', true);
   config.set('hpkp.reportUri', 'http://report.com');
@@ -79,4 +79,4 @@ suite['#sends report only header'] = function () {
   }, dfd.reject.bind(dfd)));
 };
 
-registerSuite(suite);
+registerSuite('hpkp', suite);

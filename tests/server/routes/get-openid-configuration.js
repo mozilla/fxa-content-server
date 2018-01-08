@@ -9,7 +9,7 @@ var serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 var openIdConfig = config.get('openid_configuration');
 
 var suite = {
-  name: 'openid-configuration'
+  tests: {}
 };
 
 suite['#options /.well-known/openid-configuration - CORS enabled'] = function () {
@@ -20,7 +20,9 @@ suite['#options /.well-known/openid-configuration - CORS enabled'] = function ()
       assert.equal(res.statusCode, 204);
       assert.equal(res.headers['access-control-allow-origin'], '*');
       assert.equal(res.headers['access-control-allow-methods'], 'GET');
-    }).then(dfd.resolve, dfd.reject);
+    }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+  return dfd;
 };
 
 suite['#get /.well-known/openid-configuration - returns a JSON doc with expected values'] = function () {
@@ -39,7 +41,9 @@ suite['#get /.well-known/openid-configuration - returns a JSON doc with expected
       assert.deepEqual(result.scopes_supported, openIdConfig.scopes_supported);
       assert.deepEqual(result.subject_types_supported, openIdConfig.subject_types_supported);
       assert.deepEqual(result.token_endpoint_auth_methods_supported, openIdConfig.token_endpoint_auth_methods_supported);
-    }).then(dfd.resolve, dfd.reject);
+    }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+
+  return dfd;
 };
 
-registerSuite(suite);
+registerSuite('openid-configuration', suite);
