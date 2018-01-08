@@ -30,6 +30,7 @@ registerSuite('amplitude', {
   },
 
   tests: {
+    /*eslint-disable sorting/sort-object-props */
     'app version seems sane': () => {
       assert.typeOf(APP_VERSION, 'string');
       assert.match(APP_VERSION, /^[0-9]+$/);

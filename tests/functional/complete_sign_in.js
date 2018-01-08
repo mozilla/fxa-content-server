@@ -34,25 +34,25 @@ const testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLog
 const createRandomHexString = TestHelpers.createRandomHexString;
 
 registerSuite('complete_sign_in', {
-    beforeEach: function () {
-      email = TestHelpers.createEmail('sync{id}');
-      user = TestHelpers.emailToUser(email);
-      return this.remote
-        .then(clearBrowserState())
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(PAGE_SIGNIN_URL, selectors.SIGNIN.HEADER))
-        .execute(listenForFxaCommands)
-        .then(fillOutSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(testIsBrowserNotified('can_link_account'))
-        .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
-        .then(getEmailHeaders(user, 0))
-        .then((headers) => {
-          code = headers['x-verify-code'];
-          uid = headers['x-uid'];
+  beforeEach: function () {
+    email = TestHelpers.createEmail('sync{id}');
+    user = TestHelpers.emailToUser(email);
+    return this.remote
+      .then(clearBrowserState())
+      .then(createUser(email, PASSWORD, { preVerified: true }))
+      .then(openPage(PAGE_SIGNIN_URL, selectors.SIGNIN.HEADER))
+      .execute(listenForFxaCommands)
+      .then(fillOutSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+      .then(testIsBrowserNotified('can_link_account'))
+      .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
+      .then(getEmailHeaders(user, 0))
+      .then((headers) => {
+        code = headers['x-verify-code'];
+        uid = headers['x-uid'];
 
-        });
-    },
+      });
+  },
   tests: {
     'open verification link with malformed code': function () {
       code = createRandomHexString(Constants.CODE_LENGTH - 1);
@@ -88,12 +88,6 @@ registerSuite('complete_sign_in', {
       return this.remote
         .then(openPage(url, selectors.COMPLETE_SIGNIN.VERIFICATION_LINK_EXPIRED))
         .then(noSuchElement(selectors.COMPLETE_SIGNIN.LINK_RESEND));
-    },
-
-    'open valid email verification link': function () {
-      return this.remote
-        .then(clearBrowserState())
-        .then(openPage(verificationLink, selectors.SIGNIN_COMPLETE.HEADER));
     }
   }
 });

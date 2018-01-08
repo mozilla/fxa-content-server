@@ -17,7 +17,7 @@ const fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9010';
 const fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
 const fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
 const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
-const fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
+const fxaOAuthApp = args.fxaOAuthApp || 'http://127.0.0.1:8080/';
 const fxaUntrustedOauthApp = args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
@@ -50,8 +50,8 @@ const config = {
   fxaContentRoot: fxaContentRoot,
   fxaDevBox: fxaDevBox,
   fxaEmailRoot: fxaEmailRoot,
+  fxaOAuthApp: fxaOAuthApp,
   fxaOAuthRoot: fxaOAuthRoot,
-  fxaOauthApp: fxaOauthApp,
   fxaProduction: fxaProduction,
   fxaProfileRoot: fxaProfileRoot,
   fxaToken: fxaToken,
@@ -59,9 +59,9 @@ const config = {
   fxaUntrustedOauthApp: fxaUntrustedOauthApp,
 
   pageLoadTimeout: 20000,
+  reporters: 'runner',
   serverPort: 9090,
   serverUrl: 'http://127.0.0.1:9090',
-  reporters: 'runner',
   tunnelOptions: {
     'drivers': ['firefox']
   },
@@ -72,35 +72,35 @@ if (args.grep) {
 }
 
 if (args.suites) {
-  switch(args.suites) {
-    case 'oauth':
-      config.functionalSuites = testsOAuth;
-      break;
-    case 'all':
-      config.functionalSuites = testsAll;
-      break;
-    case 'circle':
-      config.functionalSuites = testsCircleCi;
-      console.log('Running tests:', config.functionalSuites);
-      break;
-    case 'travis':
-      config.functionalSuites = testsTravisCi;
-      break;
-    case 'server':
-    case 'server-resources':
-      config.functionalSuites = [];
-      config.node = {
-        suites: testsServer
-      };
-      config.tunnelOptions = {};
-      config.environments = {
-        browserName: 'node',
-      };
-      config.reporters = 'pretty';
-      if (args.suites === 'server-resources') {
-        config.node.suites = testsServerResources;
-      }
-      break;
+  switch (args.suites) {
+  case 'oauth':
+    config.functionalSuites = testsOAuth;
+    break;
+  case 'all':
+    config.functionalSuites = testsAll;
+    break;
+  case 'circle':
+    config.functionalSuites = testsCircleCi;
+    console.log('Running tests:', config.functionalSuites);
+    break;
+  case 'travis':
+    config.functionalSuites = testsTravisCi;
+    break;
+  case 'server':
+  case 'server-resources':
+    config.functionalSuites = [];
+    config.node = {
+      suites: testsServer
+    };
+    config.tunnelOptions = {};
+    config.environments = {
+      browserName: 'node',
+    };
+    config.reporters = 'pretty';
+    if (args.suites === 'server-resources') {
+      config.node.suites = testsServerResources;
+    }
+    break;
   }
 }
 

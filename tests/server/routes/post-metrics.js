@@ -16,7 +16,7 @@ registerSuite('routes/post-metrics', {
       config: {
         get (key) {
           switch (key) {
-            /*eslint-disable indent*/
+          /*eslint-disable indent*/
             case 'client_metrics':
               return {
                 max_event_offset: 1024, //eslint-disable-line camelcase

@@ -5,9 +5,7 @@
 // but should be expected to pass against latest.dev.lcip.org as well.
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const config = require('../../server/lib/configuration');
 const got = require('got');
-const url = require('url');
 const util = require('util');
 const fxaShared = require('fxa-shared');
 var languages = fxaShared.l10n.supportedLanguages;

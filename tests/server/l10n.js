@@ -198,20 +198,20 @@ suite.tests['#get privacy page with no `Accept` header'] = function () {
 
 suite.tests['#get /i18n/client.json with multiple supported languages'] = function () {
   return testClientJson.call(this,
-      'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
-      'de');
+    'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
+    'de');
 };
 
 suite.tests['#get /i18n/client.json with en,fr should use en'] = function () {
   return testClientJson.call(this,
-      'en,fr',
-      'en');
+    'en,fr',
+    'en');
 };
 
 suite.tests['#get /i18n/client.json with en-US,fr should use en'] = function () {
   return testClientJson.call(this,
-      'en-us,fr',
-      'en');
+    'en-us,fr',
+    'en');
 };
 
 suite.tests['#get /i18n/client.json with lowercase language'] = function () {

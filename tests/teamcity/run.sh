@@ -93,7 +93,7 @@ node ./tests/intern.js \
     --suites="full" \
     --fxaAuthRoot="$FXA_AUTH_ROOT" \
     --fxaContentRoot="$FXA_CONTENT_ROOT" \
-    --fxaOauthApp="$FXA_OAUTH_APP_ROOT" \
+    --fxaOAuthApp="$FXA_OAUTH_APP_ROOT" \
     --fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
     --fxaEmailRoot="http://restmail.net" \
     --fxaProduction="true" \

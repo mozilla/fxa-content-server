@@ -5,7 +5,6 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const fs = require('fs');
 const path = require('path');
-const config = require('../../server/lib/configuration');
 const proxyquire = require('proxyquire');
 var suite = {
   tests: {}

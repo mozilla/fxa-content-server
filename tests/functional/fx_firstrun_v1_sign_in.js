@@ -57,22 +57,22 @@ registerSuite('Firstrun Sync v1 signin', {
         force: true
       }));
   },
-tests: {
-  'verified, verify same browser ': function () {
+  tests: {
+    'verified, verify same browser ': function () {
 
 
-    return this.remote
-      .then(setupTest({ preVerified: true }))
+      return this.remote
+        .then(setupTest({ preVerified: true }))
 
         .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(clearBrowserNotifications())
 
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow())
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow())
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(noSuchBrowserNotification('fxaccounts:login'));

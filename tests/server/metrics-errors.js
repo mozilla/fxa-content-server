@@ -146,9 +146,9 @@ function testValidMetricsError(metricsError, query) {
         'Content-Type': 'application/json'
       }
     })
-    .then((res) => {
-      assert.equal(res.statusCode, 200);
-    });
+      .then((res) => {
+        assert.equal(res.statusCode, 200);
+      });
   };
 }
 

@@ -6,7 +6,7 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
-var OAUTH_APP = config.fxaOauthApp;
+var OAUTH_APP = config.fxaOAuthApp;
 
 const {
   clearBrowserState,

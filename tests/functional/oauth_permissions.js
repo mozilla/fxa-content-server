@@ -14,7 +14,7 @@ const config = intern._config;
 
 const TIMEOUT = 90 * 1000;
 
-const TRUSTED_OAUTH_APP = config.fxaOauthApp;
+const TRUSTED_OAUTH_APP = config.fxaOAuthApp;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
 const PASSWORD = 'password';
 

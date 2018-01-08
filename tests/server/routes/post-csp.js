@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const fs = require('fs');
 const path = require('path');
-const config = require('../../../server/lib/configuration');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const got = require('got');
@@ -176,11 +174,11 @@ function testInvalidCspReport(cspReport) {
       body: JSON.stringify(cspReport),
       headers: { 'Content-Type': 'application/json' }
     })
-    .then(assert.fail, (resp) => {
+      .then(assert.fail, (resp) => {
       //console.log('resp', resp);
-      assert.equal(resp.statusCode, 400);
-      assert.equal(resp.statusMessage, 'Bad Request');
-    });
+        assert.equal(resp.statusCode, 400);
+        assert.equal(resp.statusMessage, 'Bad Request');
+      });
   };
 }
 
@@ -197,9 +195,9 @@ function testValidCspReport(cspReport) {
       body: JSON.stringify(cspReport),
       headers: { 'Content-Type': 'application/json' }
     })
-    .then((resp) => {
-      assert.equal(resp.statusCode, 200);
-    });
+      .then((resp) => {
+        assert.equal(resp.statusCode, 200);
+      });
   };
 }
 

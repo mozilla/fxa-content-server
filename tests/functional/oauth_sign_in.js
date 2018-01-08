@@ -7,7 +7,7 @@ const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
-const OAUTH_APP = config.fxaOauthApp;
+const OAUTH_APP = config.fxaOAuthApp;
 const SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
 const PASSWORD = 'password';

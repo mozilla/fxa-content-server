@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const _ = require('lodash');
 const os = require('os');
 const path = require('path');
 const proxyquire = require('proxyquire');
@@ -52,6 +51,7 @@ registerSuite('flow-event', {
   },
 
   tests: {
+    /*eslint-disable sorting/sort-object-props */
     'interface is correct': () => {
       assert.isFunction(flowEvent);
       assert.lengthOf(flowEvent, 3);

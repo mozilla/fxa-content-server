@@ -69,10 +69,10 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     return this.remote
       .then(clearBrowserState({ force: true }));
   },
-tests: {
-  'Fx >= 58, verified, does not need to confirm ': function () {
-    const forceUA = uaStrings['desktop_firefox_58'];
-    const query = {  forceUA };
+  tests: {
+    'Fx >= 58, verified, does not need to confirm ': function () {
+      const forceUA = uaStrings['desktop_firefox_58'];
+      const query = {  forceUA };
 
       email = TestHelpers.createEmail();
 
@@ -89,27 +89,14 @@ tests: {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
-  'verified, verify same browser, new tab\'s P.O.V ': function () {
-    return this.remote.then(setupTest({ preVerified: true}))
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow());
+    'verified, verify same browser, new tab\'s P.O.V ': function () {
+      return this.remote.then(setupTest({ preVerified: true}))
+        .then(openVerificationLinkInNewTab(email, 0))
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(closeCurrentWindow());
       // tests for the original tab are below.
-  },
-
-  'verified, verify same browser, new tab\'s P.O.V - treatment': function () {
-    const query = { forceExperiment: 'cadOnSignin', forceExperimentGroup: 'control' };
-
-    return this.remote
-      .then(setupTest({ preVerified: true }))
-
-      .then(openVerificationLinkInNewTab(email, 0))
-      .then(switchToWindow(1))
-      .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      .then(closeCurrentWindow());
-    // tests for the original tab are below.
-  },
+    },
 
     'Fx <= 57, verified, verify same browser, original tab\'s P.O.V.': function () {
       const forceUA = uaStrings['desktop_firefox_57'];

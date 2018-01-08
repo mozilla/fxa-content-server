@@ -58,7 +58,7 @@ suite.tests['#get /.well-known/apple-app-site-association - returns a JSON doc w
       assert.deepEqual(result, expectedResult);
     }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
-  return dfd
+  return dfd;
 };
 
 registerSuite('apple-app-site-association', suite);

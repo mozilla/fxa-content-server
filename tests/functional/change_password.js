@@ -18,22 +18,22 @@ const SECOND_PASSWORD = 'new_password';
 
 let email;
 
-  const {
-    clearBrowserState,
-    click,
-    createUser,
-    denormalizeStoredEmail,
-    fillOutChangePassword,
-    fillOutSignIn,
-    noSuchElementDisplayed,
-    noSuchElement,
-    openPage,
-    testElementExists,
-    testElementTextEquals,
-    thenify,
-    type,
-    visibleByQSA,
-  } = FunctionalHelpers;
+const {
+  clearBrowserState,
+  click,
+  createUser,
+  denormalizeStoredEmail,
+  fillOutChangePassword,
+  fillOutSignIn,
+  noSuchElementDisplayed,
+  noSuchElement,
+  openPage,
+  testElementExists,
+  testElementTextEquals,
+  thenify,
+  type,
+  visibleByQSA,
+} = FunctionalHelpers;
 
 const setupTest = thenify(function (options = {}) {
   const signUpEmail = options.signUpEmail || email;
@@ -57,10 +57,10 @@ registerSuite('change_password', {
   afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
-tests: {
-  'sign in, try to change password with an incorrect old password': function () {
-    return this.remote
-      .then(setupTest())
+  tests: {
+    'sign in, try to change password with an incorrect old password': function () {
+      return this.remote
+        .then(setupTest())
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
@@ -155,9 +155,9 @@ tests: {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-  'sign in, reset password via settings works': function () {
-    return this.remote
-      .then(setupTest())
+    'sign in, reset password via settings works': function () {
+      return this.remote
+        .then(setupTest())
 
         // Go to change password screen
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))

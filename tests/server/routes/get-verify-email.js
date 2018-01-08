@@ -36,10 +36,10 @@ registerSuite('verify_email', {
     };
     mocks = {
       '../../lib/raven': ravenMock,
-      'got': gotMock,
       '../logging/log': () => {
         return logger;
       },
+      'got': gotMock
     };
     res = {
       json: () => {},
