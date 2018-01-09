@@ -142,8 +142,8 @@ registerSuite('Firefox desktop user info handshake', {
       let signinUrlWithSigninCode;
 
       return this.remote
-      // The phoneNumber can be reused by different tests, delete all
-      // of its SMS messages to ensure a clean slate.
+        // The phoneNumber can be reused by different tests, delete all
+        // of its SMS messages to ensure a clean slate.
         .then(deleteAllSms(testPhoneNumber))
 
         .then(openPage(SYNC_SMS_PAGE_URL, selectors.SMS_SEND.HEADER, {
@@ -195,7 +195,7 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Non-Sync signin page - user signed into browser, user signed in locally': function () {
       return this.remote
-      // First, sign in the user to populate localStorage
+        // First, sign in the user to populate localStorage
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
           webChannelResponses: {
             'fxaccounts:fxa_status': {
@@ -237,7 +237,7 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Sync signin page - no user signed into browser, user signed in locally': function () {
       return this.remote
-      // First, sign in the user to populate localStorage
+        // First, sign in the user to populate localStorage
         .then(openPage(SIGNIN_PAGE_URL, selectors.SIGNIN.HEADER, {
           webChannelResponses: {
             'fxaccounts:fxa_status': {

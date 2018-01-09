@@ -129,7 +129,7 @@ registerSuite('complete_sign_up with expired link and click resend', {
       var verificationLink;
 
       return this.remote
-      // Sign up and obtain a verification link
+        // Sign up and obtain a verification link
         .then(fillOutSignUp(email, PASSWORD))
         .then(testElementExists('#fxa-confirm-header'))
 

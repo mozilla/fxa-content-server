@@ -33,9 +33,9 @@ registerSuite('confirm', {
   tests: {
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
       return this.remote
-      // user is immediately redirected to /signup if they have no
-      // sessionToken.
-      // Success is showing the screen
+        // user is immediately redirected to /signup if they have no
+        // sessionToken.
+        // Success is showing the screen
         .then(openPage(CONFIRM_URL, '#fxa-signup-header'));
     },
 

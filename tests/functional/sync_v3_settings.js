@@ -88,7 +88,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
 
     'sign in, no way to sign out': function () {
       return this.remote
-      // make sure the sign out element doesn't exist
+        // make sure the sign out element doesn't exist
         .then(noSuchElement('#signout'));
     }
   }

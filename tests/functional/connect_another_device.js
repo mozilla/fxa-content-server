@@ -154,7 +154,7 @@ registerSuite('connect_another_device', {
 
     'signin Fx Desktop, verify same browser ': function () {
       const forceUA = UA_STRINGS['desktop_firefox'];
-      const query = {  forceUA };
+      const query = { forceUA };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(SIGNIN_DESKTOP_URL, selectors.SIGNIN.HEADER, { query }))
@@ -175,8 +175,8 @@ registerSuite('connect_another_device', {
       const forceUA = UA_STRINGS['desktop_firefox'];
 
       return this.remote
-      // preVerified: false causes the "verify account" email to be sent,
-      // that's used later to verify.
+        // preVerified: false causes the "verify account" email to be sent,
+        // that's used later to verify.
         .then(createUser(signUpEmail, PASSWORD, {preVerified: false}))
         .then(createUser(signInEmail, PASSWORD, {preVerified: true}))
 

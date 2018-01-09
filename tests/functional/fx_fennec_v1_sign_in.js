@@ -117,8 +117,8 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
       let signinUrlWithSigninCode;
 
       return this.remote
-      // The phoneNumber is reused across tests, delete all
-      // if its SMS messages to ensure a clean slate.
+        // The phoneNumber is reused across tests, delete all
+        // if its SMS messages to ensure a clean slate.
         .then(deleteAllSms(testPhoneNumber))
         .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
 
