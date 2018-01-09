@@ -11,6 +11,7 @@ var LOOKUP_URL = API_URL + '/lookup-user/?email=';
 
 function waitUntilUserIsRegistered(email) {
 
+  const maxAttempts = 10;
   var requestAttempts = 0;
 
   return function checkIt () {
@@ -26,6 +27,8 @@ function waitUntilUserIsRegistered(email) {
       .then(function (result) {
         if (result.status === 'ok') {
           return result;
+        } else if (requestAttempts >= maxAttempts) {
+          return Promise.reject(new Error('EmailTimeout'));
         } else {
           return new Promise((resolve, reject) => {
             setTimeout(function () {

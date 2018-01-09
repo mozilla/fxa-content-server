@@ -39,7 +39,7 @@ if (fxaProduction) {
 }
 
 // okay, not remote so run these for real.
-registerSuite('suiteName', {
+registerSuite(suiteName, {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     return this.remote

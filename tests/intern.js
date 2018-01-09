@@ -108,6 +108,10 @@ if (args.useTeamCityReporter) {
   config.reporters = 'teamcity';
 }
 
+if (args.unit) {
+  config.functionalSuites.unshift('tests/functional/mocha.js');
+}
+
 config.capabilities = {};
 config.capabilities['moz:firefoxOptions'] = {};
 // to create a profile, give it the `config` option.

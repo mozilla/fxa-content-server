@@ -80,6 +80,7 @@ node ./tests/teamcity/install-npm-deps.js \
   got                             \
   intern                          \
   sync-exec                       \
+  yargs                           \
   xmlhttprequest
 
 node_modules/.bin/bower install --config.interactive=false
