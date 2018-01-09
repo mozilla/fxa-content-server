@@ -31,7 +31,7 @@ define([
     fillOutSignIn,
     fillOutSignUp,
     getUnblockInfo,
-    keyupEscape,
+    keyupEscapeEvent,
     openPage,
     openVerificationLinkInDifferentBrowser,
     openVerificationLinkInNewTab,
@@ -324,24 +324,24 @@ define([
     'add secondary email, hit Esc, input should be cleared': function () {
       const TEXT = 'TEST';
       return this.remote
-            // create user, verify, sign in, open settings page
-            .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
-            .then(fillOutSignUp(email, PASSWORD))
-            .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-            .then(openVerificationLinkInSameTab(email, 0))
-            .then(testElementExists(selectors.SETTINGS.HEADER))
+        // create user, verify, sign in, open settings page
+        .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
+        .then(fillOutSignUp(email, PASSWORD))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
 
-            // click to add email, input something, check it's been added
-            .then(click(selectors.EMAIL.MENU_BUTTON))
-            .then(type(selectors.EMAIL.INPUT, TEXT))
-            .sleep(500)
-            .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
-            // hit esc
-            .then(keyupEscape('.settings'))
-            // panel should be closed
-            .then(noSuchElement('.settings-unit.open'))
-            // input should have been cleared
-            .then(testElementValueEquals(selectors.EMAIL.INPUT, ''));
+        // click to add email, input something, check it's been added
+        .then(click(selectors.EMAIL.MENU_BUTTON))
+        .then(type(selectors.EMAIL.INPUT, TEXT))
+        .sleep(500)
+        .then(testElementValueEquals(selectors.EMAIL.INPUT, TEXT))
+        // hit esc
+        .then(keyupEscapeEvent('.settings'))
+        // panel should be closed
+        .then(noSuchElement('.settings-unit.open'))
+        // input should have been cleared
+        .then(testElementValueEquals(selectors.EMAIL.INPUT, ''));
     },
   });
 });

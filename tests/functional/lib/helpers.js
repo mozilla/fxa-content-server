@@ -1503,7 +1503,7 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
-  const keyupEscape = thenify(function (selector) {
+  const keyupEscapeEvent = thenify(function (selector) {
     return this.parent
         .execute(function (selector) {
           var target = selector ? document.querySelector(selector) : window;
@@ -2115,7 +2115,7 @@ define([
     getVerificationLink: getVerificationLink,
     getWebChannelMessageData,
     imageLoadedByQSA: imageLoadedByQSA,
-    keyupEscape: keyupEscape,
+    keyupEscapeEvent: keyupEscapeEvent,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,

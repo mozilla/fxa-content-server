@@ -25,7 +25,7 @@ define([
     fillOutSignIn,
     focus,
     getFxaClient,
-    keyupEscape,
+    keyupEscapeEvent,
     noSuchStoredAccountByEmail,
     openPage,
     openSettingsInNewTab,
@@ -195,7 +195,7 @@ define([
         .sleep(500)
         .then(testElementValueEquals(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, TEXT))
         // press Esc
-        .then(keyupEscape('.settings'))
+        .then(keyupEscapeEvent('.settings'))
         .sleep(500)
         // check panel is closed
         .then(noSuchElement('.settings-unit.open'))
