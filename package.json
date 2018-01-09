@@ -71,7 +71,6 @@
     "helmet": "3.8.2",
     "i18n-abide": "0.0.25",
     "joi": "10.4.1",
-    "jscodeshift": "^0.4.0",
     "jsxgettext-recursive": "git://github.com/vladikoff/jsxgettext-recursive#msgctxt-support",
     "load-grunt-tasks": "3.5.2",
     "lodash": "4.17.4",

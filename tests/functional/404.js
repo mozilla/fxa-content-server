@@ -10,7 +10,7 @@ registerSuite('404', {
 
     return this.remote
       .get(url)
-      .setFindTimeout(5000)
+      .setFindTimeout(intern._config.pageLoadTimeout)
       .findById('fxa-404-home')
       .click()
       .end()
