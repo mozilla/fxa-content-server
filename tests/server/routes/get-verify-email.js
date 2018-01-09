@@ -69,7 +69,7 @@ registerSuite('verify_email', {
       return dfd;
     },
 
-    'no logs if successful': function () {
+    'no errors logged if successful, only Sentry messages': function () {
       const dfd = this.async(10000);
       mocks.got = {
         post: (req, res, next) => {
