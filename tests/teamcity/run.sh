@@ -78,6 +78,7 @@ node ./tests/teamcity/install-npm-deps.js \
   requirejs                       \
   fxa-shared                      \
   got                             \
+  leadfoot                        \
   intern                          \
   sync-exec                       \
   yargs                           \
