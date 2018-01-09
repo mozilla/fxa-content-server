@@ -1503,6 +1503,20 @@ define([
   var mouseout = mouseevent('mouseout');
   var mouseup = mouseevent('mouseup');
 
+  const keyupEscapeEvent = thenify(function (selector) {
+    return this.parent
+        .execute(function (selector) {
+          var target = selector ? document.querySelector(selector) : window;
+          var event = new KeyboardEvent('keyup', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            which: 27
+          });
+          target.dispatchEvent(event);
+        }, [ selector ]);
+  });
+
   const clearBrowserNotifications = thenify(function () {
     return this.parent
       .execute(function (command, done) {
@@ -2101,6 +2115,7 @@ define([
     getVerificationLink: getVerificationLink,
     getWebChannelMessageData,
     imageLoadedByQSA: imageLoadedByQSA,
+    keyupEscapeEvent: keyupEscapeEvent,
     mousedown: mousedown,
     mouseevent: mouseevent,
     mouseout: mouseout,
