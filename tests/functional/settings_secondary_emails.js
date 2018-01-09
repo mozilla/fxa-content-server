@@ -4,7 +4,6 @@
 
 'use strict';
 
-
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');

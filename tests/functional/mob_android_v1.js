@@ -1,8 +1,9 @@
-'use strict';
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+'use strict';
+
 /**
  * Functional suite for the mob_android_v1 broker. There are no "verify same browser" tests
  * because it's impossible to open the verification link in the app where the verification

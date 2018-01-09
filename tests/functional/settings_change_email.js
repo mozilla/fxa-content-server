@@ -4,7 +4,6 @@
 
 'use strict';
 
-
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
