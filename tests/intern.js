@@ -124,4 +124,9 @@ if (args.firefoxBinary) {
 }
 
 intern.configure(config);
-intern.run();
+intern.run()
+  .catch((e) => {
+    // This might not throw, BUG filed: https://github.com/theintern/intern/issues/868
+    console.log(e);
+    process.exit(1);
+  });
