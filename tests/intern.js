@@ -60,6 +60,7 @@ const config = {
 
   pageLoadTimeout: 20000,
   reporters: 'runner',
+  socketPort: 9077,
   serverPort: 9090,
   serverUrl: 'http://127.0.0.1:9090',
   tunnelOptions: {
