@@ -46,7 +46,7 @@ registerSuite('FxiOS v1 sign_up', {
       .then(clearBrowserState());
   },
   tests: {
-    'Fx iOS >= 11.0 sign up, verify same browser': function () {
+    'sign up + CWTS, verify same browser': function () {
       return this.remote
         .then(openPage(PAGE_URL, selectors.SIGNUP.HEADER, {
           query: {
