@@ -316,7 +316,7 @@ registerSuite('settings secondary emails', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(closeCurrentWindow());
     },
-    
+
     'add secondary email, hit Esc, input should be cleared': function () {
       const TEXT = 'TEST';
       return this.remote
