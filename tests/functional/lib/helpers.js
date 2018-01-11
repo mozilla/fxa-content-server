@@ -2060,7 +2060,6 @@ function noSuchStoredAccountByEmail (email) {
   };
 }
 
-
 /**
  * Wait for the given `url`
  *
