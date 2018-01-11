@@ -1,40 +1,36 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 /* eslint-disable camelcase */
-
-define([
-  'intern!object',
-  'intern/chai!assert',
-  'intern/dojo/node!path',
-  'intern/dojo/node!proxyquire',
-  'intern/dojo/node!sinon',
-  'intern/dojo/node!../../package.json',
-], (registerSuite, assert, path, proxyquire, sinon, package) => {
-  const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
-    './configuration': {
-      get () {
-        return {
-          '0': 'amo',
-          '1': 'pocket'
-        };
-      }
+const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
+const path = require('path');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const pkg = require('../../package.json');
+const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
+  './configuration': {
+    get () {
+      return {
+        '0': 'amo',
+        '1': 'pocket'
+      };
     }
-  });
-  const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(package.version)[1];
+  }
+});
+const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
-  registerSuite({
-    name: 'amplitude',
+registerSuite('amplitude', {
+  beforeEach: function() {
+    sinon.stub(process.stderr, 'write', () => {});
+  },
 
-    beforeEach () {
-      sinon.stub(process.stderr, 'write', () => {});
-    },
+  afterEach: function() {
+    process.stderr.write.restore();
+  },
 
-    afterEach () {
-      process.stderr.write.restore();
-    },
-
+  tests: {
+    /*eslint-disable sorting/sort-object-props */
     'app version seems sane': () => {
       assert.typeOf(APP_VERSION, 'string');
       assert.match(APP_VERSION, /^[0-9]+$/);
@@ -65,16 +61,16 @@ define([
         connection: {},
         headers: {
           'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0',
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'bar',
         entrypoint: 'baz',
         experiments: [
-          { choice: 'FirstExperiment', group: 'groupOne' },
-          { choice: 'second-experiment', group: 'Group-Two' },
-          { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
-          { choice: 'fourth.experiment', group: 'Group.FOUR' }
+          {choice: 'FirstExperiment', group: 'groupOne'},
+          {choice: 'second-experiment', group: 'Group-Two'},
+          {choice: 'THIRD_EXPERIMENT', group: 'group_three'},
+          {choice: 'fourth.experiment', group: 'Group.FOUR'}
         ],
         flowBeginTime: 'qux',
         flowId: 'wibble',
@@ -94,7 +90,7 @@ define([
         assert.equal(args[0][args[0].length - 1], '\n');
         assert.deepEqual(JSON.parse(args[0]), {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'bar',
           event_properties: {
             device_id: 'bar',
@@ -106,7 +102,7 @@ define([
           op: 'amplitudeEvent',
           os_name: 'Mac OS X',
           os_version: '10.11',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'qux',
           time: 'foo',
           user_id: 'soop',
@@ -191,7 +187,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -209,7 +205,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'none',
@@ -235,7 +231,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -258,7 +254,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -271,6 +267,26 @@ define([
       });
     },
 
+    'flow.enter-email.engage': () => {
+      return amplitude({
+        time: 'a',
+        type: 'flow.enter-email.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - engage');
+      });
+    },
+
     'flow.force-auth.engage': () => {
       return amplitude({
         time: 'a',
@@ -278,7 +294,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -298,7 +314,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -318,7 +334,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -339,7 +355,7 @@ define([
         assert.equal(arg.event_type, 'fxa_reg - engage');
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b',
@@ -349,7 +365,7 @@ define([
           event_type: 'fxa_reg - engage',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -373,7 +389,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -389,7 +405,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -409,7 +425,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -422,6 +438,26 @@ define([
       });
     },
 
+    'flow.enter-email.submit': () => {
+      return amplitude({
+        time: 'a',
+        type: 'flow.enter-email.submit'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - submit');
+      });
+    },
+
     'flow.force-auth.submit': () => {
       return amplitude({
         time: 'a',
@@ -429,7 +465,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -449,7 +485,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -469,7 +505,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -489,13 +525,33 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
       }).then(() => assert.equal(process.stderr.write.callCount, 0));
+    },
+
+    'screen.enter-email': () => {
+      return amplitude({
+        time: 'a',
+        type: 'screen.enter-email'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      }).then(() => {
+        assert.equal(process.stderr.write.callCount, 1);
+        const arg = JSON.parse(process.stderr.write.args[0]);
+        assert.equal(arg.event_type, 'fxa_email_first - view');
+      });
     },
 
     'screen.force-auth': () => {
@@ -505,7 +561,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -525,7 +581,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -545,7 +601,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -565,7 +621,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -585,7 +641,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -605,7 +661,7 @@ define([
         const arg = JSON.parse(process.stderr.write.args[0]);
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b'
@@ -613,7 +669,7 @@ define([
           event_type: 'fxa_sms - view',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -632,7 +688,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -648,7 +704,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -669,7 +725,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -690,7 +746,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -706,7 +762,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
@@ -726,7 +782,7 @@ define([
         const arg = JSON.parse(process.stderr.write.args[0]);
         assert.deepEqual(arg, {
           app_version: APP_VERSION,
-          country: 'Switzerland',
+          country: 'United States',
           device_id: 'b',
           event_properties: {
             device_id: 'b',
@@ -736,7 +792,7 @@ define([
           event_type: 'fxa_email - click',
           language: 'f',
           op: 'amplitudeEvent',
-          region: 'Geneva',
+          region: 'California',
           session_id: 'd',
           time: 'a',
           user_id: 'h',
@@ -755,7 +811,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -776,7 +832,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -797,7 +853,7 @@ define([
       }, {
         connection: {},
         headers: {
-          'x-forwarded-for': '194.12.187.0'
+          'x-forwarded-for': '63.245.221.32'
         }
       }, {
         flowBeginTime: 'b',
@@ -805,6 +861,5 @@ define([
         uid: 'd'
       }).then(() => assert.equal(process.stderr.write.callCount, 0));
     }
-  });
+  }
 });
-
