@@ -439,10 +439,6 @@ define(function (require, exports, module) {
             signinOptions.originalLoginEmail = options.originalLoginEmail;
           }
 
-          if (options.verificationMethod) {
-            signinOptions.verificationMethod = options.verificationMethod;
-          }
-
           return this._fxaClient.signIn(email, password, relier, signinOptions);
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
@@ -580,20 +576,6 @@ define(function (require, exports, module) {
             });
           }
         });
-    },
-
-    /**
-     * Verify the account using the token code
-     *
-     * @param {String} code - the token code
-     * @returns {Promise} - resolves when complete
-     */
-    verifyTokenCode (code) {
-      return this._fxaClient.verifyTokenCode(
-        this.get('sessionToken'),
-        this.get('uid'),
-        code
-      );
     },
 
     /**

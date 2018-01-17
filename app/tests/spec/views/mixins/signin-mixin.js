@@ -59,7 +59,6 @@ define(function (require, exports, module) {
           currentPage: 'force_auth',
           displayError: sinon.spy(),
           getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
-          getTokenCodeExperimentGroup: sinon.spy(() => 'control'),
           invokeBrokerMethod: sinon.spy(() => Promise.resolve()),
           logEvent: sinon.spy(),
           logFlowEvent: sinon.spy(),

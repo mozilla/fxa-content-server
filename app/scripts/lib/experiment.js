@@ -29,8 +29,7 @@ define(function (require, exports, module) {
     'emailFirst': BaseExperiment,
     // For now, the send SMS experiment only needs to log "enrolled", so
     // no special experiment is created.
-    'sendSms': BaseExperiment,
-    'tokenCode': BaseExperiment
+    'sendSms': BaseExperiment
   };
 
   const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
