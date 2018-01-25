@@ -50,12 +50,15 @@ define(function (require, exports, module) {
           // if so, override to use the correct verification method. `email-2fa` sends
           // an email with the verification code and `email` sends a confirmation link.
           let verificationMethod;
-          if (this.getTokenCodeExperimentGroup && this.getTokenCodeExperimentGroup() === 'treatment-code') {
-            verificationMethod = VerificationMethods.EMAIL_2FA;
-          }
-
-          if (this.getTokenCodeExperimentGroup && this.getTokenCodeExperimentGroup() === 'treatment-link') {
-            verificationMethod = VerificationMethods.EMAIL;
+          if (this.getTokenCodeExperimentGroup) {
+            switch (this.getTokenCodeExperimentGroup()) {
+            case 'treatment-code':
+              verificationMethod = VerificationMethods.EMAIL_2FA;
+              break;
+            case 'treatment-link':
+              verificationMethod = VerificationMethods.EMAIL;
+              break;
+            }
           }
 
           return this.user.signInAccount(account, password, this.relier, {
