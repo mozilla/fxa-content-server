@@ -144,3 +144,10 @@
     color: $input-row-focus-border-color;
   }
 }
+
+&.unblock-code {
+          text-transform: uppercase;
+          &::placeholder {
+              text-transform: none;
+          }
+      }
