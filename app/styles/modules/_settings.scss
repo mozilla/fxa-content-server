@@ -807,3 +807,11 @@ section.modal-panel {
     }
   }
 }
+
+#unblock_code {
+  text-transform: uppercase;
+}
+
+#unblock_code::placeholder {
+  text-transform: none;
+}
