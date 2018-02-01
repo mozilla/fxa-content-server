@@ -5,11 +5,12 @@
   "scripts": {
     "build-production": "grunt build",
     "postinstall": "bower update --allow-root --config.interactive=false -s && scripts/download_l10n.sh",
-    "prepush": "grunt quicklint",
+    "prepush": "npm run lint",
     "shrink": "npmshrink:prod",
+    "lint": "eslint app server --cache",
     "start": "node scripts/check-local-config && grunt server",
-    "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-circle": "grunt build && CONFIG_FILES=server/config/fxaci.json,server/config/production.json grunt serverproc:dist",
+    "start-production": "NODE_ENV=production grunt build && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
     "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOauthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
@@ -101,8 +102,10 @@
     "webpack-dev-middleware": "2.0.4"
   },
   "devDependencies": {
+    "babel-eslint": "8.2.1",
     "coveralls": "2.11.9",
     "css": "2.2.1",
+    "eslint": "4.16.0",
     "eslint-plugin-fxa": "git://github.com/mozilla/eslint-plugin-fxa.git#41504c9dd30e8b52900c15b524946aa0428aef95",
     "eslint-plugin-sorting": "git://github.com/shane-tomlinson/eslint-plugin-sorting.git#bcacb99d",
     "firefox-profile": "0.3.12",
@@ -112,7 +115,6 @@
     "grunt-contrib-watch": "1.0.0",
     "grunt-conventional-changelog": "3.0.0",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "18.0.0",
     "grunt-htmllint": "git://github.com/vladikoff/grunt-htmllint#f0ceb25",
     "grunt-jsonlint": "1.0.7",
     "grunt-newer": "1.2.0",

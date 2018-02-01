@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const bdd = mocha.setup('bdd');
+mocha.setup('bdd');
 mocha.timeout(20000);
 
-import Translator from 'lib/app-start';
+//import Translator from 'lib/app-start';
 import Session from 'lib/session';
 
 // The tests need to be included using `require` instead

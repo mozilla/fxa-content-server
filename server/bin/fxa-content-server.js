@@ -64,7 +64,7 @@ function makeApp(webpackConfig, versionInfo) {
     const webpackCompiler = webpack(webpackConfig);
 
     app.use(webpackMiddleware(webpackCompiler, {
-      publicPath: `/bundle/`
+      publicPath: '/bundle/'
     }));
   }
 
