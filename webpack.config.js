@@ -5,6 +5,7 @@
 /* eslint-disable */
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const HappyPack = require('happypack');
 const path = require('path');
 
 const ENV = process.env.NODE_ENV || 'development';
@@ -96,11 +97,35 @@ const config = new Promise(function(resolve, reject) {
             {
               test: /\.mustache$/,
               loader: 'fxa-mustache-loader'
+            },
+            {
+              test: /\.js$/,
+              include: [
+                path.resolve(__dirname, 'app', 'scripts')
+              ],
+              exclude: [
+                path.resolve(__dirname, 'app', 'scripts', 'vendor'),
+                path.resolve(__dirname, 'app', 'scripts', 'templates')
+              ],
+              use: {
+                loader: 'happypack/loader',
+              }
             }
           ]
         },
         plugins: ([
-          new webpack.NoEmitOnErrorsPlugin(),
+          new HappyPack({
+            loaders: [{
+              path: 'babel-loader',
+              query: {
+                cacheDirectory: true,
+                presets: ['babel-preset-es2015'],
+                plugins: ['babel-plugin-syntax-dynamic-import']
+              }
+            }],
+            threads: 4,
+            debug: false
+          }),
           new webpack.NamedChunksPlugin(),
           new webpack.optimize.CommonsChunkPlugin({
             chunks: ["app", "test", "testDependencies"],
