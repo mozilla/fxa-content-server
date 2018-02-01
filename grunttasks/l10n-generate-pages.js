@@ -14,6 +14,7 @@
 
 module.exports = function (grunt) {
   var path = require('path');
+  const getVersionInfo = require('../server/lib/version');
   var Handlebars = require('handlebars');
   var Promise = require('bluebird');
   var getLegalTemplates = require('../server/lib/legal-templates');
@@ -85,16 +86,21 @@ module.exports = function (grunt) {
         });
 
       })).then(function () {
-        supportedLanguages.forEach(function (lang) {
-          generatePagesForLanguage(i18n, lang);
+        getVersionInfo().then((versionInfo) => {
+          supportedLanguages.forEach(function (lang) {
+            generatePagesForLanguage(i18n, lang, {
+              versionInfo: versionInfo
+            });
+          });
+          done();
         });
-        done();
+
       }).then(null, done);
 
     });
 
 
-  function generatePagesForLanguage(i18n, language) {
+  function generatePagesForLanguage(i18n, language, options) {
     // items on disk are stored by locale, not language.
     var locale = i18n.localeFrom(language);
     var destRoot = path.join(templateDest, locale);
@@ -109,11 +115,11 @@ module.exports = function (grunt) {
     templates.forEach(function (fileName) {
       var srcPath = path.join(templateSrc, fileName);
       var destPath = path.join(destRoot, fileName);
-      generatePage(srcPath, destPath, context);
+      generatePage(srcPath, destPath, context, options);
     });
   }
 
-  function generatePage(srcPath, destPath, context) {
+  function generatePage(srcPath, destPath, context, options={}) {
     grunt.verbose.writeln('generating `%s`', destPath);
 
     grunt.file.copy(srcPath, destPath, {
@@ -122,6 +128,7 @@ module.exports = function (grunt) {
         var privacy = legalTemplates[context.lang].privacy || legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
         var data = {
+          bundlePath: options.versionInfo && options.versionInfo.commit ? `/bundle-${options.versionInfo.commit}` : '/bundle',
           fontSupportDisabled: context.fontSupportDisabled,
           l10n: context,
           lang: context.lang,

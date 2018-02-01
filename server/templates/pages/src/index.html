@@ -25,7 +25,7 @@
         {{/if}}
         <!-- endbuild -->
 
-        <script type="text/javascript" src="/head.bundle.js"></script>
+        <script type="text/javascript" src="{{ bundlePath }}/head.bundle.js"></script>
 
         <!--[if lt IE 9]>
           <!-- build:js /bower_components/html5shiv/dist/html5shiv.js -->
@@ -55,7 +55,7 @@
           {{#t}}Firefox Accounts requires JavaScript.{{/t}}
         </noscript>
         <!--<![endif]-->
-        <script type="text/javascript" src="/appDependencies.bundle.js"></script>
-        <script type="text/javascript" src="/app.bundle.js"></script>
+        <script type="text/javascript" src="{{ bundlePath }}/appDependencies.bundle.js"></script>
+        <script type="text/javascript" src="{{ bundlePath }}/app.bundle.js"></script>
     </body>
 </html>

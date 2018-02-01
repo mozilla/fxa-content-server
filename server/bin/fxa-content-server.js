@@ -15,10 +15,12 @@ const fs = require('fs');
 const helmet = require('helmet');
 const https = require('https');
 const path = require('path');
+const Promise = require('bluebird');
 const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
 const raven = require('../lib/raven');
+const getVersionInfo = require('../lib/version');
 
 // This can't possibly be best way to librar-ify this module.
 const isMain = process.argv[1] === __filename;
@@ -45,7 +47,6 @@ const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const frameGuard = require('../lib/frame-guard')(config);
 
-
 const STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
 
@@ -54,8 +55,18 @@ const PAGE_TEMPLATE_DIRECTORY =
 
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
-function makeApp() {
+function makeApp(webpackConfig, versionInfo) {
   const app = express();
+
+  if (config.get('env') === 'development') {
+    const webpack = require('webpack');
+    const webpackMiddleware = require('webpack-dev-middleware');
+    const webpackCompiler = webpack(webpackConfig);
+
+    app.use(webpackMiddleware(webpackCompiler, {
+      publicPath: `/bundle/`
+    }));
+  }
 
   app.engine('html', consolidate.handlebars);
   app.set('view engine', 'html');
@@ -223,11 +234,17 @@ function isCorsRequired() {
 }
 
 if (isMain) {
-  app = makeApp();
-  listen(app);
 
-  const httpApp = makeHttpRedirectApp();
-  listenHttpRedirectApp(httpApp);
+  Promise.all([
+    require('../../webpack.config.js'),
+    getVersionInfo()
+  ]).spread((webpackConfig, versionInfo) => {
+    app = makeApp(webpackConfig, versionInfo);
+    listen(app);
+
+    const httpApp = makeHttpRedirectApp();
+    listenHttpRedirectApp(httpApp);
+  });
 } else {
   module.exports = {
     listen: listen,

@@ -21,7 +21,7 @@ module.exports = function (grunt) {
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
 
-    'webpack:prod',
+    'webpack',
 
     // general 'css' tasks:
     //    'sass', - compile SASS,

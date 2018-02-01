@@ -73,10 +73,3 @@ locale/*/*/*.po
 
 ### Source maps
 *.map
-
-### Experiments
-/experiments
-
-### Webpack output
-*.bundle.js
-*.bundle.js.map

@@ -4,15 +4,16 @@
 
 'use strict';
 
-module.exports = function (grunt) {
-  const webpackConfig = require('../webpack.config.babel');
+const path = require('path');
 
-  grunt.config('webpack', {
-    options: {
-      stats: ! process.env.NODE_ENV || process.env.NODE_ENV === 'development'
-    },
-    prod: webpackConfig,
-    dev: Object.assign({ watch: true }, webpackConfig)
+module.exports = function (grunt) {
+  grunt.registerTask('webpack', 'Run webpack build', function () {
+    var done = this.async();
+    var child = grunt.util.spawn({
+      cmd: path.resolve(__dirname, '..', 'node_modules', '.bin', 'webpack')
+    }, done);
+
+    child.stdout.pipe(process.stdout);
+    child.stderr.pipe(process.stderr);
   });
 };
-
