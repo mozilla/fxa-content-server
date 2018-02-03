@@ -11,6 +11,8 @@ define(function (require, exports, module) {
   'use strict';
 
   const _ = require('underscore');
+  const Environment = require('../../lib/environment');
+  const HeightObserver = require('../../lib/height-observer');
   const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
   const HaltBehavior = require('../../views/behaviors/halt');
 
@@ -24,6 +26,25 @@ define(function (require, exports, module) {
       LOGIN: 'login',
       SIGNUP_MUST_VERIFY: 'signup_must_verify',
       VERIFICATION_COMPLETE: 'verification_complete'
+    },
+
+    _isInAnIframe () {
+      return new Environment(window).isFramed();
+    },
+
+    constructor () {
+      if (this._isInAnIframe()) {
+        const heightObserver = new HeightObserver({
+          target: this._window.document.body,
+          window: this._window
+        });
+
+        heightObserver.on('change', (height) => {
+          this._iframeChannel.send('resize', { height: height });
+        });
+
+        heightObserver.start();
+      }
     },
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
