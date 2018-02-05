@@ -136,8 +136,8 @@ if (args.firefoxBinary) {
   config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
 }
 
-if (parallelBrowsers && parallelIndex) {
-  const parallelPart = _.chunk(config.functionalSuites, [size=parallelBrowsers]);
+if (parallelBrowsers !== null && parallelIndex !== null) {
+  const parallelPart = _.chunk(config.functionalSuites, [size=config.functionalSuites.length / parallelBrowsers]);
   config.functionalSuites = parallelPart[parallelIndex];
   console.log('Running in parallel:', config.functionalSuites);
 }

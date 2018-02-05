@@ -18,7 +18,7 @@ process.on('exit', function () {
   });
 });
 
-for (let browser = 0; browser <= NUMBER_OF_BROWSERS; browser++) {
+for (let browser = 0; browser < NUMBER_OF_BROWSERS; browser++) {
   const args = [
     'run',
     'test-latest',
