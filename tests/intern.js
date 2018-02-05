@@ -4,6 +4,7 @@
 
 const intern = require('intern').default;
 const args = require('yargs').argv;
+const _ = require('lodash');
 const firefoxProfile = require('./tools/firefox_profile');
 
 // Tests
@@ -14,6 +15,12 @@ const testsTravisCi = require('./functional_travis');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
 const testsAll = testsMain.concat(testsOAuth);
+
+const runnerServerPort = args.runnerServerPort || 9090;
+const parallelBrowsers = args.parallelBrowsers || null;
+const parallelIndex = args.parallelIndex || null;
+const runnerSocketPort = args.runnerSocketPort || 9077;
+const runnerSeleniumPort = args.runnerSeleniumPort || 4444;
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
 const fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
@@ -64,11 +71,12 @@ const config = {
 
   pageLoadTimeout: 20000,
   reporters: 'runner',
-  serverPort: 9090,
+  serverPort: Number(runnerServerPort),
   serverUrl: 'http://127.0.0.1:9090',
-  socketPort: 9077,
+  socketPort: Number(runnerSocketPort),
   tunnelOptions: {
-    'drivers': ['firefox']
+    'drivers': ['firefox'],
+    'port': Number(runnerSeleniumPort)
   },
 };
 
@@ -126,6 +134,12 @@ config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //es
 // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
 if (args.firefoxBinary) {
   config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
+}
+
+if (parallelBrowsers && parallelIndex) {
+  const parallelPart = _.chunk(config.functionalSuites, [size=parallelBrowsers]);
+  config.functionalSuites = parallelPart[parallelIndex];
+  console.log('Running in parallel:', config.functionalSuites);
 }
 
 intern.configure(config);
