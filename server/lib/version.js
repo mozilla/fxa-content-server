@@ -27,10 +27,6 @@ const UNKNOWN = 'unknown';
 
 const versionJsonPath = '../../config/version.json';
 
-function getPkgVersion () {
-  return require('../../package.json').version;
-}
-
 // commitHash and sourceRepo
 function getCommitHash () {
   try {

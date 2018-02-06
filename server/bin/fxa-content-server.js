@@ -26,12 +26,10 @@ const fs = require('fs');
 const helmet = require('helmet');
 const https = require('https');
 const path = require('path');
-const Promise = require('bluebird');
 const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
 const raven = require('../lib/raven');
-const getVersionInfo = require('../lib/version');
 
 // This can't possibly be best way to librar-ify this module.
 const isMain = process.argv[1] === __filename;
