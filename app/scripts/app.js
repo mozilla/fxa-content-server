@@ -3,6 +3,5 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AppStart from './lib/app-start';
-window.$ = require('jquery'); // expose jQuery for functional and manual tests
 const appStart = new AppStart();
 appStart.startApp();

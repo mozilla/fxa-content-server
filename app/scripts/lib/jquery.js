@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Expose window.jQuery so that 3rd party libraries compile
+ * Expose window.jQuery and window.$ so that 3rd party libraries compile
  * correctly under Webpack.
  */
-window.jQuery = require('jquery');
-
+window.jQuery = window.$ = require('jquery');

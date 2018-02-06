@@ -12,7 +12,6 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('./auth-errors');
   const Constants = require('./constants');
-  //const FxaClient = require('fxaClient'); // requireOnDemand
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
   const VerificationReasons = require('./verification-reasons');

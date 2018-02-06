@@ -47,7 +47,7 @@ define(function (require, exports, module) {
     }
 
     beforeEach(function () {
-      fxaClientMock = new FxaClient(/*{ authServerUrl: 'http://127.0.0.1:9000' }*/);
+      fxaClientMock = new FxaClient();
       metrics = {
         logError: sinon.spy(),
         logNumStoredAccounts: sinon.spy(),
