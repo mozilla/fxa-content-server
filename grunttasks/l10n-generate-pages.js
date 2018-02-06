@@ -14,7 +14,7 @@
 
 module.exports = function (grunt) {
   var path = require('path');
-  const getVersionInfo = require('../server/lib/version');
+  const versionInfo = require('../server/lib/version');
   var Handlebars = require('handlebars');
   var Promise = require('bluebird');
   var getLegalTemplates = require('../server/lib/legal-templates');
@@ -86,14 +86,12 @@ module.exports = function (grunt) {
         });
 
       })).then(function () {
-        getVersionInfo().then((versionInfo) => {
-          supportedLanguages.forEach(function (lang) {
-            generatePagesForLanguage(i18n, lang, {
-              versionInfo: versionInfo
-            });
+        supportedLanguages.forEach(function (lang) {
+          generatePagesForLanguage(i18n, lang, {
+            versionInfo: versionInfo
           });
-          done();
         });
+        done();
 
       }).then(null, done);
 

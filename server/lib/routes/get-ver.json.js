@@ -10,16 +10,11 @@
  */
 
 'use strict';
-const getVersionInfo = require('../version');
+const version = require('../version');
 
 exports.path = '/ver.json';
 exports.method = 'get';
-
 exports.process = function (req, res) {
-  getVersionInfo()
-    .then(function (versionInfo) {
-      // charset must be set on json responses.
-      res.charset = 'utf-8';
-      res.type('json').send(JSON.stringify(versionInfo, null, 2) + '\n');
-    });
+  res.charset = 'utf-8';
+  res.type('json').send(JSON.stringify(version, null, 2) + '\n');
 };

@@ -9,7 +9,7 @@
  */
 module.exports = function (grunt) {
   const path = require('path');
-  const getVersionInfo = require('../server/lib/version');
+  const versionInfo = require('../server/lib/version');
 
   grunt.registerTask('l10n-localize-js', 'Generate localized versions of the Javascript', function () {
     // server config is set in the selectconfig task\
@@ -17,29 +17,27 @@ module.exports = function (grunt) {
     var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
     var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
 
-    getVersionInfo().then((versionInfo) => {
-      var jsDir = path.join(grunt.config('yeoman.dist'), `bundle-${versionInfo.commit}`);
-      var jsSourcePath = path.join(jsDir, 'app.bundle.js');
+    var jsDir = path.join(grunt.config('yeoman.dist'), `bundle-${versionInfo.commit}`);
+    var jsSourcePath = path.join(jsDir, 'app.bundle.js');
 
-      supportedLanguages.forEach((language) => {
-        var locale = i18n.localeFrom(language);
-        var translationPath = path.join(grunt.config.get('yeoman.app'), 'i18n', locale, 'client.json');
+    supportedLanguages.forEach((language) => {
+      var locale = i18n.localeFrom(language);
+      var translationPath = path.join(grunt.config.get('yeoman.app'), 'i18n', locale, 'client.json');
 
-        var jsDestPath = path.join(jsDir, 'app.bundle.' + locale + '.js');
+      var jsDestPath = path.join(jsDir, 'app.bundle.' + locale + '.js');
 
-        var translations = grunt.file.readJSON(translationPath);
-        grunt.log.writeln('writing', jsDestPath);
-        grunt.file.copy(jsSourcePath, jsDestPath, {
-          process: (contents) => {
-            // `__translations__:{},` is written in
-            // the replace:fetch_translations task.
-            return contents.replace(/__translations__:\s*{},/, '__translations__:' + JSON.stringify(translations) + ',');
-          }
-        });
+      var translations = grunt.file.readJSON(translationPath);
+      grunt.log.writeln('writing', jsDestPath);
+      grunt.file.copy(jsSourcePath, jsDestPath, {
+        process: (contents) => {
+          // `__translations__:{},` is written in
+          // the replace:fetch_translations task.
+          return contents.replace(/__translations__:\s*{},/, '__translations__:' + JSON.stringify(translations) + ',');
+        }
       });
-
-      done();
     });
+
+    done();
 
   });
 };

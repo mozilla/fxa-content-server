@@ -5,6 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+
+// setup version first for the rest of the modules
+const logger = require('../lib/logging/log')('server.main');
+const version = require('../lib/version');
+
+logger.info(`source set to: ${version.source}`);
+logger.info(`version set to: ${version.version}`);
+logger.info(`commit hash set to: ${version.commit}`);
+logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
+logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
+
 const bodyParser = require('body-parser');
 const celebrate = require('celebrate');
 const consolidate = require('consolidate');
@@ -28,8 +39,6 @@ if (isMain) {
   // ./server is our current working directory
   process.chdir(path.dirname(__dirname));
 }
-
-const logger = require('../lib/logging/log')('server.main');
 
 const i18n = require('../lib/i18n')(config.get('i18n'));
 const routes = require('../lib/routes')(config, i18n);
@@ -55,11 +64,12 @@ const PAGE_TEMPLATE_DIRECTORY =
 
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
-function makeApp(webpackConfig, versionInfo) {
+function makeApp() {
   const app = express();
 
   if (config.get('env') === 'development') {
     const webpack = require('webpack');
+    const webpackConfig = require('../../webpack.config.js');
     const webpackMiddleware = require('webpack-dev-middleware');
     const webpackCompiler = webpack(webpackConfig);
 
@@ -234,17 +244,11 @@ function isCorsRequired() {
 }
 
 if (isMain) {
+  app = makeApp();
+  listen(app);
 
-  Promise.all([
-    require('../../webpack.config.js'),
-    getVersionInfo()
-  ]).spread((webpackConfig, versionInfo) => {
-    app = makeApp(webpackConfig, versionInfo);
-    listen(app);
-
-    const httpApp = makeHttpRedirectApp();
-    listenHttpRedirectApp(httpApp);
-  });
+  const httpApp = makeHttpRedirectApp();
+  listenHttpRedirectApp(httpApp);
 } else {
   module.exports = {
     listen: listen,
