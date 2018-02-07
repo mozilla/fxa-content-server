@@ -194,7 +194,7 @@ define(function (require, exports, module) {
     },
 
     takePicture: function takePicture() {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         var w = this.video.videoWidth;
         var h = this.video.videoHeight;
         var minValue = Math.min(h, w);
