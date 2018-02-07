@@ -152,7 +152,9 @@ const webpackConfig = {
           drop_console: true
         },
       },
-      sourceMap: true
+      sourceMap: true,
+      cache: true,
+      parallel: true
     }),
   ] : []).concat(ENV === 'development' ? [
     new webpack.optimize.CommonsChunkPlugin({
