@@ -90,7 +90,7 @@
     "photon-colors": "1.0.3",
     "raven": "0.12.3",
     "serve-static": "1.13.1",
-    "speed-trap": "0.0.6",
+    "speed-trap": "0.0.7",
     "time-grunt": "1.4.0",
     "uglifyjs-webpack-plugin": "1.1.2",
     "underscore": "1.8.3",

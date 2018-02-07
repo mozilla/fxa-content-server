@@ -46,7 +46,7 @@ function getCommitHash () {
     /* ignore, report UNKNOWN */
   }
 
-  return ((stdout && stdout.toString().trim()) || UNKNOWN);
+  return ((stdout && stdout.toString().trim()));
 }
 
 function getSourceRepo () {
@@ -69,7 +69,7 @@ function getSourceRepo () {
     /* ignore, shell out to `git` for repo */
   }
 
-  return ((stdout && stdout.toString().trim()) || UNKNOWN);
+  return ((stdout && stdout.toString().trim()));
 }
 
 function getL10nVersion () {

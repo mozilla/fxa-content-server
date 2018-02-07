@@ -9,12 +9,6 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
   const $ = require('jquery');
-
-  if (! window.jQuery) {
-    // This is needed to ensure the mailcheck plugin can attach itself.
-    window.jQuery = $;
-  }
-
   const KeyCodes = require('./key-codes');
   const mailcheck = require('mailcheck'); //eslint-disable-line no-unused-vars
   const Tooltip = require('../views/tooltip');
