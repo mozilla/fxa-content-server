@@ -33,6 +33,10 @@ define(function (require, exports, module) {
       this.navigate('settings/clients');
     },
 
+    _returnToSecurity () {
+      this.navigate('settings/security');
+    },
+
     _returnToSettings () {
       this.navigate('settings');
     },

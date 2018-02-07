@@ -2,44 +2,45 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Allow the user to unblock their signin by entering
- * in a verification code that is sent in an email.
- */
 define(function (require, exports, module) {
   'use strict';
 
+  const AuthErrors = require('lib/auth-errors');
   const Cocktail = require('cocktail');
   const Constants = require('../lib/constants');
   const FormView = require('./form');
-  const ResendMixin = require('./mixins/resend-mixin')();
   const SignInMixin = require('./mixins/signin-mixin');
-  const Template = require('templates/sign_in_token_code.mustache');
+  const ServiceMixin = require('./mixins/service-mixin');
+  const Template = require('templates/sign_in_totp_code.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
 
+  const CODE_INPUT_SELECTOR = 'input.totp-code';
+
   const View = FormView.extend({
-    className: 'sign-in-token-code',
+    className: 'sign-in-totp-code',
     template: Template,
 
+    _santizeCode (code) {
+      // Remove spaces and `-`
+      return code.replace(/[- ]*/g, '');
+    },
+
     getAccount () {
-      return this.model.get('account');
+      return this.getSignedInAccount();
     },
 
     beforeRender () {
       // user cannot confirm if they have not initiated a sign in.
-      if (! this.model.get('account')) {
+      if (! this.getAccount()) {
         this.navigate(this._getAuthPage());
       }
     },
 
     setInitialContext (context) {
-      const email = this.getAccount().get('email');
-
       // This needs to point to correct support link
       const supportLink = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
 
       context.set({
-        email,
         escapedSupportLink: encodeURI(supportLink),
         hasSupportLink: !! supportLink
       });
@@ -47,14 +48,17 @@ define(function (require, exports, module) {
 
     submit () {
       const account = this.getAccount();
-      const code = this.getElementValue('#token-code');
-      return account.verifyTokenCode(code)
-        .then(() => {
-          this.logViewEvent('success');
-          return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
-        }, (err) => {
-          this.displayError(err);
-        });
+      const code = this._santizeCode(this.getElementValue('input.totp-code'));
+      return account.verifyTotpCode(code)
+        .then((result) => {
+          if (result.success) {
+            this.logViewEvent('success');
+            return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+          } else {
+            throw AuthErrors.toError('INVALID_TOTP_CODE');
+          }
+        })
+        .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
     },
 
     /**
@@ -73,8 +77,8 @@ define(function (require, exports, module) {
 
   Cocktail.mixin(
     View,
-    ResendMixin,
     SignInMixin,
+    ServiceMixin,
     VerificationReasonMixin
   );
 

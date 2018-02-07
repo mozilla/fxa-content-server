@@ -31,10 +31,13 @@ define(function (require, exports, module) {
   const Template = require('templates/settings.mustache');
   const UserAgentMixin = require('../lib/user-agent-mixin');
 
+  const SecurityView = require('./settings/security');
+
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
     EmailsView,
+    SecurityView,
     ClientsView,
     ClientDisconnectView,
     CommunicationPreferencesView,
