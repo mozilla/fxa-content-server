@@ -72,8 +72,10 @@ function makeApp() {
     const webpackCompiler = webpack(webpackConfig);
 
     app.use(webpackMiddleware(webpackCompiler, {
+      hot: true,
       publicPath: '/bundle/'
     }));
+    app.use(require('webpack-hot-middleware')(webpackCompiler));
   }
 
   app.engine('html', consolidate.handlebars);

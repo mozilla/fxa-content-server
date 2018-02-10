@@ -129,6 +129,8 @@
     "requirejs": "2.3.5",
     "sinon": "1.17.3",
     "sync-exec": "0.6.2",
+    "webpack-dev-server": "2.11.1",
+    "webpack-hot-middleware": "2.21.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
     "yargs": "10.0.3"
   },

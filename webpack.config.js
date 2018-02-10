@@ -13,7 +13,10 @@ const versionInfo = require('./server/lib/version');
 const webpackConfig = {
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
-    app: './app.js',
+    app: [
+      './app.js',
+      'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000',
+    ],
     appDependencies: [
       'lib/jquery',
       'backbone',
@@ -119,6 +122,8 @@ const webpackConfig = {
       }],
       threads: 4,
       debug: false
+    }),
+    new webpack.HotModuleReplacementPlugin({
     }),
     new webpack.NamedChunksPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
