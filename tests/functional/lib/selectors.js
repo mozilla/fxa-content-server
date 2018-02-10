@@ -114,7 +114,7 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-reset-password-header',
     LINK_ERROR_SIGNUP: '.error a[href="/signup"]',
-    LINK_SIGNIN: '#back',
+    LINK_SIGNIN: '.remember-password',
     SUBMIT: 'button[type="submit"]',
     SUCCESS: '.success'
   },
