@@ -109,7 +109,7 @@ module.exports = {
     SUBMIT: '#accept'
   },
   RESET_PASSWORD: {
-    BACK: '#back',
+    BACK: '.remember-password',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     HEADER: '#fxa-reset-password-header',
