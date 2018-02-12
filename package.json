@@ -124,7 +124,6 @@
     "husky": "0.11.4",
     "intern": "4.1.5",
     "leadfoot": "1.7.4",
-    "npmshrink": "1.0.1",
     "proxyquire": "1.7.4",
     "requirejs": "2.3.5",
     "sinon": "1.17.3",
