@@ -279,7 +279,7 @@ define(function (require, exports, module) {
     });
 
     describe('signIn', function () {
-      describe('with a password', function () {
+      describe('with a password and no sessionToken', function () {
         describe('unverified, reason === undefined', function () {
           beforeEach(function () {
             sinon.stub(fxaClient, 'signIn').callsFake(function () {
@@ -505,7 +505,298 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with a sessionToken', function () {
+      describe('with a password and a sessionToken', function () {
+        beforeEach(function () {
+          account.set('sessionToken', SESSION_TOKEN);
+        });
+
+        describe('unverified, reason === undefined', function () {
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+              return Promise.resolve({
+                uid: UID,
+                verificationMethod: VerificationMethods.EMAIL,
+                verificationReason: VerificationReasons.SIGN_UP,
+                verified: false
+              });
+            });
+
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+              return Promise.resolve({});
+            });
+
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
+          });
+
+          it('delegates to fxaClient.sessionReauth', function () {
+            assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier, {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            }));
+          });
+
+          it('does not call fxaClient.signIn', function () {
+            assert.isFalse(fxaClient.signIn.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
+          });
+        });
+
+        describe('verified account, unverified session', function () {
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+              return Promise.resolve({
+                verificationMethod: VerificationMethods.EMAIL,
+                verificationReason: VerificationReasons.SIGN_IN,
+                verified: false
+              });
+            });
+
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+              return Promise.resolve({});
+            });
+
+            return account.signIn(PASSWORD, relier, { resume: 'resume token' });
+          });
+
+          it('delegates to the fxaClient.sessionReauth', function () {
+            assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
+          });
+
+          it('does not call fxaClient.signIn', function () {
+            assert.isFalse(fxaClient.signIn.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
+            assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.isFalse(account.get('verified'));
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
+          });
+        });
+
+        describe('verified account, verified session', function () {
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+              return Promise.resolve({ verified: true });
+            });
+
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+              return Promise.resolve({});
+            });
+
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
+          });
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier, {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            }));
+          });
+
+          it('does not call fxaClient.signIn', function () {
+            assert.isFalse(fxaClient.signIn.called);
+          });
+
+          it('updates the account with the returned data', function () {
+            assert.isTrue(account.get('verified'));
+            assert.equal(account.get('sessionToken'), SESSION_TOKEN);
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
+          });
+        });
+
+        describe('INCORRECT_EMAIL_CASE', () => {
+          let upperCaseEmail;
+
+          beforeEach(function () {
+            upperCaseEmail = EMAIL.toUpperCase();
+
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
+              if (fxaClient.sessionReauth.callCount === 1) {
+                const err = AuthErrors.toError('INCORRECT_EMAIL_CASE');
+                err.email = EMAIL;
+                return Promise.reject(err);
+              } else {
+                return Promise.resolve({});
+              }
+            });
+
+            account.set('email', upperCaseEmail);
+            return account.signIn(PASSWORD, relier, {
+              resume: 'resume token',
+              unblockCode: 'unblock code'
+            });
+          });
+
+          it('re-tries with the normalized email, updates model with normalized email', function () {
+            const firstExpectedOptions = {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            };
+
+            const secondExpectedOptions = {
+              metricsContext: {
+                baz: 'qux',
+                foo: 'bar'
+              },
+              originalLoginEmail: upperCaseEmail,
+              reason: SignInReasons.SIGN_IN,
+              resume: 'resume token',
+              skipCaseError: true,
+              unblockCode: 'unblock code'
+            };
+
+            assert.equal(fxaClient.sessionReauth.callCount, 2);
+            assert.isTrue(
+              fxaClient.sessionReauth.calledWith(SESSION_TOKEN, upperCaseEmail, PASSWORD, relier, firstExpectedOptions));
+            assert.isTrue(
+              fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier, secondExpectedOptions));
+
+            assert.equal(account.get('email'), EMAIL);
+          });
+        });
+
+        describe('invalid session', function () {
+          var NEW_SESSION_TOKEN = 'new session token';
+
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+              return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
+            });
+
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+              return Promise.resolve({
+                sessionToken: NEW_SESSION_TOKEN,
+                verified: true
+              });
+            });
+
+            sinon.stub(account, '_invalidateSession');
+            return account.signIn(PASSWORD, relier);
+          });
+
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
+          });
+
+          it('invalidates the stored session', function () {
+            assert.isTrue(account._invalidateSession.called);
+          });
+
+          it('does a fresh login to get a new session token', function () {
+            assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
+          });
+
+          it('updates the account with the new session data', function () {
+            assert.isTrue(account.get('verified'));
+            assert.equal(account.get('sessionToken'), NEW_SESSION_TOKEN);
+            assert.equal(account.get('uid'), UID);
+          });
+
+          it('emits set-uid event correctly', () => {
+            assert.equal(notifier.trigger.callCount, 1);
+            const args = notifier.trigger.args[0];
+            assert.lengthOf(args, 2);
+            assert.equal(args[0], 'set-uid');
+            assert.equal(args[1], UID);
+          });
+
+        });
+
+        describe('error', function () {
+          var err;
+
+          beforeEach(function () {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+              return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+            });
+
+            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+              return Promise.resolve({});
+            });
+
+            return account.signIn(PASSWORD, relier)
+              .then(
+                assert.fail,
+                function (_err) {
+                  err = _err;
+                });
+          });
+
+          it('delegates to the fxaClient', function () {
+            assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
+          });
+
+          it('propagates the error', function () {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          });
+
+          it('does not call fxaClient.signIn', () => {
+            assert.equal(fxaClient.signIn.callCount, 0);
+          });
+
+          it('does not emit set-uid event', () => {
+            assert.equal(notifier.trigger.callCount, 0);
+          });
+        });
+      });
+
+      describe('with a sessionToken and no password', function () {
         describe('unverified', function () {
           beforeEach(function () {
             account.set('sessionToken', SESSION_TOKEN);

@@ -6,7 +6,6 @@ define(function (require, exports, module) {
   'use strict';
 
   const $ = require('jquery');
-  const Account = require('models/account');
   const { assert } = require('chai');
   const AuthErrors = require('lib/auth-errors');
   const Backbone = require('backbone');
@@ -276,19 +275,83 @@ define(function (require, exports, module) {
         view.$('[type=password]').val('password');
       });
 
-      describe('with a user that successfully signs in', () => {
+      describe('with a user doing a fresh signin', () => {
+        var emptyAccount;
+
         beforeEach(() => {
+          emptyAccount = user.initAccount({});
+
+          sinon.stub(view, 'getAccount').callsFake(() => {
+            return emptyAccount;
+          });
+
           sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
           return view.submit();
         });
 
-        it('delegates to view.signIn', () => {
+        it('delegates to view.signIn with a new Account object', () => {
           assert.isTrue(view.signIn.calledOnce);
 
           const args = view.signIn.args[0];
           const account = args[0];
-          assert.instanceOf(account, Account);
+          assert.notEqual(account, emptyAccount);
+          const password = args[1];
+          assert.equal(password, 'password');
+        });
+      });
+
+      describe('with a user signing in to an existing session', () => {
+        var activeAccount;
+
+        beforeEach(() => {
+          activeAccount = user.initAccount({
+            email: email
+          });
+
+          sinon.stub(view, 'getAccount').callsFake(() => {
+            return activeAccount;
+          });
+
+          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+
+          return view.submit();
+        });
+
+        it('delegates to view.signIn with the existing Account object', () => {
+          assert.isTrue(view.signIn.calledOnce);
+
+          const args = view.signIn.args[0];
+          const account = args[0];
+          assert.equal(account, activeAccount);
+          const password = args[1];
+          assert.equal(password, 'password');
+        });
+      });
+
+      describe('with a user signing in with a new email address', () => {
+        var wrongAccount;
+
+        beforeEach(() => {
+          wrongAccount = user.initAccount({
+            email: 'different_user@example.com'
+          });
+
+          sinon.stub(view, 'getAccount').callsFake(() => {
+            return wrongAccount;
+          });
+
+          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+
+          return view.submit();
+        });
+
+        it('delegates to view.signIn with the existing Account object', () => {
+          assert.isTrue(view.signIn.calledOnce);
+
+          const args = view.signIn.args[0];
+          const account = args[0];
+          assert.notEqual(account, wrongAccount);
           const password = args[1];
           assert.equal(password, 'password');
         });

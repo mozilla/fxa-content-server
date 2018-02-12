@@ -444,7 +444,21 @@ define(function (require, exports, module) {
             signinOptions.verificationMethod = options.verificationMethod;
           }
 
-          return this._fxaClient.signIn(email, password, relier, signinOptions);
+          if (! sessionToken) {
+            // We need to do a completely fresh login.
+            return this._fxaClient.signIn(email, password, relier, signinOptions);
+          } else {
+            // We have an existing sessionToken, try to re-authenticate it.
+            return this._fxaClient.sessionReauth(sessionToken, email, password, relier, signinOptions)
+              .catch((err) => {
+                // The session was invalid, do a fresh login.
+                if (! AuthErrors.is(err, 'INVALID_TOKEN')) {
+                  throw err;
+                }
+                this._invalidateSession();
+                return this._fxaClient.signIn(email, password, relier, signinOptions);
+              });
+          }
         } else if (sessionToken) {
           // We have a cached Sync session so just check that it hasn't expired.
           // The result includes the latest verified state
