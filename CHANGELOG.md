@@ -1,3 +1,14 @@
+<a name="1.105.3"></a>
+## 1.105.3 (2018-02-12)
+
+
+### Refactor
+
+* **strings:** remove "cloud services" (#5904) r=@vbudhram,@ryanfeeley ([de3d61e](https://github.com/mozilla/fxa-content-server/commit/de3d61e))
+* **strings:** undo untranslated strings ([bdd587e](https://github.com/mozilla/fxa-content-server/commit/bdd587e))
+
+
+
 <a name="1.105.2"></a>
 ## 1.105.2 (2018-02-12)
 
