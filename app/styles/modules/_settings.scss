@@ -163,6 +163,7 @@ body.settings #main-content.card {
   font-size: $base-font;
   transition-duration: $short-transition;
   transition-property: background-color;
+  white-space: nowrap;
 
   .button-row & {
     @extend .settings-button;
@@ -213,10 +214,6 @@ body.settings #main-content.card {
 
     @include respond-to('big') {
       width: 100px;
-    }
-
-    @include respond-to('small') {
-      width: 29%;
     }
   }
 
@@ -351,6 +348,12 @@ body.settings #main-content.card {
 }
 
 .settings-child-view {
+  display: contents;
+
+  &.avatar-change.modal {
+    display: inline-block;
+  }
+
   &:first-child .settings-unit {
 
     @include respond-to('big') {
@@ -377,6 +380,7 @@ body.settings #main-content.card {
 
 .settings-unit {
   border-bottom: 1px solid $marketing-border-color;
+  display: contents;
 
   @include respond-to('big') {
     padding: 20px 0;
@@ -394,6 +398,7 @@ body.settings #main-content.card {
 
 .settings-unit-stub {
   height: 35px;
+  display: contents;
 
   .settings-unit-summary {
     display: inline-block;
@@ -409,7 +414,6 @@ body.settings #main-content.card {
     }
 
     @include respond-to('big') {
-      width: 350px;
 
       html[dir='ltr'] & {
         margin-right: 10px;
@@ -421,14 +425,13 @@ body.settings #main-content.card {
     }
 
     @include respond-to('small') {
-      width: 70%;
 
       html[dir='ltr'] & {
-        margin-right: 1%;
+        margin-right: 8px;
       }
 
       html[dir='rtl'] & {
-        margin-left: 1%;
+        margin-left: 8px;
       }
     }
   }
@@ -461,7 +464,6 @@ body.settings #main-content.card {
     text-overflow: ellipsis;
     text-wrap: nowrap;
     white-space: nowrap;
-    width: 360px;
   }
 
   .settings-unit-title:only-child {
@@ -471,6 +473,7 @@ body.settings #main-content.card {
 
 .settings-unit-details {
   display: none;
+  grid-column: span 2;
 
   a {
     text-decoration: none;
@@ -557,6 +560,7 @@ section.modal-panel {
     position: absolute;
     text-align: center;
     top: 0;
+    white-space: nowrap;
     width: 20%;
 
     html[dir='ltr'] & {
@@ -753,6 +757,7 @@ section.modal-panel {
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
         text-align: center;
+        white-space: nowrap;
         width: 20%;
       }
 
@@ -794,6 +799,7 @@ section.modal-panel {
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
         text-align: center;
+        white-space: nowrap;
         width: 20%;
 
         &.set-primary {
