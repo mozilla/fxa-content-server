@@ -366,7 +366,9 @@ body.settings #main-content.card {
   }
 
   &:last-child .settings-unit {
-    border-bottom: 0;
+    &::after {
+      content: none;
+    }
 
     @include respond-to('big') {
       padding: 20px 0 0;
@@ -379,21 +381,27 @@ body.settings #main-content.card {
 }
 
 .settings-unit {
-  border-bottom: 1px solid $marketing-border-color;
   display: contents;
 
-  @include respond-to('big') {
-    padding: 20px 0;
-  }
+  &::after {
+    content: "";
+    grid-column: span 2;
+    border-bottom: 1px solid $marketing-border-color;
 
-  @include respond-to('small') {
-    padding: 10px 0;
+    @include respond-to('big') {
+      margin: 20px 0;
+    }
+
+    @include respond-to('small') {
+      margin: 10px 0;
+    }
   }
 
   .error {
     padding: 5px 10px;
     top: 0;
   }
+
 }
 
 .settings-unit-stub {
