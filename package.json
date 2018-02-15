@@ -100,7 +100,7 @@
     "mustache": "2.3.0",
     "node-statsd": "0.1.1",
     "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
-    "node-uuid": "1.4.3",
+    "node-uuid": "1.4.6",
     "on-headers": "1.0.1",
     "photon-colors": "1.0.3",
     "raven": "0.12.3",
