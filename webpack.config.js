@@ -60,7 +60,7 @@ const webpackConfig = {
       draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
-      fxaCheckbox: path.resolve(__dirname, 'app/bower_components/fxa-checkbox/checkbox'),
+      fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
       // jwcrypto is used by the main app and only contains DSA
@@ -72,13 +72,13 @@ const webpackConfig = {
       md5: path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
-      raven: path.resolve(__dirname, 'app/bower_components/raven-js/dist/raven'),
-      sinon: path.resolve(__dirname, 'app/bower_components/sinon/index'),
-      'touch-punch': path.resolve(__dirname, 'app/bower_components/jquery-ui-touch-punch/jquery.ui.touch-punch'),
-      'ua-parser-js': path.resolve(__dirname, 'app/bower_components/ua-parser-js/src/ua-parser'),
+      raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
+      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon-3.2.1'),
+      'touch-punch': path.resolve(__dirname, 'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'),
+      'ua-parser-js': path.resolve(__dirname, 'node_modules/ua-parser-js/src/ua-parser'),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
-      vat: path.resolve(__dirname, 'app/bower_components/vat/vat'),
-      webrtc: path.resolve(__dirname, 'app/bower_components/webrtc-adapter/adapter')
+      vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
+      webrtc: path.resolve(__dirname, 'node_modules/webrtc-adapter-test/adapter')
     }
   },
 
