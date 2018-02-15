@@ -116,7 +116,6 @@
     "underscore": "1.8.3",
     "universal-analytics": "0.4.15",
     "webpack": "3.10.0",
-    "webpack-dev-middleware": "2.0.4",
     "webrtc-adapter-test": "0.2.5"
   },
   "devDependencies": {
@@ -151,6 +150,7 @@
     "requirejs": "2.3.5",
     "sinon": "3.2.1",
     "sync-exec": "0.6.2",
+    "webpack-dev-middleware": "2.0.4",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
     "yargs": "10.0.3"
   },
