@@ -98,6 +98,12 @@
     box-shadow: 0 4px 16px rgba($grey-90, .1);
     transition: box-shadow 250ms cubic-bezier(.07, .95, 0, 1);
   }
+
+  .child-views {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
 }
 
 
