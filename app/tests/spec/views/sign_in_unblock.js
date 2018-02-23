@@ -149,6 +149,18 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('with an incorrect code', () => {
+        beforeEach(() => {
+          view.$('#unblock_code').val('1');
+          return view.validateAndSubmit();
+        });
+
+        it('displays a tooltip, does not call submit', () => {
+          assert.isTrue(view.showValidationError.called);
+          assert.isFalse(view.submit.called);
+        });
+      });
+
       describe('with an invalid code', () => {
         it('displays a tooltip, does not call submit', () => {
           view.$('#unblock_code').val('1');
