@@ -228,7 +228,7 @@ define(function (require, exports, module) {
 
     /**
      * Add the `highlight` class to the signup password helper. This is
-     * used to make the "A strong, unique..." text blue if either
+     * used to make the "Tips: Keep your password safe..." text blue if either
      * password field is focused.
      */
     highlightSignupPasswordHelper () {

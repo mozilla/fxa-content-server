@@ -50,7 +50,12 @@
       <div class="input-row password-row label-helper-top">
         <label class="label-helper"></label>
         <input id="vpassword" type="password" class="password check-password tooltip-below" placeholder="{{#t}}Repeat password{{/t}}" pattern=".{8,}" required data-synchronize-show="true" />
-        <div class="input-help input-help-focused input-help-signup">{{#t}}A strong, unique password will keep your Firefox data safe from intruders.{{/t}}</div>
+        <div class="input-help input-help-focused input-help-signup input-help-inline">{{#t}}Tips: Keep your password safe, and don’t reuse your email password.{{/t}}</div>
+        <div class="input-help input-help-focused input-help-signup input-help-balloon">
+          {{#unsafeTranslate}}<strong>Keep your password safe</strong><br/>It’s what keeps your information safe, and we don’t allow you to access your data if you need to reset your password.{{/unsafeTranslate}}
+          <br/><br/>
+          {{#unsafeTranslate}}<strong>Don’t reuse your emaill password</strong><br/>New devices often require approval by email. If someone learns this password, they can approve a sign-in and get your data.{{/unsafeTranslate}}
+        </div>
       </div>
 
       {{{ coppaHTML }}}
