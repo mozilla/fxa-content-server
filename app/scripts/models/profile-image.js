@@ -16,7 +16,7 @@ define(function (require, exports, module) {
       default: undefined,
       id: undefined,
       img: undefined,
-      url: undefined,
+      url: undefined
     },
 
     fetch () {
