@@ -396,7 +396,7 @@ define(function (require, exports, module) {
 
       return this.getAvatar()
         .then((result) => {
-          profileImage = new ProfileImage({ default: result.avatarDefault, id: result.id, url: result.avatar});
+          profileImage = new ProfileImage({ default: result.avatarDefault, id: result.id, url: result.avatar });
           this.setProfileImage(profileImage);
           return profileImage.fetch();
         })
