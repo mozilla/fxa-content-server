@@ -55,6 +55,13 @@ define(function (require, exports, module) {
           options.accepts = {};
         }
         options.accepts.json = 'application/json';
+
+        if (! options.xhrFields) {
+          options.xhrFields = {};
+        }
+        if (typeof options.xhrFields.withCredentials === 'undefined') {
+          options.xhrFields.withCredentials = true;
+        }
       }
 
       return convertJQueryPromise($.ajax(options));
