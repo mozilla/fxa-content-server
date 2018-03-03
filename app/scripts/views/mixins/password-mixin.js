@@ -9,7 +9,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AuthErrors = require('../../lib/auth-errors');
-  const Constants = require('../../lib/constants');
   const showPasswordTemplate = require('templates/partial/show-password.mustache');
 
   const SELECTOR_SIGNUP_PASSWORD_HELPER = '.input-help-signup';
@@ -201,21 +200,6 @@ define(function (require, exports, module) {
 
     onPasswordChanged (event) {
       this._updateShowPasswordLabel(event.target);
-
-      var values = [];
-
-      // Values contains all password classes length
-      this.$('.password').each(function (index, el) {
-        values.push($(el).val().length);
-      });
-
-      var val = Math.min.apply(Math, values);
-
-      if (val < Constants.PASSWORD_MIN_LENGTH) {
-        this.showPasswordHelper();
-      } else {
-        this.hidePasswordHelper();
-      }
     },
 
     showPasswordHelper () {
@@ -243,12 +227,14 @@ define(function (require, exports, module) {
       } else {
         this.$(SELECTOR_PASSWORD_HELPER_BALLOON).css('top', '0px');
       }
+      this.showPasswordHelper();
     },
 
     /**
      * Remove the `highlight` class from the signup password helper
      */
     unhighlightSignupPasswordHelper () {
+      this.hidePasswordHelper();
       this.$(SELECTOR_SIGNUP_PASSWORD_HELPER).removeClass('highlight');
     }
   };
