@@ -95,7 +95,7 @@ define(function (require, exports, module) {
             this.set('service', this.get('clientId'));
           }
 
-          return this._setupOAuthRPInfo();
+          return this._setupOAuthRPInfo(this._isVerificationFlow());
         })
         .then(() => {
           if (this.has('scope')) {
@@ -170,13 +170,22 @@ define(function (require, exports, module) {
       }
     },
 
-    _setupOAuthRPInfo () {
-      var clientId = this.get('clientId');
+    _setupOAuthRPInfo (verificationFlow) {
+      const clientId = this.get('clientId');
+      // get the app provided redirect uri
+      const queryRedirectUri = this.get('redirectUri');
 
       return this._oAuthClient.getClientInfo(clientId)
         .then((serviceInfo) => {
-          var result = Transform.transformUsingSchema(
+          const result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
+
+          // verification flow doesn't have a redirect uri, so there is nothing to validate
+          if (! verificationFlow && result.redirectUri !== queryRedirectUri) {
+            // if provided redirect uri doesn't match with client info then throw
+            throw OAuthErrors.toError('INCORRECT_REDIRECT');
+          }
+
           this.set(result);
         }, function (err) {
           // the server returns an invalid request parameter for an
