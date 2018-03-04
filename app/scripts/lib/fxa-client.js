@@ -324,9 +324,9 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     sessionReauth: withClient((client, sessionToken, originalEmail, password, relier, options = {}) => {
-      var email = trim(originalEmail);
+      const email = trim(originalEmail);
 
-      var reauthOptions = {
+      const reauthOptions = {
         keys: wantsKeys(relier),
         reason: options.reason || SignInReasons.SIGN_IN
       };
@@ -362,7 +362,7 @@ define(function (require, exports, module) {
       setMetricsContext(reauthOptions, options);
 
       return client.sessionReauth(sessionToken, email, password, reauthOptions)
-        .then(function (accountData) {
+        .then(accountData => {
           accountData.sessionToken = sessionToken;
           return getUpdatedSessionData(email, relier, accountData, options);
         });

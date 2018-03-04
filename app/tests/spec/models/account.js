@@ -278,11 +278,11 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('signIn', function () {
-      describe('with a password and no sessionToken', function () {
-        describe('unverified, reason === undefined', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+    describe('signIn', () => {
+      describe('with a password and no sessionToken', () => {
+        describe('unverified, reason === undefined', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({
                 sessionToken: SESSION_TOKEN,
                 uid: UID,
@@ -292,7 +292,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
+            sinon.stub(fxaClient, 'signUpResend').callsFake(() => {
               return Promise.resolve();
             });
 
@@ -302,7 +302,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, {
               metricsContext: {
                 baz: 'qux',
@@ -315,11 +315,11 @@ define(function (require, exports, module) {
             }));
           });
 
-          it('does not resend a signUp email', function () {
+          it('does not resend a signUp email', () => {
             assert.isFalse(fxaClient.signUpResend.called);
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.equal(account.get('uid'), UID);
@@ -334,9 +334,9 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('verified account, unverified session', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+        describe('verified account, unverified session', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({
                 sessionToken: SESSION_TOKEN,
                 verificationMethod: VerificationMethods.EMAIL,
@@ -345,22 +345,22 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signUpResend').callsFake(function () {
+            sinon.stub(fxaClient, 'signUpResend').callsFake(() => {
               return Promise.resolve();
             });
 
             return account.signIn(PASSWORD, relier, { resume: 'resume token' });
           });
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
           });
 
-          it('does not delegate to the fxaClient to send re-confirmation email', function () {
+          it('does not delegate to the fxaClient to send re-confirmation email', () => {
             assert.isFalse(fxaClient.signUpResend.called);
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
             assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
@@ -377,9 +377,9 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('verified account, verified session', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+        describe('verified account, verified session', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({ sessionToken: SESSION_TOKEN, verified: true });
             });
 
@@ -389,7 +389,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier, {
               metricsContext: {
                 baz: 'qux',
@@ -402,7 +402,7 @@ define(function (require, exports, module) {
             }));
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.isTrue(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.equal(account.get('uid'), UID);
@@ -420,7 +420,7 @@ define(function (require, exports, module) {
         describe('INCORRECT_EMAIL_CASE', () => {
           let upperCaseEmail;
 
-          beforeEach(function () {
+          beforeEach(() => {
             upperCaseEmail = EMAIL.toUpperCase();
 
             sinon.stub(fxaClient, 'signIn').callsFake(() => {
@@ -440,7 +440,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('re-tries with the normalized email, updates model with normalized email', function () {
+          it('re-tries with the normalized email, updates model with normalized email', () => {
             const firstExpectedOptions = {
               metricsContext: {
                 baz: 'qux',
@@ -474,28 +474,28 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('error', function () {
-          var err;
+        describe('error', () => {
+          let err;
 
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
             });
 
             return account.signIn(PASSWORD, relier)
               .then(
                 assert.fail,
-                function (_err) {
+                _err => {
                   err = _err;
                 });
           });
 
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
           });
 
-          it('propagates the error', function () {
+          it('propagates the error', () => {
             assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
           });
 
@@ -505,14 +505,14 @@ define(function (require, exports, module) {
         });
       });
 
-      describe('with a password and a sessionToken', function () {
-        beforeEach(function () {
+      describe('with a password and a sessionToken', () => {
+        beforeEach(() => {
           account.set('sessionToken', SESSION_TOKEN);
         });
 
-        describe('unverified, reason === undefined', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+        describe('unverified, reason === undefined', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
               return Promise.resolve({
                 uid: UID,
                 verificationMethod: VerificationMethods.EMAIL,
@@ -521,7 +521,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({});
             });
 
@@ -531,7 +531,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('delegates to fxaClient.sessionReauth', function () {
+          it('delegates to fxaClient.sessionReauth', () => {
             assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier, {
               metricsContext: {
                 baz: 'qux',
@@ -544,11 +544,11 @@ define(function (require, exports, module) {
             }));
           });
 
-          it('does not call fxaClient.signIn', function () {
+          it('does not call fxaClient.signIn', () => {
             assert.isFalse(fxaClient.signIn.called);
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.isFalse(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.equal(account.get('uid'), UID);
@@ -563,9 +563,9 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('verified account, unverified session', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+        describe('verified account, unverified session', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
               return Promise.resolve({
                 verificationMethod: VerificationMethods.EMAIL,
                 verificationReason: VerificationReasons.SIGN_IN,
@@ -573,22 +573,22 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({});
             });
 
             return account.signIn(PASSWORD, relier, { resume: 'resume token' });
           });
 
-          it('delegates to the fxaClient.sessionReauth', function () {
+          it('delegates to the fxaClient.sessionReauth', () => {
             assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
           });
 
-          it('does not call fxaClient.signIn', function () {
+          it('does not call fxaClient.signIn', () => {
             assert.isFalse(fxaClient.signIn.called);
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.equal(account.get('verificationMethod'), VerificationMethods.EMAIL);
             assert.equal(account.get('verificationReason'), VerificationReasons.SIGN_IN);
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
@@ -605,13 +605,13 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('verified account, verified session', function () {
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+        describe('verified account, verified session', () => {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
               return Promise.resolve({ verified: true });
             });
 
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({});
             });
 
@@ -621,7 +621,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier, {
               metricsContext: {
                 baz: 'qux',
@@ -634,11 +634,11 @@ define(function (require, exports, module) {
             }));
           });
 
-          it('does not call fxaClient.signIn', function () {
+          it('does not call fxaClient.signIn', () => {
             assert.isFalse(fxaClient.signIn.called);
           });
 
-          it('updates the account with the returned data', function () {
+          it('updates the account with the returned data', () => {
             assert.isTrue(account.get('verified'));
             assert.equal(account.get('sessionToken'), SESSION_TOKEN);
             assert.equal(account.get('uid'), UID);
@@ -656,7 +656,7 @@ define(function (require, exports, module) {
         describe('INCORRECT_EMAIL_CASE', () => {
           let upperCaseEmail;
 
-          beforeEach(function () {
+          beforeEach(() => {
             upperCaseEmail = EMAIL.toUpperCase();
 
             sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
@@ -676,7 +676,7 @@ define(function (require, exports, module) {
             });
           });
 
-          it('re-tries with the normalized email, updates model with normalized email', function () {
+          it('re-tries with the normalized email, updates model with normalized email', () => {
             const firstExpectedOptions = {
               metricsContext: {
                 baz: 'qux',
@@ -710,15 +710,15 @@ define(function (require, exports, module) {
           });
         });
 
-        describe('invalid session', function () {
-          var NEW_SESSION_TOKEN = 'new session token';
+        describe('invalid session', () => {
+          const NEW_SESSION_TOKEN = 'new session token';
 
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
               return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
             });
 
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({
                 sessionToken: NEW_SESSION_TOKEN,
                 verified: true
@@ -730,19 +730,19 @@ define(function (require, exports, module) {
           });
 
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
           });
 
-          it('invalidates the stored session', function () {
+          it('invalidates the stored session', () => {
             assert.isTrue(account._invalidateSession.called);
           });
 
-          it('does a fresh login to get a new session token', function () {
+          it('does a fresh login to get a new session token', () => {
             assert.isTrue(fxaClient.signIn.calledWith(EMAIL, PASSWORD, relier));
           });
 
-          it('updates the account with the new session data', function () {
+          it('updates the account with the new session data', () => {
             assert.isTrue(account.get('verified'));
             assert.equal(account.get('sessionToken'), NEW_SESSION_TOKEN);
             assert.equal(account.get('uid'), UID);
@@ -758,31 +758,31 @@ define(function (require, exports, module) {
 
         });
 
-        describe('error', function () {
-          var err;
+        describe('error', () => {
+          let err;
 
-          beforeEach(function () {
-            sinon.stub(fxaClient, 'sessionReauth').callsFake(function () {
+          beforeEach(() => {
+            sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
               return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
 
-            sinon.stub(fxaClient, 'signIn').callsFake(function () {
+            sinon.stub(fxaClient, 'signIn').callsFake(() => {
               return Promise.resolve({});
             });
 
             return account.signIn(PASSWORD, relier)
               .then(
                 assert.fail,
-                function (_err) {
+                _err => {
                   err = _err;
                 });
           });
 
-          it('delegates to the fxaClient', function () {
+          it('delegates to the fxaClient', () => {
             assert.isTrue(fxaClient.sessionReauth.calledWith(SESSION_TOKEN, EMAIL, PASSWORD, relier));
           });
 
-          it('propagates the error', function () {
+          it('propagates the error', () => {
             assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           });
 

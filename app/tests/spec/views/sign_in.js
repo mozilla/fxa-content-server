@@ -270,88 +270,90 @@ define(function (require, exports, module) {
     });
 
     describe('submit', () => {
+      let currentAccount;
+
       beforeEach(() => {
         view.$('[type=email]').val(email);
         view.$('[type=password]').val('password');
+
+        currentAccount = null;
+
+        sinon.stub(view, 'getAccount').callsFake(() => {
+          return currentAccount;
+        });
+
+        sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
       });
 
       describe('with a user doing a fresh signin', () => {
-        var emptyAccount;
-
         beforeEach(() => {
-          emptyAccount = user.initAccount({});
-
-          sinon.stub(view, 'getAccount').callsFake(() => {
-            return emptyAccount;
-          });
-
-          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
-
+          currentAccount = user.initAccount({});
           return view.submit();
         });
 
-        it('delegates to view.signIn with a new Account object', () => {
+        it('delegates to view.signIn with a new Account model', () => {
           assert.isTrue(view.signIn.calledOnce);
 
           const args = view.signIn.args[0];
           const account = args[0];
-          assert.notEqual(account, emptyAccount);
+          assert.notEqual(account, currentAccount);
           const password = args[1];
           assert.equal(password, 'password');
         });
       });
 
       describe('with a user signing in to an existing session', () => {
-        var activeAccount;
-
         beforeEach(() => {
-          activeAccount = user.initAccount({
+          currentAccount = user.initAccount({
             email: email
           });
-
-          sinon.stub(view, 'getAccount').callsFake(() => {
-            return activeAccount;
-          });
-
-          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
-
           return view.submit();
         });
 
-        it('delegates to view.signIn with the existing Account object', () => {
+        it('delegates to view.signIn with the existing Account model', () => {
           assert.isTrue(view.signIn.calledOnce);
 
           const args = view.signIn.args[0];
           const account = args[0];
-          assert.equal(account, activeAccount);
+          assert.equal(account, currentAccount);
+          const password = args[1];
+          assert.equal(password, 'password');
+        });
+      });
+
+      describe('with a user signing in to an existing session with different email case', () => {
+        beforeEach(() => {
+          currentAccount = user.initAccount({
+            email: email.toUpperCase()
+          });
+          return view.submit();
+        });
+
+        it('delegates to view.signIn with the existing Account model', () => {
+          assert.isTrue(view.signIn.calledOnce);
+
+          const args = view.signIn.args[0];
+          const account = args[0];
+          assert.equal(account, currentAccount);
           const password = args[1];
           assert.equal(password, 'password');
         });
       });
 
       describe('with a user signing in with a new email address', () => {
-        var wrongAccount;
-
         beforeEach(() => {
-          wrongAccount = user.initAccount({
-            email: 'different_user@example.com'
+          currentAccount = user.initAccount({
+            email: 'different-' + email
           });
-
-          sinon.stub(view, 'getAccount').callsFake(() => {
-            return wrongAccount;
-          });
-
-          sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
-
           return view.submit();
         });
 
-        it('delegates to view.signIn with the existing Account object', () => {
+        it('delegates to view.signIn with a new Account model', () => {
           assert.isTrue(view.signIn.calledOnce);
 
           const args = view.signIn.args[0];
           const account = args[0];
-          assert.notEqual(account, wrongAccount);
+          assert.notEqual(account, currentAccount);
           const password = args[1];
           assert.equal(password, 'password');
         });
