@@ -128,7 +128,7 @@ define(function (require, exports, module) {
         .catch((err) => {
           // if invalid token then invalidate session
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-            return this._invalidateSession();
+            this.discardSessionToken();
           }
 
           // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
@@ -139,10 +139,8 @@ define(function (require, exports, module) {
         });
     },
 
-    _invalidateSession () {
-      // Invalid token can happen if user uses 'Disconnect'
-      // in Firefox Desktop. Only 'set' will trigger model
-      // change, using 'unset' will not.
+    discardSessionToken () {
+      // Only 'set' will trigger model change, using 'unset' will not.
       //
       // Details:
       // github.com/jashkenas/backbone/issues/949 and
@@ -455,7 +453,7 @@ define(function (require, exports, module) {
                 if (! AuthErrors.is(err, 'INVALID_TOKEN')) {
                   throw err;
                 }
-                this._invalidateSession();
+                this.discardSessionToken();
                 return this._fxaClient.signIn(email, password, relier, signinOptions);
               });
           }
@@ -1254,7 +1252,7 @@ define(function (require, exports, module) {
           })
           .catch((err) => {
             if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
-              this._invalidateSession();
+              this.discardSessionToken();
             } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
               // If no oauth token existed, or it has gone stale,
               // get a new one and retry.

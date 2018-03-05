@@ -725,7 +725,7 @@ define(function (require, exports, module) {
               });
             });
 
-            sinon.stub(account, '_invalidateSession');
+            sinon.stub(account, 'discardSessionToken');
             return account.signIn(PASSWORD, relier);
           });
 
@@ -735,7 +735,7 @@ define(function (require, exports, module) {
           });
 
           it('invalidates the stored session', () => {
-            assert.isTrue(account._invalidateSession.called);
+            assert.isTrue(account.discardSessionToken.called);
           });
 
           it('does a fresh login to get a new session token', () => {
