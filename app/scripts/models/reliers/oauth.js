@@ -95,7 +95,7 @@ define(function (require, exports, module) {
             this.set('service', this.get('clientId'));
           }
 
-          return this._setupOAuthRPInfo(this._isVerificationFlow());
+          return this._setupOAuthRPInfo();
         })
         .then(() => {
           if (this.has('scope')) {
@@ -170,7 +170,7 @@ define(function (require, exports, module) {
       }
     },
 
-    _setupOAuthRPInfo (verificationFlow) {
+    _setupOAuthRPInfo () {
       const clientId = this.get('clientId');
       // get the app provided redirect uri
       const queryRedirectUri = this.get('redirectUri');
@@ -180,8 +180,13 @@ define(function (require, exports, module) {
           const result = Transform.transformUsingSchema(
             serviceInfo, CLIENT_INFO_SCHEMA, OAuthErrors);
 
-          // verification flow doesn't have a redirect uri, so there is nothing to validate
-          if (! verificationFlow && result.redirectUri !== queryRedirectUri) {
+          /**
+           * If redirect_uri was specified in the query we must validate it
+           * Ref: https://tools.ietf.org/html/rfc6749#section-3.1.2
+           *
+           * Verification (email) flows do not have a redirect uri, nothing to validate
+           */
+          if (queryRedirectUri && result.redirectUri !== queryRedirectUri) {
             // if provided redirect uri doesn't match with client info then throw
             throw OAuthErrors.toError('INCORRECT_REDIRECT');
           }

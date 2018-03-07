@@ -9,7 +9,7 @@ const Querystring = require('querystring');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
-const SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
+const SIGNUP_ROOT = `${config.fxaContentRoot}oauth/signup`;
 
 let TRUSTED_CLIENT_ID;
 const TRUSTED_SCOPE = 'profile';
