@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const _ = require('underscore');
   const {assert} = require('chai');
   const Account = require('models/account');
@@ -16,12 +17,12 @@ define(function (require, exports, module) {
   const Metrics = require('lib/metrics');
   const Relier = require('models/reliers/relier');
   const sinon = require('sinon');
-  const View = require('views/sign_in_token_code');
+  const View = require('views/sign_in_totp_code');
   const WindowMock = require('../../mocks/window');
 
-  const TOKEN_CODE = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);
+  const TOTP_CODE = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH);
 
-  describe('views/sign_in_token_code', () => {
+  describe('views/sign_in_totp_code', () => {
     let account;
     let broker;
     let metrics;
@@ -45,6 +46,7 @@ define(function (require, exports, module) {
 
       account = new Account({
         email: 'a@a.com',
+        sessionToken: 'someToken',
         uid: 'uid'
       });
 
@@ -64,14 +66,17 @@ define(function (require, exports, module) {
         model,
         notifier,
         relier,
-        viewName: 'sign-in-token-code',
+        viewName: 'sign-in-totp-code',
         window: windowMock
       });
 
-      return view.render();
+      sinon.stub(view, 'getSignedInAccount').callsFake(() => model.get('account'));
+
+      return view.render()
+        .then(() => $('#container').html(view.$el));
     });
 
-    afterEach(function () {
+    afterEach(() => {
       metrics.destroy();
       view.remove();
       view.destroy();
@@ -80,13 +85,13 @@ define(function (require, exports, module) {
 
     describe('render', () => {
       it('renders the view', () => {
-        assert.lengthOf(view.$('#fxa-signin-code-header'), 1);
-        assert.include(view.$('.verification-email-message').text(), 'a@a.com');
+        assert.lengthOf(view.$('#fxa-totp-code-header'), 1);
+        assert.include(view.$('.verification-totp-message').text(), 'security code');
       });
 
       describe('without an account', () => {
         beforeEach(() => {
-          model.unset('account');
+          account = model.get('account').unset('sessionToken');
           sinon.spy(view, 'navigate');
           return view.render();
         });
@@ -105,7 +110,7 @@ define(function (require, exports, module) {
 
       describe('with an empty code', () => {
         beforeEach(() => {
-          view.$('#token-code').val('');
+          view.$('#totp-code').val('');
           return view.validateAndSubmit().then(assert.fail, () => {});
         });
 
@@ -116,15 +121,18 @@ define(function (require, exports, module) {
       });
 
       const validCodes = [
-        TOKEN_CODE,
-        '   ' + TOKEN_CODE,
-        TOKEN_CODE + '   ',
-        '   ' + TOKEN_CODE + '   '
+        TOTP_CODE,
+        '   ' + TOTP_CODE,
+        TOTP_CODE + '   ',
+        '   ' + TOTP_CODE + '   ',
+        '001-ABC',
+        'abc abc'
       ];
       validCodes.forEach((code) => {
         describe(`with a valid code: '${code}'`, () => {
           beforeEach(() => {
-            view.$('#token-code').val(code);
+            view.$('.totp-code').val(code);
+
             return view.validateAndSubmit();
           });
 
@@ -138,30 +146,41 @@ define(function (require, exports, module) {
     describe('submit', () => {
       describe('success', () => {
         beforeEach(() => {
-          sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.resolve());
+          sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.resolve({success: true}));
           sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
-          view.$('#token-code').val(TOKEN_CODE);
+          view.$('.totp-code').val(TOTP_CODE);
           return view.submit();
         });
 
         it('calls correct broker methods', () => {
-          assert.isTrue(account.verifyTokenCode.calledWith(TOKEN_CODE), 'verify with correct code');
+          assert.isTrue(account.verifyTotpCode.calledWith(TOTP_CODE), 'verify with correct code');
           assert.isTrue(view.invokeBrokerMethod.calledWith('afterCompleteSignInWithCode', account));
         });
       });
 
-      describe('errors', () => {
-        const error = AuthErrors.toError('INVALID_TOKEN_VERIFICATION_CODE');
-
+      describe('invalid TOTP code', () => {
         beforeEach(() => {
-          sinon.stub(account, 'verifyTokenCode').callsFake(() => Promise.reject(error));
-          sinon.stub(view, 'displayError').callsFake(() => Promise.resolve());
-          view.$('#token-code').val(TOKEN_CODE);
+          sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.resolve({success: false}));
+          sinon.spy(view, 'showValidationError');
+          view.$('.totp-code').val(TOTP_CODE);
           return view.submit();
         });
 
         it('rejects with the error for display', () => {
-          assert.isTrue(view.displayError.calledWith(error));
+          assert.equal(view.showValidationError.args[0][1].errno, 154, 'correct error thrown');
+        });
+      });
+
+      describe('errors', () => {
+        beforeEach(() => {
+          sinon.stub(account, 'verifyTotpCode').callsFake(() => Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR')));
+          sinon.spy(view, 'showValidationError');
+          view.$('.totp-code').val(TOTP_CODE);
+          return view.submit();
+        });
+
+        it('rejects with the error for display', () => {
+          assert.equal(view.showValidationError.args[0][1].errno, 999, 'correct error thrown');
         });
       });
     });
