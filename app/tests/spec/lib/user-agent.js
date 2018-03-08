@@ -182,6 +182,7 @@ define(function (require, exports, module) {
     describe('isIE', () => {
       it('returns `true` if it detects IE', () => {
         const IEAgents = [
+          'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
           'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
         ];
 
@@ -191,7 +192,7 @@ define(function (require, exports, module) {
         });
       });
 
-      it('returns `false` if not Edge', () => {
+      it('returns `false` if not IE', () => {
         const notIE = [
           // fx desktop
           'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0',
