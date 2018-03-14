@@ -30,7 +30,7 @@ const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(require('../../package.json').ver
 
 const GROUPS = {
   email: 'fxa_email',
-  'email-first': 'fxa_email_first',
+  emailFirst: 'fxa_email_first',
   login: 'fxa_login',
   registration: 'fxa_reg',
   settings: 'fxa_pref',
@@ -38,14 +38,14 @@ const GROUPS = {
 };
 
 const ENGAGE_SUBMIT_EVENT_GROUPS = {
-  'enter-email': GROUPS['email-first'],
+  'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   signin: GROUPS.login,
   signup: GROUPS.registration
 };
 
 const VIEW_EVENT_GROUPS = {
-  'enter-email': GROUPS['email-first'],
+  'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   settings: GROUPS.settings,
   signin: GROUPS.login,
@@ -122,7 +122,7 @@ const NOP = () => {};
 
 const EVENT_PROPERTIES = {
   [GROUPS.email]: mixProperties(mapEmailType, mapService),
-  [GROUPS['email-first']]: mapService,
+  [GROUPS.emailFirst]: mapService,
   [GROUPS.login]: mapService,
   [GROUPS.registration]: mapService,
   [GROUPS.settings]: mapDisconnectReason,
@@ -131,7 +131,7 @@ const EVENT_PROPERTIES = {
 
 const USER_PROPERTIES = {
   [GROUPS.email]: mapFlowId,
-  [GROUPS['email-first']]: mixProperties(mapFlowId, mapUtmProperties),
+  [GROUPS.emailFirst]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.login]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.registration]: mixProperties(mapFlowId, mapUtmProperties),
   [GROUPS.settings]: mapNewsletterState,
