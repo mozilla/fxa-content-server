@@ -13,11 +13,13 @@ define(function (require, exports, module) {
   const SearchParamMixin = require('../../lib/search-param-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
+  const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
 
   module.exports = {
     dependsOn: [
       ResumeTokenMixin,
-      SearchParamMixin
+      SearchParamMixin,
+      TokenCodeExperimentMixin
     ],
 
     /**
@@ -145,6 +147,11 @@ define(function (require, exports, module) {
         if (verificationReason === VerificationReasons.SIGN_IN &&
           verificationMethod === VerificationMethods.EMAIL_2FA) {
           return this.navigate('signin_token_code', {account});
+        }
+
+        if (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.TOTP_2FA) {
+          return this.navigate('signin_totp_code', {account});
         }
 
         return this.navigate('confirm', {account});
