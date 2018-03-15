@@ -27,7 +27,7 @@ define(function (require, exports, module) {
       return Promise.resolve().then(() => this.invokeHandler(handler, args))
         .then((value) => {
           this.clearTimeout(this._workingTimeout);
-          if (workingText === this.$('.error').text()) {
+          if (workingText === this.$('.info').text()) {
             this.hideError();
           }
           return value;

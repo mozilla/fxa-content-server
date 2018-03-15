@@ -81,11 +81,15 @@ define(function (require, exports, module) {
     this.hideSuccess();
 
     err = this._normalizeError(err);
-
     this.logError(err);
     var translated = this.translateError(err);
 
     var $error = this.$('.error');
+
+    if (err.errno === 1005) {
+      $error = this.$('.info');
+    }
+
     if (translated) {
       $error[displayStrategy](translated);
     }
