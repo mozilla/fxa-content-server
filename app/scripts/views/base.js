@@ -87,7 +87,7 @@ define(function (require, exports, module) {
     var $error = this.$('.error');
 
     if (err.errno === 1005) {
-      $error = this.$('.info');
+      $error.addClass('working-error');
     }
 
     if (translated) {
