@@ -48,6 +48,10 @@
   }
 }
 
+.working-error {
+  background: $info-background-color !important;
+}
+
 .success {
   background: $success-background-color;
   display: none;
