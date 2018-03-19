@@ -6,6 +6,7 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
+const versionInfo = require('../version');
 
 module.exports = function (config) {
   const AUTH_SERVER_URL = config.get('fxaccount_url');
@@ -22,6 +23,9 @@ module.exports = function (config) {
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
 
+  const BUNDLE_PATH = ENV === 'production' ? `/bundle-${versionInfo.commit}/` : '/bundle/';
+  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}${BUNDLE_PATH}`;
+
   const serializedConfig = encodeURIComponent(JSON.stringify({
     authServerUrl: AUTH_SERVER_URL,
     env: ENV,
@@ -33,6 +37,8 @@ module.exports = function (config) {
     release: RELEASE,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
+    staticResourceUrl: STATIC_RESOURCE_URL,
+    webpackPublicPath: WEBPACK_PUBLIC_PATH,
   }));
 
   const route = {};
