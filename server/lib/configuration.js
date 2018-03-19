@@ -315,6 +315,11 @@ const conf = module.exports = convict({
       format: String
     }
   },
+  jsResourcePath: {
+    default: 'bundle',
+    doc: 'The directory where the JavaScript resources are served from',
+    format: String
+  },
   key_path: {
     default: path.resolve(__dirname, '..', '..', 'key.pem'),
     doc: 'The location of the SSL key in pem format'
@@ -532,11 +537,6 @@ const conf = module.exports = convict({
     doc: 'The origin of the static resources',
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
-  },
-  jsResourcePath: {
-    default: 'bundle',
-    doc: 'The directory where the JavaScript resources are served from',
-    format: String
   },
   statsd: {
     enabled: {

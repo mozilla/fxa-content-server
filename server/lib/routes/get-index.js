@@ -6,7 +6,6 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
-const versionInfo = require('../version');
 
 module.exports = function (config) {
   const AUTH_SERVER_URL = config.get('fxaccount_url');
