@@ -22,9 +22,7 @@ module.exports = function (config) {
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   // add version from package.json to config
   const RELEASE = require('../../../package.json').version;
-
-  const BUNDLE_PATH = ENV === 'production' ? `/bundle-${versionInfo.commit}/` : '/bundle/';
-  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}${BUNDLE_PATH}`;
+  const WEBPACK_PUBLIC_PATH = `${STATIC_RESOURCE_URL}/${config.get('jsResourcePath')}/`;
 
   const serializedConfig = encodeURIComponent(JSON.stringify({
     authServerUrl: AUTH_SERVER_URL,

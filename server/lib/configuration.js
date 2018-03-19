@@ -8,6 +8,8 @@ const convict = require('convict');
 const fs = require('fs');
 const path = require('path');
 
+const versionInfo = require('./version');
+
 const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
 
 const conf = module.exports = convict({
@@ -531,6 +533,11 @@ const conf = module.exports = convict({
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
   },
+  jsResourcePath: {
+    default: 'bundle',
+    doc: 'The directory where the JavaScript resources are served from',
+    format: String
+  },
   statsd: {
     enabled: {
       default: true,
@@ -629,6 +636,11 @@ if (conf.has('http_proxy.host')) {
 if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
+}
+
+// Setup WebPack bundle path for production
+if (conf.get('env') === 'production') {
+  conf.set('jsResourcePath', `bundle-${versionInfo.commit}`);
 }
 
 // Ensure that supportedLanguages includes defaultLang.
