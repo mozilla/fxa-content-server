@@ -760,7 +760,9 @@ section.modal-panel {
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
         text-align: center;
-        width: 20%;
+        width:100px;
+        overflow:hidden;
+        white-space:nowrap;
       }
 
       @media screen and (max-width: 400px) {
@@ -801,7 +803,9 @@ section.modal-panel {
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
         text-align: center;
-        width: 20%;
+        width:100px;
+        overflow:hidden;
+        white-space:nowrap;
 
         &.set-primary {
           margin-right: 10px;
