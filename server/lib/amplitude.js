@@ -59,8 +59,8 @@ const VIEW_EVENT_GROUPS = {
 };
 
 const CONNECT_DEVICE_FLOWS = {
-  'connect-another-device': 'cad',
-  install_from: 'cad',
+  'connect-another-device': 'store_buttons',
+  install_from: 'store_buttons',
   sms: 'sms'
 };
 

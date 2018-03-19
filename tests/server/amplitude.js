@@ -433,7 +433,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_connect_device - engage');
-      assert.equal(arg.event_properties.connect_device_flow, 'cad');
+      assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
     },
 
     'flow.signin.forgot-password': () => {
@@ -760,7 +760,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_connect_device - view');
-      assert.equal(arg.event_properties.connect_device_flow, 'cad');
+      assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
     },
 
     'screen.reset-password': () => {
