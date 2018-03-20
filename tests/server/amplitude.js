@@ -436,6 +436,27 @@ registerSuite('amplitude', {
       assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
     },
 
+    'flow.signin_from.bar': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin_from.bar'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - engage');
+      assert.equal(arg.event_properties.connect_device_flow, 'signin');
+    },
+
     'flow.signin.forgot-password': () => {
       amplitude({
         time: 'a',
@@ -760,7 +781,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_connect_device - view');
-      assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
+      assert.equal(arg.event_properties.connect_device_flow, 'cad');
     },
 
     'screen.reset-password': () => {

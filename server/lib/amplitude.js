@@ -43,6 +43,7 @@ const ENGAGE_SUBMIT_EVENT_GROUPS = {
   'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   install_from: GROUPS.connectDevice,
+  signin_from: GROUPS.connectDevice,
   signin: GROUPS.login,
   signup: GROUPS.registration,
   sms: GROUPS.connectDevice
@@ -59,8 +60,9 @@ const VIEW_EVENT_GROUPS = {
 };
 
 const CONNECT_DEVICE_FLOWS = {
-  'connect-another-device': 'store_buttons',
+  'connect-another-device': 'cad',
   install_from: 'store_buttons',
+  signin_from: 'signin',
   sms: 'sms'
 };
 
@@ -104,7 +106,7 @@ const FUZZY_EVENTS = new Map([
     group: GROUPS.registration,
     event: 'have_account'
   } ],
-  [ /^flow\.(install_from)\.\w+$/, {
+  [ /^flow\.((?:install|signin)_from)\.\w+$/, {
     group: GROUPS.connectDevice,
     event: 'engage'
   } ],
