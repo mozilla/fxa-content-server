@@ -15,7 +15,9 @@
       <a href="#" id="file">{{#t}}Upload{{/t}}</a>
       <a href="/settings/avatar/camera" id="camera">{{#t}}Camera{{/t}}</a>
       {{#hasProfileImage}}
+      {{^avatarDefault}}
       <a href="#" class="remove">{{#t}}Clear{{/t}}</a>
+      {{/avatarDefault}}
       {{/hasProfileImage}}
     </nav>
 
