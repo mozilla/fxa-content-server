@@ -450,7 +450,7 @@ define(function (require, exports, module) {
           account.set('uid', 'foo');
           account.set('email', 'a@a.com');
           relier.set('uid', 'bar');
-          relier.set('uid', 'b@b.com');
+          relier.set('email', 'b@b.com');
           broker.hasCapability((cap) => cap === 'allowUidChange');
           view.onSignInSuccess(account);
           assert.equal(relier.get('uid'), account.get('uid'));
