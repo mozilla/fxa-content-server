@@ -54,12 +54,15 @@ define(function (require, exports, module) {
     },
 
     onSignInError (account, password, err) {
+      const unblockCode = this.$('#unblock_code');
       if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
         // The user must go enter the correct password this time.
         this.navigate(this._getAuthPage(), {
           email: account.get('email'),
           error: err
         });
+      } else if (AuthErrors.is(err, 'INCORRECT_UNBLOCK_CODE')) {
+        this.showValidationError(unblockCode, err);
       } else {
         // re-throw, it'll be displayed at a lower level.
         throw err;
