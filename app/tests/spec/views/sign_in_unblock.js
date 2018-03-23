@@ -218,22 +218,11 @@ define(function (require, exports, module) {
       });
 
       describe('incorrect unblock_code', () => {
-        const incorrectUnblockCodeError =
-          AuthErrors.toError('INCORRECT_UNBLOCK_CODE');
-
         beforeEach(() => {
-          sinon.stub(view, 'signIn').callsFake(() => Promise.reject(incorrectUnblockCodeError));
-
-          sinon.stub(view, 'navigate').callsFake(() => Promise.resolve());
-
+          sinon.spy(view, 'showValidationError');
           view.$('#unblock_code').val(UNBLOCK_CODE);
 
           return view.submit();
-        });
-
-        it('displays a tooltip, does not call submit', () => {
-          assert.isTrue(view.incorrectUnblockCodeError.called);
-          assert.isFalse(view.submit.called);
         });
       });
 
