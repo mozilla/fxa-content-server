@@ -224,6 +224,10 @@ define(function (require, exports, module) {
 
           return view.submit();
         });
+
+        it('displays a tooltip, does not call submit', () => {
+          assert.isTrue(view.showValidationError.calledWithExactly);
+        });
       });
 
       describe('other errors', () => {
