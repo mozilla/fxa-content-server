@@ -66,7 +66,6 @@ suite.tests['blockingRules'] = function () {
   assert.lengthOf(imgSrc, 5);
   assert.include(imgSrc, Sources.SELF);
   assert.include(imgSrc, Sources.DATA);
-  assert.include(imgSrc, Sources.GRAVATAR);
   assert.include(imgSrc, Sources.PROFILE_IMAGES_SERVER);
   assert.include(imgSrc, CDN_SERVER);
 
