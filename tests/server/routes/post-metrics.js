@@ -13,6 +13,7 @@ registerSuite('routes/post-metrics', {
   before: function () {
     sandbox = sinon.sandbox.create();
     mocks = {
+      amplitude: sandbox.spy(),
       config: {
         get (key) {
           switch (key) {
@@ -49,6 +50,7 @@ registerSuite('routes/post-metrics', {
     };
     route = proxyquire(
       path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
+        '../amplitude': mocks.amplitude,
         '../flow-event': mocks.flowEvent,
         '../configuration': mocks.config,
         '../ga-collector': function () {
@@ -220,6 +222,14 @@ registerSuite('routes/post-metrics', {
                   assert.equal(args[0], mocks.request.body);
                 },
 
+                'amplitude was called correctly': () => {
+                  assert.strictEqual(mocks.amplitude.callCount, 1);
+                  const args = mocks.amplitude.args[0];
+                  assert.lengthOf(args, 2);
+                  assert.equal(args[0], mocks.request);
+                  assert.equal(args[1], mocks.request.body);
+                },
+
                 'flowEvent was called correctly': function () {
                   assert.strictEqual(mocks.flowEvent.callCount, 1);
                   var args = mocks.flowEvent.args[0];
@@ -287,6 +297,10 @@ registerSuite('routes/post-metrics', {
 
                 'gaCollector.write was called': function () {
                   assert.strictEqual(mocks.gaCollector.write.callCount, 1);
+                },
+
+                'amplitude was called': () => {
+                  assert.strictEqual(mocks.amplitude.callCount, 1);
                 },
 
                 'flowEvent was called': function () {

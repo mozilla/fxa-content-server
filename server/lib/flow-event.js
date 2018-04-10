@@ -4,7 +4,6 @@
 
 'use strict';
 const _ = require('lodash');
-const amplitude = require('./amplitude');
 const config = require('./configuration');
 const flowMetrics = require('./flow-metrics');
 const os = require('os');
@@ -149,8 +148,6 @@ module.exports = (req, metrics, requestReceivedTime) => {
         event.flowTime = event.time - metrics.flowBeginTime;
       }
     }
-
-    amplitude(event, req, metrics);
 
     if (event.type.substr(0, 7) === 'screen.') {
       event = Object.assign({}, event, {

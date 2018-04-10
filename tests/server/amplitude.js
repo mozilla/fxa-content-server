@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* eslint-disable camelcase */
+
+'use strict';
+
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const path = require('path');
@@ -21,11 +24,11 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
 const APP_VERSION = /^[0-9]+\.([0-9]+)\./.exec(pkg.version)[1];
 
 registerSuite('amplitude', {
-  beforeEach: function() {
+  beforeEach () {
     sinon.stub(process.stderr, 'write').callsFake(() => {});
   },
 
-  afterEach: function() {
+  afterEach () {
     process.stderr.write.restore();
   },
 
@@ -38,20 +41,18 @@ registerSuite('amplitude', {
 
     'interface is correct': () => {
       assert.isFunction(amplitude);
-      assert.lengthOf(amplitude, 3);
+      assert.lengthOf(amplitude, 2);
     },
 
     'does not throw if arguments are missing': () => {
       assert.doesNotThrow(amplitude);
-      assert.doesNotThrow(() => amplitude('foo'));
+      assert.doesNotThrow(() => amplitude({}));
       assert.doesNotThrow(() => amplitude(null, {}));
+      assert.doesNotThrow(() => amplitude({}, { events: {} }));
     },
 
     'flow.reset-password.submit': () => {
       amplitude({
-        time: 'foo',
-        type: 'flow.reset-password.submit'
-      }, {
         connection: {},
         headers: {
           'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/58.0',
@@ -65,6 +66,10 @@ registerSuite('amplitude', {
           {choice: 'second-experiment', group: 'Group-Two'},
           {choice: 'THIRD_EXPERIMENT', group: 'group_three'},
           {choice: 'fourth.experiment', group: 'Group.FOUR'}
+        ],
+        events: [
+          {},
+          { time: 'foo', type: 'flow.reset-password.submit' }
         ],
         flowBeginTime: 'qux',
         flowId: 'wibble',
@@ -125,9 +130,6 @@ registerSuite('amplitude', {
 
     'settings.change-password.success': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.change-password.success'
-      }, {
         connection: {},
         headers: {
           'user-agent': 'Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A406 Safari/8536.25',
@@ -136,6 +138,9 @@ registerSuite('amplitude', {
       }, {
         deviceId: 'b',
         entrypoint: 'c',
+        events: [
+          { time: 'a', type: 'settings.change-password.success' }
+        ],
         experiments: [],
         flowBeginTime: 'd',
         flowId: 'e',
@@ -188,15 +193,15 @@ registerSuite('amplitude', {
 
     'settings.clients.disconnect.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
+        events: [
+          { time: 'a', type: 'settings.clients.disconnect.submit' }
+        ],
         flowBeginTime: 'c',
         flowId: 'd',
         lang: 'e',
@@ -207,15 +212,15 @@ registerSuite('amplitude', {
 
     'settings.clients.disconnect.submit.suspicious': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit.suspicious'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'none',
+        events: [
+          { time: 'a', type: 'settings.clients.disconnect.submit.suspicious' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         lang: 'd',
@@ -232,15 +237,15 @@ registerSuite('amplitude', {
 
     'settings.clients.disconnect.submit.duplicate': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.clients.disconnect.submit.duplicate'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
         deviceId: 'b',
+        events: [
+          { time: 'a', type: 'settings.clients.disconnect.submit.duplicate' }
+        ],
         flowBeginTime: 'c',
         flowId: 'd',
         lang: 'e',
@@ -255,14 +260,14 @@ registerSuite('amplitude', {
 
     'settings.signout.success': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.signout.success'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'settings.signout.success' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -275,14 +280,14 @@ registerSuite('amplitude', {
 
     'flow.enter-email.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.enter-email.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.enter-email.engage' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -295,14 +300,14 @@ registerSuite('amplitude', {
 
     'flow.force-auth.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.force-auth.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.force-auth.engage' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -315,14 +320,14 @@ registerSuite('amplitude', {
 
     'flow.signin.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin.engage' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -335,9 +340,6 @@ registerSuite('amplitude', {
 
     'flow.signup.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signup.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
@@ -345,6 +347,9 @@ registerSuite('amplitude', {
       }, {
         deviceId: 'b',
         entrypoint: 'c',
+        events: [
+          { time: 'a', type: 'flow.signup.engage' }
+        ],
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
@@ -392,14 +397,14 @@ registerSuite('amplitude', {
 
     'flow.sms.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.sms.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.sms.engage' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -414,14 +419,14 @@ registerSuite('amplitude', {
 
     'flow.reset-password.engage': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.reset-password.engage'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.reset-password.engage' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -431,14 +436,14 @@ registerSuite('amplitude', {
 
     'flow.install_from.foo': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.install_from.foo'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.install_from.foo' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -453,14 +458,14 @@ registerSuite('amplitude', {
 
     'flow.signin_from.bar': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin_from.bar'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin_from.bar' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -475,14 +480,14 @@ registerSuite('amplitude', {
 
     'flow.connect-another-device.link.app-store.foo': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.connect-another-device.link.app-store.foo'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.connect-another-device.link.app-store.foo' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -497,14 +502,14 @@ registerSuite('amplitude', {
 
     'flow.signin.forgot-password': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin.forgot-password'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin.forgot-password' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -517,14 +522,14 @@ registerSuite('amplitude', {
 
     'flow.signin.have-account': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin.have-account'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin.have-account' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -537,14 +542,14 @@ registerSuite('amplitude', {
 
     'flow.enter-email.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.enter-email.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.enter-email.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -557,14 +562,14 @@ registerSuite('amplitude', {
 
     'flow.force-auth.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -577,14 +582,14 @@ registerSuite('amplitude', {
 
     'flow.signin.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signin.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signin.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -597,14 +602,14 @@ registerSuite('amplitude', {
 
     'flow.signup.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.signup.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.signup.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -617,14 +622,14 @@ registerSuite('amplitude', {
 
     'flow.sms.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.sms.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.sms.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -639,14 +644,14 @@ registerSuite('amplitude', {
 
     'flow.wibble.submit': () => {
       amplitude({
-        time: 'a',
-        type: 'flow.wibble.submit'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'flow.wibble.submit' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -656,14 +661,14 @@ registerSuite('amplitude', {
 
     'screen.enter-email': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.enter-email'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.enter-email' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -676,14 +681,14 @@ registerSuite('amplitude', {
 
     'screen.force-auth': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.force-auth'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.force-auth' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -696,14 +701,14 @@ registerSuite('amplitude', {
 
     'screen.signin': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.signin'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.signin' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -716,14 +721,14 @@ registerSuite('amplitude', {
 
     'screen.signup': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.signup'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.signup' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -736,14 +741,14 @@ registerSuite('amplitude', {
 
     'screen.settings': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.settings'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.settings' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -756,9 +761,6 @@ registerSuite('amplitude', {
 
     'screen.sms': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.sms'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
@@ -766,6 +768,9 @@ registerSuite('amplitude', {
       }, {
         deviceId: 'b',
         entrypoint: 'c',
+        events: [
+          { time: 'a', type: 'screen.sms' }
+        ],
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
@@ -813,14 +818,14 @@ registerSuite('amplitude', {
 
     'screen.reset-password': () => {
       amplitude({
-        time: 'a',
-        type: 'screen.reset-password'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'screen.reset-password' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -830,14 +835,14 @@ registerSuite('amplitude', {
 
     'settings.communication-preferences.optIn.success': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.optIn.success'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'settings.communication-preferences.optIn.success' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -851,14 +856,14 @@ registerSuite('amplitude', {
 
     'settings.communication-preferences.optOut.success': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.optOut.success'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'settings.communication-preferences.optOut.success' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -872,14 +877,14 @@ registerSuite('amplitude', {
 
     'settings.communication-preferences.wibble.success': () => {
       amplitude({
-        time: 'a',
-        type: 'settings.communication-preferences.wibble.success'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'settings.communication-preferences.wibble.success' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -889,9 +894,6 @@ registerSuite('amplitude', {
 
     'complete-reset-password.verification.clicked': () => {
       amplitude({
-        time: 'a',
-        type: 'complete-reset-password.verification.clicked'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
@@ -900,6 +902,9 @@ registerSuite('amplitude', {
         deviceId: 'b',
         emailDomain: 'other',
         entrypoint: 'c',
+        events: [
+          { time: 'a', type: 'complete-reset-password.verification.clicked' }
+        ],
         flowBeginTime: 'd',
         flowId: 'e',
         lang: 'f',
@@ -947,15 +952,15 @@ registerSuite('amplitude', {
 
     'complete-signin.verification.clicked': () => {
       amplitude({
-        time: 'a',
-        type: 'complete-signin.verification.clicked'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
         emailDomain: 'none',
+        events: [
+          { time: 'a', type: 'complete-signin.verification.clicked' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -970,14 +975,14 @@ registerSuite('amplitude', {
 
     'verify-email.verification.clicked': () => {
       amplitude({
-        time: 'a',
-        type: 'verify-email.verification.clicked'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'verify-email.verification.clicked' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -992,14 +997,14 @@ registerSuite('amplitude', {
 
     'wibble.verification.success': () => {
       amplitude({
-        time: 'a',
-        type: 'wibble.verification.success'
-      }, {
         connection: {},
         headers: {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        events: [
+          { time: 'a', type: 'wibble.verification.success' }
+        ],
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'

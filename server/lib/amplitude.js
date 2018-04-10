@@ -91,31 +91,39 @@ const FUZZY_EVENTS = new Map([
 
 const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS);
 
-module.exports = receiveEvent;
+module.exports = receiveEvents;
 
-function receiveEvent (event, request, data) {
-  if (! event || ! request || ! data) {
+function receiveEvents (request, data) {
+  if (! request || ! data) {
     return;
   }
 
-  const location = geolocate(request);
-  const userAgent = ua.parse(request.headers['user-agent']);
+  const { events } = data;
 
-  const amplitudeEvent = transform(
-    event,
-    Object.assign(
-      {},
-      pruneUnsetValues(data),
-      mapBrowser(userAgent),
-      mapOs(userAgent),
-      mapFormFactor(userAgent),
-      mapLocation(location)
-    )
-  );
-
-  if (amplitudeEvent) {
-    process.stderr.write(`${JSON.stringify(amplitudeEvent)}\n`);
+  if (! Array.isArray(events)) {
+    return;
   }
+
+  events.forEach(event => {
+    const location = geolocate(request);
+    const userAgent = ua.parse(request.headers['user-agent']);
+
+    const amplitudeEvent = transform(
+      event,
+      Object.assign(
+        {},
+        pruneUnsetValues(data),
+        mapBrowser(userAgent),
+        mapOs(userAgent),
+        mapFormFactor(userAgent),
+        mapLocation(location)
+      )
+    );
+
+    if (amplitudeEvent) {
+      process.stderr.write(`${JSON.stringify(amplitudeEvent)}\n`);
+    }
+  });
 }
 
 function pruneUnsetValues (data) {

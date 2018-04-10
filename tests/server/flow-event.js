@@ -145,67 +145,8 @@ registerSuite('flow-event', {
           assert.equal(arg.time, new Date(mocks.time - 500).toISOString());
         },
 
-        'amplitude was called seven times': () => {
-          assert.equal(mocks.amplitude.callCount, 7);
-        },
-
-        'first call to amplitude was correct': () => {
-          const args = mocks.amplitude.args[0];
-          assert.lengthOf(args, 3);
-          assert.deepEqual(args[0], {
-            flowTime: 5,
-            offset: 5,
-            time: mocks.time - 995,
-            type: 'wibble'
-          });
-          assert.equal(args[1], mocks.request);
-          mocks.amplitude.firstCall.calledBefore(process.stderr.write.firstCall);
-        },
-
-        'second call to amplitude was correct': () => {
-          const args = mocks.amplitude.args[1];
-          assert.lengthOf(args, 3);
-          assert.deepEqual(args[0], {
-            flowTime: 0,
-            offset: 5,
-            time: mocks.time - 1000,
-            type: 'flow.begin'
-          });
-          mocks.amplitude.secondCall.calledBefore(process.stderr.write.firstCall);
-        },
-
-        'third call to amplitude was correct': () => {
-          const args = mocks.amplitude.args[2];
-          assert.lengthOf(args, 3);
-          assert.deepEqual(args[0], {
-            flowTime: 5.89990234375,
-            offset: 5.9,
-            time: mocks.time - 994.1,
-            type: 'screen.signup'
-          });
-          mocks.amplitude.thirdCall.calledBefore(process.stderr.write.secondCall);
-        },
-
-        'fourth call to amplitude was correct': () => {
-          const args = mocks.amplitude.args[3];
-          assert.lengthOf(args, 3);
-          assert.deepEqual(args[0], {
-            flowTime: 1000,
-            offset: 1000,
-            time: mocks.time,
-            type: 'flow.signup.good-offset-now'
-          });
-        },
-
-        'fifth call to amplitude was correct': () => {
-          const args = mocks.amplitude.args[4];
-          assert.lengthOf(args, 3);
-          assert.deepEqual(args[0], {
-            flowTime: 1000 - config.flow_id_expiry,
-            offset: 1000 - config.flow_id_expiry,
-            time: mocks.time - config.flow_id_expiry,
-            type: 'flow.signup.good-offset-oldest'
-          });
+        'amplitude was not called': () => {
+          assert.equal(mocks.amplitude.callCount, 0);
         }
       }
     },
@@ -270,10 +211,6 @@ registerSuite('flow-event', {
           const arg = JSON.parse(process.stderr.write.args[6][0]);
           assert.equal(arg.event, 'flow.performance.auth.requestStart');
           assert.equal(arg.flow_time, 500);
-        },
-
-        'amplitude was called once': () => {
-          assert.equal(mocks.amplitude.callCount, 1);
         }
       }
     },
@@ -288,10 +225,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -305,10 +238,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -322,10 +251,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -339,10 +264,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -369,10 +290,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -386,10 +303,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -423,10 +336,6 @@ registerSuite('flow-event', {
           assert.isUndefined(arg.utm_medium);
           assert.isUndefined(arg.utm_source);
           assert.isUndefined(arg.utm_term);
-        },
-
-        'amplitude was called once': () => {
-          assert.equal(mocks.amplitude.callCount, 1);
         }
       }
     },
@@ -448,10 +357,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -472,10 +377,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -487,10 +388,6 @@ registerSuite('flow-event', {
 
       'process.stderr.write was not called': () => {
         assert.equal(process.stderr.write.callCount, 0);
-      },
-
-      'amplitude was not called': () => {
-        assert.equal(mocks.amplitude.callCount, 0);
       }
     },
 
@@ -506,10 +403,6 @@ registerSuite('flow-event', {
       tests: {
         'process.stderr.write was not called': () => {
           assert.equal(process.stderr.write.callCount, 0);
-        },
-
-        'amplitude was called once': () => {
-          assert.equal(mocks.amplitude.callCount, 1);
         }
       }
     },

@@ -5,6 +5,7 @@
 'use strict';
 
 const _ = require('lodash');
+const amplitude = require('../amplitude');
 const config = require('../configuration');
 const flowEvent = require('../flow-event');
 const GACollector = require('../ga-collector');
@@ -173,6 +174,7 @@ module.exports = function () {
         }
         ga.write(metrics);
 
+        amplitude(req, metrics);
         flowEvent(req, metrics, requestReceivedTime);
       });
     }
