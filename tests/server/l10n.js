@@ -90,8 +90,8 @@ function testExpectHTMLResponse(url, acceptHeader) {
         re = /styles\/[a-f0-9]{0,8}\.en\.css/;
       }
       assert.ok(res.body.match(re));
-      assert.ok(res.body.match(/dir="ltr"/));
-      assert.ok(res.body.match(/lang="en"/i));
+      assert.ok(res.body.match(/dir=ltr/));
+      assert.ok(res.body.match(/lang=en/i));
     }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
     return dfd;
@@ -116,8 +116,8 @@ function testExpectHTMLResponse(url, acceptHeader) {
         re = /styles\/[a-f0-9]{0,8}\.he\.css/;
       }
       assert.ok(res.body.match(re));
-      assert.ok(res.body.match(/dir="rtl"/));
-      assert.ok(res.body.match(/lang="he"/));
+      assert.ok(res.body.match(/dir=rtl/));
+      assert.ok(res.body.match(/lang=he/));
     }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
     return dfd;
@@ -137,8 +137,8 @@ suite.tests['#get terms page using lang in the URL'] = function () {
       re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
     }
     assert.ok(re);
-    assert.ok(res.body.match(/dir="ltr"/));
-    assert.ok(res.body.match(/lang="zh-CN"/));
+    assert.ok(res.body.match(/dir=ltr/));
+    assert.ok(res.body.match(/lang=zh-CN/));
   }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
   return dfd;
@@ -166,8 +166,8 @@ suite.tests['#get privacy page using lang in the URL'] = function () {
       re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
     }
     assert.ok(re);
-    assert.ok(res.body.match(/dir="ltr"/));
-    assert.ok(res.body.match(/lang="zh-CN"/));
+    assert.ok(res.body.match(/dir=ltr/));
+    assert.ok(res.body.match(/lang=zh-CN/));
   }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
   return dfd;
