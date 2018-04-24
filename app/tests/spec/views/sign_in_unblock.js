@@ -217,6 +217,19 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('incorrect unblock_code', () => {
+        beforeEach(() => {
+          sinon.spy(view, 'showValidationError');
+          view.$('#unblock_code').val(UNBLOCK_CODE);
+
+          return view.submit();
+        });
+
+        it('displays a tooltip, does not call submit', () => {
+          assert.isTrue(view.showValidationError.calledWithExactly);
+        });
+      });
+
       describe('other errors', () => {
         const unexpectedError = AuthErrors.toError('UNEXPECTED_ERROR');
         let receivedError;
