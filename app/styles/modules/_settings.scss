@@ -759,8 +759,11 @@ section.modal-panel {
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
+        overflow: hidden;
         text-align: center;
-        width: 20%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100px;
       }
 
       @media screen and (max-width: 400px) {
@@ -800,9 +803,12 @@ section.modal-panel {
         /*minimum width required for the button to look good without occupying too much space*/
         /*is also the default computed width on desktop screen*/
         min-width: 100px;
+        overflow: hidden;
         text-align: center;
-        width: 20%;
-
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100px;
+        
         &.set-primary {
           margin-right: 10px;
         }
