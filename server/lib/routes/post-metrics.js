@@ -61,8 +61,8 @@ const BODY_SCHEMA = {
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
   })).required(),
   experiments: joi.array().items(joi.object().keys({
-    choice: STRING_TYPE.regex(EXPERIMENT_PATTERN).required(),
-    group: EXPERIMENT_TYPE.regex(EXPERIMENT_PATTERN).required()
+    choice: EXPERIMENT_TYPE.regex(EXPERIMENT_PATTERN).required(),
+    group: STRING_TYPE.regex(EXPERIMENT_PATTERN).required()
   })).required(),
   flowBeginTime: OFFSET_TYPE.optional(),
   flowId: STRING_TYPE.hex().length(64).optional(),
