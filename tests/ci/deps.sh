@@ -5,14 +5,14 @@ mkdir -p deps/node_modules
 cd deps
 
 # Auth
-npm i mozilla/fxa-auth-server &> /dev/null
-cd node_modules/fxa-auth-server
+git clone https://github.com/mozilla/fxa-auth-server.git --depth=1
+cd fxa-auth-server
 # Install devDeps for the Auth Server to get memory db
-npm i
+npm i &> /dev/null
 LOG_LEVEL=error node ./node_modules/fxa-auth-db-mysql/bin/mem.js &
 node ./scripts/gen_keys.js
 SIGNIN_UNBLOCK_ALLOWED_EMAILS="^block.*@restmail\\.net$" SIGNIN_UNBLOCK_FORCED_EMAILS="^block.*@restmail\\.net$" npm start &> /dev/null &
-cd ../..
+cd ..
 
 # OAuth
 
