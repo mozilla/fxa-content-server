@@ -13,6 +13,7 @@ var suite = {
 };
 
 const RE_DIR_LTR = /dir="?ltr"?/;
+const RE_DIR_RTL = /dir="?rtl"?/;
 const RE_LANG_EN = /lang="?en"?/;
 const RE_LANG_HE = /lang="?he"?/;
 const RE_LANG_ZH_CN = /lang="?zh-CN"?/;
@@ -121,7 +122,7 @@ function testExpectHTMLResponse(url, acceptHeader) {
         re = /styles\/[a-f0-9]{0,8}\.he\.css/;
       }
       assert.ok(res.body.match(re));
-      assert.ok(res.body.match(RE_DIR_LTR));
+      assert.ok(res.body.match(RE_DIR_RTL));
       assert.ok(res.body.match(RE_LANG_HE));
     }).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
