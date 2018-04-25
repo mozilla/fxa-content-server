@@ -16,8 +16,8 @@
 
   @include respond-to('small') {
     background-position-y: 0;
-    background-size: auto 55px;
-    height: 55px;
+    background-size: auto 56px;
+    height: 56px;
     margin: 10px auto 0 auto;
     top: 0;
     width: 100%;
@@ -127,11 +127,9 @@
 }
 
 .sms-row {
-  position: relative;
-
   .sms-send {
     border-radius: 0 $big-border-radius $big-border-radius 0;
-    height: 43px;
+    height: $input-height - 2px;
     min-width: 55px;
     padding: 0 7px;
     position: absolute;
@@ -140,7 +138,7 @@
     z-index: 3;
 
     html[dir='ltr'] & {
-      border-left: 1px solid $input-row-border-color;
+      border-left: 1px solid $input-border-default-color;
       right: 1px;
     }
 
@@ -148,12 +146,6 @@
       border-radius: $big-border-radius 0 0 $big-border-radius;
       border-right: 1px solid $input-row-border-color;
       left: 1px;
-    }
-
-    @include respond-to('small') {
-      border-radius: 0;
-      height: 38px;
-      line-height: 38px;
     }
   }
 }

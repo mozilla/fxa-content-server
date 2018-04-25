@@ -4,6 +4,25 @@
 $default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 $header-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 
+$font-size-body-10: 13px;
+$font-weight-body-10: 400;
+
+$font-size-body-20: 15px;
+$font-weight-body-20: 400;
+
+$font-size-caption-10: 11px;
+$font-weight-caption-10: 400;
+
+$font-size-title-30: 22px;
+$font-weight-title-30: 300;
+
+$font-size-title-20: 17px;
+$font-weight-title-20: 300;
+
+$font-size-title-10: 13px;
+$font-weight-title-10: 300;
+
+
 //Default color variables
 $color-blue: $blue-50;
 $color-blue-dark: $blue-60;
@@ -11,7 +30,7 @@ $color-blue-darker: $blue-70;
 $color-blue-darkest: $blue-80;
 $color-black: $grey-90;
 
-$color-blue-focus-ring: hsla(214, 100%, 87%, .75); // Blue 60
+$color-blue-focus-ring: /*0 0 0 1px $blue-50, */0 0 0 4px rgba($blue-50, 0.3);//0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
 
 $color-green-lightest: #e2fddc;
 $color-green: $green-50;
@@ -24,7 +43,7 @@ $color-grey-lighter: $grey-20;
 $color-grey-light: $grey-30;
 $color-grey-spinner: $grey-30;
 $color-grey: $grey-40;
-$color-grey-disabled: $grey-40;
+$color-grey-disabled: $grey-90;
 $color-grey-dark: $grey-50;
 $color-grey-faint-text: $grey-50;
 $color-grey-text: $grey-90;
@@ -67,29 +86,46 @@ $button-text-primary-color: #fff;
 $chromeless-html-background-color: $color-white;
 $content-background-color: $color-white;
 $cropper-background-color: $color-black;
-$error-background-color: $color-red;
+$error-background-color: $red-60;
 $warning-background-color: $color-orange;
 $error-text-color: $color-red;
 $faint-text-color: $color-grey-faint-text;
 $horizontal-rule-color: darken($color-grey-light, 5);
 $html-background-color: $color-white-dark;
-$info-background-color: $color-blue;
 
+$extra-links-color: $grey-50;
+$header-color: $grey-90;
 //Input specific colors
+
+$input-height: 40px;
+
+$input-background-default-color: $color-white;
 $input-background-disabled-color: $color-white-dark;
-$input-border-color: $color-grey-text;
+
+$input-text-default-color: $grey-90;
+$input-text-disabled-color: $color-grey-faint-text;
+
+$input-text-default-font-size: $font-size-body-20;
+$input-text-default-font-weight: $font-weight-body-20;
+
+//$input-border-color: $color-grey-text;
+$input-left-right-padding: 16px;
+$input-placeholder-color: rgba($grey-90, 0.4);
+
+$input-border-default-color: rgba($grey-90, 0.3);
 $input-border-disabled-color: $color-grey-light;
-$input-disabled-color: $color-grey-faint-text;
-$input-left-right-padding: 20px;
-$input-placeholder-color: $color-grey-faint-text;
-$input-row-border-color: $color-grey-faint-text;
-$input-row-box-shadow-color: $color-white-dark;
-$input-row-focus-border-color: $color-blue;
-$input-row-focus-box-shadow-color: $color-blue-focus-ring;
-$input-row-hover-border-color: $color-grey-text;
+$input-border-focus-color: $blue-50;
+$input-border-hover-color: rgba($grey-90, 0.5);
+
+//$input-row-box-shadow-color: $color-white-dark;*/
+//$input-row-focus-box-shadow-color: $color-blue-focus-ring;*/
 $input-text-color: $color-grey-text;
 
-$link-color: $blue-60;
+$link-default-color: $blue-60;
+$link-hover-color: $blue-60;
+$link-active-color: $blue-70;
+$link-focus-color: $blue-60;
+
 $marketing-border-color: $color-grey-spinner;
 $message-text-color: $color-white;
 $mobile-html-background-color: $color-white;
@@ -101,8 +137,17 @@ $show-password-background-color: $color-white;
 $show-password-focus-label-color: $color-white;
 $show-password-label-color: $color-grey-faint-text;
 
-$success-background-color: #5fad47;
-$success-text-color: $color-white;
+$success-background-color: $green-50;
+$success-text-color: $green-90;
+
+$info-background-color: $grey-20; // the photon sytleguide says these should be grey
+$info-text-color: $grey-90;
+
+$warning-background-color: $yellow-50;
+$warning-text-color: $yellow-90;
+
+$error-background-color: $red-60;
+$error-text-color: $color-white;
 
 $text-color: $color-grey-text;
 
@@ -112,8 +157,6 @@ $modal-background-color-iframe: $color-white;
 
 //Settings Specific Colors
 $settings-header-border-bottom: $grey-40;
-$settings-success-background-color: $color-green-darker;
-$settings-success-border-color: $settings-success-background-color;
 
 //Radio Button Colors
 $radio-border-default-color: $grey-40;
@@ -135,6 +178,9 @@ $medium-font: 18px;
 $base-font: 14px;
 $small-font: 12px;
 $media-adjustment: 2px;
+
+$button-font-size: 15px;
+$button-font-weight: 300px;
 
 //Border-Radius Variables
 $small-border-radius: 2px;

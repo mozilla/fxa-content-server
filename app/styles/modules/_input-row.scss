@@ -1,7 +1,9 @@
 .input-row {
+  margin-bottom: 16px;
   position: relative;
   width: 100%;
 
+/*
   &.input-row-age {
     margin-top: 25px;
   }
@@ -13,9 +15,10 @@
   @include respond-to('trustedUI') {
     margin-bottom: 9px;
   }
+*/
 
   &:hover input:focus {
-    border-color: $input-row-focus-border-color;
+    border-color: $input-border-focus-color;
   }
 
   &:hover input.invalid:focus {
@@ -47,22 +50,27 @@
       @include input-element();
 
       &:hover {
-        border-color: $input-row-hover-border-color;
+        border-color: $input-border-hover-color;
       }
 
       &:focus {
-        border-color: $input-row-focus-border-color;
-        box-shadow: 0 0 0 2px $input-row-focus-box-shadow-color;
+        border-color: $input-border-focus-color;
+        /*border: none;*/
+        box-shadow: $button-box-shadow-color;///*0 0 0 1px #0a84ff, */0 0 0 4px rgba($input-border-focus-color, 0.3);
       }
 
       &.invalid {
         border-color: $error-background-color;
-        box-shadow: 0 0 0 2px rgba(lighten($error-background-color, 15), .75);
+      }
+
+      &.invalid:focus {
+        box-shadow: /*0 0 0 1px #0a84ff, */0 0 0 4px rgba($error-background-color, 0.3);
       }
 
       &:disabled {
-        border-color: $input-row-border-color;
-        color: $input-disabled-color;
+        background-color: $input-background-disabled-color;
+        border-color: $input-border-default-color;
+        color: $input-text-disabled-color;
         cursor: not-allowed;
       }
     }
@@ -79,7 +87,7 @@
 
     &[type='checkbox']:hover,
     &[type='checkbox']:focus {
-      border: 1px solid $input-row-focus-border-color;
+      border: 1px solid $input-border-focus-color;
     }
 
   &.unblock-code {
@@ -96,17 +104,21 @@
   }
 
   .input-help {
-    color: $input-placeholder-color;
+    color: $grey-50;
     margin-top: 6px;
     transition: opacity $medium-transition;
+
+    &.input-help-inline {
+      @include caption10();
+    }
 
     &.input-help-complete-password {
       text-align: center;
     }
-
+/*
     @include respond-to('small') {
       font-size: $small-font;
-    }
+    }*/
   }
 
   .input-help-forgot-pw {
@@ -127,10 +139,10 @@
   label:active ~ .input-help-focused,
   label:focus ~ .input-help-focused,
   .input-help-focused.highlight {
-    color: $input-row-focus-border-color;
+    /*color: $input-border-focus-color;*/
     opacity: 1;
   }
-
+/*
   &.label-helper-top {
     // input rows with a label on the top need a bit more space
     // than the 12px margin-bottom given from the element above it,
@@ -145,10 +157,11 @@
   }
 
   .label-helper {
-    color: $input-row-border-color;
+    font-size: $font-size-body-10;
+    color: $input-border-default-color;
   }
 
   .label-helper.focused {
-    color: $input-row-focus-border-color;
-  }
+    color: $input-border-focus-color;
+  }*/
 }

@@ -1,45 +1,66 @@
+.info,
+.warning,
 .error,
-.success,
-.info {
-  border-radius: $small-border-radius;
-  color: $message-text-color;
-  display: none;
-  margin-bottom: 5px;
-  padding: 5px;
-  position: relative;
-  top: -15px;
+.success {
+  @include body10();
 
-  @include respond-to('trustedUI') {
-    margin: 0 0 10px 0;
-    top: 0;
-  }
+  border-radius: 4px;
+  margin-bottom: 5px;
+  padding: 4px;
+  position: relative;
+  line-height: 24px;
+  margin: -15px auto 5px auto;
+  min-height: 32px;
 
   @include respond-to('small') {
     top: -7px;
-  }
-
-  @include respond-to('big') {
-    top: -15px;
+    width: 100%;
   }
 
   a {
-    color: $message-text-color;
+    text-decoration: underline;
+  }
+
+  &.visible {
+    display: block;
   }
 
   /*Pull the message up to bring it closer to the header*/
+  /*
   &.nudge {
     top: -10px;
 
       &.pad {
           padding: 10px;
       }
+  }*/
+}
+
+.info {
+  background: $info-background-color;
+  color: $info-text-color;
+
+  a {
+    color: $info-text-color;
+  }
+}
+
+.warning {
+  background: $warning-background-color;
+  color: $warning-text-color;
+
+  a {
+    color: $warning-text-color;
   }
 }
 
 .error {
   background: $error-background-color;
-  &.visible {
-    display: block;
+  color: $error-text-color;
+  display: none;
+
+  a {
+    color: $error-text-color;
   }
 
   .loading & {
@@ -50,17 +71,16 @@
 
 .success {
   background: $success-background-color;
+  color: $success-text-color;
   display: none;
 
+  a {
+    color: $success-text-color;
+  }
+
   &.visible {
-    display: block;
     top: 10px;
   }
-}
-
-.info {
-  background: $info-background-color;
-  display: block;
 }
 
 // complete is like success, but without the associated styles.
@@ -79,17 +99,13 @@
 .reset-warning {
   font-size: $base-font;
   font-weight: normal;
-  line-height: 1.6em;
-  margin-top: 0;
-  padding: 5px 25px 15px 25px;
-
-  @include respond-to('small') {
-    padding: 5px;
-  }
+  line-height: 1.5em;
+  margin: 0 25px 24px 25px;
 
   span {
     color: $reset-pw-warning;
   }
+
   &.reset-warning-complete-password {
     margin-bottom: 25px;
   }
@@ -231,6 +247,10 @@ div + .error {
 
 // custom state indicators
 #suggest-sync {
+  > a {
+    text-decoration: underline;
+  }
+
   .dismiss {
     position: absolute;
     top: 4px;

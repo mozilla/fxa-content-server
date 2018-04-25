@@ -1,4 +1,6 @@
 .blocker {
+  background-color: rgba($grey-90, 0.6);
+
   .iframe & {
     background-color: $modal-background-color-iframe;
     padding: 0;
@@ -6,8 +8,8 @@
 }
 
 .modal {
-  border-radius: $big-border-radius;
-  box-shadow: 0 1px 5px $modal-border-color;
+  border-radius: 0;
+  box-shadow: none;
 
   .iframe & {
     border-radius: 0;
@@ -42,18 +44,10 @@
     }
 
     .modal-success {
-      background-color: $settings-success-background-color;
-      border-color: $settings-success-border-color;
-      border-style: solid;
-      color: $success-text-color;
       font-size: $base-font;
       margin: 0 auto;
       text-align: center;
       top: 0;
-
-      a {
-        color: $success-text-color;
-      }
     }
   }
 }

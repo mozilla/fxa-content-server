@@ -5,6 +5,7 @@
 
 .links {
   clear: both;
+  font-size: 13px;
   overflow: auto;
   // the 1px of padding allows the :focus outline on anchors to show.
   padding: 1px;
@@ -41,13 +42,14 @@
     width: fit-content;
   }
 
+  /*
   a {
     text-decoration: none;
 
     &:hover {
       text-decoration: underline;
     }
-  }
+  }*/
 }
 
 .extra-links + .links {
@@ -66,15 +68,21 @@ ul.links {
 
 .extra-links,
 .extra-links a {
-  color: $input-placeholder-color;
-  margin-top: 20px;
+  color: $extra-links-color;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 12px;
   transition-duration: $short-transition;
+}
+
+.extra-links a {
+  text-decoration: underline;
 }
 
 .extra-links a:active,
 .extra-links a:hover,
 .extra-links a:focus {
-  color: $link-color;
+  color: $extra-links-color;
 }
 
 .verification-email-message,
@@ -85,14 +93,12 @@ ul.links {
 }
 
 .customize-sync-row {
-  color: $input-placeholder-color;
+  //color: $input-placeholder-color;
   margin-bottom: 10px !important;
 }
 
 .marketing-email-optin-row {
-  color: $input-placeholder-color;
-
-  @include respond-to('trustedUI') {
+/*  @include respond-to('trustedUI') {
      font-size: 12px;
   }
 
@@ -103,7 +109,7 @@ ul.links {
   @include respond-to('big') {
     margin: 20px 0 10px 0;
   }
-
+*/
   .fxa-checkbox {
     line-height: 18px;
   }
@@ -124,6 +130,7 @@ ul.links {
   }
 }
 
+/*
 @include respond-to('small') {
   .extra-links,
   .links + .extra-links {
@@ -153,29 +160,16 @@ ul.links {
     margin: 5px auto;
   }
 }
-
+*/
 .small-label,
 .label-helper {
   border-radius: $small-border-radius;
   color: $input-placeholder-color;
+  display: none;
   font-size: $small-font;
   font-weight: normal;
   height: 16px;
   margin: 0 10px;
-}
-
-.show-password-label {
-  background-color: $show-password-background-color;
-  color: $show-password-label-color;
-}
-
-.password:focus ~ .show-password-label {
-  color: $input-row-focus-border-color;
-}
-
-.password[type='text']:focus ~ .show-password-label {
-  background-color: $input-row-focus-border-color;
-  color: $show-password-focus-label-color;
 }
 
 .modal {

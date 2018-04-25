@@ -12,8 +12,7 @@ module.exports = function (grunt) {
           '<%= yeoman.dist %>/scripts/vendor/**/*.js',
           '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
           '!<%= yeoman.dist %>/images/apple_app_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-          '!<%= yeoman.dist %>/images/google_play_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-          '<%= yeoman.dist %>/fonts/{,*/}*.{woff,woff2,eot,ttf,svg}'
+          '!<%= yeoman.dist %>/images/google_play_store_button/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
     },
@@ -25,7 +24,7 @@ module.exports = function (grunt) {
     with_children: { //eslint-disable-line camelcase
       files: {
         src: [
-          // CSS has references to images and fonts
+          // CSS has references to images
           '<%= yeoman.dist %>/styles/**/*.css'
         ]
       }
