@@ -35,6 +35,7 @@ function langTest(lang) {
     got(httpsUrl + '/', options)
       .then(function (res) {
         assert.equal(res.statusCode, 200);
+        debugger;
         var langRegExp = new RegExp(util.format('lang=%s', lang));
         assert.ok(langRegExp.test(res.body), 'html has correct lang attribute');
         if (intern._config.fxaProduction) {
