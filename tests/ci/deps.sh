@@ -5,7 +5,7 @@ mkdir -p deps/node_modules
 cd deps
 
 # Auth
-npm i mozilla/fxa-auth-server
+npm i mozilla/fxa-auth-server &> /dev/null
 cd node_modules/fxa-auth-server
 # Install devDeps for the Auth Server to get memory db
 npm i
@@ -16,14 +16,14 @@ cd ../..
 
 # OAuth
 
-npm i mozilla/fxa-oauth-server
+npm i mozilla/fxa-oauth-server &> /dev/null
 cd node_modules/fxa-oauth-server
 LOG_LEVEL=error NODE_ENV=dev node ./bin/server.js &
 cd ../..
 
 # Profile
 
-npm i mozilla/fxa-profile-server
+npm i mozilla/fxa-profile-server &> /dev/null
 cd node_modules/fxa-profile-server
 npm i
 LOG_LEVEL=error NODE_ENV=dev npm start &
@@ -31,9 +31,9 @@ cd ../..
 
 # Verifier
 
-npm i vladikoff/browserid-verifier#http
+npm i vladikoff/browserid-verifier#http &> /dev/null
 cd node_modules/browserid-verifier
-npm i vladikoff/browserid-local-verify#http
+npm i vladikoff/browserid-local-verify#http &> /dev/null
 PORT=5050 CONFIG_FILES=../../../tests/ci/config_verifier.json node server.js &
 cd ../..
 
