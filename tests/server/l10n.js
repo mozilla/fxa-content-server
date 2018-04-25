@@ -12,10 +12,10 @@ var suite = {
   tests: {}
 };
 
-const RE_DIR_LTR = /dir="?ltr"?/
-const RE_LANG_EN = /lang="?en"?/
-const RE_LANG_HE = /lang="?he"?/
-const RE_LANG_ZH_CN = /lang="?zh-CN"?/i
+const RE_DIR_LTR = /dir="?ltr"?/;
+const RE_LANG_EN = /lang="?en"?/;
+const RE_LANG_HE = /lang="?he"?/;
+const RE_LANG_ZH_CN = /lang="?zh-CN"?/;
 
 function testClientJson(acceptLanguageHeader, expectedLanguage) {
   var dfd = this.async(intern._config.asyncTimeout);
