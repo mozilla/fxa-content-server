@@ -61,7 +61,7 @@ const BODY_SCHEMA = {
     type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required()
   })).required(),
   experiments: joi.array().items(joi.object().keys({
-    choice: EXPERIMENT_TYPE.regex(EXPERIMENT_PATTERN).required(),
+    choice: EXPERIMENT_TYPE.required(),
     group: STRING_TYPE.regex(EXPERIMENT_PATTERN).required()
   })).required(),
   flowBeginTime: OFFSET_TYPE.optional(),
