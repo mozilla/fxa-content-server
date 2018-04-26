@@ -37,7 +37,7 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
       testValidMetricsEvent('type', 'error.unknown context.auth.108'),
   'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':
     testValidMetricsEvent('type', 'signin-permissions.checkbox.change.profile:display_name.unchecked'),
-  'valid experiment choice (sendSms)': testValidMetricsField('experiments', { choice: 'sendSms', group: 'treatment'}),
+  // 'valid experiment choice (sendSms)': testValidMetricsField('experiments', { choice: 'sendSms', group: 'treatment'}),
   'valid initialView': testValidMetricsField('initialView', 'az_-'),
   'valid lang (pt)': testValidMetricsField('lang', 'pt'),
   'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
