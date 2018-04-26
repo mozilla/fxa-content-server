@@ -69,7 +69,7 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid event type (<owned>)': testInvalidMetricsField('events', [{ offset: 12, type: '<owned>'}]),
   'invalid events ({})': testInvalidMetricsField('events', {}),
   'invalid experiment choice ({})': testInvalidMetricsField('experiments', { choice: {}, group: 'treatment'}),
-  'invalid experiment group (1255{})': testInvalidMetricsField('experiments', { choice: 'choice', group: '1255{}'}),
+  'invalid experiment group (1255{})': testInvalidMetricsField('experiments', { choice: 'sendSms', group: '1255{}'}),
   'invalid experiments (123)': testInvalidMetricsField('experiments', '123'),
   'invalid flowBeginTime (asdf)': testInvalidMetricsField('flowBeginTime', 'asdf'),
   'invalid flowId (deadbeef)': testInvalidMetricsField('flowId', 'deadbeef'),
