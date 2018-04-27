@@ -30,6 +30,7 @@ const {
   click,
   closeCurrentWindow,
   confirmTotpCode,
+  closeCurrentWindow,
   createUser,
   fillOutSignIn,
   fillOutSignInUnblock,
