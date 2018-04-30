@@ -88,6 +88,7 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'bar',
         event_properties: {
+          device_id: 'bar',
           oauth_client_id: '1',
           service: 'pocket'
         },
@@ -116,8 +117,7 @@ registerSuite('amplitude', {
               'second_experiment_group_two',
               'third_experiment_group_three',
               'fourth_experiment_group_four'
-            ],
-            fxa_services_used: 'pocket'
+            ]
           }
         }
       });
@@ -157,8 +157,7 @@ registerSuite('amplitude', {
         device_id: 'b',
         device_model: 'iPad',
         event_properties: {
-          oauth_client_id: 'g',
-          service: 'undefined_oauth'
+          device_id: 'b'
         },
         event_type: 'fxa_pref - password',
         language: 'f',
@@ -170,18 +169,9 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
-          },
           entrypoint: 'c',
-          flow_id: 'e',
           ua_browser: 'Mobile Safari',
-          ua_version: '6.0',
-          utm_campaign: 'i',
-          utm_content: 'j',
-          utm_medium: 'k',
-          utm_source: 'l',
-          utm_term: 'm'
+          ua_version: '6.0'
         }
       });
     },
@@ -227,6 +217,7 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
       assert.equal(arg.event_properties.reason, 'suspicious');
       assert.isUndefined(arg.device_id);
+      assert.isUndefined(arg.event_properties.device_id);
       assert.isUndefined(arg.user_id);
     },
 
@@ -365,6 +356,7 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
+          device_id: 'b',
           oauth_client_id: '2',
           service: 'undefined_oauth'
         },
@@ -376,9 +368,6 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
-          },
           entrypoint: 'c',
           flow_id: 'e',
           utm_campaign: 'i',
@@ -786,8 +775,7 @@ registerSuite('amplitude', {
         device_id: 'b',
         event_properties: {
           connect_device_flow: 'sms',
-          oauth_client_id: 'g',
-          service: 'undefined_oauth'
+          device_id: 'b'
         },
         event_type: 'fxa_connect_device - view',
         language: 'f',
@@ -797,16 +785,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'undefined_oauth'
-          },
           entrypoint: 'c',
-          flow_id: 'e',
-          utm_campaign: 'i',
-          utm_content: 'j',
-          utm_medium: 'k',
-          utm_source: 'l',
-          utm_term: 'm'
+          flow_id: 'e'
         }
       });
     },
@@ -919,7 +899,8 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
-          email_provider: 'other',
+          device_id: 'b',
+          email_domain: 'other',
           email_type: 'reset_password',
           service: 'sync'
         },
@@ -931,16 +912,8 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
-          '$append': {
-            fxa_services_used: 'sync'
-          },
           entrypoint: 'c',
-          flow_id: 'e',
-          utm_campaign: 'i',
-          utm_content: 'j',
-          utm_medium: 'k',
-          utm_source: 'l',
-          utm_term: 'm'
+          flow_id: 'e'
         }
       });
     },
@@ -964,7 +937,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
-      assert.equal(arg.event_properties.email_provider, undefined);
+      assert.equal(arg.event_properties.email_domain, undefined);
       assert.equal(arg.event_properties.email_type, 'login');
     },
 
@@ -986,7 +959,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
-      assert.equal(arg.event_properties.email_provider, undefined);
+      assert.equal(arg.event_properties.email_domain, undefined);
       assert.equal(arg.event_properties.email_type, 'registration');
     },
 
