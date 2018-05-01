@@ -458,6 +458,11 @@ const conf = module.exports = convict({
             'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org/',
             'https://mozilla.github.io/notes/fxa/android-redirect.html'
           ]
+        },
+        'https://identity.mozilla.com/apps/oldsync': {
+          redirectUris: [
+            'com.mozilla.sandvich:/oauth2redirect/fxa-provider',
+          ]
         }
       },
       doc: 'Validates redirect uris for requested scopes',
