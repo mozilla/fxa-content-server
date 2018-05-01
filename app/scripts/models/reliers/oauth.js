@@ -19,9 +19,9 @@ define(function (require, exports, module) {
   /*eslint-disable camelcase*/
   var CLIENT_INFO_SCHEMA = {
     id: Vat.hex().required().renameTo('clientId'),
-    image_uri: Vat.url().allow('').renameTo('imageUri'),
+    image_uri: Vat.string().allow('').renameTo('imageUri'),
     name: Vat.string().required().min(1).renameTo('serviceName'),
-    redirect_uri: Vat.url().required().renameTo('redirectUri'),
+    redirect_uri: Vat.string().required().renameTo('redirectUri'),
     trusted: Vat.boolean().required()
   };
 
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
     keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
-    redirect_uri: Vat.url().renameTo('redirectUri'),
+    redirect_uri: Vat.string().renameTo('redirectUri'),
     scope: Vat.string().required().min(1),
     state: Vat.string()
   };
@@ -44,7 +44,7 @@ define(function (require, exports, module) {
     action: Vat.string().min(1),
     client_id: Vat.clientId().required().renameTo('clientId'),
     prompt: Vat.prompt(),
-    redirect_uri: Vat.url().renameTo('redirectUri'),
+    redirect_uri: Vat.string().renameTo('redirectUri'),
     // scopes are optional when verifying, user could be verifying in a 2nd browser
     scope: Vat.string().min(1),
     // `service` for OAuth verification is a clientId
