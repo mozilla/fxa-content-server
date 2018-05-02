@@ -56,7 +56,7 @@
       &:focus {
         border-color: $input-border-focus-color;
         /*border: none;*/
-        box-shadow: $button-box-shadow-color;///*0 0 0 1px #0a84ff, */0 0 0 4px rgba($input-border-focus-color, 0.3);
+        box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
       }
 
       &.invalid {

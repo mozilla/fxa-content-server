@@ -6,6 +6,7 @@
 .links {
   clear: both;
   font-size: 13px;
+  margin-top: 24px;
   overflow: auto;
   // the 1px of padding allows the :focus outline on anchors to show.
   padding: 1px;
@@ -41,15 +42,6 @@
     text-align: center;
     width: fit-content;
   }
-
-  /*
-  a {
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }*/
 }
 
 .extra-links + .links {
@@ -89,6 +81,7 @@ ul.links {
 .signed-in-email-message,
 .verification-recovery-code-message,
 .verification-totp-message {
+  line-height: 1.5;
   word-wrap: break-word;
 }
 

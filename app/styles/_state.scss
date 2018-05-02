@@ -9,11 +9,10 @@
   padding: 4px;
   position: relative;
   line-height: 24px;
-  margin: -15px auto 5px auto;
+  margin: 0 auto 10px auto;
   min-height: 32px;
 
   @include respond-to('small') {
-    top: -7px;
     width: 100%;
   }
 
@@ -26,14 +25,13 @@
   }
 
   /*Pull the message up to bring it closer to the header*/
-  /*
   &.nudge {
     top: -10px;
-
+/*
       &.pad {
           padding: 10px;
-      }
-  }*/
+      }*/
+  }
 }
 
 .info {

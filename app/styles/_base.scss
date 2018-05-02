@@ -87,6 +87,7 @@ a {
   }
 }
 
+
 header {
   h1,
   h2,
@@ -100,7 +101,6 @@ header {
     @include title30();
     color: $header-color;
     line-height: 26px;
-    margin-bottom: 24px;
 
     /*
     @include respond-to('big') {
@@ -153,6 +153,11 @@ header {
   h2 {
     @include title20();
   }
+
+}
+
+header + section {
+  margin-top: 16px;
 }
 
 button,
@@ -208,11 +213,13 @@ section p {
     font-size: $base-font;
   }
 */
+  margin: 0;
 
   &.prefillEmail {
     color: $grey-60;
     font-size: 15px;
     font-weight: 500;
+    margin-bottom: 15px;
     word-wrap: break-word;
 
     /*@include respond-to('reasonableUI') {
@@ -222,10 +229,10 @@ section p {
     @include respond-to('trustedUI') {
       margin-top: 10px;
     }*/
-
+/*
     &.nudge {
       margin-top: -8px; // pull the email address a little closer to the header text
-    }
+    }*/
   }
 }
 

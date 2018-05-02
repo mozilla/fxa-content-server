@@ -6,30 +6,35 @@
   <section>
     <div class="error"></div>
 
-    <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
-
-    {{#isSync}}
-      <p class="account-ready-service">{{{escapedReadyToSyncText}}}</p>
-    {{/isSync}}
-
-    {{^isSync}}
+    <p class="account-ready-service">
+      {{#isSync}}
+        {{{escapedReadyToSyncText}}}</p>
+      {{/isSync}}
+      {{^isSync}}
       {{#serviceName}}
-        <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
-        {{#showContinueButton}}
-        <div class="button-row">
-          <button class="btn-continue">{{#t}}Continue{{/t}}</button>
-        </div>
-        {{/showContinueButton}}
+        {{#t}}You are now ready to use %(serviceName)s{{/t}}
       {{/serviceName}}
       {{^serviceName}}
           {{#emailVerified}}
-              <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
+              {{{escapedEmailReadyText}}}
           {{/emailVerified}}
 
           {{^emailVerified}}
-              <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+              {{#t}}Your account is ready!{{/t}}
           {{/emailVerified}}
       {{/serviceName}}
+    {{/isSync}}
+    </p>
+
+
+    <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
+
+    {{^isSync}}
+      {{#showContinueButton}}
+      <div class="button-row">
+        <button class="btn-continue">{{#t}}Continue{{/t}}</button>
+      </div>
+      {{/showContinueButton}}
     {{/isSync}}
 
     <div class="marketing-area"></div>

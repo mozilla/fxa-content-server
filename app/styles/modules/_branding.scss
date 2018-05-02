@@ -144,7 +144,7 @@
 
     html[dir='rtl'] & {
       border-radius: $big-border-radius 0 0 $big-border-radius;
-      border-right: 1px solid $input-row-border-color;
+      border-right: 1px solid $input-border-default-color;
       left: 1px;
     }
   }

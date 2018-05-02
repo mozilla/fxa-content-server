@@ -1,7 +1,7 @@
 .graphic {
   background-repeat: no-repeat;
   height: 130px;
-  margin: 0 auto;
+  margin: 0 auto 20px auto;
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
@@ -13,7 +13,7 @@
   }
 
   @include respond-to('trustedUI') {
-    margin: 40px auto 0 auto;
+    margin: 40px auto;
   }
 }
 
@@ -74,12 +74,13 @@
   background-image: url('/images/account-verified-hearts.svg');
   background-position: center center;
   height: 190px;
-  margin: 25px 0 -45px 20px;
+  margin-bottom: -25px;
+  margin-left: 20px;
   width: auto;
 
   @include respond-to('small') {
     height: 140px;
-    margin: 20px 0 -25px 10px;
+    margin-left: 10px;
   }
 }
 

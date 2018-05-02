@@ -306,13 +306,8 @@ define(function (require, exports, module) {
           assert.equal(view.$('.email-address .details .verified').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').length, 1);
           assert.equal(view.$('.email-address .settings-button.warning-button.email-disconnect').attr('data-id'), 'secondary@email.com');
-<<<<<<< HEAD
           assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').length, 1);
           assert.equal(view.$('.email-address .settings-button.secondary-button.set-primary').attr('data-id'), 'secondary@email.com');
-=======
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').length, 1);
-          assert.equal(view.$('.email-address .settings-button.secondary.set-primary').attr('data-id'), 'secondary@email.com');
->>>>>>> refactor(style): Update to use Photon styles.
         });
 
         it('can change email', (done) => {
