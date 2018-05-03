@@ -19,10 +19,9 @@ define(function (require, exports, module) {
       context: Constants.FX_SYNC_CONTEXT,
       Constructor: require('../auth_brokers/fx-sync')
     },
-    {
-      context: Constants.FX_DESKTOP_V1_CONTEXT,
-      Constructor: require('../auth_brokers/fx-desktop-v1')
-    },
+    /**
+     * fx_desktop_v1 was deprecated in #6161
+     */
     {
       context: Constants.FX_DESKTOP_V2_CONTEXT,
       Constructor: require('../auth_brokers/fx-desktop-v2')
@@ -81,7 +80,7 @@ define(function (require, exports, module) {
      * @returns {Function} Constructor
      */
     get (context) {
-      return AUTH_BROKERS[context] || require('../auth_brokers/web');
+      return AUTH_BROKERS[context];
     }
   };
 });

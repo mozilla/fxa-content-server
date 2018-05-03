@@ -645,7 +645,7 @@ Start.prototype = {
       return this._getVerificationContext();
     }
 
-    return this._searchParam('context');
+    return this._searchParam('context') || Constants.CONTENT_SERVER_CONTEXT;
   },
 
   _getVerificationContext () {

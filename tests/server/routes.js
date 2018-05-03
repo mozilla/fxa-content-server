@@ -76,6 +76,7 @@ var routes = {
   '/sms': { statusCode: 200 },
   '/sms/sent': { statusCode: 200 },
   '/sms/why': { statusCode: 200 },
+  '/update_firefox': { statusCode: 200 },
   // the following have a version prefix
   '/v1/complete_reset_password': { statusCode: 200 },
   '/v1/reset_password': { statusCode: 200 },

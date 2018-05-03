@@ -6,7 +6,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const chai = require('chai');
-  const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
+  const FxIosV1Sender = require('lib/channels/senders/fx-ios-v1');
   const sinon = require('sinon');
   const WindowMock = require('../../../../mocks/window');
 
@@ -15,10 +15,10 @@ define(function (require, exports, module) {
 
   var assert = chai.assert;
 
-  describe('lib/channels/senders/fx-desktop-v1', function () {
+  describe('lib/channels/senders/fx-ios-v1', function () {
     beforeEach(function () {
       windowMock = new WindowMock();
-      sender = new FxDesktopV1Sender();
+      sender = new FxIosV1Sender();
       sender.initialize({
         window: windowMock
       });

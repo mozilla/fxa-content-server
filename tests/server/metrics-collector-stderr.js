@@ -68,8 +68,8 @@ suite.tests['writes formatted data to stderr'] = function () {
       assert.equal(loggedMetrics.event_durations[1], 3512);
 
       assert.equal(loggedMetrics.service, 'sync');
-      assert.equal(loggedMetrics.context, 'fx_desktop_v1');
-      assert.equal(loggedMetrics.broker, 'fx-desktop-v1');
+      assert.equal(loggedMetrics.context, 'fx_desktop_v3');
+      assert.equal(loggedMetrics.broker, 'fx-desktop-v2');
 
       assert.equal(loggedMetrics['screen.width'], 1680);
       assert.equal(loggedMetrics['screen.height'], 1050);
@@ -82,7 +82,7 @@ suite.tests['writes formatted data to stderr'] = function () {
 
       assert.equal(loggedMetrics.lang, 'db_LB');
       assert.ok(loggedMetrics.agent, 'Firefox 32.0');
-      assert.equal(loggedMetrics.context, 'fx_desktop_v1');
+      assert.equal(loggedMetrics.context, 'fx_desktop_v3');
       assert.equal(loggedMetrics.entrypoint, 'menupanel');
       assert.equal(loggedMetrics.service, 'sync');
       assert.equal(loggedMetrics.migration, 'amo');
@@ -93,8 +93,8 @@ suite.tests['writes formatted data to stderr'] = function () {
   };
 
   metricsCollector.write({
-    broker: 'fx-desktop-v1',
-    context: 'fx_desktop_v1',
+    broker: 'fx-desktop-v2',
+    context: 'fx_desktop_v3',
     duration: 1234,
     entrypoint: 'menupanel',
     events: [

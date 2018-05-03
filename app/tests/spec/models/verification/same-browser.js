@@ -2,110 +2,106 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function (require, exports, module) {
-  'use strict';
+'use strict';
 
-  const chai = require('chai');
-  const SameBrowserVerificationModel = require('models/verification/same-browser');
-  const sinon = require('sinon');
-  const Storage = require('lib/storage');
+const { assert } = require('chai');
+const SameBrowserVerificationModel = require('models/verification/same-browser');
+const sinon = require('sinon');
+const Storage = require('lib/storage');
 
-  var assert = chai.assert;
+describe('models/verification/same-browser', function () {
+  describe('_getUsersStorageId', function () {
+    var model;
 
-  describe('models/verification/same-browser', function () {
-    describe('_getUsersStorageId', function () {
-      var model;
-
-      describe('with a model that has a `uid', function () {
-        beforeEach(function () {
-          model = new SameBrowserVerificationModel({}, {
-            code: 'a-code',
-            namespace: 'context',
-            uid: 'a-uid'
-          });
-        });
-
-        it('returns the `uid`', function () {
-          assert.equal(model._getUsersStorageId(), 'a-uid');
+    describe('with a model that has a `uid', function () {
+      beforeEach(function () {
+        model = new SameBrowserVerificationModel({}, {
+          code: 'a-code',
+          namespace: 'context',
+          uid: 'a-uid'
         });
       });
 
-      describe('with a model that has an `email`', function () {
-        beforeEach(function () {
-          model = new SameBrowserVerificationModel({}, {
-            code: 'a-code',
-            email: 'testuser@testuser.com',
-            namespace: 'context'
-          });
-        });
-
-        it('returns the `email`', function () {
-          assert.equal(model._getUsersStorageId(), 'testuser@testuser.com');
-        });
+      it('returns the `uid`', function () {
+        assert.equal(model._getUsersStorageId(), 'a-uid');
       });
     });
 
-    describe('model persistence', function () {
-      var model;
-      var storage;
-
+    describe('with a model that has an `email`', function () {
       beforeEach(function () {
-        storage = new Storage();
-
-        model = new SameBrowserVerificationModel({
-          context: 'fx_desktop_v1'
-        }, {
+        model = new SameBrowserVerificationModel({}, {
           code: 'a-code',
-          namespace: 'context',
-          storage: storage,
-          uid: 'a-uid',
-        });
-
-        sinon.spy(storage, 'get');
-        sinon.spy(storage, 'set');
-      });
-
-      describe('persist', function () {
-        beforeEach(function () {
-          model.persist();
-        });
-
-        it('persists the verification info to loca lStorage', function () {
-          assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
+          email: 'testuser@testuser.com',
+          namespace: 'context'
         });
       });
 
-      describe('load', function () {
-        beforeEach(function () {
-          model.persist();
+      it('returns the `email`', function () {
+        assert.equal(model._getUsersStorageId(), 'testuser@testuser.com');
+      });
+    });
+  });
 
-          model.unset('context');
-          sinon.spy(model, 'set');
-          model.load();
-        });
+  describe('model persistence', function () {
+    var model;
+    var storage;
 
-        it('loads verification info from localStorage', function () {
-          assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
-          assert.equal(model.get('context'), 'fx_desktop_v1');
-        });
+    beforeEach(function () {
+      storage = new Storage();
+
+      model = new SameBrowserVerificationModel({
+        context: 'fx_desktop_v3'
+      }, {
+        code: 'a-code',
+        namespace: 'context',
+        storage: storage,
+        uid: 'a-uid',
       });
 
-      describe('clear', function () {
-        beforeEach(function () {
-          model.persist();
-          model.unset('context');
-          model.clear();
-          model.load();
-        });
+      sinon.spy(storage, 'get');
+      sinon.spy(storage, 'set');
+    });
 
-        it('clears the verification info for the user/context combination from localStorage', function () {
-          assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
-          assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
-        });
+    describe('persist', function () {
+      beforeEach(function () {
+        model.persist();
+      });
 
-        it('does not reload erased data', function () {
-          assert.isFalse(model.has('context'));
-        });
+      it('persists the verification info to loca lStorage', function () {
+        assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
+      });
+    });
+
+    describe('load', function () {
+      beforeEach(function () {
+        model.persist();
+
+        model.unset('context');
+        sinon.spy(model, 'set');
+        model.load();
+      });
+
+      it('loads verification info from localStorage', function () {
+        assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
+        assert.equal(model.get('context'), 'fx_desktop_v3');
+      });
+    });
+
+    describe('clear', function () {
+      beforeEach(function () {
+        model.persist();
+        model.unset('context');
+        model.clear();
+        model.load();
+      });
+
+      it('clears the verification info for the user/context combination from localStorage', function () {
+        assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
+        assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
+      });
+
+      it('does not reload erased data', function () {
+        assert.isFalse(model.has('context'));
       });
     });
   });

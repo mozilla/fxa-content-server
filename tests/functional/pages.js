@@ -71,6 +71,7 @@ var pages = [
   'sms/sent',
   'sms/why',
   'verify_email',
+  'update_firefox',
   'v1/complete_reset_password',
   'v1/reset_password',
   'v1/verify_email',

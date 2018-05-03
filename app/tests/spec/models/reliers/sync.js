@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const WindowMock = require('../../../mocks/window');
 
   const ACTION = 'email';
-  const CONTEXT = 'fx_desktop_v1';
+  const CONTEXT = 'fx_desktop_v3';
   const COUNTRY = 'RO';
   const SYNC_SERVICE = 'sync';
 

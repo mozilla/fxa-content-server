@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin?context=fx_fennec_v1&service=sync`;
-const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v1&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
+const SMS_PAGE_URL = `${config.fxaContentRoot}sms?context=fx_desktop_v3&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 
 let email;
 const PASSWORD = '12345678';
@@ -58,7 +58,7 @@ const setupTest = thenify(function (successSelector, options) {
     });
 });
 
-registerSuite('Fx Fennec Sync v1 sign_in', {
+registerSuite('Fx Fennec Sync v1 signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
   },
