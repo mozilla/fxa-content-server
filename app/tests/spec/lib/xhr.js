@@ -7,20 +7,18 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const _ = require('underscore');
-  const chai = require('chai');
+  const { assert } = require('chai');
   const sinon = require('sinon');
   const Xhr = require('lib/xhr');
 
-  var assert = chai.assert;
+  let xhr;
 
-  var xhr;
-
-  beforeEach(function () {
+  beforeEach(() => {
     xhr = Object.create(Xhr);
   });
 
-  afterEach(function () {
-    var possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
+  afterEach(() => {
+    const possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
     _.each(possiblyOverridden, function (funcNameToRestore) {
       if ($[funcNameToRestore].restore) {
         $[funcNameToRestore].restore();
@@ -28,12 +26,12 @@ define(function (require, exports, module) {
     });
   });
 
-  describe('lib/xhr', function () {
-    describe('ajax', function () {
-      it('calls $.ajax', function () {
-        var deferred = $.Deferred();
+  describe('lib/xhr', () => {
+    describe('ajax', () => {
+      it('calls $.ajax', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
@@ -47,15 +45,15 @@ define(function (require, exports, module) {
         });
       });
 
-      it('$.ajax does not stringify json if processData is false', function () {
-        var deferred = $.Deferred();
+      it('$.ajax does not stringify json if processData is false', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
         deferred.resolve('mocked_response');
-        var data = { foo: 'bar' };
+        const data = { foo: 'bar' };
 
         return xhr.ajax({
           data: data,
@@ -87,7 +85,7 @@ define(function (require, exports, module) {
         };
 
         const deferred = $.Deferred();
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
         deferred.reject(errResponse);
@@ -110,9 +108,9 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('oauthAjax', function () {
-      it('calls xhr.ajax with the appropriate options set', function () {
-        sinon.stub(xhr, 'ajax').callsFake(function () {
+    describe('oauthAjax', () => {
+      it('calls xhr.ajax with the appropriate options set', () => {
+        sinon.stub(xhr, 'ajax').callsFake(() => {
           return Promise.resolve();
         });
 
@@ -122,8 +120,8 @@ define(function (require, exports, module) {
           headers: { 'ETag': 'why not?' },
           type: 'get',
           url: '/endpoint'
-        }).then(function () {
-          var ajaxOptions = xhr.ajax.args[0][0];
+        }).then(() => {
+          const ajaxOptions = xhr.ajax.args[0][0];
 
           assert.equal(ajaxOptions.url, '/endpoint');
           assert.equal(ajaxOptions.type, 'get');
@@ -134,9 +132,38 @@ define(function (require, exports, module) {
         });
       });
 
-      it('handles Blob data', function () {
+      it('handles contentType: application/x-www-form-urlencoded', () => {
+        sinon.stub(xhr, 'ajax').callsFake(() => Promise.resolve());
+
+        return xhr.oauthAjax({
+          accessToken: 'token',
+          contentType: 'application/x-www-form-urlencoded',
+          data: { key: 'value' },
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          type: 'post',
+          url: '/endpoint',
+        }).then(() => {
+          assert.isTrue(xhr.ajax.calledOnceWith({
+            contentType: 'application/x-www-form-urlencoded',
+            data: { key: 'value' },
+            dataType: 'json',
+            headers: {
+              Accept: 'application/json',
+              Authorization: 'Bearer token',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            timeout: undefined,
+            type: 'post',
+            url: '/endpoint'
+          }));
+        });
+      });
+
+      it('handles Blob data', () => {
         if (typeof window.Blob !== 'undefined') {
-          sinon.stub(xhr, 'ajax').callsFake(function () {
+          sinon.stub(xhr, 'ajax').callsFake(() => {
             return Promise.resolve();
           });
 
@@ -145,8 +172,8 @@ define(function (require, exports, module) {
             data: new Blob(),
             type: 'get',
             url: '/endpoint'
-          }).then(function () {
-            var ajaxOptions = xhr.ajax.args[0][0];
+          }).then(() => {
+            const ajaxOptions = xhr.ajax.args[0][0];
             assert.equal(ajaxOptions.processData, false);
           });
         }
@@ -154,11 +181,11 @@ define(function (require, exports, module) {
     });
 
 
-    describe('get', function () {
-      it('calls $.get, sets the default dataType to `json`', function () {
-        var deferred = $.Deferred();
+    describe('get', () => {
+      it('calls $.get, sets the default dataType to `json`', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
@@ -180,10 +207,10 @@ define(function (require, exports, module) {
           });
       });
 
-      it('calls $.get with no changes if dataType is set', function () {
-        var deferred = $.Deferred();
+      it('calls $.get with no changes if dataType is set', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
@@ -203,11 +230,11 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('post', function () {
-      it('calls $.post, sets the default dataType to `json`', function () {
-        var deferred = $.Deferred();
+    describe('post', () => {
+      it('calls $.post, sets the default dataType to `json`', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
@@ -228,10 +255,10 @@ define(function (require, exports, module) {
           });
       });
 
-      it('calls $.post with no changes if dataType is set', function () {
-        var deferred = $.Deferred();
+      it('calls $.post with no changes if dataType is set', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'ajax').callsFake(function () {
+        sinon.stub($, 'ajax').callsFake(() => {
           return deferred.promise();
         });
 
@@ -251,11 +278,11 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('getJSON', function () {
-      it('calls $.getJSON', function () {
-        var deferred = $.Deferred();
+    describe('getJSON', () => {
+      it('calls $.getJSON', () => {
+        const deferred = $.Deferred();
 
-        sinon.stub($, 'getJSON').callsFake(function () {
+        sinon.stub($, 'getJSON').callsFake(() => {
           return deferred.promise();
         });
 
@@ -277,7 +304,7 @@ define(function (require, exports, module) {
         };
 
         const deferred = $.Deferred();
-        sinon.stub($, 'getJSON').callsFake(function () {
+        sinon.stub($, 'getJSON').callsFake(() => {
           return deferred.promise();
         });
         deferred.reject(errResponse);

@@ -15,16 +15,16 @@ define(function (require, exports, module) {
   const BASE_URL = 'https://basket.mozilla.com';
   const PREFERENCES_URL = 'https://www.allizom.org/newsletter/existing/';
 
-  describe('lib/marketing-email-client', function () {
+  describe('lib/marketing-email-client', () => {
 
     let client;
     let xhrMock;
     let windowMock;
 
-    beforeEach(function () {
+    beforeEach(() => {
       // Xhr has no constructor
       xhrMock = Object.create(xhr);
-      xhrMock.ajax = function () {
+      xhrMock.ajax = () => {
         return Promise.resolve();
       };
 
@@ -38,25 +38,27 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('_request', function () {
-      it('calls xhr.ajax', function () {
-        sinon.stub(xhrMock, 'ajax').callsFake(function () {
-          return Promise.resolve({});
+    describe('_request', () => {
+      it('calls xhr.ajax', () => {
+        sinon.stub(xhrMock, 'ajax').callsFake(() => Promise.resolve({}));
+
+        return client._request({
+          accessToken: 'token',
+          data: { key: 'value' },
+          type: 'get',
+          url: '/endpoint',
+        }).then(() => {
+          const ajaxOptions = xhrMock.ajax.args[0][0];
+
+          assert.equal(ajaxOptions.url, BASE_URL + '/endpoint');
+          assert.equal(ajaxOptions.type, 'get');
+          assert.equal(ajaxOptions.headers.Authorization, 'Bearer token');
+          assert.equal(ajaxOptions.data.key, 'value');
         });
-
-        return client._request('get', '/endpoint', 'token', { key: 'value' })
-          .then(function () {
-            var ajaxOptions = xhrMock.ajax.args[0][0];
-
-            assert.equal(ajaxOptions.url, BASE_URL + '/endpoint');
-            assert.equal(ajaxOptions.type, 'get');
-            assert.equal(ajaxOptions.headers.Authorization, 'Bearer token');
-            assert.equal(ajaxOptions.data.key, 'value');
-          });
       });
 
-      it('converts any errors returned', function () {
-        sinon.stub(xhrMock, 'ajax').callsFake(function () {
+      it('converts any errors returned', () => {
+        sinon.stub(xhrMock, 'ajax').callsFake(() => {
           return Promise.reject({
             responseJSON: {
               code: MarketingEmailErrors.toErrno('UNKNOWN_TOKEN')
@@ -71,29 +73,30 @@ define(function (require, exports, module) {
       });
     });
 
-    describe('fetch', function () {
-      it('returns a preferences URL for the user', function () {
-        sinon.stub(xhrMock, 'ajax').callsFake(function () {
+    describe('fetch', () => {
+      it('returns a preferences URL for the user', () => {
+        sinon.stub(xhrMock, 'ajax').callsFake(() => {
           return Promise.resolve({
             token: 'users_uuid'
           });
         });
 
-        return client.fetch('token')
+        return client.fetch('token', 'testuser@testuser.com')
           .then(function (data) {
             assert.equal(data.token, 'users_uuid');
             assert.equal(data.preferencesUrl, PREFERENCES_URL + 'users_uuid');
 
-            var request = xhrMock.ajax.args[0][0];
-            assert.equal(request.url, BASE_URL + '/lookup-user');
+            assert.isTrue(xhrMock.ajax.calledOnce);
+            const request = xhrMock.ajax.args[0][0];
+            assert.equal(request.url, BASE_URL + '/lookup-user?email=testuser%40testuser.com');
             assert.equal(request.type, 'get');
             assert.include(request.headers.Authorization, 'token');
           });
       });
     });
 
-    describe('optIn', function () {
-      it('opts in the user', function () {
+    describe('optIn', () => {
+      it('opts in the user', () => {
         sinon.spy(xhrMock, 'ajax');
 
         windowMock.location.href =
@@ -103,15 +106,17 @@ define(function (require, exports, module) {
           'utm_term=awesome&unknown=false&email=no@no.com';
 
         return client.optIn('token', 'newsletter_id')
-          .then(function () {
+          .then(() => {
+            assert.isTrue(xhrMock.ajax.calledOnce);
             const request = xhrMock.ajax.args[0][0];
             const cleanedSourceUrl =
               'https://accounts.firefox.com/settings?client_id=clientsid&' +
               'service=sync&utm_campaign=newsletter&utm_content=content&' +
               'utm_medium=email&utm_source=menupanel&utm_term=awesome';
-            assert.equal(request.url, BASE_URL + '/subscribe');
+            assert.equal(request.url, BASE_URL + '/subscribe/');
             assert.equal(request.type, 'post');
-            assert.include(request.headers.Authorization, 'token');
+            assert.equal(request.headers.Authorization, 'Bearer token');
+            assert.equal(request.headers['X-Requested-With'], 'XMLHttpRequest');
             assert.deepEqual(request.data, {
               newsletters: 'newsletter_id',
               source_url: cleanedSourceUrl //eslint-disable-line camelcase

@@ -13,9 +13,9 @@ define(function (require, exports, module) {
 
   const Backbone = require('backbone');
 
-  var SCOPES = 'basket:write profile:email';
+  const SCOPES = 'basket profile:email';
 
-  var MarketingEmailPrefs = Backbone.Model.extend({
+  const MarketingEmailPrefs = Backbone.Model.extend({
     defaults: {
       newsletters: [],
       preferencesUrl: null,
@@ -65,7 +65,7 @@ define(function (require, exports, module) {
      * @returns {Promise}
      */
     fetch () {
-      return this._withMarketingEmailClient('fetch')
+      return this._withMarketingEmailClient('fetch', this._account.get('email'))
         .then((response) => {
           if (response) {
             response.newsletters = response.newsletters || [];

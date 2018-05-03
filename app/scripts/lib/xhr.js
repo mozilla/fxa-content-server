@@ -18,6 +18,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const _ = require('underscore');
 
+  const JSON_CONTENT_TYPE = 'application/json';
   const DEFAULT_DATA_TYPE = 'json';
 
   // Converts a jQuery promise to our internal promise type.
@@ -34,6 +35,12 @@ define(function (require, exports, module) {
     });
   }
 
+  function shouldJSONStringifyData(options) {
+    // processData is set to false for blob payloads, e.g. images;
+    // they shouldn't be stringified.
+    return !! (options.data && options.processData !== false && options.contentType === JSON_CONTENT_TYPE);
+  }
+
   module.exports = {
     /**
      * Low level ajax functionality, does not set a default data type.
@@ -43,18 +50,18 @@ define(function (require, exports, module) {
      */
     ajax (options) {
       if (options.dataType === 'json') {
-        options.contentType = 'application/json';
+        if (! options.contentType) {
+          options.contentType = JSON_CONTENT_TYPE;
+        }
 
-        // processData is set to false for blob payloads, e.g. images;
-        // they shouldn't be stringified.
-        if (options.data && options.processData !== false) {
+        if (shouldJSONStringifyData(options)) {
           options.data = JSON.stringify(options.data);
         }
 
         if (! options.accepts) {
           options.accepts = {};
         }
-        options.accepts.json = 'application/json';
+        options.accepts.json = JSON_CONTENT_TYPE;
       }
 
       return convertJQueryPromise($.ajax(options));
@@ -71,17 +78,20 @@ define(function (require, exports, module) {
      *   @param {String} options.type - method used to request - `post`, `get`
      *   @param {String} options.accessToken - OAuth access token used to
      *   access resource.
-     *   @param {Object} [options.headers] - headers to send.
+     *   @param {String} [options.contentType] - content type of `options.data`. Defaults to 'application/json'
      *   @param {Object} [options.data] - data to send
+     *   @param {Object} [options.headers] - additional headers to send.
+     *   @param {Number} [options.timeout] - time to wait for a response before timing out.
      * @return {Promise}
      */
     oauthAjax (options) {
-      var request = {
+      const request = {
         // make sure to set the dataType for Firefox <21. See issue #1930
+        contentType: options.contentType || JSON_CONTENT_TYPE,
         dataType: 'json',
         headers: {
-          Accept: 'application/json',
-          Authorization: 'Bearer ' + options.accessToken
+          Accept: JSON_CONTENT_TYPE,
+          Authorization: `Bearer ${options.accessToken}`
         },
         timeout: options.timeout,
         type: options.type,
@@ -92,7 +102,7 @@ define(function (require, exports, module) {
         _.extend(request.headers, options.headers);
       }
 
-      var data = options.data;
+      const data = options.data;
       if (data) {
         request.data = data;
       }
