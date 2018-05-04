@@ -6,19 +6,20 @@
 }
 
 html {
+  background-color: #f9f9fa;
   height: 100%;
 
-  @include respond-to('reasonableUI') {
+  @include respond-to('big') {
     background-color: $html-background-color;
   }
 
-  @include respond-to('trustedUI') {
+  /*@include respond-to('trustedUI') {
     background-color: $content-background-color;
-  }
+  }*/
 
-  &.chromeless {
+/*  &.chromeless {
     background-color: $chromeless-html-background-color;
-  }
+  }*/
 }
 
 body {
@@ -63,19 +64,29 @@ noscript,
   }
 }
 
-a,
-.button-link {
-  color: $link-color;
+a {
+  color: $link-default-color;
   cursor: pointer; // Use the correct cursor for anchors without an href
+  text-decoration: none;
 
-  &:active {
-    outline: none;
+  &:hover {
+    color: $link-hover-color;
+    text-decoration: underline;
   }
 
   &:focus {
-    outline: 1px dotted $link-color;
+    box-shadow: 0 0 0 2px $blue-60, 0 0 0 6px rgba($blue-60, 0.3);
+    color: $link-focus-color;
+    outline: none;
+  }
+
+  &:active {
+    box-shadow: none;
+    color: $link-active-color;
+    outline: none;
   }
 }
+
 
 header {
   h1,
@@ -87,8 +98,11 @@ header {
   }
 
   h1 {
-    font-weight: inherit;
+    @include title30();
+    color: $header-color;
+    line-height: 26px;
 
+    /*
     @include respond-to('big') {
       font-size: $large-font;
       margin: 0 0 24px 0;
@@ -103,7 +117,7 @@ header {
       font-size: $medium-font;
       margin: 0 0 10px 0;
     }
-
+*/
     &#fxa-choose-what-to-sync-header {
       margin-bottom: 10px;
     }
@@ -111,7 +125,10 @@ header {
     .service,
     .email {
       display: block;
-
+      font-size: 15px;
+      line-height: 22px;
+      margin-top: 4px;
+/*
       @include respond-to('big') {
         font-size: $medium-font;
         margin-top: 10px;
@@ -122,7 +139,7 @@ header {
         font-weight: inherit;
         margin-top: 4px;
 
-      }
+      }*/
     }
 
     .email {
@@ -134,9 +151,13 @@ header {
   }
 
   h2 {
-    font-size: $large-font;
-    font-weight: inherit;
+    @include title20();
   }
+
+}
+
+header + section {
+  margin-top: 16px;
 }
 
 button,
@@ -183,7 +204,7 @@ input[type='radio'] {
 }
 
 section p {
-
+/*
   @include respond-to('big') {
     font-size: $medium-font;
   }
@@ -191,26 +212,34 @@ section p {
   @include respond-to('small') {
     font-size: $base-font;
   }
-
+*/
+  margin: 0;
 
   &.prefillEmail {
+    color: $grey-60;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 15px;
     word-wrap: break-word;
 
-    @include respond-to('reasonableUI') {
-      margin-top: 24px;
+    /*@include respond-to('reasonableUI') {
+      margin-top: -8px;
     }
 
     @include respond-to('trustedUI') {
       margin-top: 10px;
-    }
+    }*/
+/*
+    &.nudge {
+      margin-top: -8px; // pull the email address a little closer to the header text
+    }*/
   }
 }
 
-::-webkit-input-placeholder,
-:-moz-placeholder,
-::-moz-placeholder,
-:-ms-input-placeholder {
+::placeholder {
   color: $input-placeholder-color !important;
+  font-size: 17px;
+  font-weight: 400;
   opacity: 1;
 }
 

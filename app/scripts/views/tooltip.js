@@ -13,7 +13,7 @@ define(function (require, exports, module) {
   const KeyCodes = require('../lib/key-codes');
 
   var displayedTooltip;
-  var PADDING_BELOW_TOOLTIP_PX = 2;
+  var PADDING_BELOW_TOOLTIP_PX = 4;
   var PADDING_ABOVE_TOOLTIP_PX = 4;
 
   const proto = BaseView.prototype;
