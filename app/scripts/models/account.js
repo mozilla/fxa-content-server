@@ -827,12 +827,12 @@ define(function (require, exports, module) {
             throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
           }
 
-          return fxaClient.changePassword(
+          // return fxaClient.changePassword(
+          return fxaClient.changePasswordWithSession(
             email,
             oldPassword,
             newPassword,
             this.get('sessionToken'),
-            this.get('sessionTokenContext'),
             relier
           );
         })
