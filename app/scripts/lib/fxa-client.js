@@ -670,6 +670,19 @@ define(function (require, exports, module) {
       });
     }),
 
+    changePasswordWithSession: withClient((client, originalEmail, oldPassword, newPassword, sessionToken, relier) => {
+      var email = trim(originalEmail);
+      return client.passwordChangeWithSessionToken(
+        sessionToken,
+        email,
+        oldPassword,
+        newPassword,
+        {keys: wantsKeys(relier)}
+      ).then((accountData = {}) => {
+        return getUpdatedSessionData(email, relier, accountData, {});
+      });
+    }),
+
     /**
      * Deletes the account.
      *
