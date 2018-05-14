@@ -65,6 +65,7 @@ module.exports = selectCircleTests([
   'tests/functional/settings_common.js',
   'tests/functional/sign_in_blocked.js',
   'tests/functional/sign_in_cached.js',
+  'tests/functional/sync_v1.js',
   'tests/functional/sync_v3_force_auth.js',
   'tests/functional/sync_v3_reset_password.js',
   'tests/functional/sync_v3_settings.js',

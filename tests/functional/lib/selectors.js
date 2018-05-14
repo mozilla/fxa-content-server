@@ -291,6 +291,9 @@ module.exports = {
     INPUT: '.totp-code',
     SUBMIT: 'button[type="submit"]',
   },
+  UPDATE_FIREFOX: {
+    HEADER: '#fxa-update-firefox-header'
+  }
 
 };
 /*eslint-enable max-len*/

@@ -10,7 +10,6 @@ define(function (require, exports, module) {
   const BaseBroker = require('models/auth_brokers/base');
   const Constants = require('lib/constants');
   const ErrorUtils = require('lib/error-utils');
-  const FxDesktopV1Broker = require('models/auth_brokers/fx-desktop-v1');
   const FxDesktopV2Broker = require('models/auth_brokers/fx-desktop-v2');
   const FxFennecV1Broker = require('models/auth_brokers/fx-fennec-v1');
   const FxFirstrunV1Broker = require('models/auth_brokers/fx-firstrun-v1');
@@ -274,12 +273,14 @@ define(function (require, exports, module) {
       });
 
       describe('fx-desktop-v1', () => {
-        it('returns an FxDesktopV1 broker if `context=fx_desktop_v1`', () => {
+        it('throws if `context=fx_desktop_v1`', () => {
           windowMock.location.search = Url.objToSearchString({
             context: Constants.FX_DESKTOP_V1_CONTEXT
           });
 
-          return testExpectedBrokerCreated(FxDesktopV1Broker);
+          assert.throws(() => {
+            appStart.initializeAuthenticationBroker();
+          });
         });
       });
 
@@ -386,6 +387,9 @@ define(function (require, exports, module) {
 
       describe('broker errors', () => {
         it('are logged to metrics', () => {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_FENNEC_V1_CONTEXT
+          });
           sinon.spy(appStart, 'captureError');
 
           return appStart.initializeAuthenticationBroker()
@@ -799,8 +803,8 @@ define(function (require, exports, module) {
             });
           });
 
-          it('returns `undefined`', () => {
-            assert.isUndefined(appStart._getContext());
+          it('returns `web`', () => {
+            assert.equal(appStart._getContext(), Constants.CONTENT_SERVER_CONTEXT);
           });
         });
       });

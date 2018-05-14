@@ -36,6 +36,7 @@ module.exports = function (config, i18n) {
     require('./routes/get-apple-app-site-association')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),
+    require('./routes/get-update-firefox'),
     require('./routes/get-index')(config),
     require('./routes/get-ver.json'),
     require('./routes/get-client.json')(i18n),

@@ -36,10 +36,10 @@ define(function (require, exports, module) {
       sinon.spy(notifier, 'on');
 
       metrics = new Metrics(_.defaults(options, {
-        brokerType: 'fx-desktop-v1',
+        brokerType: 'fx-desktop-v2',
         clientHeight: 966,
         clientWidth: 1033,
-        context: 'fx_desktop_v1',
+        context: 'fx_desktop_v2',
         deviceId: 'wibble',
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
@@ -186,9 +186,9 @@ define(function (require, exports, module) {
         assert.isTrue(filteredData.hasOwnProperty('navigationTiming'));
         assert.isTrue(filteredData.hasOwnProperty('duration'));
 
-        assert.equal(filteredData.context, 'fx_desktop_v1');
+        assert.equal(filteredData.context, 'fx_desktop_v2');
         assert.equal(filteredData.service, 'sync');
-        assert.equal(filteredData.broker, 'fx-desktop-v1');
+        assert.equal(filteredData.broker, 'fx-desktop-v2');
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.emailDomain, 'none');
         assert.equal(filteredData.entrypoint, 'menupanel');

@@ -28,10 +28,9 @@ define(function(require, exports, module) {
       assert.ok(VALID_TYPE.test(authBroker.prototype.type));
     });
 
-    it('get returns correct broker for desktop-v1 context', () => {
-      const authBroker = index.get(constants.FX_DESKTOP_V1_CONTEXT);
-      assert.equal(authBroker, require('models/auth_brokers/fx-desktop-v1'));
-      assert.ok(VALID_TYPE.test(authBroker.prototype.type));
+    it('get returns `undefined` for desktop-v1 context', () => {
+      // fx-desktop-v1 is deprecated as of #6161
+      assert.isUndefined(index.get(constants.FX_DESKTOP_V1_CONTEXT));
     });
 
     it('get returns correct broker for desktop-v2 context', () => {
@@ -100,9 +99,8 @@ define(function(require, exports, module) {
       assert.ok(VALID_TYPE.test(authBroker.prototype.type));
     });
 
-    it('get falls back to the web auth broker', () => {
-      const authBroker = index.get('wibble');
-      assert.equal(authBroker, require('models/auth_brokers/web'));
+    it('get undefined if auth-broker does not exist', () => {
+      assert.isUndefined(index.get('wibble'));
     });
   });
 });

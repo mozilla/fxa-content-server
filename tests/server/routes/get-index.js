@@ -30,10 +30,11 @@ registerSuite('routes/get-index', {
           assert.lengthOf(instance.process, 2);
         },
 
-        'route.process': {
+        'route.process with supported context': {
           before: function () {
             request = {
-              headers: {}
+              headers: {},
+              query: {}
             };
             response = {render: sinon.spy()};
             instance.process(request, response);
@@ -71,6 +72,25 @@ registerSuite('routes/get-index', {
               assert.equal(sentConfig.scopedKeysEnabled, config.get('scopedKeys.enabled'));
               assert.ok(sentConfig.scopedKeysValidation, 'config validation is present');
               assert.equal(sentConfig.webpackPublicPath, `${config.get('static_resource_url')}/${config.get('jsResourcePath')}/`, 'correct webpackPublicPath');
+            }
+          }
+        },
+
+        'route.process with deprecated context': {
+          before: function () {
+            request = {
+              headers: {},
+              query: {
+                context: 'fx_desktop_v1'
+              }
+            };
+            response = {redirect: sinon.spy()};
+            instance.process(request, response);
+          },
+
+          tests: {
+            'response.redirect was called correctly': function () {
+              assert.isTrue(response.redirect.calledOnceWith('/update_firefox'));
             }
           }
         }

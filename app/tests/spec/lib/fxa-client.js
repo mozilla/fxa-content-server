@@ -1124,7 +1124,7 @@ define(function (require, exports, module) {
 
         sinon.spy(realClient, 'signIn');
 
-        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v1', relier)
+        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v3', relier)
           .then(function (sessionData) {
             assert.isTrue(realClient.passwordChange.calledWith(
               trim(email),
@@ -1141,7 +1141,7 @@ define(function (require, exports, module) {
             assert.equal(sessionData.email, trimmedEmail);
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
             assert.equal(sessionData.sessionToken, 'new sessionToken');
-            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
+            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v3');
             assert.equal(sessionData.uid, 'uid');
             assert.isTrue(sessionData.verified);
           });
@@ -1169,7 +1169,7 @@ define(function (require, exports, module) {
           });
         });
 
-        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v1', relier)
+        return client.changePassword(email, password, 'new_password', 'sessionToken', 'fx_desktop_v3', relier)
           .then((sessionData) => {
             assert.isTrue(realClient.passwordChange.calledWith(
               trimmedEmail,
@@ -1184,7 +1184,7 @@ define(function (require, exports, module) {
             assert.equal(sessionData.email, trimmedEmail);
             assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
             assert.equal(sessionData.sessionToken, 'new sessionToken');
-            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
+            assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v3');
             assert.equal(sessionData.uid, 'uid');
             assert.isTrue(sessionData.verified);
           });
