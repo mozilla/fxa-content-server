@@ -133,9 +133,9 @@ const View = FormView.extend({
     }
 
     context.set({
-      hasRecoveryCodes: recoveryCodes.length > 0,
       modalSuccessMsg,
-      recoveryCodes
+      recoveryCodes,
+      showRecoveryCodes: recoveryCodes.length > 0
     });
   }
 });

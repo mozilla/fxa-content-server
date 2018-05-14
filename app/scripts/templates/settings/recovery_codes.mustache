@@ -8,7 +8,7 @@
         <h2>{{#t}}Recovery codes{{/t}}</h2>
 
     <form novalidate>
-        {{^hasRecoveryCodes}}
+        {{^showRecoveryCodes}}
             <p class="description">
                 <span class="note">{{#t}}NOTE:{{/t}}</span>
                 {{#t}}By generating new recovery codes, all previous codes will become invalid. Please store new codes in a safe location.{{/t}}
@@ -17,9 +17,9 @@
             <div class="recovery-code-generate">
                 <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
             </div>
-        {{/hasRecoveryCodes}}
+        {{/showRecoveryCodes}}
 
-        {{#hasRecoveryCodes}}
+        {{#showRecoveryCodes}}
             <p class="description">
                 <span class="note">{{#t}}NOTE:{{/t}}</span>
                 {{#t}}These are your one time use recovery codes. Store them in a safe place in the event you lose access to your mobile device. You will not be able to see these codes again.{{/t}}
@@ -47,7 +47,7 @@
                     <p class="name">{{#t}}Print{{/t}}</p>
                 </a>
             </div>
-        {{/hasRecoveryCodes}}
+        {{/showRecoveryCodes}}
 
         <div class="button-row">
             <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Done{{/t}}</button>
