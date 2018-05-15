@@ -176,6 +176,8 @@ function makeApp() {
         error: err.details.map(details => details.message).join(','),
         path: req.path,
       });
+      // capture validation errors
+      raven.ravenModule.captureException(err);
     }
     next(err);
   });
