@@ -5388,9 +5388,9 @@
       }
     },
     "fxa-shared": {
-      "version": "1.0.7",
-      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.7.tgz",
-      "integrity": "sha512-aKCVdLh6e0eKNOswAQ0o9vp40AZ9YvfkGr0sSxjGRCMLN+4XinAZrg2BCtvyTFClJPAFsWfvXYFX7etL1o0V8g==",
+      "version": "1.0.9",
+      "resolved": "https://registry.npmjs.org/fxa-shared/-/fxa-shared-1.0.9.tgz",
+      "integrity": "sha512-H8ECHQG/V7yqU5vAJFBbcS7IcEona0qj8xE+K8LAtMvcEr4QR2jlr3Q/DE139r3/CzKc3ocQRRpJ/nFIv1Yo6g==",
       "requires": {
         "accept-language": "2.0.17",
         "moment": "2.20.1"
@@ -11699,9 +11699,9 @@
       }
     },
     "pumpify": {
-      "version": "1.5.0",
-      "resolved": "https://registry.npmjs.org/pumpify/-/pumpify-1.5.0.tgz",
-      "integrity": "sha512-UWi0klDoq8xtVzlMRgENV9F7iCTZExaJQSQL187UXsxpk9NnrKGqTqqUNYAKGOzucSOxs2+jUnRNI+rLviPhJg==",
+      "version": "1.5.1",
+      "resolved": "https://registry.npmjs.org/pumpify/-/pumpify-1.5.1.tgz",
+      "integrity": "sha512-oClZI37HvuUJJxSKKrC17bZ9Cu0ZYhEAGPsPUy9KlMUmv9dKX2o77RUmq7f3XjIxbwyGwYzbzQ1L2Ks8sIradQ==",
       "requires": {
         "duplexify": "^3.6.0",
         "inherits": "^2.0.3",
