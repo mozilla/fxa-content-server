@@ -20,6 +20,7 @@ const ua = require('./user-agent');
 
 const SERVICES = require('./configuration').get('oauth_client_id_map');
 
+// Maps view name to email type
 const EMAIL_TYPES = {
   'complete-reset-password': 'reset_password',
   'complete-signin': 'login',
