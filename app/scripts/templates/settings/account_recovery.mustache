@@ -1,0 +1,63 @@
+<div id="account-recovery-section" class="settings-unit {{#isPanelOpen}}open{{/isPanelOpen}} account-recovery-panel">
+    <div class="settings-unit-stub">
+        <header class="settings-unit-summary">
+            <h2 class="settings-unit-title">{{#t}}Account recovery{{/t}}</h2>
+        </header>
+
+        {{^hasRecoveryKey}}
+            <button class="settings-button primary-button settings-unit-toggle" data-href="settings/account_recovery">
+                {{#t}}Add…{{/t}}
+            </button>
+        {{/hasRecoveryKey}}
+
+        {{#hasRecoveryKey}}
+            <button class="settings-button secondary-button settings-unit-toggle" data-href="settings/account_recovery">
+                {{#t}}Change…{{/t}}
+            </button>
+        {{/hasRecoveryKey}}
+    </div>
+
+
+    <div class="settings-unit-details">
+        <p>
+            {{#t}}In the event you lose access to your account, you can restore your data by setting up an account recovery key.{{/t}}
+            <a>{{#t}}Why is this important?{{/t}}</a>
+        </p>
+
+        <div class="list">
+            <ul id="status">
+                <li class="type">
+                    <div class="name">{{#t}}Recovery key{{/t}}</div>
+                    <div class="details">
+                        {{#hasRecoveryKey}}
+                            <div class="enabled">{{#t}}Enabled{{/t}}</div>
+                        {{/hasRecoveryKey}}
+                        {{^hasRecoveryKey}}
+                            <div class="disabled">{{#t}}Not set{{/t}}</div>
+                        {{/hasRecoveryKey}}
+                    </div>
+                    <div class="settings-button-group">
+                        {{#hasRecoveryKey}}
+                            <button class="settings-button warning-button confirm-revoke">{{#t}}Revoke{{/t}}</button>
+                        {{/hasRecoveryKey}}
+                        {{^hasRecoveryKey}}
+                            <button class="settings-button secondary-button">{{#t}}Refresh{{/t}}</button>
+                        {{/hasRecoveryKey}}
+                    </div>
+                </li>
+            </ul>
+            <p>
+                {{#t}}Firefox Accounts encrypts all your stored data and it can only be recovered using one of the methods above.{{/t}}
+            </p>
+            <div class="button-row">
+                {{#hasRecoveryKey}}
+                    <button class="settings-button primary-button">{{#t}}Refresh Status{{/t}}</button>
+                {{/hasRecoveryKey}}
+                {{^hasRecoveryKey}}
+                    <button class="settings-button primary-button confirm-password">{{#t}}Generate{{/t}}</button>
+                {{/hasRecoveryKey}}
+                <button class="settings-button cancel secondary-button enabled">{{#t}}Cancel{{/t}}</button>
+            </div>
+        </div>
+    </div>
+</div>

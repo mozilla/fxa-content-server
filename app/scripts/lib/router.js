@@ -7,6 +7,10 @@ define(function (require, exports, module) {
 
 
   const _ = require('underscore');
+  const AccountRecoveryView = require('../views/settings/account_recovery');
+  const AccountRecoveryConfirmPasswordView = require('../views/settings/account_recovery/confirm_password');
+  const AccountRecoveryConfirmRevokeView = require('../views/settings/account_recovery/confirm_revoke');
+  const AccountRecoveryKeyView = require('../views/settings/account_recovery/recovery_key');
   const AvatarCameraView = require('../views/settings/avatar_camera');
   const AvatarChangeView = require('../views/settings/avatar_change');
   const AvatarCropView = require('../views/settings/avatar_crop');
@@ -34,6 +38,8 @@ define(function (require, exports, module) {
   const PermissionsView = require('../views/permissions');
   const PpView = require('../views/pp');
   const ReadyView = require('../views/ready');
+  const RecoveryKeyConfirm = require('../views/recovery_key_confirm');
+  const RecoveryKeyResetPassword = require('../views/recovery_key_reset_password');
   const ReportSignInView = require('../views/report_sign_in');
   const ResetPasswordView = require('../views/reset_password');
   const SettingsView = require('../views/settings');
@@ -97,12 +103,18 @@ define(function (require, exports, module) {
       'oauth/signin(/)': 'onSignIn',
       'oauth/signup(/)': 'onSignUp',
       'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
+      'recovery_key_confirm(/)': createViewHandler(RecoveryKeyConfirm),
+      'recovery_key_reset_password(/)': createViewHandler(RecoveryKeyResetPassword),
       'report_signin(/)': createViewHandler(ReportSignInView),
       'reset_password(/)': createViewHandler(ResetPasswordView),
       'reset_password_confirmed(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'reset_password_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PASSWORD_RESET }),
       'secondary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.SECONDARY_EMAIL_VERIFIED }),
       'settings(/)': createViewHandler(SettingsView),
+      'settings/account_recovery(/)': createChildViewHandler(AccountRecoveryView, SettingsView),
+      'settings/account_recovery/confirm_password(/)': createChildViewHandler(AccountRecoveryConfirmPasswordView, SettingsView),
+      'settings/account_recovery/confirm_revoke(/)': createChildViewHandler(AccountRecoveryConfirmRevokeView, SettingsView),
+      'settings/account_recovery/recovery_key(/)': createChildViewHandler(AccountRecoveryKeyView, SettingsView),
       'settings/avatar/camera(/)': createChildViewHandler(AvatarCameraView, SettingsView),
       'settings/avatar/change(/)': createChildViewHandler(AvatarChangeView, SettingsView),
       'settings/avatar/crop(/)': createChildViewHandler(AvatarCropView, SettingsView),
