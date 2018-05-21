@@ -111,7 +111,7 @@ define(function (require, exports, module) {
 
     describe('value is old enough', function () {
       beforeEach(function () {
-        view.$('#age').val('13');
+        view.$('#age').val('16');
       });
 
       it('isUserOldEnough returns true', function () {
@@ -125,7 +125,7 @@ define(function (require, exports, module) {
 
     describe('value is too young', function () {
       beforeEach(function () {
-        view.$('#age').val('12');
+        view.$('#age').val('15');
       });
 
       it('isUserOldEnough returns false', function () {
@@ -153,9 +153,9 @@ define(function (require, exports, module) {
 
     describe('destroy', function () {
       it('saves the form info to formPrefill', function () {
-        view.$('#age').val('13');
+        view.$('#age').val('16');
         view.destroy();
-        assert.equal(formPrefill.get('age'), '13');
+        assert.equal(formPrefill.get('age'), '16');
       });
     });
 

@@ -232,7 +232,7 @@ registerSuite('oauth signup', {
 
     'signup with existing account, coppa is too young': function () {
       return this.remote
-        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: 12}))
+        .then(signUpWithExistingAccount(email, PASSWORD, PASSWORD, {age: 15}))
 
         // should have navigated to 123done
         .then(testElementExists('#loggedin'));
