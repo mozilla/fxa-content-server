@@ -61,7 +61,8 @@ module.exports = function () {
     'sms/why',
     'verify_email',
     'verify_primary_email',
-    'verify_secondary_email'
+    'verify_secondary_email',
+    'authorization'
   ].join('|'); // prepare for use in a RegExp
 
   return {

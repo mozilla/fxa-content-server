@@ -77,6 +77,7 @@ var routes = {
   '/sms/sent': { statusCode: 200 },
   '/sms/why': { statusCode: 200 },
   // the following have a version prefix
+  '/v1/authorization': { statusCode: 200 },
   '/v1/complete_reset_password': { statusCode: 200 },
   '/v1/reset_password': { statusCode: 200 },
   '/v1/verify_email': { statusCode: 200 },
