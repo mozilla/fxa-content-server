@@ -321,14 +321,14 @@ registerSuite('signup', {
     },
 
     'signup with existing account, coppa is too young, credentials are correct': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, {age: 12})
+      return signUpWithExistingAccount(this, email, PASSWORD, PASSWORD, {age: 15})
 
       // should have navigated to settings view
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
     'signup with existing account, coppa is too young, credentials are wrong': function () {
-      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {age: 12})
+      return signUpWithExistingAccount(this, email, PASSWORD, 'bad' + PASSWORD, {age: 15})
 
         .then(visibleByQSA(selectors.SIGNUP.SUGGEST_SIGN_IN))
         .then(click(selectors.SIGNUP.LINK_SUGGEST_SIGN_IN))
@@ -340,7 +340,7 @@ registerSuite('signup', {
 
     'signup with new account, coppa is too young': function () {
       return this.remote
-        .then(fillOutSignUp(email, PASSWORD, {age: 12}))
+        .then(fillOutSignUp(email, PASSWORD, {age: 15}))
 
         // should have navigated to cannot-create-account view
         .then(testElementExists('#fxa-cannot-create-account-header'));

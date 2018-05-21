@@ -14,7 +14,7 @@ define(function (require, exports, module) {
 
   const AGE_ELEMENT = '#age';
   const AGE_SIZE_LIMIT = 3;
-  const CUTOFF_AGE = 13;
+  const CUTOFF_AGE = 16; // COPPA is 13, but GDPR is 16.
 
   const CANNOT_CREATE_ACCOUNT_PATHNAME = 'cannot_create_account';
 
