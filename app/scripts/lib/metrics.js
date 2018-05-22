@@ -206,8 +206,9 @@ define(function (require, exports, module) {
       }
 
       const flowModel = new Flow({
+        metrics: this,
         sentryMetrics: this._sentryMetrics,
-        window: this._window
+        window: this._window,
       });
 
       if (flowModel.has('flowId')) {
@@ -456,6 +457,10 @@ define(function (require, exports, module) {
         this.logEvent(eventName);
         this._eventMemory[eventName] = true;
       }
+    },
+
+    markEventLogged: function (eventName) {
+      this._eventMemory[eventName] = true;
     },
 
     /**
