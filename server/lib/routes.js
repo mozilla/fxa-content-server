@@ -32,7 +32,6 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
-    redirectVersionedToUnversioned('authorization'),
     // Disable server verification for now due to issues with customs
     //require('./routes/get-verify-email')(),
     require('./routes/get-apple-app-site-association')(),
@@ -52,7 +51,6 @@ module.exports = function (config, i18n) {
     require('./routes/redirect-complete-to-verified')(),
     require('./routes/redirect-m-to-adjust')(config),
     require('./routes/get-500')(config),
-    require('./routes/get-authorization')
   ];
 
   if (config.get('csp.enabled')) {

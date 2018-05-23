@@ -27,6 +27,7 @@ const suite = {
 var routes = {
   '/.well-known/fxa-client-configuration': { statusCode: 200 },
   '/.well-known/openid-configuration': { statusCode: 200 },
+  '/authorization': { statusCode: 200 },
   '/cannot_create_account': { statusCode: 200 },
   '/choose_what_to_sync': { statusCode: 200 },
   '/complete_reset_password': { statusCode: 200 },
@@ -77,7 +78,6 @@ var routes = {
   '/sms/sent': { statusCode: 200 },
   '/sms/why': { statusCode: 200 },
   // the following have a version prefix
-  '/v1/authorization': { statusCode: 200 },
   '/v1/complete_reset_password': { statusCode: 200 },
   '/v1/reset_password': { statusCode: 200 },
   '/v1/verify_email': { statusCode: 200 },
