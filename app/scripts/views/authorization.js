@@ -3,29 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * A view to fetch and render legal copy. Sub-classes must provide
- * a `copyUrl` where the copy template can be fetched, as well a
- * `fetchError`, which is an error to display if there is a
- * problem fetching the copy template.
+ * OAuth authorization view, redirects based on requested OAuth actions.
  */
+import BaseView from './base';
+'use strict';
 
-define(function (require, exports, module) {
-  'use strict';
 
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-
-  const View = BaseView.extend({
-    beforeRender () {
-      const action = this.relier.get('action');
-      this.replaceCurrentPage(action);
+class AuthorizationView extends BaseView {
+  beforeRender () {
+    const action = this.relier.get('action');
+    if (action === undefined) {
+      this.replaceCurrentPage('signup');
+    } else {
+      const pathname = action === 'email' ? '/' : action;
+      this.replaceCurrentPage(this.broker.transformLink(pathname));
     }
-  });
+  }
+}
 
-  Cocktail.mixin(
-    View,
-  );
+module.exports = AuthorizationView;
 
-  module.exports = View;
-});
 

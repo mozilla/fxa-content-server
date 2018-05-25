@@ -233,6 +233,14 @@ define(function (require, exports, module) {
           testInvalidQueryParams('access_type', invalidValues);
         });
 
+        describe('action', function () {
+          var validValues = [undefined, 'email', 'signin', 'signup', 'force_auth'];
+          testValidQueryParams('access_type', validValues, 'action', validValues);
+
+          var invalidValues = ['', ' ', 'invalid'];
+          testInvalidQueryParams('access_type', invalidValues);
+        });
+
         describe('client_id', function () {
           testMissingRequiredQueryParam('client_id');
 

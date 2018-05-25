@@ -6,6 +6,7 @@
 module.exports = function () {
   // The array is converted into a RegExp
   const FRONTEND_ROUTES = [
+    'authorization',
     'cannot_create_account',
     'choose_what_to_sync',
     'clear',
@@ -61,8 +62,7 @@ module.exports = function () {
     'sms/why',
     'verify_email',
     'verify_primary_email',
-    'verify_secondary_email',
-    'authorization'
+    'verify_secondary_email'
   ].join('|'); // prepare for use in a RegExp
 
   return {
