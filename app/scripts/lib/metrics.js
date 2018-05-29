@@ -208,7 +208,7 @@ define(function (require, exports, module) {
       const flowModel = new Flow({
         metrics: this,
         sentryMetrics: this._sentryMetrics,
-        window: this._window,
+        window: this._window
       });
 
       if (flowModel.has('flowId')) {
@@ -459,6 +459,14 @@ define(function (require, exports, module) {
       }
     },
 
+    /**
+     * Marks some event already logged in metrics memory.
+     *
+     * Used in conjunction with `logEventOnce` when we know that some event was already logged elsewhere.
+     * Helps avoid event duplication.
+     *
+     * @param {String} eventName
+     */
     markEventLogged: function (eventName) {
       this._eventMemory[eventName] = true;
     },
