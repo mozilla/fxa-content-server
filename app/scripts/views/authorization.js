@@ -12,11 +12,11 @@ import BaseView from './base';
 class AuthorizationView extends BaseView {
   beforeRender () {
     const action = this.relier.get('action');
-    if (action === undefined) {
-      this.replaceCurrentPage('signup');
-    } else {
+    if (action) {
       const pathname = action === 'email' ? '/' : action;
       this.replaceCurrentPage(this.broker.transformLink(pathname));
+    } else {
+      this.replaceCurrentPage('/oauth/signup');
     }
   }
 }

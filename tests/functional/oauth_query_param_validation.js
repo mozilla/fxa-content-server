@@ -341,7 +341,7 @@ registerSuite('oauth query parameter validation', {
         }, '#fxa-400-header'));
     },
 
-    'authorization with signin with unknown action (trusted)': function () {
+    'authorization with unknown action (trusted)': function () {
       return this.remote
       // 400s because there is no email set
         .then(openAuthorizationWithQueryParams({
@@ -361,7 +361,17 @@ registerSuite('oauth query parameter validation', {
           redirect_uri: TRUSTED_REDIRECT_URI,
           scope: TRUSTED_SCOPE
         }, '#fxa-signup-header'));
-    }
+    },
+
+    'authorization with email (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          action: 'email',
+          client_id: TRUSTED_CLIENT_ID,
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signup-header'));
+    },
   },
 
 });

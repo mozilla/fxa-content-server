@@ -71,7 +71,7 @@ describe('views/authorization', function () {
     it('handles default action', () => {
       return view.render()
         .then(() => {
-          assert.ok(view.replaceCurrentPage.calledWith('signup'), 'called with proper action');
+          assert.ok(view.replaceCurrentPage.calledWith('/oauth/signup'), 'called with proper action');
         });
     });
 
@@ -92,6 +92,26 @@ describe('views/authorization', function () {
           assert.ok(view.replaceCurrentPage.calledWith(broker.transformLink('signin')), 'called with proper signin action');
         });
     });
+
+    it('action=email calls default action', () => {
+      relier = new OAuthRelier({});
+      relier.set({
+        action: 'email'
+      });
+      broker = new OAuthBroker({
+        relier: relier,
+        session: Session,
+        window: windowMock
+      });
+      initView();
+
+      return view.render()
+        .then(() => {
+          assert.ok(view.replaceCurrentPage.calledWith(broker.transformLink('/')), 'called default action for action=email');
+        });
+    });
+
+
 
   });
 });

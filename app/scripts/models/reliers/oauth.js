@@ -32,7 +32,7 @@ define(function (require, exports, module) {
     code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
     code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
     keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
-    login_hint: Vat.email(),
+    login_hint: Vat.email().renameTo('loginHint'),
     prompt: Vat.prompt(),
     redirectTo: Vat.url(),
     redirect_uri: Vat.url().renameTo('redirectUri'),

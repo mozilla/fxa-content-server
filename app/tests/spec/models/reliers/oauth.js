@@ -235,10 +235,18 @@ define(function (require, exports, module) {
 
         describe('action', function () {
           var validValues = [undefined, 'email', 'signin', 'signup', 'force_auth'];
-          testValidQueryParams('access_type', validValues, 'action', validValues);
+          testValidQueryParams('action', validValues, 'action', validValues);
 
           var invalidValues = ['', ' ', 'invalid'];
-          testInvalidQueryParams('access_type', invalidValues);
+          testInvalidQueryParams('action', invalidValues);
+        });
+
+        describe('login_hint', function () {
+          var validValues = [undefined, 'test@example.com'];
+          testValidQueryParams('login_hint', validValues, 'loginHint', validValues);
+
+          var invalidValues = ['', ' ', 'invalid'];
+          testInvalidQueryParams('login_hint', invalidValues);
         });
 
         describe('client_id', function () {
