@@ -6,8 +6,6 @@
  * OAuth authorization view, redirects based on requested OAuth actions.
  */
 import BaseView from './base';
-'use strict';
-
 
 class AuthorizationView extends BaseView {
   beforeRender () {
@@ -22,5 +20,3 @@ class AuthorizationView extends BaseView {
 }
 
 module.exports = AuthorizationView;
-
-
