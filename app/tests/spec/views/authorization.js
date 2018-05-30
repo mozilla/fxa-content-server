@@ -111,7 +111,5 @@ describe('views/authorization', function () {
         });
     });
 
-
-
   });
 });
