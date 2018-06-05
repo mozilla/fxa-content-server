@@ -60,11 +60,8 @@ var testErrorInclude = function (expected) {
 
 /*eslint-disable camelcase */
 registerSuite('oauth query parameter validation', {
-  beforeEach: function () {
+  before: function () {
     return this.remote
-      .then(clearBrowserState({
-        contentServer: true
-      }))
       .then(openFxaFromRp('signup'))
       .then(getQueryParamValue('client_id'))
       .then(function (clientId) {
@@ -75,6 +72,12 @@ registerSuite('oauth query parameter validation', {
       .then(function (clientId) {
         UNTRUSTED_CLIENT_ID = clientId;
       });
+  },
+  beforeEach: function () {
+    return this.remote
+      .then(clearBrowserState({
+        contentServer: true
+      }));
   },
   tests: {
     'service specified': function () {
@@ -353,17 +356,6 @@ registerSuite('oauth query parameter validation', {
         }, '#fxa-400-header'));
     },
 
-    'authorization with force_auth (trusted)': function () {
-      return this.remote
-        .then(openAuthorizationWithQueryParams({
-          action: 'force_auth',
-          client_id: TRUSTED_CLIENT_ID,
-          email: createEmail(),
-          redirect_uri: TRUSTED_REDIRECT_URI,
-          scope: TRUSTED_SCOPE
-        }, '#fxa-signup-header'));
-    },
-
     'authorization with email (trusted)': function () {
       return this.remote
         .then(openAuthorizationWithQueryParams({
@@ -374,6 +366,18 @@ registerSuite('oauth query parameter validation', {
           scope: TRUSTED_SCOPE
         }, '#fxa-signup-password-header'));
     },
+
+    'authorization with force_auth (trusted)': function () {
+      return this.remote
+        .then(openAuthorizationWithQueryParams({
+          action: 'force_auth',
+          client_id: TRUSTED_CLIENT_ID,
+          email: createEmail(),
+          redirect_uri: TRUSTED_REDIRECT_URI,
+          scope: TRUSTED_SCOPE
+        }, '#fxa-signup-header'));
+    }
+
   },
 
 });
