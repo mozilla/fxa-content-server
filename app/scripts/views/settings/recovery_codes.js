@@ -32,7 +32,7 @@ const View = FormView.extend({
 
   _getFormatedRecoveryCodeFilename() {
     const account = this.getSignedInAccount();
-    let formattedFilename = `${account.get('email')} Firefox Recovery Codes`;
+    let formattedFilename = account.get('email') + ' ' + t('Firefox Recovery Codes');
     if (formattedFilename.length > 200) { // 200 bytes (close to filesystem max) - 4 for '.txt' extension
       formattedFilename = formattedFilename.substring(0, 196);
     }
