@@ -1,3 +1,13 @@
+<a name="1.113.3"></a>
+## 1.113.3 (2018-06-05)
+
+
+### Bug Fixes
+
+* **tests:** speed up oauth tests, fix up query validation ([4c7989a](https://github.com/mozilla/fxa-content-server/commit/4c7989a))
+
+
+
 <a name="1.113.2"></a>
 ## 1.113.2 (2018-06-04)
 
