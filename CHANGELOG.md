@@ -1,3 +1,13 @@
+<a name="1.113.4"></a>
+## 1.113.4 (2018-06-10)
+
+
+### Features
+
+* **oauth:** Allow lockbox to request the "oldsync" OAuth scope. (#6272) r=@vladikoff ([306af32](https://github.com/mozilla/fxa-content-server/commit/306af32))
+
+
+
 <a name="1.113.3"></a>
 ## 1.113.3 (2018-06-05)
 
