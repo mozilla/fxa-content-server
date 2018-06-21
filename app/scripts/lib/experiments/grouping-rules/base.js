@@ -73,6 +73,7 @@ module.exports = class BaseGroupingRule {
    * @returns {Boolean}
    */
   isTestEmail (email) {
-    return /(.+@mozilla\.(com|org)$)|(.+@softvision\.(com|ro)$)/.test(email);
+    return /.+@softvision\.(com|ro)$/.test(email) ||
+           /.+@mozilla\.(com|org)$/.test(email);
   }
 };

@@ -24,9 +24,7 @@ module.exports = class TotpGroupingRule extends BaseGroupingRule {
       return true;
     }
 
-    // Is this a test email?
-    const email = subject.account.get('email');
-    if (this.isTestEmail(email)) {
+    if (this.isTestEmail(subject.account.get('email'))) {
       return true;
     }
 
