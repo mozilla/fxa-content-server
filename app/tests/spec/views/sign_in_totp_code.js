@@ -67,6 +67,9 @@ describe('views/sign_in_totp_code', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => model.get('account'));
 
+    $('body').attr('data-flow-id', 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103');
+    $('body').attr('data-flow-begin', '42');
+
     return view.render()
       .then(() => $('#container').html(view.$el));
   });
