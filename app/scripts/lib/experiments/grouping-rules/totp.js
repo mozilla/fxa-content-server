@@ -6,7 +6,6 @@
 
 const BaseGroupingRule = require('./base');
 const GROUPS = ['control', 'treatment'];
-const ENABLED_EMAIL_REGEX = /(.+@mozilla\.(com|org)$)|(.+@softvision\.(com|ro)$)/;
 
 module.exports = class TotpGroupingRule extends BaseGroupingRule {
   constructor() {
@@ -25,9 +24,9 @@ module.exports = class TotpGroupingRule extends BaseGroupingRule {
       return true;
     }
 
-    // Is this a Mozilla/Softvision based email?
+    // Is this a test email?
     const email = subject.account.get('email');
-    if (ENABLED_EMAIL_REGEX.test(email)) {
+    if (this.isTestEmail(email)) {
       return true;
     }
 
