@@ -11,14 +11,17 @@ define(function (require, exports, module) {
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
-  const preventDefaultThen = require('./base').preventDefaultThen;
   const ServiceMixin = require('./mixins/service-mixin');
   const Session = require('../lib/session');
   const Template = require('templates/reset_password.mustache');
 
   const t = (msg) => msg;
 
-  class ResetPasswordView extends FormView {
+  const ResetPasswordView = FormView.extend({
+    events: {
+      'click .remember-password': '_rememberPassword'
+    },
+
     initialize (options) {
       this.template = Template;
       this.className = 'reset_password';
@@ -27,22 +30,13 @@ define(function (require, exports, module) {
       // address clears the email field in the formPrefill model if
       // the user doesn't enter an address. See comment in beforeDestroy
       this._formPrefill = options.formPrefill;
-
-      this.events = {
-        'click .remember-password': preventDefaultThen('_rememberPassword')
-      };
-
-      super.initialize(options);
-    }
-
+    },
 
     setInitialContext (context) {
-      super.setInitialContext(context);
-
       context.set({
         forceEmail: this.model.get('forceEmail')
       });
-    }
+    },
 
     beforeRender () {
       var email = this.relier.get('email');
@@ -54,9 +48,7 @@ define(function (require, exports, module) {
             this.model.set('error', err);
           });
       }
-
-      return super.beforeRender();
-    }
+    },
 
     beforeDestroy () {
       const email = this.getElementValue('.email');
@@ -70,11 +62,11 @@ define(function (require, exports, module) {
       if (email) {
         this._formPrefill.set({ email });
       }
-    }
+    },
 
     submit () {
       return this._resetPassword(this.getElementValue('.email'));
-    }
+    },
 
     /**
      *
@@ -86,7 +78,7 @@ define(function (require, exports, module) {
       } else {
         this.navigate('signin');
       }
-    }
+    },
 
     _resetPassword (email) {
       return this.resetPassword(email)
@@ -105,7 +97,7 @@ define(function (require, exports, module) {
           throw err;
         });
     }
-  }
+  });
 
   Cocktail.mixin(
     ResetPasswordView,
