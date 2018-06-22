@@ -11,7 +11,7 @@ import _ from 'underscore';
 import BaseView from './base';
 import Cocktail from 'cocktail';
 import KeyCodes from '../lib/key-codes';
-import OneOfTypeMixin from './mixins/one-of-type-mixin';
+import OneVisibleOfTypeMixin from './mixins/one-visible-of-type-mixin';
 import ScreenInfo from '../lib/screen-info';
 
 const PADDING_BELOW_TOOLTIP_PX = 2;
@@ -70,6 +70,10 @@ const Tooltip = BaseView.extend({
     this.bindDOMEvents();
 
     return proto.afterRender.call(this);
+  },
+
+  removeAndDestroy () {
+    this.destroy(true);
   },
 
   beforeDestroy () {
@@ -149,12 +153,10 @@ const Tooltip = BaseView.extend({
 
 Cocktail.mixin(
   Tooltip,
-  OneOfTypeMixin({
-    action () {
-      this.destroy(true);
-    },
-    trigger: 'afterRender',
-    type: 'tooltip'
+  OneVisibleOfTypeMixin({
+    hideMethod: 'removeAndDestroy',
+    showMethod: 'afterRender',
+    viewType: 'tooltip',
   })
 );
 
