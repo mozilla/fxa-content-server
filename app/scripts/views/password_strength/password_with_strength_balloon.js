@@ -42,7 +42,6 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       // update our own styles whenever the balloon does to avoid any jank.
       this.listenTo(this.passwordHelperBalloon, 'rendered', () => this.updateStyles());
 
-
       return this.passwordHelperBalloon.render();
     });
   },
@@ -71,11 +70,6 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       this.$el.addClass('invalid');
     } else {
       this.$el.removeClass('invalid');
-    }
-
-    if (! isValid) {
-      // what is this used for?
-      this.trigger('invalid');
     }
   },
 });

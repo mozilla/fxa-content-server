@@ -9,7 +9,7 @@ const ROLLOUT_RATE = 0;
 
 const EXPERIMENT_NAME = 'passwordStrength';
 
-class PasswordStrenghtExperiment extends BaseGroupingRule {
+class PasswordStrengthExperiment extends BaseGroupingRule {
   constructor () {
     super();
     this.ROLLOUT_RATE = ROLLOUT_RATE;
@@ -38,6 +38,6 @@ class PasswordStrenghtExperiment extends BaseGroupingRule {
   }
 }
 
-PasswordStrenghtExperiment.EXPERIMENT_NAME = EXPERIMENT_NAME;
+PasswordStrengthExperiment.EXPERIMENT_NAME = EXPERIMENT_NAME;
 
-module.exports = PasswordStrenghtExperiment;
+module.exports = PasswordStrengthExperiment;

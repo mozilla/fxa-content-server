@@ -45,7 +45,8 @@ export default class PasswordStrengthBalloonModel extends Model {
    */
   updateForPassword (password) {
     return this._getCommonPasswordList().then((commonPasswordList => {
-      // user the lowercase password for comparison.
+      // The password list only stores lowercase words,
+      // use the lowercase password for comparison everywhere.
       const lowercasePassword = password.toLowerCase();
 
       // each criterion can only be true if the previous criterion is `false`,
@@ -76,10 +77,25 @@ export default class PasswordStrengthBalloonModel extends Model {
 
   isSameAsEmail (lowercasePassword) {
     const email = this.get('email').toLowerCase();
+    return this.doesPasswordContainFullEmail(lowercasePassword, email) ||
+           this.isPasswordSubstringOfEmail(lowercasePassword, email) ||
+           this.doesPasswordStartWithLocalPartOfEmail(lowercasePassword, email);
+  }
+
+  doesPasswordContainFullEmail (lowercasePassword, email) {
+    return lowercasePassword.indexOf(email) !== -1;
+  }
+
+  isPasswordSubstringOfEmail (lowercasePassword, email) {
+    return email.indexOf(lowercasePassword) !== -1;
+  }
+
+  doesPasswordStartWithLocalPartOfEmail (lowercasePassword, email) {
     const [localPartOfEmail] = email.split('@');
-    return lowercasePassword.indexOf(email) !== -1 || // full email is banned if in any part of the password
-           lowercasePassword.indexOf(localPartOfEmail) === 0 || // local part banned if at the beginning
-           email.indexOf(lowercasePassword) === 0; // password also banned if it is strictly a subset of email address
+    // 4 is arbitrary, set a lower bound on the length of the local part
+    // so passwords that start with `a` are not banned if the user's email
+    // address is `a@domain.com`.
+    return localPartOfEmail.length >= 4 && lowercasePassword.indexOf(localPartOfEmail) === 0;
   }
 
   isCommon (commonPasswordList, lowercasePassword) {

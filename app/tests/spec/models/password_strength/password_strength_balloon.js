@@ -9,7 +9,7 @@ import PasswordModel from 'models/password_strength/password_strength_balloon';
 let model;
 
 describe('models/password_strength/password_strength_balloon', () => {
-  before(() => {
+  beforeEach(() => {
     model = new PasswordModel({
       email: 'testuser@testuser.com'
     });
@@ -58,6 +58,13 @@ describe('models/password_strength/password_strength_balloon', () => {
             });
           });
       });
+    });
+
+    it('local part of email must be >= 4 characters in length to be banned', () => {
+      model.set('email', 'tes@domain.com');
+      assert.isFalse(model.isSameAsEmail('testuser'));
+      model.set('email', 'test@domain.com');
+      assert.isTrue(model.isSameAsEmail('testuser'));
     });
 
     [
