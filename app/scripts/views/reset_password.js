@@ -31,12 +31,15 @@ define(function (require, exports, module) {
       // address clears the email field in the formPrefill model if
       // the user doesn't enter an address. See comment in beforeDestroy
       this._formPrefill = options.formPrefill;
+
+      FormView.prototype.initialize.call(this, options);
     },
 
     setInitialContext (context) {
       context.set({
         forceEmail: this.model.get('forceEmail')
       });
+      FormView.prototype.setInitialContext.call(this, context);
     },
 
     beforeRender () {
@@ -49,6 +52,7 @@ define(function (require, exports, module) {
             this.model.set('error', err);
           });
       }
+      FormView.prototype.beforeRender.call(this);
     },
 
     beforeDestroy () {
