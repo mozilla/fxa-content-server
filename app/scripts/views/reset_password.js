@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
   const PasswordResetMixin = require('./mixins/password-reset-mixin');
+  const preventDefaultThen = require('./base').preventDefaultThen;
   const ServiceMixin = require('./mixins/service-mixin');
   const Session = require('../lib/session');
   const Template = require('templates/reset_password.mustache');
@@ -19,7 +20,7 @@ define(function (require, exports, module) {
 
   const ResetPasswordView = FormView.extend({
     events: {
-      'click .remember-password': '_rememberPassword'
+      'click .remember-password': preventDefaultThen('_rememberPassword')
     },
 
     initialize (options) {
