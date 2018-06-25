@@ -14,8 +14,9 @@ import AuthErrors from '../../lib/auth-errors';
 import { Model } from 'backbone';
 import { PASSWORD_MIN_LENGTH } from '../../lib/constants';
 
-const FIREFOX_SERVICE_REGEXP = /^firefox\s*(?:account|accounts|sync)$/;
-const URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
+// Ban passwords that start with firefox, fxaccounts, lockbox, addons, sumo
+const BANNED_SERVICE_REGEXP = /^(firefox|fxaccounts|lockbox|addons|sumo).*$/;
+const BANNED_URL_REGEXP = /^(?:firefox|mozilla)\.(?:com|org)$/;
 
 export default class PasswordStrengthBalloonModel extends Model {
   constructor (attrs = {}, config = {}) {
@@ -85,8 +86,8 @@ export default class PasswordStrengthBalloonModel extends Model {
     // The password list only stores lowercase words
     // Consider common Firefox related services and URLs as banned.
     return commonPasswordList.test(lowercasePassword) ||
-           FIREFOX_SERVICE_REGEXP.test(lowercasePassword) ||
-           URL_REGEXP.test(lowercasePassword);
+           BANNED_SERVICE_REGEXP.test(lowercasePassword) ||
+           BANNED_URL_REGEXP.test(lowercasePassword);
   }
 
   validate () {

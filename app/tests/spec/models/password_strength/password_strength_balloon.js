@@ -88,7 +88,11 @@ describe('models/password_strength/password_strength_balloon', () => {
       'Mozilla.com',
       'mozilla.org',
       'firefox.com',
-      'firefox.org'
+      'firefox.org',
+      'lockbox2018',
+      'fxaccounts',
+      'addonsMozilla',
+      'SUMOFirefox'
     ].forEach((commonPassword) => {
       it(`considers '${commonPassword}' common`, () => {
         return model.updateForPassword(commonPassword)
