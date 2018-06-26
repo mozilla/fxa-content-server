@@ -8,7 +8,6 @@ import { assign } from 'underscore';
 import { Events } from 'backbone';
 import Model from 'models/password_strength/password_strength_balloon';
 import PasswordWithStrengthBalloon from 'views/password_strength/password_with_strength_balloon';
-import { requiresFocus } from '../../../lib/helpers';
 import sinon from 'sinon';
 
 const template = `
@@ -42,8 +41,9 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     return view.afterRender();
   });
 
-  it('renders the pw balloon in afterRender', () => {
+  it('renders the pw balloon in afterRender, sets the aria field', () => {
     assert.isTrue(view.passwordHelperBalloon.render.calledOnce);
+    assert.equal(view.$el.attr('aria-described-by'), 'password-strength-balloon');
   });
 
   it('updates the model for the password element value', () => {
@@ -63,7 +63,7 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     assert.isTrue(model.updateForPassword.calledOnceWith('password'));
   });
 
-  it('the invalid class is added if password has been entered and is invalid', () => {
+  it('the invalid class is added and aria attributes set if password has been entered and is invalid', () => {
     model.set({
       hasEnteredPassword: false,
       isValid: false
@@ -72,12 +72,17 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     assert.isFalse($('#password').hasClass('invalid'));
 
     model.set('hasEnteredPassword', true, { silent: true });
+    sinon.stub(view, '_getDescribedById').callsFake(() => 'password-too-short');
     view.updateStyles();
     assert.isTrue($('#password').hasClass('invalid'));
+    assert.equal(view.$el.attr('aria-invalid'), 'true');
+    assert.equal(view.$el.attr('aria-described-by'), 'password-too-short');
 
     model.set('isValid', true, { silent: true });
     view.updateStyles();
     assert.isFalse($('#password').hasClass('invalid'));
+    assert.isUndefined(view.$el.attr('aria-invalid'));
+    assert.isUndefined(view.$el.attr('aria-described-by'));
   });
 
   it('passwordHelperBalloon updates cause updateStyles', (done) => {
@@ -85,16 +90,28 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     passwordHelperBalloon.trigger('rendered');
   });
 
-  it('focusIfInvalid focuses the password if an invalid one has been entered', (done) => {
-    requiresFocus(() => {
+  describe('_getDescribedById', () => {
+    beforeEach(() => {
       model.set({
-        hasEnteredPassword: true,
-        isValid: false
-      }, { silent: true });
+        isCommon: false,
+        isSameAsEmail: false,
+        isTooShort: false,
+      });
+    });
 
-      $('#password').one('focus', () => done());
+    it('returns `password-too-short` if password is too short', () => {
+      model.set('isTooShort', true);
+      assert.equal(view._getDescribedById(), 'password-too-short');
+    });
 
-      view.focusIfInvalidPassword();
-    }, done);
+    it('returns `password-same-as-email` if same as email', () => {
+      model.set('isSameAsEmail', true);
+      assert.equal(view._getDescribedById(), 'password-same-as-email');
+    });
+
+    it('returns `password-too-common` when too common', () => {
+      model.set('isCommon', true);
+      assert.equal(view._getDescribedById(), 'password-too-common');
+    });
   });
 });

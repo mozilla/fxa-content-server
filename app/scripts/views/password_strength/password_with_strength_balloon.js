@@ -15,9 +15,9 @@
 
 import FormView from '../form';
 import PasswordStrengthBalloonView from './password_strength_balloon';
+
 const PasswordWithStrengthBalloonView = FormView.extend({
   events: {
-    blur: 'focusIfInvalidPassword',
     change: 'updateModelForPassword',
     keyup: 'updateModelForPassword',
   },
@@ -43,20 +43,9 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       this.listenTo(this.passwordHelperBalloon, 'rendered', () => this.updateStyles());
 
       return this.passwordHelperBalloon.render();
+    }).then(() => {
+      this.$el.attr('aria-described-by', 'password-strength-balloon');
     });
-  },
-
-  focusIfInvalidPassword () {
-    const { hasEnteredPassword, isValid } = this.model.toJSON();
-
-    if (hasEnteredPassword && ! isValid) {
-      // A timeout is needed so that the focus occurs after the cursor is placed
-      // into the next element. Without the timeout, the focus occurs and then
-      // is immediately taken away.
-      this.setTimeout(() => {
-        this.$el.focus();
-      }, 50);
-    }
   },
 
   updateModelForPassword () {
@@ -67,11 +56,31 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     const { hasEnteredPassword, isValid } = this.model.toJSON();
 
     if (hasEnteredPassword && ! isValid) {
-      this.$el.addClass('invalid');
+      this.$el.addClass('invalid').attr('aria-invalid', 'true');
+      const describedById = this._getDescribedById();
+      if (describedById) {
+        this.$el.attr('aria-described-by', describedById);
+      }
     } else {
-      this.$el.removeClass('invalid');
+      this.$el.removeClass('invalid').attr('aria-invalid', null).attr('aria-described-by', null);
     }
   },
+
+  _getDescribedById () {
+    const {
+      isCommon,
+      isSameAsEmail,
+      isTooShort,
+    } = this.model.toJSON();
+
+    if (isTooShort) {
+      return 'password-too-short';
+    } else if (isSameAsEmail) {
+      return 'password-same-as-email';
+    } else if (isCommon) {
+      return 'password-too-common';
+    }
+  }
 });
 
 
