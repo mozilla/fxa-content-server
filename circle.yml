@@ -51,6 +51,7 @@ deployment:
           "$CIRCLE_BUILD_URL"
           | tee config/version.json version.json
       - docker build -f Dockerfile-build -t fxa-content-server:build .
+      - docker run --rm -it fxa-content-server:build npm ls --production
       - docker login -e "$DOCKER_EMAIL" -u "$DOCKER_USER" -p "$DOCKER_PASS"
       - |
           if [ $CIRCLE_BRANCH = "master" ]; then
