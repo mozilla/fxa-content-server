@@ -63,26 +63,27 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     assert.isTrue(model.updateForPassword.calledOnceWith('password'));
   });
 
-  it('the invalid class is added and aria attributes set if password has been entered and is invalid', () => {
+  it('the element is marked as invalid if password has been entered and is invalid', () => {
+    sinon.stub(view, 'markElementValid');
+    sinon.stub(view, 'markElementInvalid');
     model.set({
       hasEnteredPassword: false,
       isValid: false
     }, { silent: true });
+
     view.updateStyles();
-    assert.isFalse($('#password').hasClass('invalid'));
+    assert.isFalse(view.markElementInvalid.called);
+    assert.isTrue(view.markElementValid.calledOnceWith(view.$el));
 
     model.set('hasEnteredPassword', true, { silent: true });
     sinon.stub(view, '_getDescribedById').callsFake(() => 'password-too-short');
     view.updateStyles();
-    assert.isTrue($('#password').hasClass('invalid'));
-    assert.equal(view.$el.attr('aria-invalid'), 'true');
-    assert.equal(view.$el.attr('aria-described-by'), 'password-too-short');
+    assert.isTrue(view.markElementInvalid.calledOnceWith(view.$el, 'password-too-short'));
 
     model.set('isValid', true, { silent: true });
     view.updateStyles();
-    assert.isFalse($('#password').hasClass('invalid'));
-    assert.isUndefined(view.$el.attr('aria-invalid'));
-    assert.isUndefined(view.$el.attr('aria-described-by'));
+    assert.isTrue(view.markElementValid.calledTwice);
+    assert.equal(view.markElementValid.args[1][0], view.$el);
   });
 
   it('passwordHelperBalloon updates cause updateStyles', (done) => {

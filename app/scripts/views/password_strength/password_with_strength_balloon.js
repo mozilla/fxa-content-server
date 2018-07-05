@@ -56,13 +56,10 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     const { hasEnteredPassword, isValid } = this.model.toJSON();
 
     if (hasEnteredPassword && ! isValid) {
-      this.$el.addClass('invalid').attr('aria-invalid', 'true');
       const describedById = this._getDescribedById();
-      if (describedById) {
-        this.$el.attr('aria-described-by', describedById);
-      }
+      this.markElementInvalid(this.$el, describedById);
     } else {
-      this.$el.removeClass('invalid').attr('aria-invalid', null).attr('aria-described-by', null);
+      this.markElementValid(this.$el);
     }
   },
 
