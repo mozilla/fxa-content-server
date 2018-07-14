@@ -35,8 +35,8 @@ const webpackConfig = {
       'styles/main.scss'
     ],
     head: './head/boot.js'
-   },
-   watch:true,
+  },
+  watch:true,
 
   output: {
     crossOriginLoading: 'anonymous',
@@ -127,8 +127,8 @@ const webpackConfig = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].css',
-              outputPath: '/styles'
+              name: ENV === 'production' ? '[hash].[name].css' : '[name].css',
+              outputPath: '../../app/styles',
             }
           },
           {
