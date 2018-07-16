@@ -69,6 +69,12 @@
 
 input[type='checkbox'] {
   appearance: none;
+  // The background image is preloaded but forced out of the viewport
+  // until checked. Without the preload there, when the user clicks the
+  // checkbox there is a delay while the image is fetched.
+  background-image: url('/images/icon-check-white.svg');
+  background-position: 100px 100px;
+  background-repeat: no-repeat;
   border: 1px solid rgba($grey-90, 0.3);
   border-radius: 2px;
   cursor: pointer;
@@ -106,7 +112,6 @@ input[type='checkbox'] {
 
   &:checked {
     background-color: $blue-60;
-    background-image: url('/images/icon-check-white.svg');
     background-position: center center;
 
     &:hover {
