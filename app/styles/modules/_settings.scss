@@ -696,3 +696,119 @@ section.modal-panel {
     }
   }
 }
+
+.account-recovery-panel {
+  .list {
+    ul {
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    .type {
+      height: 40px;
+      margin: 10px 0;
+      position: relative;
+
+      html[dir='ltr'] & {
+        background-position: left 2px;
+      }
+
+      html[dir='rtl'] & {
+        background-position: right 2px;
+      }
+
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        @include respond-to('big') {
+          width: calc(95% - 95px);
+        }
+
+        @include respond-to('small') {
+          width: 100%;
+        }
+      }
+
+      .details {
+        color: $color-grey;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: calc(95% - 95px);
+
+        & .disabled {
+          color: $color-grey;
+        }
+
+        & .enabled {
+          color: $color-green;
+        }
+      }
+
+      .settings-button-group {
+        position: absolute;
+        top: 0;
+
+        html[dir='ltr'] & {
+          right: 0;
+        }
+
+        html[dir='rtl'] & {
+          left: 0;
+        }
+
+        .settings-button {
+          height: 35px;
+          margin-left: 10px;
+          /*minimum width required for the button to look good without occupying too much space*/
+          /*is also the default computed width on desktop screen*/
+          min-width: 100px;
+          text-align: center;
+          width: 20%;
+        }
+      }
+    }
+  }
+
+  .input-row {
+    margin-top: 24px;
+  }
+}
+
+#account-recovery-confirm-password,
+#account-recovery-confirm-revoke,
+#account-recovery-key {
+  .recovery-key-options {
+    display: flex;
+    margin-top: 25px;
+  }
+
+  .description {
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .link-options {
+    padding: 10px;
+    text-align: center;
+  }
+
+  .recovery-key {
+    font-size: 1.3em;
+    padding: 50px 0px 50px 0px;
+    //background: azure;
+    //border-style: solid;
+    //border-width: 2px;
+    //color: $recovery-key-color;
+  }
+
+  .revoke-description {
+    margin: 0px auto 75px 0px;
+  }
+}

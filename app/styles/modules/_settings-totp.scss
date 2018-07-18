@@ -106,11 +106,6 @@
 }
 
 #recovery-codes {
-  .recovery-code-options {
-    display: flex;
-    margin-top: 25px;
-  }
-
   .description {
     font-size: 14px;
     text-align: left;
@@ -139,23 +134,6 @@
   .two-step-authentication-done {
     float: none;
     width: 100%;
-  }
-
-  .recovery-code-option {
-    width: 33%;
-
-    .name {
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .graphic {
-      margin: 0 auto 14px auto;
-    }
-
-    p {
-      margin: 0;
-    }
   }
 
   .link-options {
@@ -187,4 +165,26 @@
 
 .note {
   color: $color-red;
+}
+
+.code-options {
+  display: flex;
+  margin-top: 25px;
+
+  .code-option {
+    width: 33%;
+
+    .name {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .graphic {
+      margin: 0 auto 14px auto;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
 }

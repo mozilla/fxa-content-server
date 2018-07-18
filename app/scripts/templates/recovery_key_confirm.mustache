@@ -1,0 +1,34 @@
+<div id="main-content" class="card">
+    <header>
+        <h1 id="fxa-recovery-key-confirm">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Enter recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Enter recovery key{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="error"></div>
+
+        <form novalidate>
+            <p class="reset-warning">
+                {{#unsafeTranslate}}<span>NOTE:</span> If you reset your password and don't have account recovery key saved, some of your data will be erased (including synced server data like history and bookmarks).{{/unsafeTranslate}}
+            </p>
+            <div class="input-row">
+                <input name="recovery-key" type="text" class="text" placeholder="{{#t}}Recovery key{{/t}}" value="{{ recoveryKey }}" autofocus  autocomplete="off"/>
+            </div>
+
+            <div class="button-row">
+                <button id="submit-btn" type="submit" class="primary-button">{{#t}}Continue →{{/t}}</button>
+            </div>
+        </form>
+
+        <div class="links">
+            <a href="/recovery_key_reset_password">{{#t}}Lost recovery key?{{/t}}</a>
+        </div>
+    </section>
+</div>

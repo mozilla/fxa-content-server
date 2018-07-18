@@ -37,16 +37,45 @@ define(function (require, exports, module) {
       this.navigate('settings/two_step_authentication');
     },
 
+    _returnToAccountRecovery () {
+      // Set model to some recovery key
+      const recoveryKey = {
+        key: 'some cool key'
+      };
+      this.model.set('recoveryKey', recoveryKey);
+      this.navigate('settings/account_recovery', recoveryKey);
+    },
+
+    _showAcountRecoveryKey () {
+      this.navigate('settings/account_recovery/recovery_key', );
+    },
+
     _returnToSettings () {
       this.navigate('settings');
     },
 
     onModalCancel () {
-      if (this.currentPage === 'settings/clients/disconnect') {
+      switch (this.currentPage) {
+      case 'settings/clients/disconnect':
         this._returnToClients();
-      } else if (this.currentPage === 'settings/two_step_authentication/recovery_codes') {
+        break;
+      case 'settings/two_step_authentication/recovery_codes':
         this._returnToTwoFactorAuthentication();
-      } else {
+        break;
+      case 'settings/account_recovery/recovery_key' :
+        this._returnToAccountRecovery();
+        break;
+      case 'settings/account_recovery/confirm_password' :
+        if (this.showRecoveryKey) {
+          this._showAcountRecoveryKey();
+        } else {
+          this._returnToAccountRecovery();
+        }
+        break;
+      case 'settings/account_recovery/confirm_revoke' :
+        this._returnToAccountRecovery();
+        break;
+      default:
         this._returnToSettings();
       }
     },
