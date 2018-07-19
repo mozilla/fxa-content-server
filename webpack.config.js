@@ -22,6 +22,7 @@ const webpackConfig = {
       'cocktail-lib',
       'duration',
       'es6-promise',
+      'fxaCheckbox',
       'jquery',
       'mailcheck',
       'js-md5',
@@ -36,7 +37,6 @@ const webpackConfig = {
     ],
     head: './head/boot.js'
   },
-  watch:true,
 
   output: {
     crossOriginLoading: 'anonymous',
@@ -62,9 +62,9 @@ const webpackConfig = {
       draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
+      fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
-      'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
       // jwcrypto is used by the main app and only contains DSA
       // jwcrypto.rs is used by the unit tests to unbundle and verify
       // assertions, which require RSA.
@@ -86,24 +86,6 @@ const webpackConfig = {
 
   module: {
     rules: [
-      {
-        test: require.resolve('jquery'),
-        use: [{
-          loader: 'expose-loader',
-          options: 'jQuery'
-        },
-          {
-            loader: 'expose-loader',
-            options: '$'
-          }],
-      },
-      {
-        test: require.resolve('mocha'),
-        use: [{
-          loader: 'expose-loader',
-          options: 'mocha'
-        }],
-      },
       {
         test: /\.mustache$/,
         loader: 'fxa-mustache-loader'
@@ -127,7 +109,7 @@ const webpackConfig = {
           {
             loader: 'file-loader',
             options: {
-              name: ENV === 'production' ? '[hash].[name].css' : '[name].css',
+              name: '[name].css',
               outputPath: '../../app/styles',
             }
           },
@@ -142,20 +124,16 @@ const webpackConfig = {
           },
           {
             loader: 'sass-loader'
-          }
+          },
         ]
       }
     ]
   },
   optimization: {
     splitChunks: { // CommonsChunkPlugin()
-      cacheGroups: {
-        appDependencies: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'appDependencies',
-          chunks: 'initial'
-        }
-      }
+     // chunks: ["app", "test", "testDependencies"],
+      name: 'appDependencies',
+      minChunks: Infinity
     },
   },
   plugins: ([
@@ -171,7 +149,13 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
-  ]),
+   ]).concat(ENV === 'development' ? [
+    // new webpack.optimize.CommonsChunkPlugin({
+    //   chunks: ["test"],
+    //   name: "testDependencies",
+    //   minChunks: Infinity,
+    // })
+  ]: []),
 
   stats: { colors: true },
 
@@ -188,46 +172,46 @@ if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
     testDependencies: [
-      'jquery',
       'chai',
       'jquery-simulate',
       'mocha',
       'sinon',
     ]
   });
-} else {
+}
+else {
   Object.assign(webpackConfig.optimization, {
-    minimizer: [
-      new UglifyJsPlugin({
-        uglifyOptions: {
-          compress: {
-            unsafe_comps: true,
-            properties: true,
-            keep_fargs: false,
-            pure_getters: true,
-            collapse_vars: true,
-            unsafe: true,
-            warnings: false,
-            sequences: true,
-            dead_code: true,
-            drop_debugger: true,
-            comparisons: true,
-            conditionals: true,
-            evaluate: true,
-            booleans: true,
-            loops: true,
-            unused: true,
-            hoist_funs: true,
-            if_return: true,
-            join_vars: true,
-            drop_console: true
-          },
-        },
-        sourceMap: true,
-        cache: true,
-        parallel: true
-      }),
-    ]
+   minimizer: [
+     new UglifyJsPlugin({
+       uglifyOptions: {
+         compress: {
+           unsafe_comps: true,
+           properties: true,
+           keep_fargs: false,
+           pure_getters: true,
+           collapse_vars: true,
+           unsafe: true,
+           warnings: false,
+           sequences: true,
+           dead_code: true,
+           drop_debugger: true,
+           comparisons: true,
+           conditionals: true,
+           evaluate: true,
+           booleans: true,
+           loops: true,
+           unused: true,
+           hoist_funs: true,
+           if_return: true,
+           join_vars: true,
+           drop_console: true
+         },
+       },
+       sourceMap: true,
+       cache: true,
+       parallel: true
+     }),
+   ]
   });
 }
 
