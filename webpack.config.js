@@ -4,7 +4,6 @@
 
 /* eslint-disable */
 const webpack = require('webpack');
-//const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HappyPack = require('happypack');
 const path = require('path');
@@ -33,7 +32,7 @@ const webpackConfig = {
       'ua-parser-js',
       'uuid',
       'vat',
-      'webrtc'
+      'webrtc',
     ],
     head: './head/boot.js'
   },
@@ -98,7 +97,6 @@ const webpackConfig = {
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates'),
-        //  /node_modules/,
           path.resolve(__dirname, 'node_modules'),
         ],
         use: {
