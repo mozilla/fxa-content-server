@@ -4,13 +4,16 @@
 
 /* eslint-disable */
 const webpack = require('webpack');
+//const nodeExternals = require('webpack-node-externals');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HappyPack = require('happypack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 
+
 const ENV = config.env;
 const webpackConfig = {
+  mode: ENV,
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',
@@ -30,7 +33,7 @@ const webpackConfig = {
       'ua-parser-js',
       'uuid',
       'vat',
-      'webrtc',
+      'webrtc'
     ],
     head: './head/boot.js'
   },
@@ -94,13 +97,21 @@ const webpackConfig = {
         ],
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
-          path.resolve(__dirname, 'app', 'scripts', 'templates')
+          path.resolve(__dirname, 'app', 'scripts', 'templates'),
+        //  /node_modules/,
+          path.resolve(__dirname, 'node_modules'),
         ],
         use: {
           loader: 'happypack/loader',
         }
       }
     ]
+  },
+  optimization: {
+    splitChunks: { // CommonsChunkPlugin()
+      name: 'appDependencies',
+      minChunks: Infinity
+    },
   },
   plugins: ([
     new HappyPack({
@@ -115,49 +126,7 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
-    new webpack.NamedChunksPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["app", "test", "testDependencies"],
-      name: "appDependencies",
-      minChunks: Infinity,
-    }),
-  ]).concat(ENV === 'production' ? [
-    new UglifyJsPlugin({
-      uglifyOptions: {
-        compress: {
-          unsafe_comps: true,
-          properties: true,
-          keep_fargs: false,
-          pure_getters: true,
-          collapse_vars: true,
-          unsafe: true,
-          warnings: false,
-          sequences: true,
-          dead_code: true,
-          drop_debugger: true,
-          comparisons: true,
-          conditionals: true,
-          evaluate: true,
-          booleans: true,
-          loops: true,
-          unused: true,
-          hoist_funs: true,
-          if_return: true,
-          join_vars: true,
-          drop_console: true
-        },
-      },
-      sourceMap: true,
-      cache: true,
-      parallel: true
-    }),
-  ] : []).concat(ENV === 'development' ? [
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["test"],
-      name: "testDependencies",
-      minChunks: Infinity,
-    })
-  ]: []),
+  ]),
 
   stats: { colors: true },
 
@@ -181,5 +150,41 @@ if (ENV === 'development') {
     ]
   });
 }
+else {
+  Object.assign(webpackConfig.optimization, {
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          compress: {
+            unsafe_comps: true,
+            properties: true,
+            keep_fargs: false,
+            pure_getters: true,
+            collapse_vars: true,
+            unsafe: true,
+            warnings: false,
+            sequences: true,
+            dead_code: true,
+            drop_debugger: true,
+            comparisons: true,
+            conditionals: true,
+            evaluate: true,
+            booleans: true,
+            loops: true,
+            unused: true,
+            hoist_funs: true,
+            if_return: true,
+            join_vars: true,
+            drop_console: true
+          },
+        },
+        sourceMap: true,
+        cache: true,
+        parallel: true
+      }),
+    ]
+  });
+}
 
 module.exports = webpackConfig;
+
