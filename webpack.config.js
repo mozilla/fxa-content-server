@@ -9,7 +9,6 @@ const HappyPack = require('happypack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 
-
 const ENV = config.env;
 const webpackConfig = {
   mode: ENV,
@@ -114,7 +113,7 @@ const webpackConfig = {
         ],
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
-          path.resolve(__dirname, 'app', 'scripts', 'templates'),
+          path.resolve(__dirname, 'app', 'scripts', 'templates')
         ],
         use: {
           loader: 'happypack/loader',
