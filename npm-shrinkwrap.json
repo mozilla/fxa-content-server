@@ -4886,8 +4886,7 @@
     "expose-loader": {
       "version": "0.7.5",
       "resolved": "https://registry.npmjs.org/expose-loader/-/expose-loader-0.7.5.tgz",
-      "integrity": "sha512-iPowgKUZkTPX5PznYsmifVj9Bob0w2wTHVkt/eYNPSzyebkUgIedmskf/kcfEIWpiWjg3JRjnW+a17XypySMuw==",
-      "dev": true
+      "integrity": "sha512-iPowgKUZkTPX5PznYsmifVj9Bob0w2wTHVkt/eYNPSzyebkUgIedmskf/kcfEIWpiWjg3JRjnW+a17XypySMuw=="
     },
     "express": {
       "version": "4.16.2",
@@ -5935,7 +5934,6 @@
       "integrity": "sha512-OQXwnEhVckwOsaQ5vZ8Ob4SA5A4cnrD6DlIgz3Ag5QnkAbhOh5nsJJINPsgVkwqJrpc2FkcoFlNC9SuEP/NXng==",
       "requires": {
         "es6-promise": "4.1.1",
-        "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
         "xhr2": "0.0.7"
       },
       "dependencies": {
@@ -5943,6 +5941,10 @@
           "version": "4.1.1",
           "resolved": "https://registry.npmjs.org/es6-promise/-/es6-promise-4.1.1.tgz",
           "integrity": "sha512-OaU1hHjgJf+b0NzsxCg7NdIYERD6Hy/PEmFLTjw+b65scuisG3Kt4QoTvJ66BBkPZ581gr0kpoVzKnxniM8nng=="
+        },
+        "sjcl": {
+          "version": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
+          "from": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b"
         }
       }
     },
@@ -10049,7 +10051,6 @@
       "version": "git://github.com/vladikoff/jsxgettext-recursive.git#bf63ce8565c494217539387163329f04b40e2122",
       "from": "git://github.com/vladikoff/jsxgettext-recursive.git#msgctxt-support",
       "requires": {
-        "jsxgettext": "github:vladikoff/jsxgettext#4665d6cd1f122898ddb9b834cdc16880db20b154",
         "walk": "^2.3.9"
       },
       "dependencies": {
@@ -10069,7 +10070,7 @@
         },
         "jsxgettext": {
           "version": "github:vladikoff/jsxgettext#4665d6cd1f122898ddb9b834cdc16880db20b154",
-          "from": "github:vladikoff/jsxgettext#0.9.0-msgctxt-support",
+          "from": "github:vladikoff/jsxgettext#4665d6cd1f122898ddb9b834cdc16880db20b154",
           "requires": {
             "acorn": "^3.0.0",
             "acorn-jsx": "^3.0.0",
@@ -11564,9 +11565,14 @@
       "from": "git://github.com/vladikoff/node-uap.git#9cdd16247",
       "requires": {
         "array.prototype.find": "2.0.0",
-        "uap-core": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
         "uap-ref-impl": "0.2.0",
         "yamlparser": "0.0.2"
+      },
+      "dependencies": {
+        "uap-core": {
+          "version": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
+          "from": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53"
+        }
       }
     },
     "node-uuid": {
@@ -13492,10 +13498,6 @@
         }
       }
     },
-    "sjcl": {
-      "version": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8ef32329bc8d7bc28a438372b5acb46616b",
-      "from": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e"
-    },
     "slash": {
       "version": "1.0.0",
       "resolved": "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz",
@@ -14448,10 +14450,6 @@
     "ua-parser-js": {
       "version": "git://github.com/vladikoff/ua-parser-js.git#643d1698aef5bed095e1264ae258902bf346175c",
       "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
-    },
-    "uap-core": {
-      "version": "git://github.com/ua-parser/uap-core.git#fdee91274bbd6c36dd9f7d9b6673db80505d2c53",
-      "from": "git://github.com/ua-parser/uap-core.git"
     },
     "uap-ref-impl": {
       "version": "0.2.0",
