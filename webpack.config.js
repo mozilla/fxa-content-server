@@ -86,6 +86,24 @@ const webpackConfig = {
   module: {
     rules: [
       {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'jQuery'
+        },
+          {
+            loader: 'expose-loader',
+            options: '$'
+          }],
+      },
+      {
+        test: require.resolve('mocha'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'mocha'
+        }],
+      },
+      {
         test: /\.mustache$/,
         loader: 'fxa-mustache-loader'
       },
@@ -97,7 +115,6 @@ const webpackConfig = {
         exclude: [
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates'),
-          path.resolve(__dirname, 'node_modules'),
         ],
         use: {
           loader: 'happypack/loader',
@@ -107,8 +124,13 @@ const webpackConfig = {
   },
   optimization: {
     splitChunks: { // CommonsChunkPlugin()
-      name: 'appDependencies',
-      minChunks: Infinity
+      cacheGroups: {
+        appDependencies: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'appDependencies',
+          chunks: 'all'
+        }
+      }
     },
   },
   plugins: ([
@@ -141,14 +163,14 @@ if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
     testDependencies: [
+      'jquery',
       'chai',
       'jquery-simulate',
       'mocha',
       'sinon',
     ]
   });
-}
-else {
+} else {
   Object.assign(webpackConfig.optimization, {
     minimizer: [
       new UglifyJsPlugin({
@@ -185,4 +207,3 @@ else {
 }
 
 module.exports = webpackConfig;
-
