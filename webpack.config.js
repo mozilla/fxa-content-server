@@ -127,7 +127,7 @@ const webpackConfig = {
         appDependencies: {
           test: /[\\/]node_modules[\\/]/,
           name: 'appDependencies',
-          chunks: 'all'
+          chunks: 'initial'
         }
       }
     },
