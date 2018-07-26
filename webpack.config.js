@@ -22,7 +22,6 @@ const webpackConfig = {
       'cocktail-lib',
       'duration',
       'es6-promise',
-      'fxaCheckbox',
       'jquery',
       'mailcheck',
       'js-md5',
@@ -62,7 +61,6 @@ const webpackConfig = {
       draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
-      fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
       // jwcrypto is used by the main app and only contains DSA

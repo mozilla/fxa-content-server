@@ -23,11 +23,6 @@ module.exports = function (grunt) {
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
 
-    // general 'css' tasks:
-    //    'sass', - compile SASS,
-    //    'autoprefixer' - auto prefix CSS for many browsers,
-    'css',
-
     'copy:styles',
 
     // concatenate the eastereggs, CSS. Must be before cssmin or else

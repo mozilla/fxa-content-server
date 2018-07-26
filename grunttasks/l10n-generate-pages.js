@@ -11,7 +11,6 @@
 //
 // They compiled templates are placed in the server's compiled template directory to await further processing
 // (minification, revving).
-const fs = require('fs');
 
 module.exports = function (grunt) {
   var path = require('path');
@@ -118,15 +117,6 @@ module.exports = function (grunt) {
     });
   }
 
-  function findFileWithHashEndingWith(folder, str) {
-    let file_name='';
-    fs.readdirSync(folder).forEach(file => {
-      if(file.endsWith(str))
-        file_name = file;
-    });
-    return file_name;
-  }
-
   function generatePage(srcPath, destPath, context, options={}) {
     grunt.verbose.writeln('generating `%s`', destPath);
 
@@ -137,7 +127,6 @@ module.exports = function (grunt) {
         var template = Handlebars.compile(contents);
         var data = {
           bundlePath: options.versionInfo && options.versionInfo.commit ? `/bundle-${options.versionInfo.commit}` : '/bundle',
-         // cssPath: '/styles/' + findFileWithHashEndingWith('app/styles', 'main.css'),
           l10n: context,
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase
@@ -157,7 +146,4 @@ module.exports = function (grunt) {
       }
     });
   }
-
-
-
 };
