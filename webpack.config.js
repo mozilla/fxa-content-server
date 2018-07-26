@@ -87,6 +87,24 @@ const webpackConfig = {
   module: {
     rules: [
       {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'jQuery'
+        },
+          {
+            loader: 'expose-loader',
+            options: '$'
+          }],
+      },
+      {
+        test: require.resolve('mocha'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'mocha'
+        }],
+      },
+      {
         test: /\.mustache$/,
         loader: 'fxa-mustache-loader'
       },
@@ -131,9 +149,13 @@ const webpackConfig = {
   },
   optimization: {
     splitChunks: { // CommonsChunkPlugin()
-     // chunks: ["app", "test", "testDependencies"],
-      name: 'appDependencies',
-      minChunks: Infinity
+      cacheGroups: {
+        appDependencies: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'appDependencies',
+          chunks: 'initial'
+        }
+      }
     },
   },
   plugins: ([
@@ -149,13 +171,7 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
-   ]).concat(ENV === 'development' ? [
-    // new webpack.optimize.CommonsChunkPlugin({
-    //   chunks: ["test"],
-    //   name: "testDependencies",
-    //   minChunks: Infinity,
-    // })
-  ]: []),
+   ]),
 
   stats: { colors: true },
 
@@ -172,14 +188,14 @@ if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
     testDependencies: [
+      'jquery',
       'chai',
       'jquery-simulate',
       'mocha',
       'sinon',
     ]
   });
-}
-else {
+} else {
   Object.assign(webpackConfig.optimization, {
    minimizer: [
      new UglifyJsPlugin({
