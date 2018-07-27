@@ -19,7 +19,7 @@ if [ ! -d "fxa-content-server-l10n" ]; then
 	git clone --depth=20 $DOWNLOAD_PATH
 fi
 cd fxa-content-server-l10n
-echo "Updating L100N files"
+echo "Updating L10N files"
 git checkout -- .
 git checkout $FXA_L10N_SHA
 git pull
