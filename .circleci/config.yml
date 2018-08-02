@@ -212,8 +212,8 @@ workflows:
                     - build
             - test3:
                 requires:
-                - build
+                    - build
             - test4:
                   requires:
-                  - build
+                    - build
             - dockerpush
