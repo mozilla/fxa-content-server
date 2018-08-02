@@ -57,7 +57,7 @@ jobs:
               name: Run tests
               shell: /bin/bash --login
               command: |
-                  ./retry -n 1-- npm run test-circle -- --firefoxBinary=./firefox/firefox
+                  ./retry -n 1 -- npm run test-circle -- --firefoxBinary=./firefox/firefox
 
     test2:
         environment:
@@ -87,7 +87,7 @@ jobs:
               name: Run tests
               shell: /bin/bash --login
               command: |
-                  ./retry -n 1-- npm run test-circle -- --firefoxBinary=./firefox/firefox
+                  ./retry -n 1 -- npm run test-circle -- --firefoxBinary=./firefox/firefox
 
     test3:
         environment:
@@ -117,7 +117,7 @@ jobs:
               name: Run tests
               shell: /bin/bash --login
               command: |
-                  ./retry -n 1-- npm run test-circle -- --firefoxBinary=./firefox/firefox
+                  ./retry -n 1 -- npm run test-circle -- --firefoxBinary=./firefox/firefox
 
     test4:
         environment:
@@ -147,7 +147,7 @@ jobs:
               name: Run tests
               shell: /bin/bash --login
               command: |
-                  ./retry -n 1-- npm run test-circle -- --firefoxBinary=./firefox/firefox
+                  ./retry -n 1 -- npm run test-circle -- --firefoxBinary=./firefox/firefox
 
     dockerpush:
         docker:
