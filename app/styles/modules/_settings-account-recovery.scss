@@ -48,6 +48,7 @@
   }
 }
 
+#account-recovery-confirm-key,
 #account-recovery-confirm-password,
 #account-recovery-confirm-revoke,
 #account-recovery-key {
@@ -126,7 +127,7 @@
     margin: 0 auto 75px 0;
   }
 
-  button.cancel-link {
+  button.button-link {
     background: $color-white;
     color: $color-blue;
   }
