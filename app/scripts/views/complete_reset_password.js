@@ -5,6 +5,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const AuthErrors = require('../lib/auth-errors');
   const Cocktail = require('cocktail');
   const FormView = require('./form');
@@ -23,6 +24,14 @@ define(function (require, exports, module) {
   const View = FormView.extend({
     template: Template,
     className: 'complete-reset-password',
+
+    events: _.extend({}, FormView.prototype.events, {
+      'click .remember-password': FormView.preventDefaultThen('_navigateToSignin')
+    }),
+
+    _navigateToSignin: function () {
+      this.navigate('signin');
+    },
 
     initialize (options) {
       options = options || {};
@@ -106,6 +115,13 @@ define(function (require, exports, module) {
       var doesLinkValidate = verificationInfo.isValid();
       var isLinkExpired = verificationInfo.isExpired();
       var showSyncWarning = this.relier.get('resetPasswordConfirm');
+      const showAccountRecoveryInfo = !! this._accountRecoveryVerficationInfo;
+
+      if (showAccountRecoveryInfo) {
+        // Don't show the sync warning if the user is reseting password with
+        // account recovery
+        showSyncWarning = false;
+      }
 
       // damaged and expired links have special messages.
       context.set({
@@ -113,7 +129,8 @@ define(function (require, exports, module) {
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired,
-        showSyncWarning: showSyncWarning
+        showAccountRecoveryInfo: showAccountRecoveryInfo,
+        showSyncWarning: showSyncWarning,
       });
     },
 

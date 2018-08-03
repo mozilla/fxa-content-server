@@ -10,6 +10,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
   const Cocktail = require('cocktail');
   const Constants = require('../lib/constants');
   const ExperimentMixin = require('./mixins/experiment-mixin');
@@ -69,12 +70,15 @@ define(function (require, exports, module) {
     template: Template,
     className: 'ready',
 
-    events: {
-      'click .btn-continue': 'continue'
-    },
+    events: _.extend({}, FormView.prototype.events, {
+      'click .btn-continue': FormView.preventDefaultThen('continue'),
+      'click .btn-create-recovery-key': FormView.preventDefaultThen('createRecoveryKey'),
+      'click .btn-goto-account': FormView.preventDefaultThen('gotoSettings')
+    }),
 
     initialize (options = {}) {
       this._templateInfo = TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
+      this.type = options.type;
     },
 
     setInitialContext (context) {
@@ -84,6 +88,7 @@ define(function (require, exports, module) {
         escapedHeaderTitle: this._getEscapedHeaderTitle(),
         escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
         headerId: this._getHeaderId(),
+        isPasswordReset: this.isPasswordReset(),
         isSync: this.relier.isSync(),
         secondaryEmailVerified: this.getSearchParam('secondary_email_verified') || null,
         showContinueButton: !! this.model.get('continueBrokerMethod'),
@@ -95,6 +100,18 @@ define(function (require, exports, module) {
       if (continueBrokerMethod && account) {
         this.invokeBrokerMethod(continueBrokerMethod, account);
       }
+    },
+
+    createRecoveryKey() {
+      this.navigate('settings/account_recovery/confirm_password');
+    },
+
+    gotoSettings() {
+      this.navigate('settings');
+    },
+
+    isPasswordReset() {
+      return this.type === 'reset_password';
     },
 
     _getHeaderId () {
