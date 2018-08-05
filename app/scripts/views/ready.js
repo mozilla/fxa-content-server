@@ -21,6 +21,7 @@ define(function (require, exports, module) {
   const ServiceMixin = require('./mixins/service-mixin');
   const Template = require('templates/ready.mustache');
   const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+  const RecoverykeyExperiment = require('./mixins/recovery-key-experiment-mixin');
 
   const t = msg => msg;
 
@@ -111,7 +112,12 @@ define(function (require, exports, module) {
     },
 
     isPasswordReset() {
-      return this.type === 'reset_password';
+      // Only show account recovery options if in experiment
+      if (this.getRecoveryKeyExperimentGroup() === 'treatment') {
+        return this.type === 'reset_password';
+      }
+
+      return false;
     },
 
     _getHeaderId () {
@@ -158,6 +164,7 @@ define(function (require, exports, module) {
     FlowEventsMixin,
     MarketingMixin({ marketingId: Constants.MARKETING_ID_SPRING_2015 }),
     PulseGraphicMixin,
+    RecoverykeyExperiment,
     ServiceMixin,
     VerificationReasonMixin
   );
