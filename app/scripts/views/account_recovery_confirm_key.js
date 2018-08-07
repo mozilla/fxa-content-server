@@ -59,7 +59,7 @@ const View = FormView.extend({
 
               // The password forgot code can only be used once to retrieve
               // `accountResetToken`, therefore we store it in the model so
-              // that it can be reused on sequent requests.
+              // that it can be reused on subsequent requests.
               account.set('accountResetToken', result.accountResetToken);
               return result.accountResetToken;
             });

@@ -51,8 +51,8 @@ define(function (require, exports, module) {
       // If the complete password screen was navigated from the account recovery confirm
       // key view, then these properties must be set in order to recover the account
       // using the recovery key.
-      if (model && options.model.get('recoveryKeyId')) {
-        this._accountRecoveryVerficationInfo = new AccountRecoveryVerificationInfo(options.model.toJSON());
+      if (model && model.get('recoveryKeyId')) {
+        this._accountRecoveryVerficationInfo = new AccountRecoveryVerificationInfo(model.toJSON());
       }
     },
 
