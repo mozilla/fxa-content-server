@@ -97,10 +97,9 @@ const View = FormView.extend({
     return Promise.resolve().then(() => {
       const { account, continueBrokerMethod } = this.model.toJSON();
       if (continueBrokerMethod && account) {
-        return this.invokeBrokerMethod(continueBrokerMethod, account)
-          .catch(err => this.displayError(err));
+        return this.invokeBrokerMethod(continueBrokerMethod, account);
       }
-    });
+    }).catch(err => this.displayError(err));
   },
 
   createRecoveryKey() {
