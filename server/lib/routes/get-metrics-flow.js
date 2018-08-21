@@ -34,22 +34,22 @@ module.exports = function (config) {
 
   route.process = function (req, res) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
-    const flowBeingTime = flowEventData.flowBeginTime;
+    const flowBeginTime = flowEventData.flowBeginTime;
     const flowId = flowEventData.flowId;
     const metricsData = req.query || {};
 
     metricsData.flowId = flowId;
 
     logFlowEvent({
-      flowTime: flowBeingTime,
-      time: flowBeingTime,
+      flowTime: flowBeginTime,
+      time: flowBeginTime,
       type: FLOW_EVENT_NAME
     }, metricsData, req);
 
     if (metricsData.form_type === FORM_TYPE_EMAIL) {
       logFlowEvent({
-        flowTime: flowBeingTime,
-        time: flowBeingTime,
+        flowTime: flowBeginTime,
+        time: flowBeginTime,
         type: FLOW_ENTER_EMAIL_EVENT_NAME
       }, metricsData, req);
     }
