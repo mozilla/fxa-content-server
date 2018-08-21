@@ -11,6 +11,8 @@ const logger = require('../logging/log')('server.get-metrics-flow');
 module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
+  const FLOW_ENTER_EMAIL_EVENT_NAME = 'flow.enter-email.view';
+  const FORM_TYPE_EMAIL = 'email';
   const ALLOWED_CORS_ORIGINS = config.get('allowed_metrics_flow_cors_origins');
   const CORS_OPTIONS = {
     methods: 'GET',
@@ -43,6 +45,14 @@ module.exports = function (config) {
       time: flowBeingTime,
       type: FLOW_EVENT_NAME
     }, metricsData, req);
+
+    if (metricsData.form_type === FORM_TYPE_EMAIL) {
+      logFlowEvent({
+        flowTime: flowBeingTime,
+        time: flowBeingTime,
+        type: FLOW_ENTER_EMAIL_EVENT_NAME
+      }, metricsData, req);
+    }
 
     // charset must be set on json responses.
     res.charset = 'utf-8';
