@@ -87,7 +87,7 @@ define(function (require, exports, module) {
 
     var $error = this.$('.error');
 
-    if (err.errno && err.errno === 1005) {
+    if (AuthErrors.is(err, 'WORKING')) {
       this.logFlowEvent('working');
       // Avoid a scary red warning for 'Working...'
       $error.addClass('info');
