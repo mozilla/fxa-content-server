@@ -1409,12 +1409,14 @@ const Account = Backbone.Model.extend({
      *
      * @param {String} code
      * @param {String} token
+     * @param {bool} options
      * @returns {Promise} resolves with response when complete.
      */
-  passwordForgotVerifyCode (code, token) {
+  passwordForgotVerifyCode (code, token, options) {
     return this._fxaClient.passwordForgotVerifyCode(
       code,
-      token
+      token,
+      options
     );
   },
 
