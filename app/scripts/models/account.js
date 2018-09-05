@@ -1409,7 +1409,7 @@ const Account = Backbone.Model.extend({
      *
      * @param {String} code
      * @param {String} token
-     * @param {bool} options
+     * @param {Object} [options={}] Options like accountResetWithRecoveryKey
      * @returns {Promise} resolves with response when complete.
      */
   passwordForgotVerifyCode (code, token, options) {
