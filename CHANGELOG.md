@@ -1,3 +1,13 @@
+<a name="1.119.4"></a>
+## [1.119.4](https://github.com/mozilla/fxa-content-server/compare/v1.119.3...v1.119.4) (2018-09-06)
+
+
+### Bug Fixes
+
+* **metrics:** send events from /metrics-flow to amplitude ([0e5d87d](https://github.com/mozilla/fxa-content-server/commit/0e5d87d))
+
+
+
 <a name="1.119.3"></a>
 ## 1.119.3 (2018-08-23)
 
