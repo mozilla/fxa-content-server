@@ -121,6 +121,13 @@ const conf = module.exports = convict({
     }
     /*eslint-enable sorting/sort-object-props*/
   },
+  device_pairing: {
+    channel_server_url: {
+      default: 'ws://127.0.0.1:8333/v1/ws/',
+      doc: 'The url of the Pairing channel server',
+      env: 'PAIRING_CHANNEL_SERVER_URL'
+    }
+  },
   disable_locale_check: {
     default: false,
     doc: 'Skip checking for gettext .mo files for supported locales'

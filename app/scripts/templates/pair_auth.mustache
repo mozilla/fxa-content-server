@@ -1,0 +1,23 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-pair-auth-header">
+      {{#t}}Connect Another Device{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    {{^error}}
+    {{^qrcodeSrc}}
+      <div class="info">{{#t}}Creating channel with server{{/t}}</div>
+    {{/qrcodeSrc}}
+    {{#qrcodeSrc}}
+      <p>{{#t}}Connect your device by scanning the QR code{{/t}}</p>
+      <img width="300" height="300" src="{{{qrcodeSrc}}}" alt="{{#t}}Enter this URL on the device to be paired: %(escapedUrl)s{{/t}}" />
+      <div><a href="{{{escapedUrl}}}" target="_blank">Open link in new tab</a></div>
+    {{/qrcodeSrc}}
+    {{/error}}
+  </section>
+</div>

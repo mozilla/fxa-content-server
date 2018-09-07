@@ -1,0 +1,20 @@
+<div id="main-content" class="card pair-auth">
+    <header>
+      <h1 id="fxa-pair-supp-allow-header">
+        {{#t}}Connect with device?{{/t}}
+      </h1>
+    </header>
+
+    <section>
+      <div class="error"></div>
+      <div class="success"></div>
+
+      <form novalidate>
+        {{{ unsafeDeviceBeingPairedHTML }}}
+
+        <div class="button-row">
+          <button type="submit">{{#t}}Allow{{/t}}</button>
+        </div>
+      </form>
+    </section>
+  </div>
