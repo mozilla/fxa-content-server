@@ -1098,7 +1098,7 @@ define(function (require, exports, module) {
      * @returns {Promise} resolves with response when complete.
      */
     passwordForgotVerifyCode: withClient((client, passwordForgotCode, passwordForgotToken, options = {}) => {
-      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, options, {});
+      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, options);
     }),
 
     /**
