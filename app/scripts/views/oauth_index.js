@@ -17,7 +17,7 @@ class OAuthIndexView extends IndexView {
     const { action, email } = this.relier.toJSON();
 
     if (action === 'email') {
-      return this.chooseEmailActionPage();
+      return this.chooseEmailFirstFlow();
     }
 
     return Promise.resolve().then(() => {

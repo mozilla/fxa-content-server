@@ -11,16 +11,18 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
+const ENTER_EMAIL_PAGE_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&automatedBrowser=true`;
 
 let email;
 const PASSWORD = '12345678';
+const PASSWORD_WITH_TYPO = '123456789';
 
 const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutSignUp,
+  fillOutEmailFirstSignUp,
   getVerificationLink,
   getWebChannelMessageData,
   storeWebChannelMessageData,
@@ -32,8 +34,11 @@ const {
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
+  testErrorTextInclude,
+  testElementValueEquals,
   testEmailExpected,
   testIsBrowserNotified,
+  type,
   visibleByQSA,
 } = FunctionalHelpers;
 
@@ -47,10 +52,63 @@ registerSuite('Firefox Desktop Sync v3 signup', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
+    'open directly to /signup page, refresh on the /signup page': function () {
+      return this.remote
+      // redirected immediately to the / page
+        .then(openPage(SIGNUP_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+        .refresh()
+
+        // refresh sends the user back to the first step
+        .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
+    },
+
+    'user mistypes email, enters passwords that do not match': function () {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user thinks they mistyped their email
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+        // passwords do not match should cause an error
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD_WITH_TYPO))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_VPASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH))
+        .then(testErrorTextInclude('Passwords do not match'))
+
+        // fix the password mismatch
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+
+        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT));
+    },
+
     'Fx <= 57, verify at CWTS': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
+            forceAboutAccounts: true,
             forceUA: uaStrings['desktop_firefox_57']
           },
           webChannelResponses: {
@@ -58,9 +116,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             'fxaccounts:fxa_status': {signedInUser: null},
           }
         }))
-        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
 
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -79,8 +137,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx >= 58, verify at CWTS': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
+            forceAboutAccounts: true,
             forceUA: uaStrings['desktop_firefox_58']
           },
           webChannelResponses: {
@@ -88,9 +147,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null},
           }
         }))
-        .then(visibleByQSA(selectors.SIGNUP.SUB_HEADER))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
 
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -112,8 +171,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx <= 55, verify at /confirm, same browser': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
+            forceAboutAccounts: true,
             forceUA: uaStrings['desktop_firefox_55']
           },
           webChannelResponses: {
@@ -125,8 +185,8 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             }
           }
         }))
-        .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -165,7 +225,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
     'Fx >= 55, verify at /confirm same browser, force SMS': function () {
       let accountInfo;
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
             forceUA: uaStrings['desktop_firefox_55']
           },
@@ -179,8 +239,8 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           }
         }))
         .then(storeWebChannelMessageData('fxaccounts:login'))
-        .then(noSuchElement(selectors.SIGNUP.LINK_SUGGEST_SYNC))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -232,7 +292,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx >= 56, engines not supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
             forceUA: uaStrings['desktop_firefox_56']
           },
@@ -245,7 +305,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             }
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -255,7 +315,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx >= 56, neither `creditcards` nor `addresses` supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
             forceUA: uaStrings['desktop_firefox_56']
           },
@@ -271,7 +331,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             }
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -281,7 +341,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx >= 56, `creditcards` and `addresses` supported': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
             forceUA: uaStrings['desktop_firefox_56']
           },
@@ -297,7 +357,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             },
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
         // user should be transitioned to /choose_what_to_sync
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
@@ -307,8 +367,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx <= 57, verify from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
+            forceAboutAccounts: true,
             forceUA: uaStrings['desktop_firefox_57']
           },
           webChannelResponses: {
@@ -316,7 +377,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
@@ -331,7 +392,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
     'Fx >= 58, verify from original tab\'s P.O.V.': function () {
       return this.remote
-        .then(openPage(SIGNUP_PAGE_URL, selectors.SIGNUP.HEADER, {
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
           query: {
             forceUA: uaStrings['desktop_firefox_58']
           },
@@ -340,7 +401,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
             'fxaccounts:fxa_status': {capabilities: null, signedInUser: null}
           }
         }))
-        .then(fillOutSignUp(email, PASSWORD))
+        .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -351,6 +412,23 @@ registerSuite('Firefox Desktop Sync v3 signup', {
 
         // about:accounts does not take over, expect a screen transition.
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-    }
+    },
+
+    'email specified by relier, not registered': function () {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
+          query: {
+            email
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user realizes it's the wrong email address.
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
+    },
   }
 });

@@ -5,7 +5,6 @@
 module.exports = [
   'tests/functional/email_service.js',
   'tests/functional/mailcheck.js',
-  'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',
   'tests/functional/password_strength_experiment.js',
   // new and flaky tests above here',

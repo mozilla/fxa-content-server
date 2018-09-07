@@ -9,7 +9,8 @@
  *
  * @mixin EmailFirstExperimentMixin
  */
-const ExperimentMixin = require('./experiment-mixin');
+import ExperimentMixin from './experiment-mixin';
+
 const EXPERIMENT_NAME = 'emailFirst';
 
 /**
@@ -25,6 +26,9 @@ module.exports = (options = {}) => {
 
     beforeRender () {
       if (this.relier.get('action') === 'email' && options.treatmentPathname) {
+        this.replaceCurrentPage(options.treatmentPathname);
+      } else if (this.isEmailFirstForced() && options.treatmentPathname) {
+        // no longer experimental, the user is in this flow.
         this.replaceCurrentPage(options.treatmentPathname);
       } else if (this.isInEmailFirstExperiment()) {
         const experimentGroup = this.getEmailFirstExperimentGroup();
@@ -61,6 +65,15 @@ module.exports = (options = {}) => {
      */
     isInEmailFirstExperimentGroup (groupName) {
       return this.isInExperimentGroup(EXPERIMENT_NAME, groupName, this._getEmailFirstExperimentSubject());
+    },
+
+    /**
+     * Is email first forced by the auth broker?
+     *
+     * @returns {Boolean}
+     */
+    isEmailFirstForced () {
+      return this.broker.getCapability('emailFirst') === 'forced';
     },
 
     /**

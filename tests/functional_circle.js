@@ -35,7 +35,6 @@ module.exports = selectCircleTests([
   'tests/functional/password_strength_experiment.js',
   'tests/functional/recovery_key.js',
   // flaky tests go above here.
-  'tests/functional/sync_v3_email_first.js',
   'tests/functional/fx_firstrun_v2_email_first.js',
   'tests/functional/sync_v3_sign_up.js',
   'tests/functional/fx_desktop_handshake.js',

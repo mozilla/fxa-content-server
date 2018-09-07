@@ -45,8 +45,8 @@ class IndexView extends FormView {
     const action = this.relier.get('action');
     if (action && action !== 'email') {
       this.replaceCurrentPage(action);
-    } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
-      return this.chooseEmailActionPage();
+    } else if (this.shouldUseEmailFirstFlow()) {
+      return this.chooseEmailFirstFlow();
     } else if (this.getSignedInAccount().get('sessionToken')) {
       this.replaceCurrentPage('settings');
     } else {
@@ -54,7 +54,13 @@ class IndexView extends FormView {
     }
   }
 
-  chooseEmailActionPage () {
+  shouldUseEmailFirstFlow () {
+    return this.isInEmailFirstExperimentGroup('treatment') ||
+           this.isEmailFirstForced('treatment') ||
+           this.relier.get('action') === 'email';
+  }
+
+  chooseEmailFirstFlow () {
     const relierEmail = this.relier.get('email');
     const accountFromPreviousScreen = this.getAccount();
     const suggestedAccount = this.suggestedAccount();

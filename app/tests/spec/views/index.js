@@ -200,6 +200,40 @@ describe('views/index', () => {
     });
   });
 
+  describe('shouldUseEmailFirstFlow', () => {
+    it('returns true if in the email-first treatment group', () => {
+      sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => true);
+      sinon.stub(view, 'isEmailFirstForced').callsFake(() => false);
+      relier.unset('action');
+
+      assert.isTrue(view.shouldUseEmailFirstFlow());
+    });
+
+    it('returns true if email-first is forced by broker', () => {
+      sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
+      sinon.stub(view, 'isEmailFirstForced').callsFake(() => true);
+      relier.unset('action');
+
+      assert.isTrue(view.shouldUseEmailFirstFlow());
+    });
+
+    it('returns true if relier opts into email-first', () => {
+      sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
+      sinon.stub(view, 'isEmailFirstForced').callsFake(() => false);
+      relier.set('action', 'email');
+
+      assert.isTrue(view.shouldUseEmailFirstFlow());
+    });
+
+    it('returns false otw', () => {
+      sinon.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
+      sinon.stub(view, 'isEmailFirstForced').callsFake(() => false);
+      relier.unset('action');
+
+      assert.isFalse(view.shouldUseEmailFirstFlow());
+    });
+  });
+
   describe('submit', () => {
     it('checks the entered email', () => {
       sinon.stub(view, 'checkEmail').callsFake(() => Promise.resolve());

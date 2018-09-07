@@ -63,12 +63,13 @@ define(function(require, exports, module) {
 
     it('exposes the expected interface', () => {
       const mixin = EmailFirstExperimentMixin();
-      assert.lengthOf(Object.keys(mixin), 6);
+      assert.lengthOf(Object.keys(mixin), 7);
       assert.isArray(mixin.dependsOn);
       assert.isFunction(mixin.beforeRender);
       assert.isFunction(mixin.getEmailFirstExperimentGroup);
       assert.isFunction(mixin.isInEmailFirstExperiment);
       assert.isFunction(mixin.isInEmailFirstExperimentGroup);
+      assert.isFunction(mixin.isEmailFirstForced);
       assert.isFunction(mixin._getEmailFirstExperimentSubject);
     });
 
@@ -107,6 +108,14 @@ define(function(require, exports, module) {
       ));
     });
 
+    it('isEmailFirstForced returns true if emailFirst capability is `forced`', () => {
+      broker.setCapability('emailFirst', true);
+      assert.isFalse(view.isEmailFirstForced());
+
+      broker.setCapability('emailFirst', 'forced');
+      assert.isTrue(view.isEmailFirstForced());
+    });
+
     describe('beforeRender', () => {
       beforeEach(() => {
         sandbox.spy(view, 'createExperiment');
@@ -121,7 +130,17 @@ define(function(require, exports, module) {
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('/'));
       });
 
+      it('goes to treatmentPathname if email-first is forced', () => {
+        sandbox.stub(view, 'isEmailFirstForced').callsFake(() => true);
+
+        view.beforeRender();
+
+        assert.isTrue(view.replaceCurrentPage.calledOnce);
+        assert.isTrue(view.replaceCurrentPage.calledWith('/'));
+      });
+
       it('does nothing for users not in the experiment', () => {
+        sandbox.stub(view, 'isEmailFirstForced').callsFake(() => false);
         sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => false);
         sandbox.stub(view, 'isInEmailFirstExperimentGroup').callsFake(() => false);
 
@@ -133,6 +152,7 @@ define(function(require, exports, module) {
       });
 
       it('creates the experiment for users in the control group, does not redirect', () => {
+        sandbox.stub(view, 'isEmailFirstForced').callsFake(() => false);
         sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
         sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'control');
 
@@ -147,6 +167,7 @@ define(function(require, exports, module) {
       });
 
       it('creates the experiment for users in the treatment group, redirects if treatmentPathname specified', () => {
+        sandbox.stub(view, 'isEmailFirstForced').callsFake(() => false);
         sandbox.stub(view, 'isInEmailFirstExperiment').callsFake(() => true);
         sandbox.stub(view, 'getEmailFirstExperimentGroup').callsFake(() => 'treatment');
 

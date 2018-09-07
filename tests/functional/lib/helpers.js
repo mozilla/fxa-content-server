@@ -1353,6 +1353,16 @@ function openFxaFromUntrustedRp(page, options) {
   return openFxaFromRp(page, options);
 }
 
+const fillOutEmailFirstSignIn = thenify(function (email, password, options = {}) {
+  return this.parent
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+    .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email)) //eslint-disable-line no-use-before-define
+    .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, password))
+    .then(click(selectors.SIGNIN_PASSWORD.SUBMIT));
+});
+
 const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
   return this.parent
     .getCurrentUrl()
@@ -1390,6 +1400,23 @@ const fillOutSignInTokenCode = thenify(function (email, number) {
         .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode));
     })
     .then(click('button[type=submit]'));
+});
+
+const fillOutEmailFirstSignUp = thenify(function (email, password, options = {}) {
+  const age = options.age || 24;
+  const vpassword = options.vpassword || password;
+
+  return this.parent
+    .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+    .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+    .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email)) //eslint-disable-line no-use-before-define
+    .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, password))
+    .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
+    .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, vpassword))
+    .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_VPASSWORD))
+    .then(type(selectors.SIGNUP_PASSWORD.AGE, age))
+    .then(click(selectors.SIGNUP_PASSWORD.SUBMIT));
 });
 
 const fillOutSignUp = thenify(function (email, password, options) {
@@ -2150,6 +2177,8 @@ module.exports = {
   fillOutChangePassword: fillOutChangePassword,
   fillOutCompleteResetPassword: fillOutCompleteResetPassword,
   fillOutDeleteAccount: fillOutDeleteAccount,
+  fillOutEmailFirstSignIn,
+  fillOutEmailFirstSignUp,
   fillOutForceAuth: fillOutForceAuth,
   fillOutRecoveryKey: fillOutRecoveryKey,
   fillOutResetPassword: fillOutResetPassword,
