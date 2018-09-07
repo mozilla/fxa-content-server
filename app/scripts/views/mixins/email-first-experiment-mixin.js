@@ -9,7 +9,7 @@
  *
  * @mixin EmailFirstExperimentMixin
  */
-const ExperimentMixin = require('./experiment-mixin');
+import ExperimentMixin from './experiment-mixin';
 const EXPERIMENT_NAME = 'emailFirst';
 
 /**
@@ -24,14 +24,23 @@ module.exports = (options = {}) => {
     dependsOn: [ ExperimentMixin ],
 
     beforeRender () {
+      let redirectTo;
+
       if (this.relier.get('action') === 'email' && options.treatmentPathname) {
-        this.replaceCurrentPage(options.treatmentPathname);
+        redirectTo = options.treatmentPathname;
       } else if (this.isInEmailFirstExperiment()) {
         const experimentGroup = this.getEmailFirstExperimentGroup();
         this.createExperiment(EXPERIMENT_NAME, experimentGroup);
         if (experimentGroup === 'treatment' && options.treatmentPathname) {
-          this.replaceCurrentPage(options.treatmentPathname);
+          redirectTo = options.treatmentPathname;
         }
+      }
+
+      if (redirectTo) {
+        // Pass this view's model data to the page being redirected to. This
+        // allows data like `redirectTo` or `account` to be propagated to
+        // the email-first view.
+        this.replaceCurrentPage(options.treatmentPathname, this.model.toJSON());
       }
     },
 
