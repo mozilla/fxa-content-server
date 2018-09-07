@@ -47,6 +47,7 @@ import SentryMetrics from './sentry';
 import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
+import SupplicantRelier from '../models/reliers/supplicant';
 import SyncRelier from '../models/reliers/sync';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
@@ -57,6 +58,9 @@ import uuid from 'uuid';
 import WebChannel from './channels/web';
 
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
+
+const DEVICE_PAIRING_AUTH_PATHNAME_REGEXP = /^\/pair\/auth/;
+const DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP = /^\/pair\/supp/;
 
 function Start(options = {}) {
   this._authenticationBroker = options.broker;
@@ -259,7 +263,21 @@ Start.prototype = {
       // as the OAuth check - when users sign up for Sync
       // and verify in a 2nd browser, all we have to know the user
       // is completing a Sync flow is `service=sync`.
-      if (this._isOAuth()) {
+
+      if (this.isDevicePairingAsAuthority()) {
+        relier = new SupplicantRelier({}, {
+          config: this._config,
+          oAuthClientId: this._config.oAuthClientId,
+          oAuthUrl: this._config.oAuthUrl
+        });
+      } else if (this.isDevicePairingAsSupplicant()) {
+        relier = new SupplicantRelier({}, {
+          config: this._config,
+          isSupplicant: true,
+          oAuthClientId: this._config.oAuthClientId,
+          oAuthUrl: this._config.oAuthUrl
+        });
+      } else if (this._isOAuth()) {
         relier = new OAuthRelier({ context }, {
           config: this._config,
           isVerification: this._isVerification(),
@@ -298,7 +316,11 @@ Start.prototype = {
   initializeAuthenticationBroker () {
     if (! this._authenticationBroker) {
       let context;
-      if (this._isFxDesktopV2()) {
+      if (this.isDevicePairingAsAuthority()) {
+        context = Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT;
+      } else if (this.isDevicePairingAsSupplicant()) {
+        context = Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT;
+      } else if (this._isFxDesktopV2()) {
         if (this._isIframeContext()) {
           context = Constants.FX_FIRSTRUN_V1_CONTEXT;
         } else {
@@ -317,6 +339,7 @@ Start.prototype = {
       const Constructor = authBrokers.get(context);
       this._authenticationBroker = new Constructor({
         assertionLibrary: this._assertionLibrary,
+        config: this._config,
         fxaClient: this._fxaClient,
         iframeChannel: this._iframeChannel,
         isVerificationSameBrowser: this._isVerificationSameBrowser(),
@@ -470,6 +493,7 @@ Start.prototype = {
   createView (Constructor, options = {}) {
     const viewOptions = _.extend({
       broker: this._authenticationBroker,
+      config: this._config,
       createView: this.createView.bind(this),
       experimentGroupingRules: this._experimentGroupingRules,
       formPrefill: this._formPrefill,
@@ -613,6 +637,26 @@ Start.prototype = {
 
   _isServiceSync () {
     return this._isService(Constants.SYNC_SERVICE);
+  },
+
+  /**
+   * Is the user initiating a device pairing flow as
+   * the auth device?
+   *
+   * @returns {Boolean}
+   */
+  isDevicePairingAsAuthority () {
+    return DEVICE_PAIRING_AUTH_PATHNAME_REGEXP.test(this._window.location.pathname);
+  },
+
+  /**
+   * Is the user initiating a device pairing flow as
+   * the supplicant device?
+   *
+   * @returns {Boolean}
+   */
+  isDevicePairingAsSupplicant () {
+    return DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this._window.location.pathname);
   },
 
   _isServiceOAuth () {

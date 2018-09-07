@@ -6,20 +6,18 @@
  * Derive scope-specific keys from account master keys.
  */
 
-
-function importFxaCryptoDeriver() {
-  return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
-}
+import encryptBundle from './encrypt';
+import importFxaCryptoDeriver from './deriver';
 
 /**
- * Given an inputKey, generate the matching relier-specific derived scoped key.
- *
- * @param {Object} inputKey - Key used to derive from
- * @param {String} uid - Account UID
- * @param {Object} keyData - OAuth client data that is required to derive keys
- * @returns {Promise} A promise that will resolve with an object having a scoped key
- *   The key is represented as a JWK object.
- */
+   * Given an inputKey, generate the matching relier-specific derived scoped key.
+   *
+   * @param {Object} inputKey - Key used to derive from
+   * @param {String} uid - Account UID
+   * @param {Object} keyData - OAuth client data that is required to derive keys
+   * @returns {Promise} A promise that will resolve with an object having a scoped key
+   *   The key is represented as a JWK object.
+   */
 function _deriveScopedKeys(inputKey, uid, keyData) {
   return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
     if (! inputKey) {
@@ -66,14 +64,11 @@ function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
         bundleObject[derivedKey.scope] = derivedKey;
       });
 
-      return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
-        const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-        return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
-      });
+      return encryptBundle(bundleObject, keysJwk);
     });
 }
 
-module.exports = {
+export default {
   createEncryptedBundle,
   _deriveScopedKeys
 };

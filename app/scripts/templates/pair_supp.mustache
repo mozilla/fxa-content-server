@@ -1,0 +1,16 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-pair-auth-header">
+      {{#t}}Connect Another Device{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    {{^qrcodeSrc}}
+      <div class="info">{{#t}}Creating channel with server{{/t}}</div>
+    {{/qrcodeSrc}}
+  </section>
+</div>

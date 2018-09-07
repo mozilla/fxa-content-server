@@ -1069,16 +1069,32 @@ const Account = Backbone.Model.extend({
      * Fetch keys for the account. Requires account to have
      * `keyFetchToken` and `unwrapBKey`
      *
+     * @param {String} [password]
+     * @param {Object} [relier] only needed if password is passed
      * @returns {Promise} that resolves with the account keys, if they
      *   can be generated, resolves with null otherwise.
      */
-  accountKeys () {
-    if (! this.canFetchKeys()) {
-      return Promise.resolve(null);
-    }
+  accountKeys (password, relier) {
+    return Promise.resolve()
+      .then(() => {
+        if (password) {
+          return this._fxaClient.sessionReauth(this.get('sessionToken'), this.get('email'), password, relier)
+            .then(result => {
+              this.set({
+                keyFetchToken: result.keyFetchToken,
+                unwrapBKey: result.unwrapBKey
+              });
+            });
+        }
+      })
+      .then(() => {
+        if (! this.canFetchKeys()) {
+          return Promise.resolve(null);
+        }
 
-    return this._fxaClient.accountKeys(
-      this.get('keyFetchToken'), this.get('unwrapBKey'));
+        return this._fxaClient.accountKeys(
+          this.get('keyFetchToken'), this.get('unwrapBKey'));
+      });
   },
   /**
      * Check whether password reset is complete for the given token

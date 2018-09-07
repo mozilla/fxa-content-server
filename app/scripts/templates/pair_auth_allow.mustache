@@ -1,0 +1,29 @@
+<div id="main-content" class="card pair-auth">
+  <header>
+    <h1 id="fxa-pair-auth-allow-header">
+      {{#t}}Connect with device?{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form novalidate>
+      {{{ unsafeDeviceBeingPairedHTML }}}
+
+      <label for="password" class="left">{{#t}}Enter your password to confirm{{/t}}</label>
+      <div class="input-row password-row">
+        <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus />
+      </div>
+
+      <div class="button-row">
+        <button type="submit">{{#t}}Allow{{/t}}</button>
+      </div>
+
+      <div class="links">
+        <a href="#" id="cancel">{{#t}}Cancel{{/t}}</a>
+      </div>
+    </form>
+  </section>
+  </div>

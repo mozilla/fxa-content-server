@@ -1,0 +1,9 @@
+<div class="client-container">
+  <aside class="client {{ metaData.deviceType }}">
+    <div>{{#t}}%(family)s on %(OS)s{{/t}}</div>
+    <div>{{#t}}Near %(location)s{{/t}}</div>
+    {{#confirmationCode}}
+    <div>{{#t}}Confirmation code: %(confirmationCode)s{{/t}}</div>
+    {{/confirmationCode}}
+  </aside>
+</div>

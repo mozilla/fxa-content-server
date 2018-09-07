@@ -229,3 +229,17 @@ input[type='checkbox'] {
     column-width: 118px;
   }
 }
+
+.pair-auth {
+  .client-container {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    .client {
+      background-position: left center !important;
+      text-align: left;
+    }
+  }
+}

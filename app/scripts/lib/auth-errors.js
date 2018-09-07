@@ -496,7 +496,16 @@ define(function (require, exports, module) {
     TOKEN_VERIFICATION_CODE_REQUIRED: {
       errno: 1060,
       message: t('Please enter verification code')
-    }
+    },
+    PAIRING_CHANNEL_CONNECTION_ERROR: {
+      errno: 1061,
+      message: t('Unable to create channel with server')
+    },
+    PAIRING_CHANNEL_CONNECTION_CLOSED: {
+      errno: 1062,
+      message: t('Connection closed, please try again')
+    },
+
   };
   /*eslint-enable sorting/sort-object-props*/
 
