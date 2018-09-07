@@ -87,7 +87,7 @@ describe('views/account_recovery_confirm_key', () => {
       const args = account.passwordForgotVerifyCode.args[0];
       assert.equal(args[0], code, 'called with code');
       assert.equal(args[1], token, 'called with token');
-      assert.equal(args[2], options, 'called with options');
+      assert.deepEqual(args[2], options, 'called with options');
     });
 
     it('should call getRecoveryBundle', () => {

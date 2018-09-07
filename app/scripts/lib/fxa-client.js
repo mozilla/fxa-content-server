@@ -1093,11 +1093,12 @@ define(function (require, exports, module) {
      *
      * @param {String} passwordForgotCode - password forgot code
      * @param {String} passwordForgotToken - password forgot token
-     * @param {Object} [options={}] Options like accountResetWithRecoveryKey
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with recovery key
      * @returns {Promise} resolves with response when complete.
      */
     passwordForgotVerifyCode: withClient((client, passwordForgotCode, passwordForgotToken, options = {}) => {
-      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, {});
+      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, options, {});
     }),
 
     /**
