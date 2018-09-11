@@ -67,7 +67,8 @@ class PairAuthView extends BaseView {
       uid,
     }, '#');
 
-    return `${document.location.origin}/pair/supp${hash}`;
+    return `http://192.168.1.229:8081${hash}`;
+    //return `${document.location.origin}/pair/supp${hash}`;
   }
 }
 

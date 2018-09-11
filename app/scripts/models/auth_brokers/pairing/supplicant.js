@@ -48,6 +48,7 @@ export default class SupplicantBroker extends OAuthBroker {
   afterPairSupplicantAllow () {
     return Promise.resolve().then(() => {
       if (! this.relier.get('keysJwk')) {
+        console.log('generating PKCE params');
         return this.getOAuthUtils().then(oauthUtils => {
           return oauthUtils.getKeyFlowParams(this._oAuthClientId, {
             redirectUri: DEVICE_PAIRING_REDIRECT_URI,

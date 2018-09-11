@@ -83,15 +83,15 @@ export default class ChannelServerClient extends Model {
   }
 
   encryptedMessageHandler (event) {
-    // TODO - the format of the envelope is going to change
-    // to include an encrypted envelope and the supp metadata
     this.stopUpdateInterval();
-    const ciphertext = JSON.parse(event.data).message;
+    const { message: ciphertext, sender } = JSON.parse(event.data);
     this._decrypt(ciphertext).then(decrypted => {
       const { data, message } = decrypted;
 
       data.confirmationCode = this._getConfirmationCode();
       data.channelServerClient = this;
+      // TODO - get the location info out of here.
+      data.sender = sender;
 
       this.trigger(message, data);
       this._notifier.trigger(message, data);
@@ -110,6 +110,8 @@ export default class ChannelServerClient extends Model {
       data,
       message,
     };
+
+    console.log('sending', envelope);
 
     return this._encrypt(envelope)
       .then(bundle => this.socket.send(bundle));

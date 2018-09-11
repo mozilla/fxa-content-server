@@ -5,7 +5,7 @@
 
 import { DEVICE_PAIRING_REDIRECT_URI, DEVICE_PAIRING_SCOPES } from '../../lib/constants';
 import OAuthErrors from '../../lib/oauth-errors';
-import Relier from './relier';
+import OAuthRelier from './oauth';
 import Vat from '../../lib/vat';
 
 /*eslint-disable camelcase, sorting/sort-object-props*/
@@ -21,6 +21,18 @@ const SENT_TO_AUTHORITY_FROM_SUPPLICANT_SCHEMA = {
   state: Vat.string().required()
 };
 
+var SUPPLICANT_QUERY_PARAM_SCHEMA = {
+  access_type: Vat.accessType().renameTo('accessType'),
+  client_id: Vat.clientId().required().renameTo('clientId'),
+  code_challenge: Vat.codeChallenge().required().renameTo('codeChallenge'),
+  code_challenge_method: Vat.codeChallengeMethod().required().renameTo('codeChallengeMethod'),
+  keys_jwk: Vat.keysJwk().required().renameTo('keysJwk'),
+  redirect_uri: Vat.url().required().renameTo('redirectUri'),
+  response_type: Vat.string().required().valid('token', 'code').renameTo('responseType'),
+  scope: Vat.string().required().min(1),
+  state: Vat.string().required()
+};
+
 const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
   channelId: Vat.hex().len(32).required(),
   symmetricKey: Vat.string().len(32).required(),
@@ -28,7 +40,7 @@ const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
 };
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
-export default class SupplicantRelier extends Relier {
+export default class SupplicantRelier extends OAuthRelier {
   initialize (attrs, config = {}) {
     super.initialize(attrs, config);
 
@@ -37,7 +49,7 @@ export default class SupplicantRelier extends Relier {
 
   fetch () {
     if (this._isSupplicant) {
-      return this.initializeAsSupplicant();
+      this.initializeAsSupplicant();
     }
   }
 
@@ -50,7 +62,7 @@ export default class SupplicantRelier extends Relier {
       code_challenge_method: this.get('codeChallengeMethod'),
       keys_jwk: this.get('keysJwk'),
       redirect_uri: this.get('redirectUri'),
-      response_type: this.get('responseType'),
+      response_type: this.get('responseType') || 'code', // TODO || code? That should be from the model.
       scope: this.get('scope'),
       state: this.get('state'),
       /*eslint-enable camelcase*/
@@ -64,6 +76,7 @@ export default class SupplicantRelier extends Relier {
 
   initializeAsSupplicant () {
     this.importHashParamsUsingSchema(SUPPLICANT_HASH_PARAMETER_SCHEMA, OAuthErrors);
+    this.importSearchParamsUsingSchema(SUPPLICANT_QUERY_PARAM_SCHEMA, OAuthErrors);
   }
 
   wantsKeys () {

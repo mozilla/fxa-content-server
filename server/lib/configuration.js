@@ -439,7 +439,8 @@ const conf = module.exports = convict({
         },
         'https://identity.mozilla.com/apps/oldsync': {
           redirectUris: [
-            'https://lockbox.firefox.com/fxa/ios-redirect.html'
+            'https://lockbox.firefox.com/fxa/ios-redirect.html',
+            'urn:foxes-are-better-together'
           ]
         }
       },

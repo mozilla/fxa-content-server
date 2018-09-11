@@ -14,6 +14,8 @@ class PairAuthWaitForSuppView extends BaseView {
     if (! this.model.get('channelServerClient')) {
       this.navigate('pair/auth');
     }
+
+    this.relier.set('senderMetaData', this.model.get('senderMetaData'));
   }
 }
 
