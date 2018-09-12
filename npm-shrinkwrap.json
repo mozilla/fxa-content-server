@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.119.3",
+  "version": "1.120.1",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -6202,8 +6202,9 @@
       }
     },
     "fxa-crypto-relier": {
-      "version": "git://github.com/mozilla/fxa-crypto-relier.git#cbe8fd11f75347a204e7efb757b4db4830c3d848",
-      "from": "git://github.com/mozilla/fxa-crypto-relier.git#pairsona-extensions",
+      "version": "2.3.0",
+      "resolved": "https://registry.npmjs.org/fxa-crypto-relier/-/fxa-crypto-relier-2.3.0.tgz",
+      "integrity": "sha1-IMygNQ16/O2AvKSSjNhA22/CgIs=",
       "requires": {
         "base64url": "^3.0.0",
         "node-hkdf": "0.0.2",
