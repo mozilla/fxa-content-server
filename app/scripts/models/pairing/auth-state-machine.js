@@ -27,38 +27,14 @@ class WaitForConnectionToChannelServer extends AuthState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.channelServerClient, 'connected', this.gotoWaitForSuppConnection);
+    this.listenTo(this.channelServerClient, 'connected', this.gotoWaitForSuppRequest);
   }
 
   connectionClosed () {
     // do nothing on connection closed
   }
 
-  gotoWaitForSuppConnection () {
-    this.gotoState(WaitForSuppConnection);
-  }
-}
-
-class WaitForSuppConnection extends AuthState {
-  name = 'WaitForSuppConnection';
-
-  constructor (...args) {
-    super(...args);
-
-    this.listenTo(this.channelServerClient, 'pair:supp:connected', this.gotoWaitForSuppRequest);
-  }
-
-  connectionClosed () {
-    // do nothing on connection closed
-  }
-
-  gotoWaitForSuppRequest (data) {
-    // let the supp know that we are connected. w/o the message
-    // the supp will not advance.
-    this.channelServerClient.send('pair:auth:connected');
-
-    this.navigate('pair/auth/wait_for_supp', data);
-
+  gotoWaitForSuppRequest () {
     this.gotoState(WaitForSuppRequest);
   }
 }
@@ -68,12 +44,16 @@ class WaitForSuppRequest extends AuthState {
 
   constructor (...args) {
     super(...args);
+    this.navigate('pair/auth/wait_for_supp');
 
     this.listenTo(this.channelServerClient, 'pair:supp:request', this.gotoWaitForAuthApprove);
   }
 
   gotoWaitForAuthApprove (data) {
     this.navigate('pair/auth/allow', data);
+
+    // TODO - send the user & service metadata here too.
+    this.channelServerClient.send('pair:auth:metadata', {});
 
     this.gotoState(WaitForAuthApprove);
   }

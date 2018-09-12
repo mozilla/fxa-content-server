@@ -10,33 +10,11 @@ import Template from '../../templates/pair_supp_wait_for_auth.mustache';
 class PairSuppWaitForAuthView extends BaseView {
   template = Template;
 
-  events = {
-    'click #retry': 'tradeCodeForKeys'
-  };
-
   initialize (options) {
     super.initialize(options);
 
     this.listenTo(this.model, 'change', this.render);
-  }
-
-  beforeRender() {
-    if (! this.relier.get('senderMetaData')) {
-      this.navigate('pair/supp');
-    }
-  }
-
-  afterVisible () {
-    this.listenTo(this.broker.channelServerClient, 'pair:auth:approve', this.validateAndCompleteApproval);
-  }
-
-  validateAndCompleteApproval (approvalData) {
-    return Promise.resolve().then(() => {
-      this.relier.validateApprovalData(approvalData);
-      const { code, redirect, state } = approvalData;
-
-      return this.invokeBrokerMethod('afterCodeReceived', code, redirect, state);
-    }).catch(err => this.displayError(err));
+    this.listenTo(this.broker, 'error', this.displayError);
   }
 }
 

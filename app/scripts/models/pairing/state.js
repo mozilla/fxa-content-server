@@ -15,7 +15,10 @@ export class State extends Model {
     this.listenTo(this.channelServerClient, 'close', () => this.connectionClosed());
     this.listenTo(this.channelServerClient, 'error', () => this.connectionError());
 
+    this.broker = options.broker;
     this.notifier = options.notifier;
+    this.parent = options.parent;
+    this.relier = options.relier;
 
     this.onBeforeUnload = () => {
       this.gotoState(CompleteState);
@@ -37,8 +40,8 @@ export class State extends Model {
     super.destroy();
   }
 
-  gotoState (NextState) {
-    this.trigger('goto.state', NextState);
+  gotoState (NextState, attrs) {
+    this.trigger('goto.state', NextState, attrs);
   }
 
   navigate (url, nextViewData) {

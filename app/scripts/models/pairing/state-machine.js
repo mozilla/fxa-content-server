@@ -8,8 +8,10 @@ class SuppStateMachine extends Model {
   constructor(attrs, options = {}) {
     super(attrs, options);
 
+    this.broker = options.broker;
     this.channelServerClient = options.channelServerClient;
     this.notifier = options.notifier;
+    this.relier = options.relier;
   }
 
   createState(StateConstructor, attrs = {}) {
@@ -20,8 +22,11 @@ class SuppStateMachine extends Model {
     }
 
     this.state = new StateConstructor(attrs, {
+      broker: this.broker,
       channelServerClient: this.channelServerClient,
-      notifier: this.notifier
+      notifier: this.notifier,
+      parent: this,
+      relier: this.relier,
     });
 
     this.listenTo(this.state, 'goto.state', this.createState);

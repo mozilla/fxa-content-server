@@ -28,28 +28,31 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
       });
 
       this.suppStateMachine = new SupplicantStateMachine({}, {
+        broker: this,
         channelServerClient: this.channelServerClient,
         notifier,
+        relier
       });
 
       this.channelServerClient.attachToExisting();
     }
   }
 
-  afterPairSupplicantAllow () {
+  afterSupplicantApprove () {
     return Promise.resolve().then(() => {
-      this.notifier.trigger('pair:supp:request', this.relier.getPKCEParams());
+      this.notifier.trigger('pair:supp:approve');
     });
   }
 
-  afterCodeReceived (code, redirectUri, state) {
-    const result = {
-      redirect: Url.updateSearchString(redirectUri, {
-        code,
-        state
-      })
-    };
+  sendCodeToRelier () {
+    return Promise.resolve().then(() => {
+      const relier = this.relier;
+      const result = {
+        redirect: Url.updateSearchString(relier.get('redirectUri'), relier.pick('code', 'state'))
+      };
 
-    this.sendOAuthResultToRelier(result);
+      this.sendOAuthResultToRelier(result);
+    });
   }
+
 }

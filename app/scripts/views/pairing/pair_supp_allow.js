@@ -19,7 +19,7 @@ class PairSuppAllowView extends FormView {
   }
 
   submit () {
-    return this.invokeBrokerMethod('afterPairSupplicantAllow');
+    return this.invokeBrokerMethod('afterSupplicantApprove');
   }
 }
 

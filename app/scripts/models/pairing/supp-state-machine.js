@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import AuthErrors from '../../lib/auth-errors';
-import { assign } from 'underscore';
 import { CompleteState, State } from './state';
 import StateMachine from './state-machine';
 
@@ -29,91 +28,120 @@ class WaitForConnectionToChannelServer extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.channelServerClient, 'connected', this.gotoWaitForAuthentication);
+    this.listenTo(this.channelServerClient, 'connected', this.gotoSendOAuthRequestWaitForAccountMetadata);
   }
 
   connectionClosed () {
     // do nothing on connection closed
   }
 
-  gotoWaitForAuthentication () {
-    this.channelServerClient.send('pair:supp:connected');
-
-    this.gotoState(WaitForAuthConnection);
+  gotoSendOAuthRequestWaitForAccountMetadata () {
+    this.gotoState(SendOAuthRequestWaitForAccountMetadata);
   }
 }
 
-class WaitForAuthConnection extends SupplicantState {
-  name = 'WaitForAuthConnection';
+class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
+  name = 'WaitForAccountMetadata';
 
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:auth:connected', this.gotoWaitForSuppRequest);
+    this.channelServerClient.send('pair:supp:request', this.relier.getPKCEParams());
+
+    this.listenTo(this.notifier, 'pair:auth:metadata', this.gotoWaitForApprovals);
   }
 
-  gotoWaitForSuppRequest (data) {
-    this.navigate('pair/supp/allow', data);
-
-    this.gotoState(WaitForSuppRequest);
+  gotoWaitForApprovals (data) {
+    console.log('sender meta data', data);
+    this.gotoState(WaitForApprovals, data);
   }
 }
 
-class WaitForSuppRequest extends SupplicantState {
-  name = 'WaitForSuppRequest';
+class WaitForApprovals extends SupplicantState {
+  name = 'WaitForApprovals';
 
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:supp:request', this.gotoWaitForAuthResponse);
+    this.navigate('pair/supp/allow', this.pick('senderMetaData'));
+
+    this.listenTo(this.notifier, 'pair:auth:approve', this.onAuthApprove);
+    this.listenTo(this.notifier, 'pair:supp:approve', this.onSuppApprove);
   }
 
-  gotoWaitForAuthResponse (params) {
-    this.channelServerClient.send('pair:supp:request', params);
+  onAuthApprove (approvalData) {
+    return Promise.resolve().then(() => {
+      this.relier.validateApprovalData(approvalData);
+      const { code } = approvalData;
 
-    this.navigate('pair/supp/wait_for_auth', assign({
-      flowParams: params
-    }));
+      this.relier.set({ code });
+      this.set('authApproves', true);
 
-    this.gotoState(WaitForAuthResponse);
+      this.gotoState(WaitForSuppApprove);
+    }).catch(err => this.trigger('error', err));
+  }
+
+  onSuppApprove (data) {
+    this.gotoState(WaitForAuthApprove);
   }
 }
 
-class WaitForAuthResponse extends SupplicantState {
-  name = 'WaitForAuthResponse';
+class WaitForSuppApprove extends SupplicantState {
+  name = 'WaitForSuppApprove';
 
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:auth:approve', this.gotoWaitForSuppComplete);
+    this.listenTo(this.notifier, 'pair:supp:approve', this.gotoSendResultToRelier);
   }
 
-  gotoWaitForSuppComplete (data) {
-    // no screen transition here
-    this.gotoState(WaitForSuppComplete);
+
+  gotoSendResultToRelier () {
+    this.gotoState(SendResultToRelier);
   }
 }
 
-// TODO - this won't actually be needed anymore now
-// that we redirect back to the relier.
-class WaitForSuppComplete extends SupplicantState {
-  name = 'WaitForSuppComplete';
+class WaitForAuthApprove extends SupplicantState {
+  name = 'WaitForAuthApprove';
+
+  constructor (...args) {
+    super(...args);
+    this.navigate('/pair/supp/wait_for_auth');
+
+    this.listenTo(this.notifier, 'pair:auth:approve', this.gotoSendResultToRelier);
+  }
+
+
+  gotoSendResultToRelier (result) {
+    return Promise.resolve().then(() => {
+      this.relier.validateApprovalData(result);
+      const { code } = result;
+
+      this.relier.set({ code });
+      this.set('authApproves', true);
+
+      this.gotoState(SendResultToRelier);
+    }).catch(err => this.trigger('error', err));
+  }
+}
+
+class SendResultToRelier extends SupplicantState {
+  name = 'SendResultToRelier';
 
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:supp:complete', this.gotoComplete);
-  }
+    // TODO - should the user be required to click a button
+    // to go back to the relier?
+    //this.navigate('/pair/supp/complete');
 
-  gotoComplete ({ model, result }) {
-    console.log('decrypted result', result);
-
-    this.navigate('pair/supp/complete', model);
-
-    this.gotoState(CompleteState);
+    this.broker.sendCodeToRelier()
+      .then(() => {
+        this.gotoState(CompleteState);
+      })
+      .catch(err => this.trigger('error', err));
   }
 }
-
 
 class SupplicantStateMachine extends StateMachine {
   constructor(attrs, options = {}) {
