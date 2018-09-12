@@ -20,7 +20,7 @@ Cocktail.mixin(
   ModalSettingsPanelMixin
 );
 
-describe.only('views/mixins/modal-settings-panel-mixin', () => {
+describe('views/mixins/modal-settings-panel-mixin', () => {
   let notifier;
   let view;
 
