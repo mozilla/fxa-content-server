@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 
-import { DEVICE_PAIRING_REDIRECT_URI, DEVICE_PAIRING_SCOPES } from '../../lib/constants';
+import { DEVICE_PAIRING_SCOPES } from '../../lib/constants';
 import OAuthErrors from '../../lib/oauth-errors';
 import OAuthRelier from './oauth';
 import Vat from '../../lib/vat';
@@ -16,7 +16,7 @@ const SENT_TO_AUTHORITY_FROM_SUPPLICANT_SCHEMA = {
   code_challenge_method: Vat.codeChallengeMethod().required().renameTo('codeChallengeMethod'),
   keys_jwk: Vat.keysJwk().required().renameTo('keysJwk'),
   response_type: Vat.string().required().valid('token', 'code').renameTo('responseType'),
-  redirect_uri: Vat.string().required().valid(DEVICE_PAIRING_REDIRECT_URI).renameTo('redirectUri'),
+  redirect_uri: Vat.url().required().renameTo('redirectUri'),
   scope: Vat.string().required().valid(DEVICE_PAIRING_SCOPES.join(' ')),
   state: Vat.string().required()
 };

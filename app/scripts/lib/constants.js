@@ -138,6 +138,6 @@ module.exports = {
   DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',
   DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
   DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
-  DEVICE_PAIRING_REDIRECT_URI: 'urn:foxes-are-better-together',
+//  DEVICE_PAIRING_REDIRECT_URI: 'urn:foxes-are-better-together',
 };
 /*eslint-enable sorting/sort-object-props*/

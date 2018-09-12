@@ -33,11 +33,9 @@ class PairSuppWaitForAuthView extends BaseView {
   validateAndCompleteApproval (approvalData) {
     return Promise.resolve().then(() => {
       this.relier.validateApprovalData(approvalData);
+      const { code, redirect, state } = approvalData;
 
-      const { code } = approvalData;
-      this.model.set('code', code);
-
-      return this.invokeBrokerMethod('afterCodeReceived', code);
+      return this.invokeBrokerMethod('afterCodeReceived', code, redirect, state);
     }).catch(err => this.displayError(err));
   }
 }

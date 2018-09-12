@@ -94,6 +94,8 @@ class WaitForAuthResponse extends SupplicantState {
   }
 }
 
+// TODO - this won't actually be needed anymore now
+// that we redirect back to the relier.
 class WaitForSuppComplete extends SupplicantState {
   name = 'WaitForSuppComplete';
 
