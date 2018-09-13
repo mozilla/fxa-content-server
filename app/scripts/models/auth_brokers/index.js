@@ -71,6 +71,10 @@ const AUTH_BROKERS = [
   {
     context: Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT,
     Constructor: require('../auth_brokers/pairing/supplicant').default
+  },
+  {
+    context: Constants.DEVICE_PAIRING_AUTHORITY_HYBRID_CONTEXT,
+    Constructor: require('../auth_brokers/oauth-pair-hybrid').default
   }
   /* eslint-enable sorting/sort-object-props */
 ].reduce((authBrokers, authBroker) => {

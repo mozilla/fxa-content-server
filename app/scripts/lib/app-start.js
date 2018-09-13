@@ -327,7 +327,9 @@ Start.prototype = {
           context = Constants.FX_DESKTOP_V2_CONTEXT;
         }
       } else if (this._isOAuth()) {
-        if (this.getUserAgent().isChromeAndroid()) {
+        if (this.isDevicePairingAsAuthorityHybrid()) {
+          context = Constants.DEVICE_PAIRING_AUTH_HYBRID_CONTEXT;
+        } else if (this.getUserAgent().isChromeAndroid()) {
           context = Constants.OAUTH_CHROME_ANDROID_CONTEXT;
         } else {
           context = Constants.OAUTH_CONTEXT;
@@ -647,6 +649,10 @@ Start.prototype = {
    */
   isDevicePairingAsAuthority () {
     return DEVICE_PAIRING_AUTH_PATHNAME_REGEXP.test(this._window.location.pathname);
+  },
+
+  isDevicePairingAsAuthorityHybrid () {
+    return this._window.location.search.indexOf(Constants.DEVICE_PAIRING_AUTH_HYBRID_REDIRECT_URI) !== -1;
   },
 
   /**

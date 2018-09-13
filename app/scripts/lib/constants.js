@@ -136,8 +136,10 @@ module.exports = {
   RECOVERY_KEY_LENGTH: 16,
 
   DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',
+  DEVICE_PAIRING_AUTHORITY_HYBRID_CONTEXT: 'device_pairing_authority_hybrid',
   DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
   DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+  DEVICE_PAIRING_AUTH_HYBRID_REDIRECT_URI: 'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
 //  DEVICE_PAIRING_REDIRECT_URI: 'urn:foxes-are-better-together',
 };
 /*eslint-enable sorting/sort-object-props*/
