@@ -30,6 +30,10 @@ const COMMANDS = {
   LOADED: 'fxaccounts:loaded',
   LOGIN: 'fxaccounts:login',
   LOGOUT: 'fxaccounts:logout',
+  PAIR_AUTHORIZE: 'fxaccounts:pair_authorize',
+  PAIR_DECLINE: 'fxaccounts:pair_decline',
+  PAIR_REQUEST_KEYS_JWE: 'fxaccounts:pair_keys_jwe',
+  PAIR_REQUEST_SUPPLICANT_METADATA: 'fxaccounts:pair_supplicant_metadata',
   PROFILE_CHANGE: 'profile:change',
   /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250

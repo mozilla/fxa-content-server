@@ -15,6 +15,7 @@ module.exports = function (config) {
   const MARKETING_EMAIL_API_URL = config.get('marketing_email.api_url');
   const MARKETING_EMAIL_PREFERENCES_URL = config.get('marketing_email.preferences_url');
   const OAUTH_SERVER_URL = config.get('oauth_url');
+  const PAIRING_CHANNEL_URL = config.get('device_pairing.channel_server_url');
   const PROFILE_SERVER_URL = config.get('profile_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
@@ -30,6 +31,7 @@ module.exports = function (config) {
     marketingEmailServerUrl: MARKETING_EMAIL_API_URL,
     oAuthClientId: CLIENT_ID,
     oAuthUrl: OAUTH_SERVER_URL,
+    pairingChannelServerUrl: PAIRING_CHANNEL_URL,
     profileUrl: PROFILE_SERVER_URL,
     release: RELEASE,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,

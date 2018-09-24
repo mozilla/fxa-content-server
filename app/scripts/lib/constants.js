@@ -133,6 +133,10 @@ module.exports = {
   // Ex. (28 char - 1 version char) * 5 bits = 135 bits
   RECOVERY_KEY_LENGTH: 28,
 
+  DEVICE_PAIRING_AUTHORITY_CONTEXT: 'device_pairing_authority',
+  DEVICE_PAIRING_AUTHORITY_REDIRECT_URI: 'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
   DEVICE_PAIRING_CHANNEL_KEY_BYTES: 32,
+  DEVICE_PAIRING_SCOPES: ['profile', 'https://identity.mozilla.com/apps/oldsync'],
+  DEVICE_PAIRING_SUPPLICANT_CONTEXT: 'device_pairing_supplicant',
 };
 /*eslint-enable sorting/sort-object-props*/

@@ -1,0 +1,34 @@
+<div class="client-container">
+  <aside class="client {{ metaData.deviceType }}">
+    {{#deviceName}}
+    <div>{{deviceName}}</div>
+    {{/deviceName}}
+    <div>{{#t}}%(family)s on %(OS)s{{/t}}</div>
+
+    {{#country}}
+      {{#city}}
+        {{#region}}
+          {{#t}}Near %(city)s, %(region)s, %(country)s{{/t}}
+        {{/region}}
+        {{^region}}
+          {{#t}}Near %(city)s, %(country)s{{/t}}
+        {{/region}}
+      {{/city}}
+      {{^city}}
+        {{#region}}
+          {{#t}}Near %(region)s, %(country)s{{/t}}
+        {{/region}}
+        {{^region}}
+          {{#t}}In %(country)s{{/t}}
+        {{/region}}
+      {{/city}}
+    {{/country}}
+    {{^country}}
+      <div>{{#t}}Location unknown{{/t}}</div>
+    {{/country}}
+
+    {{#confirmationCode}}
+    <div>{{#t}}Confirmation code: %(confirmationCode)s{{/t}}</div>
+    {{/confirmationCode}}
+  </aside>
+</div>

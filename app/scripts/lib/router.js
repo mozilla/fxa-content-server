@@ -117,6 +117,11 @@ const Router = Backbone.Router.extend({
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': 'onSignIn',
     'oauth/signup(/)': 'onSignUp',
+    'pair/auth/allow(/)': createViewHandler('pairing/pair_auth_allow'),
+    'pair/auth/complete(/)': createViewHandler('pairing/pair_auth_complete'),
+    'pair/supp(/)': createViewHandler('pairing/pair_supp', { force: true }),
+    'pair/supp/allow(/)': createViewHandler('pairing/pair_supp_allow'),
+    'pair/supp/wait_for_auth(/)': createViewHandler('pairing/pair_supp_wait_for_auth'),
     'primary_email_verified(/)': createViewHandler(ReadyView, { type: VerificationReasons.PRIMARY_EMAIL_VERIFIED }),
     'report_signin(/)': createViewHandler(ReportSignInView),
     'reset_password(/)': createViewHandler(ResetPasswordView),
@@ -216,6 +221,7 @@ const Router = Backbone.Router.extend({
   navigate (url, nextViewData = {}, options = {}) {
     url = this.broker.transformLink(url);
 
+    console.log('next view data', nextViewData);
     if (options.replace && this._viewModelStack.length) {
       this._viewModelStack[this._viewModelStack.length - 1] = createViewModel(nextViewData);
     } else {
@@ -236,6 +242,10 @@ const Router = Backbone.Router.extend({
       url = url + this.window.location.search;
     } else if (shouldClearQueryParams && hasQueryParams) {
       url = url.split('?')[0];
+    }
+
+    if (this.window.location.hash) {
+      url += this.window.location.hash;
     }
 
     return Backbone.Router.prototype.navigate.call(this, url, options);
@@ -281,6 +291,7 @@ const Router = Backbone.Router.extend({
      */
   getCurrentViewModel () {
     if (this._viewModelStack.length) {
+      console.log('get next view model', this._viewModelStack[this._viewModelStack.length - 1]);
       return this._viewModelStack[this._viewModelStack.length - 1];
     }
   },

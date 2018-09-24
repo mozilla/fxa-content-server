@@ -151,7 +151,10 @@ export default class ChannelServerClient extends Model {
     };
 
     return this._encrypt(envelope)
-      .then(ciphertext => this.socket.send(ciphertext));
+      .then(ciphertext => {
+        //console.log('ciphertext', ciphertext);
+        this.socket.send(ciphertext);
+      });
   }
 
   /**

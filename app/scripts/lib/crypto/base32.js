@@ -5,7 +5,6 @@
 import base32Decode from 'base32-decode';
 import importFxaCryptoDeriver from './deriver';
 
-
 // Base32 encoding based on Douglas Crockford
 // Ref: https://en.wikipedia.org/wiki/Base32#Crockford.27s_Base32
 const ALPHABET_BASE32 = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';

@@ -13541,8 +13541,9 @@
       "integrity": "sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c="
     },
     "ua-parser-js": {
-      "version": "git://github.com/vladikoff/ua-parser-js.git#643d1698aef5bed095e1264ae258902bf346175c",
-      "from": "git://github.com/vladikoff/ua-parser-js.git#fxa-version"
+      "version": "0.7.18",
+      "resolved": "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.18.tgz",
+      "integrity": "sha512-LtzwHlVHwFGTptfNSgezHp7WUlwiqb0gA9AALRbKaERfxwJoiX0A73QbTToxteIAuIaFshhgIZfqK8s7clqgnA=="
     },
     "uap-core": {
       "version": "git://github.com/ua-parser/uap-core.git#f330b0337297ec979196a762cbb351ee29fce403",

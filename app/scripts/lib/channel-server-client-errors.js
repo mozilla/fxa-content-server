@@ -44,7 +44,11 @@ export default assign({}, Errors, {
     COULD_NOT_DECRYPT: {
       errno: 1006,
       message: t('Could not decrypt message from the remote device')
-    }
+    },
+    CONNECTION_CLOSED: {
+      errno: 1007,
+      message: t('Connection to remote device closed, please try again')
+    },
 
   }
 });

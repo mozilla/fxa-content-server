@@ -56,7 +56,7 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
       this, options);
   },
 
-  getOAuthResult (account) {
+  getOAuthResult (account, options = {}) {
     if (! account || ! account.get('sessionToken')) {
       return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
     }
@@ -67,7 +67,9 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
       .then((asser) => {
         assertion = asser;
 
-        if (relier.wantsKeys()) {
+        if (options.keysJwe) {
+          return options.keysJwe;
+        } else if (relier.wantsKeys()) {
           return this._provisionScopedKeys(account, assertion);
         }
       })
@@ -96,10 +98,12 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
         // using the relier's locally-validated redirectUri.
         delete response.redirect;
         const result = Transform.transformUsingSchema(response, OAUTH_CODE_RESPONSE_SCHEMA, OAuthErrors);
-        result.redirect = Url.updateSearchString(relier.get('redirectUri'), {
-          code: result.code,
-          state: result.state
-        });
+        if (relier.get('redirectUri')) {
+          result.redirect = Url.updateSearchString(relier.get('redirectUri'), {
+            code: result.code,
+            state: result.state
+          });
+        }
         return result;
       });
   },

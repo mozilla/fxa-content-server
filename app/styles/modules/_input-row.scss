@@ -1,4 +1,12 @@
 
+  label {
+    @include body10();
+    color: $grey-90;
+    display: block;
+    margin-bottom: 4px;
+    text-align: left;
+  }
+
 .input-row {
   margin-bottom: 16px;
   position: relative;
