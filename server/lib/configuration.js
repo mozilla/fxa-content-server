@@ -129,6 +129,13 @@ const conf = module.exports = convict({
     }
     /*eslint-enable sorting/sort-object-props*/
   },
+  device_pairing: {
+    channel_server_url: {
+      default: 'ws://127.0.0.1:8058/v1/ws/',
+      doc: 'The url of the Pairing channel server',
+      env: 'PAIRING_CHANNEL_SERVER_URL'
+    }
+  },
   disable_locale_check: {
     default: false,
     doc: 'Skip checking for gettext .mo files for supported locales'
@@ -399,7 +406,9 @@ const conf = module.exports = convict({
           redirectUris: [
             'https://lockbox.firefox.com/fxa/ios-redirect.html',
             'https://lockbox.firefox.com/fxa/android-redirect.html',
-            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'
+            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77',
+            'https://lockbox.firefox.com/fxa/android-redirect.html',
+            'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel'
           ]
         },
         'https://identity.mozilla.com/apps/send': {

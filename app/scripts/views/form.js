@@ -53,13 +53,6 @@ var FormView = BaseView.extend({
   // Time to wait for a request to finish before showing a notice
   LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
-  constructor: function (options) {
-    BaseView.call(this, options);
-
-    // attach events of the descendent view and this view.
-    this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
-  },
-
   events: {
     'change form': ifFormValuesChanged(cancelEventThen('onFormChange')),
     'input form': ifFormValuesChanged(cancelEventThen('onFormChange')),
@@ -87,6 +80,9 @@ var FormView = BaseView.extend({
   },
 
   afterRender () {
+    // attach events of the descendent view and this view.
+    this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
+
     // Firefox has a strange issue where if the previous
     // screen was submit using the keyboard, the `enter` key's
     // `keyup` event fires here on the element that receives

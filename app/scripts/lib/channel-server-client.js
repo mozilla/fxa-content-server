@@ -151,7 +151,9 @@ export default class ChannelServerClient extends Model {
     };
 
     return this._encrypt(envelope)
-      .then(ciphertext => this.socket.send(ciphertext));
+      .then(ciphertext => {
+        this.socket.send(ciphertext);
+      });
   }
 
   /**
@@ -185,14 +187,14 @@ export default class ChannelServerClient extends Model {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
       }
 
-      const match = /^\/v1\/ws\/([0-9a-f]{32,32})$/.exec(link);
+      /*const match = /^\/v1\/ws\/([0-9a-z]{32,32})$/.exec(link);
       if (! match) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
       }
 
       if (expectedChannelId && match[1] !== expectedChannelId) {
         throw ChannelServerClientErrors.toError('CHANNEL_ID_MISMATCH');
-      }
+      }*/
     }).catch(err => {
       if (/JSON.parse/.test(err.message)) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
@@ -289,6 +291,7 @@ export default class ChannelServerClient extends Model {
         }
 
         data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
+        data.remoteMetaData.ipAddress = sender.remote;
 
         return {
           data,
@@ -343,7 +346,10 @@ export default class ChannelServerClient extends Model {
     }
 
     const channelKeyBuffer = base64url.toBuffer(channelKey);
-    const channelIdBuffer = base64url.toBuffer(channelId);
+    // The channelId is hex, but the browser uses it as a utf8 string
+    // so we do too so that we end up with the same encryption key.
+    // TODO: REMOVE? const channelIdBuffer = Buffer.from(channelId, 'utf8');
+    const channelIdBuffer = base64url.toBuffer(channelId);//Buffer.from(channelId, 'utf8');
 
     return Promise.all([
       this._deriveChannelJwk(channelKeyBuffer, channelIdBuffer),

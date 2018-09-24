@@ -1,0 +1,23 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-pair-failure-header">
+      {{#t}}Setup cancelled{{/t}}
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form novalidate>
+      <div class="graphic graphic-pair-failure">{{#t}}Setup cancelled{{/t}}</div>
+
+      <p>{{#t}}The setup process was aborted.{{/t}}</p>
+      {{#canTryAgain}}
+      <div class="button-row">
+        <button type="submit">{{#t}}Try again{{/t}}</button>
+      </div>
+      {{/canTryAgain}}
+    </form>
+  </section>
+  </div>
