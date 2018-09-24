@@ -37,6 +37,7 @@ require('./spec/lib/crypto/base32');
 require('./spec/lib/crypto/hkdf');
 require('./spec/lib/crypto/recovery-keys');
 require('./spec/lib/crypto/scoped-keys');
+require('./spec/lib/crypto/util');
 require('./spec/lib/dom-writer');
 require('./spec/lib/environment');
 require('./spec/lib/error-utils');

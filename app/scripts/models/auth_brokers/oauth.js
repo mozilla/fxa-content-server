@@ -97,10 +97,12 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
         // using the relier's locally-validated redirectUri.
         delete response.redirect;
         const result = Transform.transformUsingSchema(response, OAUTH_CODE_RESPONSE_SCHEMA, OAuthErrors);
-        result.redirect = Url.updateSearchString(relier.get('redirectUri'), {
-          code: result.code,
-          state: result.state
-        });
+        if (relier.get('redirectUri')) {
+          result.redirect = Url.updateSearchString(relier.get('redirectUri'), {
+            code: result.code,
+            state: result.state
+          });
+        }
         return result;
       });
   },

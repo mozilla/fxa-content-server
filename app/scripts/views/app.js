@@ -90,12 +90,12 @@ define(function (require, exports, module) {
      *
      * @returns {Promise}
      */
-    showView (View, options) {
+    showView (View, options = {}) {
       return Promise.resolve().then(() => {
         options.model = options.model || new Backbone.Model();
 
         var currentView = this._currentView;
-        if (currentView instanceof View) {
+        if (currentView instanceof View && options.force !== true) {
           // child view->parent view
           //
           // No need to re-render, only notify parties of the event.
