@@ -63,6 +63,13 @@ if (profile) {
   myProfile.setPreference('experiments.manifest.uri', '');
   myProfile.setPreference('network.allow-experiments', false);
 
+  // allowHttp for local dev
+  myProfile.setPreference('identity.fxaccounts.allowHttp', true);
+
+  myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
+  myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
+  myProfile.setPreference('identity.fxaccounts.remote.root', profile.fxaContentRoot.slice(0, -1));
+  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', profile.fxaContentRoot.slice(0, -1));
 
   myProfile.updatePreferences();
 

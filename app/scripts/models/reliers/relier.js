@@ -152,7 +152,21 @@ var Relier = BaseRelier.extend({
     });
   },
 
-  resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN
+  resumeTokenFields: RELIER_FIELDS_IN_RESUME_TOKEN,
+  scopeStrToArray: function scopeStrToArray(scopes) {
+    if (! _.isString(scopes)) {
+      return [];
+    }
+
+    const trimmedScopes = scopes.trim();
+    if (trimmedScopes.length) {
+      // matches any whitespace character OR matches the character '+' literally
+      return _.uniq(scopes.split(/\s+|\++/g));
+    } else {
+      return [];
+    }
+  }
+
 });
 
 Cocktail.mixin(

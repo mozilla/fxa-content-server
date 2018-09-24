@@ -149,6 +149,39 @@ jobs:
               command: |
                   ./retry -n 1 -- npm run test-circle -- --firefoxBinary=./firefox/firefox
 
+    test-pairing:
+        working_directory: ~/fxa
+        docker:
+            - image: circleci/node:8-stretch-browsers
+        steps:
+            - attach_workspace:
+                  at: ~/
+
+            - run:
+                  name: Run fxa-content-server
+                  command: |
+                      CONFIG_FILES=server/config/local.json,server/config/production.json,tests/ci/config_circleci.json node_modules/.bin/grunt serverproc:dist
+                  background: true
+
+            - run:
+                  name: Check server
+                  command: |
+                      sleep 10
+                      curl http://127.0.0.1:3030
+
+            - run:
+                  name: Run tests
+                  shell: /bin/bash --login
+                  # Download the Nightly pairing build
+                  # From: https://treeherder.mozilla.org/#/jobs?repo=try&revision=8dc9009ad540a5362fbaf4476cb2d1dc803e1acd&selectedJob=222753938
+                  command: |
+                      wget https://s3-us-west-2.amazonaws.com/fxa-dev-bucket/fenix-pair/desktop/8dc9009ad540-target.tar.bz2
+                      sudo apt-get install -y python-setuptools python-dev build-essential
+                      sudo easy_install pip
+                      sudo pip install mozinstall
+                      mozinstall 8dc9009ad540-target.tar.bz2
+                      ./retry -n 1 -- npm run test-pairing-circle -- --firefoxBinary=./firefox/firefox
+
     dockerpush:
         docker:
         - image: circleci/node:8-stretch-browsers
@@ -214,6 +247,9 @@ workflows:
                 requires:
                     - build
             - test4:
+                  requires:
+                    - build
+            - test-pairing:
                   requires:
                     - build
             - dockerpush:
