@@ -9,21 +9,12 @@
  * For more encryption details, check out
  + https://github.com/mozilla/fxa-auth-server/blob/master/docs/recovery_keys.md
  */
-const Base32 = require('./base32');
-
-function importFxaCryptoDeriver() {
-  return import(/* webpackChunkName: "fxaCryptoDeriver" */ 'fxaCryptoDeriver');
-}
-
-function required(object, name) {
-  if (! object) {
-    throw new Error(`Missing ${name}`);
-  }
-}
+import a256gcm from './a256gcm';
+import Base32 from './base32';
+import hkdf from './hkdf';
+import required from '../required';
 
 const RECOVERY_KEY_VERSION = 'A';
-const ENCRYPTION_ALGORITHM = 'A256GCM';
-const HKDF_SHA_256 = 'HKDF-SHA-256';
 
 function getRecoveryKeyVersion() {
   return RECOVERY_KEY_VERSION;
@@ -62,34 +53,23 @@ module.exports = {
    * @returns {Promise} A promise that will be fulfilled with JWK
    */
   getRecoveryJwk: function (uid, recoveryKey) {
-    return importFxaCryptoDeriver().then(({jose}) => {
+    return Promise.resolve().then(() => {
       required(uid, 'uid');
       required(recoveryKey, 'recoveryKey');
 
       return Base32.decode(recoveryKey)
         .then((keyMaterial) => {
           const salt = Buffer.from(uid, 'hex');
-          const options = {
-            info: Buffer.from('fxa recovery encrypt key', 'utf8'),
-            length: 32,
-            salt
-          };
-          const optionsKid = {
-            info: Buffer.from('fxa recovery fingerprint', 'utf8'),
-            length: 16,
-            salt
-          };
-          return Promise.all([jose.JWA.derive(HKDF_SHA_256, keyMaterial, options), jose.JWA.derive(HKDF_SHA_256, keyMaterial, optionsKid)])
-            .then((result) => {
-              const recoveryKeyId = result[1].toString('hex');
-              const keyOptions = {
-                alg: ENCRYPTION_ALGORITHM,
-                k: jose.util.base64url.encode(result[0], 'hex'),
-                kid: recoveryKeyId,
-                kty: 'oct'
-              };
-              return jose.JWK.asKey(keyOptions);
-            });
+          const recoveryKeyInfo = Buffer.from('fxa recovery encrypt key', 'utf8');
+          const kidInfo = Buffer.from('fxa recovery fingerprint', 'utf8');
+
+          return Promise.all([
+            hkdf(keyMaterial, salt, recoveryKeyInfo, 32),
+            hkdf(keyMaterial, salt, kidInfo, 16),
+          ]).then((result) => {
+            const recoveryKeyId = result[1].toString('hex');
+            return a256gcm.createJwkFromKey(result[0], recoveryKeyId);
+          });
         });
     });
   },
@@ -105,28 +85,10 @@ module.exports = {
    * @returns {Promise} A promise that will be fulfilled with the encrypted recoveryData
    */
   bundleRecoveryData: function (recoveryJwk, recoveryData, options = {}) {
-    return importFxaCryptoDeriver().then(({jose}) => {
+    return Promise.resolve().then(() => {
       required(recoveryJwk, 'recoveryJwk');
 
-      const recipient = {
-        header: {
-          alg: 'dir',
-          enc: ENCRYPTION_ALGORITHM
-        },
-        key: recoveryJwk
-      };
-      const encryptOptions = {
-        contentAlg: ENCRYPTION_ALGORITHM,
-        format: 'compact'
-      };
-
-      if (options.unsafeExplicitIV) {
-        encryptOptions.iv = jose.util.base64url.encode(options.unsafeExplicitIV, 'hex');
-      }
-
-      return jose.JWE.createEncrypt(encryptOptions, recipient)
-        .update(JSON.stringify(recoveryData))
-        .final();
+      return a256gcm.encrypt(JSON.stringify(recoveryData), recoveryJwk, options);
     });
   },
 
@@ -138,17 +100,12 @@ module.exports = {
    * @returns {Promise} A promise that will be fulfilled with the decoded recoveryData
    */
   unbundleRecoveryData: function (recoveryJwk, recoveryBundle) {
-    return importFxaCryptoDeriver().then(({jose}) => {
+    return Promise.resolve().then(() => {
       required(recoveryJwk, 'recoveryJwk');
       required(recoveryBundle, 'recoveryBundle');
 
-      const opts = {
-        algorithms: ['dir', ENCRYPTION_ALGORITHM]
-      };
-
-      return jose.JWE.createDecrypt(recoveryJwk, opts)
-        .decrypt(recoveryBundle)
-        .then((result) => JSON.parse(result.plaintext.toString()))
+      return a256gcm.decrypt(recoveryBundle, recoveryJwk)
+        .then(result => JSON.parse(result))
         .catch((err) => {
           // This error will not be surfaced to views
           if (err.name === 'OperationError') {
