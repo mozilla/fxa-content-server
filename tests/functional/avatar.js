@@ -59,10 +59,6 @@ registerSuite('settings/avatar', {
     return signUp(this, email);
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
 
     'go to settings then avatar change': function () {

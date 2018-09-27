@@ -46,10 +46,6 @@ registerSuite('mob_android_v1', {
       .then(FunctionalHelpers.clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(FunctionalHelpers.clearBrowserState());
-  },
   tests: {
     'signup, verify different browser': function () {
       return this.remote

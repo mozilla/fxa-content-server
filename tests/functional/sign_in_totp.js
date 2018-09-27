@@ -76,9 +76,6 @@ registerSuite('TOTP', {
       .end();
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'can add TOTP to account and confirm web signin': function () {
       return this.remote

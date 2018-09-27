@@ -52,10 +52,6 @@ registerSuite('signup with an email that bounces', {
       }));
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
 
     'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function () {
@@ -117,7 +113,7 @@ const setUpBouncedSignIn = thenify(function (email) {
   email = email || TestHelpers.createEmail('sync{id}');
 
   return this.parent
-    .then(clearBrowserState({ force: true }))
+    .then(clearBrowserState())
     .then(createUser(email, PASSWORD, { preVerified: true }))
     .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, {
       webChannelResponses: {
@@ -137,9 +133,6 @@ const setUpBouncedSignIn = thenify(function (email) {
 });
 
 registerSuite('signin with an email that bounces', {
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'click create-account': function () {
       return this.remote

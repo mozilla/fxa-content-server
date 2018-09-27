@@ -41,7 +41,7 @@ registerSuite('recovery code', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     const self = this;
-    return this.remote.then(clearBrowserState({force: true}))
+    return this.remote.then(clearBrowserState())
       .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER))
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -133,7 +133,7 @@ registerSuite('recovery code', {
 
         // Next attempt to use recovery code will redirect to
         // page where user can generate more recovery codes
-        .then(clearBrowserState({force: true}))
+        .then(clearBrowserState())
 
         .then(openPage(SYNC_SIGNIN_URL, selectors.SIGNIN.HEADER, {
           query: {}, webChannelResponses: {

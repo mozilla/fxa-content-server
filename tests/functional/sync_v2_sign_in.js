@@ -41,7 +41,7 @@ var setupTest = thenify(function (options) {
       '#fxa-confirm-header';
 
   return this.parent
-    .then(clearBrowserState({ force: true }))
+    .then(clearBrowserState())
     .then(createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified }))
     .then(openPage(PAGE_URL, '#fxa-signin-header'))
     .then(respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true } ))

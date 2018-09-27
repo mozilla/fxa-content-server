@@ -73,10 +73,6 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    // clear localStorage to avoid polluting other tests.
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'reset password, verify same browser, Fx <= 57': function () {
       const query = {forceUA: uaStrings['desktop_firefox_57'],};

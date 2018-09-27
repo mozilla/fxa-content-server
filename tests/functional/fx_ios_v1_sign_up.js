@@ -41,10 +41,6 @@ registerSuite('FxiOS v1 sign_up', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
-  },
   tests: {
     'sign up + CWTS, verify same browser': function () {
       return this.remote

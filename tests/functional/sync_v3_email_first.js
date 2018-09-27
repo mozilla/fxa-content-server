@@ -45,7 +45,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState());
   },
 
   tests: {

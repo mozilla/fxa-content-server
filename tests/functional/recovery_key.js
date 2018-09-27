@@ -49,6 +49,7 @@ registerSuite('Recovery key', {
     const remote = this.remote;
 
     return this.remote
+      .then(clearBrowserState())
       .then(openPage(SIGNUP_URL, selectors.SIGNUP.HEADER, queryOptions))
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
@@ -73,10 +74,6 @@ registerSuite('Recovery key', {
         return remote.then(click(selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON));
       })
       .end();
-  },
-
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
   },
 
   tests: {
@@ -194,7 +191,7 @@ registerSuite('Recovery key', {
 });
 
 registerSuite('Recovery key - experiment', {
-  afterEach: function () {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
@@ -234,7 +231,9 @@ registerSuite('Recovery key - unverified session', {
     const queryOptions = {query: {showAccountRecovery: true}};
     email = TestHelpers.createEmail('sync{id}');
 
-    return this.remote.then(createUser(email, PASSWORD, {preVerified: true}))
+    return this.remote
+      .then(clearBrowserState())
+      .then(createUser(email, PASSWORD, {preVerified: true}))
       // when an account is created, the original session is verified
       // re-login to destroy original session and created an unverified one
       .then(openPage(SIGNIN_URL, selectors.SIGNIN.HEADER, queryOptions))
@@ -242,10 +241,6 @@ registerSuite('Recovery key - unverified session', {
 
       // unlock panel
       .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON));
-  },
-
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
   },
 
   tests: {

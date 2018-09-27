@@ -49,9 +49,6 @@ registerSuite('settings', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'with an invalid email': function () {
       return this.remote
@@ -223,7 +220,7 @@ registerSuite('settings with expired session', {
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-      .then(clearBrowserState({ force: true }))
+      .then(clearBrowserState())
       .then(fillOutSignIn(email, FIRST_PASSWORD))
 
       .then(testElementExists('#fxa-settings-header'))
@@ -239,11 +236,6 @@ registerSuite('settings with expired session', {
       });
   },
 
-  afterEach: function () {
-    // browser state must be cleared or the tests that follow fail.
-    return this.remote
-      .then(clearBrowserState({ force: true }));
-  },
   tests: {
     'a focus on the settings page after session expires redirects to signin': function () {
       return this.remote

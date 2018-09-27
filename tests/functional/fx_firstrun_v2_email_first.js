@@ -38,7 +38,7 @@ registerSuite('Firstrun Sync v2 email first', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState());
   },
 
   tests: {

@@ -64,14 +64,10 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
   beforeEach: function () {
     return this.remote.then(clearBrowserState({
       '123done': true,
-      force: true,
     }))
       .then(ensureUsers());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'OAuth signin page - user signed into browser, no user signed in locally': function () {
       return this.remote

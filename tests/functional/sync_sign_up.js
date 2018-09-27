@@ -43,9 +43,6 @@ registerSuite('Firefox Desktop Sync sign_up', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sign up, verify same browser': function () {
       return this.remote

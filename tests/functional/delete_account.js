@@ -25,9 +25,6 @@ registerSuite('delete_account', {
       .then(createUser(email, PASSWORD, { preVerified: true }));
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sign in, delete account': function () {
       return this.remote

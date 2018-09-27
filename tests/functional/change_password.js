@@ -54,9 +54,6 @@ registerSuite('change_password', {
     email = TestHelpers.createEmail();
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sign in, try to change password with an incorrect old password': function () {
       return this.remote
