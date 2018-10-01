@@ -313,10 +313,6 @@ registerSuite('oauth - TOTP', {
       .end();
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
     'can add TOTP to account and confirm oauth signin': function () {
       return this.remote

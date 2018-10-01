@@ -50,9 +50,6 @@ registerSuite('settings clients', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'sessions are listed in clients view': function () {
       return this.remote

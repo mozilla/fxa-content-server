@@ -48,10 +48,6 @@ registerSuite(suiteName, {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
-  },
   tests: {
     'opt-in on signup': function () {
       // The plus sign is to ensure the email address is URI-encoded when

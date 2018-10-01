@@ -68,9 +68,6 @@ registerSuite('signup', {
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'with an invalid email': function () {
       return this.remote

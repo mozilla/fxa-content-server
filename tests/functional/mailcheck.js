@@ -20,9 +20,6 @@ registerSuite('mailcheck', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'tooltip works': function () {
       var BAD_EMAIL = 'something@gnail.com';

@@ -65,7 +65,7 @@ registerSuite('Firefox Desktop Sync v1 signin', {
   beforeEach: function () {
     email = TestHelpers.createEmail('sync{id}');
     return this.remote
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState());
   },
   tests: {
     'verified, verify same browser': function () {

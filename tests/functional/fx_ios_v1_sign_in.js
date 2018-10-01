@@ -72,7 +72,7 @@ registerSuite('FxiOS v1 signin', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState());
   },
   tests: {
     'verified, verify same browser': function () {

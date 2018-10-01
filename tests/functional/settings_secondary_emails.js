@@ -48,12 +48,9 @@ registerSuite('settings secondary emails', {
     secondaryEmail = TestHelpers.createEmail('sync{id}');
     client = FunctionalHelpers.getFxaClient();
 
-    return this.remote.then(clearBrowserState({ force: true }));
-  },
-
-  afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
+
   tests: {
     'gated in unverified session open verification same tab': function () {
       return this.remote
@@ -301,10 +298,7 @@ registerSuite('settings secondary emails', {
         .then(click(selectors.EMAIL.MENU_BUTTON))
         .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
 
-        // force: true is needed to avoid localStorage being
-        // written by the verification tab after it was just cleared using JS.
-        // force: true goes to the /clear page.
-        .then(clearBrowserState({force: true}))
+        .then(clearBrowserState())
 
         .then(openPage(PAGE_SIGNIN_DESKTOP, selectors.SIGNIN.HEADER))
         .then(respondToWebChannelMessage('fxaccounts:can_link_account', {ok: true}))

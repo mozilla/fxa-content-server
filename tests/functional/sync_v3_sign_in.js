@@ -70,7 +70,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({ force: true }));
+      .then(clearBrowserState());
   },
   tests: {
     'Fx >= 58, verified, does not need to confirm ': function () {
@@ -235,7 +235,7 @@ registerSuite('Firefox Desktop Sync v3 signin - token code', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({force: true}))
+      .then(clearBrowserState())
       .then(createUser(email, PASSWORD, {preVerified: true}));
   },
 

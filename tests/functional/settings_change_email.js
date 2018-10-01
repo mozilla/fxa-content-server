@@ -72,9 +72,6 @@ registerSuite('settings change email', {
       .then(visibleByQSA(selectors.EMAIL.SUCCESS));
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'can change primary email and login': function () {
       return this.remote

@@ -43,9 +43,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'Fx <= 57, verify at CWTS': function () {
       return this.remote

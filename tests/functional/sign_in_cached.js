@@ -49,7 +49,7 @@ registerSuite('sign_in cached', {
     email = TestHelpers.createEmail('sync{id}');
     email2 = TestHelpers.createEmail();
     return this.remote
-      .then(clearBrowserState({ force: true }))
+      .then(clearBrowserState())
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(createUser(email2, PASSWORD, { preVerified: true }));
   },

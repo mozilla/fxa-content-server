@@ -326,28 +326,8 @@ const clearContentServerState = thenify(function (options) {
     // iframe flow.
     .switchToFrame(null)
     .setFindTimeout(config.pageLoadTimeout)
-    .getCurrentUrl()
-    .then(function (url) {
-      // only load up the content server if we aren't
-      // already at the content server.
-      if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-        return this.parent.get(CONTENT_SERVER + 'clear')
-          .setFindTimeout(config.pageLoadTimeout)
-          .findById('fxa-clear-storage-header');
-      }
-    })
-
-    .clearCookies()
-    .execute(function () {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-      } catch (e) {
-        console.log('Failed to clearBrowserState');
-        // if cookies are disabled, this will blow up some browsers.
-      }
-      return true;
-    }, []);
+    .get(CONTENT_SERVER + 'clear')
+    .findById('fxa-clear-storage-header');
 });
 
 const clear123DoneState = thenify(function (options) {

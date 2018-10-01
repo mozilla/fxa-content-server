@@ -23,9 +23,6 @@ registerSuite('upgrade storage formats', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'Upgrade from Session w/o cached credentials, session invalid': function () {
       return this.remote

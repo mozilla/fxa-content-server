@@ -37,10 +37,6 @@ registerSuite('Firefox Desktop Sync v2 reset password', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function () {
-    // clear localStorage to avoid polluting other tests.
-    return this.remote.then(clearBrowserState());
-  },
   tests: {
     'reset password, verify same browser': function () {
       return this.remote

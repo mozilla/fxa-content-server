@@ -36,12 +36,10 @@ const {
 registerSuite('Firstrun Sync v1 sign_up', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
-  },
-
-  afterEach: function () {
     return this.remote
       .then(clearBrowserState());
   },
+
   tests: {
     'sign up, verify same browser in a different tab': function () {
       return this.remote

@@ -35,10 +35,6 @@ registerSuite('force_auth blocked', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
-  },
   tests: {
     'valid code entered': function () {
       return this.remote

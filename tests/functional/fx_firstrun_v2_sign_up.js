@@ -103,10 +103,6 @@ registerSuite('Firstrun Sync v2 signup', {
       .then(clearBrowserState());
   },
 
-  afterEach: function () {
-    return this.remote
-      .then(clearBrowserState());
-  },
   tests: {
     'verify at CWTS': function () {
       return this.remote
@@ -161,7 +157,7 @@ registerSuite('Firstrun Sync v2 signup', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // clear browser state to synthesize opening in a different browser
-        .then(clearBrowserState({force: true}))
+        .then(clearBrowserState({}))
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0))
@@ -186,7 +182,7 @@ registerSuite('Firstrun Sync v2 signup', {
         .then(testElementExists(selectors.SMS_SEND.SUCCESS))
 
         // clear browser state to synthesize opening in a different browser
-        .then(clearBrowserState({force: true}))
+        .then(clearBrowserState())
         // verify the user in a different browser, they should see the
         // "connect another device" screen.
         .then(openVerificationLinkInSameTab(email, 0, options))

@@ -27,7 +27,7 @@ registerSuite('password strength experiment', {
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
-      .then(clearBrowserState({ force: true }))
+      .then(clearBrowserState())
       .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
         webChannelResponses: {
           'fxaccounts:can_link_account': {ok: true}
