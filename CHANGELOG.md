@@ -1,3 +1,23 @@
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-content-server/compare/v1.122.0...v1.122.1) (2018-10-03)
+
+
+### Bug Fixes
+
+* **recovery:** increase recovery key length to 28 ([691f1c5](https://github.com/mozilla/fxa-content-server/commit/691f1c5))
+
+
+
+<a name="1.121.1-private"></a>
+## [1.121.1-private](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.1-private) (2018-10-01)
+
+
+### chore
+
+* **recovery:** roll back recoveryKey experiment to 0 percent ([b86ab5b](https://github.com/mozilla/fxa-content-server/commit/b86ab5b))
+
+
+
 <a name="1.122.0"></a>
 # [1.122.0](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.122.0) (2018-10-02)
 
