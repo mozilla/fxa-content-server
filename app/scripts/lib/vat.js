@@ -32,6 +32,7 @@ Vat.register('verificationCode', Vat.string().test(Validate.isCodeValid));
 Vat.register('verificationRedirect', Vat.string().test(Validate.isVerificationRedirectValid));
 
 // depends on hex, must come afterwards
+Vat.register('instanceId', Vat.hex());
 Vat.register('clientId', Vat.hex());
 
 Vat.any().extend({

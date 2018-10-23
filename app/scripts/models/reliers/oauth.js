@@ -29,6 +29,7 @@ var SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   client_id: Vat.clientId().required().renameTo('clientId'),
   code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
   code_challenge_method: Vat.codeChallengeMethod().renameTo('codeChallengeMethod'),
+  instance_id: Vat.instanceId().renameTo('instanceId'),
   keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
   login_hint: Vat.email().renameTo('loginHint'),
   prompt: Vat.prompt(),
@@ -43,6 +44,7 @@ var VERIFICATION_INFO_SCHEMA = {
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.string().min(1),
   client_id: Vat.clientId().required().renameTo('clientId'),
+  instance_id: Vat.instanceId().renameTo('instanceId'),
   prompt: Vat.prompt(),
   redirect_uri: Vat.url().renameTo('redirectUri'),
   // scopes are optional when verifying, user could be verifying in a 2nd browser
@@ -60,6 +62,7 @@ var OAuthRelier = Relier.extend({
     acrValues: null,
     clientId: null,
     context: Constants.OAUTH_CONTEXT,
+    instanceId: null,
     keysJwk: null,
     // permissions are individual scopes
     permissions: null,

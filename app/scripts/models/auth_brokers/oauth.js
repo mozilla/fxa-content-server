@@ -78,6 +78,7 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
           client_id: clientId, //eslint-disable-line camelcase
           code_challenge: relier.get('codeChallenge'), //eslint-disable-line camelcase
           code_challenge_method: relier.get('codeChallengeMethod'), //eslint-disable-line camelcase
+          instance_id: relier.get('instanceId'), //eslint-disable-line camelcase
           keys_jwe: keysJwe, //eslint-disable-line camelcase
           scope: relier.get('scope'),
           state: relier.get('state')
@@ -178,6 +179,7 @@ var OAuthAuthenticationBroker = BaseAuthenticationBroker.extend({
         access_type: relier.get('access_type'), //eslint-disable-line camelcase
         action: relier.get('action'),
         client_id: relier.get('clientId'), //eslint-disable-line camelcase
+        instance_id: relier.get('instance_id'), //eslint-disable-line camelcase
         keys: relier.get('keys'),
         scope: relier.get('scope'),
         state: relier.get('state')
