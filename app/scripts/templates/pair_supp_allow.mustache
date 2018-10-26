@@ -1,7 +1,7 @@
 <div id="main-content" class="card pair-auth">
     <header>
       <h1 id="fxa-pair-supp-allow-header">
-        {{#t}}Sign in to %(serviceName)s{{/t}}
+        {{#unsafeTranslate}}Approval required <small>from this device</small>{{/unsafeTranslate}}
       </h1>
     </header>
 
@@ -10,27 +10,6 @@
       <div class="success"></div>
 
       <form novalidate>
-          <div class="user-card">
-            <div class="avatar-wrapper card-view {{^profileImageUrl}}with-default{{/profileImageUrl}}">
-              {{#profileImageUrl}}
-                <img src="{{{ profileImageUrl }}}">
-              {{/profileImageUrl}}
-              {{^profileImageUrl}}
-                <span></span>
-              {{/profileImageUrl}}
-            </div>
-            <div class="user-info">
-              <div>
-                  {{#displayName}}
-                  <div>{{ displayName }}</div>
-                  {{/displayName}}
-                  <div class="prefillEmail">{{ email }}</div>
-              </div>
-            </div>
-          </div>
-
-          {{#t}}from{{/t}}
-
           {{{ unsafeDeviceBeingPairedHTML }}}
 
         <div class="button-row">

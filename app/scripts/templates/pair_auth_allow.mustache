@@ -1,7 +1,7 @@
 <div id="main-content" class="card pair-auth">
   <header>
     <h1 id="fxa-pair-auth-allow-header">
-      {{#t}}Sign in to %(serviceName)s as %(email)s on remote device?{{/t}}
+      {{#unsafeTranslate}}Approve new device <small>to begin syncing</small>{{/unsafeTranslate}}
     </h1>
   </header>
 
@@ -13,7 +13,7 @@
       {{{ unsafeDeviceBeingPairedHTML }}}
 
       <div class="button-row">
-        <button type="submit">{{#t}}Allow{{/t}}</button>
+        <button type="submit">{{#t}}Approve device{{/t}}</button>
       </div>
 
       <div class="links">

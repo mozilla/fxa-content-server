@@ -33,7 +33,7 @@ class PairSuppAllowView extends FormView {
 
 Cocktail.mixin(
   PairSuppAllowView,
-  DeviceBeingPairedMixin({ showConfirmationCode: true }),
+  DeviceBeingPairedMixin(),
   ServiceMixin,
 );
 

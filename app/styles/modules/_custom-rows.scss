@@ -245,15 +245,47 @@ input[type='checkbox'] {
 }
 
 .pair-auth {
-  .client-container {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-
-    .client {
-      background-position: left center !important;
-      text-align: left;
+  h1 {
+    > small {
+      display: block;
     }
   }
+
+  h2 {
+    color: $grey-80;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 25px;
+  }
+
+  .client {
+    background-position: center top !important;
+    background-size: 65px;
+    color: $grey-70;
+    font-size: 13px;
+    margin: 0;
+    padding: 90px 0 0 0 !important;
+    text-align: center;
+
+
+    .ip-address {
+      margin-bottom: 20px;
+    }
+  }
+
+  &.pair-auth-complete {
+    .client {
+      background-image: none;
+      padding: 0 !important;
+    }
+
+    .confirmation-code {
+      display: none;
+    }
+
+    .device-name {
+      display: none;
+    }
+  }
+
 }

@@ -20,7 +20,7 @@ class PairSuppWaitForAuthView extends BaseView {
 
 Cocktail.mixin(
   PairSuppWaitForAuthView,
-  DeviceBeingPairedMixin({ showConfirmationCode: true })
+  DeviceBeingPairedMixin()
 );
 
 export default PairSuppWaitForAuthView;

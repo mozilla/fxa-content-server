@@ -6,6 +6,7 @@ import BaseView from '../base';
 import Cocktail from 'cocktail';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
 import Template from '../../templates/pair_auth_complete.mustache';
+import UserAgentMixin from '../../lib/user-agent-mixin';
 
 class PairAuthCompleteView extends BaseView {
   template = Template;
@@ -16,11 +17,18 @@ class PairAuthCompleteView extends BaseView {
     }
   }
 
+  setInitialContext (context) {
+    const uap = this.getUserAgent();
+    const graphicId = uap.supportsSvgTransformOrigin() ? 'graphic-connect-another-device-hearts' : 'graphic-connect-another-device';
+
+    context.set({ graphicId });
+  }
 }
 
 Cocktail.mixin(
   PairAuthCompleteView,
-  DeviceBeingPairedMixin({ showConfirmationCode: false }),
+  DeviceBeingPairedMixin(),
+  UserAgentMixin,
 );
 
 export default PairAuthCompleteView;

@@ -51,7 +51,7 @@ class PairAuthAllowView extends FormView {
 
 Cocktail.mixin(
   PairAuthAllowView,
-  DeviceBeingPairedMixin({ showConfirmationCode: true }),
+  DeviceBeingPairedMixin(),
   PasswordMixin,
   ServiceMixin,
 );

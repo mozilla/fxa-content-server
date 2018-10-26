@@ -10,21 +10,18 @@ import DeviceBeingPairedTemplate from '../../templates/partial/device-being-pair
  * The HTML will be the info of the device being paired with.
  *
  * @export
- * @param {Object} [options={}]
- *   @param {Boolean} [options.showConfirmationCode = true] if `false`, confirmation code is not sent.
  * @returns {Object}
  */
-export default function (options = {}) {
+export default function () {
   return {
     setInitialContext(context) {
       const deviceContext = assign({}, this.broker.get('remoteMetaData'));
 
-      if (options.showConfirmationCode !== false) {
-        const confirmationCode = this.broker.get('confirmationCode') || '';
-        deviceContext.confirmationCode = `${confirmationCode.substr(0, 4)}-${confirmationCode.substr(4)}`;
-      }
+      const confirmationCode = this.broker.get('confirmationCode') || '';
+      const formattedConfirmationCode = `${confirmationCode.substr(0, 4)}-${confirmationCode.substr(4)}`;
 
       context.set({
+        confirmationCode: formattedConfirmationCode,
         unsafeDeviceBeingPairedHTML: this.renderTemplate(DeviceBeingPairedTemplate, deviceContext)
       });
     }
