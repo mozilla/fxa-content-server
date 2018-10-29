@@ -31,7 +31,26 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
   fetch () {
     return Promise.resolve()
       .then(() => super.fetch())
-      .then(() => this.getSupplicantMetadata());
+      .then(() => this.getSupplicantMetadata())
+      .then(() => this.startHeartbeat());
+  }
+
+  startHeartbeat () {
+    this._heartbeatInterval = setInterval(() => this.heartbeat(), 1000);
+  }
+
+  stopHeartbeat () {
+    clearInterval(this._heartbeatInterval);
+  }
+
+  heartbeat () {
+    this.request(this._notificationChannel.COMMANDS.PAIR_HEARTBEAT)
+      .then(response => {
+        console.log('heartbeat response', response);
+        if (response.err) {
+          this.stateMachine.heartbeatError(response.err);
+        }
+      });
   }
 
   _provisionScopedKeys() {
@@ -47,6 +66,7 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
     return this.request(this._notificationChannel.COMMANDS.PAIR_REQUEST_SUPPLICANT_METADATA)
       .then((response) => {
         this.setRemoteMetaData(response);
+        console.log('supplicantMetaData', response);
         this.set('confirmationCode', response.confirmation_code);
         return this.get('remoteMetaData');
       });
@@ -83,6 +103,10 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
       });
   }
 
+  afterPairAuthDecline () {
+    return this.send(this._notificationChannel.COMMANDS.PAIR_DECLINE);
+  }
+
   request(message, data = {}) {
     return Promise.resolve().then(() => {
       data.channel_id = this.relier.get('channelId'); //eslint-disable-line camelcase
@@ -100,6 +124,4 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
       return this._notificationChannel.send(message, data);
     });
   }
-
-
 }

@@ -32,11 +32,23 @@ class PairAuthComplete extends CompleteState {
   }
 }
 
+class PairAuthFailure extends CompleteState {
+  constructor (...args) {
+    super(...args);
+
+    this.navigate('pair/failure');
+  }
+}
+
 class AuthorityStateMachine extends PairingFlowStateMachine {
   constructor(attrs, options = {}) {
     super(attrs, options);
 
     this.createState(WaitForAuthorityAuthorize);
+  }
+
+  handshakeError (error) {
+    this.createState(PairAuthFailure, { error });
   }
 }
 

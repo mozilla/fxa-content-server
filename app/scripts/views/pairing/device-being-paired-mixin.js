@@ -16,6 +16,7 @@ export default function () {
   return {
     setInitialContext(context) {
       const deviceContext = assign({}, this.broker.get('remoteMetaData'));
+      console.log('deviceContext', deviceContext);
 
       const confirmationCode = this.broker.get('confirmationCode') || '';
       const formattedConfirmationCode = `${confirmationCode.substr(0, 4)}-${confirmationCode.substr(4)}`;

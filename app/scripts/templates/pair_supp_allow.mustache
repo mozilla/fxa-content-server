@@ -1,7 +1,7 @@
 <div id="main-content" class="card pair-auth">
     <header>
       <h1 id="fxa-pair-supp-allow-header">
-        {{#unsafeTranslate}}Approval required <small>from this device</small>{{/unsafeTranslate}}
+        {{#unsafeTranslate}}Approve connection <small>to this device</small>{{/unsafeTranslate}}
       </h1>
     </header>
 
@@ -13,7 +13,11 @@
           {{{ unsafeDeviceBeingPairedHTML }}}
 
         <div class="button-row">
-          <button type="submit">{{#t}}Allow{{/t}}</button>
+          <button type="submit">{{#t}}Approve connection{{/t}}</button>
+        </div>
+
+        <div class="links">
+          <a href="#" id="cancel">{{#t}}Cancel{{/t}}</a>
         </div>
       </form>
     </section>

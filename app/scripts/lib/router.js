@@ -119,6 +119,7 @@ const Router = Backbone.Router.extend({
     'oauth/signup(/)': 'onSignUp',
     'pair/auth/allow(/)': createViewHandler('pairing/pair_auth_allow'),
     'pair/auth/complete(/)': createViewHandler('pairing/pair_auth_complete'),
+    'pair/failure(/)': createViewHandler('pairing/pair_failure'),
     'pair/supp(/)': createViewHandler('pairing/pair_supp', { force: true }),
     'pair/supp/allow(/)': createViewHandler('pairing/pair_supp_allow'),
     'pair/supp/wait_for_auth(/)': createViewHandler('pairing/pair_supp_wait_for_auth'),

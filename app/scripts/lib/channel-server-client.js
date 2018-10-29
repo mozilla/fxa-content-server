@@ -292,6 +292,8 @@ export default class ChannelServerClient extends Model {
         }
 
         data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
+        data.remoteMetaData.ipAddress = sender.remote;
+        console.log('sender', data.remoteMetaData);
 
         return {
           data,
@@ -348,7 +350,7 @@ export default class ChannelServerClient extends Model {
     const channelKeyBuffer = base64url.toBuffer(channelKey);
     // The channelId is hex, but the browser uses it as a utf8 string
     // so we do too so that we end up with the same encryption key.
-    const channelIdBuffer = Buffer.from(channelId, 'utf8');
+    const channelIdBuffer = base64url.toBuffer(channelId);//Buffer.from(channelId, 'utf8');
 
     return Promise.all([
       this._deriveChannelJwk(channelKeyBuffer, channelIdBuffer),

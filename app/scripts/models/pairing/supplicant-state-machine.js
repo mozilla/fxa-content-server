@@ -18,13 +18,13 @@ class SupplicantState extends State {
   }
 
   socketClosed () {
-    this.navigate('pair/supp', {
+    this.navigate('pair/failure', {
       error: ChannelServerClientErrors.toError('CONNECTION_CLOSED')
     });
   }
 
   socketError (error) {
-    this.navigate('pair/supp', { error });
+    this.navigate('pair/failure', { error });
   }
 }
 

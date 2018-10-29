@@ -45,7 +45,7 @@ class PairAuthAllowView extends FormView {
   }
 
   cancel () {
-    alert('cancel flow');
+    return this.invokeBrokerMethod('afterPairAuthDecline');
   }
 }
 
