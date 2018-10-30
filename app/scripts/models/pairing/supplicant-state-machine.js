@@ -96,6 +96,7 @@ class WaitForApprovals extends SupplicantState {
   onAuthorityAuthorize = onAuthAuthorize.bind(this, WaitForSupplicantAuthorize);
 
   onSupplicantAuthorize () {
+    this.channelServerClient.send('pair:supp:authorize');
     this.gotoState(WaitForAuthorityAuthorize);
   }
 }
@@ -106,10 +107,11 @@ class WaitForSupplicantAuthorize extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSuppAuthorize);
+    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
   }
 
-  onSuppAuthorize () {
+  onSupplicantAuthorize () {
+    this.channelServerClient.send('pair:supp:authorize');
     this.gotoState(SendResultToRelier);
   }
 }
