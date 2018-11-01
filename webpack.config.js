@@ -222,7 +222,7 @@ if (ENV === 'development') {
             hoist_funs: true,
             if_return: true,
             join_vars: true,
-            drop_console: true
+            drop_console: false
           },
         },
         sourceMap: true,
