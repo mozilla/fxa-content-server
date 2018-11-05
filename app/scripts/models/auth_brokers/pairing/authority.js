@@ -112,6 +112,7 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
       data.channel_id = this.relier.get('channelId'); //eslint-disable-line camelcase
 
       console.log('request', message, data);
+      // TODO - can we get a reference to the WebChannel directly?
       return this._notificationChannel.request(message, data);
     });
   }
