@@ -91,6 +91,7 @@ describe('views/sign_in_totp_code', () => {
     it('renders the view', () => {
       assert.lengthOf(view.$('#fxa-totp-code-header'), 1);
       assert.include(view.$('.verification-totp-message').text(), 'security code');
+      assert.equal(view.$('#use-recovery-code-link').attr('href'), '/signin_recovery_code');
     });
 
     describe('without an account', () => {
