@@ -28,6 +28,7 @@ module.exports = function () {
     'oauth/signup',
     'pair/auth/allow',
     'pair/auth/complete',
+    'pair/auth/wait_for_supp',
     'pair/failure',
     'pair/supp',
     'pair/supp/allow',

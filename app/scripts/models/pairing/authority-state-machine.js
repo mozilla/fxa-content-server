@@ -6,21 +6,57 @@ import { CompleteState, State } from './state';
 import PairingFlowStateMachine from './state-machine';
 /* eslint-disable no-use-before-define */
 
-class WaitForAuthorityAuthorize extends State {
-  name = 'WaitForAuthApprove';
+class WaitForAuthorizations extends State {
+  name = 'WaitForAuthorizations';
 
   constructor (...args) {
     super(...args);
 
     this.navigate('pair/auth/allow');
 
+    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
+    this.listenTo(this.notifier, 'pair:auth:authorize', this.onAuthorityAuthorize);
+  }
+
+  onSupplicantAuthorize () {
+    this.gotoState(WaitForAuthorityAuthorize);
+  }
+
+  onAuthorityAuthorize (result) {
+    console.log('result', result);
+    this.gotoState(WaitForSupplicantAuthorize, result);
+  }
+}
+
+class WaitForSupplicantAuthorize extends State {
+  name = 'WaitForSupplicantAuthorize';
+
+  constructor (...args) {
+    super(...args);
+
+    this.navigate('/pair/auth/wait_for_supp');
+
+    this.listenTo(this.notifier, 'pair:supp:authorize', this.gotoComplete);
+  }
+
+  gotoComplete () {
+    this.gotoState(PairAuthComplete, {});
+  }
+}
+
+class WaitForAuthorityAuthorize extends State {
+  name = 'WaitForAuthApprove';
+
+  constructor (...args) {
+    super(...args);
+
     this.listenTo(this.notifier, 'pair:auth:authorize', this.gotoComplete);
   }
 
-  gotoComplete ({ result }) {
-    this.broker.sendOAuthResultToRelier(result);
+  gotoComplete (result) {
+    console.log('result', result);
 
-    this.gotoState(PairAuthComplete);
+    this.gotoState(PairAuthComplete, result);
   }
 }
 
@@ -44,7 +80,7 @@ class AuthorityStateMachine extends PairingFlowStateMachine {
   constructor(attrs, options = {}) {
     super(attrs, options);
 
-    this.createState(WaitForAuthorityAuthorize);
+    this.createState(WaitForAuthorizations);
   }
 
   handshakeError (error) {

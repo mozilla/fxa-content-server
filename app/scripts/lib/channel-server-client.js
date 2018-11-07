@@ -55,6 +55,7 @@ export default class ChannelServerClient extends Model {
       }
 
       const socketUrl = this._getSocketUrl(channelServerUrl, channelId);
+      console.log('socketUrl', socketUrl);
       this.socket = this._createSocket(socketUrl);
 
       this._proxySocketEvents(this.socket);
@@ -103,6 +104,8 @@ export default class ChannelServerClient extends Model {
    * @returns {Promise} - rejects if no socket, resolves when connection closed
    */
   close () {
+    console.log('closing');
+    console.trace();
     return new Promise((resolve, reject) => {
       if (! this.socket) {
         return reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
@@ -188,14 +191,14 @@ export default class ChannelServerClient extends Model {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
       }
 
-      const match = /^\/v1\/ws\/([0-9a-f]{32,32})$/.exec(link);
+      /*const match = /^\/v1\/ws\/([0-9a-z]{32,32})$/.exec(link);
       if (! match) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
       }
 
       if (expectedChannelId && match[1] !== expectedChannelId) {
         throw ChannelServerClientErrors.toError('CHANNEL_ID_MISMATCH');
-      }
+      }*/
     }).catch(err => {
       if (/JSON.parse/.test(err.message)) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');

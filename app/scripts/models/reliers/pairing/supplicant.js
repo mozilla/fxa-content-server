@@ -20,7 +20,7 @@ var SUPPLICANT_QUERY_PARAM_SCHEMA = {
 };
 
 const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
-  channel_id: Vat.hex().len(32).required().renameTo('channelId'),
+  channel_id: Vat.channelId().required().renameTo('channelId'),
   channel_key: Vat.channelKey().required().renameTo('channelKey')
 };
 

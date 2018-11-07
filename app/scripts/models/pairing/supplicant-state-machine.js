@@ -60,7 +60,7 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
   gotoWaitForApprovals (data) {
     this.broker.setRemoteMetaData(data.remoteMetaData);
 
-    this.gotoState(WaitForApprovals, data);
+    this.gotoState(WaitForAuthorizations, data);
   }
 }
 
@@ -76,7 +76,7 @@ function onAuthAuthorize (NextState, result) {
   }).catch(err => this.trigger('error', err));
 }
 
-class WaitForApprovals extends SupplicantState {
+class WaitForAuthorizations extends SupplicantState {
   name = 'WaitForApprovals';
 
   constructor (...args) {

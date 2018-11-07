@@ -19,7 +19,7 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
 
     this.stateMachine = new AuthorityStateMachine({}, {
       broker: this,
-      channelServerClient: this.channelServerClient,
+      //channelServerClient: this.channelServerClient,
       notifier,
       relier: this.relier
     });
@@ -49,6 +49,9 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
         console.log('heartbeat response', response);
         if (response.err) {
           this.stateMachine.heartbeatError(response.err);
+        } else if (response.suppAuthorized) {
+          console.log('supp is authorized');
+          this.notifier.trigger('pair:supp:authorize');
         }
       });
   }
@@ -74,6 +77,7 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
 
   setRemoteMetaData = setRemoteMetaData;
 
+  /*
   sendOAuthResultToRelier ({ code, state }) {
     return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE, { code, state });
   }
@@ -93,13 +97,11 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
       return super.getOAuthResult(account, options);
     });
   }
-
+*/
   afterPairAuthAllow (account) {
-    return this.getOAuthResult(account)
-      .then((result) => {
-        this.notifier.trigger('pair:auth:authorize', {
-          result
-        });
+    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE)
+      .then(() => {
+        this.notifier.trigger('pair:auth:authorize');
       });
   }
 
