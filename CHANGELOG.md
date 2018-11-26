@@ -1,3 +1,13 @@
+<a name="1.125.1"></a>
+## [1.125.1](https://github.com/mozilla/fxa-content-server/compare/v1.125.0...v1.125.1) (2018-11-26)
+
+
+### chore
+
+* **config:** Add the new Send redirect_uris to the Send scopedKeys list. ([e1d2b75](https://github.com/mozilla/fxa-content-server/commit/e1d2b75))
+
+
+
 <a name="1.125.0"></a>
 # [1.125.0](https://github.com/mozilla/fxa-content-server/compare/v1.124.0...v1.125.0) (2018-11-14)
 
