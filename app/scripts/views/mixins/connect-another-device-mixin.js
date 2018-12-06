@@ -58,6 +58,7 @@ define(function(require, exports, module) {
      * @returns {Promise}
      */
     navigateToConnectAnotherDeviceScreen (account) {
+      console.log('connect-another-device-mixin::navigateToConnectAnotherDeviceScreen');
       return Promise.resolve().then(() => {
         // users have to be eligible for CAD to be part of SMS too.
         // Users selected to be part of the SMS experiment who are
@@ -80,8 +81,20 @@ define(function(require, exports, module) {
      * @param {Boolean} showSuccessMessage
      */
     replaceCurrentPageWithSmsScreen (account, country, showSuccessMessage) {
+      console.log('connect-another-device-mixin::replaceCurrentPageWithSmsScreen');
       const type = this.model.get('type');
       this.replaceCurrentPage('sms', { account, country, showSuccessMessage, type });
+    },
+
+    /**
+     * Replace the current page with the connect app screen.
+     *
+     * @param {Object} account
+     * @param {Boolean} showSuccessMessage
+     */
+    replaceCurrentPageWithAppsScreen (account, showSuccessMessage) {
+      console.log('connect-another-device-mixin::replaceCurrentPageWithAppsScreen');
+      this.replaceCurrentPage('connect_another_app', { account, showSuccessMessage });
     },
 
     /**
