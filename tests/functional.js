@@ -19,6 +19,7 @@ module.exports = [
   'tests/functional/complete_sign_in.js',
   'tests/functional/complete_sign_up.js',
   'tests/functional/connect_another_device.js',
+  'tests/functional/connect_another_service.js',
   'tests/functional/send_sms.js',
   'tests/functional/sync_sign_up.js',
   'tests/functional/sync_v2_sign_up.js',
