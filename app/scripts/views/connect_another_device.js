@@ -48,6 +48,7 @@ define(function (require, exports, module) {
     }
 
     beforeRender () {
+      console.log('connect-another-device::beforeRender');
       const account = this.getAccount();
       // If the user is eligible for SMS, send them to the SMS screen.
       // This allows the browser to link directly to /connect_another_device
@@ -59,10 +60,24 @@ define(function (require, exports, module) {
           if (country) {
             return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
           }
+
+          const {
+            canSignIn,
+            isFirefoxAndroid,
+            isFirefoxIos,
+            isOtherAndroid,
+            isOtherIos,
+          } = this.getContext();
+
+          console.log({ canSignIn, isFirefoxAndroid, isFirefoxIos, isOtherAndroid, isOtherIos });
+          if (! canSignIn && (isFirefoxAndroid || isFirefoxIos || isOtherAndroid || isOtherIos)) {
+            return this.replaceCurrentPageWithAppsScreen(account, this._showSuccessMessage());
+          }
         });
     }
 
     afterRender () {
+      console.log('connect-another-device::afterRender');
       const options = {
         marketingId: MARKETING_ID_AUTUMN_2016
       };
@@ -144,6 +159,7 @@ define(function (require, exports, module) {
     }
 
     setInitialContext (context) {
+      console.log('connect-another-device::setInitialContext');
       const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
