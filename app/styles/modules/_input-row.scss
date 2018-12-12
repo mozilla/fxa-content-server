@@ -71,6 +71,11 @@
 
     &.recovery-key {
       text-transform: uppercase;
+      font-size: 14px;
+
+      @include respond-to('small') {
+        font-size: 11px;
+      }
 
       &::placeholder {
         text-transform: none;
