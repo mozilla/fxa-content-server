@@ -3,6 +3,7 @@
   "comment_577": "577 is prototype pollution by lodash, caused by convict, grunt-usemin, grunt-z-schema.",
   "exceptions": [
     "https://npmjs.com/advisories/532",
-    "https://npmjs.com/advisories/577"
+    "https://npmjs.com/advisories/577",
+    "https://npmjs.com/advisories/745"
    ]
 }
