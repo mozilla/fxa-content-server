@@ -70,8 +70,8 @@
     }
 
     &.recovery-key {
-      text-transform: uppercase;
       font-size: 14px;
+      text-transform: uppercase;
 
       @include respond-to('small') {
         font-size: 11px;
