@@ -190,6 +190,7 @@ const View = FormView.extend({
         this.relier.set('resetPasswordConfirm', true);
         // See the above note about notifying the original tab.
         this.logViewEvent('verification.success');
+
         return this.invokeBrokerMethod(
           'afterCompleteResetPassword', updatedAccount);
       })

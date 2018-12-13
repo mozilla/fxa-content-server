@@ -7,6 +7,7 @@
 const {registerSuite} = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
+const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
@@ -17,6 +18,7 @@ const PASSWORD = 'passwordzxcv';
 const SYNC_SIGNIN_URL = `${config.fxaContentRoot}signin?context=fx_desktop_v3&service=sync`;
 const SIGNIN_URL = `${config.fxaContentRoot}signin`;
 const RECOVERY_CODES_URL = `${config.fxaContentRoot}settings/two_step_authentication/recovery_codes`;
+const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync`;
 
 let email;
 let secret;
@@ -27,14 +29,16 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutCompleteResetPassword,
   fillOutDeleteAccount,
+  fillOutResetPassword,
   fillOutSignUp,
   fillOutSignIn,
   generateTotpCode,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
+  openVerificationLinkInDifferentBrowser,
   switchToWindow,
   testElementExists,
   testElementTextInclude,
@@ -44,6 +48,10 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
+
+const {
+  listenForFxaCommands,
+} = FxDesktopHelpers;
 
 registerSuite('TOTP', {
   beforeEach: function () {
@@ -162,6 +170,69 @@ registerSuite('TOTP', {
         .then(confirmTotpCode(secret))
         .then(openPage(RECOVERY_CODES_URL, selectors.TOTP.RECOVERY_CODES_DESCRIPTION))
         .then(click(selectors.TOTP.RECOVERY_CODES_DONE));
+    },
+
+    'can reset password, prompt for TOTP and login - same browser same tab': function () {
+      return this.remote
+        .then(confirmTotpCode(secret))
+
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+
+        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+        .execute(listenForFxaCommands)
+        .then(fillOutResetPassword(email))
+
+        .then(openVerificationLinkInSameTab(email, 2))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'can reset password, prompt for TOTP and login - same browser different tab': function () {
+      return this.remote
+        .then(confirmTotpCode(secret))
+
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+
+        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+        .execute(listenForFxaCommands)
+        .then(fillOutResetPassword(email))
+
+        .then(openVerificationLinkInNewTab(email, 2))
+        .then(switchToWindow(1))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+
+        .then(testIsBrowserNotified('fxaccounts:login'));
+    },
+
+    'can reset password, prompt for TOTP and login - verify different browser': function () {
+      return this.remote
+        .then(confirmTotpCode(secret))
+
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.SIGNIN.HEADER))
+
+        .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+        .execute(listenForFxaCommands)
+        .then(fillOutResetPassword(email))
+
+        // clear all browser state, simulate opening in a new browser
+        .then(clearBrowserState())
+        .then(openVerificationLinkInSameTab(email, 2))
+        .then(fillOutCompleteResetPassword(PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+
+        .then(testElementExists(selectors.SETTINGS.HEADER));
     },
   }
 });

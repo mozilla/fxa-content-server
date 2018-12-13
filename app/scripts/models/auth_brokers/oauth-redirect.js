@@ -8,6 +8,7 @@ define(function (require, exports, module) {
   'use strict';
 
   const HaltBehavior = require('../../views/behaviors/halt');
+  const NullBehavior = require('../../views/behaviors/null');
   const OAuthAuthenticationBroker = require('../auth_brokers/oauth');
   const p = require('../../lib/promise');
   const Url = require('../../lib/url');
@@ -109,7 +110,28 @@ define(function (require, exports, module) {
       });
     },
 
-    afterCompleteResetPassword: finishOAuthFlowIfOriginalTab('afterCompleteResetPassword', 'finishOAuthSignInFlow'),
+    afterCompleteResetPassword (account) {
+      return proto.afterCompleteResetPassword.call(this, account)
+        .then(behavior => {
+          // a user can only redirect back to the relier from the original tab, this avoids
+          // two tabs redirecting.
+          if (account.get('verified')
+            && ! account.get('verificationReason')
+            && ! account.get('verificationMethod')
+            && this.isOriginalTab()) {
+            return this.finishOAuthSignInFlow(account);
+          } else if (! this.isOriginalTab()) {
+            // allows a navigation to a "complete" screen.
+            // TODO - Allow users who verify in a 2nd tab of the same
+            // device to enter the TOTP code, then cause the original
+            // tab to sign in.
+            return new NullBehavior();
+          }
+
+          return behavior;
+        });
+    },
+
     afterCompleteSignUp: finishOAuthFlowIfOriginalTab('afterCompleteSignUp', 'finishOAuthSignUpFlow'),
   });
 });

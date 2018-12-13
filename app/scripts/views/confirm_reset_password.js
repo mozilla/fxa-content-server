@@ -155,6 +155,7 @@ const View = BaseView.extend({
     // from within about:accounts. Because of this, all account data needed to sign in must
     // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
     // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
+    console.log('sessionInfo', sessionInfo);
     account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
 
     if (account.isDefault()) {
