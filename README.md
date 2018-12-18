@@ -94,4 +94,3 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 ## License
 
 MPL 2.0
-
