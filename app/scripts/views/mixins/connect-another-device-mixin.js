@@ -94,7 +94,7 @@ define(function(require, exports, module) {
      */
     replaceCurrentPageWithAppsScreen (account, showSuccessMessage) {
       console.log('connect-another-device-mixin::replaceCurrentPageWithAppsScreen');
-      this.replaceCurrentPage('connect_another_app', { account, showSuccessMessage });
+      this.replaceCurrentPage('connect_another_service', { account, showSuccessMessage });
     },
 
     /**
