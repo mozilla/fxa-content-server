@@ -8,17 +8,19 @@ define(function (require, exports, module) {
   'use strict';
 
   const AuthErrors = require('../../lib/auth-errors');
+  const OAuthErrors = require('../../lib/oauth-errors');
   const NavigateBehavior = require('../behaviors/navigate');
   const ResumeTokenMixin = require('./resume-token-mixin');
-  const SearchParamMixin = require('../../lib/search-param-mixin');
   const VerificationMethods = require('../../lib/verification-methods');
   const VerificationReasons = require('../../lib/verification-reasons');
   const TokenCodeExperimentMixin = require('../mixins/token-code-experiment-mixin');
 
+  const t = msg => msg;
+  const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
+
   module.exports = {
     dependsOn: [
       ResumeTokenMixin,
-      SearchParamMixin,
       TokenCodeExperimentMixin
     ],
 
@@ -63,6 +65,14 @@ define(function (require, exports, module) {
             }
           }
 
+          // Check to see if this is an oauth client is requesting 2FA.
+          // If it is, set/override the corresponding verificationMethod.
+          // Login requests that ask for 2FA but don't have it setup on their account
+          // will return an error.
+          if (this.relier.isOAuth() && this.relier.wantsTwoStepAuthentication()) {
+            verificationMethod = VerificationMethods.TOTP_2FA;
+          }
+
           // Some brokers (e.g. Sync) hand off control of the sessionToken, and hence expect
           // each signin to generate a fresh token.  Make sure that will happen.
           if (account.has('sessionToken') && ! this.broker.hasCapability('reuseExistingSession')) {
@@ -103,6 +113,12 @@ define(function (require, exports, module) {
           if (AuthErrors.is(err, 'EMAIL_HARD_BOUNCE') ||
               AuthErrors.is(err, 'EMAIL_SENT_COMPLAINT')) {
             return this.navigate('signin_bounced', { email: account.get('email') });
+          }
+
+          if (AuthErrors.is(err, 'TOTP_REQUIRED') || OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')) {
+            err.forceMessage = t('This request requires two step authentication enabled on your account. ' +
+              '<a target="_blank" href=\'' + TOTP_SUPPORT_URL + '\'>More Information</a>');
+            return this.unsafeDisplayError(err);
           }
 
           // re-throw error, it'll be handled elsewhere.
@@ -167,6 +183,12 @@ define(function (require, exports, module) {
       // the change. See #3057 and #3283
       if (account.get('uid') !== this.relier.get('uid') &&
           this.broker.hasCapability('allowUidChange')) {
+        this.relier.set('uid', account.get('uid'));
+      } else if (account.get('email') !== this.relier.get('email')) {
+        // if the broker does not support `allowUidChange`, we still
+        // need to update `email` and `uid` otherwise login will fail
+        // for a deleted account. See #4316
+        this.relier.set('email', account.get('email'));
         this.relier.set('uid', account.get('uid'));
       }
 

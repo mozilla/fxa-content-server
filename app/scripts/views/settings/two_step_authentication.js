@@ -4,23 +4,24 @@
 
 'use strict';
 
+const _ = require('underscore');
 const AvatarMixin = require('../mixins/avatar-mixin');
 const AuthErrors = require('lib/auth-errors');
-const BaseView = require('../base');
 const Cocktail = require('cocktail');
-const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
 const FormView = require('../form');
+const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
 const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-const SearchParamMixin = require('../../lib/search-param-mixin');
+const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
 const Template = require('templates/settings/two_step_authentication.mustache');
-const preventDefaultThen = require('../base').preventDefaultThen;
+const { preventDefaultThen } = require('../base');
 const showProgressIndicator = require('../decorators/progress_indicator');
 
-var t = BaseView.t;
+const t = msg => msg;
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';
 const CODE_REFRESH_DELAY_MS = 350;
+const TOTP_SUPPORT_URL = 'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
 const View = FormView.extend({
   template: Template,
@@ -28,12 +29,12 @@ const View = FormView.extend({
   viewName: 'settings.two-step-authentication',
 
   events: {
+    'click .replace-codes-link': preventDefaultThen('_replaceRecoveryCodes'),
     'click .show-code-link': preventDefaultThen('_showCode'),
     'click .totp-cancel': preventDefaultThen('cancel'),
-    'click .totp-confirm-code': preventDefaultThen('confirmCode'),
     'click .totp-create': preventDefaultThen('createToken'),
     'click .totp-delete': preventDefaultThen('deleteToken'),
-    'click .totp-refresh': preventDefaultThen('refresh'),
+    'click .totp-refresh': preventDefaultThen('refresh')
   },
 
   _checkTokenExists() {
@@ -44,19 +45,12 @@ const View = FormView.extend({
       });
   },
 
-  _sanitizeCode(code) {
-    // Remove spaces and `-`
-    return code.replace(/[- ]*/g, '');
-  },
-
   _showQrCode() {
     this.$('#totp').removeClass('hidden');
   },
 
   _hideStatus() {
     this.$('.totp-list').addClass('hidden');
-    this.$('.totp-refresh').addClass('hidden');
-    this.$('.totp-confirm-code').removeClass('hidden');
   },
 
   _showCode() {
@@ -69,21 +63,26 @@ const View = FormView.extend({
     return code.replace(/(\w{4})/g, '$1 ');
   },
 
-  _isPanelEnabled() {
-    if (this.getSearchParam('showTwoStepAuthentication')) {
-      return true;
-    }
-    return false;
+  _showRecoveryCodes(recoveryCodes) {
+    this.model.set('recoveryCodes', recoveryCodes);
+    this.navigate('/settings/two_step_authentication/recovery_codes', {recoveryCodes});
+  },
+
+  _replaceRecoveryCodes() {
+    const account = this.getSignedInAccount();
+    return account.replaceRecoveryCodes()
+      .then((result) => {
+        this._showRecoveryCodes(result.recoveryCodes);
+      });
   },
 
   beforeRender() {
-    // This panel is currently behind a feature flag. Only show it
-    // when the query param `showTwoStepAuthentication` is specified.
-    if (! this._isPanelEnabled()) {
-      return this.remove();
-    } else {
-      return this._checkTokenExists();
-    }
+    return this.setupSessionGateIfRequired()
+      .then((isEnabled) => {
+        if (isEnabled) {
+          return this._checkTokenExists();
+        }
+      });
   },
 
   initialize() {
@@ -93,9 +92,10 @@ const View = FormView.extend({
 
   setInitialContext(context) {
     context.set({
+      escapedTotpSupportAttributes: _.escape('class=totp-support-link target=_blank href=' + TOTP_SUPPORT_URL),
       hasToken: this._hasToken,
       isPanelOpen: this.isPanelOpen(),
-      statusVisible: this._statusVisible
+      statusVisible: this._statusVisible,
     });
   },
 
@@ -109,6 +109,10 @@ const View = FormView.extend({
     return account.createTotpToken()
       .then(result => {
         this.$('.qr-image').attr('src', result.qrCodeUrl);
+
+        const qrImageAltText = t('Use the code %(code)s to set up two-step authentication in supported applications.');
+        this.$('.qr-image').attr('alt', this.translate(qrImageAltText, {code: result.secret}));
+
         this.$('.code').html(this._getFormattedCode(result.secret));
         this._showQrCode();
         this._hideStatus();
@@ -127,27 +131,31 @@ const View = FormView.extend({
       .then(() => this.navigate('/settings'));
   },
 
-  confirmCode() {
+  submit() {
     const account = this.getSignedInAccount();
-    const code = this._sanitizeCode(this.getElementValue('input.totp-code'));
-    return account.verifyTotpCode(code)
+    const code = this.getElementValue('input.totp-code');
+
+    return account.verifyTotpCode(code, this.relier.get('service'))
       .then((result) => {
         if (result.success) {
           this.displaySuccess(t('Two-step authentication enabled'), {});
+          this._showRecoveryCodes(result.recoveryCodes);
           this.render();
         } else {
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch((err) => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
-
-  },
-
-  submit() {
-    return this.confirmCode();
+      .catch((err) => {
+        // For invalid code param, display invalid TOTP code error
+        if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
+          err = AuthErrors.toError('INVALID_TOTP_CODE');
+        }
+        return this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
+      });
   },
 
   refresh: showProgressIndicator(function () {
+    this.setLastCheckedTime();
     return this.render();
   }, CODE_REFRESH_SELECTOR, CODE_REFRESH_DELAY_MS),
 
@@ -155,10 +163,13 @@ const View = FormView.extend({
 
 Cocktail.mixin(
   View,
+  UpgradeSessionMixin({
+    gatedHref: 'settings/two_step_authentication',
+    title: t('Two-step Authentication')
+  }),
   AvatarMixin,
-  SettingsPanelMixin,
-  FloatingPlaceholderMixin,
-  SearchParamMixin
+  LastCheckedTimeMixin,
+  SettingsPanelMixin
 );
 
 module.exports = View;

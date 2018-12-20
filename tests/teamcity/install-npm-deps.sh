@@ -7,7 +7,6 @@
 export NPM_CONFIG_LOGLEVEL=warn
 
 node ./tests/teamcity/install-npm-deps.js \
-  bluebird                        \
   convict                         \
   css                             \
   extend                          \
@@ -20,17 +19,20 @@ node ./tests/teamcity/install-npm-deps.js \
   htmlparser2                     \
   intern                          \
   joi                             \
+  js-md5                          \
   leadfoot                        \
   lodash                          \
   morgan                          \
   mozlog                          \
-  node-statsd                     \
   node-uap                        \
+  node-uuid                       \
   on-headers                      \
+  otplib                          \
   proxyquire                      \
   raven                           \
+  request                         \
+  request-promise                 \
   sinon                           \
-  sync-exec                       \
-  universal-analytics             \
+  underscore                      \
   xmlhttprequest                  \
   yargs

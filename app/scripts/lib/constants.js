@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const popularEmailDomains = require('./popular-email-domains.json');
+
 /*eslint-disable sorting/sort-object-props*/
 module.exports = {
   // All browsers have a max length of URI that they can handle.
@@ -35,15 +37,14 @@ module.exports = {
   FX_FIRSTRUN_V1_CONTEXT: 'fx_firstrun_v1',
   FX_FIRSTRUN_V2_CONTEXT: 'fx_firstrun_v2',
   FX_IOS_V1_CONTEXT: 'fx_ios_v1',
-  MOBILE_ANDROID_V1_CONTEXT: 'mob_android_v1',
-  MOBILE_IOS_V1_CONTEXT: 'mob_ios_v1',
   IFRAME_CONTEXT: 'iframe',
   OAUTH_CONTEXT: 'oauth',
+  OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',
 
   CONTENT_SERVER_SERVICE: 'content-server',
   SYNC_SERVICE: 'sync',
 
-  SYNC11_MIGRATION: 'sync11',
+  SYNC11_MIGRATION: 'sync11', // Note, with #6130 this is no longer supported, we accept and ignore the value.
   AMO_MIGRATION: 'amo',
 
   VERIFICATION_POLL_IN_MS: 4000,
@@ -63,6 +64,7 @@ module.exports = {
   // We only grant permissions that our UI currently prompts for. Others
   // will be stripped.
   OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS: [
+    'openid',
     'profile:display_name',
     'profile:email',
     'profile:uid'
@@ -80,10 +82,6 @@ module.exports = {
   PROFILE_IMAGE_MIN_WIDTH: 100,
   DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
 
-  // A relier can indicate they do not want to allow
-  // cached credentials if they set email === 'blank'
-  DISALLOW_CACHED_CREDENTIALS: 'blank',
-
   ONERROR_MESSAGE_LIMIT: 100,
 
   ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates',
@@ -98,6 +96,7 @@ module.exports = {
   CLIENT_TYPE_WEB_SESSION: 'webSession',
 
   DEFAULT_XHR_TIMEOUT_MS: 2500,
+  DEFAULT_BUNDLE_PATH: '/bundle/',
 
   // Login delay for iOS broker
   IOS_V1_LOGIN_MESSAGE_DELAY_MS: 5000,
@@ -105,12 +104,35 @@ module.exports = {
   BLOCKED_SIGNIN_SUPPORT_URL: 'https://support.mozilla.org/kb/accounts-blocked',
   UNBLOCK_CODE_LENGTH: 8,
 
+  RECOVERY_CODE_LENGTH: 8,
+
+  TOKEN_CODE_LENGTH: 6,
+
   MARKETING_ID_SPRING_2015: 'spring-2015-android-ios-sync',
   MARKETING_ID_AUTUMN_2016: 'autumn-2016-connect-another-device',
 
   DOWNLOAD_LINK_TEMPLATE_ANDROID: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android',
   DOWNLOAD_LINK_TEMPLATE_IOS: 'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
 
-  MOZ_ORG_SYNC_GET_STARTED_LINK: 'https://mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
+  MOZ_ORG_SYNC_GET_STARTED_LINK: 'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
+
+  // 20 most popular email domains, used for metrics. Matches the list
+  // we use in the auth server, converted to a map for faster lookup.
+  POPULAR_EMAIL_DOMAINS: popularEmailDomains.reduce((map, domain) => {
+    map[domain] = true;
+    return map;
+  }, {}),
+
+  OTHER_EMAIL_DOMAIN: 'other',
+
+  UTM_SOURCE_EMAIL: 'email',
+
+  // Recovery keys are base32 encoded, length 28 gives 135 bits of entropy
+  // Ex. (28 char - 1 version char) * 5 bits = 135 bits
+  RECOVERY_KEY_LENGTH: 28,
+
+  DEVICE_PAIRING_CHANNEL_KEY_BYTES: 32,
+
+  TWO_STEP_AUTHENTICATION_ACR: 'AAL2'
 };
 /*eslint-enable sorting/sort-object-props*/

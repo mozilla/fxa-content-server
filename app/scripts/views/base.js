@@ -17,7 +17,7 @@ define(function (require, exports, module) {
   const NullMetrics = require('../lib/null-metrics');
   const Logger = require('../lib/logger');
   const Raven = require('raven');
-  const SearchParamMixin = require('../lib/search-param-mixin');
+  const UrlMixin = require('../lib/url-mixin');
   const Strings = require('../lib/strings');
   const TimerMixin = require('./mixins/timer-mixin');
   const Translator = require('../lib/translator');
@@ -86,6 +86,15 @@ define(function (require, exports, module) {
     var translated = this.translateError(err);
 
     var $error = this.$('.error');
+
+    if (AuthErrors.is(err, 'WORKING')) {
+      this.logFlowEvent('working');
+      // Avoid a scary red warning for 'Working...'
+      $error.addClass('info');
+    } else {
+      $error.removeClass('info');
+    }
+
     if (translated) {
       $error[displayStrategy](translated);
     }
@@ -390,7 +399,7 @@ define(function (require, exports, module) {
       // use cached context, if available. This prevents the context()
       // function from being called multiple times per render.
       if (! this._context) {
-        this._context = new Backbone.Model({});
+        this._context = new Backbone.Model(this.model.toJSON());
         this.setInitialContext(this._context);
       }
       return this._context.toJSON();
@@ -814,12 +823,12 @@ define(function (require, exports, module) {
         this.logError(nextViewData.error);
       }
 
+      this._hasNavigated = true;
       this.notifier.trigger('navigate', {
         nextViewData: nextViewData,
         routerOptions: routerOptions,
         url: url
       });
-      this._hasNavigated = true;
     },
 
     /**
@@ -828,11 +837,11 @@ define(function (require, exports, module) {
      * @param {String} url
      */
     navigateAway (url) {
+      this._hasNavigated = true;
       this.notifier.trigger('navigate', {
         server: true,
         url
       });
-      this._hasNavigated = true;
     },
 
     /**
@@ -1072,28 +1081,13 @@ define(function (require, exports, module) {
     };
   };
 
-  /**
-   * t is a wrapper that is used for string extraction. The extraction
-   * script looks for t(...), and the translator will eventually
-   * translate it. t is put onto BaseView instead of
-   * Translator to reduce the number of dependencies in the views.
-   *
-   * @param {String} str
-   * @returns {String}
-   */
-  function t(str) {
-    return str;
-  }
-
-  BaseView.t = t;
-
   Cocktail.mixin(
     BaseView,
     // Attach the external links mixin in case the
     // view has any external links that need to have
     // their behaviors modified.
     ExternalLinksMixin,
-    SearchParamMixin,
+    UrlMixin,
     TimerMixin
   );
 

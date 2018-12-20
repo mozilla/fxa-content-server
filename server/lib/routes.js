@@ -7,6 +7,7 @@
 const { celebrate, isCelebrate, errors: celebrateErrors } = require('celebrate');
 const cors = require('cors');
 const logger = require('./logging/log')('server.routes');
+const raven = require('./raven');
 
 /**
  * Each route has 3 attributes: `method`, `path` and `process`.
@@ -31,10 +32,7 @@ module.exports = function (config, i18n) {
     redirectVersionedToUnversioned('complete_reset_password'),
     redirectVersionedToUnversioned('reset_password'),
     redirectVersionedToUnversioned('verify_email'),
-    // Disable server verification for now due to issues with customs
-    //require('./routes/get-verify-email')(),
     require('./routes/get-apple-app-site-association')(),
-    require('./routes/get-favicon')(),
     require('./routes/get-frontend')(),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-index')(config),
@@ -45,6 +43,8 @@ module.exports = function (config, i18n) {
     require('./routes/get-lbheartbeat')(),
     require('./routes/get-openid-configuration')(config),
     require('./routes/get-version.json'),
+    require('./routes/get-metrics-flow')(config),
+    require('./routes/get-well-known-change-password')(),
     require('./routes/post-metrics')(),
     require('./routes/post-metrics-errors')(),
     require('./routes/redirect-complete-to-verified')(),
@@ -117,6 +117,8 @@ module.exports = function (config, i18n) {
         logger.error('validation.failed', { err, method: req.method, path: req.url });
       }
       defaultErrorHandler(err, req, res, next);
+      // capture validation errors
+      raven.ravenModule.captureException(err);
     });
   };
 };

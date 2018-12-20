@@ -2,40 +2,75 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define(function(require, exports, module) {
-  'use strict';
+import { assert } from 'chai';
+import AuthBroker from 'models/auth_brokers/oauth';
+import AuthErrors from 'lib/auth-errors';
+import FormPrefill from 'models/form-prefill';
+import OAuthIndexView from 'views/oauth_index';
+import Notifier from 'lib/channels/notifier';
+import Relier from 'models/reliers/base';
+import User from 'models/user';
+import sinon from 'sinon';
 
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const OAuthIndexView = require('views/oauth_index');
-  const Notifier = require('lib/channels/notifier');
-  const Relier = require('models/reliers/base');
-  const User = require('models/user');
-  const sinon = require('sinon');
+describe('views/oauth_index', () => {
+  let broker;
+  let formPrefill;
+  let notifier;
+  let relier;
+  let user;
+  let view;
 
-  describe('views/oauth_index', () => {
-    let relier;
-    let user;
-    let view;
-
-    beforeEach(() => {
-      relier = new Relier();
-      user = new User();
-      view = new OAuthIndexView({
-        notifier: new Notifier(),
-        relier,
-        user
-      });
-
-      sinon.spy(view, 'navigate');
+  beforeEach(() => {
+    broker = new AuthBroker();
+    formPrefill = new FormPrefill();
+    notifier = new Notifier();
+    relier = new Relier();
+    user = new User();
+    view = new OAuthIndexView({
+      broker,
+      formPrefill,
+      notifier,
+      relier,
+      user
     });
 
+    sinon.spy(view, 'replaceCurrentPage');
+  });
+
+  describe('email-first flow', () => {
+    beforeEach(() => {
+      relier.set('action', 'email');
+    });
+
+    describe('relier does not have an email', () => {
+      it('displays the enter-email page page', () => {
+        return view.render()
+          .then(() => {
+            assert.isFalse(view.replaceCurrentPage.called);
+          });
+      });
+    });
+
+    describe('relier has an email', () => {
+      it('delegates to `checkEmail`', () => {
+        sinon.stub(view, 'checkEmail');
+        const email = 'testuser@testuser.com';
+        relier.set('email', email);
+        return view.render()
+          .then(() => {
+            assert.isFalse(view.replaceCurrentPage.called);
+            assert.isTrue(view.checkEmail.calledOnceWith(email));
+          });
+      });
+    });
+  });
+
+  describe('best-choice flow', () => {
     describe('relier does not have an email', () => {
       it('navigates to signup page if there is no current account', () => {
         return view.render()
           .then(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            assert.isTrue(view.navigate.calledWith('oauth/signup', {}, { replace: true, trigger: true }));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
 
@@ -46,8 +81,7 @@ define(function(require, exports, module) {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            assert.isTrue(view.navigate.calledWith('oauth/signin', {}, { replace: true, trigger: true }));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
           });
       });
     });
@@ -62,8 +96,7 @@ define(function(require, exports, module) {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            assert.isTrue(view.navigate.calledWith('oauth/signup', {}, { replace: true, trigger: true }));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
 
@@ -72,8 +105,7 @@ define(function(require, exports, module) {
 
         return view.render()
           .then(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            assert.isTrue(view.navigate.calledWith('oauth/signin', {}, { replace: true, trigger: true }));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signin'));
           });
       });
 
@@ -88,8 +120,7 @@ define(function(require, exports, module) {
         return view.render()
           .then(() => {
             assert.isTrue(view.logError.calledWith(err));
-            assert.isTrue(view.navigate.calledOnce);
-            assert.isTrue(view.navigate.calledWith('oauth/signup', {}, { replace: true, trigger: true }));
+            assert.isTrue(view.replaceCurrentPage.calledOnceWith('signup'));
           });
       });
     });

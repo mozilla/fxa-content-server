@@ -11,6 +11,7 @@ define(function (require, exports, module) {
   const FxaClient = require('fxaClient');
   const FxaClientWrapper = require('lib/fxa-client');
   const OAuthRelier = require('models/reliers/oauth');
+  const RecoveryKey = require('lib/crypto/recovery-keys');
   const ResumeToken = require('models/resume-token');
   const sinon = require('sinon');
   const SignInReasons = require('lib/sign-in-reasons');
@@ -883,32 +884,6 @@ define(function (require, exports, module) {
               ));
           });
       });
-
-      it('passes along an optional `metricsContext`', function () {
-        var options = {
-          metricsContext: {},
-          resume: resumeToken
-        };
-
-        return client.passwordReset(email, relier, options)
-          .then(function () {
-            return client.passwordResetResend(email, passwordForgotToken, relier, options);
-          })
-          .then(function () {
-            var params = {
-              metricsContext: {},
-              redirectTo: REDIRECT_TO,
-              resume: resumeToken,
-              service: SYNC_SERVICE
-            };
-            assert.isTrue(
-              realClient.passwordForgotResendCode.calledWith(
-                trim(email),
-                passwordForgotToken,
-                params
-              ));
-          });
-      });
     });
 
     describe('completePasswordReset', function () {
@@ -960,21 +935,6 @@ define(function (require, exports, module) {
             assert.equal(sessionData.uid, 'uid');
             assert.equal(sessionData.unwrapBKey, 'unwrap b key');
             assert.isTrue(sessionData.verified);
-          });
-      });
-
-      it('passes along an optional `metricsContext`', function () {
-        const metricsContext = {
-          flowBeginTime: 'foo',
-          flowId: 'bar'
-        };
-
-        return client.completePasswordReset(email, password, token, code, relier, { metricsContext })
-          .then(function () {
-            assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-              code, token, { metricsContext }));
-            assert.isTrue(realClient.accountReset.calledWith(
-              trim(email), password, 'reset_token', { keys: true, metricsContext, sessionToken: true }));
           });
       });
     });
@@ -1061,6 +1021,37 @@ define(function (require, exports, module) {
               }
             ));
             assert.isTrue(realClient.sessionDestroy.calledWith('session token'));
+          });
+      });
+
+      it('re-authenticates an existing sessionToken if provided', () => {
+        const sessionToken = 'session token';
+        email = trim(email);
+
+        sinon.stub(realClient, 'sessionReauth').callsFake(() => {
+          return Promise.resolve({});
+        });
+
+        sinon.stub(realClient, 'signIn').callsFake(() => {
+          return Promise.resolve({});
+        });
+
+        sinon.stub(realClient, 'sessionDestroy').callsFake(() => {
+          return Promise.resolve();
+        });
+
+        return client.checkPassword(email, password, sessionToken)
+          .then(() => {
+            assert.isTrue(realClient.sessionReauth.calledWith(
+              sessionToken,
+              email,
+              password,
+              {
+                reason: SignInReasons.PASSWORD_CHECK
+              }
+            ));
+            assert.isFalse(realClient.signIn.called);
+            assert.isFalse(realClient.sessionDestroy.called);
           });
       });
     });
@@ -1548,13 +1539,61 @@ define(function (require, exports, module) {
         const resp = {
           success: true
         };
+        const options = {
+          service: 'someservice'
+        };
         sinon.stub(realClient, 'verifyTotpCode').callsFake(() => Promise.resolve(resp));
 
-        return client.verifyTotpCode('code')
+        return client.verifyTotpCode('code', options)
           .then((_resp) => {
             assert.strictEqual(_resp, resp);
             assert.isTrue(realClient.verifyTotpCode.calledOnce);
-            assert.isTrue(realClient.verifyTotpCode.calledWith('code'));
+            assert.isTrue(realClient.verifyTotpCode.calledWith('code', options));
+          });
+      });
+    });
+
+    describe('createRecoveryBundle', () => {
+      let sandbox;
+
+      beforeEach(() => {
+        sandbox = sinon.sandbox.create();
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('delegates to the fxa-js-client', () => {
+        const bundle = 'some cool base64 encrypted data';
+        const keys = {
+          'kB': '12341234'
+        };
+        const recoveryKey = 'ATQ5RYC9Z5DRN4HG';
+        const recoveryJwk = {
+          kid: 'kid'
+        };
+        const uid = '1234';
+
+        sandbox.stub(realClient, 'accountKeys').callsFake(() => Promise.resolve(keys));
+        sandbox.stub(realClient, 'sessionReauth').callsFake(() => Promise.resolve({
+          keyFetchToken: 'keyFetchToken',
+          unwrapBKey: 'unwrapBKey',
+        }));
+        sandbox.stub(realClient, 'createRecoveryKey').callsFake(() => Promise.resolve({recoveryKey}));
+        sandbox.stub(RecoveryKey, 'generateRecoveryKey').callsFake(() => Promise.resolve(recoveryKey));
+        sandbox.stub(RecoveryKey, 'getRecoveryJwk').callsFake(() => Promise.resolve(recoveryJwk));
+        sandbox.stub(RecoveryKey, 'bundleRecoveryData').callsFake(() => Promise.resolve(bundle));
+
+        return client.createRecoveryBundle('email', 'password', 'sessionToken', uid)
+          .then((resp) => {
+            assert.isTrue(realClient.sessionReauth.calledOnceWith('sessionToken', 'email', 'password', {keys: true, reason: VerificationReasons.RECOVERY_KEY}));
+            assert.isTrue(realClient.accountKeys.calledOnceWith('keyFetchToken', 'unwrapBKey'));
+            assert.isTrue(realClient.createRecoveryKey.calledOnceWith('sessionToken', recoveryJwk.kid, bundle));
+            assert.isTrue(RecoveryKey.generateRecoveryKey.calledOnce);
+            assert.isTrue(RecoveryKey.getRecoveryJwk.calledOnceWith(uid, recoveryKey));
+            assert.isTrue(RecoveryKey.bundleRecoveryData.calledOnceWith(recoveryJwk, keys));
+            assert.deepEqual(resp, {recoveryKey});
           });
       });
     });

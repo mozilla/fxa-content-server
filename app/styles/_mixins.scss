@@ -13,10 +13,13 @@
   // kills the form number control in Firefox
   // behavior of 'appearance' is different in FF vs iOS vs Chrome
   -moz-appearance: textfield;
-  background-color: $mobile-html-background-color;
-  border: 1px solid $input-row-border-color;
-  box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
-  color: $input-text-color;
+  background-color: $input-background-color-default;
+  border: 1px solid $input-border-color-default;
+  border-radius: $input-border-radius;
+  color: $input-text-color-default;
+  font-size: $input-text-font-size-default;
+  font-weight: $input-text-font-weight-default;
+  height: $input-height;
   outline: none;
   position: relative;
   transition-duration: $short-transition;
@@ -24,20 +27,26 @@
   width: 100%;
   z-index: 2;
 
-  @include respond-to('big') {
-    border-radius: $big-border-radius;
-    font-size: $medium-font;
-    height: 45px;
+  &:hover {
+    border-color: $input-border-color-hover;
   }
 
-  @include respond-to('small') {
-    border-radius: $small-border-radius;
-    font-size: $base-font + $media-adjustment;
-    height: 40px;
+  &:focus {
+    border-color: $input-border-color-focus;
+    box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
   }
 
-  @include respond-to('trustedUI') {
-    padding: 0 $input-left-right-padding * 0.5;
+  &.invalid {
+    border-color: $error-background-color;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
+    }
+  }
+
+  &:disabled {
+    color: $input-text-color-disabled;
+    cursor: not-allowed;
   }
 }
 
@@ -54,4 +63,103 @@
   (min-resolution: 1.3dppx) {
     background-image: image-url('#{$filename}@2x.#{$extension}');
   }
+}
+
+@mixin anchor-default-pseudo-classes($color-hover: $link-color-hover, $color-box-shadow: $blue-60, $color-focus: $link-color-focus, $color-active: $link-color-active) {
+  &:focus {
+    box-shadow: 0 0 0 2px $color-box-shadow, 0 0 0 6px rgba($color-box-shadow, 0.3);
+    color: $color-focus;
+    outline: none;
+  }
+
+  &:hover {
+    color: $color-hover;
+    text-decoration: underline;
+  }
+
+  &:active {
+    box-shadow: none;
+    color: $color-active;
+    outline: none;
+  }
+
+  &:focus:hover {
+    // remove the underline on hover if already focused to
+    // avoid a double underline. See #6204
+    text-decoration: none;
+  }
+
+  &:focus:active {
+    // while depressed, always show the underline.
+    text-decoration: underline;
+  }
+}
+
+@mixin element-state-colors($color-hover, $color-focus, $color-active) {
+  &:hover {
+    color: $color-hover;
+  }
+
+  &:focus {
+    color: $color-focus;
+  }
+
+  &:active {
+    color: $color-active;
+  }
+}
+
+@mixin message-box ($background-color, $text-color) {
+  @include body10();
+
+  background: $background-color;
+  border-radius: 4px;
+  color: $text-color;
+  min-height: 32px;
+  padding: 8px 4px;
+  position: relative;
+  text-align: center;
+
+  @include respond-to('small') {
+    width: 100%;
+  }
+
+  a {
+    color: $text-color;
+    text-decoration: underline;
+  }
+
+  &.visible {
+    display: block;
+  }
+}
+
+@mixin body20() {
+  font-size: $font-size-body-20;
+  font-weight: $font-weight-body-20;
+}
+
+@mixin body10() {
+  font-size: $font-size-body-10;
+  font-weight: $font-weight-body-10;
+}
+
+@mixin caption10() {
+  font-size: $font-size-caption-10;
+  font-weight: $font-weight-caption-10;
+}
+
+@mixin title30() {
+  font-size: $font-size-title-30;
+  font-weight: $font-weight-title-30;
+}
+
+@mixin title20() {
+  font-size: $font-size-title-20;
+  font-weight: $font-weight-title-20;
+}
+
+@mixin title10() {
+  font-size: $font-size-title-10;
+  font-weight: $font-weight-title-10;
 }

@@ -7,9 +7,7 @@ define(function (require, exports, module) {
 
   const AuthErrors = require('../../lib/auth-errors');
   const BackMixin = require('../mixins/back-mixin');
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const ExperimentMixin = require('../mixins/experiment-mixin');
   const PasswordMixin = require('../mixins/password-mixin');
@@ -17,7 +15,7 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const Template = require('templates/settings/change_password.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   var View = FormView.extend({
     template: Template,
@@ -68,7 +66,6 @@ define(function (require, exports, module) {
     View,
     ExperimentMixin,
     PasswordMixin,
-    FloatingPlaceholderMixin,
     SettingsPanelMixin,
     ServiceMixin,
     BackMixin

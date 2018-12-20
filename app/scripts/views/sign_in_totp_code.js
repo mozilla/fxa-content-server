@@ -2,25 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const AuthErrors = require('lib/auth-errors');
-const Cocktail = require('cocktail');
-const Constants = require('../lib/constants');
-const FormView = require('./form');
-const SignInMixin = require('./mixins/signin-mixin');
-const ServiceMixin = require('./mixins/service-mixin');
-const Template = require('templates/sign_in_totp_code.mustache');
-const VerificationReasonMixin = require('./mixins/verification-reason-mixin');
+import AuthErrors from 'lib/auth-errors';
+import Cocktail from 'cocktail';
+import FormView from './form';
+import ServiceMixin from './mixins/service-mixin';
+import Template from 'templates/sign_in_totp_code.mustache';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import FlowEventsMixin from './mixins/flow-events-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 
 const View = FormView.extend({
   className: 'sign-in-totp-code',
   template: Template,
-
-  _sanitizeCode (code) {
-    // Remove spaces and `-`
-    return code.replace(/[- ]*/g, '');
-  },
 
   beforeRender () {
     // user cannot confirm if they have not initiated a sign in.
@@ -30,23 +24,13 @@ const View = FormView.extend({
     }
   },
 
-  setInitialContext (context) {
-    // This needs to point to correct support link
-    const supportLink = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
-
-    context.set({
-      escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !! supportLink
-    });
-  },
-
   submit () {
     const account = this.getSignedInAccount();
-    const code = this._sanitizeCode(this.getElementValue('input.totp-code'));
-    return account.verifyTotpCode(code)
+    const code = this.getElementValue('input.totp-code');
+    return account.verifyTotpCode(code, this.relier.get('service'))
       .then((result) => {
         if (result.success) {
-          this.logViewEvent('success');
+          this.logFlowEvent('success', this.viewName);
           return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
         } else {
           throw AuthErrors.toError('INVALID_TOTP_CODE');
@@ -62,16 +46,13 @@ const View = FormView.extend({
    * @returns {String}
    */
   _getAuthPage () {
-    const authPage =
-      this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
-
-    return this.broker.transformLink(authPage);
+    return this.model.get('lastPage') === 'force_auth' ? 'force_auth' : 'signin';
   }
 });
 
 Cocktail.mixin(
   View,
-  SignInMixin,
+  FlowEventsMixin,
   ServiceMixin,
   VerificationReasonMixin
 );

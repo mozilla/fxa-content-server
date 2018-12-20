@@ -1,4 +1,5 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public * License, v. 2.0. If a copy of the MPL was not distributed with this
+/* This Source Code Form is subject to the terms of the Mozilla Public * License, v. 2.0.
+ * If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
@@ -6,19 +7,15 @@ define(function (require, exports, module) {
 
   const AccountResetMixin = require('./mixins/account-reset-mixin');
   const AuthErrors = require('../lib/auth-errors');
-  const BaseView = require('./base');
-  const CheckboxMixin = require('./mixins/checkbox-mixin');
   const Cocktail = require('cocktail');
   const CoppaMixin = require('./mixins/coppa-mixin');
   const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
   const EmailOptInMixin = require('./mixins/email-opt-in-mixin');
   const ExperimentMixin = require('./mixins/experiment-mixin');
-  const FloatingPlaceholderMixin = require('./mixins/floating-placeholder-mixin');
   const FlowBeginMixin = require('./mixins/flow-begin-mixin');
   const FormPrefillMixin = require('./mixins/form-prefill-mixin');
   const FormView = require('./form');
   const mailcheck = require('../lib/mailcheck');
-  const MigrationMixin = require('./mixins/migration-mixin');
   const PasswordMixin = require('./mixins/password-mixin');
   const ServiceMixin = require('./mixins/service-mixin');
   const SignedInNotificationMixin = require('./mixins/signed-in-notification-mixin');
@@ -27,7 +24,7 @@ define(function (require, exports, module) {
   const SyncSuggestionMixin = require('./mixins/sync-suggestion-mixin');
   const Template = require('templates/sign_up.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
     if (bouncedEmail) {
@@ -81,8 +78,7 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'blur input.email': 'onEmailBlur',
-      'click #amo-migration a': 'onAmoSignIn'
+      'blur input.email': 'onEmailBlur'
     },
 
     getPrefillEmail () {
@@ -112,11 +108,9 @@ define(function (require, exports, module) {
         email: prefillEmail,
         error: this.error,
         forceEmail: forceEmail,
-        isAmoMigration: this.isAmoMigration(),
         isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isSignInEnabled: ! forceEmail,
-        isSync: isSync,
-        isSyncMigration: this.isSyncMigration()
+        isSync: isSync
       });
     },
 
@@ -257,13 +251,6 @@ define(function (require, exports, module) {
       mailcheck(this.$el.find('.email'), this);
     },
 
-    onAmoSignIn () {
-      // The user has chosen to sign in with a different email, clear the
-      // email from the relier so it's not used again on the signin page.
-      this.relier.unset('email');
-      this.$('input[type=email]').val('');
-    },
-
     _isEmailSameAsBouncedEmail () {
       var bouncedEmail = this.model.get('bouncedEmail');
 
@@ -309,15 +296,12 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     AccountResetMixin,
-    CheckboxMixin,
     CoppaMixin({ required: false }),
     EmailFirstExperimentMixin({ treatmentPathname: '/' }),
     EmailOptInMixin,
     ExperimentMixin,
-    FloatingPlaceholderMixin,
     FlowBeginMixin,
     FormPrefillMixin,
-    MigrationMixin,
     PasswordMixin,
     ServiceMixin,
     SignInMixin,

@@ -13,10 +13,10 @@ const config = intern._config;
 
 const ios10UserAgent = uaStrings['ios_firefox_6_1'];
 
-const ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary';
+const ADD_AVATAR_BUTTON_SELECTOR  = '#change-avatar .settings-unit-toggle.primary-button';
 const AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
 const AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 const SETTINGS_URL = config.fxaContentRoot + 'settings';
 const SETTINGS_URL_IOS10 = `${SETTINGS_URL}?forceUA='${encodeURIComponent(ios10UserAgent)}`;
 const SIGNIN_URL = config.fxaContentRoot + 'signin';

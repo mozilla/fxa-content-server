@@ -8,7 +8,6 @@ const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const CountryTelephoneInfo = require('../../app/scripts/lib/country-telephone-info');
 
 const config = intern._config;
 
@@ -29,13 +28,14 @@ const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
 
 let email;
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 let testPhoneNumber;
 let formattedPhoneNumber;
 
 const {
   click,
+  clearBrowserState,
   closeCurrentWindow,
   deleteAllSms,
   disableInProd,
@@ -69,13 +69,12 @@ const suite = {
   beforeEach: function () {
     email = TestHelpers.createEmail();
     testPhoneNumber = TestHelpers.createPhoneNumber();
-    const countryInfo = CountryTelephoneInfo['US'];
-    formattedPhoneNumber =
-      countryInfo.format(countryInfo.normalize(testPhoneNumber));
+    formattedPhoneNumber = `${testPhoneNumber.substr(0, 3)}-${testPhoneNumber.substr(3, 3)}-${testPhoneNumber.substr(6)}`;
 
     // User needs a sessionToken to be able to send an SMS. Sign up,
     // no need to verify.
     return this.remote
+      .then(clearBrowserState({ force: true }))
       .then(fillOutSignUp(email, PASSWORD))
       .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
       // The phoneNumber can be reused by different tests, delete all

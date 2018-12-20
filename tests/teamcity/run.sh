@@ -27,16 +27,24 @@ if [ "x$1" = "x" ]; then
 fi
 FXA_TEST_NAME=$1
 
+# When a new version is deployed in stage, *two* stacks are live. If the
+# Teamcity trigger notices the newer version, kicks off this script, *and* the
+# ELB now points at the older stack, then the wrong tests will be pulled for
+# execution. It's a tiny race, and probably very rare, but a short sleep
+# doesn't hurt here.
+sleep 5
+
 source $DIRNAME/defaults.sh
 source $DIRNAME/$FXA_TEST_NAME
 
 killall -v firefox-bin || echo 'Ok, no firefox-bin.'
 
-echo "FXA_TEST_NAME       $FXA_TEST_NAME"
-echo "FXA_CONTENT_ROOT    $FXA_CONTENT_ROOT"
-echo "FXA_AUTH_ROOT       $FXA_AUTH_ROOT"
-echo "FXA_OAUTH_APP_ROOT  $FXA_OAUTH_APP_ROOT"
-echo "FXA_FIREFOX_BINARY  $FXA_FIREFOX_BINARY"
+echo "FXA_TEST_NAME                $FXA_TEST_NAME"
+echo "FXA_CONTENT_ROOT             $FXA_CONTENT_ROOT"
+echo "FXA_AUTH_ROOT                $FXA_AUTH_ROOT"
+echo "FXA_OAUTH_APP_ROOT           $FXA_OAUTH_APP_ROOT"
+echo "FXA_UNTRUSTED_OAUTH_APP_ROOT $FXA_UNTRUSTED_OAUTH_APP_ROOT"
+echo "FXA_FIREFOX_BINARY           $FXA_FIREFOX_BINARY"
 
 echo "FXA_CONTENT_VERSION $FXA_CONTENT_VERSION"
 echo "FXA_OAUTH_VERSION   $FXA_OAUTH_VERSION"
@@ -79,7 +87,7 @@ node ./tests/teamcity/install-npm-deps.js \
   got                             \
   intern                          \
   leadfoot                        \
-  sync-exec                       \
+  otplib                          \
   xmlhttprequest                  \
   yargs
 

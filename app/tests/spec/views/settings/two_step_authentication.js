@@ -4,8 +4,11 @@
 
 const $ = require('jquery');
 const assert = require('chai').assert;
+const Broker = require('models/auth_brokers/base');
 const Metrics = require('lib/metrics');
 const Notifier = require('lib/channels/notifier');
+const Relier = require('models/reliers/base');
+const SentryMetrics = require('lib/sentry');
 const sinon = require('sinon');
 const TestHelpers = require('../../../lib/helpers');
 const User = require('models/user');
@@ -13,11 +16,14 @@ const View = require('views/settings/two_step_authentication');
 
 describe('views/settings/two_step_authentication', () => {
   let account;
+  let broker;
   let email;
   let metrics;
   let notifier;
   let featureEnabled;
   let hasToken;
+  let relier;
+  let sentryMetrics;
   let validCode;
   const UID = '123';
   let user;
@@ -25,23 +31,26 @@ describe('views/settings/two_step_authentication', () => {
 
   function initView() {
     view = new View({
-      metrics: metrics,
-      notifier: notifier,
-      user: user
+      broker,
+      metrics,
+      notifier,
+      relier,
+      user
     });
 
-    sinon.stub(view, '_isPanelEnabled').callsFake(() => featureEnabled);
+    sinon.stub(view, 'setupSessionGateIfRequired').callsFake(() => Promise.resolve(featureEnabled));
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
-    sinon.spy(view, 'remove');
 
     return view.render()
       .then(() => $('#container').html(view.$el));
   }
 
   beforeEach(() => {
+    broker = new Broker();
     email = TestHelpers.createEmail();
     notifier = new Notifier();
-    metrics = new Metrics({notifier});
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({notifier, sentryMetrics});
     user = new User();
     account = user.initAccount({
       email: email,
@@ -49,6 +58,7 @@ describe('views/settings/two_step_authentication', () => {
       uid: UID,
       verified: true
     });
+    relier = new Relier();
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
       return Promise.resolve({exists: hasToken});
@@ -69,6 +79,8 @@ describe('views/settings/two_step_authentication', () => {
 
     featureEnabled = true;
     hasToken = true;
+
+    return initView();
   });
 
   afterEach(() => {
@@ -77,115 +89,103 @@ describe('views/settings/two_step_authentication', () => {
     view = null;
   });
 
-  describe('feature disabled', () => {
+  it('should show support link', () => {
+    assert.equal(view.$('.totp-support-link').length, 1);
+    assert.equal(view.$('.totp-support-link').attr('href'), 'https://support.mozilla.org/kb/secure-' +
+      'firefox-account-two-step-authentication');
+  });
+
+  describe('should show token status', () => {
     beforeEach(() => {
-      featureEnabled = false;
+      hasToken = true;
       return initView();
     });
 
-    it('should remove panel if `showTwoStepAuthentication` query is not specified', () => {
-      assert.equal(view.remove.callCount, 1);
+    it('should show token status view if user has token', () => {
+      assert.equal(view.$('#totp-status .enabled').length, 1);
+      assert.equal(view.$('#totp.hidden').length, 1);
     });
   });
 
-  describe('feature enabled', () => {
+  describe('should create new token', () => {
     beforeEach(() => {
-      featureEnabled = true;
+      hasToken = false;
+      return initView()
+        .then(() => view.createToken());
+    });
+
+    it('should show QR code', () => {
+      assert.equal(view.$('#totp').is(':visible'), true);
+      assert.equal(view.$('img.qr-image').attr('src'), 'data:image/png;base64,iVBOR');
+    });
+
+    it('should not show status section', () => {
+      assert.equal(view.$('.totp-list.hidden').length, 1);
+    });
+
+    describe('should show code and hide `show code link`', () => {
+      beforeEach(() => {
+        assert.equal(view.$('.manual-code.hidden').length, 1);
+        assert.equal(view.$('.show-code-link:not(hidden)').length, 1);
+        return view.$('.show-code-link').click();
+      });
+
+      it('shows correct links', () => {
+        assert.equal(view.$('.code')[0].innerText, 'MZEE 4ODK');
+        assert.equal(view.$('.manual-code:not(hidden)').length, 1);
+        assert.equal(view.$('.show-code-link.hidden').length, 1);
+      });
+    });
+  });
+
+  describe('should display error for invalid code', () => {
+    beforeEach(() => {
+      validCode = false;
+      return initView()
+        .then(() => {
+          sinon.spy(view, 'showValidationError');
+          return view.submit();
+        });
+    });
+
+    it('display error', () => {
+      assert.equal(view.showValidationError.callCount, 1);
+      assert.equal(view.showValidationError.args[0][1].errno, 1054, 'invalid code errno');
+    });
+  });
+
+  describe('should validate token code', () => {
+    beforeEach(() => {
+      validCode = true;
+      return initView()
+        .then(() => {
+          sinon.spy(view, 'render');
+          sinon.spy(view, 'displaySuccess');
+          view.submit();
+        });
+    });
+
+    it('confirms code', () => {
+      assert.equal(view.render.callCount, 1);
+      assert.equal(view.displaySuccess.callCount, 1);
+    });
+  });
+
+  describe('should delete token', () => {
+    beforeEach(() => {
+      hasToken = true;
       return initView();
     });
 
-    describe('should show token status', () => {
-      beforeEach(() => {
-        hasToken = true;
-        return initView();
-      });
-
-      it('should show token status view if user has token', () => {
-        assert.equal(view.$('#totp-status .enabled').length, 1);
-        assert.equal(view.$('#totp.hidden').length, 1);
-      });
-    });
-
-    describe('should create new token', () => {
-      beforeEach(() => {
-        hasToken = false;
-        return initView()
-          .then(() => view.createToken());
-      });
-
-      it('should show QR code', () => {
-        assert.equal(view.$('#totp').is(':visible'), true);
-        assert.equal(view.$('img.qr-image').attr('src'), 'data:image/png;base64,iVBOR');
-      });
-
-      it('should not show status section', () => {
-        assert.equal(view.$('.totp-list.hidden').length, 1);
-      });
-
-      describe('should show code and hide `show code link`', () => {
-        beforeEach(() => {
-          assert.equal(view.$('.manual-code.hidden').length, 1);
-          assert.equal(view.$('.show-code-link:not(hidden)').length, 1);
-          return view.$('.show-code-link').click();
+    it('deletes a token and shows success', () => {
+      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'displaySuccess');
+      return view.deleteToken()
+        .then(() => {
+          assert.equal(account.deleteTotpToken.callCount, 1, 'called delete token');
+          assert.equal(view.displaySuccess.callCount, 1, 'displayed success');
+          assert.equal(view.navigate.args[0][0], '/settings', 'navigated to settings');
         });
-
-        it('shows correct links', () => {
-          assert.equal(view.$('.code')[0].innerText, 'MZEE 4ODK');
-          assert.equal(view.$('.manual-code:not(hidden)').length, 1);
-          assert.equal(view.$('.show-code-link.hidden').length, 1);
-        });
-      });
-    });
-
-    describe('should display error for invalid code', () => {
-      beforeEach(() => {
-        validCode = false;
-        return initView()
-          .then(() => {
-            sinon.spy(view, 'showValidationError');
-            return view.confirmCode();
-          });
-      });
-
-      it('display error', () => {
-        assert.equal(view.showValidationError.callCount, 1);
-        assert.equal(view.showValidationError.args[0][1].errno, 154, 'invalid code errno');
-      });
-    });
-
-    describe('should validate token code', () => {
-      beforeEach(() => {
-        validCode = true;
-        return initView()
-          .then(() => {
-            sinon.spy(view, 'render');
-            sinon.spy(view, 'displaySuccess');
-            view.confirmCode();
-          });
-      });
-
-      it('confirms code', () => {
-        assert.equal(view.render.callCount, 1);
-        assert.equal(view.displaySuccess.callCount, 1);
-      });
-    });
-
-    describe('should delete token', () => {
-      beforeEach(() => {
-        hasToken = true;
-        return initView();
-      });
-
-      it('deletes a token and shows success', () => {
-        sinon.spy(view, 'navigate');
-        sinon.spy(view, 'displaySuccess');
-        return view.deleteToken()
-          .then(() => {
-            assert.equal(account.deleteTotpToken.callCount, 1, 'called delete token');
-            assert.equal(view.displaySuccess.callCount, 1, 'displayed success');
-            assert.equal(view.navigate.args[0][0], '/settings', 'navigated to settings');
-          });
-      });
     });
   });
 });

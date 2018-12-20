@@ -35,7 +35,8 @@ registerSuite('flow-event', {
       request: {
         headers: {
           'user-agent': 'bar'
-        }
+        },
+        locale: 'en'
       },
       time: 1479127399349
     };
@@ -43,7 +44,7 @@ registerSuite('flow-event', {
       './amplitude': mocks.amplitude,
       './configuration': mocks.config,
       './flow-metrics': mocks.flowMetrics
-    });
+    }).metricsRequest;
   },
 
   afterEach: function() {
@@ -92,7 +93,8 @@ registerSuite('flow-event', {
             flow_id: '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
             flow_time: 0,
             hostname: os.hostname(),
-            migration: 'sync11',
+            locale: 'en',
+            migration: 'amo',
             op: 'flowEvent',
             pid: process.pid,
             service: '1234567890abcdef',
@@ -109,7 +111,7 @@ registerSuite('flow-event', {
 
         'second call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[1][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.view');
           assert.equal(arg.flow_time, 5);
           assert.equal(arg.time, new Date(mocks.time - 995).toISOString());
@@ -117,14 +119,14 @@ registerSuite('flow-event', {
 
         'third call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[2][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-now');
           assert.equal(arg.time, new Date(mocks.time).toISOString());
         },
 
         'fourth call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.lengthOf(Object.keys(arg), 17);
+          assert.lengthOf(Object.keys(arg), 18);
           assert.equal(arg.event, 'flow.signup.good-offset-oldest');
           assert.equal(arg.time, new Date(mocks.time - config.flow_id_expiry).toISOString());
         },
@@ -221,7 +223,7 @@ registerSuite('flow-event', {
 
       tests: {
         'process.stderr.write was called seven times': () => {
-          assert.equal(process.stderr.write.callCount, 7);
+          assert.equal(process.stderr.write.callCount, 4);
         },
 
         'first call to process.stderr.write was correct': () => {
@@ -250,24 +252,6 @@ registerSuite('flow-event', {
           assert.equal(arg.event, 'flow.performance.auth.client');
           assert.equal(arg.time, new Date(mocks.time - 2000 + 200).toISOString());
           assert.equal(arg.flow_time, 200);
-        },
-
-        'fifth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[4][0]);
-          assert.equal(arg.event, 'flow.performance.auth.connectStart');
-          assert.equal(arg.flow_time, 300);
-        },
-
-        'sixth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[5][0]);
-          assert.equal(arg.event, 'flow.performance.auth.domainLookupEnd');
-          assert.equal(arg.flow_time, 200);
-        },
-
-        'seventh call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[6][0]);
-          assert.equal(arg.event, 'flow.performance.auth.requestStart');
-          assert.equal(arg.flow_time, 500);
         },
 
         'amplitude was called once': () => {
@@ -361,7 +345,7 @@ registerSuite('flow-event', {
       beforeEach() {
         flowMetricsValidateResult = true;
         setup({
-          migration: 'sync111'
+          migration: 'amo1'
         }, 1000);
       },
 
@@ -396,6 +380,7 @@ registerSuite('flow-event', {
         const timeSinceFlowBegin = 1000;
         const flowBeginTime = mocks.time - timeSinceFlowBegin;
         flowMetricsValidateResult = true;
+        mocks.request.locale = 'ar';
         flowEvent(mocks.request, {
           events: [
             {offset: 0, type: 'flow.begin'}
@@ -410,6 +395,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called once': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
+          assert.equal(arg.locale, 'ar');
           assert.isUndefined(arg.context);
           assert.isUndefined(arg.entrypoint);
           assert.isUndefined(arg.migration);
@@ -813,7 +799,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_campaign); //eslint-disable-line camelcase
         }
       }
@@ -830,7 +816,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_content); //eslint-disable-line camelcase
         }
       }
@@ -847,7 +833,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_medium); //eslint-disable-line camelcase
         }
       }
@@ -864,7 +850,7 @@ registerSuite('flow-event', {
         'process.stderr.write was called correctly': () => {
           assert.equal(process.stderr.write.callCount, 1);
           const arg = JSON.parse(process.stderr.write.args[0][0]);
-          assert.lengthOf(Object.keys(arg), 16);
+          assert.lengthOf(Object.keys(arg), 17);
           assert.isUndefined(arg.utm_source); //eslint-disable-line camelcase
         }
       }
@@ -884,7 +870,7 @@ registerSuite('flow-event', {
 
       tests: {
         'process.stderr.write was called 6 times': () => {
-          assert.equal(process.stderr.write.callCount, 6);
+          assert.equal(process.stderr.write.callCount, 3);
         },
 
         'first call to process.stderr.write was correct': () => {
@@ -900,24 +886,6 @@ registerSuite('flow-event', {
         'third call to process.stderr.write was correct': () => {
           const arg = JSON.parse(process.stderr.write.args[2][0]);
           assert.equal(arg.event, 'flow.performance.other.client');
-        },
-
-        'fourth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[3][0]);
-          assert.equal(arg.event, 'flow.performance.other.connectStart');
-          assert.equal(arg.flow_time, 300);
-        },
-
-        'fifth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[4][0]);
-          assert.equal(arg.event, 'flow.performance.other.domainLookupEnd');
-          assert.equal(arg.flow_time, 200);
-        },
-
-        'sixth call to process.stderr.write was correct': () => {
-          const arg = JSON.parse(process.stderr.write.args[5][0]);
-          assert.equal(arg.event, 'flow.performance.other.requestStart');
-          assert.equal(arg.flow_time, 500);
         }
       }
     },
@@ -1018,7 +986,7 @@ function setup (data, timeSinceFlowBegin, clobberNavigationTiming, navigationTim
       flowId: data.flowId || '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
       flushTime: flowBeginTime,
       initialView: data.initialView || 'signup',
-      migration: data.migration || 'sync11',
+      migration: data.migration || 'amo',
       navigationTiming: clobberNavigationTiming ? null : {
         /*eslint-disable sorting/sort-object-props*/
         navigationStart: 0,

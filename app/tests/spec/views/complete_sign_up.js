@@ -126,8 +126,8 @@ define(function (require, exports, module) {
     });
 
     it('emits set-uid event correctly', () => {
-      assert.equal(notifier.trigger.callCount, 1);
-      const args = notifier.trigger.args[0];
+      assert.equal(notifier.trigger.callCount, 2);
+      const args = notifier.trigger.args[1];
       assert.equal(args[0], 'set-uid');
       assert.equal(args[1], validUid);
     });
@@ -226,7 +226,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: validService,
             type: null
           });
@@ -253,7 +252,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: validReminder,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: null
           });
@@ -281,36 +279,7 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: validReminder,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: validService,
-            type: null
-          });
-        });
-      });
-
-      describe('if server_verification is in the url', function () {
-        beforeEach(function () {
-          windowMock.location.search = '?code=' + validCode + '&uid=' + validUid +
-            '&server_verification=verified';
-          relier = new Relier({}, {
-            window: windowMock
-          });
-          relier.fetch();
-          initView(account);
-          sinon.stub(view, '_notifyBrokerAndComplete').callsFake(() => Promise.resolve());
-          return view.render();
-        });
-
-        it('attempt to pass server_verification to verifySignUp', function () {
-          var args = account.verifySignUp.getCall(0).args;
-          assert.isTrue(account.verifySignUp.called);
-          assert.ok(args[0]);
-          assert.deepEqual(args[1], {
-            primaryEmailVerified: null,
-            reminder: null,
-            secondaryEmailVerified: null,
-            serverVerificationStatus: 'verified',
-            service: null,
             type: null
           });
         });
@@ -337,7 +306,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: 'secondary'
           });
@@ -366,7 +334,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: null,
             reminder: null,
             secondaryEmailVerified: 'some@email.com',
-            serverVerificationStatus: null,
             service: null,
             type: null
           });
@@ -394,7 +361,6 @@ define(function (require, exports, module) {
             primaryEmailVerified: 'some@email.com',
             reminder: null,
             secondaryEmailVerified: null,
-            serverVerificationStatus: null,
             service: null,
             type: null
           });
@@ -566,6 +532,10 @@ define(function (require, exports, module) {
     });
 
     describe('_notifyBrokerAndComplete', () => {
+      beforeEach(() => {
+        notifier.trigger.resetHistory();
+      });
+
       it('logs and notifies the broker', () => {
         sinon.stub(view, '_getBrokerMethod').callsFake(() => 'afterCompleteSignIn');
         sinon.stub(view, 'invokeBrokerMethod').callsFake(() => Promise.resolve());
@@ -577,8 +547,8 @@ define(function (require, exports, module) {
             assert.isTrue(view.logViewEvent.calledOnce);
             assert.isTrue(view.logViewEvent.calledWith('verification.success'));
 
-            assert.isTrue(notifier.trigger.calledTwice);
-            assert.equal(notifier.trigger.args[1][0], 'verification.success');
+            assert.isTrue(notifier.trigger.calledOnce);
+            assert.equal(notifier.trigger.args[0][0], 'verification.success');
 
             assert.isTrue(view.logEvent.calledOnce);
             assert.isTrue(view.logEvent.calledWith('signin.success'));

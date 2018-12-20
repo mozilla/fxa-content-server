@@ -19,7 +19,7 @@ define(function (require, exports, module) {
   const Constants = require('../lib/constants');
   const MarketingEmailErrors = require('../lib/marketing-email-errors');
   const ResumeTokenMixin = require('./mixins/resume-token');
-  const SearchParamMixin = require('./mixins/search-param');
+  const UrlMixin = require('./mixins/url');
   const Storage = require('../lib/storage');
   const vat = require('../lib/vat');
 
@@ -527,7 +527,6 @@ define(function (require, exports, module) {
      * @param {String} code - verification code
      * @param {Object} [options]
      * @param {Object} [options.service] - the service issuing signup request
-     * @param {String} [options.serverVerificationStatus] - the status of server verification
      * @returns {Promise} - resolves with the account when complete
      */
     completeAccountSignUp (account, code, options) {
@@ -615,10 +614,32 @@ define(function (require, exports, module) {
      * @param {String} token - email verification token
      * @param {String} code - email verification code
      * @param {Object} relier - relier being signed in to
+     * @param {String} emailToHashWith - use this email to hash password with
      * @returns {Promise} - resolves when complete
      */
-    completeAccountPasswordReset (account, password, token, code, relier) {
-      return account.completePasswordReset(password, token, code, relier)
+    completeAccountPasswordReset (account, password, token, code, relier, emailToHashWith) {
+      return account.completePasswordReset(password, token, code, relier, emailToHashWith)
+        .then(() => {
+          this._notifyOfAccountSignIn(account);
+          return this.setSignedInAccount(account);
+        });
+    },
+
+    /**
+     * Complete a password reset for the account using a recovery key. Notifies other tabs
+     * of signin on success.
+     *
+     * @param {Object} account - account to sign up
+     * @param {String} password - the user's new password
+     * @param {String} accountResetToken - token used to issue request
+     * @param {String} recoveryKeyId - recoveryKeyId that maps to recovery code
+     * @param {String} kB - original kB
+     * @param {Object} relier - relier being signed in to
+     * @param {String} emailToHashWith - hash password with this email
+     * @returns {Promise} - resolves when complete
+     */
+    completeAccountPasswordResetWithRecoveryKey (account, password, accountResetToken, recoveryKeyId, kB, relier, emailToHashWith) {
+      return account.resetPasswordWithRecoveryKey(accountResetToken, password, recoveryKeyId, kB, relier, emailToHashWith)
         .then(() => {
           this._notifyOfAccountSignIn(account);
           return this.setSignedInAccount(account);
@@ -826,7 +847,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     User,
     ResumeTokenMixin,
-    SearchParamMixin
+    UrlMixin
   );
 
   module.exports = User;

@@ -88,7 +88,6 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'bar',
         event_properties: {
-          device_id: 'bar',
           oauth_client_id: '1',
           service: 'pocket'
         },
@@ -103,20 +102,23 @@ registerSuite('amplitude', {
         user_id: 'soop',
         user_properties: {
           entrypoint: 'baz',
-          experiments: [
-            'first_experiment_group_one',
-            'second_experiment_group_two',
-            'third_experiment_group_three',
-            'fourth_experiment_group_four'
-          ],
           flow_id: 'wibble',
           ua_browser: 'Firefox',
-          ua_version: '58',
+          ua_version: '58.0',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
           utm_source: 'bnag',
-          utm_term: 'plin'
+          utm_term: 'plin',
+          '$append': {
+            experiments: [
+              'first_experiment_group_one',
+              'second_experiment_group_two',
+              'third_experiment_group_three',
+              'fourth_experiment_group_four'
+            ],
+            fxa_services_used: 'pocket'
+          }
         }
       });
     },
@@ -155,21 +157,31 @@ registerSuite('amplitude', {
         device_id: 'b',
         device_model: 'iPad',
         event_properties: {
-          device_id: 'b'
+          oauth_client_id: 'g',
+          service: 'undefined_oauth'
         },
         event_type: 'fxa_pref - password',
         language: 'f',
         op: 'amplitudeEvent',
         os_name: 'iOS',
-        os_version: '6',
+        os_version: '6.0',
         region: 'California',
         session_id: 'd',
         time: 'a',
         user_id: 'h',
         user_properties: {
+          '$append': {
+            fxa_services_used: 'undefined_oauth'
+          },
           entrypoint: 'c',
+          flow_id: 'e',
           ua_browser: 'Mobile Safari',
-          ua_version: '6'
+          ua_version: '6.0',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm'
         }
       });
     },
@@ -215,7 +227,6 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
       assert.equal(arg.event_properties.reason, 'suspicious');
       assert.isUndefined(arg.device_id);
-      assert.isUndefined(arg.event_properties.device_id);
       assert.isUndefined(arg.user_id);
     },
 
@@ -260,6 +271,26 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_pref - logout');
+    },
+
+    'experiment.designF.passwordStrength.blocked': () => {
+      amplitude({
+        time: 'a',
+        type: 'experiment.designF.passwordStrength.blocked'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_reg - password_blocked');
     },
 
     'flow.enter-email.engage': () => {
@@ -354,7 +385,6 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
-          device_id: 'b',
           oauth_client_id: '2',
           service: 'undefined_oauth'
         },
@@ -366,6 +396,9 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
+          '$append': {
+            fxa_services_used: 'undefined_oauth'
+          },
           entrypoint: 'c',
           flow_id: 'e',
           utm_campaign: 'i',
@@ -375,6 +408,28 @@ registerSuite('amplitude', {
           utm_term: 'm'
         }
       });
+    },
+
+    'flow.sms.engage': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.sms.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - engage');
+      assert.equal(arg.event_properties.connect_device_flow, 'sms');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
     },
 
     'flow.reset-password.engage': () => {
@@ -392,6 +447,92 @@ registerSuite('amplitude', {
         uid: 'd'
       });
       assert.equal(process.stderr.write.callCount, 0);
+    },
+
+    'flow.signin-totp-code.engage': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.engage'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_engage');
+    },
+
+    'flow.install_from.foo': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.install_from.foo'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - view');
+      assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
+    'flow.signin_from.bar': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin_from.bar'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - view');
+      assert.equal(arg.event_properties.connect_device_flow, 'signin');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
+    'flow.connect-another-device.link.app-store.foo': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.connect-another-device.link.app-store.foo'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - engage');
+      assert.equal(arg.event_properties.connect_device_flow, 'store_buttons');
+      assert.equal(arg.event_properties.connect_device_os, 'foo');
     },
 
     'flow.signin.forgot-password': () => {
@@ -514,6 +655,48 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_reg - submit');
     },
 
+    'flow.sms.submit': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.sms.submit'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_connect_device - submit');
+      assert.equal(arg.event_properties.connect_device_flow, 'sms');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
+    'flow.signin-totp-code.submit': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.submit'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_submit');
+    },
+
     'flow.wibble.submit': () => {
       amplitude({
         time: 'a',
@@ -611,6 +794,46 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_reg - view');
     },
 
+    'screen.oauth.signin': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.oauth.signin'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd',
+        service: 'g',
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - view');
+      assert.equal(arg.event_properties.oauth_client_id, 'g');
+    },
+
+    'screen.signin.other_events': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.signin.other_events'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 0);
+    },
+
     'screen.settings': () => {
       amplitude({
         time: 'a',
@@ -662,9 +885,11 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
-          device_id: 'b'
+          connect_device_flow: 'sms',
+          oauth_client_id: 'g',
+          service: 'undefined_oauth'
         },
-        event_type: 'fxa_sms - view',
+        event_type: 'fxa_connect_device - view',
         language: 'f',
         op: 'amplitudeEvent',
         region: 'California',
@@ -672,8 +897,16 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
+          '$append': {
+            fxa_services_used: 'undefined_oauth'
+          },
           entrypoint: 'c',
-          flow_id: 'e'
+          flow_id: 'e',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm'
         }
       });
     },
@@ -693,6 +926,44 @@ registerSuite('amplitude', {
         uid: 'd'
       });
       assert.equal(process.stderr.write.callCount, 0);
+    },
+
+    'screen.signin-totp-code': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.signin-totp-code'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_view');
+    },
+
+    'screen.settings.two-step-authentication': () => {
+      amplitude({
+        time: 'a',
+        type: 'screen.settings.two-step-authentication'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_pref - two_step_authentication_view');
     },
 
     'settings.communication-preferences.optIn.success': () => {
@@ -737,6 +1008,26 @@ registerSuite('amplitude', {
       assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
     },
 
+    'flow.signin-totp-code.success': () => {
+      amplitude({
+        time: 'a',
+        type: 'flow.signin-totp-code.success'
+      }, {
+        connection: {},
+        headers: {
+          'x-forwarded-for': '63.245.221.32'
+        }
+      }, {
+        flowBeginTime: 'b',
+        flowId: 'c',
+        uid: 'd'
+      });
+
+      assert.equal(process.stderr.write.callCount, 1);
+      const arg = JSON.parse(process.stderr.write.args[0]);
+      assert.equal(arg.event_type, 'fxa_login - totp_code_success');
+    },
+
     'settings.communication-preferences.wibble.success': () => {
       amplitude({
         time: 'a',
@@ -765,6 +1056,7 @@ registerSuite('amplitude', {
         }
       }, {
         deviceId: 'b',
+        emailDomain: 'other',
         entrypoint: 'c',
         flowBeginTime: 'd',
         flowId: 'e',
@@ -785,7 +1077,7 @@ registerSuite('amplitude', {
         country: 'United States',
         device_id: 'b',
         event_properties: {
-          device_id: 'b',
+          email_provider: 'other',
           email_type: 'reset_password',
           service: 'sync'
         },
@@ -797,8 +1089,16 @@ registerSuite('amplitude', {
         time: 'a',
         user_id: 'h',
         user_properties: {
+          '$append': {
+            fxa_services_used: 'sync'
+          },
           entrypoint: 'c',
-          flow_id: 'e'
+          flow_id: 'e',
+          utm_campaign: 'i',
+          utm_content: 'j',
+          utm_medium: 'k',
+          utm_source: 'l',
+          utm_term: 'm'
         }
       });
     },
@@ -813,6 +1113,7 @@ registerSuite('amplitude', {
           'x-forwarded-for': '63.245.221.32'
         }
       }, {
+        emailDomain: 'none',
         flowBeginTime: 'b',
         flowId: 'c',
         uid: 'd'
@@ -821,6 +1122,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_provider, undefined);
       assert.equal(arg.event_properties.email_type, 'login');
     },
 
@@ -842,6 +1144,7 @@ registerSuite('amplitude', {
       assert.equal(process.stderr.write.callCount, 1);
       const arg = JSON.parse(process.stderr.write.args[0]);
       assert.equal(arg.event_type, 'fxa_email - click');
+      assert.equal(arg.event_properties.email_provider, undefined);
       assert.equal(arg.event_properties.email_type, 'registration');
     },
 

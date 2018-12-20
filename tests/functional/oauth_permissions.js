@@ -16,7 +16,7 @@ const TIMEOUT = 90 * 1000;
 
 const TRUSTED_OAUTH_APP = config.fxaOAuthApp;
 const UNTRUSTED_OAUTH_APP = config.fxaUntrustedOauthApp;
-const PASSWORD = 'password';
+const PASSWORD = 'passwordzxcv';
 
 let email;
 
@@ -242,7 +242,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         // the first time through, only request email and uid
         .then(openFxaFromUntrustedRp('signin', {
           query: {
-            scope: 'profile:email profile:uid'
+            scope: 'openid profile:email profile:uid'
           }
         }))
 

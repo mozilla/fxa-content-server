@@ -56,7 +56,7 @@ registerSuite('settings clients', {
   tests: {
     'sessions are listed in clients view': function () {
       return this.remote
-        .then(openPage(SIGNIN_URL + '?sessionsListVisible=1', '#fxa-signin-header'))
+        .then(openPage(SIGNIN_URL, '#fxa-signin-header'))
         .then(fillOutSignIn(email, FIRST_PASSWORD))
 
         .then(testElementExists('#fxa-settings-header'))
@@ -209,7 +209,7 @@ registerSuite('settings clients', {
         .then(click('.disconnect-reasons > label > input[value="lost"]'))
         // wait until button is enabled (disabled class has gone away)
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
-        .then(click('#client-disconnect .warning'))
+        .then(click('#client-disconnect .warning-button'))
         .then(click('#client-disconnect .reason-help'))
 
         // disconnect waits until successful AJAX device delete
@@ -230,7 +230,7 @@ registerSuite('settings clients', {
         // wait until button is enabled
         .then(pollUntilGoneByQSA('#client-disconnect .disabled'))
         // clicking disconnect on the current device should sign you out
-        .then(click('#client-disconnect .warning'))
+        .then(click('#client-disconnect .warning-button'))
 
         .then(testElementExists('#fxa-signin-header'))
         .then(noSuchStoredAccountByEmail(email));

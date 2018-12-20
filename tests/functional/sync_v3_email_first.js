@@ -11,13 +11,14 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&forceExperiment=emailFirst&forceExperimentGroup=treatment'; //eslint-disable-line max-len
+const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&action=email';
 const INDEX_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 
 let email;
-const PASSWORD = '12345678';
+const PASSWORD = 'PASSWORD123123';
+const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 
 const {
   clearBrowserState,
@@ -25,11 +26,16 @@ const {
   closeCurrentWindow,
   createUser,
   noPageTransition,
+  noSuchElement,
   openPage,
+  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
+  testElementTextEquals,
+  testElementTextInclude,
   testElementValueEquals,
+  testErrorTextInclude,
   testIsBrowserNotified,
   type,
   visibleByQSA,
@@ -80,6 +86,20 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
+    'enter a firefox.com address': function () {
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, 'testuser@firefox.com'))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT))
+        .then(testElementTextInclude(selectors.ENTER_EMAIL.TOOLTIP, 'firefox.com does not offer email'));
+    },
+
     'signup': function () {
       return this.remote
         .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -93,8 +113,23 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
         .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user thinks they mistyped their email
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+
+        // passwords do not match should cause an error
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD_WITH_TYPO))
+        .then(testElementExists(selectors.SIGNUP_PASSWORD.SHOW_VPASSWORD))
         .then(type(selectors.SIGNUP_PASSWORD.AGE, 21))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.SIGNUP_PASSWORD.ERROR_PASSWORDS_DO_NOT_MATCH))
+        .then(testErrorTextInclude('Passwords do not match'))
+
+        // fix the password mismatch
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
 
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
@@ -111,6 +146,26 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         // will take a few seconds to complete if it erroneously occurs.
         // Add an affordance just in case the poll happens unexpectedly.
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
+    },
+
+    'COPPA disabled': function () {
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          query: {
+            coppa: 'false'
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          }
+        }))
+        .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER))
+        .then(noSuchElement(selectors.SIGNUP_PASSWORD.AGE))
+        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT, selectors.CHOOSE_WHAT_TO_SYNC.HEADER));
     },
 
     'signin - merge cancelled': function () {
@@ -143,8 +198,14 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
+        // user thinks they mistyped their email
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.SHOW_PASSWORD))
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
 
         .then(testIsBrowserNotified('fxaccounts:login'))
@@ -193,6 +254,23 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER));
     },
 
+    'email specified by relier, invalid': function () {
+      const invalidEmail = 'invalid@';
+
+      return this.remote
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
+          query: {
+            email: invalidEmail
+          },
+          webChannelResponses: {
+            'fxaccounts:can_link_account': {ok: true}
+          },
+        }))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, invalidEmail))
+        .then(testElementExists(selectors.ENTER_EMAIL.TOOLTIP))
+        .then(testElementTextEquals(selectors.ENTER_EMAIL.TOOLTIP, 'Valid email required'));
+    },
+
     'email specified by relier, not registered': function () {
       return this.remote
         .then(openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
@@ -203,7 +281,11 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             'fxaccounts:can_link_account': {ok: true}
           }
         }))
-        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email));
+        .then(testElementValueEquals(selectors.SIGNUP_PASSWORD.EMAIL, email))
+        // user realizes it's the wrong email address.
+        .then(click(selectors.SIGNUP_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
     },
 
     'email specified by relier, registered': function () {
@@ -217,7 +299,42 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             'fxaccounts:can_link_account': {ok: true}
           }
         }))
-        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
-    }
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        // user realizes it's the wrong email address.
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email));
+    },
+
+    'cached credentials': function () {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+
+        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER))
+        .then(openVerificationLinkInDifferentBrowser(email, 0))
+        .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
+
+        // Use cached credentials form last time, but user must enter password
+        .then(openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, { webChannelResponses: {
+          'fxaccounts:can_link_account': { ok: true },
+          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
+        }}))
+        .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
+        // user wants to use a different email
+        .then(click(selectors.SIGNIN_PASSWORD.LINK_MISTYPED_EMAIL, selectors.ENTER_EMAIL.HEADER))
+        .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+        .then(click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNIN_PASSWORD.HEADER))
+
+        .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT, selectors.CONFIRM_SIGNIN.HEADER));
+    },
   }
 });

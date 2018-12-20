@@ -7,7 +7,6 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const chai = require('chai');
-  const KeyCodes = require('lib/key-codes');
   const Metrics = require('lib/metrics');
   const Notifier = require('lib/channels/notifier');
   const Relier = require('models/reliers/relier');
@@ -101,19 +100,6 @@ define(function (require, exports, module) {
             assert.isTrue(view.render.called);
           });
       });
-
-      it('has floating labels on input', function () {
-        return initView()
-          .then(function () {
-            view.$('.display-name').val('a');
-            var event = new $.Event('input');
-            event.which = KeyCodes.ENTER;
-
-            assert.isFalse(view.$('.label-helper').text().length > 0);
-            view.$('.display-name').trigger(event);
-            assert.isTrue(view.$('.label-helper').text().length > 0);
-          });
-      });
     });
 
     describe('with session', function () {
@@ -122,7 +108,7 @@ define(function (require, exports, module) {
         return initView()
           .then(function () {
             assert.equal(view.$('.add-button').length, 1);
-            assert.equal(view.$('.settings-unit-toggle.primary').length, 1);
+            assert.equal(view.$('.settings-unit-toggle.primary-button').length, 1);
           });
       });
 
@@ -131,7 +117,7 @@ define(function (require, exports, module) {
         return initView()
           .then(function () {
             assert.equal(view.$('.change-button').length, 1);
-            assert.equal(view.$('.settings-unit-toggle.secondary').length, 1);
+            assert.equal(view.$('.settings-unit-toggle.secondary-button').length, 1);
           });
       });
     });

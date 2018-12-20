@@ -7,6 +7,10 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const allowOnlyOneSubmit = require('./decorators/allow_only_one_submit');
+  const AccountRecoveryView = require('./settings/account_recovery/account_recovery');
+  const AccountRecoveryConfirmPasswordView = require('./settings/account_recovery/confirm_password');
+  const AccountRecoveryConfirmRevokeView = require('./settings/account_recovery/confirm_revoke');
+  const AccountRecoveryKeyView = require('./settings/account_recovery/recovery_key');
   const AvatarCameraView = require('./settings/avatar_camera');
   const AvatarChangeView = require('./settings/avatar_change');
   const AvatarCropView = require('./settings/avatar_crop');
@@ -23,7 +27,7 @@ define(function (require, exports, module) {
   const Duration = require('duration');
   const EmailsView = require('./settings/emails');
   const LoadingMixin = require('./mixins/loading-mixin');
-  const modal = require('modal'); //eslint-disable-line no-unused-vars
+  require('modal');
   const Session = require('../lib/session');
   const SettingsHeaderTemplate = require('templates/partial/settings-header.mustache');
   const SignedOutNotificationMixin = require('./mixins/signed-out-notification-mixin');
@@ -32,12 +36,18 @@ define(function (require, exports, module) {
   const UserAgentMixin = require('../lib/user-agent-mixin');
 
   const TwoStepAuthenticationView = require('./settings/two_step_authentication');
+  const RecoveryCodesView = require('./settings/recovery_codes');
 
   var PANEL_VIEWS = [
     AvatarView,
     DisplayNameView,
     EmailsView,
+    AccountRecoveryView,
+    AccountRecoveryConfirmPasswordView,
+    AccountRecoveryConfirmRevokeView,
+    AccountRecoveryKeyView,
     TwoStepAuthenticationView,
+    RecoveryCodesView,
     ClientsView,
     ClientDisconnectView,
     CommunicationPreferencesView,

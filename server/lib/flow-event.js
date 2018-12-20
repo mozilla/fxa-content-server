@@ -60,6 +60,7 @@ const PERFORMANCE_TIMINGS = [
   {
     event: 'network',
     timings: [
+      { from: 'redirectStart', until: 'redirectEnd' },
       { from: 'domainLookupStart', until: 'domainLookupEnd' },
       { from: 'connectStart', until: 'connectEnd' },
       { from: 'responseStart', until: 'responseEnd' }
@@ -76,39 +77,12 @@ const PERFORMANCE_TIMINGS = [
     timings: [
       { from: 'domLoading', until: 'domComplete' }
     ]
-  },
-  // These timings were identified as strongly correlating with user behaviour,
-  // specifically whether the user completes the flow. We're not entirely sure
-  // what that means yet, so they're retained for further analysis.
-  {
-    event: 'connectStart',
-    timings: [
-      { from: 'navigationStart', until: 'connectStart' }
-    ]
-  },
-  {
-    event: 'domainLookupEnd',
-    timings: [
-      { from: 'navigationStart', until: 'domainLookupEnd' }
-    ]
-  },
-  {
-    event: 'redirectEnd',
-    timings: [
-      { from: 'navigationStart', until: 'redirectEnd' }
-    ]
-  },
-  {
-    event: 'requestStart',
-    timings: [
-      { from: 'navigationStart', until: 'requestStart' }
-    ]
   }
 ];
 
 const AUTH_VIEWS = new Set([ 'enter-email', 'force-auth', 'signin', 'signup' ]);
 
-module.exports = (req, metrics, requestReceivedTime) => {
+const metricsRequest = (req, metrics, requestReceivedTime) => {
   if (IS_DISABLED || ! isValidFlowData(metrics, requestReceivedTime)) {
     return;
   }
@@ -200,7 +174,7 @@ function isValidFlowData (metrics, requestReceivedTime) {
     return false;
   }
 
-  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime, metrics.agent);
+  return flowMetrics.validate(FLOW_ID_KEY, metrics.flowId, metrics.flowBeginTime);
 }
 
 function isValidTime (time, requestReceivedTime) {
@@ -235,6 +209,7 @@ function logFlowEvent (event, data, request) {
     flow_id: data.flowId, //eslint-disable-line camelcase
     flow_time: Math.floor(event.flowTime), //eslint-disable-line camelcase
     hostname: HOSTNAME,
+    locale: request.locale,
     op: 'flowEvent',
     pid: process.pid,
     time: new Date(event.time).toISOString(),
@@ -291,3 +266,8 @@ function optionallySetFallbackData (eventData, key, fallback) {
     eventData[key] = limitLength(fallback);
   }
 }
+
+module.exports = {
+  logFlowEvent,
+  metricsRequest
+};

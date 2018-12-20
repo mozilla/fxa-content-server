@@ -19,16 +19,9 @@
     {{^error}}
       <div class="error"></div>
       <div class="success"></div>
-      {{#isAmoMigration}}
-        <div class="info nudge pad" id="amo-migration">{{#unsafeTranslate}}Looking for your Add-ons data? <a href="/signup">Sign up</a> for a Firefox Account with your old Add-ons account email address.{{/unsafeTranslate}}</div>
-      {{/isAmoMigration}}
-      {{#isSyncMigration}}
-        <div class="info nudge" id="sync-migration">{{#unsafeTranslate}}Migrate your sync data by signing in to your Firefox&nbsp;Account.{{/unsafeTranslate}}</div>
-      {{/isSyncMigration}}
 
       {{#suggestedAccount}}
-          <div class="avatar-wrapper avatar-view">
-          </div>
+          <div class="avatar-wrapper avatar-view"></div>
           <p class="prefillEmail">{{ email }}</p>
 
         {{#chooserAskForPassword}}
@@ -45,18 +38,20 @@
            </form>
 
            <div class="links">
-             <a href="/signin?email=blank" class="left use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a>
+             <a href="/signin" class="left use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a>
              <a href="/reset_password" class="right reset-password" data-flow-event="forgot-password">{{#t}}Forgot password?{{/t}}</a><br/>
            </div>
         {{/chooserAskForPassword}}
 
         {{^chooserAskForPassword}}
-          <div class="button-row">
-            <button type="submit" class="use-logged-in" autofocus>{{{buttonSignInText}}}</button>
-          </div>
+          <form novalidate>
+            <div class="button-row">
+              <button id="submit-btn" type="submit" class="use-logged-in" autofocus>{{{buttonSignInText}}}</button>
+            </div>
+          </form>
 
           <div class="links">
-            <a href="/signin?email=blank" class="use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a><br/>
+            <a href="/signin" class="use-different" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a><br/>
           </div>
         {{/chooserAskForPassword}}
       {{/suggestedAccount}}
@@ -81,7 +76,7 @@
           <a href="/reset_password" class="right reset-password" data-flow-event="forgot-password">{{#t}}Forgot password?{{/t}}</a>
       </div>
 
-      <div class="extra-links">
+      <div class="tos-pp faint">
         {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
       </div>
       {{/suggestedAccount}}

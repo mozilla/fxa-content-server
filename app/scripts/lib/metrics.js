@@ -40,6 +40,7 @@ define(function (require, exports, module) {
     'context',
     'deviceId',
     'duration',
+    'emailDomain',
     'entrypoint',
     'events',
     'experiments',
@@ -96,6 +97,19 @@ define(function (require, exports, module) {
     }
   }
 
+  function marshallEmailDomain (email) {
+    if (! email) {
+      return;
+    }
+
+    const domain = email.split('@')[1];
+    if (Constants.POPULAR_EMAIL_DOMAINS[domain]) {
+      return domain;
+    }
+
+    return Constants.OTHER_EMAIL_DOMAIN;
+  }
+
   function Metrics (options = {}) {
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
@@ -113,14 +127,14 @@ define(function (require, exports, module) {
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
     this._context = options.context || Constants.CONTENT_SERVER_CONTEXT;
-    this._deviceId = options.deviceId || NOT_REPORTED_VALUE;
     this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
+    this._emailDomain = NOT_REPORTED_VALUE;
     this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
     this._env = options.environment || new Environment(this._window);
     this._eventMemory = {};
     this._inactivityFlushMs = options.inactivityFlushMs || DEFAULT_INACTIVITY_TIMEOUT_MS;
     // All user metrics are sent to the backend. Data is only
-    // reported to Heka and Datadog if `isSampledUser===true`.
+    // reported to metrics if `isSampledUser===true`.
     this._isSampledUser = options.isSampledUser || false;
     this._lang = options.lang || 'unknown';
     this._marketingImpressions = {};
@@ -172,6 +186,7 @@ define(function (require, exports, module) {
       /* eslint-disable sorting/sort-object-props */
       'flow.initialize': '_initializeFlowModel',
       'flow.event': '_logFlowEvent',
+      'set-email-domain': '_setEmailDomain',
       'set-uid': '_setUid',
       'clear-uid': '_clearUid',
       'once!view-shown': '_setInitialView'
@@ -190,6 +205,7 @@ define(function (require, exports, module) {
       }
 
       const flowModel = new Flow({
+        metrics: this,
         sentryMetrics: this._sentryMetrics,
         window: this._window
       });
@@ -334,7 +350,8 @@ define(function (require, exports, module) {
       const allData = _.extend({}, loadData, unloadData, {
         broker: this._brokerType,
         context: this._context,
-        deviceId: this._deviceId,
+        deviceId: flowData.deviceId,
+        emailDomain: this._emailDomain,
         entrypoint: this._entrypoint,
         experiments: flattenHashIntoArrayOfObjects(this._activeExperiments),
         flowBeginTime: flowData.flowBeginTime,
@@ -439,6 +456,18 @@ define(function (require, exports, module) {
         this.logEvent(eventName);
         this._eventMemory[eventName] = true;
       }
+    },
+
+    /**
+     * Marks some event already logged in metrics memory.
+     *
+     * Used in conjunction with `logEventOnce` when we know that some event was already logged elsewhere.
+     * Helps avoid event duplication.
+     *
+     * @param {String} eventName
+     */
+    markEventLogged: function (eventName) {
+      this._eventMemory[eventName] = true;
     },
 
     /**
@@ -627,7 +656,7 @@ define(function (require, exports, module) {
     getFlowEventMetadata () {
       const metadata = (this._flowModel && this._flowModel.attributes) || {};
       return {
-        deviceId: this._deviceId,
+        deviceId: metadata.deviceId,
         flowBeginTime: metadata.flowBegin,
         flowId: metadata.flowId,
         utmCampaign: marshallUtmParam(this._utmCampaign),
@@ -649,6 +678,13 @@ define(function (require, exports, module) {
      */
     logNumStoredAccounts (numStoredAccounts) {
       this._numStoredAccounts = numStoredAccounts;
+    },
+
+    _setEmailDomain (email) {
+      const domain = marshallEmailDomain(email);
+      if (domain) {
+        this._emailDomain = domain;
+      }
     },
 
     _setUid (uid) {

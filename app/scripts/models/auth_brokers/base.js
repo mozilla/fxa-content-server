@@ -18,10 +18,11 @@ define(function (require, exports, module) {
   const NavigateBehavior = require('../../views/behaviors/navigate');
   const NullBehavior = require('../../views/behaviors/null');
   const SameBrowserVerificationModel = require('../verification/same-browser');
-  const SearchParamMixin = require('../mixins/search-param');
+  const UrlMixin = require('../mixins/url');
   const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
-  const t = (msg) => msg;
   const Vat = require('../../lib/vat');
+
+  const t = msg => msg;
 
   const QUERY_PARAMETER_SCHEMA = {
     automatedBrowser: Vat.boolean()
@@ -65,9 +66,6 @@ define(function (require, exports, module) {
     defaultBehaviors: {
       afterChangePassword: new NullBehavior(),
       afterCompletePrimaryEmail: new SettingsIfSignedInBehavior(new NavigateBehavior('primary_email_verified'), {
-        // Upon verifying primary email, we want to reopen the emails panel to let user continue adding more
-        // emails
-        endpoint: 'settings/emails',
         success: t('Primary email verified successfully')
       }),
       afterCompleteResetPassword: new NullBehavior(),
@@ -84,6 +82,7 @@ define(function (require, exports, module) {
       afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
       afterSignUp: new NavigateBehavior('confirm'),
       afterSignUpConfirmationPoll: new NavigateBehavior('signup_confirmed'),
+      afterSignUpRequireTOTP: new NavigateBehavior('signin'),
       beforeSignIn: new NullBehavior(),
       beforeSignUpConfirmationPoll: new NullBehavior()
     },
@@ -121,6 +120,8 @@ define(function (require, exports, module) {
       return Promise.resolve().then(() => {
         this._isForceAuth = this._isForceAuthUrl();
         this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
+
+        this.setCapability('showAccountRecovery', !! this.getSearchParam('showAccountRecovery'));
 
         if (this.hasCapability('fxaStatus')) {
           return this._fetchFxaStatus();
@@ -487,6 +488,10 @@ define(function (require, exports, module) {
        */
       reuseExistingSession: false,
       /**
+       * Should account recovery be enabled.
+       */
+      showAccountRecovery: false,
+      /**
        * Is signup supported? the fx_ios_v1 broker can disable it.
        */
       signup: true,
@@ -556,7 +561,7 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     BaseAuthenticationBroker,
     NotifierMixin,
-    SearchParamMixin
+    UrlMixin
   );
 
   module.exports = BaseAuthenticationBroker;

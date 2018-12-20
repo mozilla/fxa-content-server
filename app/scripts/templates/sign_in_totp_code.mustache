@@ -19,7 +19,7 @@
 
     <form novalidate>
       <div class="input-row token-code-row">
-        <input type="text" class="tooltip-below totp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+        <input type="number" pattern="\d*" class="tooltip-below totp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
       </div>
 
       <div class="button-row">
@@ -28,6 +28,9 @@
 
     </form>
 
-    <div class="links"></div>
+    <div class="links centered">
+      <a id="use-recovery-code-link" href="/signin_recovery_code">{{#t}}Use recovery code{{/t}}</a>
+      <a class="different-account-link" href="/signin">{{#t}}Use a different account{{/t}}</a>
+    </div>
   </section>
 </div>

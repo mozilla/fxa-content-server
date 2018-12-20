@@ -17,6 +17,7 @@
 
   a {
     color: $message-text-color;
+    text-decoration: underline;
   }
 
   /* tooltip caret */
@@ -43,10 +44,10 @@
   }
 
   &.tooltip-suggest {
-    background: $button-background-color;
+    background: $button-background-color-default;
 
     &::before {
-      background-color: $button-background-color;
+      background-color: $button-background-color-default;
     }
 
     > #email-suggestion,
@@ -76,10 +77,6 @@
     &::before {
       background-color: $error-background-color;
     }
-
-    a {
-      text-decoration: underline;
-    }
   }
 
   &.tooltip-warning {
@@ -87,10 +84,6 @@
 
     &::before {
       background-color: $warning-background-color;
-    }
-
-    a {
-      text-decoration: underline;
     }
   }
 
@@ -103,7 +96,7 @@
  * these are caret's attached to tooltips that hang below the
  * input element. The tooltip's top is set via JS.
  */
-html[dir='rtl'] .tooltip-below::before,
-.tooltip-below::before {
+html[dir='rtl'] .tooltip.tooltip-below::before,
+.tooltip.tooltip-below::before {
   top: -7px;
 }

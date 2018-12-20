@@ -31,6 +31,16 @@ const serveStatic = require('serve-static');
 const config = require('../lib/configuration');
 const raven = require('../lib/raven');
 
+const userAgent = require('../lib/user-agent');
+if (! userAgent.isToVersionStringSupported()) {
+  // npm@3 installs the incorrect version of node-uap, one without `toVersionString`.
+  // To ensure the correct version is installed, check toVersionString is available.
+  logger.critical('dependency.version.error', {
+    error: 'node-uap does not support toVersionString()'
+  });
+  process.exit(1);
+}
+
 // This can't possibly be best way to librar-ify this module.
 const isMain = process.argv[1] === __filename;
 if (isMain) {
@@ -49,7 +59,6 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
-const hpkp = require('../lib/hpkp');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 const frameGuard = require('../lib/frame-guard')(config);
@@ -72,7 +81,8 @@ function makeApp() {
     const webpackCompiler = webpack(webpackConfig);
 
     app.use(webpackMiddleware(webpackCompiler, {
-      publicPath: '/bundle/'
+      publicPath: '/bundle/',
+      writeToDisk: true
     }));
   }
 
@@ -81,7 +91,7 @@ function makeApp() {
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
 
   // The request handler must be the first item
-  app.use(raven.ravenModule.middleware.express.requestHandler(raven.ravenMiddleware));
+  app.use(raven.ravenModule.requestHandler());
 
   // i18n adds metadata to a request to help
   // with translating templates on the server.
@@ -109,9 +119,6 @@ function makeApp() {
     if (Object.keys(cspRulesReportOnly.directives).length > 1) {
       app.use(csp({ rules: cspRulesReportOnly }));
     }
-  }
-  if (config.get('hpkp.enabled')) {
-    app.use(hpkp(config));
   }
 
   app.disable('x-powered-by');
@@ -156,8 +163,21 @@ function makeApp() {
   // it's a four-oh-four not found.
   app.use(fourOhFour);
 
+  // Handler for CORS errors
+  app.use((err, req, res, next) => {
+    if (err.message === 'CORS Error') {
+      res.status(401).json({
+        error: 'Unauthorized',
+        message: 'CORS Error',
+        statusCode: 401
+      });
+    } else {
+      next(err);
+    }
+  });
+
   // The error handler must be before any other error middleware
-  app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
+  app.use(raven.ravenModule.errorHandler());
 
   // log any joi validation errors
   app.use((err, req, res, next) => {
@@ -166,6 +186,8 @@ function makeApp() {
         error: err.details.map(details => details.message).join(','),
         path: req.path,
       });
+      // capture validation errors
+      raven.ravenModule.captureException(err);
     }
     next(err);
   });

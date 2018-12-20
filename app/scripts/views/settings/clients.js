@@ -15,9 +15,10 @@ define(function (require, exports, module) {
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
   const Strings = require('../../lib/strings');
-  const { t } = require('../base');
   const Template = require('templates/settings/clients.mustache');
   const UserAgentMixin = require('../../lib/user-agent-mixin');
+
+  const t = msg => msg;
 
   const DEVICE_REMOVED_ANIMATION_MS = 150;
   const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
@@ -173,7 +174,6 @@ define(function (require, exports, module) {
       const clients = this._attachedClients.toJSON();
 
       context.set({
-        areWebSessionsVisible: this._areWebSessionsVisible(),
         clients: this._formatAccessTimeAndScope(clients),
         devicesSupportUrl: DEVICES_SUPPORT_URL,
         isPanelOpen: this.isPanelOpen(),
@@ -187,20 +187,6 @@ define(function (require, exports, module) {
       'click .client-disconnect': preventDefaultThen('_onDisconnectClient'),
       'click .clients-refresh': 'startRefresh',
       'click [data-get-app]': '_onGetApp'
-    },
-
-    /**
-     * Determine if the clients list should show Web Sessions
-     * @returns {Boolean}
-     * @private
-     */
-    _areWebSessionsVisible () {
-      if (this.getSearchParam('sessionsListVisible')) {
-        // if forced via query param
-        return true;
-      }
-      // currently disabled by default for all users, pending some fixes.
-      return false;
     },
 
     /**

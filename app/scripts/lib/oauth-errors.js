@@ -12,10 +12,7 @@ define(function (require, exports, module) {
   const Logger = require('./logger');
   var logger = new Logger();
   const Strings = require('./strings');
-
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   var UNEXPECTED_ERROR = t('Unexpected error');
 
@@ -91,6 +88,14 @@ define(function (require, exports, module) {
       errno: 118,
       message: 'PKCE parameters missing'
     },
+    STALE_AUTHENTICATION_TIMESTAMP: {
+      errno: 119,
+      message: 'Stale authentication timestamp'
+    },
+    MISMATCH_ACR_VALUES: {
+      errno: 120,
+      message: 'Mismatch acr values'
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')
@@ -107,6 +112,8 @@ define(function (require, exports, module) {
       errno: 1001,
       message: UNEXPECTED_ERROR
     },
+    /*
+    Removed in PR #6017
     INVALID_RESULT_REDIRECT: {
       errno: 1002,
       message: UNEXPECTED_ERROR
@@ -115,6 +122,7 @@ define(function (require, exports, module) {
       errno: 1003,
       message: UNEXPECTED_ERROR
     },
+    */
     USER_CANCELED_OAUTH_LOGIN: {
       errno: 1004,
       message: t('no message')

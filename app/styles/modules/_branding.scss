@@ -16,11 +16,15 @@
 
   @include respond-to('small') {
     background-position-y: 0;
-    background-size: auto 55px;
-    height: 55px;
+    background-size: auto 56px;
+    height: 56px;
     margin: 10px auto 0 auto;
     top: 0;
     width: 100%;
+
+    .screen-choose-what-to-sync & {
+      display: none;
+    }
   }
 
   @include respond-to('trustedUI') {
@@ -87,42 +91,8 @@
 
 
 .choose-what-to-sync {
-  @include respond-to('trustedUI') {
-    // padding-bottom fixes a problem where the "Save settings"
-    // button can be cut off in the firstrun flow. See #5273
-    padding-bottom: 10px;
-  }
-
-  #submit-btn {
-    margin-top: 10px;
-  }
-
-  #choose-what-to-sync-graphic {
-    background: image-url('choose_what_to_sync_devices.svg');
-    background-position: center top;
-    background-repeat: no-repeat;
-    height: 100px;
-    margin: 10px auto 10px auto;
-    width: 200px;
-
-    @include respond-to('big') {
-      background-size: 300px 138px;
-      height: 155px;
-      margin: 20px auto 0 auto;
-      width: 300px;
-    }
-
-    @include respond-to('trustedUI') {
-      margin: 10px auto 20px auto;
-    }
-  }
-
   .success-email-created {
-    margin: -35px 0 40px 0;
-
-    @include respond-to('trustedUI') {
-      margin-top: -5px;
-    }
+    margin-bottom: 26px;
   }
 }
 
@@ -130,50 +100,24 @@
   position: relative;
 
   .sms-send {
-    background: $button-background-hover-color;
-    border: 0;
-    color: $message-text-color;
-    cursor: pointer;
-    font-size: $base-font;
+    border-radius: 0 $small-border-radius $small-border-radius 0;
+    height: $input-height - 2px;
     min-width: 55px;
     padding: 0 7px;
     position: absolute;
-    text-align: center;
     top: 1px;
-    // it is very easy to accidentally select the text when clicking
-    -webkit-touch-callout: none;
-    // user select not supported by autoprefixer
-    // https://github.com/postcss/autoprefixer/issues/167
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
+    width: auto;
     z-index: 3;
 
-    &.disabled {
-      background-color: $content-background-color;
-      color: $input-placeholder-color;
-    }
-
     html[dir='ltr'] & {
-      border-left: 1px solid $input-row-border-color;
+      border-left: 1px solid $input-border-color-default;
       right: 1px;
     }
 
     html[dir='rtl'] & {
-      border-right: 1px solid $input-row-border-color;
+      border-radius: $small-border-radius 0 0 $small-border-radius;
+      border-right: 1px solid $input-border-color-default;
       left: 1px;
-    }
-
-    @include respond-to('big') {
-      border-radius: 0 $small-border-radius $small-border-radius 0;
-
-      height: 43px;
-      line-height: 42px;
-
-      html[dir='rtl'] & {
-        border-radius: $small-border-radius 0 0 $small-border-radius;
-      }
     }
 
     @include respond-to('small') {
@@ -185,15 +129,17 @@
 }
 
 .faint {
-  color: $color-grey-faint-text;
+  color: $grey-50;
+  transition-duration: $short-transition;
+
+  a {
+    color: $grey-50;
+    text-decoration: underline;
+
+    @include anchor-default-pseudo-classes($grey-60, $grey-60, $grey-70, $grey-80);
+  }
 }
 
 .sms-disclaimer {
-  color: $color-grey-faint-text;
-  margin: 10px 0;
-
-  a {
-    color: $color-grey-faint-text;
-    text-decoration: underline;
-  }
+  margin: 16px 0;
 }

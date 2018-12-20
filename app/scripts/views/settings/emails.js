@@ -7,20 +7,18 @@ define(function (require, exports, module) {
 
   const $ = require('jquery');
   const AvatarMixin = require('../mixins/avatar-mixin');
-  const BaseView = require('../base');
   const Cocktail = require('cocktail');
   const Email = require('../../models/email');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
+  const LastCheckedTimeMixin = require('../mixins/last-checked-time-mixin');
   const preventDefaultThen = require('../base').preventDefaultThen;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
   const UpgradeSessionMixin = require('../mixins/upgrade-session-mixin');
-  const SearchParamMixin = require('../../lib/search-param-mixin');
   const Strings = require('../../lib/strings');
   const showProgressIndicator = require('../decorators/progress_indicator');
   const Template = require('templates/settings/emails.mustache');
 
-  var t = BaseView.t;
+  const t = msg => msg;
 
   const EMAIL_INPUT_SELECTOR = 'input.new-email';
   const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';
@@ -57,11 +55,12 @@ define(function (require, exports, module) {
 
     setInitialContext (context) {
       context.set({
-        buttonClass: this._hasSecondaryEmail() ? 'secondary' : 'primary',
+        buttonClass: this._hasSecondaryEmail() ? 'secondary-button' : 'primary-button',
         emails: this._emails,
         hasSecondaryEmail: this._hasSecondaryEmail(),
         hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
         isPanelOpen: this.isPanelOpen(),
+        lastCheckedTime: this.getLastCheckedTimeString(),
         newEmail: this.newEmail,
       });
     },
@@ -107,6 +106,7 @@ define(function (require, exports, module) {
     },
 
     refresh: showProgressIndicator(function() {
+      this.setLastCheckedTime();
       return this.render();
     }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
@@ -155,14 +155,12 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     UpgradeSessionMixin({
-      caption: t('A secondary email is an additional address for receiving security notices and confirming new Sync devices'),
       gatedHref: 'settings/emails',
       title: t('Secondary email')
     }),
     AvatarMixin,
-    SettingsPanelMixin,
-    FloatingPlaceholderMixin,
-    SearchParamMixin
+    LastCheckedTimeMixin,
+    SettingsPanelMixin
   );
 
   module.exports = View;

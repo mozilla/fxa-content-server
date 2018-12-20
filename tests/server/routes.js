@@ -27,6 +27,7 @@ const suite = {
 var routes = {
   '/.well-known/fxa-client-configuration': { statusCode: 200 },
   '/.well-known/openid-configuration': { statusCode: 200 },
+  '/authorization': { statusCode: 200 },
   '/cannot_create_account': { statusCode: 200 },
   '/choose_what_to_sync': { statusCode: 200 },
   '/complete_reset_password': { statusCode: 200 },
@@ -140,7 +141,8 @@ Object.keys(redirectedRoutes).forEach(redirectTest);
 registerSuite('front end routes', suite.tests);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
-  suite.tests['#https get ' + httpsUrl + route] = function () {
+  const testName = `#https get ${httpsUrl}${route}`;
+  suite.tests[testName] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
@@ -148,9 +150,8 @@ function routeTest(route, expectedStatusCode, requestOptions) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
-        return res;
+        return extractAndCheckUrls(res, testName);
       })
-      .then(extractAndCheckUrls)
       .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
     return dfd;

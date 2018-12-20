@@ -11,6 +11,8 @@ module.exports = function (grunt) {
     // Select 'dist' configuration files for the running environment.
     'selectconfig:dist',
 
+    'webpack',
+
     // l10n-generate-pages needs to be run before useminPrepare to seed
     // the list of resources to minimize. Generated pages are placed into
     // `server/templates/pages/dist` where they will be post-processed
@@ -21,19 +23,9 @@ module.exports = function (grunt) {
     // in the scrutinized file into a single line, targeting an optimized version of the files.
     'useminPrepare',
 
-    'webpack',
+    'copy:styles',
 
-    // general 'css' tasks:
-    //    'sass', - compile SASS,
-    //    'autoprefixer' - auto prefix CSS for many browsers,
-    //    'connect_fonts' - generate CSS files for connect-fonts compatible font packs.
-    'css',
-
-    // 'copy:styles',
-    //  'connect_fonts_copy', - copy the generated connect fonts
-    'concurrent:dist',
-
-    // concatenate the eastereggs, CSS. Must be before cssmin or else
+    // concatenate the CSS & JS not processed by webpack. Must be before cssmin or else
     // cssmin creates empty output.
     'concat',
 

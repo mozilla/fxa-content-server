@@ -1,10 +1,25 @@
 'use strict';
 
+const  PASSWORD_BALLOON = {
+  BALLOON: '.password-strength-balloon',
+  MIN_LENGTH_FAIL: '.min-length.fail',
+  MIN_LENGTH_MET: '.min-length.met',
+  MIN_LENGTH_UNMET: '.min-length.unmet',
+  NOT_COMMON_FAIL: '.not-common.fail',
+  NOT_COMMON_MET: '.not-common.met',
+  NOT_COMMON_UNMET: '.not-common.unmet',
+  NOT_EMAIL_FAIL: '.not-email.fail',
+  NOT_EMAIL_MET: '.not-email.met',
+  NOT_EMAIL_UNMET: '.not-email.unmet',
+};
+
 /*eslint-disable max-len*/
 module.exports = {
   '123DONE': {
     AUTHENTICATED: '#loggedin',
+    AUTHENTICATED_TOTP: '#loggedin span:first-child',
     BUTTON_SIGNIN: '.sign-in-button.signin',
+    BUTTON_SIGNIN_CHOOSE_FLOW_FOR_ME: '.ready #splash .sign-choose',
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout'
   },
@@ -13,7 +28,8 @@ module.exports = {
     HEADER: '#fxa-400-header'
   },
   CHANGE_PASSWORD: {
-    CANCEL_BUTTON: '#change-password .cancel',DETAILS: '#change-password .settings-unit-details',
+    CANCEL_BUTTON: '#change-password .cancel',
+    DETAILS: '#change-password .settings-unit-details',
     ERROR: '#change-password .error',
     LINK_RESET_PASSWORD: '.reset-password',
     MENU_BUTTON: '#change-password .settings-unit-toggle',
@@ -33,6 +49,17 @@ module.exports = {
     DAMAGED_LINK_HEADER: '#fxa-reset-link-damaged-header',
     EXPIRED_LINK_HEADER: '#fxa-reset-link-expired-header',
     HEADER: '#fxa-complete-reset-password-header',
+    PASSWORD: '#password',
+    PASSWORD_BALLOON,
+    SUBMIT: 'button[type="submit"]',
+    VPASSWORD: '#vpassword',
+  },
+  COMPLETE_RESET_PASSWORD_RECOVERY_KEY: {
+    HEADER: '#fxa-recovery-key-confirm',
+    INPUT: '#recovery-key',
+    LOST_KEY: '.lost-recovery-key',
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: '.tooltip',
   },
   COMPLETE_SIGNIN: {
     LINK_RESEND: '#resend',
@@ -79,7 +106,7 @@ module.exports = {
     INPUT: '.new-email',
     MENU_BUTTON: '#emails .settings-unit-stub button',
     NOT_VERIFIED_LABEL: '.not-verified',
-    REMOVE_BUTTON: '.email-address .settings-button.warning.email-disconnect',
+    REMOVE_BUTTON: '.email-address .settings-button.warning-button.email-disconnect',
     SET_PRIMARY_EMAIL_BUTTON: '.email-address .set-primary',
     SUCCESS: '.success',
     TOOLTIP: '.tooltip',
@@ -95,18 +122,36 @@ module.exports = {
     LINK_SUGGEST_SYNC: '#suggest-sync a',
     SUBMIT: 'button[type="submit"]',
     SUB_HEADER: '#fxa-enter-email-header .service',
+    TOOLTIP: 'input[type=email] + .tooltip',
   },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
     HEADER: '#fxa-force-auth-header'
   },
   MOZILLA_ORG_SYNC: {
-    HEADER: '.header-content'
+    HEADER: '.mzp-c-navigation'
   },
   OAUTH_PERMISSIONS: {
-    CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"] + span',
+    CHECKBOX_DISPLAY_NAME: 'input[name="profile:display_name"]',
     HEADER: '#fxa-permissions-header',
     SUBMIT: '#accept'
+  },
+  RECOVERY_KEY: {
+    CANCEL_BUTTON: '.cancel',
+    CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',
+    CONFIRM_REVOKE: '.confirm-revoke',
+    CONFIRM_REVOKE_DESCRIPTION: '.revoke-description',
+    CONFIRM_REVOKE_OK: '#account-recovery-confirm-revoke .revoke',
+    GENERATE_KEY_BUTTON: '.confirm-password',
+    MENU_BUTTON: '#account-recovery-section .settings-unit-toggle',
+    PASSWORD_INPUT: '#account-recovery-confirm-password #password',
+    RECOVERY_KEY_DONE_BUTTON: '.done-link',
+    RECOVERY_KEY_TEXT: '.recovery-key',
+    STATUS_DISABLED: '.disabled',
+    STATUS_ENABLED: '.enabled',
+    UNLOCK_BUTTON: '.account-recovery .unlock-button',
+    UNLOCK_REFRESH_BUTTON: '.account-recovery .refresh-verification-state',
+    UNLOCK_SEND_VERIFY: '.account-recovery .send-verification-email',
   },
   RESET_PASSWORD: {
     BACK: '.remember-password',
@@ -142,6 +187,10 @@ module.exports = {
     MENU_BUTTON: '#communication-preferences .settings-unit-toggle',
     READY: '#communication-preferences.basket-ready'
   },
+  SETTINGS_DELETE_ACCOUNT: {
+    DETAILS: '#delete-account .settings-unit-details',
+    MENU_BUTTON: '#delete-account .settings-unit-toggle'
+  },
   SETTINGS_DISPLAY_NAME: {
     INPUT_DISPLAY_NAME: '#display-name input[type=text]',
     MENU_BUTTON: '#display-name button.settings-unit-toggle',
@@ -153,10 +202,11 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-signin-header',
     LINK_USE_DIFFERENT: '.use-different',
-    MIGRATION_NUDGE: '.info.nudge',
+    MIGRATION_NUDGE: '#suggest-sync',
     PASSWORD: 'input[type=password]',
     RESET_PASSWORD: 'a[href="/reset_password"]',
     SUBMIT: 'button[type=submit]',
+    SUBMIT_USE_SIGNED_IN: '.use-logged-in',
     SUB_HEADER: '#fxa-signin-header .service',
     TOOLTIP: '.tooltip',
   },
@@ -167,32 +217,43 @@ module.exports = {
     SUPPORT: '#support'
   },
   SIGNIN_COMPLETE: {
-    HEADER: '#fxa-sign-in-complete-header'
+    CONTINUE_BUTTON: '.btn-continue',
+    HEADER: '#fxa-sign-in-complete-header',
+    SERVICE_NAME: '.account-ready-service'
   },
   SIGNIN_PASSWORD: {
     EMAIL: 'input[type=email]',
     HEADER: '#fxa-signin-password-header',
+    LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: 'input[type=password]',
+    SHOW_PASSWORD: '#password ~ .show-password-label',
+    SUBMIT: 'button[type="submit"]',
+  },
+  SIGNIN_RECOVERY_CODE: {
+    DONE_BUTTON: '.two-step-authentication-done',
+    FIRST_CODE: '.recovery-code:first-child',
+    INPUT: '.recovery-code',
+    LINK: '#use-recovery-code-link',
+    MODAL: '#recovery-codes',
+    SECOND_CODE: '.recovery-code:nth-child(2)',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_TOKEN_CODE: {
     EMAIL_FIELD: '.verification-email-message',
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
-    INPUT: '#token-code',
+    INPUT: '.token-code',
     SUBMIT: 'button[type="submit"]',
   },
   SIGNIN_UNBLOCK: {
     EMAIL_FIELD: '.verification-email-message',
     HEADER: '#fxa-signin-unblock-header',
     SUBMIT: 'button[type="submit"]',
+    VERIFICATION: '.verification-email-message',
   },
   SIGNUP: {
     AGE: '#age',
-    // The original checkbox is not clickable after the material conversion. The span
-    // next to the element holds the label text, click it instead. See #5425
-    CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync + span',
-    CUSTOMIZE_SYNC_INPUT: '#customize-sync',
+    CUSTOMIZE_SYNC_CHECKBOX: '#customize-sync',
     EMAIL: 'input[type=email]',
     ERROR: '.error',
     HEADER: '#fxa-signup-header',
@@ -200,8 +261,8 @@ module.exports = {
     LINK_SUGGEST_EMAIL_DOMAIN_CORRECTION: '#email-suggestion',
     LINK_SUGGEST_SIGN_IN: '.error a[href="/signin"]',
     LINK_SUGGEST_SYNC: '#suggest-sync a',
-    MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin + span',
-    MIGRATING_USER: '.info.nudge',
+    MARKETING_EMAIL_OPTIN: 'input.marketing-email-optin',
+    MIGRATING_USER: '#suggest-sync',
     PASSWORD: '#password',
     SUBMIT: 'button[type="submit"]',
     SUB_HEADER: '#fxa-signup-header .service',
@@ -212,6 +273,7 @@ module.exports = {
     VPASSWORD: '#vpassword',
   },
   SIGNUP_COMPLETE: {
+    CONTINUE_BUTTON: '.btn-continue',
     HEADER: '#fxa-sign-up-complete-header',
     SERVICE_NAME: '.account-ready-service'
   },
@@ -220,8 +282,13 @@ module.exports = {
     EMAIL: 'input[type=email]',
     ERROR_PASSWORDS_DO_NOT_MATCH: '.error',
     HEADER: '#fxa-signup-password-header',
+    LINK_MISTYPED_EMAIL: '.use-different',
     PASSWORD: '#password',
+    PASSWORD_BALLOON,
+    SHOW_PASSWORD: '#password ~ .show-password-label',
+    SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
+    VPASSWORD: '#vpassword',
   },
   SMS_LEARN_MORE: {
     HEADER: '#websites-notice'
@@ -248,6 +315,30 @@ module.exports = {
   SMS_WHY_IS_THIS_REQUIRED: {
     CLOSE: '.connect-another-device button[type="submit"]',
     HEADER: '#fxa-why-connect-another-device-header',
-  }
+  },
+  TOTP: {
+    CANCEL_BUTTON: '.totp-cancel',
+    CONFIRM_CODE_BUTTON: '.totp-confirm-code',
+    CONFIRM_CODE_INPUT: '.totp-code',
+    DELETE_BUTTON: '.totp-delete',
+    MANUAL_CODE: '.code',
+    MENU_BUTTON: '#totp-section .settings-unit-toggle',
+    QR_CODE: '.qr-image',
+    RECOVERY_CODES_DESCRIPTION: '#recovery-codes .description',
+    RECOVERY_CODES_DONE: '#recovery-codes .two-step-authentication-done',
+    RECOVERY_CODES_REPLACE: '#recovery-codes .replace-codes-link',
+    SHOW_CODE_LINK: '.show-code-link',
+    STATUS_DISABLED: '.two-step-authentication .disabled',
+    STATUS_ENABLED: '.two-step-authentication .enabled',
+    UNLOCK_BUTTON: '.two-step-authentication .unlock-button',
+    UNLOCK_REFRESH_BUTTON: '.two-step-authentication .refresh-verification-state',
+    UNLOCK_SEND_VERIFY: '.two-step-authentication .send-verification-email',
+  },
+  TOTP_SIGNIN: {
+    HEADER: '#fxa-totp-code-header',
+    INPUT: '.totp-code',
+    SUBMIT: 'button[type="submit"]',
+  },
+
 };
 /*eslint-enable max-len*/

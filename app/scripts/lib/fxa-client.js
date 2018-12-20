@@ -12,6 +12,7 @@ define(function (require, exports, module) {
   const $ = require('jquery');
   const AuthErrors = require('./auth-errors');
   const Constants = require('./constants');
+  const RecoveryKey = require('./crypto/recovery-keys');
   const Session = require('./session');
   const SignInReasons = require('./sign-in-reasons');
   const VerificationReasons = require('./verification-reasons');
@@ -149,7 +150,7 @@ define(function (require, exports, module) {
       }
 
       return importFxaClient().then((FxaClient) => {
-        const client = new FxaClient(this._authServerUrl);
+        const client = new FxaClient.default(this._authServerUrl);
         this._client = wrapClientToNormalizeErrors(client);
         return this._client;
       });
@@ -169,19 +170,28 @@ define(function (require, exports, module) {
      *
      * @param {String} email
      * @param {String} password
+     * @param {String} sessionToken
+     * An optional existing sessionToken for the user's account, which
+     * can be used to check the password without creating a new session.
      * @returns {Promise}
      */
-    checkPassword: withClient((client, email, password) => {
-      return client.signIn(email, password, {
-        reason: SignInReasons.PASSWORD_CHECK
-      }).then(function (sessionInfo) {
-        // a session was created on the backend to check the user's
-        // password. Delete the newly created session immediately
-        // so that the session token is not left in the database.
-        if (sessionInfo && sessionInfo.sessionToken) {
-          return client.sessionDestroy(sessionInfo.sessionToken);
-        }
-      });
+    checkPassword: withClient((client, email, password, sessionToken) => {
+      if (sessionToken) {
+        return client.sessionReauth(sessionToken, email, password, {
+          reason: SignInReasons.PASSWORD_CHECK
+        });
+      } else {
+        return client.signIn(email, password, {
+          reason: SignInReasons.PASSWORD_CHECK
+        }).then(function (sessionInfo) {
+          // a session was created on the backend to check the user's
+          // password. Delete the newly created session immediately
+          // so that the session token is not left in the database.
+          if (sessionInfo && sessionInfo.sessionToken) {
+            return client.sessionDestroy(sessionInfo.sessionToken);
+          }
+        });
+      }
     }),
 
     /**
@@ -450,10 +460,14 @@ define(function (require, exports, module) {
      * @param {String} sessionToken sessionToken obtained from signIn
      * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
      */
-    sessionVerifyResend: withClient((client, sessionToken) => {
+    sessionVerifyResend: withClient((client, sessionToken, options = {}) => {
       const clientOptions = {
         type: 'upgradeSession'
       };
+
+      if (options.redirectTo) {
+        clientOptions.redirectTo = options.redirectTo;
+      }
 
       return client.recoveryEmailResendCode(sessionToken, clientOptions);
     }),
@@ -549,8 +563,6 @@ define(function (require, exports, module) {
         clientOptions.resume = options.resume;
       }
 
-      setMetricsContext(clientOptions, options);
-
       return client.passwordForgotResendCode(
         email,
         passwordForgotToken,
@@ -581,12 +593,8 @@ define(function (require, exports, module) {
         keys: wantsKeys(relier),
         sessionToken: true
       };
-      setMetricsContext(accountResetOptions, options);
 
-      var passwordVerifyCodeOptions = {};
-      setMetricsContext(passwordVerifyCodeOptions, options);
-
-      return client.passwordForgotVerifyCode(code, token, passwordVerifyCodeOptions)
+      return client.passwordForgotVerifyCode(code, token, {})
         .then(result => {
           let emailToHashWith = email;
 
@@ -662,11 +670,12 @@ define(function (require, exports, module) {
      *
      * @param {String} originalEmail Email input
      * @param {String} password Password input
+     * @param {String} sessionToken User session token
      * @return {Promise} resolves when complete
      */
-    deleteAccount: withClient((client, originalEmail, password) => {
+    deleteAccount: withClient((client, originalEmail, password, sessionToken) => {
       var email = trim(originalEmail);
-      return client.accountDestroy(email, password);
+      return client.accountDestroy(email, password, {}, sessionToken);
     }),
 
     /**
@@ -994,9 +1003,134 @@ define(function (require, exports, module) {
      *
      * @param {String} sessionToken SessionToken obtained from signIn
      * @param {String} code TOTP code
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.service] - service used
      * @returns {Promise} resolves when complete
      */
-    verifyTotpCode: createClientDelegate('verifyTotpCode')
+    verifyTotpCode: createClientDelegate('verifyTotpCode'),
+
+    /**
+     * Consume and verifies a session with a recovery code.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @param {String} code Recovery code
+     * @returns {Promise} resolves when complete
+     */
+    consumeRecoveryCode: createClientDelegate('consumeRecoveryCode'),
+
+    /**
+     * Replace all user recovery codes.
+     *
+     * @param {String} sessionToken SessionToken obtained from signIn
+     * @returns {Promise} resolves when complete
+     */
+    replaceRecoveryCodes: createClientDelegate('replaceRecoveryCodes'),
+
+    /**
+     * Creates a new recovery key bundle for the current user. To
+     * create a recovery key first a session re-auth is performed,
+     * then the account keys are fetched and finally the recovery
+     * bundle stores an encrypted copy of the original user's `kB`
+     *
+     * @param {String} email - email address
+     * @param {String} password - current password of the user
+     * @param {String} sessionToken - SessionToken obtained from signIn
+     * @param {String} uid - current uid of the user
+     * @returns {Promise} resolves with response when complete.
+     */
+    createRecoveryBundle: withClient((client, email, password, sessionToken, uid) => {
+      let recoveryKey, keys, recoveryJwk;
+
+      return client.sessionReauth(sessionToken, email, password, {keys: true, reason: VerificationReasons.RECOVERY_KEY})
+        .then((res) => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
+        .then((result) => {
+          keys = result;
+          return RecoveryKey.generateRecoveryKey(Constants.RECOVERY_KEY_LENGTH)
+            .then((result) => {
+              recoveryKey = result;
+              return RecoveryKey.getRecoveryJwk(uid, recoveryKey);
+            });
+        })
+        .then((result) => {
+          recoveryJwk = result;
+          return RecoveryKey.bundleRecoveryData(recoveryJwk, keys);
+        })
+        .then((bundle) => client.createRecoveryKey(sessionToken, recoveryJwk.kid, bundle))
+        .then(() => {
+          return {recoveryKey};
+        });
+    }),
+
+    /**
+     * Deletes the recovery key associated with this user.
+     *
+     * @param sessionToken
+     */
+    deleteRecoveryKey: createClientDelegate('deleteRecoveryKey'),
+
+    /**
+     * This checks to see if a recovery key exists for a user.
+     *
+     * @param sessionToken
+     * @param {String} email User's email
+     * @returns {Promise} resolves with response when complete.
+     */
+    recoveryKeyExists: createClientDelegate('recoveryKeyExists'),
+
+    /**
+     * Verify passwordForgotCode which returns an `accountResetToken`.
+     *
+     * @param {String} passwordForgotCode - password forgot code
+     * @param {String} passwordForgotToken - password forgot token
+     * @param {Object} [options={}] Options
+     *   @param {String} [options.accountResetWithRecoveryKey] - perform account reset with recovery key
+     * @returns {Promise} resolves with response when complete.
+     */
+    passwordForgotVerifyCode: withClient((client, passwordForgotCode, passwordForgotToken, options = {}) => {
+      return client.passwordForgotVerifyCode(passwordForgotCode, passwordForgotToken, options);
+    }),
+
+    /**
+     * Gets recovery key bundle for the current user.
+     *
+     * @param {String} accountResetToken
+     * @param {String} uid - Uid of user
+     * @param {String} recoveryKey - User's recovery key
+     * @returns {Promise} resolves with response when complete.
+     */
+    getRecoveryBundle: withClient((client, accountResetToken, uid, recoveryKey) => {
+      return RecoveryKey.getRecoveryJwk(uid, recoveryKey)
+        .then((recoveryJwk) => {
+          return client.getRecoveryKey(accountResetToken, recoveryJwk.kid)
+            .then((bundle) => RecoveryKey.unbundleRecoveryData(recoveryJwk, bundle.recoveryData))
+            .then((data) => {
+              return {
+                keys: data,
+                recoveryKeyId: recoveryJwk.kid
+              };
+            });
+        });
+    }),
+
+    /**
+     * Reset an account using a recovery key. This maintains a user's original encryption keys.
+     *
+     * @param {String} accountResetToken
+     * @param {String} email - Email of user
+     * @param {String} newPassword - New password for user
+     * @param {String} recoveryKeyId - The recoveryKeyId that mapped to original recovery key
+     * @param {String} kB - Wrap new password with this kB
+     * @param {String} relier - Relier to sign-in
+     * @returns {Promise} resolves with response when complete.
+     */
+    resetPasswordWithRecoveryKey: withClient((client, accountResetToken, email, newPassword, recoveryKeyId, kB, relier) => {
+      const keys = {kB};
+      return client.resetPasswordWithRecoveryKey(accountResetToken, email, newPassword, recoveryKeyId, keys, { keys: true, sessionToken: true })
+        .then(accountData => {
+          return getUpdatedSessionData(email, relier, accountData);
+        });
+    })
+
   };
 
   module.exports = FxaClientWrapper;

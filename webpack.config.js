@@ -7,10 +7,11 @@ const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const HappyPack = require('happypack');
 const path = require('path');
+const config = require('./server/lib/configuration').getProperties();
 
-const ENV = process.env.NODE_ENV || 'development';
-const versionInfo = require('./server/lib/version');
+const ENV = config.env;
 const webpackConfig = {
+  mode: ENV,
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',
@@ -21,10 +22,9 @@ const webpackConfig = {
       'cocktail-lib',
       'duration',
       'es6-promise',
-      'fxaCheckbox',
       'jquery',
       'mailcheck',
-      'md5',
+      'js-md5',
       'modal',
       'raven',
       'speed-trap',
@@ -32,6 +32,7 @@ const webpackConfig = {
       'uuid',
       'vat',
       'webrtc',
+      'styles/main.scss'
     ],
     head: './head/boot.js'
   },
@@ -40,8 +41,8 @@ const webpackConfig = {
     crossOriginLoading: 'anonymous',
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist', `bundle-${versionInfo.commit}`),
-    publicPath: process.env.NODE_ENV === 'production' ? `/bundle-${versionInfo.commit}/` : `/bundle/`
+    path: path.resolve(__dirname, 'dist', config.jsResourcePath),
+    publicPath: `/${config.jsResourcePath}/`
   },
 
   resolve: {
@@ -60,20 +61,20 @@ const webpackConfig = {
       draggable: path.resolve(__dirname, 'node_modules/jquery-ui/ui/widgets/draggable'),
       duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
       'es6-promise': path.resolve(__dirname, 'node_modules/es6-promise/dist/es6-promise'),
-      fxaCheckbox: path.resolve(__dirname, 'node_modules/fxa-checkbox/checkbox'),
       fxaClient: 'fxa-js-client/client/FxAccountClient',
       fxaCryptoDeriver: path.resolve(__dirname, 'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'),
+      'base32-decode': path.resolve(__dirname, 'node_modules/base32-decode/index'),
       // jwcrypto is used by the main app and only contains DSA
       // jwcrypto.rs is used by the unit tests to unbundle and verify
       // assertions, which require RSA.
       jwcrypto: path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.ds'),
       'jwcrypto.rs': path.resolve(__dirname, 'app/scripts/vendor/jwcrypto/jwcrypto.rs'),
       mailcheck: path.resolve(__dirname, 'node_modules/mailcheck/src/mailcheck'),
-      md5: path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
+      'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',
       modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
       raven: path.resolve(__dirname, 'node_modules/raven-js/dist/raven'),
-      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon-3.2.1'),
+      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon'),
       'touch-punch': path.resolve(__dirname, 'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'),
       'ua-parser-js': path.resolve(__dirname, 'node_modules/ua-parser-js/src/ua-parser'),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
@@ -84,6 +85,24 @@ const webpackConfig = {
 
   module: {
     rules: [
+      {
+        test: require.resolve('jquery'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'jQuery'
+        },
+          {
+            loader: 'expose-loader',
+            options: '$'
+          }],
+      },
+      {
+        test: require.resolve('mocha'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'mocha'
+        }],
+      },
       {
         test: /\.mustache$/,
         loader: 'fxa-mustache-loader'
@@ -100,8 +119,43 @@ const webpackConfig = {
         use: {
           loader: 'happypack/loader',
         }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].css',
+              outputPath: '../../app/styles',
+            }
+          },
+          {
+            loader: 'extract-loader'
+          },
+          {
+            loader: 'css-loader'
+          },
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          },
+        ]
       }
     ]
+  },
+  optimization: {
+    splitChunks: { // CommonsChunkPlugin()
+      cacheGroups: {
+        appDependencies: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'appDependencies',
+          chunks: 'initial'
+        }
+      }
+    },
   },
   plugins: ([
     new HappyPack({
@@ -110,55 +164,16 @@ const webpackConfig = {
         query: {
           cacheDirectory: true,
           presets: ['babel-preset-es2015'],
-          plugins: ['babel-plugin-syntax-dynamic-import']
+          plugins: ['babel-plugin-syntax-dynamic-import', 'transform-class-properties']
         }
       }],
       threads: 4,
       debug: false
     }),
-    new webpack.NamedChunksPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["app", "test", "testDependencies"],
-      name: "appDependencies",
-      minChunks: Infinity,
-    }),
-  ]).concat(ENV === 'production' ? [
-    new UglifyJsPlugin({
-      uglifyOptions: {
-        compress: {
-          unsafe_comps: true,
-          properties: true,
-          keep_fargs: false,
-          pure_getters: true,
-          collapse_vars: true,
-          unsafe: true,
-          warnings: false,
-          sequences: true,
-          dead_code: true,
-          drop_debugger: true,
-          comparisons: true,
-          conditionals: true,
-          evaluate: true,
-          booleans: true,
-          loops: true,
-          unused: true,
-          hoist_funs: true,
-          if_return: true,
-          join_vars: true,
-          drop_console: true
-        },
-      },
-      sourceMap: true,
-      cache: true,
-      parallel: true
-    }),
-  ] : []).concat(ENV === 'development' ? [
-    new webpack.optimize.CommonsChunkPlugin({
-      chunks: ["test"],
-      name: "testDependencies",
-      minChunks: Infinity,
-    })
-  ]: []),
+    // dynamically loaded routes cause the .md file to be read and a
+    // warning to be displayed on the console. Just ignore them.
+    new webpack.IgnorePlugin(/\.md$/)
+  ]),
 
   stats: { colors: true },
 
@@ -175,10 +190,45 @@ if (ENV === 'development') {
   Object.assign(webpackConfig.entry, {
     test: '../tests/webpack.js',
     testDependencies: [
+      'jquery',
       'chai',
       'jquery-simulate',
       'mocha',
       'sinon',
+    ]
+  });
+} else {
+  Object.assign(webpackConfig.optimization, {
+    minimizer: [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          compress: {
+            unsafe_comps: true,
+            properties: true,
+            keep_fargs: false,
+            pure_getters: true,
+            collapse_vars: true,
+            unsafe: true,
+            warnings: false,
+            sequences: true,
+            dead_code: true,
+            drop_debugger: true,
+            comparisons: true,
+            conditionals: true,
+            evaluate: true,
+            booleans: true,
+            loops: true,
+            unused: true,
+            hoist_funs: true,
+            if_return: true,
+            join_vars: true,
+            drop_console: true
+          },
+        },
+        sourceMap: true,
+        cache: true,
+        parallel: true
+      }),
     ]
   });
 }

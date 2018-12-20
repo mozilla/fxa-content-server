@@ -12,9 +12,7 @@ define(function (require, exports, module) {
   const Logger = require('./logger');
   var logger = new Logger();
 
-  var t = function (msg) {
-    return msg;
-  };
+  const t = msg => msg;
 
   var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
   var EXPIRED_VERIFICATION_ERROR_MESSAGE = t('The link you clicked to verify your email is expired.');
@@ -200,15 +198,19 @@ define(function (require, exports, module) {
     },
     INVALID_TOKEN_VERIFICATION_CODE: {
       errno: 152,
-      message: t('Invalid sign-in verification code')
+      message: t('Valid code required')
     },
     EXPIRED_TOKEN_VERIFICATION_CODE: {
       errno: 153,
       message: t('This verification code has expired')
     },
-    INVALID_TOTP_CODE: {
-      errno: 154,
-      message: t('Invalid two-step authentication code')
+    INVALID_RECOVERY_KEY: {
+      errno: 159,
+      message: t('Invalid recovery key')
+    },
+    TOTP_REQUIRED: {
+      errno: 160,
+      message: t('This request requires two step authentication enabled on your account.')
     },
     // Secondary Email errors end
     SERVER_BUSY: {
@@ -218,6 +220,10 @@ define(function (require, exports, module) {
     FEATURE_NOT_ENABLED: {
       errno: 202,
       message: t('Feature not enabled')
+    },
+    BACKEND_SERVICE_FAILURE: {
+      errno: 203,
+      message: t('System unavailable, try again soon')
     },
     ENDPOINT_NOT_SUPPORTED: {
       errno: 116,
@@ -428,7 +434,7 @@ define(function (require, exports, module) {
     UNSAFE_INTERPOLATION_VARIABLE_NAME: {
       errno: 1046,
       // not user facing, only used for logging, not wrapped in `t`
-      message: 'String contains variables that are not escaped: %(string)s'
+      message: 'String variable name does not have escape prefix: %(string)s'
     },
     // logged when view.translate called with a string that contains
     // HTML.
@@ -461,6 +467,38 @@ define(function (require, exports, module) {
       errno: 1052,
       message: t('That confirmation link was already used, and can only be used once.')
     },
+    TOTP_CODE_REQUIRED: {
+      errno: 1053,
+      message: t('Two-step authentication code required')
+    },
+    INVALID_TOTP_CODE: {
+      errno: 1054,
+      message: t('Invalid two-step authentication code')
+    },
+    RECOVERY_CODE_REQUIRED: {
+      errno: 1055,
+      message: t('Recovery code required')
+    },
+    INVALID_RECOVERY_CODE: {
+      errno: 1056,
+      message: t('Invalid recovery code')
+    },
+    PASSWORD_SAME_AS_EMAIL: {
+      errno: 1057,
+      message: 'Password must not be your email address' // only used for logging, no need for translation
+    },
+    PASSWORD_TOO_COMMON: {
+      errno: 1058,
+      message: 'Password is too common' // only used for logging, no need for translation
+    },
+    RECOVERY_KEY_REQUIRED: {
+      errno: 1059,
+      message: t('Recovery key required')
+    },
+    TOKEN_VERIFICATION_CODE_REQUIRED: {
+      errno: 1060,
+      message: t('Please enter verification code')
+    }
   };
   /*eslint-enable sorting/sort-object-props*/
 

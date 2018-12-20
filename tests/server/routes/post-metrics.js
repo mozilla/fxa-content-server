@@ -32,33 +32,22 @@ registerSuite('routes/post-metrics', {
           return {};
         }
       },
-      flowEvent: sandbox.spy(),
-      gaCollector: {
-        write: sandbox.spy()
+      flowEvent: {
+        metricsRequest: sandbox.spy()
       },
       metricsCollector: {
         write: sandbox.spy()
       },
       mozlog: {
         error: sandbox.spy()
-      },
-      statsdCollector: {
-        init: sandbox.spy(),
-        write: sandbox.spy()
       }
     };
     route = proxyquire(
       path.join(process.cwd(), 'server/lib/routes/post-metrics'), {
         '../flow-event': mocks.flowEvent,
         '../configuration': mocks.config,
-        '../ga-collector': function () {
-          return mocks.gaCollector;
-        },
         '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;
-        },
-        '../statsd-collector': function () {
-          return mocks.statsdCollector;
         },
         '../logging/log': function () {
           return mocks.mozlog;
@@ -116,7 +105,7 @@ registerSuite('routes/post-metrics', {
 
             after() {
               Date.now.restore();
-              sandbox.reset();
+              sandbox.resetHistory();
             },
             tests: {
               'request.body was converted to an object': function () {
@@ -158,7 +147,7 @@ registerSuite('routes/post-metrics', {
 
           after: function () {
             Date.now.restore();
-            sandbox.reset();
+            sandbox.resetHistory();
           },
 
           tests: {
@@ -206,23 +195,9 @@ registerSuite('routes/post-metrics', {
                   });
                 },
 
-                'statsdCollector.write was called correctly': function () {
-                  assert.strictEqual(mocks.statsdCollector.write.callCount, 1);
-                  var args = mocks.statsdCollector.write.args[0];
-                  assert.lengthOf(args, 1);
-                  assert.equal(args[0], mocks.request.body);
-                },
-
-                'gaCollector.write was called correctly': function () {
-                  assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-                  var args = mocks.gaCollector.write.args[0];
-                  assert.lengthOf(args, 1);
-                  assert.equal(args[0], mocks.request.body);
-                },
-
-                'flowEvent was called correctly': function () {
-                  assert.strictEqual(mocks.flowEvent.callCount, 1);
-                  var args = mocks.flowEvent.args[0];
+                'flowEvent.metricsRequest was called correctly': function () {
+                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
+                  var args = mocks.flowEvent.metricsRequest.args[0];
                   assert.lengthOf(args, 3);
                   assert.equal(args[0], mocks.request);
                   assert.equal(args[1], mocks.request.body);
@@ -257,7 +232,7 @@ registerSuite('routes/post-metrics', {
 
           after() {
             Date.now.restore();
-            sandbox.reset();
+            sandbox.resetHistory();
           },
           tests: {
             'response.json was called': function () {
@@ -281,16 +256,8 @@ registerSuite('routes/post-metrics', {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
                 },
 
-                'statsdCollector.write was not called': function () {
-                  assert.strictEqual(mocks.statsdCollector.write.callCount, 0);
-                },
-
-                'gaCollector.write was called': function () {
-                  assert.strictEqual(mocks.gaCollector.write.callCount, 1);
-                },
-
                 'flowEvent was called': function () {
-                  assert.strictEqual(mocks.flowEvent.callCount, 1);
+                  assert.strictEqual(mocks.flowEvent.metricsRequest.callCount, 1);
                 }
               }
             }

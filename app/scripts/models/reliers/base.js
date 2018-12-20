@@ -58,6 +58,15 @@ define(function (require, exports, module) {
     },
 
     /**
+     * Return `true` if the relier wants two step authentication.
+     *
+     * @returns {Boolean} `true` if relier asks for two step authentication, false otw.
+     */
+    wantsTwoStepAuthentication () {
+      return false;
+    },
+
+    /**
      * Get the resume token info to be passed along in the email
      * verification links
      *
@@ -65,15 +74,6 @@ define(function (require, exports, module) {
      */
     pickResumeTokenInfo () {
       return {};
-    },
-
-    /**
-     * Indicates whether the relier allows cached credentials
-     *
-     * @returns {Boolean}
-     */
-    allowCachedCredentials () {
-      return true;
     },
 
     /**

@@ -13,8 +13,6 @@ module.exports = function (grunt) {
       'selectconfig:app',
       'l10n-create-json',
       'l10n-generate-tos-pp:app',
-      'css',
-      'concurrent:server',
       'serverproc:app'
     ]);
   });

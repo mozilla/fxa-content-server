@@ -40,12 +40,10 @@ define(function (require, exports, module) {
         clientHeight: 966,
         clientWidth: 1033,
         context: 'fx_desktop_v1',
-        deviceId: 'wibble',
         devicePixelRatio: 2,
         entrypoint: 'menupanel',
         isSampledUser: true,
         lang: 'db_LB',
-        migration: 'sync1.5',
         notifier,
         screenHeight: 1200,
         screenWidth: 1600,
@@ -76,10 +74,11 @@ define(function (require, exports, module) {
     });
 
     it('has the expected notifications', () => {
-      assert.lengthOf(Object.keys(metrics.notifications), 5);
+      assert.lengthOf(Object.keys(metrics.notifications), 6);
 
       assert.isTrue('flow.initialize' in metrics.notifications);
       assert.isTrue('flow.event' in metrics.notifications);
+      assert.isTrue('set-email-domain' in metrics.notifications);
       assert.isTrue('set-uid' in metrics.notifications);
       assert.isTrue('clear-uid' in metrics.notifications);
       assert.isTrue('once!view-shown' in metrics.notifications);
@@ -88,7 +87,7 @@ define(function (require, exports, module) {
     it('observable flow state is correct', () => {
       assert.isUndefined(metrics.getFlowModel());
       assert.deepEqual(metrics.getFlowEventMetadata(), {
-        deviceId: 'wibble',
+        deviceId: undefined,
         flowBeginTime: undefined,
         flowId: undefined,
         utmCampaign: 'utm_campaign',
@@ -107,16 +106,15 @@ define(function (require, exports, module) {
       it('observable flow state is correct', () => {
         assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
         assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
-        assert.deepEqual(metrics.getFlowEventMetadata(), {
-          deviceId: 'wibble',
-          flowBeginTime: FLOW_BEGIN_TIME,
-          flowId: FLOW_ID,
-          utmCampaign: 'utm_campaign',
-          utmContent: 'utm_content',
-          utmMedium: 'utm_medium',
-          utmSource: undefined,
-          utmTerm: undefined
-        });
+        const metadata = metrics.getFlowEventMetadata();
+        assert.match(metadata.deviceId, /^[0-9a-f]{32}$/);
+        assert.equal(metadata.flowBeginTime, FLOW_BEGIN_TIME);
+        assert.equal(metadata.flowId, FLOW_ID);
+        assert.equal(metadata.utmCampaign, 'utm_campaign');
+        assert.equal(metadata.utmContent, 'utm_content');
+        assert.equal(metadata.utmMedium, 'utm_medium');
+        assert.equal(metadata.utmSource, undefined);
+        assert.equal(metadata.utmTerm, undefined);
       });
 
       it('flow events are triggered correctly', () => {
@@ -154,16 +152,15 @@ define(function (require, exports, module) {
         it('observable flow state is correct', () => {
           assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
           assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
-          assert.deepEqual(metrics.getFlowEventMetadata(), {
-            deviceId: 'wibble',
-            flowBeginTime: FLOW_BEGIN_TIME,
-            flowId: FLOW_ID,
-            utmCampaign: 'utm_campaign',
-            utmContent: 'utm_content',
-            utmMedium: 'utm_medium',
-            utmSource: undefined,
-            utmTerm: undefined
-          });
+          const metadata = metrics.getFlowEventMetadata();
+          assert.match(metadata.deviceId, /^[0-9a-f]{32}$/);
+          assert.equal(metadata.flowBeginTime, FLOW_BEGIN_TIME);
+          assert.equal(metadata.flowId, FLOW_ID);
+          assert.equal(metadata.utmCampaign, 'utm_campaign');
+          assert.equal(metadata.utmContent, 'utm_content');
+          assert.equal(metadata.utmMedium, 'utm_medium');
+          assert.equal(metadata.utmSource, undefined);
+          assert.equal(metadata.utmTerm, undefined);
         });
       });
     });
@@ -190,8 +187,9 @@ define(function (require, exports, module) {
         assert.equal(filteredData.service, 'sync');
         assert.equal(filteredData.broker, 'fx-desktop-v1');
         assert.equal(filteredData.lang, 'db_LB');
+        assert.equal(filteredData.emailDomain, 'none');
         assert.equal(filteredData.entrypoint, 'menupanel');
-        assert.equal(filteredData.migration, 'sync1.5');
+        assert.equal(filteredData.migration, 'none');
         assert.equal(filteredData.uniqueUserId, '0ae7fe2b-244f-4a78-9857-dff3ae263927');
         assert.equal(filteredData.startTime, 1439233336187);
 
@@ -239,6 +237,18 @@ define(function (require, exports, module) {
       });
     });
 
+    describe('markEventLogged', function () {
+      it('does not log an event if marked logged', function () {
+        metrics.markEventLogged('event2');
+        metrics.logEventOnce('event1');
+        metrics.logEventOnce('event2');
+
+        const filteredData = metrics.getFilteredData();
+        assert.equal(filteredData.events.length, 1);
+        assert.equal(filteredData.events[0].type, 'event1');
+      });
+    });
+
     describe('startTimer/stopTimer', function () {
       it('adds a timer to output data', function () {
         metrics.startTimer('timer1');
@@ -264,7 +274,6 @@ define(function (require, exports, module) {
         xhr = { ajax () {} };
         environment = new Environment(windowMock);
         metrics = new Metrics({
-          deviceId: 'mock device id',
           environment: environment,
           inactivityFlushMs: 100,
           notifier,
@@ -319,11 +328,12 @@ define(function (require, exports, module) {
               assert.equal(windowMock.navigator.sendBeacon.getCall(0).args[0], '/metrics');
 
               var data = JSON.parse(windowMock.navigator.sendBeacon.getCall(0).args[1]);
-              assert.lengthOf(Object.keys(data), 29);
+              assert.lengthOf(Object.keys(data), 30);
               assert.equal(data.broker, 'none');
               assert.equal(data.context, Constants.CONTENT_SERVER_CONTEXT);
-              assert.equal(data.deviceId, 'mock device id');
+              assert.match(data.deviceId, /^[0-9a-f]{32}$/);
               assert.isNumber(data.duration);
+              assert.equal(data.emailDomain, 'none');
               assert.equal(data.entrypoint, 'none');
               assert.isArray(data.events);
               assert.lengthOf(data.events, 4);
@@ -380,6 +390,32 @@ define(function (require, exports, module) {
                 assert.equal(data.flowId, FLOW_ID);
                 assert.equal(data.flowBeginTime, FLOW_BEGIN_TIME);
               });
+            });
+          });
+
+          describe('sendBeacon after set-email-domain (other domain)', () => {
+            beforeEach(() => {
+              notifier.trigger('set-email-domain', 'foo@example.com');
+              sandbox.spy(windowMock.navigator, 'sendBeacon');
+              return metrics.flush();
+            });
+
+            it('set emailDomain correctly', () => {
+              const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+              assert.equal(data.emailDomain, 'other');
+            });
+          });
+
+          describe('sendBeacon after set-email-domain (popular domain)', () => {
+            beforeEach(() => {
+              notifier.trigger('set-email-domain', 'pmbooth@gmail.com');
+              sandbox.spy(windowMock.navigator, 'sendBeacon');
+              return metrics.flush();
+            });
+
+            it('set emailDomain correctly', () => {
+              const data = JSON.parse(windowMock.navigator.sendBeacon.args[0][1]);
+              assert.equal(data.emailDomain, 'gmail.com');
             });
           });
 
@@ -465,8 +501,8 @@ define(function (require, exports, module) {
               assert.equal(settings.contentType, 'application/json');
 
               var data = JSON.parse(settings.data);
-              assert.lengthOf(Object.keys(data), 28);
-              assert.equal(data.deviceId, 'mock device id');
+              assert.lengthOf(Object.keys(data), 29);
+              assert.match(data.deviceId, /^[0-9a-f]{32}$/);
               assert.isArray(data.events);
               assert.lengthOf(data.events, 5);
               assert.equal(data.events[0].type, 'foo');
@@ -545,7 +581,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 28);
+            assert.lengthOf(Object.keys(data), 29);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');
@@ -570,7 +606,7 @@ define(function (require, exports, module) {
             assert.isTrue(metrics._send.getCall(0).args[1]);
 
             var data = metrics._send.getCall(0).args[0];
-            assert.lengthOf(Object.keys(data), 28);
+            assert.lengthOf(Object.keys(data), 29);
             assert.lengthOf(data.events, 5);
             assert.equal(data.events[0].type, 'foo');
             assert.equal(data.events[1].type, 'flow.bar');

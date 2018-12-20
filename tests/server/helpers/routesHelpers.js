@@ -68,11 +68,11 @@ function checkHeaders(routes, route, res) {
  * each URL exists, responds with a 200, and in the case of JS, CSS
  * and fonts, that the correct CORS headers are set.
  */
-function extractAndCheckUrls(res) {
+function extractAndCheckUrls(res, testName) {
   var href = url.parse(res.url);
   var origin = [ href.protocol, '//', href.host ].join('');
   return extractUrls(res.body)
-    .then(checkUrls.bind(null, origin));
+    .then((resources) => checkUrls(origin, resources, testName));
 }
 
 function extractUrls(body) {
@@ -130,8 +130,20 @@ function extractUrls(body) {
   });
 }
 
-function checkUrls(origin, resources) {
-  findCssSubResources(origin, resources)
+const IGNORE_URL_REGEXPS = [
+  // Do not check support.mozilla.org URLs. Issue #4712
+  // In February 2017 SUMO links started returning 404s to non-browser redirect requests
+  /support\.mozilla\.org/,
+  // skip the livereload link in the mocha tests
+  /localhost:35729/
+];
+
+function isUrlIgnored (url) {
+  return IGNORE_URL_REGEXPS.find(domainRegExp => domainRegExp.test(url));
+}
+
+function checkUrls(origin, resources, testName = '') {
+  return findCssSubResources(origin, resources)
     .then((cssSubResources) => {
       resources = resources.concat(cssSubResources);
 
@@ -151,14 +163,11 @@ function checkUrls(origin, resources) {
 
         var promise = makeRequest(resource.url, requestOptions)
           .then(function (res) {
-            if (/support.mozilla.org/.test(resource.url) || /localhost:35729/.test(resource.url)) {
-              // Do not check support.mozilla.org URLs. Issue #4712
-              // In February 2017 SUMO links started returning 404s to non-browser redirect requests
-              // Also skip the livereload link in the mocha tests
+            if (isUrlIgnored(resource.url)) {
               return;
             }
 
-            assert.equal(res.statusCode, 200);
+            assert.equal(res.statusCode, 200, `${testName}: ${resource.url}`);
 
             // If prod-like, Check all CSS and JS (except experiments.bundle.js)
             // for SRI `integrity=` attribute on the link, and that the checksum
@@ -260,7 +269,7 @@ function findCssSubResources(origin, resources) {
       .then(function (res) {
         // Only a minimal check here. The resolved Promise response will be
         // checked in detail again in `checkUrls()`.
-        assert.equal(res.statusCode, 200);
+        assert.equal(res.statusCode, 200, resource.url);
 
         return parseCssUrls(res.body, resource.url);
       });

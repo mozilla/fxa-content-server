@@ -8,12 +8,20 @@ const convict = require('convict');
 const fs = require('fs');
 const path = require('path');
 
+const versionInfo = require('./version');
+
 const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
 
 const conf = module.exports = convict({
   allowed_iframe_contexts: {
     default: ['fx_firstrun_v2', 'iframe'],
     doc: 'context query parameters allowed to embed FxA within an IFRAME',
+    format: Array
+  },
+  allowed_metrics_flow_cors_origins: {
+    default: [],
+    doc: 'Origins that are allowed to request the /metrics-flow endpoint',
+    env: 'ALLOWED_METRICS_FLOW_ORIGINS',
     format: Array
   },
   allowed_parent_origins: {
@@ -83,6 +91,14 @@ const conf = module.exports = convict({
       format: 'duration'
     },
     secret: 'YOU MUST CHANGE ME'
+  },
+  coppa: {
+    enabled: {
+      default: true,
+      doc: 'Is the COPPA age check enabled?',
+      env: 'COPPA_ENABLED',
+      format: Boolean
+    }
   },
   csp: {
     enabled: {
@@ -170,50 +186,6 @@ const conf = module.exports = convict({
       format: Boolean
     }
   },
-  google_analytics_id: {
-    default: undefined,
-    doc: 'Google Analytics id',
-    env: 'GOOGLE_ANALYTICS_ID',
-    format: String
-  },
-  hpkp: {
-    enabled: {
-      default: false,
-      doc: 'Feature flag for appending HPKP headers',
-      env: 'HPKP_ENABLE',
-      format: Boolean
-    },
-    includeSubDomains: {
-      default: true,
-      doc: 'Include Sub-Domains',
-      env: 'HPKP_INCLUDE_SUBDOMAINS',
-      format: Boolean
-    },
-    maxAge: {
-      default: 1,
-      doc: 'Max age for HPKP headers (seconds)',
-      env: 'HPKP_MAX_AGE',
-      format: Number
-    },
-    reportOnly: {
-      default: true,
-      doc: 'Enable report only mode',
-      env: 'HPKP_REPORT_ONLY',
-      format: Boolean
-    },
-    reportUri: {
-      default: '',
-      doc: 'Enable report only mode',
-      env: 'HPKP_REPORT_URI',
-      format: String
-    },
-    sha256s: {
-      default: [],
-      doc: 'Supported pin-sha256s (at least two shas required)',
-      env: 'HPKP_PIN_SHA256',
-      format: Array
-    }
-  },
   hsts_max_age: {
     default: 15552000, // 180 days
     doc: 'Max age of the STS directive in seconds',
@@ -247,50 +219,14 @@ const conf = module.exports = convict({
     },
     defaultLegalLang: {
       default: 'en-US',
-      doc: 'The default langauge to use for legal (tos, pp) templates',
+      doc: 'The default language to use for legal (tos, pp) templates',
       format: String
     },
     fonts: {
       unsupportedLanguages: {
         default: [
-          'an',
-          'ar',
-          'as',
-          'ast',
-          'bn-DB',
-          'bn-IN',
-          'fa',
-          'ff',
-          'gd',
-          'gu',
-          'gu-IN',
-          'he',
-          'hi-IN',
-          'ht',
-          'hy-AM',
-          'ja',
-          'km',
-          'kn',
-          'ko',
-          'lij',
-          'mai',
-          'ml',
-          'mr',
-          'ne-NP',
-          'or',
-          'pa',
-          'pa-IN',
-          'si',
-          'son',
-          'ta',
-          'te',
-          'th',
-          'ur',
-          'vi',
-          'zh-CN',
-          'zh-TW'
         ],
-        doc: 'These languages should use system fonts instead of Fira Sans',
+        doc: 'DEPRECATED: These languages should use system fonts instead of Fira Sans',
         format: Array
       }
     },
@@ -312,6 +248,11 @@ const conf = module.exports = convict({
       env: 'I18N_TRANSLATION_TYPE',
       format: String
     }
+  },
+  jsResourcePath: {
+    default: 'bundle',
+    doc: 'The directory where the JavaScript resources are served from',
+    format: String
   },
   key_path: {
     default: path.resolve(__dirname, '..', '..', 'key.pem'),
@@ -433,7 +374,7 @@ const conf = module.exports = convict({
   },
   scopedKeys: {
     enabled: {
-      default: false,
+      default: true,
       doc: 'Enable Scoped Key OAuth features',
       env: 'SCOPED_KEYS_ENABLED',
       format: Boolean,
@@ -443,12 +384,29 @@ const conf = module.exports = convict({
         'https://identity.mozilla.com/apps/lockbox': {
           redirectUris: [
             'https://2aa95473a5115d5f3deb36bb6875cf76f05e4c4d.extensions.allizom.org/',
-            'https://mozilla-lockbox.github.io/fxa/ios-redirect.html'
+            'https://mozilla-lockbox.github.io/fxa/ios-redirect.html',
+            'https://lockbox.firefox.com/fxa/ios-redirect.html',
+            'https://lockbox.firefox.com/fxa/android-redirect.html'
           ]
         },
         'https://identity.mozilla.com/apps/notes': {
           redirectUris: [
-            'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org/'
+            'https://dee85c67bd72f3de1f0a0fb62a8fe9b9b1a166d7.extensions.allizom.org/',
+            'https://mozilla.github.io/notes/fxa/android-redirect.html'
+          ]
+        },
+        'https://identity.mozilla.com/apps/oldsync': {
+          redirectUris: [
+            'https://lockbox.firefox.com/fxa/ios-redirect.html',
+            'https://lockbox.firefox.com/fxa/android-redirect.html',
+            'https://accounts.firefox.com/oauth/success/3c49430b43dfba77'
+          ]
+        },
+        'https://identity.mozilla.com/apps/send': {
+          redirectUris: [
+            'https://send.firefox.com/oauth',
+            'https://send.firefox.com/fxa/android-redirect.html',
+            'https://send2.dev.lcip.org/oauth'
           ]
         }
       },
@@ -530,19 +488,6 @@ const conf = module.exports = convict({
     doc: 'The origin of the static resources',
     env: 'STATIC_RESOURCE_URL',
     format: 'url'
-  },
-  statsd: {
-    enabled: {
-      default: true,
-      doc: 'enable UDP based statsd reporting',
-      env: 'ENABLE_STATSD'
-    },
-    host: 'localhost',
-    port: {
-      default: 8125,
-      format: 'port'
-    },
-    sample_rate: 1
   },
   sync_tokenserver_url: {
     default: 'http://127.0.0.1:5000/token',
@@ -629,6 +574,11 @@ if (conf.has('http_proxy.host')) {
 if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
+}
+
+// Setup WebPack bundle path for production
+if (conf.get('env') === 'production') {
+  conf.set('jsResourcePath', `bundle-${versionInfo.commit}`);
 }
 
 // Ensure that supportedLanguages includes defaultLang.

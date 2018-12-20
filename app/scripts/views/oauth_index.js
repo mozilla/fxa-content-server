@@ -9,52 +9,55 @@
  *
  * @module views/oauth_index
  */
-define(function (require, exports, module) {
-  'use strict';
 
-  const BaseView = require('./base');
+import IndexView from './index';
 
-  module.exports = BaseView.extend({
-    beforeRender () {
-      // Attempt to get email address from relier
-      const email = this.relier.get('email');
+class OAuthIndexView extends IndexView {
+  afterRender () {
+    const { action, email } = this.relier.toJSON();
 
-      return Promise.resolve().then(() => {
-        if (! email) {
-          // If no email in relier, choose navigation page based on
-          // whether account is a default account.
-          return;
-        }
-
-        // Attempt to get account status of email and navigate
-        // to correct signin/signup page if exists.
-        const account = this.user.initAccount({ email });
-        return this.user.checkAccountEmailExists(account)
-          .then(function (exists) {
-            if (exists) {
-              return 'oauth/signin';
-            } else {
-              return 'oauth/signup';
-            }
-          }, (err) => {
-            // The error here is a throttling error or server error (500).
-            // In either case, we don't want to stop the user from
-            // navigating to a signup/signin page. Instead, we fallback
-            // to choosing navigation page based on whether account is
-            // a default account. Swallow and log error.
-            this.logError(err);
-          });
-      }).then((url) => {
-        if (! url) {
-          if (this.user.getChooserAccount().isDefault()) {
-            url = 'oauth/signup';
-          } else {
-            url = 'oauth/signin';
-          }
-        }
-
-        this.navigate(url, {}, { replace: true, trigger: true });
-      });
+    if (action === 'email') {
+      return this.chooseEmailActionPage();
     }
-  });
-});
+
+    return Promise.resolve().then(() => {
+      if (! email) {
+        // If no email in relier, choose navigation page based on
+        // whether account is a default account.
+        return;
+      }
+
+      // Attempt to get account status of email and navigate
+      // to correct signin/signup page if exists.
+      const account = this.user.initAccount({ email });
+      return this.user.checkAccountEmailExists(account)
+        .then(function (exists) {
+          if (exists) {
+            return 'signin';
+          } else {
+            return 'signup';
+          }
+        }, (err) => {
+          // The error here is a throttling error or server error (500).
+          // In either case, we don't want to stop the user from
+          // navigating to a signup/signin page. Instead, we fallback
+          // to choosing navigation page based on whether account is
+          // a default account. Swallow and log error.
+          this.logError(err);
+        });
+    }).then((url) => {
+      if (! url) {
+        if (this.user.getChooserAccount().isDefault()) {
+          url = 'signup';
+        } else {
+          url = 'signin';
+        }
+      }
+
+      this.replaceCurrentPage(url);
+    });
+
+  }
+}
+
+module.exports = OAuthIndexView;

@@ -39,8 +39,6 @@ browser_modules
 *.sass-cache
 
 app/styles/*.css
-!app/styles/fontello.css
-
 
 ### Yeoman ###
 dist
@@ -56,13 +54,6 @@ server/config/local.json
 ### Localization JSON ###
 app/i18n
 fxa-content-server-l10n/
-
-### Generated fonts CSS ###
-app/styles/fonts
-
-### Fonts copied from connect-fonts packages ###
-app/fonts/default
-app/fonts/latin
 
 ### Strings
 locale/*/*/*.po

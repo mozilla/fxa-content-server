@@ -65,7 +65,7 @@ function signUpWithExistingAccount (context, email, firstPassword, secondPasswor
 registerSuite('signup', {
   beforeEach: function () {
     email = TestHelpers.createEmail();
-    return this.remote.then(clearBrowserState());
+    return this.remote.then(clearBrowserState({ force: true }));
   },
 
   afterEach: function () {
@@ -84,6 +84,17 @@ registerSuite('signup', {
         .then(openPage(PAGE_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
+    },
+
+    'COPPA disabled': function () {
+      return this.remote
+        .then(openPage(PAGE_URL + '?coppa=false', selectors.SIGNUP.HEADER))
+        .then(noSuchElement(selectors.SIGNUP.AGE))
+        .then(type(selectors.SIGNUP.EMAIL, email))
+        .then(type(selectors.SIGNUP.PASSWORD, PASSWORD))
+        .then(type(selectors.SIGNUP.VPASSWORD, PASSWORD))
+        .then(click(selectors.SIGNUP.SUBMIT))
+        .then(testAtConfirmScreen(email));
     },
 
     'signup, verify same browser': function () {

@@ -8,92 +8,157 @@
  *
  * @module views/index
  */
-define(function (require, exports, module) {
-  'use strict';
+import AuthErrors from '../lib/auth-errors';
+import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
+import Cocktail from 'cocktail';
+import CoppaMixin from './mixins/coppa-mixin';
+import EmailFirstExperimentMixin from './mixins/email-first-experiment-mixin';
+import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
+import FlowBeginMixin from './mixins/flow-begin-mixin';
+import FormPrefillMixin from './mixins/form-prefill-mixin';
+import FormView from './form';
+import ServiceMixin from './mixins/service-mixin';
+import Template from 'templates/index.mustache';
 
-  const Cocktail = require('cocktail');
-  const CoppaMixin = require('./mixins/coppa-mixin');
-  const EmailFirstExperimentMixin = require('./mixins/email-first-experiment-mixin');
-  const TokenCodeExperimentMixin = require('./mixins/token-code-experiment-mixin');
-  const FlowBeginMixin = require('./mixins/flow-begin-mixin');
-  const FormPrefillMixin = require('./mixins/form-prefill-mixin');
-  const FormView = require('./form');
-  const SearchParamMixin = require('../lib/search-param-mixin');
-  const ServiceMixin = require('./mixins/service-mixin');
-  const Template = require('templates/index.mustache');
+const EMAIL_SELECTOR = 'input[type=email]';
 
-  class IndexView extends FormView {
-    constructor (options) {
-      super(options);
+class IndexView extends FormView {
+  template = Template;
 
-      this.template = Template;
+  get viewName () {
+    return 'enter-email';
+  }
+
+  getAccount () {
+    return this.model.get('account');
+  }
+
+  beforeRender () {
+    const account = this.getAccount();
+    const relierEmail = this.relier.get('email');
+    if (account) {
+      this.formPrefill.set(account.pick('email'));
+    } else if (relierEmail) {
+      this.formPrefill.set('email', relierEmail);
     }
+  }
 
-    get viewName () {
-      return 'enter-email';
+  afterRender () {
+    // 1. COPPA checks whether the user is too young in beforeRender.
+    // So that COPPA takes precedence, do all other checks afterwards.
+    // 2. action=email is specified by the firstrun page to specify
+    // the email-first flow.
+    const action = this.relier.get('action');
+    if (action && action !== 'email') {
+      this.replaceCurrentPage(action);
+    } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
+      return this.chooseEmailActionPage();
+    } else if (this.getSignedInAccount().get('sessionToken')) {
+      this.replaceCurrentPage('settings');
+    } else {
+      this.replaceCurrentPage('signup');
     }
+  }
 
-    afterRender () {
-      // 1. COPPA checks whether the user is too young in beforeRender.
-      // So that COPPA takes precedence, do all other checks afterwards.
-      // 2. action=email is specified by the firstrun page to specify
-      // the email-first flow.
-      const action = this.relier.get('action');
-      if (this.user.getSignedInAccount().get('sessionToken')) {
-        this.replaceCurrentPage('settings');
-      } else if (action && action !== 'email') {
-        this.replaceCurrentPage(action);
-      } else if (this.isInEmailFirstExperimentGroup('treatment') || action === 'email') {
-        // let's the router know to use the email-first signin/signup page
-        this.notifier.trigger('email-first-flow');
-        const email = this.relier.get('email');
-        if (email) {
-          return this.checkEmail(email);
-        }
+  chooseEmailActionPage () {
+    const relierEmail = this.relier.get('email');
+    const accountFromPreviousScreen = this.getAccount();
+    const suggestedAccount = this.suggestedAccount();
+    // let's the router know to use the email-first signin/signup page
+    this.notifier.trigger('email-first-flow');
+
+    if (accountFromPreviousScreen) {
+      // intentionally empty
+      // shows the email-first template, the prefill email was set in beforeRender
+    } else if (relierEmail) {
+      // the relier email is in the form already since it was used as the prefillEmail
+      // in beforeRender. Check whether the email is valid, and if so submit. If the
+      // email is not valid then show a validation error to help the user. See #6584
+      if (this.isValid()) {
+        return this.checkEmail(relierEmail);
       } else {
-        this.replaceCurrentPage('signup');
+        // the email was not valid, show any validation errors.
+        // The relier email set used as the prefill email in beforeRender.
+        this.showValidationErrors();
       }
+    } else if (this.allowSuggestedAccount(suggestedAccount)) {
+      this.replaceCurrentPage('signin', {
+        account: suggestedAccount
+      });
+    }
+    // else, show the email-first template.
+  }
+
+  submit () {
+    return this.checkEmail(this._getEmail());
+  }
+
+  isValidEnd () {
+    if (this._isEmailFirefoxDomain(this._getEmail())) {
+      return false;
     }
 
-    submit () {
-      const email = this.getElementValue('input[type=email]');
+    return super.isValidEnd.call(this);
+  }
 
-      return this.checkEmail(email);
+  showValidationErrorsEnd () {
+    if (this._isEmailFirefoxDomain(this._getEmail())) {
+      this.showValidationError(EMAIL_SELECTOR,
+        AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
     }
+  }
 
-    /**
+  _getEmail () {
+    return this.getElementValue(EMAIL_SELECTOR);
+  }
+
+  _isEmailFirefoxDomain (email) {
+    // "@firefox" or "@firefox.com" email addresses are not valid
+    // at this time, therefore block the attempt.
+    return /@firefox(\.com)?$/.test(email);
+  }
+
+  /**
      * Check `email`. If registered, send the user to `signin`,
      * if not registered, `signup`
      *
      * @param {String} email
      * @returns {Promise}
      */
-    checkEmail (email) {
-      const account = this.user.initAccount({
-        email
+  checkEmail (email) {
+    let account = this.user.initAccount({
+      email
+    });
+
+    // before checking whether the email exists, check
+    // that accounts can be merged.
+    return this.invokeBrokerMethod('beforeSignIn', account)
+      .then(() => this.user.checkAccountEmailExists(account))
+      .then((exists) => {
+        const nextEndpoint = exists ? 'signin' : 'signup';
+        if (exists) {
+        // If the account exists, use the stored account
+        // so that any stored avatars are displayed on
+        // the next page.
+          account = this.user.getAccountByEmail(email);
+          // the returned account could be the default,
+          // ensure it's email is set.
+          account.set('email', email);
+        }
+        this.navigate(nextEndpoint, { account });
       });
-
-      // before checking whether the email exists, check
-      // that accounts can be merged.
-      return this.invokeBrokerMethod('beforeSignIn', account)
-        .then(() => this.user.checkAccountEmailExists(account))
-        .then((exists) => {
-          const nextEndpoint = exists ? 'signin' : 'signup';
-          this.navigate(nextEndpoint, { account });
-        });
-    }
   }
+}
 
-  Cocktail.mixin(
-    IndexView,
-    CoppaMixin({}),
-    EmailFirstExperimentMixin(),
-    TokenCodeExperimentMixin,
-    FlowBeginMixin,
-    FormPrefillMixin,
-    SearchParamMixin,
-    ServiceMixin
-  );
+Cocktail.mixin(
+  IndexView,
+  CachedCredentialsMixin,
+  CoppaMixin({}),
+  EmailFirstExperimentMixin(),
+  TokenCodeExperimentMixin,
+  FlowBeginMixin,
+  FormPrefillMixin,
+  ServiceMixin
+);
 
-  module.exports = IndexView;
-});
+module.exports = IndexView;

@@ -16,7 +16,11 @@ define(function (require, exports, module) {
   const ExperimentMixin = require('./mixins/experiment-mixin');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
-  const { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } = require('../lib/constants');
+  const {
+    MARKETING_ID_AUTUMN_2016,
+    SYNC_SERVICE,
+    UTM_SOURCE_EMAIL
+  } = require('../lib/constants');
   const MarketingMixin = require('./mixins/marketing-mixin');
   const MarketingSnippet = require('./marketing_snippet');
   const SyncAuthMixin = require('./mixins/sync-auth-mixin');
@@ -44,6 +48,7 @@ define(function (require, exports, module) {
     }
 
     beforeRender () {
+      console.log('connect-another-device::beforeRender');
       const account = this.getAccount();
       // If the user is eligible for SMS, send them to the SMS screen.
       // This allows the browser to link directly to /connect_another_device
@@ -55,10 +60,24 @@ define(function (require, exports, module) {
           if (country) {
             return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
           }
+
+          const {
+            canSignIn,
+            isFirefoxAndroid,
+            isFirefoxIos,
+            isOtherAndroid,
+            isOtherIos,
+          } = this.getContext();
+
+          console.log({ canSignIn, isFirefoxAndroid, isFirefoxIos, isOtherAndroid, isOtherIos });
+          if (! canSignIn && (isFirefoxAndroid || isFirefoxIos || isOtherAndroid || isOtherIos)) {
+            return this.replaceCurrentPageWithAppsScreen(account, this._showSuccessMessage());
+          }
         });
     }
 
     afterRender () {
+      console.log('connect-another-device::afterRender');
       const options = {
         marketingId: MARKETING_ID_AUTUMN_2016
       };
@@ -140,6 +159,7 @@ define(function (require, exports, module) {
     }
 
     setInitialContext (context) {
+      console.log('connect-another-device::setInitialContext');
       const isSignedIn = this._isSignedIn();
       const canSignIn = this._canSignIn();
       const email = this.getAccount().get('email');
@@ -219,7 +239,8 @@ define(function (require, exports, module) {
      * @private
      */
     _showSuccessMessage () {
-      return !! this.model.get('showSuccessMessage');
+      return !! this.model.get('showSuccessMessage') ||
+             !! this.getSearchParam('showSuccessMessage');
     }
 
     /**
@@ -231,7 +252,19 @@ define(function (require, exports, module) {
      * @private
      */
     _getEscapedSignInUrl (email) {
-      return this.getEscapedSyncUrl('signin', ConnectAnotherDeviceView.ENTRYPOINT, { email: email });
+      return this.getEscapedSyncUrl('signin', ConnectAnotherDeviceView.ENTRYPOINT, {
+        email,
+        // Users will only reach this view from a verification email, so we can
+        // hard-code an appropriate utm_source. The utm_source can't be set on
+        // the originating link because we don't want to clobber the existing
+        // utm_source for that flow. Related issues:
+        //
+        //   * https://github.com/mozilla/fxa-content-server/issues/6258
+        //   * https://github.com/mozilla/fxa-auth-server/issues/2496
+        //
+        //eslint-disable-next-line camelcase
+        utm_source: UTM_SOURCE_EMAIL
+      });
     }
 
     static get ENTRYPOINT () {

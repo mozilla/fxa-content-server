@@ -19,11 +19,19 @@ define(function (require, exports, module) {
   const defaultElement = require('./default');
   const emailInput = require('./email-input');
   const passwordInput = require('./password-input');
+  const recoveryCodeInput = require('./recovery-code-input');
+  const recoveryKeyInput = require('./recovery-key-input');
   const telInput = require('./tel-input');
   const textInput = require('./text-input');
+  const totpCodeInput = require('./totp-code-input');
+  const tokenCodeInput = require('./token-code-input');
   const unblockCodeInput = require('./unblock-code-input');
 
   const elementHelpers = [
+    totpCodeInput,
+    tokenCodeInput,
+    recoveryCodeInput,
+    recoveryKeyInput,
     checkboxInput,
     coppaAgeInput,
     emailInput,

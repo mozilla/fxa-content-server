@@ -6,12 +6,12 @@ define(function (require, exports, module) {
   'use strict';
 
   const Cocktail = require('cocktail');
-  const FloatingPlaceholderMixin = require('../mixins/floating-placeholder-mixin');
   const FormView = require('../form');
   const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
   const SignedOutNotificationMixin = require('../mixins/signed-out-notification-mixin');
-  const t = require('../base').t;
   const Template = require('templates/settings/client_disconnect.mustache');
+
+  const t = msg => msg;
 
   const REASON_HELP = {
     'lost': t('We\'re sorry to hear about this. You should change your Firefox Account password, and look for ' +
@@ -116,7 +116,6 @@ define(function (require, exports, module) {
   Cocktail.mixin(
     View,
     ModalSettingsPanelMixin,
-    FloatingPlaceholderMixin,
     SignedOutNotificationMixin
   );
 

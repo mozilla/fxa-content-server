@@ -1,3 +1,1161 @@
+<a name="1.127.0"></a>
+# [1.127.0](https://github.com/mozilla/fxa-content-server/compare/v1.126.0...v1.127.0) (2018-12-11)
+
+
+### Bug Fixes
+
+* **reset:** remove confusing account recovery password reset messaging ([2b17fe4](https://github.com/mozilla/fxa-content-server/commit/2b17fe4))
+
+### chore
+
+* **code:** enable token code for 25% of all lockbox ios users ([d8522f3](https://github.com/mozilla/fxa-content-server/commit/d8522f3))
+* **verify:** remove server side verification ([5485d45](https://github.com/mozilla/fxa-content-server/commit/5485d45))
+
+### Features
+
+* **coppa:** Put COPPA behind a feature flag. ([fe877db](https://github.com/mozilla/fxa-content-server/commit/fe877db)), closes [#6736](https://github.com/mozilla/fxa-content-server/issues/6736)
+* **metrics:** add deviceId to the resume token ([c10d699](https://github.com/mozilla/fxa-content-server/commit/c10d699))
+* **sms:** remove SMS padlock ([3f249be](https://github.com/mozilla/fxa-content-server/commit/3f249be)), closes [#6653](https://github.com/mozilla/fxa-content-server/issues/6653)
+
+
+
+<a name="1.126.0"></a>
+# [1.126.0](https://github.com/mozilla/fxa-content-server/compare/v1.125.0...v1.126.0) (2018-11-28)
+
+
+### Bug Fixes
+
+* **l10n:** Use an inline `t` function to ensure l10n works as expected. ([881efbc](https://github.com/mozilla/fxa-content-server/commit/881efbc)), closes [#6725](https://github.com/mozilla/fxa-content-server/issues/6725)
+* **recovery:** update recovery save options ([2c042a2](https://github.com/mozilla/fxa-content-server/commit/2c042a2))
+* **reset:** remove confusing password reset messaging ([fe18437](https://github.com/mozilla/fxa-content-server/commit/fe18437))
+* **styles:** adjust icon style ([2747d0d](https://github.com/mozilla/fxa-content-server/commit/2747d0d))
+* **styles:** fix icon for Firefox Add-ons ([11938ff](https://github.com/mozilla/fxa-content-server/commit/11938ff))
+* **test:** Fix the OAuth email-first functional test that used a common password. ([2dd05c2](https://github.com/mozilla/fxa-content-server/commit/2dd05c2)), closes [#6723](https://github.com/mozilla/fxa-content-server/issues/6723)
+* **tests:** install node-uuid when running tests/teamcity/run-server.sh ([a59a9de](https://github.com/mozilla/fxa-content-server/commit/a59a9de))
+* **tests:** update from sinon reset to resetHistory ([34377d4](https://github.com/mozilla/fxa-content-server/commit/34377d4)), closes [#6331](https://github.com/mozilla/fxa-content-server/issues/6331)
+* **tests:** use stronger password in functional tests ([289b745](https://github.com/mozilla/fxa-content-server/commit/289b745))
+* **validation:** accept emails containing an apostrophe on the front-end ([0737107](https://github.com/mozilla/fxa-content-server/commit/0737107))
+
+### chore
+
+* **config:** Add the new Send redirect_uris to the Send scopedKeys list. ([4ff4dff](https://github.com/mozilla/fxa-content-server/commit/4ff4dff))
+* **modules:** Convert the complete_reset_password code to ES6 modules ([b313ac9](https://github.com/mozilla/fxa-content-server/commit/b313ac9)), closes [#6706](https://github.com/mozilla/fxa-content-server/issues/6706)
+* **oauth:** Add tests for signing in w/ an expired Sync sessionToken. ([d8b94f9](https://github.com/mozilla/fxa-content-server/commit/d8b94f9))
+* **test:** Use selectors module in the cached signin tests. ([ddfc810](https://github.com/mozilla/fxa-content-server/commit/ddfc810))
+
+### Features
+
+* **pw-strength:** Add pw-strength meter to password reset ([509ea89](https://github.com/mozilla/fxa-content-server/commit/509ea89)), closes [#6572](https://github.com/mozilla/fxa-content-server/issues/6572)
+* **signin:** Add Use different account option in security/recovery code page ([6bd2f17](https://github.com/mozilla/fxa-content-server/commit/6bd2f17))
+
+### Refactor
+
+* **headers:** remove HPKP ([223ccb0](https://github.com/mozilla/fxa-content-server/commit/223ccb0)), closes [#6714](https://github.com/mozilla/fxa-content-server/issues/6714)
+
+
+
+<a name="1.125.0"></a>
+# [1.125.0](https://github.com/mozilla/fxa-content-server/compare/v1.124.0...v1.125.0) (2018-11-14)
+
+
+### Bug Fixes
+
+* **deps:** Update fxa-geodb to get rid of the audit warning ([7dec3ec](https://github.com/mozilla/fxa-content-server/commit/7dec3ec))
+* **metrics:** generate an amplitude deviceId in GET /metrics-flow ([2ddfd63](https://github.com/mozilla/fxa-content-server/commit/2ddfd63))
+* **recovery:** remove recovery key control group ([e993f88](https://github.com/mozilla/fxa-content-server/commit/e993f88))
+* **tests:** reinstate accidentally-disabled server tests ([0eb6ae3](https://github.com/mozilla/fxa-content-server/commit/0eb6ae3))
+
+### chore
+
+* **config:** Add reference-browser to allowlist for oldsync scope. ([3e28be9](https://github.com/mozilla/fxa-content-server/commit/3e28be9))
+* **deps:** update deps ([79d7a69](https://github.com/mozilla/fxa-content-server/commit/79d7a69))
+* **deps:** update mailcheck ([bd94a19](https://github.com/mozilla/fxa-content-server/commit/bd94a19))
+* **deps:** Use speed-trap from npm ([d848d04](https://github.com/mozilla/fxa-content-server/commit/d848d04))
+
+### Refactor
+
+* **mobile:** Remove support for mob_ios_v1 and mob_android_v1 ([41ef7a7](https://github.com/mozilla/fxa-content-server/commit/41ef7a7)), closes [#6685](https://github.com/mozilla/fxa-content-server/issues/6685)
+* **pw-strength:** Remove designF's "experiment" status. ([a85b10b](https://github.com/mozilla/fxa-content-server/commit/a85b10b)), closes [#6572](https://github.com/mozilla/fxa-content-server/issues/6572) [#6573](https://github.com/mozilla/fxa-content-server/issues/6573) [#6564](https://github.com/mozilla/fxa-content-server/issues/6564) [#6400](https://github.com/mozilla/fxa-content-server/issues/6400)
+
+
+
+<a name="1.124.0"></a>
+# [1.124.0](https://github.com/mozilla/fxa-content-server/compare/v1.123.2...v1.124.0) (2018-10-30)
+
+
+### Bug Fixes
+
+* **ci:** Remove sync-exec from CI dep installation ([edbadeb](https://github.com/mozilla/fxa-content-server/commit/edbadeb)), closes [#6672](https://github.com/mozilla/fxa-content-server/issues/6672)
+* **ci:** update travis to use oauth server in auth server repo ([cc158a2](https://github.com/mozilla/fxa-content-server/commit/cc158a2))
+* **codes:** Dont allow `wantsTwoStepAuthentication` to bypass the password prompt. ([60ef335](https://github.com/mozilla/fxa-content-server/commit/60ef335))
+* **codes:** support requesting totp verification on sign-in ([5d64f6d](https://github.com/mozilla/fxa-content-server/commit/5d64f6d))
+* **deps:** add filtered npm audit ([81c86ca](https://github.com/mozilla/fxa-content-server/commit/81c86ca)), closes [mozilla/fxa#303](https://github.com/mozilla/fxa/issues/303)
+* **deps:** Fix the npm audit warning for sync-exec ([eb8afc1](https://github.com/mozilla/fxa-content-server/commit/eb8afc1)), closes [#6595](https://github.com/mozilla/fxa-content-server/issues/6595)
+* **deps:** Fix the npm audit warnings in jsxgettext-recursive ([6d6e3ae](https://github.com/mozilla/fxa-content-server/commit/6d6e3ae)), closes [#6595](https://github.com/mozilla/fxa-content-server/issues/6595)
+* **deps:** rewrap deps, add exceptions for convict, grunt-z-schema, grunt-usemin ([b5f50d5](https://github.com/mozilla/fxa-content-server/commit/b5f50d5))
+* **pairing:** Expect the channelId to be a base64url string. ([c292281](https://github.com/mozilla/fxa-content-server/commit/c292281)), closes [#6667](https://github.com/mozilla/fxa-content-server/issues/6667)
+* **totp:** pr updates ([2e45a26](https://github.com/mozilla/fxa-content-server/commit/2e45a26))
+* **totp:** Remove en-US from the TOTP SUMO link. ([d771fd2](https://github.com/mozilla/fxa-content-server/commit/d771fd2)), closes [#6666](https://github.com/mozilla/fxa-content-server/issues/6666)
+
+### Features
+
+* **connect-device:** allow showSuccessMessage search param ([30406e9](https://github.com/mozilla/fxa-content-server/commit/30406e9))
+* **metrics:** map totp flow events to amplitude events ([99ecef1](https://github.com/mozilla/fxa-content-server/commit/99ecef1))
+* **metrics:** No longer send events to Google Analytics ([e27f79e](https://github.com/mozilla/fxa-content-server/commit/e27f79e)), closes [#6650](https://github.com/mozilla/fxa-content-server/issues/6650)
+* **pairing:** The channel server for the pairing flow. ([d1264af](https://github.com/mozilla/fxa-content-server/commit/d1264af)), closes [#6613](https://github.com/mozilla/fxa-content-server/issues/6613)
+
+### Refactor
+
+* **creds:** remove support for `email=blank`, disabling of cached creds ([318f879](https://github.com/mozilla/fxa-content-server/commit/318f879)), closes [#6053](https://github.com/mozilla/fxa-content-server/issues/6053)
+
+
+
+<a name="1.123.2"></a>
+## [1.123.2](https://github.com/mozilla/fxa-content-server/compare/v1.123.1...v1.123.2) (2018-10-26)
+
+
+### Bug Fixes
+
+* **ci:** update travis to use oauth server in auth server repo ([5f9d879](https://github.com/mozilla/fxa-content-server/commit/5f9d879))
+* **metrics:** fix get-metrics-flow to use correct view event ([610a85e](https://github.com/mozilla/fxa-content-server/commit/610a85e))
+
+
+
+<a name="1.123.1"></a>
+## [1.123.1](https://github.com/mozilla/fxa-content-server/compare/v1.123.0...v1.123.1) (2018-10-19)
+
+
+### Features
+
+* **Lockbox:** Add Lockbox for Android scopes to configuration ([4aa3510](https://github.com/mozilla/fxa-content-server/commit/4aa3510)), closes [#6643](https://github.com/mozilla/fxa-content-server/issues/6643)
+
+
+
+<a name="1.123.0"></a>
+# [1.123.0](https://github.com/mozilla/fxa-content-server/compare/v1.122.4...v1.123.0) (2018-10-16)
+
+
+### Bug Fixes
+
+* **checkbox:** adds some margin to checkboxes ([7a52a69](https://github.com/mozilla/fxa-content-server/commit/7a52a69))
+* **force_auth:** mention service name in force_auth ([cabfc06](https://github.com/mozilla/fxa-content-server/commit/cabfc06)), closes [#4928](https://github.com/mozilla/fxa-content-server/issues/4928)
+* **metrics:** stop sending metrics context to deprecated endpoints ([f5e30d0](https://github.com/mozilla/fxa-content-server/commit/f5e30d0))
+* **test:** Upgrade intern to 4.3.1 so tests run in fx 63 ([b555105](https://github.com/mozilla/fxa-content-server/commit/b555105)), closes [#6542](https://github.com/mozilla/fxa-content-server/issues/6542)
+* **totp:** call proto `afterCompleteSignInWithCode` after entering valid totp code ([f8c5a32](https://github.com/mozilla/fxa-content-server/commit/f8c5a32))
+
+### Features
+
+* **routes:** add support for .well-known/change-password ([6d5662d](https://github.com/mozilla/fxa-content-server/commit/6d5662d)), closes [#6561](https://github.com/mozilla/fxa-content-server/issues/6561)
+* **sms:** add padlock to sms submit form ([1c7f105](https://github.com/mozilla/fxa-content-server/commit/1c7f105)), closes [#5856](https://github.com/mozilla/fxa-content-server/issues/5856)
+
+
+
+<a name="1.122.4"></a>
+## [1.122.4](https://github.com/mozilla/fxa-content-server/compare/v1.122.3...v1.122.4) (2018-10-12)
+
+
+### Bug Fixes
+
+* **emails:** add recovery key images ([b0342c5](https://github.com/mozilla/fxa-content-server/commit/b0342c5))
+
+
+
+<a name="1.122.3"></a>
+## [1.122.3](https://github.com/mozilla/fxa-content-server/compare/v1.122.2...v1.122.3) (2018-10-09)
+
+
+### chore
+
+* **recovery:** enable recovery key for 100% users ([b156f26](https://github.com/mozilla/fxa-content-server/commit/b156f26))
+
+
+
+<a name="1.122.2"></a>
+## [1.122.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.3...v1.122.2) (2018-10-08)
+
+* Merge v1.121.3 into 122
+
+<a name="1.122.1"></a>
+## [1.122.1](https://github.com/mozilla/fxa-content-server/compare/v1.122.0...v1.122.1) (2018-10-03)
+
+* Merge train-121 from private repo into 122
+
+
+
+<a name="1.122.0"></a>
+# [1.122.0](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.122.0) (2018-10-02)
+
+### Bug Fixes
+
+* **ci:** use npm 6 in travis ([b48fc63](https://github.com/mozilla/fxa-content-server/commit/b48fc63))
+* **CWTS:** Fix the checkbox alignment in RTL langugates. ([9d4bda3](https://github.com/mozilla/fxa-content-server/commit/9d4bda3)), closes [#6574](https://github.com/mozilla/fxa-content-server/issues/6574)
+* **email:** on password reset, hash email with the `emailToHashWith` value ([fbb6e39](https://github.com/mozilla/fxa-content-server/commit/fbb6e39))
+* **scripts:** make tls-shrink script portable ([726255a](https://github.com/mozilla/fxa-content-server/commit/726255a))
+* **show-password:** Use a show-password icon that works on low DPI screens. ([014547a](https://github.com/mozilla/fxa-content-server/commit/014547a)), closes [#6235](https://github.com/mozilla/fxa-content-server/issues/6235)
+* **test:** Force clear localStorage for the handshake tests. ([db947ad](https://github.com/mozilla/fxa-content-server/commit/db947ad)), closes [#6182](https://github.com/mozilla/fxa-content-server/issues/6182)
+
+### chore
+
+* **config:** Add scoped-keys configuration for Firefox Send. ([1950681](https://github.com/mozilla/fxa-content-server/commit/1950681))
+* **deps:** Update to the latest i18n-abide to get rid of security warnings. ([4ceca38](https://github.com/mozilla/fxa-content-server/commit/4ceca38))
+* **package:** bump fxa-shared to 1.0.14 + npm shrinkwrap ([8e29dc0](https://github.com/mozilla/fxa-content-server/commit/8e29dc0))
+
+### Features
+
+* **a256gcm:** Ban unsafeExplicitIV by default. ([023e9a8](https://github.com/mozilla/fxa-content-server/commit/023e9a8))
+* **email-first:** Allow invalid emails in query params. ([0077e47](https://github.com/mozilla/fxa-content-server/commit/0077e47)), closes [#6584](https://github.com/mozilla/fxa-content-server/issues/6584)
+* **scripts:** force registry links in shrinkwrap to use tls ([0da2fe7](https://github.com/mozilla/fxa-content-server/commit/0da2fe7))
+
+### Refactor
+
+* **pairing:** Convert lib/channels/web.js to ES6 module format. ([98bb69d](https://github.com/mozilla/fxa-content-server/commit/98bb69d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract a `required` module. ([4add95c](https://github.com/mozilla/fxa-content-server/commit/4add95c)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract a256gcm related utils into its own module. ([b5f6756](https://github.com/mozilla/fxa-content-server/commit/b5f6756)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract hkdf into its own module. ([f4d167d](https://github.com/mozilla/fxa-content-server/commit/f4d167d)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract the fxa-crypto-deriver lazy loading ([1a94048](https://github.com/mozilla/fxa-content-server/commit/1a94048)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+* **pairing:** Extract validate and vat formatting updates ([c2fd736](https://github.com/mozilla/fxa-content-server/commit/c2fd736)), closes [#6514](https://github.com/mozilla/fxa-content-server/issues/6514)
+
+
+
+<a name="1.121.3"></a>
+## [1.121.3](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.3) (2018-10-05)
+
+
+### Bug Fixes
+
+* **links:** Remove `en-US` from any SUMO/MDN links. ([43d10c5](https://github.com/mozilla/fxa-content-server/commit/43d10c5))
+
+### chore
+
+* **recovery:** enable recovery key for 10% of users ([cccd708](https://github.com/mozilla/fxa-content-server/commit/cccd708))
+
+
+
+<a name="1.121.2"></a>
+## [1.121.2](https://github.com/mozilla/fxa-content-server/compare/v1.121.1-private...v1.121.2) (2018-10-02)
+
+* **recovery:** increase recovery key length to 28 ([691f1c5](https://github.com/mozilla/fxa-content-server/commit/691f1c5))
+
+
+
+<a name="1.121.1"></a>
+## [1.121.1](https://github.com/mozilla/fxa-content-server/compare/v1.121.0...v1.121.1) (2018-10-01)
+
+
+### chore
+
+* **recovery:** roll back recoveryKey experiment to 0 percent ([b86ab5b](https://github.com/mozilla/fxa-content-server/commit/b86ab5b))
+
+
+
+<a name="1.121.0"></a>
+# [1.121.0](https://github.com/mozilla/fxa-content-server/compare/v1.120.3...v1.121.0) (2018-09-18)
+
+
+### Bug Fixes
+
+* **code:** fix some lgtm analysis warnings ([c9836c2](https://github.com/mozilla/fxa-content-server/commit/c9836c2))
+* **codes:** enable recovery key for 10% users ([94eefe5](https://github.com/mozilla/fxa-content-server/commit/94eefe5))
+* **email-first:** Disallow firefox.com addresses for email first ([fc69618](https://github.com/mozilla/fxa-content-server/commit/fc69618)), closes [#6027](https://github.com/mozilla/fxa-content-server/issues/6027)
+
+### chore
+
+* **deps:** Remove the easterEgg ([8832ab7](https://github.com/mozilla/fxa-content-server/commit/8832ab7)), closes [#6543](https://github.com/mozilla/fxa-content-server/issues/6543)
+* **modules:** Convert from `require` to `import` in app-start.js ([331d82d](https://github.com/mozilla/fxa-content-server/commit/331d82d)), closes [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Features
+
+* **pw-strength:** Fully roll out designF everywhere. ([3d6ca5d](https://github.com/mozilla/fxa-content-server/commit/3d6ca5d)), closes [#6562](https://github.com/mozilla/fxa-content-server/issues/6562)
+* **router:** Groundwork to load views on demand. ([da5a9e4](https://github.com/mozilla/fxa-content-server/commit/da5a9e4)), closes [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Performance Improvements
+
+* **accounts:** Sends only one mail when password changed (#6515), r=@vbudhram ([b291779](https://github.com/mozilla/fxa-content-server/commit/b291779)), closes [#6515](https://github.com/mozilla/fxa-content-server/issues/6515)
+
+### Refactor
+
+* **metrics:** remove datadog metrics ([bb47002](https://github.com/mozilla/fxa-content-server/commit/bb47002)), closes [#6520](https://github.com/mozilla/fxa-content-server/issues/6520)
+
+
+
+<a name="1.120.3"></a>
+## [1.120.3](https://github.com/mozilla/fxa-content-server/compare/v1.120.2...v1.120.3) (2018-09-14)
+
+
+### Bug Fixes
+
+* **recovery:** specify a reason when doing account recovery for metrics ([6618da1](https://github.com/mozilla/fxa-content-server/commit/6618da1))
+
+### chore
+
+* **codes:** update clients for token code experiment ([7d23730](https://github.com/mozilla/fxa-content-server/commit/7d23730))
+
+### Features
+
+* **pw-strength:** All ltr users see designF, 50/50 split for Arabic ([6f706ef](https://github.com/mozilla/fxa-content-server/commit/6f706ef)), closes [#6550](https://github.com/mozilla/fxa-content-server/issues/6550)
+
+
+
+<a name="1.120.2"></a>
+## [1.120.2](https://github.com/mozilla/fxa-content-server/compare/v1.120.1...v1.120.2) (2018-09-11)
+
+
+### Bug Fixes
+
+* **codes:** continue sign-in progress after generating from low recovery codes ([866c2c8](https://github.com/mozilla/fxa-content-server/commit/866c2c8))
+
+
+
+<a name="1.120.1"></a>
+## [1.120.1](https://github.com/mozilla/fxa-content-server/compare/v1.120.0...v1.120.1) (2018-09-06)
+
+
+### Features
+
+* **pw-strength:** 50% to Arabic, 100% in German ([5e60249](https://github.com/mozilla/fxa-content-server/commit/5e60249)), closes [#6516](https://github.com/mozilla/fxa-content-server/issues/6516)
+
+
+
+<a name="1.120.0"></a>
+# [1.120.0](https://github.com/mozilla/fxa-content-server/compare/v1.119.3...v1.120.0) (2018-09-06)
+
+
+### Bug Fixes
+
+* **codes:** fix token code regex and error message ([95c1ba4](https://github.com/mozilla/fxa-content-server/commit/95c1ba4))
+* **codes:** pr updates ([dc4c352](https://github.com/mozilla/fxa-content-server/commit/dc4c352))
+* **codes:** redirect user to replace recovery codes when they are low ([c3cf28e](https://github.com/mozilla/fxa-content-server/commit/c3cf28e))
+* **codes:** update token code requirements ([3bbdaf2](https://github.com/mozilla/fxa-content-server/commit/3bbdaf2))
+* **csp:** allow 'blob' in blocked-uri for CSP reports (#6488)  r=@vbudhram ([6f5d48e](https://github.com/mozilla/fxa-content-server/commit/6f5d48e)), closes [#6488](https://github.com/mozilla/fxa-content-server/issues/6488) [#6230](https://github.com/mozilla/fxa-content-server/issues/6230)
+* **errors:** Backend service failures restarts the poll ([21259c2](https://github.com/mozilla/fxa-content-server/commit/21259c2)), closes [mozilla/fxa-auth-server#2600](https://github.com/mozilla/fxa-auth-server/issues/2600)
+* **logs:** make logger optional in metrics-errors (#6484) r=@vbudhram ([cd817bb](https://github.com/mozilla/fxa-content-server/commit/cd817bb)), closes [#6484](https://github.com/mozilla/fxa-content-server/issues/6484) [#6225](https://github.com/mozilla/fxa-content-server/issues/6225)
+* **metrics:** send events from /metrics-flow to amplitude ([7e5ed08](https://github.com/mozilla/fxa-content-server/commit/7e5ed08))
+* **scripts:** Fix the run_remote_dev.sh script (#6505) r=@shane-tomlinson ([05d10b8](https://github.com/mozilla/fxa-content-server/commit/05d10b8)), closes [#6505](https://github.com/mozilla/fxa-content-server/issues/6505)
+* **style:** don't display firefox logo on small screens for choose what to sync (#6509) r=@v ([d1b17a9](https://github.com/mozilla/fxa-content-server/commit/d1b17a9)), closes [#6509](https://github.com/mozilla/fxa-content-server/issues/6509) [#6314](https://github.com/mozilla/fxa-content-server/issues/6314)
+* **style:** fix missing recovery code icons ([a371d1a](https://github.com/mozilla/fxa-content-server/commit/a371d1a))
+* **tests:** auto-download nightly, and config to run tests with nightly (#6510) r=@vladikoff ([7666375](https://github.com/mozilla/fxa-content-server/commit/7666375)), closes [#6510](https://github.com/mozilla/fxa-content-server/issues/6510)
+* **tests:** fix PKCE tests for token-code experiment (#6490) r=@vbudhram ([fb90fc3](https://github.com/mozilla/fxa-content-server/commit/fb90fc3)), closes [#6490](https://github.com/mozilla/fxa-content-server/issues/6490)
+* **tests:** return promise so on error it's not unhandled rejection (#6508) ([56ed71f](https://github.com/mozilla/fxa-content-server/commit/56ed71f)), closes [#6508](https://github.com/mozilla/fxa-content-server/issues/6508)
+
+### chore
+
+* **modules:** Convert a couple of modules to ES6 format. (#6501) r=@vladikoff ([ea4c8e3](https://github.com/mozilla/fxa-content-server/commit/ea4c8e3)), closes [#6501](https://github.com/mozilla/fxa-content-server/issues/6501) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### Features
+
+* **errors:** improve metrics and style of the Working error (#6483) r=@vbudhram ([58d0cba](https://github.com/mozilla/fxa-content-server/commit/58d0cba)), closes [#6483](https://github.com/mozilla/fxa-content-server/issues/6483) [#5354](https://github.com/mozilla/fxa-content-server/issues/5354) [#4866](https://github.com/mozilla/fxa-content-server/issues/4866)
+* **mixins:** Add hash parameter processing for the pairing flow. (#6502) r=@vladikoff ([b7a6033](https://github.com/mozilla/fxa-content-server/commit/b7a6033)), closes [#6502](https://github.com/mozilla/fxa-content-server/issues/6502) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+* **ua-parser:** Add a `genericDeviceType` method. (#6503) r=@vbudhram ([cdf6e18](https://github.com/mozilla/fxa-content-server/commit/cdf6e18)), closes [#6503](https://github.com/mozilla/fxa-content-server/issues/6503) [#6404](https://github.com/mozilla/fxa-content-server/issues/6404)
+
+### style
+
+* **account recovery:** Centered messages of re-enter password screen ([c629faf](https://github.com/mozilla/fxa-content-server/commit/c629faf))
+
+
+
+<a name="1.119.3"></a>
+## 1.119.3 (2018-08-23)
+
+
+### Bug Fixes
+
+* **tests:** install request and request-promise in TeamCity (#6485) r=@jrgm ([1eb5793](https://github.com/mozilla/fxa-content-server/commit/1eb5793))
+
+### Features
+
+* **tests:** add E2E tests for the fxa-email-service (#6470) r=@vbudhram ([7d4cb3f](https://github.com/mozilla/fxa-content-server/commit/7d4cb3f)), closes [#6372](https://github.com/mozilla/fxa-content-server/issues/6372)
+
+### Refactor
+
+* **modules:** Convert a bunch of modules to ES6 format (#6479) r=@vladikoff ([c72ae27](https://github.com/mozilla/fxa-content-server/commit/c72ae27))
+
+
+
+<a name="1.119.2"></a>
+## [1.119.2](https://github.com/mozilla/fxa-content-server/compare/v1.119.1...v1.119.2) (2018-08-23)
+
+
+### Bug Fixes
+
+* **experiment:** enable account recovery for test emails (#6468), r=@shane-tomlinson ([bc7a821](https://github.com/mozilla/fxa-content-server/commit/bc7a821)), closes [#6468](https://github.com/mozilla/fxa-content-server/issues/6468)
+
+### Features
+
+* **pw-strength:** designF is rolled out to 100% of english users. (#6477), r=@vbudhram ([e37800c](https://github.com/mozilla/fxa-content-server/commit/e37800c)), closes [#6477](https://github.com/mozilla/fxa-content-server/issues/6477)
+
+
+
+<a name="1.119.1"></a>
+## 1.119.1 (2018-08-22)
+
+
+### Features
+
+* **metrics:** log 'enter-email.view' in metrics-flow (#6469) ([d2e3147](https://github.com/mozilla/fxa-content-server/commit/d2e3147)), closes [#6395](https://github.com/mozilla/fxa-content-server/issues/6395)
+
+
+
+<a name="1.119.0"></a>
+# 1.119.0 (2018-08-21)
+
+
+### Bug Fixes
+
+* **ci:** fix circle ci warning about 'env' (#6441) r=@shane-tomlinson ([6738986](https://github.com/mozilla/fxa-content-server/commit/6738986)), closes [(#6441](https://github.com/(/issues/6441) [#6348](https://github.com/mozilla/fxa-content-server/issues/6348)
+* **css:** Maximized visible password area (#6433) r=@shane-tomlinson ([379dc87](https://github.com/mozilla/fxa-content-server/commit/379dc87))
+* **email-first:** Enable the "show password" button on email first. (#6442) r=@vbudhram ([70ac6bf](https://github.com/mozilla/fxa-content-server/commit/70ac6bf)), closes [#6434](https://github.com/mozilla/fxa-content-server/issues/6434)
+* **metrics:** stop sending unused performance flow events ([213e613](https://github.com/mozilla/fxa-content-server/commit/213e613))
+* **oauth:** Show an error message when clicking "continue" errors. (#6460) r=@philbooth ([c8bfb02](https://github.com/mozilla/fxa-content-server/commit/c8bfb02))
+* **recovery:** account recovery updates from ux review (#6418), r=@shane-tomlinson ([932d32f](https://github.com/mozilla/fxa-content-server/commit/932d32f))
+* **recovery:** use `enable` instead of `add` button (#6461) r=@shane-tomlinson ([50f29c3](https://github.com/mozilla/fxa-content-server/commit/50f29c3))
+* **scripts:** update `npm run-script start-circle` script (#6426), r=@vladikoff ([e496561](https://github.com/mozilla/fxa-content-server/commit/e496561))
+* **test:** Fix the handshake test. (#6432), r=@vbudhram ([fb9267d](https://github.com/mozilla/fxa-content-server/commit/fb9267d)), closes [(#6432](https://github.com/(/issues/6432)
+* **test:** Fix the token code tests. (#6436) r=@philbooth ([e1182be](https://github.com/mozilla/fxa-content-server/commit/e1182be)), closes [(#6436](https://github.com/(/issues/6436) [#6435](https://github.com/mozilla/fxa-content-server/issues/6435)
+* **test:** Run all the unit tests! (#6455) r=@vbudhram ([79b9b7a](https://github.com/mozilla/fxa-content-server/commit/79b9b7a))
+* **tests:** fix broken token code oauth tests (#6449), r=@shane-tomlinson ([dca3665](https://github.com/mozilla/fxa-content-server/commit/dca3665)), closes [(#6449](https://github.com/(/issues/6449)
+
+### chore
+
+* **deps:** Remove coveralls (#6443) r=@vladikoff ([98b6d80](https://github.com/mozilla/fxa-content-server/commit/98b6d80))
+* **deps:** Remove grunt-contrib-watch (#6444) r=@vbudhram,@vladikoff ([f4494e2](https://github.com/mozilla/fxa-content-server/commit/f4494e2))
+* **modules:** Convert account.js & tests to use ES6 modules (#6453) r=@vladikoff ([b117629](https://github.com/mozilla/fxa-content-server/commit/b117629))
+
+### Features
+
+* **password-strength:** Bump experiment to 100% in en, 20% in de (#6447) r=@vladikoff ([8f5d0b5](https://github.com/mozilla/fxa-content-server/commit/8f5d0b5)), closes [#6446](https://github.com/mozilla/fxa-content-server/issues/6446)
+* **recovery:** add recovery key metrics (#6431), r=@shane-tomlinson ([9d77430](https://github.com/mozilla/fxa-content-server/commit/9d77430))
+
+
+
+<a name="1.118.2"></a>
+## 1.118.2 (2018-08-13)
+
+
+### Bug Fixes
+
+* **email-first:** Enable the "show password" button on email first. (#6442) r=@vbudhram ([70ac6bf](https://github.com/mozilla/fxa-content-server/commit/70ac6bf)), closes [#6434](https://github.com/mozilla/fxa-content-server/issues/6434)
+
+### Features
+
+* **password-strength:** Bump experiment to 100% in en, 20% in de (#6447) r=@vladikoff ([8f5d0b5](https://github.com/mozilla/fxa-content-server/commit/8f5d0b5)), closes [#6446](https://github.com/mozilla/fxa-content-server/issues/6446)
+
+
+
+<a name="1.118.1"></a>
+## 1.118.1 (2018-08-09)
+
+
+### Bug Fixes
+
+* **ci:** build on tags (#6424) r=@jrgm ([566b579](https://github.com/mozilla/fxa-content-server/commit/566b579))
+
+
+
+<a name="1.118.0"></a>
+# 1.118.0 (2018-08-08)
+
+
+### Bug Fixes
+
+* **codes:** align center totp back links (#6416) r=@shane-tomlinson ([70fbdd9](https://github.com/mozilla/fxa-content-server/commit/70fbdd9))
+* **links:** add account recovery sumo link (#6421) r=@shane-tomlinson ([fd3c924](https://github.com/mozilla/fxa-content-server/commit/fd3c924))
+* **tests:** update test timeout (#6415), r=@vladikoff ([b7058b0](https://github.com/mozilla/fxa-content-server/commit/b7058b0))
+* **tests:** update token code experiment tests (#6419), r=@shane-tomlinson ([f89cf6a](https://github.com/mozilla/fxa-content-server/commit/f89cf6a))
+
+### chore
+
+* **es6:** Convert sign_in_* to use ES6 modules. ([1abdc39](https://github.com/mozilla/fxa-content-server/commit/1abdc39))
+* **install:** Only clone the l10n repo if needed. (#6393) r=@vladikoff ([df68a56](https://github.com/mozilla/fxa-content-server/commit/df68a56))
+* **test:** Re-enable link checks in Fx TOS/PP (#6412), r=@philbooth ([25a561f](https://github.com/mozilla/fxa-content-server/commit/25a561f))
+
+### Features
+
+* **css:** build CSS using webpack instead of grunt-sass (#6351) r=@vladikoff ([6320f41](https://github.com/mozilla/fxa-content-server/commit/6320f41)), closes [#6165](https://github.com/mozilla/fxa-content-server/issues/6165)
+* **email-first:** Use cached creds if available in email-first (#6360) r=@philbooth ([5e57926](https://github.com/mozilla/fxa-content-server/commit/5e57926)), closes [#6082](https://github.com/mozilla/fxa-content-server/issues/6082)
+* **recovery:** account recovery password reset screens (#6411), r=@philbooth ([fdf1a5d](https://github.com/mozilla/fxa-content-server/commit/fdf1a5d))
+* **recovery:** account recovery setup screens ([93ffd92](https://github.com/mozilla/fxa-content-server/commit/93ffd92))
+* **recovery:** add account recovery experiment ([1bafd3a](https://github.com/mozilla/fxa-content-server/commit/1bafd3a))
+* **test:** All helper failures cause a screenshot to be taken. (#6382) r=@philbooth ([f2fce6c](https://github.com/mozilla/fxa-content-server/commit/f2fce6c))
+* **tests:** migrate to circle 2 (#6410) r=@vbudhram ([40ba1d3](https://github.com/mozilla/fxa-content-server/commit/40ba1d3)), closes [#6336](https://github.com/mozilla/fxa-content-server/issues/6336)
+* **webpack:** upgrade to webpack 4 r=@vladikoff ([652aad7](https://github.com/mozilla/fxa-content-server/commit/652aad7))
+
+
+
+<a name="1.117.1"></a>
+## 1.117.1 (2018-07-31)
+
+
+### Bug Fixes
+
+* **totp:** remove totp experiment (#6403) r=@vladikoff,@shane-tomlinson ([074a89c](https://github.com/mozilla/fxa-content-server/commit/074a89c))
+
+
+
+<a name="1.117.0"></a>
+# 1.117.0 (2018-07-24)
+
+
+### Bug Fixes
+
+* **image:** use smaller 2fa images (#6359) r=@vladikoff ([1dc73e3](https://github.com/mozilla/fxa-content-server/commit/1dc73e3)), closes [#6347](https://github.com/mozilla/fxa-content-server/issues/6347)
+* **oauth:** Fix `login_hint` support (#6385) ([d1c3942](https://github.com/mozilla/fxa-content-server/commit/d1c3942)), closes [(#6385](https://github.com/(/issues/6385) [#6383](https://github.com/mozilla/fxa-content-server/issues/6383)
+* **test:** Fix the checkbox clicking functional tests (#6381) r=@vladikoff ([5ab28b4](https://github.com/mozilla/fxa-content-server/commit/5ab28b4)), closes [(#6381](https://github.com/(/issues/6381)
+
+### chore
+
+* **docs:** remove old server box (#6366) r=@shane-tomlinson ([d5fa009](https://github.com/mozilla/fxa-content-server/commit/d5fa009))
+* **release:** Merge train-116 into master r=@shane-tomlinson ([7e00c35](https://github.com/mozilla/fxa-content-server/commit/7e00c35))
+
+### Features
+
+* **style:** Use the Photon checkbox styling. (#6308) r=@vladikoff,@ryanfeeley ([dae81e1](https://github.com/mozilla/fxa-content-server/commit/dae81e1)), closes [#6029](https://github.com/mozilla/fxa-content-server/issues/6029)
+
+### Refactor
+
+* Remove unused file ([a54d170](https://github.com/mozilla/fxa-content-server/commit/a54d170))
+* Remove unused file ([72cfd8b](https://github.com/mozilla/fxa-content-server/commit/72cfd8b))
+* **deps:** Remove SearchParamMixin where unneeded. (#6373) r=@philbooth ([dd86dc2](https://github.com/mozilla/fxa-content-server/commit/dd86dc2))
+* **mixins:** Remove SigninMixin from views where it isn't used. (#6374) r=@philbooth ([521016c](https://github.com/mozilla/fxa-content-server/commit/521016c))
+* **modules:** Convert a bunch of modules to ES6 format (#6363) r=@vladikoff ([41860aa](https://github.com/mozilla/fxa-content-server/commit/41860aa))
+* **router:** Do all link transformation from the router. (#6361) r=@vladikoff ([3573ecf](https://github.com/mozilla/fxa-content-server/commit/3573ecf))
+
+
+
+<a name="1.116.5"></a>
+## 1.116.5 (2018-07-23)
+
+
+### Bug Fixes
+
+* **pw-strength:** "password_missing" no longer emit when view is shown (#6377) r=@philbooth ([b56af2e](https://github.com/mozilla/fxa-content-server/commit/b56af2e)), closes [#6375](https://github.com/mozilla/fxa-content-server/issues/6375)
+
+
+
+<a name="1.116.4"></a>
+## 1.116.4 (2018-07-18)
+
+
+### Bug Fixes
+
+* **pw-reset:** Ensure pw reset completes w/ uid & email specified in email (#6369) r=@vbudhram, ([f793a2f](https://github.com/mozilla/fxa-content-server/commit/f793a2f)), closes [#6368](https://github.com/mozilla/fxa-content-server/issues/6368)
+
+
+
+<a name="1.116.3"></a>
+## 1.116.3 (2018-07-18)
+
+
+### Features
+
+* **pw-strength:** Enable the experiment for 10% of users. (#6355) r=@vladikoff ([2f300a9](https://github.com/mozilla/fxa-content-server/commit/2f300a9)), closes [#6354](https://github.com/mozilla/fxa-content-server/issues/6354)
+
+
+
+<a name="1.116.2"></a>
+## 1.116.2 (2018-07-18)
+
+
+### Bug Fixes
+
+* **oauth:** handle '+' in scope normalization (#6365) ([f57c087](https://github.com/mozilla/fxa-content-server/commit/f57c087))
+
+### chore
+
+* **release:** Merge train-116 into master(#6350) r=@vladikoff ([3a8fca4](https://github.com/mozilla/fxa-content-server/commit/3a8fca4))
+
+
+
+<a name="1.116.1"></a>
+## 1.116.1 (2018-07-12)
+
+
+### Bug Fixes
+
+* **pw-strength:** Report password strength metrics to amplitude (#6353) r=@vladikoff ([34c7d46](https://github.com/mozilla/fxa-content-server/commit/34c7d46)), closes [#6349](https://github.com/mozilla/fxa-content-server/issues/6349)
+
+
+
+<a name="1.116.0"></a>
+# 1.116.0 (2018-07-11)
+
+
+### Bug Fixes
+
+* **circle:** run tests on a node8 box (#6348) r=@jrgm ([555d1cd](https://github.com/mozilla/fxa-content-server/commit/555d1cd)), closes [#6328](https://github.com/mozilla/fxa-content-server/issues/6328)
+* **codes:** add account recovery crypto (#6323), r=@rfk, @linuxwolf ([f775f44](https://github.com/mozilla/fxa-content-server/commit/f775f44))
+* **form:** Catch the form validation errors, no more console message. (#6337) r=@philbooth ([13b15e4](https://github.com/mozilla/fxa-content-server/commit/13b15e4)), closes [#6025](https://github.com/mozilla/fxa-content-server/issues/6025)
+* **l10n:** Fix the string extraction script (#6344) r=@vladikoff ([c19e0fa](https://github.com/mozilla/fxa-content-server/commit/c19e0fa)), closes [(#6344](https://github.com/(/issues/6344) [#6343](https://github.com/mozilla/fxa-content-server/issues/6343)
+* **metrics:** force utm_source=email when signing in from CAD ([17ab1fd](https://github.com/mozilla/fxa-content-server/commit/17ab1fd))
+* **password-reset:** Update the password reset text for clarity. (#6305) r=@philbooth ([f4033bb](https://github.com/mozilla/fxa-content-server/commit/f4033bb)), closes [#6213](https://github.com/mozilla/fxa-content-server/issues/6213)
+* **pw-strength:** Ban service names anywhere in password if > 1/2 of password. (#6341) r=@philboot ([394f5e9](https://github.com/mozilla/fxa-content-server/commit/394f5e9)), closes [#6321](https://github.com/mozilla/fxa-content-server/issues/6321)
+* **pw-strength:** Immediately update pw balloon on submit (#6340) r=@philbooth ([a6ca166](https://github.com/mozilla/fxa-content-server/commit/a6ca166)), closes [#6299](https://github.com/mozilla/fxa-content-server/issues/6299)
+* **pw-strength:** Make the tooltips, pw-strength balloon more a11y friendly.  (#6338) r=@philbooth ([a072a10](https://github.com/mozilla/fxa-content-server/commit/a072a10))
+
+### chore
+
+* **release:** Merge mozilla/train-115 into master r=@shane-tomlinson ([eb10ac8](https://github.com/mozilla/fxa-content-server/commit/eb10ac8))
+
+### Features
+
+* **errors:** Add error message for auth-server errno 203. (#6329); r=shane-tomlinson ([91749fc](https://github.com/mozilla/fxa-content-server/commit/91749fc))
+* **test:** Show more helpful error messages for the route check. (#6332) r=@vladikoff ([17b0d2a](https://github.com/mozilla/fxa-content-server/commit/17b0d2a))
+
+
+
+<a name="1.115.0"></a>
+# 1.115.0 (2018-06-27)
+
+
+### Bug Fixes
+
+* **codes:** use new line carriage return and spaces to separate recovery codes (#6307) r=@rf ([8ed9554](https://github.com/mozilla/fxa-content-server/commit/8ed9554))
+* **metrics:** prevent reset-password from clobbering mixed-in events ([5ba15f8](https://github.com/mozilla/fxa-content-server/commit/5ba15f8))
+* **teamcity:** add config file for stable3 ([ba358e3](https://github.com/mozilla/fxa-content-server/commit/ba358e3))
+* **test:** Fix the sign_up->afterVisible test ([c9f4a65](https://github.com/mozilla/fxa-content-server/commit/c9f4a65)), closes [#6290](https://github.com/mozilla/fxa-content-server/issues/6290)
+* **timers:** Always destroy timers created in view.setTimeout. ([5d10672](https://github.com/mozilla/fxa-content-server/commit/5d10672)), closes [#6291](https://github.com/mozilla/fxa-content-server/issues/6291)
+* **timers:** Ensure listeners are bound even if an invalid timer is passed to clearTimeout ([e64af66](https://github.com/mozilla/fxa-content-server/commit/e64af66))
+* **typo:** Moved the period outside of link ([1fd05d2](https://github.com/mozilla/fxa-content-server/commit/1fd05d2))
+
+### chore
+
+* **release:** Merge train-114 into master r=@shane-tomlinson ([edcf013](https://github.com/mozilla/fxa-content-server/commit/edcf013))
+* **test:** Make the `wrapAssertion` method easier to read. ([feb9510](https://github.com/mozilla/fxa-content-server/commit/feb9510))
+
+### Features
+
+* **pw-strength:** Design F (#6273) r=@vbudhram, @philbooth ([d951180](https://github.com/mozilla/fxa-content-server/commit/d951180))
+
+### Refactor
+
+* **experiment:** Extract a common `isTestEmail` function for all experiments. (#6294) r=@philboot ([cc8bd89](https://github.com/mozilla/fxa-content-server/commit/cc8bd89))
+* **module:** Remove AMD wrapper from SignUpPasswordView (#6287) r=@vladikoff ([fe9c262](https://github.com/mozilla/fxa-content-server/commit/fe9c262))
+* **module:** Remove the AMD wrapper on lib/experiment.js (#6303) r=@vbudhram ([0c68a0c](https://github.com/mozilla/fxa-content-server/commit/0c68a0c))
+* **tooltip:** Extract the "one tooltip at a time" logic (#6302) r=@vbudhram ([81eea37](https://github.com/mozilla/fxa-content-server/commit/81eea37))
+
+
+
+<a name="1.114.5"></a>
+## 1.114.5 (2018-06-22)
+
+
+
+
+<a name="1.114.4"></a>
+## 1.114.4 (2018-06-22)
+
+
+### Bug Fixes
+
+* **codes:** add totp experiment to manual experiments (#6297), r=@philbooth ([59f21f2](https://github.com/mozilla/fxa-content-server/commit/59f21f2))
+
+
+
+<a name="1.114.3"></a>
+## 1.114.3 (2018-06-14)
+
+
+### Bug Fixes
+
+* **l10n:** Enable nb-NO locale by updating fxa-shared (#6280)  r=@philbooth,@vladikoff ([9cdf6dd](https://github.com/mozilla/fxa-content-server/commit/9cdf6dd))
+
+
+
+<a name="1.114.2"></a>
+## 1.114.2 (2018-06-14)
+
+
+### Bug Fixes
+
+* **docker:** let's do only one npm version override ([4a498d4](https://github.com/mozilla/fxa-content-server/commit/4a498d4))
+
+
+
+<a name="1.114.1"></a>
+## 1.114.1 (2018-06-13)
+
+
+### Bug Fixes
+
+* **docker:** base image node:8-alpine and upgrade to npm6 ([401165f](https://github.com/mozilla/fxa-content-server/commit/401165f))
+
+### chore
+
+* **shrinkwrap:** Update the version in npm-shrinkwrap.json ([b3a08b0](https://github.com/mozilla/fxa-content-server/commit/b3a08b0))
+
+
+
+<a name="1.114.0"></a>
+# 1.114.0 (2018-06-13)
+
+
+### Bug Fixes
+
+* **codes:** adds more support for assistive technologies (#6239), r=@shane-tomlinson ([53da50a](https://github.com/mozilla/fxa-content-server/commit/53da50a))
+* **codes:** append email to recovery code download file (#6237), r=@shane-tomlinson ([a99c286](https://github.com/mozilla/fxa-content-server/commit/a99c286))
+* **codes:** use number pad when entering totp code (#6269), r=@vladikoff ([66d5278](https://github.com/mozilla/fxa-content-server/commit/66d5278))
+* **css:** make "show password" button background white on blur (#6260) r=@vladikoff ([7354d47](https://github.com/mozilla/fxa-content-server/commit/7354d47))
+* **dep:** update to fxa-crypto-relier 2.3.0 (#6246) r=@shane-tomlinson ([f6820f7](https://github.com/mozilla/fxa-content-server/commit/f6820f7))
+* **email-first:** Handle email-first refresh on /signup, /signin (#6245) r=@vladikoff,@philbooth ([82e30b5](https://github.com/mozilla/fxa-content-server/commit/82e30b5)), closes [#6243](https://github.com/mozilla/fxa-content-server/issues/6243)
+* **oauth:** translate oauth permissions (#6271) r=@vbudhram ([054b392](https://github.com/mozilla/fxa-content-server/commit/054b392)), closes [#4758](https://github.com/mozilla/fxa-content-server/issues/4758)
+* **refresh:** adds `Last checked:` as tooltip, updates `Refresh` to `Refresh Status` (#6238),  ([32d9d68](https://github.com/mozilla/fxa-content-server/commit/32d9d68))
+* **style:** Fix input element zoom issues on iOS. ([6f7a48d](https://github.com/mozilla/fxa-content-server/commit/6f7a48d))
+* **teamcity:** fix small potential race on teamcity test kickoff (#6255) ([f5f8f3e](https://github.com/mozilla/fxa-content-server/commit/f5f8f3e)), closes [(#6255](https://github.com/(/issues/6255)
+
+### chore
+
+* **deps:** Use native promises instead of bluebird. ([ef6a097](https://github.com/mozilla/fxa-content-server/commit/ef6a097))
+* **totp:** enable totp for 100% of users (#6256), r=@shane-tomlinson ([7e3ddfd](https://github.com/mozilla/fxa-content-server/commit/7e3ddfd))
+
+### Features
+
+* **websessions:** reenable websessions (#6270) r=@vbudhram ([b4d82d9](https://github.com/mozilla/fxa-content-server/commit/b4d82d9))
+
+
+<a name="1.113.4"></a>
+## 1.113.4 (2018-06-10)
+
+
+### Features
+
+* **oauth:** Allow lockbox to request the "oldsync" OAuth scope. (#6272) r=@vladikoff ([306af32](https://github.com/mozilla/fxa-content-server/commit/306af32))
+
+
+<a name="1.113.3"></a>
+## 1.113.3 (2018-06-05)
+
+
+### chore
+
+* **totp:** enable totp for 100% of users (#6256), r=@shane-tomlinson ([5313c34](https://github.com/mozilla/fxa-content-server/commit/5313c34))
+
+
+
+<a name="1.113.2"></a>
+## 1.113.2 (2018-06-04)
+
+
+### Bug Fixes
+
+* **authorization:** Minor updates for /authorization endpoint (#6252) r=@vladikoff ([0528bf6](https://github.com/mozilla/fxa-content-server/commit/0528bf6)), closes [#6250](https://github.com/mozilla/fxa-content-server/issues/6250)
+
+
+
+<a name="1.113.1"></a>
+## 1.113.1 (2018-06-01)
+
+
+### Features
+
+* **Lockbox:** Add newest Lockbox app redirect_uri (#6248) r=@vladikoff ([89cef79](https://github.com/mozilla/fxa-content-server/commit/89cef79)), closes [#6247](https://github.com/mozilla/fxa-content-server/issues/6247)
+
+
+
+<a name="1.113.0"></a>
+# 1.113.0 (2018-05-30)
+
+
+### Bug Fixes
+
+* **css:** make sign-in confirm button blue (#6233) ([cd2718d](https://github.com/mozilla/fxa-content-server/commit/cd2718d))
+* **recovery:** support copying recovery codes in ios (#6232), r=@vladikoff ([59b344d](https://github.com/mozilla/fxa-content-server/commit/59b344d))
+* **validation:** Stricter utm_ parameter metrics validation (#6200) r=@philbooth ([821f276](https://github.com/mozilla/fxa-content-server/commit/821f276))
+
+### Features
+
+* **metrics:** metrics flow for iframeless flow (#6227) r=@philbooth ([0921bc5](https://github.com/mozilla/fxa-content-server/commit/0921bc5))
+
+
+
+<a name="1.112.3"></a>
+## 1.112.3 (2018-05-21)
+
+
+### Bug Fixes
+
+* **style:** Fix the error message/heading styles in settings (#6216) r=@philbooth ([07967b5](https://github.com/mozilla/fxa-content-server/commit/07967b5)), closes [(#6216](https://github.com/(/issues/6216) [#6206](https://github.com/mozilla/fxa-content-server/issues/6206)
+* **style:** Fix the link focusring style. (#6215) r=@philbooth ([35f88fa](https://github.com/mozilla/fxa-content-server/commit/35f88fa)), closes [(#6215](https://github.com/(/issues/6215)
+
+
+
+<a name="1.112.2"></a>
+## 1.112.2 (2018-05-18)
+
+
+### Bug Fixes
+
+* **config:** Allow configuring statsd host (#6208) r=@vladikoff,@shane-tomlinson ([9da130e](https://github.com/mozilla/fxa-content-server/commit/9da130e))
+* **deps:** Update fxa-geodb (#6211) r=@philbooth ([c171e6b](https://github.com/mozilla/fxa-content-server/commit/c171e6b))
+
+### Features
+
+* **totp:** enable totp for 10% of all users (#6212), r=@shane-tomlinson ([2a0b52d](https://github.com/mozilla/fxa-content-server/commit/2a0b52d))
+
+### Refactor
+
+* **metrics:** move amplitude email types back here from fxa-shared ([14a66c5](https://github.com/mozilla/fxa-content-server/commit/14a66c5))
+
+
+
+<a name="1.112.1"></a>
+## 1.112.1 (2018-05-17)
+
+
+### Bug Fixes
+
+* **npm:** rewrap npm for v5.10 (#6201) ([2d28818](https://github.com/mozilla/fxa-content-server/commit/2d28818))
+
+
+
+<a name="1.112.0"></a>
+# 1.112.0 (2018-05-15)
+
+
+### Bug Fixes
+
+* **basket:** Match the expected basket subscribe & lookup-user API (#6160) r=@rfk, @vladikoff ([c5f4fc2](https://github.com/mozilla/fxa-content-server/commit/c5f4fc2)), closes [#6076](https://github.com/mozilla/fxa-content-server/issues/6076)
+* **client:** improve messaging before delete account (#6178) ([9ce21db](https://github.com/mozilla/fxa-content-server/commit/9ce21db))
+* **metrics:** remove temporary flow validation fallback code ([0d8929c](https://github.com/mozilla/fxa-content-server/commit/0d8929c))
+* **nsp:** update devs and nsp ([c9e0ecc](https://github.com/mozilla/fxa-content-server/commit/c9e0ecc))
+* **sentry:** update sentry and fix error reporting (#6191) r=@shane-tomlinson ([8c29280](https://github.com/mozilla/fxa-content-server/commit/8c29280)), closes [(#6191](https://github.com/(/issues/6191)
+* **settings:** Fix the position of the rotate button. (#6192) r=@philbooth ([0eab619](https://github.com/mozilla/fxa-content-server/commit/0eab619)), closes [(#6192](https://github.com/(/issues/6192) [#6166](https://github.com/mozilla/fxa-content-server/issues/6166)
+* **strings:** escape totp sumo string (#6176), r=@philbooth ([fbc0c63](https://github.com/mozilla/fxa-content-server/commit/fbc0c63))
+* **teamcity:** echo $FXA_UNTRUSTED_OAUTH_APP_ROOT too ([51ad440](https://github.com/mozilla/fxa-content-server/commit/51ad440))
+* **teamcity:** point the gcppoc config at {123,321}done-poc RPs ([8b02bb7](https://github.com/mozilla/fxa-content-server/commit/8b02bb7))
+* **test:** Fix tests due to an obscured "Sign out" button. (#6194) r=@philbooth ([7deb586](https://github.com/mozilla/fxa-content-server/commit/7deb586)), closes [(#6194](https://github.com/(/issues/6194) [#6193](https://github.com/mozilla/fxa-content-server/issues/6193)
+* **tests:** adjust mozilla.org link to have www (#6199) ([b180d1d](https://github.com/mozilla/fxa-content-server/commit/b180d1d))
+* **tooltip:** Show tooltips above the input on mobile (#6195) r=@vladikoff ([fe3706c](https://github.com/mozilla/fxa-content-server/commit/fe3706c)), closes [#6188](https://github.com/mozilla/fxa-content-server/issues/6188)
+* **totp:** send service name when verifing totp token (#6153), r=@shane-tomlinson ([bf40511](https://github.com/mozilla/fxa-content-server/commit/bf40511))
+
+### Features
+
+* **recovery:** update view when low on recovery codes (#6181), r=@shane-tomlinson ([c83bd01](https://github.com/mozilla/fxa-content-server/commit/c83bd01))
+* **show-password:** replace show password with eye icon  (#6184) r=@vbudhram, @shane-tomlinson ([8c46222](https://github.com/mozilla/fxa-content-server/commit/8c46222)), closes [#6023](https://github.com/mozilla/fxa-content-server/issues/6023)
+* **signin:** Show a user "card" for the email-first signin flow. (#6187) r=@vbudhram, @vladik ([cffe58b](https://github.com/mozilla/fxa-content-server/commit/cffe58b)), closes [#6126](https://github.com/mozilla/fxa-content-server/issues/6126)
+* **sms:** Fully roll out SMS in BE, DK, NL (#6190), r=@vbudhram ([ba27a39](https://github.com/mozilla/fxa-content-server/commit/ba27a39)), closes [#6189](https://github.com/mozilla/fxa-content-server/issues/6189)
+* **style:** Apply Photon styles to the buttons (#6155) r=@vbudhram ([3dd7b77](https://github.com/mozilla/fxa-content-server/commit/3dd7b77))
+* **style:** Remove "card" view in mobile layout. (#6158) r=@vbudhram ([2a55dd5](https://github.com/mozilla/fxa-content-server/commit/2a55dd5))
+* **style:** Use system fonts instead of Fira Sans (#6146) r=@vladikoff ([1d09150](https://github.com/mozilla/fxa-content-server/commit/1d09150)), closes [#6145](https://github.com/mozilla/fxa-content-server/issues/6145)
+
+### Refactor
+
+* **experiment:** Remove the q3FormChanges experiment. (#6164) r=@vladikoff,@irrationalagent ([22d1c64](https://github.com/mozilla/fxa-content-server/commit/22d1c64)), closes [#5872](https://github.com/mozilla/fxa-content-server/issues/5872)
+* **style:** Apply Photon styles to message boxes (#6183) r=@vbudhram ([1580118](https://github.com/mozilla/fxa-content-server/commit/1580118))
+* **style:** General photon style updates (#6185) r=@vbudhram ([1d0933b](https://github.com/mozilla/fxa-content-server/commit/1d0933b))
+* **style:** Update anchors to use photon colors. (#6167) r=@philbooth ([85cc444](https://github.com/mozilla/fxa-content-server/commit/85cc444))
+* **styles:** Apply Photon styles to input fields. (#6175) r=@philbooth ([5242beb](https://github.com/mozilla/fxa-content-server/commit/5242beb))
+
+### Reverts
+
+* **csp:** revert removing csp support for gravatar (#6177), r=@shane-tomlinson ([556dcc2](https://github.com/mozilla/fxa-content-server/commit/556dcc2))
+
+
+
+<a name="1.111.2"></a>
+## 1.111.2 (2018-05-03)
+
+
+### Bug Fixes
+
+* **totp:** add sumo link for totp (#6159), r=@shane-tomlinson ([d721e0f](https://github.com/mozilla/fxa-content-server/commit/d721e0f))
+
+
+
+<a name="1.111.1"></a>
+## 1.111.1 (2018-05-02)
+
+
+### Features
+
+* **totp:** add totp as an experiment and enable for mozilla/softvision (#6141) r=@shane-tom ([8dd33fe](https://github.com/mozilla/fxa-content-server/commit/8dd33fe))
+
+
+
+<a name="1.111.0"></a>
+# 1.111.0 (2018-05-01)
+
+
+### Bug Fixes
+
+* **build:** Fix `grunt watch:livereload` by updating grunt-contrib-watch (#6097) r=@vladikof ([8f7ff77](https://github.com/mozilla/fxa-content-server/commit/8f7ff77)), closes [(#6097](https://github.com/(/issues/6097) [#6092](https://github.com/mozilla/fxa-content-server/issues/6092)
+* **ci:** clean up travis logs (#6119) ([3e4656b](https://github.com/mozilla/fxa-content-server/commit/3e4656b))
+* **code:** disable token code experiment for 123done (#6103) r=@rfk,@vladikoff ([7318438](https://github.com/mozilla/fxa-content-server/commit/7318438))
+* **css:** Update recovery code placeholder text, and recovery code css size (#6100), r=@sh ([f9d5a6e](https://github.com/mozilla/fxa-content-server/commit/f9d5a6e))
+* **ios:** iOS only shows numbers in the keyboard for the age input (#6133) r=@vbudhram ([d6d336a](https://github.com/mozilla/fxa-content-server/commit/d6d336a)), closes [#6132](https://github.com/mozilla/fxa-content-server/issues/6132)
+* **npm:** update to shrinkwrap with dev ([b99c80c](https://github.com/mozilla/fxa-content-server/commit/b99c80c))
+* **server:** strictly validate experiment names ([53bf7cc](https://github.com/mozilla/fxa-content-server/commit/53bf7cc))
+* **session:** add session token to account delete (#6099), r=@shane-tomlinson ([6862a63](https://github.com/mozilla/fxa-content-server/commit/6862a63))
+* **strings:** remove extra spaces from session (#6148) ([f38b20a](https://github.com/mozilla/fxa-content-server/commit/f38b20a))
+* **teamcity:** add a gcppoc config ([7f038db](https://github.com/mozilla/fxa-content-server/commit/7f038db))
+* **templates:** match local behaviour of templates with prod (#6110) r=@vladikoff,@jrgm ([e80c7bf](https://github.com/mozilla/fxa-content-server/commit/e80c7bf))
+* **tests:** fix OAuth permission test (#6121) r=@jrgm ([8caf2c1](https://github.com/mozilla/fxa-content-server/commit/8caf2c1)), closes [(#6121](https://github.com/(/issues/6121)
+* **tests:** teamcity server tests now need underscore ([530473c](https://github.com/mozilla/fxa-content-server/commit/530473c))
+
+### chore
+
+* **npm:** update nvmrc to node 8 ([f64f491](https://github.com/mozilla/fxa-content-server/commit/f64f491))
+* **teamcity:** add a jrgm config so I can test fxa-dev ([839201d](https://github.com/mozilla/fxa-content-server/commit/839201d))
+
+### Features
+
+* **keys:** Allow fetching scoped keys for use with Firefox Sync. (#6017); r=stomlinson,vlad ([f93c112](https://github.com/mozilla/fxa-content-server/commit/f93c112))
+* **metrics:** Generate a node.js compatible experiment name list (#6087) r=@philbooth ([0751c01](https://github.com/mozilla/fxa-content-server/commit/0751c01))
+* **node:** run travis with node 8 (#6062) r=@shane-tomlinson ([5bf0a5f](https://github.com/mozilla/fxa-content-server/commit/5bf0a5f))
+* **node:** update to node 8 (#6088) r=@jrgm ([56b5509](https://github.com/mozilla/fxa-content-server/commit/56b5509))
+* **session:** update upgrade session panel (#5922), r=@shane-tomlinson ([2e0b193](https://github.com/mozilla/fxa-content-server/commit/2e0b193))
+
+### Refactor
+
+* **oauth:** Remove support for AMO migration text (#6131) r=@vladikoff ([8f884aa](https://github.com/mozilla/fxa-content-server/commit/8f884aa)), closes [#6123](https://github.com/mozilla/fxa-content-server/issues/6123)
+* **sync:** Remove support for migration=sync11 (#6130) r=@philbooth ([f20822c](https://github.com/mozilla/fxa-content-server/commit/f20822c)), closes [#6122](https://github.com/mozilla/fxa-content-server/issues/6122)
+
+
+
+<a name="1.110.6"></a>
+## 1.110.6 (2018-05-01)
+
+
+### Bug Fixes
+
+* **docker:** Force npm@5 in docker builds. (#6143) r=@vladikoff ([f707a97](https://github.com/mozilla/fxa-content-server/commit/f707a97))
+
+
+
+<a name="1.110.5"></a>
+## 1.110.5 (2018-04-27)
+
+
+### Bug Fixes
+
+* **nsp:** update nsp ([67b228d](https://github.com/mozilla/fxa-content-server/commit/67b228d))
+* **oauth:** make Chrome for Android able to sign up and sign in via button confirmation ([69e9ffc](https://github.com/mozilla/fxa-content-server/commit/69e9ffc)), closes [#6089](https://github.com/mozilla/fxa-content-server/issues/6089)
+* **oauth:** match client id ([9e3b916](https://github.com/mozilla/fxa-content-server/commit/9e3b916))
+* **test:** Add a signin to an OAuth relier with Chrome for Android ([aba9901](https://github.com/mozilla/fxa-content-server/commit/aba9901))
+* **test:** Create the user before trying to verify! ([bdcff68](https://github.com/mozilla/fxa-content-server/commit/bdcff68))
+* **tests:** make a signin test work ([820dd38](https://github.com/mozilla/fxa-content-server/commit/820dd38))
+
+### Refactor
+
+* **oauth:** Simplify the Chrome for Android handling. ([aa19e3b](https://github.com/mozilla/fxa-content-server/commit/aa19e3b))
+
+
+
+<a name="1.110.4"></a>
+## 1.110.4 (2018-04-26)
+
+
+### Bug Fixes
+
+* **metrics:** stop using user-agent string in flow id check ([fa1c770](https://github.com/mozilla/fxa-content-server/commit/fa1c770))
+
+
+
+<a name="1.110.3"></a>
+## 1.110.3 (2018-04-25)
+
+
+### Bug Fixes
+
+* **test:** fix totp test failures (#6117) r=@vladikoff,@jrgm ([e38e282](https://github.com/mozilla/fxa-content-server/commit/e38e282)), closes [(#6117](https://github.com/(/issues/6117)
+
+
+
+<a name="1.110.2"></a>
+## 1.110.2 (2018-04-25)
+
+
+### Bug Fixes
+
+* **permissions:** Allow untrusted reliers to request 'openid' scope. (#6111) r=@vladikoff ([5b259ad](https://github.com/mozilla/fxa-content-server/commit/5b259ad))
+
+
+
+<a name="1.110.1"></a>
+## 1.110.1 (2018-04-20)
+
+
+### Bug Fixes
+
+* **server:** fix undefined dereference ([dc6e30b](https://github.com/mozilla/fxa-content-server/commit/dc6e30b))
+
+
+
+<a name="1.110.0"></a>
+# 1.110.0 (2018-04-17)
+
+
+### Bug Fixes
+
+* **csp:** remove gravatar from csp rules (#6015); r=@rfk ([51a32d7](https://github.com/mozilla/fxa-content-server/commit/51a32d7))
+* **css:** make qr code padding consistent (#6048), r=@shane-tomlinson ([c2ac36d](https://github.com/mozilla/fxa-content-server/commit/c2ac36d))
+* **email:** send correct email when using unblock code (#6064), r=@philbooth, @shane-tomlins ([e31e97a](https://github.com/mozilla/fxa-content-server/commit/e31e97a))
+* **email-first:** Ensure "Mistyped email" links work as expected. (#6067) r=@philbooth ([8a9a772](https://github.com/mozilla/fxa-content-server/commit/8a9a772)), closes [#6033](https://github.com/mozilla/fxa-content-server/issues/6033)
+* **experiment:** Disable A/B experiment interface for navigator.webdriver r=@rfk ([203858b](https://github.com/mozilla/fxa-content-server/commit/203858b)), closes [#6026](https://github.com/mozilla/fxa-content-server/issues/6026)
+* **htmllint:** Fixes #5668 upgrade es6-promise to 4.2.4 (#6050) r=@vladikoff ([cd41660](https://github.com/mozilla/fxa-content-server/commit/cd41660)), closes [#5668](https://github.com/mozilla/fxa-content-server/issues/5668) [(#6050](https://github.com/(/issues/6050) [#5668](https://github.com/mozilla/fxa-content-server/issues/5668)
+* **metrics:** add locale to flow events ([433cba7](https://github.com/mozilla/fxa-content-server/commit/433cba7))
+* **npm:** update to npm5 (#6042) r=@shane-tomlinson ([ccbbd1b](https://github.com/mozilla/fxa-content-server/commit/ccbbd1b))
+* **style:** disable 'clear' button for default avatar (#6037) r=@vladikoff ([f19eddf](https://github.com/mozilla/fxa-content-server/commit/f19eddf))
+* **style:** drag-off state for buttons r=@vladikoff ([0bdf73d](https://github.com/mozilla/fxa-content-server/commit/0bdf73d)), closes [#5255](https://github.com/mozilla/fxa-content-server/issues/5255)
+* **test:** Remove duplicate email_first functional test entries. (#6054), r=@vbudhram ([963188d](https://github.com/mozilla/fxa-content-server/commit/963188d))
+* **tests:** enable TOTP tests on Circle (#6066), r=@vbudhram ([7caa9ae](https://github.com/mozilla/fxa-content-server/commit/7caa9ae))
+* **tests:** update tests for recovery code updates (#6075), r=@philbooth ([c18bdf3](https://github.com/mozilla/fxa-content-server/commit/c18bdf3))
+* **totp:** Fix the "can add TOTP to account and confirm web signin" test (#6069) r=@vladiko ([47545b6](https://github.com/mozilla/fxa-content-server/commit/47545b6)), closes [(#6069](https://github.com/(/issues/6069) [#6068](https://github.com/mozilla/fxa-content-server/issues/6068)
+
+### chore
+
+* **deps:** Remove the babel-middle dependency, it's not used. (#6055) r=@vbudhram ([4e5a462](https://github.com/mozilla/fxa-content-server/commit/4e5a462))
+* **deps:** Update sinon to @4.5.0 (#6038) r=@vbudhram ([0816af5](https://github.com/mozilla/fxa-content-server/commit/0816af5))
+* **docs:** Remove obsolete oauth-in-an-iframe docs. (#6041) r=@shane-tomlinson ([9b168fd](https://github.com/mozilla/fxa-content-server/commit/9b168fd))
+* **emails:** use popular email domain list from fxa-shared ([c4f2232](https://github.com/mozilla/fxa-content-server/commit/c4f2232))
+* **favicon:** Fixes #6030 Remove OLD Firefox favicon (#6035) r=@vladikoff ([b919763](https://github.com/mozilla/fxa-content-server/commit/b919763)), closes [#6030](https://github.com/mozilla/fxa-content-server/issues/6030) [(#6035](https://github.com/(/issues/6035)
+
+### Features
+
+* **email-first:** Enable the email-first flow for OAuth reliers. (#6034) r=@philbooth ([71a20af](https://github.com/mozilla/fxa-content-server/commit/71a20af)), closes [#6009](https://github.com/mozilla/fxa-content-server/issues/6009)
+* **signup:** Add verification password to email-first signup. (#6028) r=@vbudhram ([e00b6ad](https://github.com/mozilla/fxa-content-server/commit/e00b6ad)), closes [#5947](https://github.com/mozilla/fxa-content-server/issues/5947)
+* **sms:** Partial SMS rollout in BE and NL. (#6032) ([193ca25](https://github.com/mozilla/fxa-content-server/commit/193ca25)), closes [#6031](https://github.com/mozilla/fxa-content-server/issues/6031)
+* **SMS:** Roll out Denmark(DK) to 50%. (#6065) r=@philbooth ([e052e1e](https://github.com/mozilla/fxa-content-server/commit/e052e1e))
+
+### Refactor
+
+* **metrics:** use boiler-plate amplitude code from fxa-shared ([a5ab837](https://github.com/mozilla/fxa-content-server/commit/a5ab837))
+
+
+
+<a name="1.109.4"></a>
+## 1.109.4 (2018-04-20)
+
+
+### Bug Fixes
+
+* **nsp:** update nsp ([84fd024](https://github.com/mozilla/fxa-content-server/commit/84fd024))
+* **oauth:** make Chrome for Android able to sign up and sign in via button confirmation ([76c24ff](https://github.com/mozilla/fxa-content-server/commit/76c24ff)), closes [#6089](https://github.com/mozilla/fxa-content-server/issues/6089)
+* **oauth:** match client id ([ae00d86](https://github.com/mozilla/fxa-content-server/commit/ae00d86))
+* **test:** Add a signin to an OAuth relier with Chrome for Android ([ac7f8a0](https://github.com/mozilla/fxa-content-server/commit/ac7f8a0))
+* **test:** Create the user before trying to verify! ([dfc68c2](https://github.com/mozilla/fxa-content-server/commit/dfc68c2))
+* **tests:** make a signin test work ([4263db2](https://github.com/mozilla/fxa-content-server/commit/4263db2))
+
+### Refactor
+
+* **oauth:** Simplify the Chrome for Android handling. ([b97f5ca](https://github.com/mozilla/fxa-content-server/commit/b97f5ca))
+
+
+
+<a name="1.109.3"></a>
+## 1.109.3 (2018-04-06)
+
+
+### Features
+
+* **recovery:** add initial recovery codes ([c3732cd](https://github.com/mozilla/fxa-content-server/commit/c3732cd))
+
+
+
+<a name="1.109.2"></a>
+## 1.109.2 (2018-04-04)
+
+
+### Bug Fixes
+
+* **circle:** change Firefox destination (#36); r=@rfk ([b1cb431](https://github.com/mozilla/fxa-content-server/commit/b1cb431))
+* **server:** fix broken require path (#34) r=@vladikoff ([467199d](https://github.com/mozilla/fxa-content-server/commit/467199d)), closes [(#34](https://github.com/(/issues/34)
+
+### Features
+
+* **oauth:** support Notes Android redirect (#6020) r=@rfk ([bd97464](https://github.com/mozilla/fxa-content-server/commit/bd97464))
+
+
+
+<a name="1.109.1"></a>
+## 1.109.1 (2018-04-04)
+
+
+### Bug Fixes
+
+* **server:** ensure unsafe input doesn't leak from user-agent strings ([e73873c](https://github.com/mozilla/fxa-content-server/commit/e73873c))
+
+
+
+<a name="1.109.0"></a>
+# 1.109.0 (2018-04-04)
+
+
+### Bug Fixes
+
+* **metrics:** ensure CAD view and engage events are correct (#6008) ([0b3f687](https://github.com/mozilla/fxa-content-server/commit/0b3f687))
+* **metrics:** include full version information in amplitude event data ([90582ef](https://github.com/mozilla/fxa-content-server/commit/90582ef))
+* **metrics:** use $append on the experiments user property ([c5db581](https://github.com/mozilla/fxa-content-server/commit/c5db581))
+* **node:** Use Node.js v6.14.0 (#6011) ([f760603](https://github.com/mozilla/fxa-content-server/commit/f760603))
+* **oauth:** fix password reset for scoped reliers verifying in same browser (#6010) r=@rfk ([a777ecf](https://github.com/mozilla/fxa-content-server/commit/a777ecf)), closes [(#6010](https://github.com/(/issues/6010) [#5934](https://github.com/mozilla/fxa-content-server/issues/5934)
+* **server:** validate ip addresses before use ([1c86c67](https://github.com/mozilla/fxa-content-server/commit/1c86c67))
+* **signin:** Handle deleted account and new email login afterwards (#5997) r=@vbudhram ([f93cbd2](https://github.com/mozilla/fxa-content-server/commit/f93cbd2)), closes [#4316](https://github.com/mozilla/fxa-content-server/issues/4316)
+* **tests:** disable TOTP tests on Circle ([bce6467](https://github.com/mozilla/fxa-content-server/commit/bce6467))
+* **tests:** fix websession test (#6000) ([d31d21b](https://github.com/mozilla/fxa-content-server/commit/d31d21b)), closes [(#6000](https://github.com/(/issues/6000)
+* **tests:** move totp to flaky tests ([0a0cc0e](https://github.com/mozilla/fxa-content-server/commit/0a0cc0e))
+
+### Features
+
+* **metrics:** add an email_domain property to amplitude click events ([ec082c1](https://github.com/mozilla/fxa-content-server/commit/ec082c1))
+* **password:** Check old password using sessionReauth if possible. (#5946), r=@vbudhram ([4fb90da](https://github.com/mozilla/fxa-content-server/commit/4fb90da))
+
+### Reverts
+
+* **tests:** fix websession test ([a967cbe](https://github.com/mozilla/fxa-content-server/commit/a967cbe))
+
+
+
+<a name="1.108.1"></a>
+## 1.108.1 (2018-03-28)
+
+
+### Bug Fixes
+
+* **token:** disable token code experiment for sync users (#6007) r=@vladikoff ([df1c4f2](https://github.com/mozilla/fxa-content-server/commit/df1c4f2))
+
+
+
+<a name="1.108.0"></a>
+# 1.108.0 (2018-03-20)
+
+
+### Bug Fixes
+
+* **account:** fix [object Object] errors in Sentry (#5971) r=@philbooth ([498c392](https://github.com/mozilla/fxa-content-server/commit/498c392)), closes [(#5971](https://github.com/(/issues/5971) [#5364](https://github.com/mozilla/fxa-content-server/issues/5364)
+* **buffer:** Remove 'new Buffer' call in flow-metrics (#5979) r=@vladikoff ([99ab929](https://github.com/mozilla/fxa-content-server/commit/99ab929)), closes [#5978](https://github.com/mozilla/fxa-content-server/issues/5978)
+* **tests:** add totp functional tests (#5980), r=@vladikoff ([d6e7976](https://github.com/mozilla/fxa-content-server/commit/d6e7976))
+
+### chore
+
+* **package:** update speed-trap, regenerate shrinkwrap (#5974) r=@vladikoff ([5a1dfe9](https://github.com/mozilla/fxa-content-server/commit/5a1dfe9))
+* **typo:** fix test typo in fxa-client (#5954) ([449ee73](https://github.com/mozilla/fxa-content-server/commit/449ee73)), closes [(#5954](https://github.com/(/issues/5954)
+
+### Features
+
+* **clients:** Add Lockbox icon, fix Pontoon icon (#5959), r=@vbudhram ([a3ac644](https://github.com/mozilla/fxa-content-server/commit/a3ac644)), closes [(#5959](https://github.com/(/issues/5959)
+* **metrics:** emit view, engage & submit events for CAD ([2a707ac](https://github.com/mozilla/fxa-content-server/commit/2a707ac))
+* **oauth:** force validate provided redirect uri (#5948) r=@rfk ([339ed9a](https://github.com/mozilla/fxa-content-server/commit/339ed9a))
+* **styles:** make SVG hearts beat (#5960) r=@ryanfeeley,@vbudhram ([bac9441](https://github.com/mozilla/fxa-content-server/commit/bac9441))
+* **webpack:** load imports from CDN (#5989) r=@philbooth ([eacab12](https://github.com/mozilla/fxa-content-server/commit/eacab12)), closes [#5989](https://github.com/mozilla/fxa-content-server/issues/5989)
+
+### Refactor
+
+* **js:** remove require.js remains (#5953) r=@vbudhram ([abe0536](https://github.com/mozilla/fxa-content-server/commit/abe0536))
+* **metrics:** Removed get-metrics-errors.js (#5976) r=@vladikoff ([3105aa0](https://github.com/mozilla/fxa-content-server/commit/3105aa0)), closes [#5970](https://github.com/mozilla/fxa-content-server/issues/5970)
+
+### style
+
+* **server templates:** remove unnecessary conditional comments (#5973) r=@vladikoff ([9ff8db0](https://github.com/mozilla/fxa-content-server/commit/9ff8db0))
+* **settings:** Disabled the done button on secondary email(#5981), r=@vbudhram ([7d67920](https://github.com/mozilla/fxa-content-server/commit/7d67920))
+
+
+### BREAKING CHANGES
+
+* OAuth redirect uris must be updated in the database
+
+Fixes #5827
+
+
+
+
 <a name="1.107.5"></a>
 ## 1.107.5 (2018-03-13)
 
