@@ -420,7 +420,8 @@ define(function (require, exports, module) {
       // to read and create Accounts for unfiltered data.
       // upgradeFromSession writes the new format, so this is safe.
       return user.upgradeFromUnfilteredAccountData()
-        .then(user.upgradeFromSession.bind(user, Session, this._fxaClient));
+        .then(() => user.upgradeFromSession(Session, this._fxaClient))
+        .then(() => user.removeAccountsWithInvalidUid());
     },
 
     createView (Constructor, options = {}) {
@@ -446,10 +447,10 @@ define(function (require, exports, module) {
     initializeRouter () {
       if (! this._router) {
         this._router = new Router({
-          broker: this._authenticationBroker,
           createView: this.createView.bind(this),
           metrics: this._metrics,
           notifier: this._notifier,
+          relier: this._relier,
           user: this._user,
           window: this._window
         });

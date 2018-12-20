@@ -75,23 +75,12 @@ define(function (require, exports, module) {
       metrics = null;
     });
 
-    it('calls notifier.on correctly', () => {
-      assert.equal(notifier.on.callCount, 3);
+    it('has the expected notifications', () => {
+      assert.lengthOf(Object.keys(metrics.notifications), 3);
 
-      let args = notifier.on.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'flow.initialize');
-      assert.isFunction(args[1]);
-
-      args = notifier.on.args[1];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'flow.event');
-      assert.notEqual(args[1], notifier.on.args[0][1]);
-
-      args = notifier.on.args[2];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'view-shown');
-      assert.isFunction(args[1]);
+      assert.isTrue('flow.initialize' in metrics.notifications);
+      assert.isTrue('flow.event' in metrics.notifications);
+      assert.isTrue('view-shown' in metrics.notifications);
     });
 
     it('observable flow state is correct', () => {
@@ -739,14 +728,25 @@ define(function (require, exports, module) {
       it('logs the experiment name and group', function () {
         var experiment = 'mailcheck';
         var group = 'group';
+        sinon.spy(metrics, 'logEvent');
+        sinon.spy(metrics, 'logEventOnce');
+        notifier.trigger('flow.initialize');
 
         metrics.logExperiment();
         assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        assert.equal(metrics.logEventOnce.callCount, 1);
+        assert.equal(metrics.logEventOnce.args[0][0], 'flow.experiment.undefined.undefined');
+
         metrics.logExperiment(experiment);
         assert.equal(Object.keys(metrics._activeExperiments).length, 0);
+        assert.equal(metrics.logEventOnce.callCount, 2);
+        assert.equal(metrics.logEventOnce.args[1][0], 'flow.experiment.mailcheck.undefined');
+
         metrics.logExperiment(experiment, group);
         assert.equal(Object.keys(metrics._activeExperiments).length, 1);
         assert.isDefined(metrics._activeExperiments['mailcheck']);
+        assert.equal(metrics.logEventOnce.callCount, 3);
+        assert.equal(metrics.logEventOnce.args[2][0], 'flow.experiment.mailcheck.group');
       });
     });
 

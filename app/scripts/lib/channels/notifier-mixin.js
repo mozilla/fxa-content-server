@@ -20,7 +20,8 @@
  *   'notification-1' () {
  *      // handle notification
  *   },
- *   'notification-2': '_handlerName'
+ *   'notification-2': '_handlerName',
+ *   'once!notification-3': '_handlerOnlyCalledOnce'
  * },
  * ...
  * ```
@@ -34,24 +35,13 @@ define(function (require, exports, module) {
 
   const _ = require('underscore');
 
-  function NotifierProxy(options) {
-    options = options || {};
+  const ONCE_PREFIX = /^once!/;
 
-    var consumer = this._consumer = options.consumer;
-
-    this._notifier = options.notifier;
-
-    /**
-     * A list of handlers registered for this view is kept
-     * so all listeners can be unregistered when the view is
-     * destroyed.
-     */
-    this._notifierMessages = [];
+  function NotifierProxy({ consumer, notifier }) {
+    this._consumer = consumer;
+    this._notifier = notifier;
 
     this.delegateNotifications();
-
-    // unbind all listeners on destroy
-    consumer.on('destroy', this.off.bind(this, null));
   }
 
   NotifierProxy.prototype = {
@@ -64,8 +54,15 @@ define(function (require, exports, module) {
 
       for (let notificationName in notifications) {
         let method = notifications[notificationName];
+        let attachMethod = 'on';
+
+        if (ONCE_PREFIX.test(notificationName)) {
+          attachMethod = 'once';
+          notificationName = notificationName.replace(ONCE_PREFIX, '');
+        }
+
         if (_.isString(method) && _.isFunction(consumer[method])) {
-          this.on(notificationName, (...args) => {
+          this[attachMethod](notificationName, (...args) => {
             // The level of indirection is used to allow for
             // late-binding when using sinon spies & stubs.
             // Without indirection, the original function is
@@ -73,7 +70,7 @@ define(function (require, exports, module) {
             consumer[method](...args);
           });
         } else if (_.isFunction(method)) {
-          this.on(notificationName, method.bind(consumer));
+          this[attachMethod](notificationName, method.bind(consumer));
         }
       }
     },
@@ -117,12 +114,17 @@ define(function (require, exports, module) {
      * @param {Function} callback
      */
     on (eventName, callback) {
-      this._notifier.on(eventName, callback);
+      this._consumer.listenTo(this._notifier, eventName, callback);
+    },
 
-      this._notifierMessages.push({
-        callback: callback,
-        name: eventName
-      });
+    /**
+     * Register a listener that is called at most once
+     *
+     * @param {String} eventName
+     * @param {Function} callback
+     */
+    once (eventName, callback) {
+      this._consumer.listenToOnce(this._notifier, eventName, callback);
     },
 
     /**
@@ -133,30 +135,20 @@ define(function (require, exports, module) {
      * @param {Function} [callback]
      */
     off (eventName, callback) {
-      if (! eventName) {
-        // unregister all callbacks for consumer.
-        this._notifierMessages.forEach(function (envelope) {
-          this._notifier.off(envelope.name, envelope.callback);
-        }, this);
-        this._notifierMessages = [];
-        return;
-      }
-
-      this._notifierMessages.forEach(function (envelope, index) {
-        if (envelope.name === eventName && envelope.callback === callback) {
-          this._notifierMessages.splice(index, 1);
-          this._notifier.off(envelope.name, envelope.callback);
-        }
-      }, this);
+      this._consumer.stopListening(this._notifier, eventName, callback);
     }
   };
 
   var NotifierMixin = {
-    initialize (options) {
-      this.notifier = new NotifierProxy({
-        consumer: this,
-        notifier: options.notifier
-      });
+    initialize (options = {}) {
+      // if no notifier is passed in, don't bother setting up
+      // the mixin. This avoids breaking all kinds of unit tests.
+      if (options.notifier) {
+        this.notifier = new NotifierProxy({
+          consumer: this,
+          notifier: options.notifier
+        });
+      }
     }
   };
 

@@ -5,29 +5,30 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const _ = require('underscore');
+  const Account = require('models/account');
   const AuthErrors = require('lib/auth-errors');
   const BaseView = require('views/base');
   const Cocktail = require('cocktail');
-  const ConfirmView = require('views/confirm');
   const Notifier = require('lib/channels/notifier');
   const p = require('lib/promise');
   const PasswordResetMixin = require('views/mixins/password-reset-mixin');
   const OpenResetPasswordEmailMixin = require('views/mixins/open-webmail-mixin');
-  const ResendMixin = require('views/mixins/resend-mixin');
+  const ResendMixin = require('views/mixins/resend-mixin')();
   const ServiceMixin = require('views/mixins/service-mixin');
   const Session = require('lib/session');
   const Template = require('stache!templates/confirm_reset_password');
+  const { VERIFICATION_POLL_IN_MS } = require('lib/constants');
 
-  var t = BaseView.t;
+  const t = BaseView.t;
 
-  var View = ConfirmView.extend({
+  const View = BaseView.extend({
     template: Template,
     className: 'confirm-reset-password',
 
-    initialize (options) {
-      options = options || {};
-      this._verificationPollMS = options.verificationPollMS ||
-              this.VERIFICATION_POLL_IN_MS;
+    initialize (options = {}) {
+      this._verificationPollMS =
+        options.verificationPollMS || VERIFICATION_POLL_IN_MS;
     },
 
     context () {
@@ -140,21 +141,14 @@ define(function (require, exports, module) {
     },
 
     _finishPasswordResetSameBrowser (sessionInfo) {
-      // Only the account UID, unwrapBKey and keyFetchToken are passed
-      // from the verification tab. Load other from localStorage
-      var account = this.user.getAccountByUid(sessionInfo.uid);
+      const account = this.user.getAccountByUid(sessionInfo.uid);
 
-      // keyFetchToken and unwrapBKey are sent from the verification tab,
-      // this tab has no idea what they are. The keyFetchToken and
-      // unwrapBKey are used to generate encryption keys for Hello
-      // that must be sent from this tab, otherwise Hello gets
-      // confused on where it should update it's UI.
-      if (sessionInfo.keyFetchToken && sessionInfo.unwrapBKey) {
-        account.set({
-          keyFetchToken: sessionInfo.keyFetchToken,
-          unwrapBKey: sessionInfo.unwrapBKey
-        });
-      }
+      // A bug in e10s causes localStorage in about:accounts and content tabs to be isolated from
+      // each other. Writes to localStorage from /complete_reset_password are not able to be read
+      // from within about:accounts. Because of this, all account data needed to sign in must
+      // be passed between windows. See https://github.com/mozilla/fxa-content-server/issues/4763
+      // and https://bugzilla.mozilla.org/show_bug.cgi?id=666724
+      account.set(_.pick(sessionInfo, Account.ALLOWED_KEYS));
 
       if (account.isDefault()) {
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));

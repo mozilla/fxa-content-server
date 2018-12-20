@@ -6,6 +6,7 @@
 
 'use strict';
 const bodyParser = require('body-parser');
+const celebrate = require('celebrate');
 const consolidate = require('consolidate');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
@@ -75,6 +76,7 @@ function makeApp() {
   app.use(localizedRender({ i18n: i18n }));
 
   app.use(frameGuard);
+
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     force: true,
@@ -150,6 +152,21 @@ function makeApp() {
 
   // The error handler must be before any other error middleware
   app.use(raven.ravenModule.middleware.express.errorHandler(raven.ravenMiddleware));
+
+  // log any joi validation errors
+  app.use((err, req, res, next) => {
+    if (err && err.isJoi) {
+      logger.error({
+        error: err.details.map(details => details.message).join(','),
+        op: 'validation.error',
+        path: req.path,
+      });
+    }
+    next(err);
+  });
+
+  // convert joi validation errors to a JSON response
+  app.use(celebrate.errors());
 
   // server error!
   app.use(serverErrorHandler);

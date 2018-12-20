@@ -84,10 +84,12 @@ node ./tests/teamcity/install-npm-deps.js \
   helmet                          \
   htmlparser2                     \
   intern                          \
+  joi                             \
   lodash                          \
   mozlog                          \
   node-statsd                     \
   node-uap                        \
+  on-headers                      \
   proxyquire                      \
   raven                           \
   sinon                           \
