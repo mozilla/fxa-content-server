@@ -11,19 +11,19 @@ define([
   'sinon',
   '../../lib/helpers',
   'lib/promise',
+  'lib/config-loader',
   'lib/constants',
   'lib/assertion',
   'lib/fxa-client',
   'models/reliers/relier',
-  'models/user',
   'vendor/jwcrypto',
   'vendor/jwcrypto/lib/algs/rs'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, TestHelpers, p,
-      Constants, Assertion, FxaClientWrapper, Relier, User, jwcrypto) {
+function (chai, $, sinon, TestHelpers, p, ConfigLoader,
+      Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
   var ISSUER = 'http://' + document.location.hostname + ':9000';
@@ -32,32 +32,41 @@ function (chai, $, sinon, TestHelpers, p,
   var client;
   var assertionLibrary;
   var relier;
-  var user;
   var sessionToken;
+  var config;
 
   var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
 
   describe('lib/assertion', function () {
+    /*global before*/
+
+    before(function () {
+      var configLoader = new ConfigLoader();
+      return configLoader.fetch()
+        .then(function (loadedConfig) {
+          config = loadedConfig;
+        });
+    });
+
     beforeEach(function () {
+      ISSUER = config.authServerUrl;
+
       relier = new Relier();
-      user = new User();
-      sinon.stub(user, 'setCurrentAccount', function (data) {
-        sessionToken = data.sessionToken;
-        return p();
-      });
       client = new FxaClientWrapper({
-        relier: relier
+        relier: relier,
+        authServerUrl: config.authServerUrl
       });
       assertionLibrary = new Assertion({
         fxaClient: client
       });
       email = ' ' + TestHelpers.createEmail() + ' ';
+
       return client.signUp(email, password, relier, {
         preVerified: true
       })
-      .then(function () {
-        return client.signIn(email, password, relier, user);
-      });
+        .then(function (result) {
+          sessionToken = result.sessionToken;
+        });
     });
 
     describe('validate', function () {

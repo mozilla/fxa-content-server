@@ -34,7 +34,6 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
   }
 
   var VALID_OAUTH_CODE = generateOAuthCode();
-  var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
   var VALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?state=state&code=' + VALID_OAUTH_CODE;
   var INVALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?code=code&state=state';
 
@@ -69,22 +68,19 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
       });
 
       user = new User();
-      account = user.createAccount({
-        email: 'a@a.com',
+
+      account = user.initAccount({
         sessionToken: 'abc123'
-      });
-      sinon.stub(user, 'getCurrentAccount', function () {
-        return account;
       });
 
       broker = new OAuthAuthenticationBroker({
         session: Session,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        oAuthUrl: BASE_REDIRECT_URL,
-        user: user,
         relier: relier
       });
+
+      sinon.spy(broker, 'finishOAuthFlow');
     });
 
     describe('sendOAuthResultToRelier', function () {
@@ -102,8 +98,9 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p();
         });
 
-        return broker.afterSignIn()
+        return broker.afterSignIn(account)
           .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
@@ -117,7 +114,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p.reject(new Error('uh oh'));
         });
 
-        return broker.afterSignIn()
+        return broker.afterSignIn(account)
           .then(assert.fail, function (err) {
             assert.equal(err.message, 'uh oh');
           });
@@ -139,8 +136,9 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p();
         });
 
-        return broker.afterSignUpConfirmationPoll()
+        return broker.afterSignUpConfirmationPoll(account)
           .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
@@ -156,8 +154,9 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p();
         });
 
-        return broker.afterResetPasswordConfirmationPoll()
+        return broker.afterResetPasswordConfirmationPoll(account)
           .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
             assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
@@ -169,7 +168,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
 
     describe('getOAuthResult', function () {
       it('gets an object with the OAuth login information', function () {
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(function (result) {
             assert.isTrue(assertionLibrary.generate.calledWith(account.get('sessionToken')));
             assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
@@ -184,7 +183,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p.reject(new Error('uh oh'));
         });
 
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
             assert.equal(err.message, 'uh oh');
           });
@@ -196,7 +195,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return p.reject(new Error('uh oh'));
         });
 
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
             assert.equal(err.message, 'uh oh');
           });
@@ -208,7 +207,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return;
         });
 
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
             assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
           });
@@ -220,7 +219,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           return {};
         });
 
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
             assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_REDIRECT'));
           });
@@ -234,9 +233,23 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
           };
         });
 
-        return broker.getOAuthResult()
+        return broker.getOAuthResult(account)
           .then(assert.fail, function (err) {
             assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_CODE'));
+          });
+      });
+
+      it('throws an error if accountData is missing', function () {
+        return broker.getOAuthResult()
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
+      it('throws an error if accountData is missing a sessionToken', function () {
+        return broker.getOAuthResult(user.initAccount())
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
           });
       });
     });

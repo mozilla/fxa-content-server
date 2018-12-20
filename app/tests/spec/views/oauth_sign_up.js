@@ -114,7 +114,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         user: user,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        screenName: 'oauth/signup'
+        screenName: 'oauth.signup'
       });
 
       return view.render()
@@ -155,6 +155,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
+        });
+
         return view.submit()
           .then(function () {
             assert.isTrue(fxaClient.signUp.calledWith(
@@ -173,14 +177,14 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
       it('notifies the broker when a pre-verified user signs up', function () {
         sinon.stub(fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             verified: true
           });
+        });
+
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -203,10 +207,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
       it('redirects to /confirm if pre-verification is not successful', function () {
         sinon.stub(fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             // verified: false simulates the preVerifyToken failing.
@@ -214,6 +214,9 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
+        });
 
         var password = 'password';
         fillOutSignUp(email, password, { year: nowYear - 14, context: view });
@@ -221,8 +224,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           .then(function () {
             assert.equal(router.page, 'confirm');
             assert.isTrue(fxaClient.signUp.calledWith(
-                email, password, relier));
-            assert.isTrue(fxaClient.signIn.calledWith(
                 email, password, relier));
           });
       });

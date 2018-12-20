@@ -319,12 +319,9 @@ define([
         .end()
 
         .findByCssSelector('#fxa-age-year')
-        .click()
         .end()
 
         .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .pressMouseButton()
-        .releaseMouseButton()
         .click()
         .end()
 
@@ -367,12 +364,9 @@ define([
         .end()
 
         .findByCssSelector('#fxa-age-year')
-        .click()
         .end()
 
         .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .pressMouseButton()
-        .releaseMouseButton()
         .click()
         .end()
 
@@ -541,5 +535,6 @@ define([
         .findByCssSelector('.use-different')
         .end();
     }
+
   });
 });

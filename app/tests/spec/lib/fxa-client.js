@@ -6,6 +6,7 @@ define([
   'chai',
   'jquery',
   'sinon',
+  'fxaClient',
   'lib/promise',
   '../../lib/helpers',
   'lib/session',
@@ -13,19 +14,19 @@ define([
   'lib/auth-errors',
   'lib/constants',
   'lib/resume-token',
-  'models/user',
   'models/reliers/oauth'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
-      AuthErrors, Constants, ResumeToken, User, OAuthRelier) {
+function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
+      AuthErrors, Constants, ResumeToken, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';
   var SERVICE = 'sync';
   var REDIRECT_TO = 'https://sync.firefox.com';
+  var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
 
   var assert = chai.assert;
   var email;
@@ -33,7 +34,6 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
   var client;
   var realClient;
   var relier;
-  var user;
   var expectedResumeToken;
 
   function trim(str) {
@@ -50,21 +50,20 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
 
-      user = new User();
+      realClient = new FxaClient(AUTH_SERVER_URL);
 
-      Session.set('config', {
-        fxaccountUrl: 'http://127.0.0.1:9000'
+      client = new FxaClientWrapper({
+        client: realClient
       });
-
-      client = new FxaClientWrapper();
-
-      return client._getClientAsync()
-              .then(function (_realClient) {
-                realClient = _realClient;
-              });
     });
 
     afterEach(function () {
+    });
+
+    it('initializes client from authServerUrl', function () {
+      client = new FxaClientWrapper({
+        authServerUrl: AUTH_SERVER_URL
+      });
     });
 
     describe('signUp', function () {
@@ -105,7 +104,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
         relier.set('preVerifyToken', preVerifyToken);
 
         sinon.stub(realClient, 'signUp', function () {
-          return p();
+          return p({});
         });
 
         return client.signUp(email, password, relier, {
@@ -150,7 +149,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
               resume: expectedResumeToken
             }));
 
-            return p(true);
+            return p({});
           }
         });
 
@@ -248,7 +247,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signIn(email, password, relier, user)
+        return client.signIn(email, password, relier)
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
           });
@@ -263,16 +262,11 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        sinon.stub(user, 'setCurrentAccount', function (accountData) {
-          assert.isTrue(accountData.customizeSync);
-          return p({});
-        });
-
-        return client.signIn(email, password, relier, user, {
+        return client.signIn(email, password, relier, {
           customizeSync: true
         })
-          .then(function () {
-            assert.isTrue(user.setCurrentAccount.called);
+          .then(function (result) {
+            assert.isTrue(result.customizeSync);
           });
       });
     });

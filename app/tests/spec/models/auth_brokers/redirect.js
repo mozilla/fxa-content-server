@@ -8,22 +8,41 @@
 define([
   'chai',
   'sinon',
+  'lib/promise',
+  'lib/session',
   'models/auth_brokers/redirect',
+  'models/reliers/base',
+  'models/user',
   '../../../mocks/window'
 ],
-function (chai, sinon, RedirectAuthenticationBroker, WindowMock) {
+function (chai, sinon, p, Session, RedirectAuthenticationBroker,
+    Relier, User, WindowMock) {
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';
 
   describe('models/auth_brokers/redirect', function () {
+    var relier;
     var broker;
     var windowMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      relier = new Relier();
+      user = new User();
+      account = user.initAccount({
+        sessionToken: 'abc123'
+      });
 
       broker = new RedirectAuthenticationBroker({
-        window: windowMock
+        relier: relier,
+        window: windowMock,
+        session: Session
+      });
+
+      sinon.stub(broker, 'finishOAuthFlow', function () {
+        return p();
       });
     });
 
@@ -50,6 +69,76 @@ function (chai, sinon, RedirectAuthenticationBroker, WindowMock) {
             assert.include(windowMock.location.href, 'error=error');
           });
         });
+      });
+    });
+
+    describe('persist', function () {
+      it('sets the Original Tab marker', function () {
+        return broker.persist()
+          .then(function () {
+            assert.isTrue(broker.isOriginalTab());
+          });
+      });
+    });
+
+    describe('finishOAuthFlow', function () {
+      it('clears the original tab marker', function () {
+        broker.finishOAuthFlow.restore();
+
+        sinon.stub(broker, 'getOAuthResult', function () {
+          return p({});
+        });
+
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+          return p();
+        });
+
+        return broker.persist()
+          .then(function () {
+            return broker.finishOAuthFlow(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.getOAuthResult.calledWith(account));
+            assert.isFalse(broker.isOriginalTab());
+          });
+      });
+    });
+
+    describe('afterCompleteSignUp', function () {
+      it('finishes the oauth flow if the user verifies in the original tab', function () {
+        return broker.persist()
+          .then(function () {
+            return broker.afterCompleteSignUp(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+          });
+      });
+
+      it('does not finish the oauth flow if the user verifies in another tab', function () {
+        return broker.afterCompleteSignUp(account)
+          .then(function () {
+            assert.isFalse(broker.finishOAuthFlow.calledWith(account));
+          });
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      it('finishes the oauth flow if the user verifies in the original tab', function () {
+        return broker.persist()
+          .then(function () {
+            return broker.afterCompleteResetPassword(account);
+          })
+          .then(function () {
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
+          });
+      });
+
+      it('does not finish the oauth flow if the user verifies in another tab', function () {
+        return broker.afterCompleteResetPassword(account)
+          .then(function () {
+            assert.isFalse(broker.finishOAuthFlow.calledWith(account));
+          });
       });
     });
   });

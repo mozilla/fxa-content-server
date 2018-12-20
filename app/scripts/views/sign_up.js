@@ -105,12 +105,13 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         this._bouncedEmail, email, Session.prefillPassword);
 
       return {
-        service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
+        isSync: this.relier.isSync(),
+        isCustomizeSyncChecked: this.relier.isCustomizeSyncChecked(),
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
-        isSync: this.relier.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year',
@@ -183,7 +184,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
             return self._cannotCreateAccount();
           }
 
-          return self._createAccount();
+          return self._initAccount();
         });
     },
 
@@ -259,7 +260,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this.navigate('cannot_create_account');
     },
 
-    _createAccount: function () {
+    _initAccount: function () {
       var self = this;
       var email = self.$('.email').val();
       var password = self.$('.password').val();
@@ -270,25 +271,24 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         self.logScreenEvent('preverified');
       }
 
-
       return self.broker.beforeSignIn(email)
         .then(function () {
           return self.fxaClient.signUp(
-                        email, password, self.relier);
-        })
-        .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier, self.user, {
-            customizeSync: customizeSync,
-            // already done in signUp, no need to do it again.
-            verifiedCanLinkAccount: true
-          });
+                        email, password, self.relier, {
+                          customizeSync: customizeSync
+                        });
         }).then(function (accountData) {
-          if (preVerifyToken && accountData.verified) {
+          var account = self.user.initAccount(accountData);
+
+          if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
 
-          return accountData;
+          return self.user.setSignedInAccount(account)
+            .then(function () {
+              return account;
+            });
         })
         .then(_.bind(self.onSignUpSuccess, self))
         .then(null, function (err) {
@@ -371,11 +371,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this.focus('#fxa-age-month');
     },
 
-    onSignUpSuccess: function (accountData) {
+    onSignUpSuccess: function (account) {
       var self = this;
-      if (accountData.verified) {
+      if (account.get('verified')) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignIn(accountData)
+        return self.broker.afterSignIn(account)
           .then(function (result) {
             if (! (result && result.halt)) {
               self.navigate('signup_complete');
@@ -384,7 +384,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       } else {
         self.navigate('confirm', {
           data: {
-            accountData: accountData
+            account: account
           }
         });
       }

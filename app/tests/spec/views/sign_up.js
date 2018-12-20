@@ -105,7 +105,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
       return view.render()
           .then(function () {
-            $('#container').append(view.el);
+            $('#container').html(view.el);
           });
     });
 
@@ -143,13 +143,24 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             });
       });
 
-      it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
+      it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function () {
         relier.set('service', 'sync');
         Session.clear();
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.customize-sync-row').length, 1);
+              assert.equal(view.$('#customize-sync').length, 1);
+              assert.isFalse(view.$('#customize-sync').is(':checked'));
+            });
+      });
+
+      it('checks `customize sync` checkbox for sync relier that forces it to true', function () {
+        relier.set('service', 'sync');
+        relier.set('customizeSync', true);
+
+        return view.render()
+            .then(function () {
+              assert.isTrue(view.$('#customize-sync').is(':checked'));
             });
       });
 
@@ -439,10 +450,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
           return p({
             verified: false
           });
@@ -452,8 +459,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           .then(function () {
             assert.equal(router.page, 'confirm');
             assert.isTrue(view.fxaClient.signUp.calledWith(
-                email, password, relier));
-            assert.isTrue(view.fxaClient.signIn.calledWith(
                 email, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signup.success'));
@@ -472,16 +477,14 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
           return p({
-            verified: true
+            verified: true,
+            customizeSync: true
           });
         });
 
-        sinon.stub(broker, 'afterSignIn', function () {
+        sinon.stub(broker, 'afterSignIn', function (account) {
+          assert.isTrue(account.get('customizeSync'), 'customizeSync option is passed to broker');
           return p();
         });
 
@@ -623,18 +626,29 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-    });
+      it('passes the customize sync option to the fxa-client', function () {
+        relier.set('service', 'sync');
+        relier.set('customizeSync', true);
 
-    describe('updatePasswordVisibility', function () {
-      it('pw field set to text when clicked', function () {
-        $('.show-password').click();
-        assert.equal($('.password').attr('type'), 'text');
-      });
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p({
+            verified: true
+          });
+        });
 
-      it('pw field set to password when clicked again', function () {
-        $('.show-password').click();
-        $('.show-password').click();
-        assert.equal($('[type=password]').attr('type'), 'password');
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
+        });
+
+        return view.render()
+          .then(function () {
+            fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+            return view.submit();
+          })
+          .then(function () {
+            assert.isTrue(view.fxaClient.signUp.calledWith(email, 'password', relier,
+              { customizeSync: true }), 'fxa client params');
+          });
       });
     });
 

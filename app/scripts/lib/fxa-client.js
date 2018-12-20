@@ -29,45 +29,22 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
-    this._interTabChannel = options.interTabChannel;
+
+    if (! this._client && options.authServerUrl) {
+      this._client = new FxaClient(options.authServerUrl);
+    }
   }
 
   FxaClientWrapper.prototype = {
-    _getClientAsync: function () {
-      var defer = p.defer();
-
-      if (this._client) {
-        defer.resolve(this._client);
-      } else {
-        var self = this;
-        this._getFxAccountUrl()
-          .then(function (fxaccountUrl) {
-            self._client = new FxaClient(fxaccountUrl);
-            defer.resolve(self._client);
-          });
-      }
-
-      // Protip: add `.delay(msToDelay)` to do a dirty
-      // synthication of server lag for manual testing.
-      return defer.promise;
-    },
-
-    _getFxAccountUrl: function () {
-      if (Session.config && Session.config.fxaccountUrl) {
-        return p(Session.config.fxaccountUrl);
-      }
-
-      return xhr.getJSON('/config')
-          .then(function (data) {
-            return data.fxaccountUrl;
-          });
+    _getClient: function () {
+      return p(this._client);
     },
 
     /**
      * Fetch some entropy from the server
      */
     getRandomBytes: function () {
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.getRandomBytes();
         });
@@ -77,7 +54,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
      * Check the user's current password without affecting session state.
      */
     checkPassword: function (email, password) {
-      return this._getClientAsync()
+      return this._getClient()
           .then(function (client) {
             return client.signIn(email, password);
           });
@@ -87,7 +64,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
      * Check whether an account exists for the given uid.
      */
     checkAccountExists: function (uid) {
-      return this._getClientAsync()
+      return this._getClient()
           .then(function (client) {
             return client.accountStatus(uid)
               .then(function (status) {
@@ -96,45 +73,43 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           });
     },
 
-    signIn: function (originalEmail, password, relier, user, options) {
+    _getUpdatedSessionData: function (email, relier, accountData, options) {
+      var sessionTokenContext = options.sessionTokenContext ||
+                                  relier.get('context');
+
+      var updatedSessionData = {
+        email: email,
+        uid: accountData.uid,
+        sessionToken: accountData.sessionToken,
+        sessionTokenContext: sessionTokenContext,
+        verified: accountData.verified || false
+      };
+
+      // isSync is added in case the user verifies in a second tab
+      // on the first browser, the context will not be available. We
+      // need to ship the keyFetchToken and unwrapBKey to the first tab,
+      // so generate these any time we are using sync as well.
+      if (relier.isFxDesktop() || relier.isSync()) {
+        updatedSessionData.unwrapBKey = accountData.unwrapBKey;
+        updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+        updatedSessionData.customizeSync = options.customizeSync || false;
+      }
+
+      return updatedSessionData;
+    },
+
+
+    signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
 
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           return client.signIn(email, password, { keys: true });
         })
         .then(function (accountData) {
-          var sessionTokenContext = options.sessionTokenContext ||
-                                      relier.get('context');
-
-          var updatedSessionData = {
-            email: email,
-            uid: accountData.uid,
-            sessionToken: accountData.sessionToken,
-            sessionTokenContext: sessionTokenContext,
-            verified: accountData.verified
-          };
-
-          // isSync is added in case the user verifies in a second tab
-          // on the first browser, the context will not be available. We
-          // need to ship the keyFetchToken and unwrapBKey to the first tab,
-          // so generate these any time we are using sync as well.
-          if (relier.isFxDesktop() || relier.isSync()) {
-            updatedSessionData.unwrapBKey = accountData.unwrapBKey;
-            updatedSessionData.keyFetchToken = accountData.keyFetchToken;
-            updatedSessionData.customizeSync = options.customizeSync;
-          }
-
-          if (self._interTabChannel) {
-            self._interTabChannel.emit('login', updatedSessionData);
-          }
-
-          return user.setCurrentAccount(updatedSessionData)
-            .then(function () {
-              return updatedSessionData;
-            });
+          return self._getUpdatedSessionData(email, relier, accountData, options);
         });
     },
 
@@ -146,7 +121,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       // ensure resend works again
       this._signUpResendCount = 0;
 
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           var signUpOptions = {
             keys: true
@@ -171,7 +146,9 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           signUpOptions.resume = self._createResumeToken(relier);
 
           return client.signUp(email, password, signUpOptions)
-            .then(null, function (err) {
+            .then(function (accountData) {
+              return self._getUpdatedSessionData(email, relier, accountData, options);
+            }, function (err) {
               if (relier.has('preVerifyToken') &&
                   AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
                 // The token was invalid and the auth server could
@@ -189,12 +166,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     signUpResend: function (relier, sessionToken) {
       var self = this;
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._signUpResendCount++;
           }
@@ -210,14 +185,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     signOut: function (sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.sessionDestroy(sessionToken);
               });
     },
 
     verifyCode: function (uid, code) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.verifyCode(uid, code);
               });
@@ -230,7 +205,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       // ensure resend works again
       this._passwordResetResendCount = 0;
 
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 var clientOptions = {
                   service: relier.get('service'),
@@ -250,12 +225,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       var self = this;
       var email = trim(originalEmail);
 
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._passwordResetResendCount++;
           }
@@ -279,7 +252,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       var email = trim(originalEmail);
       var client;
 
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (_client) {
                 client = _client;
                 return client.passwordForgotVerifyCode(code, token);
@@ -292,7 +265,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     isPasswordResetComplete: function (token) {
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.passwordForgotStatus(token);
         })
@@ -309,7 +282,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.passwordChange(email, oldPassword, newPassword);
         });
@@ -317,14 +290,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     deleteAccount: function (originalEmail, password) {
       var email = trim(originalEmail);
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.accountDestroy(email, password);
               });
     },
 
     certificateSign: function (pubkey, duration, sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.certificateSign(
                   sessionToken,
@@ -334,7 +307,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     sessionStatus: function (sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.sessionStatus(sessionToken);
               });
@@ -363,7 +336,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     recoveryEmailStatus: function (sessionToken, uid) {
       var self = this;
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           return client.recoveryEmailStatus(sessionToken);
         })

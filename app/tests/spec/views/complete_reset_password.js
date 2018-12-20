@@ -12,15 +12,17 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/channels/inter-tab',
   'views/complete_reset_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
-      Broker, RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
+      View, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -31,13 +33,18 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var isPasswordResetComplete;
     var metrics;
     var fxaClient;
+    var interTabChannel;
     var relier;
     var broker;
+    var user;
 
     var EMAIL = 'testuser@testuser.com';
     var PASSWORD = 'password';
     var TOKEN = 'feed';
     var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
+    var ACCOUNT_DATA = {
+      sessionToken: 'abc123'
+    };
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
@@ -54,6 +61,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      interTabChannel = new InterTabChannel();
+      user = new User();
 
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
@@ -62,8 +71,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         relier: relier,
         broker: broker,
+        user: user,
         screenName: 'complete_reset_password'
       });
 
@@ -198,21 +209,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       });
     });
 
-    describe('updatePasswordVisibility', function () {
-      it('pw field set to text when clicked', function () {
-        $('.show-password').click();
-        assert.equal($('#password').attr('type'), 'text');
-        assert.equal($('#vpassword').attr('type'), 'text');
-      });
-
-      it('pw field set to password when clicked again', function () {
-        $('.show-password').click();
-        $('.show-password').click();
-        assert.equal($('#password').attr('type'), PASSWORD);
-        assert.equal($('#vpassword').attr('type'), PASSWORD);
-      });
-    });
-
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {
         view.$('#password').val(PASSWORD);
@@ -281,15 +277,25 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       });
 
       it('signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
+        var account;
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
+          return p(ACCOUNT_DATA);
         });
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
         });
+        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+          account = newAccount;
+          return p();
+        });
         sinon.spy(broker, 'afterCompleteResetPassword');
+
+        // expect the intertab channel to be notified of login so the
+        // starting window can complete the signin process.
+        var loginSpy = sinon.spy();
+        interTabChannel.on('login', loginSpy);
 
         return view.validateAndSubmit()
             .then(function () {
@@ -298,20 +304,26 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
               assert.isTrue(fxaClient.signIn.calledWith(
                   EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
+              assert.isTrue(loginSpy.called);
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
             });
       });
 
       it('halts if the broker says halt', function () {
+        var account;
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
+          return p(ACCOUNT_DATA);
         });
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
+        });
+        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+          account = newAccount;
+          return p();
         });
         sinon.stub(broker, 'afterCompleteResetPassword', function () {
           return p({ halt: true });
@@ -324,7 +336,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
               assert.isTrue(fxaClient.signIn.calledWith(
                   EMAIL, PASSWORD, relier));
               assert.notEqual(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(broker.afterCompleteResetPassword.calledWith(account));
             });
       });
 

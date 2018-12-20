@@ -328,13 +328,39 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           email: EMAIL,
           uid: UID,
           sessionToken: SESSION_TOKEN,
-          foo: 'bar'
-        }
+          foo: 'bar',
+          password: 'password'
+        },
+        assertion: 'test'
       });
 
       var data = account.toJSON();
 
+      assert.isUndefined(data.accountData);
+      assert.isUndefined(data.assertion);
       assert.isUndefined(data.foo);
+      assert.ok(data.email);
+      assert.ok(data.password);
+    });
+
+    it('toPersistentJSON returns data for the right keys', function () {
+      account = new Account({
+        accountData: {
+          email: EMAIL,
+          uid: UID,
+          sessionToken: SESSION_TOKEN,
+          foo: 'bar',
+          password: 'password'
+        },
+        assertion: 'test'
+      });
+
+      var data = account.toPersistentJSON();
+
+      assert.isUndefined(data.accountData);
+      assert.isUndefined(data.assertion);
+      assert.isUndefined(data.foo);
+      assert.isUndefined(data.password);
       assert.ok(data.email);
     });
 
