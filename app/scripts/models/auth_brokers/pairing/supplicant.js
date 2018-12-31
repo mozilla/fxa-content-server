@@ -5,7 +5,7 @@
 import OAuthRedirectBroker from '../oauth-redirect';
 import ChannelServerClient from '../../../lib/channel-server-client';
 import setRemoteMetaData from './remote-metadata';
-import SupplicantStateMachine from '../../pairing/supplicant-state-machine';
+// import SupplicantStateMachine from '../../pairing/supplicant-state-machine';
 import Url from '../../../lib/url';
 
 export default class SupplicantBroker extends OAuthRedirectBroker {

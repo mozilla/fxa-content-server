@@ -5,38 +5,34 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const assert = intern.getPlugin('chai').assert;
 const selectors = require('./lib/selectors');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
-//const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=https%3A%2F%2F123done-pairsona.dev.lcip.org%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9#channel_key=1hIDzTj5oY2HDeSg_jA2DhcOcAn5Uqq0cAYlZRNUIo4&channel_id=`;
-const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9`;
+//const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=
+// https%3A%2F%2F123done-pairsona.dev.lcip.org%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=
+// SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=
+// offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ
+// 5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9#channel_key=1hIDzTj5oY2HDeSg_jA2DhcOcAn5Uqq0cAYlZRNU
+// Io4&channel_id=`;
+const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9`; //eslint-disable-line  max-len
+
 const PASSWORD = '12345678';
 let email;
 
 const {
-  clearBrowserState,
   closeCurrentWindow,
-  createUser,
   click,
-  fillOutSignIn,
-  fillOutSignInUnblock,
-  noPageTransition,
   openPage,
   openTab,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
-  respondToWebChannelMessage,
   switchToWindow,
   visibleByQSA,
-  noSuchElement,
   fillOutSignUp,
   testElementExists,
   testIsBrowserNotified,
-  thenify,
 } = FunctionalHelpers;
 
 registerSuite('pairing', {

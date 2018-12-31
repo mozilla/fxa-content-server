@@ -47,25 +47,22 @@ export default class ChannelServerClient extends Model {
   open (channelServerUrl = this.get('channelServerUrl'), channelId = this.get('channelId'), channelKey = this.get('channelKey')) {
     return new Promise((resolve, reject) => {
       const code = `${channelId}#${channelKey}`;
-      console.log('tls', InsecurePairingChannel)
 
       try {
         InsecurePairingChannel.connect(code).then((channel) => {
 
           channel.onReceive = msg => {
             console.log('onReceive', msg);
-          }
+          };
 
           channel.send('wat');
         }).catch((fail) => {
           console.log(fail);
-          debugger
         });
 
       } catch (e) {
-        console.error(e)
-        alert(e)
-        debugger
+        console.error(e);
+        alert(e);
       }
 
 
