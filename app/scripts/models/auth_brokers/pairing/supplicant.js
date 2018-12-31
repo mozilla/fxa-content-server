@@ -32,13 +32,13 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
       this.listenTo(this.channelServerClient, 'change:confirmationCode', (model, value) => {
         this.set('confirmationCode', value);
       });
-
-      this.suppStateMachine = new SupplicantStateMachine({}, {
-        broker: this,
-        channelServerClient: this.channelServerClient,
-        notifier,
-        relier
-      });
+      //
+      // this.suppStateMachine = new SupplicantStateMachine({}, {
+      //   broker: this,
+      //   channelServerClient: this.channelServerClient,
+      //   notifier,
+      //   relier
+      // });
 
       this.channelServerClient.open();
     }

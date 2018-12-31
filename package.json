@@ -18,6 +18,7 @@
     "test-functional": "node tests/intern.js",
     "test-functional-oauth": "node tests/intern.js --suites=oauth",
     "test-latest": "node tests/intern.js --fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 --fxaContentRoot=https://latest.dev.lcip.org/ --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-latest.dev.lcip.org/ --fxaUntrustedOauthApp=https://321done-latest.dev.lcip.org/ --fxaProduction=true --fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
+    "test-pairing": "node tests/intern.js --fxaAuthRoot=https://pairsona.dev.lcip.org/auth/v1 --fxaContentRoot=https://pairsona.dev.lcip.org/ --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-pairsona.dev.lcip.org/ --fxaUntrustedOauthApp=https://321done-pairsona.dev.lcip.org/ --fxaProduction=true --fxaToken=https://token.dev.lcip.org/1.0/sync/1.5 --firefoxBinary=/Users/vladikoff/mozilla/firefox/gecko/obj-x86_64-apple-darwin17.7.0/dist/Nightly.app/Contents/MacOS/firefox",
     "test-server": "node tests/intern.js --suites=server",
     "test-travis": "node tests/intern.js --suites=travis"
   },
@@ -61,6 +62,7 @@
     "fxa-geodb": "1.0.4",
     "fxa-js-client": "1.0.7",
     "fxa-mustache-loader": "0.0.2",
+    "fxa-pairing-tls": "github:mozilla/fxa-pairing-tls#rebased-record-layer",
     "fxa-shared": "1.0.14",
     "got": "6.7.1",
     "grunt": "1.0.3",

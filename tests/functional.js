@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = [
+  'tests/functional/pairing.js',
   'tests/functional/email_service.js',
   'tests/functional/mailcheck.js',
   'tests/functional/sync_v3_email_first.js',

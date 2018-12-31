@@ -10,6 +10,7 @@ import { Model } from 'backbone';
 import { pick } from 'underscore';
 import hkdf from './crypto/hkdf';
 import Url from 'url';
+import InsecurePairingChannel from './crypto/tlschannel';
 
 const CHANNEL_KEY_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/encryption-key', 'utf8');
 const CONFIRMATION_CODE_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/confirmation-code', 'utf8');
@@ -40,60 +41,84 @@ export default class ChannelServerClient extends Model {
    *
    * @param {String} [channelServerUrl=this.get('channelServerUrl')]
    * @param {String} [channelId=this.get('channelId')]
+   * @param {String} [channelKey=this.get('channelKey')]
    * @returns {Promise} resolves when connected
    */
-  open (channelServerUrl = this.get('channelServerUrl'), channelId = this.get('channelId')) {
+  open (channelServerUrl = this.get('channelServerUrl'), channelId = this.get('channelId'), channelKey = this.get('channelKey')) {
     return new Promise((resolve, reject) => {
-      if (this.socket) {
-        // to avoid opening a duplicate connection, say the client is connected
-        // if a socket exists but isn't yet connected.
-        return reject(ChannelServerClientErrors.toError('ALREADY_CONNECTED'));
+      const code = `${channelId}#${channelKey}`;
+      console.log('tls', InsecurePairingChannel)
+
+      try {
+        InsecurePairingChannel.connect(code).then((channel) => {
+
+          channel.onReceive = msg => {
+            console.log('onReceive', msg);
+          }
+
+          channel.send('wat');
+        }).catch((fail) => {
+          console.log(fail);
+          debugger
+        });
+
+      } catch (e) {
+        console.error(e)
+        alert(e)
+        debugger
       }
 
-      if (! channelServerUrl || ! channelId) {
-        return reject(ChannelServerClientErrors.toError('INVALID_CONFIGURATION'));
-      }
 
-      const socketUrl = this._getSocketUrl(channelServerUrl, channelId);
-      this.socket = this._createSocket(socketUrl);
-
-      this._proxySocketEvents(this.socket);
-
-      /*eslint-disable no-use-before-define*/
-      const close = () => {
-        stopListeningToChannelSetupEvents();
-        reject(ChannelServerClientErrors.toError('COULD_NOT_CONNECT'));
-      };
-
-      const error = () => {
-        stopListeningToChannelSetupEvents();
-        reject(ChannelServerClientErrors.toError('COULD_NOT_CONNECT'));
-      };
-
-      const message = (event) => {
-        stopListeningToChannelSetupEvents();
-
-        this._checkFirstMessageDataValidity(event.data, channelId)
-          .then(() => {
-            this.on('socket:message', (event) => this._encryptedMessageHandler(event));
-
-            this.set('isConnected', true);
-            this.trigger('connected');
-
-            resolve();
-          }, reject);
-      };
-      /*eslint-enable no-use-before-define*/
-
-      const stopListeningToChannelSetupEvents = () => {
-        this.off('socket:close', close);
-        this.off('socket:error', error);
-        this.off('socket:message', message);
-      };
-
-      this.on('socket:close', close);
-      this.on('socket:error', error);
-      this.once('socket:message', message);
+      // if (this.socket) {
+      //   // to avoid opening a duplicate connection, say the client is connected
+      //   // if a socket exists but isn't yet connected.
+      //   return reject(ChannelServerClientErrors.toError('ALREADY_CONNECTED'));
+      // }
+      //
+      // if (! channelServerUrl || ! channelId) {
+      //   return reject(ChannelServerClientErrors.toError('INVALID_CONFIGURATION'));
+      // }
+      //
+      // const socketUrl = this._getSocketUrl(channelServerUrl, channelId);
+      // this.socket = this._createSocket(socketUrl);
+      //
+      // this._proxySocketEvents(this.socket);
+      //
+      // /*eslint-disable no-use-before-define*/
+      // const close = () => {
+      //   stopListeningToChannelSetupEvents();
+      //   reject(ChannelServerClientErrors.toError('COULD_NOT_CONNECT'));
+      // };
+      //
+      // const error = () => {
+      //   stopListeningToChannelSetupEvents();
+      //   reject(ChannelServerClientErrors.toError('COULD_NOT_CONNECT'));
+      // };
+      //
+      // const message = (event) => {
+      //   stopListeningToChannelSetupEvents();
+      //
+      //   this._checkFirstMessageDataValidity(event.data, channelId)
+      //     .then(() => {
+      //       this.on('socket:message', (event) => this._encryptedMessageHandler(event));
+      //
+      //       this.set('isConnected', true);
+      //       this.trigger('connected');
+      //
+      //       resolve();
+      //     }, reject);
+      // };
+      // /*eslint-enable no-use-before-define*/
+      //
+      // const stopListeningToChannelSetupEvents = () => {
+      //   this.off('socket:close', close);
+      //   this.off('socket:error', error);
+      //   this.off('socket:message', message);
+      // };
+      //
+      // this.on('socket:close', close);
+      // this.on('socket:error', error);
+      // this.once('socket:message', message);
     });
   }
 

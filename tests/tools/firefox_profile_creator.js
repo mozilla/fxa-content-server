@@ -63,6 +63,13 @@ if (profile) {
   myProfile.setPreference('experiments.manifest.uri', '');
   myProfile.setPreference('network.allow-experiments', false);
 
+  myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
+  myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));
+  myProfile.setPreference('identity.fxaccounts.remote.oauth.uri', profile.fxaOAuthRoot);
+  myProfile.setPreference('identity.fxaccounts.remote.profile.uri', profile.fxaAuthRoot);
+  //myProfile.setPreference('identity.fxaccounts.remote.root', 'https://pairsona.dev.lcip.org/');
+  myProfile.setPreference('identity.fxaccounts.remote.root', 'http://127.0.0.1:3030/');
+  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', 'http://127.0.0.1:3030/');
 
   myProfile.updatePreferences();
 
