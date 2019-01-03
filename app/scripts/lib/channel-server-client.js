@@ -17,7 +17,7 @@ const CONFIRMATION_CODE_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/
 
 const CONFIRMATION_CODE_LENGTH = 4;
 
-
+let channelX;
 /**
  * Connects to the channel server. Expects the following
  * attributes to be passed into the constructor:
@@ -51,10 +51,31 @@ export default class ChannelServerClient extends Model {
       try {
         InsecurePairingChannel.connect(code).then((channel) => {
 
-          channel.onReceive = msg => {
-            console.log('onReceive', msg);
+          channel.onReceive = (message, sender) => {
+            const envelope = {
+              message,
+              sender
+            };
+            this.set('isConnected', true);
+            this.trigger('connected');
+            //this.trigger(`remote:${message}`, data);
+            try {
+              this._messageHandler(envelope);
+            } catch (e) {
+              console.log('messageHandler', e);
+            }
+            //
+            // this.trigger('remote:pair:auth:metadata', {
+            //   remoteMetaData: {
+            //     city: 'wat',
+            //     country: 'wat',
+            //     ipAddress: '1.1.1.1',
+            //     region: 'UK',
+            //     ua: 'FoxFire 1.0'
+            //   }
+            // });
           };
-
+          channelX = channel;
           channel.send('wat');
         }).catch((fail) => {
           console.log(fail);
@@ -97,7 +118,7 @@ export default class ChannelServerClient extends Model {
       //
       //   this._checkFirstMessageDataValidity(event.data, channelId)
       //     .then(() => {
-      //       this.on('socket:message', (event) => this._encryptedMessageHandler(event));
+      //       this.on('socket:message', (event) => this._messageHandler(event));
       //
       //       this.set('isConnected', true);
       //       this.trigger('connected');
@@ -163,7 +184,7 @@ export default class ChannelServerClient extends Model {
    * @returns {Promise} resolves when complete
    */
   send (message, data = {}) {
-    if (! this.socket || ! this.get('isConnected')) {
+    if (! this.get('isConnected')) {
       return Promise.reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
     }
 
@@ -172,10 +193,7 @@ export default class ChannelServerClient extends Model {
       message,
     };
 
-    return this._encrypt(envelope)
-      .then(ciphertext => {
-        this.socket.send(ciphertext);
-      });
+    channelX.send(envelope);
   }
 
   /**
@@ -288,9 +306,11 @@ export default class ChannelServerClient extends Model {
    *   decrypt the message.
    * @private
    */
-  _encryptedMessageHandler (event) {
-    return this._decryptAndParseMessageEvent(event)
+  _messageHandler (event) {
+    console.log('_messageHandler', event);
+    return this._parseMessageEvent(event)
       .then(({ data, message }) => {
+        console.log('this.trigger', `remote:${message}`, data);
         this.trigger(`remote:${message}`, data);
       })
       .catch(err => this.trigger('error', err));
@@ -302,31 +322,30 @@ export default class ChannelServerClient extends Model {
    * @param {Event} event
    * @returns {Promise}
    */
-  _decryptAndParseMessageEvent (event) {
-    return Promise.resolve().then(() => {
-      const { message: ciphertext, sender } = JSON.parse(event.data);
-      return this._decrypt(ciphertext).then(decrypted => {
-        const { data = {}, message } = decrypted;
+  _parseMessageEvent (event) {
+    let envelope = null;
+    try {
+      envelope = JSON.parse(event);
+    } catch (e) {
+      throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
+    }
 
-        if (! message) {
-          throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
-        }
+    if (envelope) {
+      const sender = envelope.sender;
+      const { data = {}, message } = envelope.message;
 
-        data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
-        data.remoteMetaData.ipAddress = sender.remote;
-
-        return {
-          data,
-          message,
-        };
-      });
-    }).catch(err => {
-      if (/JSON.parse/.test(err.message)) {
+      if (! message) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
       }
-      throw err;
-    });
 
+      data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
+      data.remoteMetaData.ipAddress = sender.remote;
+
+      return {
+        data,
+        message,
+      };
+    }
   }
 
   /**

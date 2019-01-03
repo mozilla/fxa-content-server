@@ -13,6 +13,6 @@ export default function setRemoteMetaData(remoteMetaData) {
     family: userAgent.browser.name,
   });
 
-  this.set({ remoteMetaData: remoteMetaDataWithOSInfo });
+  this.set({remoteMetaData: remoteMetaDataWithOSInfo});
 }
 

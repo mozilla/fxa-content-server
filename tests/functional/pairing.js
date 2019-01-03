@@ -61,6 +61,7 @@ registerSuite('pairing', {
         .then(openPage('about:preferences#sync', '#beginPairing'))
         .then(click('#beginPairing'))
 
+        .sleep(30 * 91000)
         .sleep(1000)
         .getAlertText()
         .then((alert) => {
