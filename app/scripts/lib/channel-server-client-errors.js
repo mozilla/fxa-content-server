@@ -38,7 +38,7 @@ export default assign({}, Errors, {
     },
     CHANNEL_ID_MISMATCH: {
       errno: 1005,
-      message: t('Error connecting to remote device')
+      message: t('Error pairing to remote device')
     },
     COULD_NOT_DECRYPT: {
       errno: 1006,
