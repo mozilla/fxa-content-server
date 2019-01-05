@@ -10,12 +10,25 @@ import { Model } from 'backbone';
 import { pick } from 'underscore';
 import hkdf from './crypto/hkdf';
 import Url from 'url';
-import InsecurePairingChannel from './crypto/tlschannel';
 
 const CHANNEL_KEY_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/encryption-key', 'utf8');
 const CONFIRMATION_CODE_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/confirmation-code', 'utf8');
 
 const CONFIRMATION_CODE_LENGTH = 4;
+
+function hexToBytes(hexstr) {
+  return new Uint8Array(Array.prototype.map.call(hexstr, (c, n) => {
+    if (n % 2 === 1) {
+      return hexstr[n - 1] + c;
+    } else {
+      return '';
+    }
+  }).filter(s => {
+    return !! s;
+  }).map(s => {
+    return parseInt(s, 16);
+  }));
+}
 
 let channelX;
 /**
@@ -48,43 +61,44 @@ export default class ChannelServerClient extends Model {
     return new Promise((resolve, reject) => {
       const code = `${channelId}#${channelKey}`;
 
-      try {
-        InsecurePairingChannel.connect(code).then((channel) => {
+      return import(/* webpackChunkName: "fxaPairingTls" */ 'fxaPairingTls').then((fxaPairingTLS) => {
+        try {
+          console.log(fxaPairingTLS)
+          const InsecurePairingChannel = fxaPairingTLS.InsecurePairingChannel;
 
-          channel.onReceive = (message, sender) => {
-            const envelope = {
-              message,
-              sender
-            };
+          const CHANNEL_SERVER = 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net/v1/ws/';
+          const channelServerUri = CHANNEL_SERVER + channelId;
+          const psk = hexToBytes(channelKey);
+          InsecurePairingChannel.connect(channelServerUri, psk).then((channel) => {
+            console.log(channel)
+
+            channelX = channel;
             this.set('isConnected', true);
             this.trigger('connected');
-            //this.trigger(`remote:${message}`, data);
-            try {
-              this._messageHandler(envelope);
-            } catch (e) {
-              console.log('messageHandler', e);
-            }
-            //
-            // this.trigger('remote:pair:auth:metadata', {
-            //   remoteMetaData: {
-            //     city: 'wat',
-            //     country: 'wat',
-            //     ipAddress: '1.1.1.1',
-            //     region: 'UK',
-            //     ua: 'FoxFire 1.0'
-            //   }
-            // });
-          };
-          channelX = channel;
-          channel.send('wat');
-        }).catch((fail) => {
-          console.log(fail);
-        });
 
-      } catch (e) {
-        console.error(e);
-        alert(e);
-      }
+
+            channel.addEventListener('message', (event) => {
+              console.log('evy', event);
+
+
+              //this.trigger(`remote:${message}`, data);
+              try {
+                this._messageHandler(event);
+              } catch (e) {
+                console.log('messageHandler', e);
+              }
+            });
+
+          }).catch((fail) => {
+            console.log('fail', fail);
+          });
+
+        } catch (e) {
+          console.error(e);
+          alert(e);
+        }
+
+      });
 
 
       // if (this.socket) {
@@ -188,12 +202,8 @@ export default class ChannelServerClient extends Model {
       return Promise.reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
     }
 
-    const envelope = {
-      data,
-      message,
-    };
-
-    channelX.send(envelope);
+    console.log('sending..', message, data)
+    channelX.send(message, data);
   }
 
   /**
@@ -302,37 +312,14 @@ export default class ChannelServerClient extends Model {
    * parsing or decrypting the message.
    *
    * @param {Object} event
-   * @returns {Promise} resolves when complete, rejects if unable to parse or
-   *   decrypt the message.
+   * @returns null
    * @private
    */
   _messageHandler (event) {
     console.log('_messageHandler', event);
-    return this._parseMessageEvent(event)
-      .then(({ data, message }) => {
-        console.log('this.trigger', `remote:${message}`, data);
-        this.trigger(`remote:${message}`, data);
-      })
-      .catch(err => this.trigger('error', err));
-  }
-
-  /**
-   * Parse an event that contains an encrypted message.
-   *
-   * @param {Event} event
-   * @returns {Promise}
-   */
-  _parseMessageEvent (event) {
-    let envelope = null;
     try {
-      envelope = JSON.parse(event);
-    } catch (e) {
-      throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
-    }
 
-    if (envelope) {
-      const sender = envelope.sender;
-      const { data = {}, message } = envelope.message;
+      const { data = {}, message, sender } = event;
 
       if (! message) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
@@ -341,12 +328,16 @@ export default class ChannelServerClient extends Model {
       data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
       data.remoteMetaData.ipAddress = sender.remote;
 
-      return {
-        data,
-        message,
-      };
+
+      console.log('this.trigger', `remote:${message}`, data);
+      this.trigger(`remote:${message}`, data);
+
+    } catch (err) {
+      this.trigger('error', err);
     }
+
   }
+
 
   /**
    * Decrypt `ciphertext` using the stored JWK

@@ -55,6 +55,7 @@ if (profile) {
   myProfile.setPreference('experiments.supported', false);
   myProfile.setPreference('experiments.manifest.uri', '');
   myProfile.setPreference('network.allow-experiments', false);
+  myProfile.setPreference('identity.fxaccounts.allowHttp', true);
 
   myProfile.setPreference('identity.fxaccounts.pairing.enabled', true);
   myProfile.setPreference('webchannel.allowObject.urlWhitelist', profile.fxaContentRoot.slice(0, -1));

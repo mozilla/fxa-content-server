@@ -15,11 +15,10 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
   initialize (options) {
     super.initialize(options);
 
-    const {  notifier } = options;
+    const { notifier } = options;
 
     this.stateMachine = new AuthorityStateMachine({}, {
       broker: this,
-      //channelServerClient: this.channelServerClient,
       notifier,
       relier: this.relier
     });
