@@ -1355,7 +1355,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -2788,7 +2788,7 @@
     },
     "concat-stream": {
       "version": "1.6.2",
-      "resolved": "https://registry.npmjs.org/concat-stream/-/concat-stream-1.6.2.tgz",
+      "resolved": "http://registry.npmjs.org/concat-stream/-/concat-stream-1.6.2.tgz",
       "integrity": "sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==",
       "requires": {
         "buffer-from": "^1.0.0",
@@ -5994,8 +5994,8 @@
       }
     },
     "fxa-pairing-tls": {
-      "version": "github:mozilla/fxa-pairing-tls#c0963e62311474ccba06c2f21900036420d41713",
-      "from": "github:mozilla/fxa-pairing-tls#rebased-record-layer",
+      "version": "github:mozilla/fxa-pairing-tls#c39153625318df52d443da901dafb9faf91c6107",
+      "from": "github:mozilla/fxa-pairing-tls#pairing-channel-api",
       "requires": {
         "@babel/runtime": "^7.2.0"
       }
@@ -6754,7 +6754,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -6787,7 +6787,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -6821,7 +6821,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -6860,7 +6860,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -6908,7 +6908,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=",
           "dev": true
         }
@@ -7093,7 +7093,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=",
           "dev": true
         }
@@ -7139,7 +7139,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -7827,7 +7827,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -8905,7 +8905,7 @@
       }
     },
     "legal-docs": {
-      "version": "git://github.com/mozilla/legal-docs.git#a0304f8caafed05b30b2ada58733ffd065397143",
+      "version": "git://github.com/mozilla/legal-docs.git#7620b391f9473d41a70f2c9226469073025fc6fe",
       "from": "git://github.com/mozilla/legal-docs.git#master"
     },
     "levn": {
@@ -9361,7 +9361,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }
@@ -9744,7 +9744,7 @@
     },
     "multimatch": {
       "version": "2.1.0",
-      "resolved": "https://registry.npmjs.org/multimatch/-/multimatch-2.1.0.tgz",
+      "resolved": "http://registry.npmjs.org/multimatch/-/multimatch-2.1.0.tgz",
       "integrity": "sha1-nHkGoi+0wCkZ4vX3UWG0zb1LKis=",
       "requires": {
         "array-differ": "^1.0.0",
@@ -10094,7 +10094,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         },
         "tough-cookie": {
@@ -12148,7 +12148,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc=",
           "dev": true
         },
@@ -13007,7 +13007,7 @@
         },
         "supports-color": {
           "version": "2.0.0",
-          "resolved": "https://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
+          "resolved": "http://registry.npmjs.org/supports-color/-/supports-color-2.0.0.tgz",
           "integrity": "sha1-U10EXOa2Nj+kARcIRimZXp3zJMc="
         }
       }

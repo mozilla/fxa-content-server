@@ -62,7 +62,7 @@
     "fxa-geodb": "1.0.4",
     "fxa-js-client": "1.0.7",
     "fxa-mustache-loader": "0.0.2",
-    "fxa-pairing-tls": "github:mozilla/fxa-pairing-tls#rebased-record-layer",
+    "fxa-pairing-tls": "github:mozilla/fxa-pairing-tls#pairing-channel-api",
     "fxa-shared": "1.0.14",
     "got": "6.7.1",
     "grunt": "1.0.3",
