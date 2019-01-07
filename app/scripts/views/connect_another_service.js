@@ -76,18 +76,13 @@ const View = BaseView.extend({
   },
 
   _filterServices() {
-    const {
-      isFirefoxAndroid,
-      isFirefoxIos,
-      isOtherAndroid,
-      isOtherIos,
-    } = this.getContext();
+    const userAgent = this.getUserAgent();
 
     const supportedServices = SERVICES.filter((service) => {
-      if (service.links.android && (isFirefoxAndroid || isOtherAndroid)) {
+      if (service.links.android && (userAgent.isFirefoxAndroid() || userAgent.isAndroid())) {
         service.link = service.links.android;
         return service;
-      } else if (service.links.ios && (isFirefoxIos || isOtherIos)) {
+      } else if (service.links.ios && (userAgent.isFirefoxIos() || userAgent.isIos())) {
         service.link = service.links.ios;
         return service;
       } else if (service.links.website) {

@@ -13,7 +13,7 @@ module.exports = class ConnectAnotherServiceGroupingRule extends BaseGroupingRul
   constructor() {
     super();
     this.name = 'connectAnotherService';
-    this.ROLLOUT_RATE = 0.0;
+    this.ROLLOUT_RATE = 1.0;
   }
 
   choose(subject = {}) {
