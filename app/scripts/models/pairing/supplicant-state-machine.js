@@ -68,7 +68,6 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
 function onAuthAuthorize (NextState, result) {
   return Promise.resolve().then(() => {
     this.relier.validateApprovalData(result);
-
     const { code } = result;
     this.relier.set({ code });
 

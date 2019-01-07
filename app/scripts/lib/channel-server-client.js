@@ -61,6 +61,12 @@ export default class ChannelServerClient extends Model {
               }
             });
 
+
+            channel.addEventListener('error', (event) => {
+              console.log('error', event);
+
+            });
+
           }).catch((fail) => {
             console.log('fail', fail);
           });
@@ -236,8 +242,8 @@ export default class ChannelServerClient extends Model {
   _messageHandler (event) {
     console.log('_messageHandler', event);
     try {
-
-      const { data = {}, message, sender } = event;
+      const { data: payload, sender } = event.detail;
+      const { data = {}, message} = payload;
 
       if (! message) {
         throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
@@ -245,7 +251,6 @@ export default class ChannelServerClient extends Model {
 
       data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
       data.remoteMetaData.ipAddress = sender.remote;
-
 
       console.log('this.trigger', `remote:${message}`, data);
       this.trigger(`remote:${message}`, data);
