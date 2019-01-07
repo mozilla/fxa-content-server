@@ -2,11 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import a256gcm from 'lib/crypto/a256gcm';
 import { assert } from 'chai';
 import base64url from 'base64url';
 import ChannelServerClient from 'lib/channel-server-client';
-import { DEVICE_PAIRING_CHANNEL_KEY_BYTES } from 'lib/constants';
 import sinon from 'sinon';
 import { wrapAssertion } from '../../lib/helpers';
 import ChannelServerClientErrors from '../../../scripts/lib/channel-server-client-errors';
@@ -27,58 +25,6 @@ describe('lib/channel-server-client', () => {
 
   afterEach(() => {
     sandbox.restore();
-  });
-
-  describe('_deriveEncryptionKey', () => {
-    it('resolves to the encryption key', () => {
-      const channelKeyBuffer = Buffer.from('channel key', 'utf8');
-      const channelIdBuffer = Buffer.from('channel id', 'utf8');
-      return client._deriveEncryptionKey(channelKeyBuffer, channelIdBuffer)
-        .then(keyBuffer => {
-          assert.lengthOf(keyBuffer, DEVICE_PAIRING_CHANNEL_KEY_BYTES);
-          // python snippet to generate result:
-          // >>> from tokenlib.utils import HKDF
-          // >>> HKDF("channel key", "channel id", "identity.mozilla.com/picl/v1/pair/encryption-key", 32).encode('hex')
-          // '0d91a09d8e04f34cdd3045026eb98d96c3e999908f58956fdba6a39b685472f8'
-          assert.equal(keyBuffer.toString('hex'), '0d91a09d8e04f34cdd3045026eb98d96c3e999908f58956fdba6a39b685472f8');
-        });
-    });
-  });
-
-  describe('_deriveChannelJwk', () => {
-    it('creates a Jwk', () => {
-      const channelKeyBuffer = Buffer.from('channel key', 'utf8');
-      const channelIdBuffer = Buffer.from('channel id', 'utf8');
-      return Promise.all([
-        client._deriveChannelJwk(channelKeyBuffer, channelIdBuffer),
-        client._deriveEncryptionKey(channelKeyBuffer, channelIdBuffer),
-      ]).then(([jwk, expectedKeyBuffer
-      ]) => {
-        assert.equal(jwk.length, 256);
-
-        const jwkObj = jwk.toObject(true);
-        assert.equal(jwkObj.alg, 'A256GCM');
-        assert.equal(jwkObj.kty, 'oct');
-        assert.equal(jwkObj.k.toString('hex'), expectedKeyBuffer.toString('hex'));
-        assert.ok(jwk.kid);
-      });
-    });
-  });
-
-  describe('_deriveConfirmationCode', () => {
-    it('returns an 8 character confirmation code', () => {
-      const channelKeyBuffer = Buffer.from('channel key', 'utf8');
-      const channelIdBuffer = Buffer.from('channel id', 'utf8');
-      return client._deriveConfirmationCode(channelKeyBuffer, channelIdBuffer)
-        .then(confirmationCode => {
-          assert.lengthOf(confirmationCode, 8);
-          // python snippet to generate result:
-          // >>> from tokenlib.utils import HKDF
-          // >>> HKDF("channel key", "channel id", "identity.mozilla.com/picl/v1/pair/confirmation-code", 4).encode('hex')
-          // 'd45a83f6'
-          assert.equal(confirmationCode, 'd45a83f6');
-        });
-    });
   });
 
   describe('_getChannelJwk', () => {
@@ -115,72 +61,6 @@ describe('lib/channel-server-client', () => {
         assert.strictEqual(channelJwk, firstJwk);
         assert.isTrue(client._deriveChannelJwk.calledOnce);
       });
-    });
-  });
-
-  describe('_encrypt', () => {
-    const envelope = {
-      key: 'value'
-    };
-
-    beforeEach(() => {
-      sandbox.stub(client, '_getChannelJwk').callsFake(() => Promise.resolve('jwk'));
-      sandbox.stub(a256gcm, 'encrypt').callsFake(() => 'encrypted text');
-    });
-
-    it('encrypts', () => {
-      return client._encrypt(envelope)
-        .then(ciphertext => {
-          assert.equal(ciphertext, 'encrypted text');
-          assert.isTrue(client._getChannelJwk.calledOnce);
-          assert.isTrue(a256gcm.encrypt.calledOnceWith(JSON.stringify(envelope), 'jwk'));
-        });
-    });
-  });
-
-  describe('_decrypt', () => {
-    const envelope = {
-      key: 'value'
-    };
-
-
-    beforeEach(() => {
-      sandbox.stub(client, '_getChannelJwk').callsFake(() => Promise.resolve('jwk'));
-    });
-
-    it('decrypts', () => {
-      sandbox.stub(a256gcm, 'decrypt').callsFake(() => JSON.stringify(envelope));
-
-      return client._decrypt('ciphertext')
-        .then(result => {
-          assert.deepEqual(result, envelope);
-          assert.isTrue(client._getChannelJwk.calledOnce);
-          assert.isTrue(a256gcm.decrypt.calledOnceWith('ciphertext', 'jwk'));
-        });
-    });
-
-    it('converts JOSE errors to an internal error', () => {
-      sandbox.stub(a256gcm, 'decrypt').callsFake(() => Promise.reject(new Error('uh oh')));
-      return client._decrypt('ciphertext')
-        .catch(err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_MESSAGE'));
-        });
-    });
-  });
-
-  describe('_encrypt/_decrypt round trip', () => {
-    const envelope = {
-      key: 'value'
-    };
-
-    it('encrypts, then decrypts', () => {
-      return client._encrypt(envelope)
-        .then(ciphertext => {
-          assert.ok(ciphertext);
-          return client._decrypt(ciphertext);
-        }).then(result => {
-          assert.deepEqual(result, envelope);
-        });
     });
   });
 

@@ -6003,7 +6003,7 @@
       }
     },
     "fxa-pairing-tls": {
-      "version": "github:mozilla/fxa-pairing-tls#5c58f42b06df8cb81dfbf96be6a9e1f1634ee417",
+      "version": "github:mozilla/fxa-pairing-tls#bbb02d1ebc82f628d0f9fde41c1ca81d82d93fce",
       "from": "github:mozilla/fxa-pairing-tls#pairing-channel-api",
       "requires": {
         "@babel/runtime": "^7.2.0"

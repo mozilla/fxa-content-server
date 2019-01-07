@@ -2,33 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import a256gcm from './crypto/a256gcm';
-import base64url from 'base64url';
 import ChannelServerClientErrors from './channel-server-client-errors';
-import { DEVICE_PAIRING_CHANNEL_KEY_BYTES } from './constants';
 import { Model } from 'backbone';
 import { pick } from 'underscore';
-import hkdf from './crypto/hkdf';
-import Url from 'url';
-
-const CHANNEL_KEY_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/encryption-key', 'utf8');
-const CONFIRMATION_CODE_INFO_BUFFER = Buffer.from('identity.mozilla.com/picl/v1/pair/confirmation-code', 'utf8');
-
-const CONFIRMATION_CODE_LENGTH = 4;
-
-function hexToBytes(hexstr) {
-  return new Uint8Array(Array.prototype.map.call(hexstr, (c, n) => {
-    if (n % 2 === 1) {
-      return hexstr[n - 1] + c;
-    } else {
-      return '';
-    }
-  }).filter(s => {
-    return !! s;
-  }).map(s => {
-    return parseInt(s, 16);
-  }));
-}
+import { hexToBytes} from './crypto/util';
 
 let channelX;
 /**
@@ -59,17 +36,14 @@ export default class ChannelServerClient extends Model {
    */
   open (channelServerUrl = this.get('channelServerUrl'), channelId = this.get('channelId'), channelKey = this.get('channelKey')) {
     return new Promise((resolve, reject) => {
-      const code = `${channelId}#${channelKey}`;
-
       return import(/* webpackChunkName: "fxaPairingTls" */ 'fxaPairingTls').then((fxaPairingTLS) => {
         try {
           console.log(fxaPairingTLS)
           const InsecurePairingChannel = fxaPairingTLS.InsecurePairingChannel;
 
-          const CHANNEL_SERVER = 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net/v1/ws/';
-          const channelServerUri = CHANNEL_SERVER + channelId;
+          const CHANNEL_SERVER = 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net';
           const psk = hexToBytes(channelKey);
-          InsecurePairingChannel.connect(channelServerUri, psk).then((channel) => {
+          InsecurePairingChannel.connect(CHANNEL_SERVER, channelId, psk).then((channel) => {
             console.log(channel)
 
             channelX = channel;
@@ -80,8 +54,6 @@ export default class ChannelServerClient extends Model {
             channel.addEventListener('message', (event) => {
               console.log('evy', event);
 
-
-              //this.trigger(`remote:${message}`, data);
               try {
                 this._messageHandler(event);
               } catch (e) {
@@ -202,67 +174,13 @@ export default class ChannelServerClient extends Model {
       return Promise.reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
     }
 
-    console.log('sending..', message, data)
-    channelX.send(message, data);
-  }
+    const env = {
+      data,
+      message
+    };
 
-  /**
-   * Get the WebSocket URL for `channelServerUrl` and `channelId`
-   *
-   * @param {String} channelServerUrl
-   * @param {String} channelId
-   * @returns {String}
-   */
-  _getSocketUrl (channelServerUrl, channelId = '') {
-    // The legacy Url.parse/Url.format combo is used instead of
-    // new Url because `new Url` doesn't parse wss:// URLs correctly
-    const url = Url.parse(channelServerUrl);
-    const pathnameWithoutTrailingSlash = (url.pathname || '').replace(/\/$/, '');
-    url.pathname = `${pathnameWithoutTrailingSlash}/${channelId}`;
-    return Url.format(url);
-  }
-
-  /**
-   * Check the first message event's data to ensure it is valid
-   * and contains the expected channelID.
-   *
-   * @param {String} data - data that came from the first message event
-   * @param {String} expectedChannelId - if undefined, allows any channelId
-   * @returns {Promise} resolves if valid, rejects with an error if not.
-   */
-  _checkFirstMessageDataValidity (data, expectedChannelId) {
-    return Promise.resolve().then(() => {
-      const { link } = JSON.parse(data);
-      if (! link) {
-        throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
-      }
-
-      /*const match = /^\/v1\/ws\/([0-9a-z]{32,32})$/.exec(link);
-      if (! match) {
-        throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
-      }
-
-      if (expectedChannelId && match[1] !== expectedChannelId) {
-        throw ChannelServerClientErrors.toError('CHANNEL_ID_MISMATCH');
-      }*/
-    }).catch(err => {
-      if (/JSON.parse/.test(err.message)) {
-        throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
-      }
-
-      throw err;
-    });
-  }
-
-  /**
-   * Create a WebSocket to `url`
-   *
-   * @param {String} url
-   * @returns {WebSocket}
-   * @private
-   */
-  _createSocket (url) {
-    return new WebSocket(url);
+    console.log('sending..', env)
+    channelX.send(env);
   }
 
   /**
@@ -337,103 +255,4 @@ export default class ChannelServerClient extends Model {
     }
 
   }
-
-
-  /**
-   * Decrypt `ciphertext` using the stored JWK
-   *
-   * @param {String} ciphertext
-   * @returns {Promise} resolves to an object when complete
-   * @private
-   */
-  _decrypt (ciphertext) {
-    return this._getChannelJwk()
-      .then(key => a256gcm.decrypt(ciphertext, key))
-      .then(result => JSON.parse(result))
-      .catch(err => ChannelServerClientErrors.toError('COULD_NOT_DECRYPT'));
-  }
-
-  /**
-   * Encrypt `envelope` using the stored JWK
-   *
-   * @param {Object} envelope
-   * @returns {Promise} Resolves to a string when complete
-   * @private
-   */
-  _encrypt (envelope) {
-    return this._getChannelJwk()
-      .then(key => a256gcm.encrypt(JSON.stringify(envelope), key));
-  }
-
-  /**
-   * Get the encryption/decryption JWK for the channel
-   *
-   * @returns {Promise} resolves to the JWK when complete
-   * @private
-   */
-  _getChannelJwk () {
-    const { channelId, channelJwk, channelKey } = this.toJSON();
-    if (channelJwk) {
-      return Promise.resolve(channelJwk);
-    }
-
-    const channelKeyBuffer = base64url.toBuffer(channelKey);
-    // The channelId is hex, but the browser uses it as a utf8 string
-    // so we do too so that we end up with the same encryption key.
-    // TODO: REMOVE? const channelIdBuffer = Buffer.from(channelId, 'utf8');
-    const channelIdBuffer = base64url.toBuffer(channelId);//Buffer.from(channelId, 'utf8');
-
-    return Promise.all([
-      this._deriveChannelJwk(channelKeyBuffer, channelIdBuffer),
-      this._deriveConfirmationCode(channelKeyBuffer, channelIdBuffer),
-    ]).then(([channelJwk, confirmationCode]) => {
-      this.set({
-        channelJwk,
-        confirmationCode,
-      });
-      return channelJwk;
-    });
-  }
-
-  /**
-   * Use `channelKeyBuffer` and `channelIdBuffer` to derive
-   * the encryption/decryption JWK for the channel
-   *
-   * @param {Buffer} channelKeyBuffer
-   * @param {Buffer} channelIdBuffer
-   * @returns {Promise} resolves to the JWK when complete
-   * @private
-   */
-  _deriveChannelJwk(channelKeyBuffer, channelIdBuffer) {
-    return this._deriveEncryptionKey(channelKeyBuffer, channelIdBuffer)
-      .then(keyBuffer => a256gcm.createJwkFromKey(keyBuffer));
-  }
-
-  /**
-   * Use `channelKeyBuffer` and `channelIdBuffer` to derive
-   * the encryption key.
-   *
-   * @param {Buffer} channelKeyBuffer
-   * @param {Buffer} channelIdBuffer
-   * @returns {Promise} resolves to a Buffer containing the encryption key
-   * @private
-   */
-  _deriveEncryptionKey(channelKeyBuffer, channelIdBuffer) {
-    return hkdf(channelKeyBuffer, channelIdBuffer, CHANNEL_KEY_INFO_BUFFER, DEVICE_PAIRING_CHANNEL_KEY_BYTES);
-  }
-
-  /**
-   * Use `channelKeyBuffer` and `channelIdBuffer` to derive the
-   * channel confirmation code.
-   *
-   * @param {Buffer} channelKeyBuffer
-   * @param {Buffer} channelIdBuffer
-   * @returns {Promise} resolves to an 8 character String containing the confirmation code
-   * @private
-   */
-  _deriveConfirmationCode(channelKeyBuffer, channelIdBuffer) {
-    return hkdf(channelKeyBuffer, channelIdBuffer, CONFIRMATION_CODE_INFO_BUFFER, CONFIRMATION_CODE_LENGTH)
-      .then(confirmationCodeBuffer => confirmationCodeBuffer.toString('hex'));
-  }
-
 }
