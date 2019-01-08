@@ -25,25 +25,26 @@ describe('models/reliers/oauth', () => {
   var user;
   var windowMock;
 
-  var ACCESS_TYPE = 'offline';
-  var ACTION = 'email';
-  var CLIENT_ID = 'dcdb5ae7add825d2';
-  var CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
-  var PROMPT = Constants.OAUTH_PROMPT_CONSENT;
-  var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-  var SCOPE = 'profile:email profile:uid';
-  var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
-  var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
-  var PERMISSIONS = ['profile:email', 'profile:uid'];
-  var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
-  var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
-  var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
-  var SERVICE = 'service';
-  var SERVICE_NAME = '123Done';
-  var STATE = 'fakestatetoken';
-  var CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
-  var CODE_CHALLENGE_METHOD = 'S256';
   const ACR_VALUES = 'AAL1';
+  const ENTRYPOINT = 'ENTRYPOINT';
+  const ACCESS_TYPE = 'offline';
+  const ACTION = 'email';
+  const CLIENT_ID = 'dcdb5ae7add825d2';
+  const CLIENT_IMAGE_URI = 'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
+  const CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
+  const CODE_CHALLENGE_METHOD = 'S256';
+  const PERMISSIONS = ['profile:email', 'profile:uid'];
+  const PROMPT = Constants.OAUTH_PROMPT_CONSENT;
+  const QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+  const SCOPE = 'profile:email profile:uid';
+  const SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
+  const SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(' ');
+  const SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
+  const SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
+  const SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+  const SERVICE = 'service';
+  const SERVICE_NAME = '123Done';
+  const STATE = 'fakestatetoken';
 
   var RESUME_INFO = {
     access_type: ACCESS_TYPE,
@@ -81,6 +82,7 @@ describe('models/reliers/oauth', () => {
           client_id: CLIENT_ID,
           code_challenge: CODE_CHALLENGE,
           code_challenge_method: CODE_CHALLENGE_METHOD,
+          entrypoint: ENTRYPOINT,
           prompt: PROMPT,
           redirect_uri: QUERY_REDIRECT_URI,
           scope: SCOPE,
@@ -95,6 +97,8 @@ describe('models/reliers/oauth', () => {
             assert.equal(relier.get('action'), ACTION);
 
             assert.equal(relier.get('prompt'), PROMPT);
+
+            assert.equal(relier.get('entrypoint'), ENTRYPOINT);
 
             // service will be the client_id in the signin/up flow
             assert.equal(relier.get('service'), CLIENT_ID);
@@ -113,6 +117,19 @@ describe('models/reliers/oauth', () => {
             assert.equal(relier.get('codeChallengeMethod'), CODE_CHALLENGE_METHOD);
 
             assert.equal(relier.get('acrValues'), ACR_VALUES);
+          });
+      });
+
+      it('populates missing entrypoint with client_id', () => {
+        windowMock.location.search = TestHelpers.toSearchString({
+          client_id: CLIENT_ID,
+          scope: SCOPE,
+          state: STATE
+        });
+
+        return relier.fetch()
+          .then(() => {
+            assert.equal(relier.get('entrypoint'), CLIENT_ID);
           });
       });
 
@@ -204,6 +221,7 @@ describe('models/reliers/oauth', () => {
         return relier.fetch()
           .then(() => {
             assert.equal(relier.get('clientId'), CLIENT_ID);
+            assert.equal(relier.get('entrypoint'), CLIENT_ID);
             assert.equal(relier.get('service'), CLIENT_ID);
           });
       });

@@ -93,6 +93,13 @@ var OAuthRelier = Relier.extend({
           this._setupSignInSignUpFlow();
         }
 
+        // A lot of OAuth clients do not specify an entrypoint, which makes
+        // keeping track of where users are signing up from more difficult than
+        // need be. If no entrypoint is specified, use the client_id. See #6757
+        if (! this.has('entrypoint')) {
+          this.set('entrypoint', this.get('clientId'));
+        }
+
         if (! this.has('service')) {
           this.set('service', this.get('clientId'));
         }
