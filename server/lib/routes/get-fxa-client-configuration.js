@@ -34,7 +34,6 @@ module.exports = function (config) {
     // a /v1 suffix, but Firefox client code expects it without.
     auth_server_base_url: stripV1Suffix(normalizeUrl(config.get('fxaccount_url'))),
     oauth_server_base_url: normalizeUrl(config.get('oauth_url')),
-    // TODO: Rename this to URL ???
     pairing_server_base_uri: normalizeUrl(getOrigin(config.get('device_pairing.channel_server_url'))),
     profile_server_base_url: normalizeUrl(config.get('profile_url')),
     sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url'))
