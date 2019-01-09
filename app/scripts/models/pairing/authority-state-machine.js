@@ -35,7 +35,6 @@ class WaitForSupplicantAuthorize extends State {
     super(...args);
 
     this.navigate('/pair/auth/wait_for_supp');
-
     this.listenTo(this.notifier, 'pair:supp:authorize', this.gotoComplete);
   }
 

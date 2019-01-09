@@ -52,9 +52,10 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.channelServerClient.send('pair:supp:request', this.relier.getPKCEParams());
+    this.channelServerClient.send('pair:supp:request', this.relier.getPKCEParams()).then(() => {
+      this.listenTo(this.channelServerClient, 'remote:pair:auth:metadata', this.gotoWaitForApprovals);
+    });
 
-    this.listenTo(this.channelServerClient, 'remote:pair:auth:metadata', this.gotoWaitForApprovals);
   }
 
   gotoWaitForApprovals (data) {
@@ -95,8 +96,9 @@ class WaitForAuthorizations extends SupplicantState {
   onAuthorityAuthorize = onAuthAuthorize.bind(this, WaitForSupplicantAuthorize);
 
   onSupplicantAuthorize () {
-    this.channelServerClient.send('pair:supp:authorize');
-    this.gotoState(WaitForAuthorityAuthorize);
+    this.channelServerClient.send('pair:supp:authorize').then(() => {
+      this.gotoState(WaitForAuthorityAuthorize);
+    });
   }
 }
 
@@ -110,8 +112,10 @@ class WaitForSupplicantAuthorize extends SupplicantState {
   }
 
   onSupplicantAuthorize () {
-    this.channelServerClient.send('pair:supp:authorize');
-    this.gotoState(SendResultToRelier);
+    this.channelServerClient.send('pair:supp:authorize').then(() => {
+      return this.gotoState(SendResultToRelier);
+    });
+
   }
 }
 
@@ -147,7 +151,6 @@ class SendResultToRelier extends SupplicantState {
     // causes the channel to be closed by the remote end.
     // The connectionClosed handler of CompleteState will
     // do nothing.
-    this.channelServerClient.send('pair:auth:authorize:ack');
     this.broker.sendCodeToRelier()
       .then(() => {
         this.gotoState(CompleteState);

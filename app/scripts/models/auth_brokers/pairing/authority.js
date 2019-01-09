@@ -108,6 +108,10 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
     return this.send(this._notificationChannel.COMMANDS.PAIR_DECLINE);
   }
 
+  afterPairAuthComplete (account) {
+    return this.send(this._notificationChannel.COMMANDS.PAIR_COMPLETE);
+  }
+
   request(message, data = {}) {
     return Promise.resolve().then(() => {
       data.channel_id = this.relier.get('channelId'); //eslint-disable-line camelcase

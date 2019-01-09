@@ -182,7 +182,7 @@ export default class ChannelServerClient extends Model {
       message
     };
 
-    channelX.send(env);
+    return channelX.send(env);
   }
 
   /**
