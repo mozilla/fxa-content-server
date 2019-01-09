@@ -21,15 +21,6 @@ class PairAuthAllowView extends FormView {
     this.listenTo(this.broker, 'error', this.displayError);
   }
 
-  beforeRender() {
-    /*
-    if (! this.getAccount()) {
-      this.navigate('signin');
-    } else if (! this.relier.get('keysJwk')) {
-      this.navigate('pair/auth');
-    }*/
-  }
-
   getAccount () {
     return this.getSignedInAccount();
   }
