@@ -12,7 +12,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
-const PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=3c49430b43dfba77&redirect_uri=https%3A%2F%2Faccounts.firefox.com%2Foauth%2Fsuccess%2F3c49430b43dfba77&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
+const PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=3c49430b43dfba77&redirect_uri=https%3A%2F%2Fpairsona2.dev.lcip.org%2Foauth%2Fsuccess%2F3c49430b43dfba77&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 
 const PASSWORD = '12345678';
 let email;
