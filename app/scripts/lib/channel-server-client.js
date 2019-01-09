@@ -38,14 +38,11 @@ export default class ChannelServerClient extends Model {
     return new Promise((resolve, reject) => {
       return import(/* webpackChunkName: "fxaPairingTls" */ 'fxaPairingTls').then((fxaPairingTLS) => {
         try {
-          console.log(fxaPairingTLS)
           const InsecurePairingChannel = fxaPairingTLS.InsecurePairingChannel;
 
           const CHANNEL_SERVER = 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net';
           const psk = hexToBytes(channelKey);
           InsecurePairingChannel.connect(CHANNEL_SERVER, channelId, psk).then((channel) => {
-            console.log(channel)
-
             channelX = channel;
             this.set('isConnected', true);
             this.trigger('connected');
@@ -185,7 +182,6 @@ export default class ChannelServerClient extends Model {
       message
     };
 
-    console.log('sending..', env)
     channelX.send(env);
   }
 
@@ -236,7 +232,6 @@ export default class ChannelServerClient extends Model {
    * parsing or decrypting the message.
    *
    * @param {Object} event
-   * @returns null
    * @private
    */
   _messageHandler (event) {

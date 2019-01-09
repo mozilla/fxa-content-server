@@ -5,19 +5,14 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const assert = intern.getPlugin('chai').assert;
 const selectors = require('./lib/selectors');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup?context=fx_desktop_v3&service=sync`;
-//const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=
-// https%3A%2F%2F123done-pairsona.dev.lcip.org%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=
-// SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=
-// offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ
-// 5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9#channel_key=1hIDzTj5oY2HDeSg_jA2DhcOcAn5Uqq0cAYlZRNU
-// Io4&channel_id=`;
-const PAIR_URL = `${config.fxaContentRoot}pair/supp?client_id=dcdb5ae7add825d2&redirect_uri=http%3A%2F%2F127.0.0.1%3A8080%2Fapi%2Foauth&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=SmbAA_9EA5v1R2bgIPeWWw&code_challenge_method=S256&code_challenge=ZgHLPPJ8XYbXpo7VIb7wFw0yXlTa6MUOVfGiADt0JSM&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6Ing5LUltQjJveDM0LTV6c1VmbW5sNEp0Ti14elV2eFZlZXJHTFRXRV9BT0kiLCJ5IjoiNXBKbTB3WGQ4YXdHcm0zREl4T1pWMl9qdl9tZEx1TWlMb1RkZ1RucWJDZyJ9`; //eslint-disable-line  max-len
+const PAIR_URL = `${config.fxaContentRoot}pair/supp?response_type=code&client_id=3c49430b43dfba77&redirect_uri=https%3A%2F%2Faccounts.firefox.com%2Foauth%2Fsuccess%2F3c49430b43dfba77&scope=https%3A%2F%2Fidentity.mozilla.com%2Fapps%2Foldsync&state=foo&code_challenge_method=S256&code_challenge=IpOAcntLUmKITcxI_rDqMvFTeC9n_g0B8_Pj2yWZp7w&access_type=offline&keys_jwk=eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImlmcWY2U1pwMlM0ZjA5c3VhS093dmNsbWJxUm8zZXdGY0pvRURpYnc4MTQiLCJ5IjoiSE9LTXh5c1FseExqRGttUjZZbFpaY1Y4MFZBdk9nSWo1ZHRVaWJmYy1qTSJ9`; //eslint-disable-line  max-len
 
 const PASSWORD = '12345678';
 let email;
@@ -34,6 +29,30 @@ const {
   testElementExists,
   testIsBrowserNotified,
 } = FunctionalHelpers;
+
+function getQrData(buffer) {
+  return new Promise(function (resolve, reject) {
+    const Jimp = require('jimp');
+    const QrCode = require('qrcode-reader');
+    Jimp.read(buffer, (err, image) => {
+      if (err) {
+        console.error(err);
+        reject(err);
+      }
+
+      const qr = new QrCode();
+      qr.callback = (err, value) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          resolve(value.result);
+        }
+      };
+      qr.decode(image.bitmap);
+    });
+  });
+}
 
 registerSuite('pairing', {
   tests: {
@@ -61,21 +80,39 @@ registerSuite('pairing', {
         .then(openPage('about:preferences#sync', '#beginPairing'))
         .then(click('#beginPairing'))
 
-        .sleep(30 * 91000)
-        .sleep(1000)
-        .getAlertText()
-        .then((alert) => {
-          const [channelId, channelKey] = alert.split('#');
-          console.log(alert);
-          return this.remote
-            .acceptAlert()
-            .end()
-
-            .then(openTab(PAIR_URL + '#channel_id=' + channelId + '&channel_key=' + channelKey, selectors.SIGNUP.HEADER));
+        // TODO: this can be optimized to poll for a readable QR code instead of a timeout
+        .sleep(3000)
+        .takeScreenshot()
+        .then((buffer) => {
+          return getQrData(buffer)
+            .then((result) => {
+              const pairingStuff = result.split('#')[1];
+              return this.remote
+                .then(openTab(PAIR_URL + '#' + pairingStuff, selectors.SIGNUP.HEADER));
+            });
         })
-        .end()
-        .sleep(30 * 90000);
+        .then(switchToWindow(1))
+        .then(click(selectors.PAIRING.SUPP_SUBMIT))
+        .catch((err) => {
+          if (err.message && err.message.includes('Web element reference')) {
+            // We have to catch an error here due to https://bugzilla.mozilla.org/show_bug.cgi?id=1422769
+            // .click still works, but just throws for no reason. We assert below that pairing still works.
+          } else {
+            // if this is an unknown error, then we throw
+            throw err;
+          }
+        })
+        .then(switchToWindow(0))
+        .then(click(selectors.PAIRING.AUTH_SUBMIT))
 
+        .then(switchToWindow(1))
+        .then(testElementExists(selectors.PAIRING.REDIRECTED))
+        .getCurrentUrl()
+        .then(function (redirectResult) {
+          assert.ok(redirectResult.includes('code='), 'final OAuth redirect has the code');
+          assert.ok(redirectResult.includes('state='), 'final OAuth redirect has the state');
+        })
+        .end();
     }
   }
 });

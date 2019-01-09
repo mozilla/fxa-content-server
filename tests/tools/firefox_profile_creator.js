@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0 FxATester/1.0';
+var UA_OVERRIDE = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0 FxATester/1.0';
 
 var FirefoxProfile = require('firefox-profile');
 var myProfile = new FirefoxProfile();
@@ -21,7 +21,7 @@ if (profile) {
   myProfile.setPreference('security.mixed_content.block_active_content', false);
 
   // Configuration for local sync development
-  //myProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
+  myProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
   myProfile.setPreference('identity.fxaccounts.auth.uri', profile.fxaAuthRoot);
   myProfile.setPreference('identity.fxaccounts.remote.force_auth.uri', profile.fxaContentRoot + 'force_auth?service=sync&context=fx_desktop_v1');
   myProfile.setPreference('identity.fxaccounts.remote.signin.uri', profile.fxaContentRoot + 'signin?service=sync&context=fx_desktop_v1');
@@ -43,6 +43,13 @@ if (profile) {
   // add a string to the Firefox UA to signal that this is a test runner
   myProfile.setPreference('general.useragent.override', UA_OVERRIDE);
 
+  // disable WebDriver extension compat check
+  myProfile.setPreference('extensions.checkCompatibility.47.0', false);
+  myProfile.setPreference('extensions.checkCompatibility.48.0', false);
+
+  // force enable e10s
+  myProfile.setPreference('browser.tabs.remote.force-enable', true);
+
   // disable signed extensions
   myProfile.setPreference('xpinstall.signatures.required', false);
   myProfile.setPreference('xpinstall.whitelist.required', false);
@@ -62,8 +69,8 @@ if (profile) {
   myProfile.setPreference('identity.fxaccounts.remote.oauth.uri', profile.fxaOAuthRoot);
   myProfile.setPreference('identity.fxaccounts.remote.profile.uri', profile.fxaAuthRoot);
   //myProfile.setPreference('identity.fxaccounts.remote.root', 'https://pairsona.dev.lcip.org/');
-  myProfile.setPreference('identity.fxaccounts.remote.root', 'http://127.0.0.1:3030/');
-  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', 'http://127.0.0.1:3030/');
+  myProfile.setPreference('identity.fxaccounts.remote.root', 'http://127.0.0.1:3030');
+  myProfile.setPreference('identity.fxaccounts.autoconfig.uri', 'http://127.0.0.1:3030');
 
   myProfile.updatePreferences();
 
