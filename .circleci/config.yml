@@ -14,7 +14,7 @@ jobs:
                   sudo apt-get install -y python-setuptools python-dev build-essential xvfb
                   sudo easy_install pip
                   sudo pip install mozdownload mozinstall
-                  mozdownload --version 58.0 --destination firefox.tar.bz2
+                  mozdownload --version 64.0 --destination firefox.tar.bz2
                   mozinstall firefox.tar.bz2
                   sudo npm install -g npm@6
 
