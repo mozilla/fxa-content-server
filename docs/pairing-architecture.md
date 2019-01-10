@@ -12,7 +12,7 @@ The Desktop and Mobile devices will not communicate directly, because we cannot 
 
 ### Detailed Flow
 
-Is is advised to read the following section while looking at the detail digram while reading the information below:
+Is is advised to read the following section while looking at the detail digram while reading the information below.
 
 ![](https://www.lucidchart.com/publicSegments/view/00b7d8a7-fd78-493f-91f5-120b4034f8b0/image.png)
 
