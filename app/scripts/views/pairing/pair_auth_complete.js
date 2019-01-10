@@ -15,7 +15,7 @@ class PairAuthCompleteView extends BaseView {
     if (! this.broker.get('remoteMetaData')) {
       this.navigate('pair/auth');
     }
-    debugger
+
     return this.invokeBrokerMethod('afterPairAuthComplete');
   }
 
