@@ -101,7 +101,6 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
     return Promise.resolve().then(() => {
       data.channel_id = this.relier.get('channelId'); //eslint-disable-line camelcase
 
-      console.log('send', message, data);
       return this._notificationChannel.send(message, data);
     });
   }
