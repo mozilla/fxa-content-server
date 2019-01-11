@@ -6,6 +6,7 @@
 import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRelier from '../oauth';
 import Vat from '../../../lib/vat';
+import _ from "underscore";
 
 /*eslint-disable camelcase, sorting/sort-object-props*/
 var SUPPLICANT_QUERY_PARAM_SCHEMA = {
@@ -25,6 +26,20 @@ const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
 };
 
 
+function scopeStrToArray(scopes) {
+  if (! _.isString) {
+    return [];
+  }
+
+  var trimmedScopes = scopes.trim();
+  if (trimmedScopes.length) {
+    // matches any whitespace character OR matches the character '+' literally
+    return _.uniq(scopes.split(/\s+|\++/g));
+  } else {
+    return [];
+  }
+}
+
 /*eslint-enable camelcase, sorting/sort-object-props*/
 
 export default class SupplicantRelier extends OAuthRelier {
@@ -36,7 +51,11 @@ export default class SupplicantRelier extends OAuthRelier {
     });
   }
 
+
+
   getPKCEParams () {
+    const scopes = scopeStrToArray(this.get('scope')).join(' ');
+
     return {
       /*eslint-disable camelcase*/
       access_type: this.get('accessType'),
@@ -44,7 +63,7 @@ export default class SupplicantRelier extends OAuthRelier {
       code_challenge: this.get('codeChallenge'),
       code_challenge_method: this.get('codeChallengeMethod'),
       keys_jwk: this.get('keysJwk'),
-      scope: this.get('scope'),
+      scope: scopes,
       state: this.get('state'),
       /*eslint-enable camelcase*/
     };
