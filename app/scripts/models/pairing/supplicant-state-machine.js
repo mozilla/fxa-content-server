@@ -143,11 +143,6 @@ class SendResultToRelier extends SupplicantState {
 
   constructor (...args) {
     super(...args);
-
-    // TODO - should the user be required to click a button
-    // to go back to the relier?
-    //this.navigate('/pair/supp/complete');
-
     // causes the channel to be closed by the remote end.
     // The connectionClosed handler of CompleteState will
     // do nothing.

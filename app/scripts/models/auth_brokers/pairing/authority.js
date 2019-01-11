@@ -22,9 +22,6 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
       notifier,
       relier: this.relier
     });
-
-
-    this.setCapability('requirePasswordToPair', false);
   }
 
   fetch () {
@@ -76,32 +73,9 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
 
   setRemoteMetaData = setRemoteMetaData;
 
-  /*
-  sendOAuthResultToRelier ({ code, state }) {
-    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE, { code, state });
-  }
-
-  getOAuthResult(account, options = {}) {
-    return Promise.resolve().then(() => {
-      const keysJwe = this.get('keysJwe');
-      if (keysJwe) {
-        return keysJwe;
-      }
-
-      return this.request(this._notificationChannel.COMMANDS.PAIR_REQUEST_KEYS_JWE);
-    }).then(response => {
-      this.set({ keysJwe: response.keys_jwe });
-
-      options.keysJwe = response.keys_jwe;
-      return super.getOAuthResult(account, options);
-    });
-  }
-*/
   afterPairAuthAllow (account) {
-    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE)
-      .then(() => {
-        this.notifier.trigger('pair:auth:authorize');
-      });
+    this.notifier.trigger('pair:auth:authorize');
+    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE);
   }
 
   afterPairAuthDecline () {

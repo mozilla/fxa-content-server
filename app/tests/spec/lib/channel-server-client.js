@@ -30,8 +30,6 @@ describe('lib/channel-server-client', () => {
   describe('_getChannelJwk', () => {
     it('gets the channel JWK, uses cached JWK afterwards', () => {
       sinon.spy(client, '_deriveChannelJwk');
-      sinon.spy(client, '_deriveConfirmationCode');
-
       let firstJwk;
 
       const channelKeyBase64Url = 'YKR1mHPnuPgKHKjV6k46VtLFTUVU5LLWwSPuqaULNtc';
@@ -50,10 +48,6 @@ describe('lib/channel-server-client', () => {
         assert.isTrue(client._deriveChannelJwk.calledOnce);
         assert.equal(client._deriveChannelJwk.args[0][0].toString('hex'), expectedChannelKeyHex);
         assert.equal(client._deriveChannelJwk.args[0][1].toString('hex'), expectedChannelIdHex);
-
-        assert.isTrue(client._deriveConfirmationCode.calledOnce);
-        assert.equal(client._deriveConfirmationCode.args[0][0].toString('hex'), expectedChannelKeyHex);
-        assert.equal(client._deriveConfirmationCode.args[0][1].toString('hex'), expectedChannelIdHex);
 
         firstJwk = channelJwk;
         return client._getChannelJwk();

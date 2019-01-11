@@ -132,7 +132,7 @@ const conf = module.exports = convict({
   device_pairing: {
     channel_server_url: {
       //default: 'ws://127.0.0.1:8058/v1/ws/',
-      default: 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net/v1/ws/',
+      default: 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net',
       doc: 'The url of the Pairing channel server',
       env: 'PAIRING_CHANNEL_SERVER_URL'
     }

@@ -34,17 +34,11 @@ export class State extends Model {
   }
 
   navigate (url, nextViewData) {
-    console.log(this.name, 'navigating to', url, nextViewData);
-    try {
-
-      this.notifier.trigger('navigate', {
-        nextViewData: assign(this.toJSON(), nextViewData),
-        routerOptions: {},
-        url,
-      });
-    } catch (e) {
-      console.log('uh oh', String(e));
-    }
+    this.notifier.trigger('navigate', {
+      nextViewData: assign(this.toJSON(), nextViewData),
+      routerOptions: { replace: true, trigger: true },
+      url,
+    });
   }
 }
 

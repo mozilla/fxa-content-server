@@ -96,7 +96,6 @@ define(function (require, exports, module) {
 
         var currentView = this._currentView;
         if (currentView instanceof View && options.force !== true) {
-          console.log('showing child');
           // child view->parent view
           //
           // No need to re-render, only notify parties of the event.
