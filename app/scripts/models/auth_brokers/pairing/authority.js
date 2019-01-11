@@ -74,8 +74,9 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
   setRemoteMetaData = setRemoteMetaData;
 
   afterPairAuthAllow (account) {
-    this.notifier.trigger('pair:auth:authorize');
-    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE);
+    return this.send(this._notificationChannel.COMMANDS.PAIR_AUTHORIZE).then(() => {
+      this.notifier.trigger('pair:auth:authorize');
+    });
   }
 
   afterPairAuthDecline () {
