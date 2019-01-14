@@ -16,9 +16,10 @@ class PairAuthCompleteView extends BaseView {
       this.navigate('pair/auth');
     }
 
-    this._removeCompleteTimeout = this.setTimeout(() => {
-      this.invokeBrokerMethod('afterPairAuthComplete');
-    }, 2000);
+    this.invokeBrokerMethod('afterPairAuthComplete');
+    // this._removeCompleteTimeout = this.setTimeout(() => {
+    //   this.invokeBrokerMethod('afterPairAuthComplete');
+    // }, 2000);
   }
 
   setInitialContext (context) {
