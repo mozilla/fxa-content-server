@@ -47,7 +47,7 @@ export default class ChannelServerClient extends Model {
 
 
             channel.addEventListener('message', (event) => {
-              console.log('evy', event);
+              console.log('WebSocket receive', event.detail);
 
               try {
                 this._messageHandler(event);
@@ -179,7 +179,7 @@ export default class ChannelServerClient extends Model {
       data,
       message
     };
-    console.log('sending', env)
+    console.log('WebSocket send', env);
     return channelX.send(env);
   }
 
