@@ -6,7 +6,7 @@
 import OAuthErrors from '../../../lib/oauth-errors';
 import OAuthRelier from '../oauth';
 import Vat from '../../../lib/vat';
-import _ from "underscore";
+import _ from 'underscore';
 
 /*eslint-disable camelcase, sorting/sort-object-props*/
 var SUPPLICANT_QUERY_PARAM_SCHEMA = {
@@ -50,8 +50,6 @@ export default class SupplicantRelier extends OAuthRelier {
       return this._setupOAuthRPInfo();
     });
   }
-
-
 
   getPKCEParams () {
     const scopes = scopeStrToArray(this.get('scope')).join(' ');
