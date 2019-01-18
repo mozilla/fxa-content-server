@@ -4,13 +4,17 @@
 
 'use strict';
 module.exports = function (config) {
+  const ABOUT_MOZILLA_URL = config.get('about_mozilla_url');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
 
   return {
     method: 'get',
     path: '/500.html',
     process: (req, res, next) => {
-      res.render('500', { staticResourceUrl: STATIC_RESOURCE_URL });
+      res.render('500', {
+        aboutMozillaUrl: ABOUT_MOZILLA_URL,
+        staticResourceUrl: STATIC_RESOURCE_URL
+      });
     }
   };
 };

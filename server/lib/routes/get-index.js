@@ -8,6 +8,7 @@ const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
 
 module.exports = function (config) {
+  const ABOUT_MOZILLA_URL = config.get('about_mozilla_url');
   const AUTH_SERVER_URL = config.get('fxaccount_url');
   const CLIENT_ID = config.get('oauth_client_id');
   const COPPA_ENABLED = config.get('coppa.enabled');
@@ -48,6 +49,7 @@ module.exports = function (config) {
     const flowEventData = flowMetrics.create(FLOW_ID_KEY, req.headers['user-agent']);
 
     res.render('index', {
+      aboutMozillaUrl: ABOUT_MOZILLA_URL,
       // Note that bundlePath is added to templates as a build step
       bundlePath: '/bundle',
       config: serializedConfig,

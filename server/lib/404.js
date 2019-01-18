@@ -4,11 +4,15 @@
 
 // It's a 404 not found response.
 
+const config = require('./configuration');
+
+const ABOUT_MOZILLA_URL = config.get('about_mozilla_url');
+
 module.exports = function (req, res, next) {
   res.status(404);
 
   if (req.accepts('html')) {
-    return res.render('404');
+    return res.render('404', { aboutMozillaUrl: ABOUT_MOZILLA_URL });
   }
 
   if (req.accepts('json')) {

@@ -13,6 +13,12 @@ const versionInfo = require('./version');
 const DEFAULT_SUPPORTED_LANGUAGES = require('fxa-shared').l10n.supportedLanguages;
 
 const conf = module.exports = convict({
+  about_mozilla_url: {
+    default: 'https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral',
+    doc: 'Url for the top right mozilla logo',
+    env: 'ABOUT_MOZILLA_URL',
+    format: String
+  },
   allowed_iframe_contexts: {
     default: ['fx_firstrun_v2', 'iframe'],
     doc: 'context query parameters allowed to embed FxA within an IFRAME',

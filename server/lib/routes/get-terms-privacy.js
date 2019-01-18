@@ -27,6 +27,7 @@ const PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dis
 const templates = require('../legal-templates');
 
 module.exports = function verRoute (i18n) {
+  const ABOUT_MOZILLA_URL = config.get('about_mozilla_url');
   const DEFAULT_LANG = config.get('i18n.defaultLang');
   const DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
   const STATIC_RESOURCE_URL = config.get('static_resource_url');
@@ -66,6 +67,7 @@ module.exports = function verRoute (i18n) {
         res.format({
           'text/html': function () {
             const context = {
+              aboutMozillaUrl: ABOUT_MOZILLA_URL,
               // Note that staticResourceUrl is added to templates as a
               // build step
               staticResourceUrl: STATIC_RESOURCE_URL

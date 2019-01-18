@@ -24,6 +24,7 @@ module.exports = function (grunt) {
   var templateDest;
 
   var PROPAGATED_ESCAPED_TEMPLATE_FIELDS = [
+    'aboutMozillaUrl',
     'config',
     'flowId',
     'flowBeginTime',
