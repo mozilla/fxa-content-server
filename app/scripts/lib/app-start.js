@@ -323,15 +323,7 @@ Start.prototype = {
           context = Constants.FX_DESKTOP_V2_CONTEXT;
         }
       } else if (this._isOAuth()) {
-        if (this.isDevicePairingAsAuthority()) {
-          context = Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT;
-        } else if (this.isDevicePairingAsSupplicant()) {
-          context = Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT;
-        } else if (this.getUserAgent().isChromeAndroid()) {
-          context = Constants.OAUTH_CHROME_ANDROID_CONTEXT;
-        } else {
-          context = Constants.OAUTH_CONTEXT;
-        }
+        context = this._chooseOAuthBrokerContext();
       } else {
         context = this._getContext();
       }
@@ -357,6 +349,23 @@ Start.prototype = {
       this._metrics.setBrokerType(this._authenticationBroker.type);
 
       return this._authenticationBroker.fetch();
+    }
+  },
+
+  /**
+   * Chooses the right OAuth broker context
+   * @returns {string}
+   * @private
+   */
+  _chooseOAuthBrokerContext () {
+    if (this.isDevicePairingAsAuthority()) {
+      return Constants.DEVICE_PAIRING_AUTHORITY_CONTEXT;
+    } else if (this.isDevicePairingAsSupplicant()) {
+      return Constants.DEVICE_PAIRING_SUPPLICANT_CONTEXT;
+    } else if (this.getUserAgent().isChromeAndroid()) {
+      return Constants.OAUTH_CHROME_ANDROID_CONTEXT;
+    } else {
+      return Constants.OAUTH_CONTEXT;
     }
   },
 

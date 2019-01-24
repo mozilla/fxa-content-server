@@ -10,11 +10,8 @@ import importFxaPairingChannel from './fxa-pairing-channel';
 import Raven from 'raven';
 
 /**
- * Connects to the channel server. Expects the following
- * attributes to be passed into the constructor:
- *  - channelId
- *  - channelKey
- *  - channelServerUri
+ * The client that handles the connectivity with the channel server.
+ * It uses the fxa-pairing-channel module to connect, receive and send messages.
  *
  * @export
  * @class PairingChannelClient
@@ -25,26 +22,30 @@ export default class PairingChannelClient extends Model {
     super(attrs, options);
 
     this.sentryMetrics = options.sentryMetrics || Raven;
+    this._importPairingChannel = options.importPairingChannel || importFxaPairingChannel;
     this.set('isConnected', false);
   }
 
   /**
-   * Open a socket to `channelId` on `channelServerUri`
+   * Open a socket to `channelId` on `channelServerUri` with a given `channelKey`.
    *
    * @param {String} [channelServerUri=this.get('channelServerUri')]
    * @param {String} [channelId=this.get('channelId')]
    * @param {String} [channelKey=this.get('channelKey')]
    * @returns {Promise} resolves when connected
    */
-  open (channelServerUri = this.get('channelServerUri'), channelId = this.get('channelId'), channelKey = this.get('channelKey')) {
-    return importFxaPairingChannel().then((FxAccountsPairingChannel) => {
+  open (channelServerUri = this.get('channelServerUri'),
+    channelId = this.get('channelId'),
+    channelKey = this.get('channelKey'),
+  ) {
+    return this._importPairingChannel().then((FxAccountsPairingChannel) => {
       if (this.channel) {
         // to avoid opening a duplicate connection, say the client is connected
         // if a socket exists but isn't yet connected.
         throw PairingChannelClientErrors.toError('ALREADY_CONNECTED');
       }
 
-      if (! channelServerUri || ! channelId) {
+      if (! channelServerUri || ! channelId || ! channelKey) {
         throw PairingChannelClientErrors.toError('INVALID_CONFIGURATION');
       }
 
@@ -55,9 +56,9 @@ export default class PairingChannelClient extends Model {
         this.set('isConnected', true);
         this.trigger('connected');
 
-        channel.addEventListener('message', this._messageHandler.bind(this));
-        channel.addEventListener('error', this._errorHandler.bind(this));
-        channel.addEventListener('close', this._closeHandler.bind(this));
+        this.channel.addEventListener('message', this._messageHandler.bind(this));
+        this.channel.addEventListener('error', this._errorHandler.bind(this));
+        this.channel.addEventListener('close', this._closeHandler.bind(this));
 
       }).catch((err) => {
         this.sentryMetrics.captureException(err);
@@ -72,9 +73,9 @@ export default class PairingChannelClient extends Model {
    * @returns {Promise} - rejects if no socket, resolves when connection closed
    */
   close () {
-    return new Promise((resolve, reject) => {
+    return Promise.resolve().then(() => {
       if (! this.channel) {
-        return reject(PairingChannelClientErrors.toError('NOT_CONNECTED'));
+        throw PairingChannelClientErrors.toError('NOT_CONNECTED');
       }
 
       this.set('isConnected', false);
@@ -94,12 +95,15 @@ export default class PairingChannelClient extends Model {
       return Promise.reject(PairingChannelClientErrors.toError('NOT_CONNECTED'));
     }
 
+    if (! message) {
+      return Promise.reject(PairingChannelClientErrors.toError('INVALID_OUTBOUND_MESSAGE'));
+    }
+
     return this.channel.send({
       data,
       message
     });
   }
-
 
   /**
    * Handle a message. Expects a message with the

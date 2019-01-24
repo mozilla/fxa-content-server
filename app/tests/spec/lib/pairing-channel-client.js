@@ -7,18 +7,30 @@ import PairingChannelClient from 'lib/pairing-channel-client';
 import sinon from 'sinon';
 import PairingChannelClientErrors from '../../../scripts/lib/pairing-channel-client-errors';
 
+const defaultChannelMock = {
+  addEventListener: () => sinon.spy(),
+  close: sinon.spy(() => Promise.resolve()),
+  send: sinon.spy(() => Promise.resolve())
+};
+
+const mockPairingChannel = function(channelApi = defaultChannelMock) {
+  return Promise.resolve().then(() => {
+    return {
+      PairingChannel: {
+        connect: () => {
+          return Promise.resolve(channelApi);
+        }
+      }
+    };
+  });
+};
+
 describe('lib/pairing-channel-client', () => {
   let client;
   let sandbox;
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
-
-    client = new PairingChannelClient({
-      channelId: 'c05d62ed4e1445089e9e2a33d148f906',
-      channelKey: 'channel-key',
-      channelServerUri: 'wss://channel.server.url/v1/',
-    });
   });
 
   afterEach(() => {
@@ -27,17 +39,9 @@ describe('lib/pairing-channel-client', () => {
 
   describe('open', () => {
     beforeEach(() => {
-    });
-
-    it('rejects if already connected', () => {
-      client.socket = {
-        send: sinon.spy()
-      };
-
-      return client.open()
-        .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED'));
-        });
+      client = new PairingChannelClient({}, {
+        importPairingChannel: mockPairingChannel
+      });
     });
 
     it('rejects if no channelServerUri', () => {
@@ -54,78 +58,123 @@ describe('lib/pairing-channel-client', () => {
         });
     });
 
-    it('opens a WebSocket connection to `channelId`, attaches listeners, resolves when first message received', () => {
-      sandbox.stub(client, '_proxySocketEvents').callsFake(() => {
-        // The first message causes `open` to resolve, the second message
-        // causes `_encryptedMessageHandler` to be called.
-        setImmediate(() => client.trigger('socket:message', { data: {} }));
-      });
-
-      sandbox.spy(client, 'trigger');
-
-      sandbox.stub(client, '_getSocketUrl').callsFake(() => 'wss://some.socket.url/some/path');
-      sandbox.stub(client, '_checkFirstMessageDataValidity').callsFake(() => Promise.resolve());
-
+    it('rejects if no channelKey', () => {
       return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906')
+        .then(assert.fail, err => {
+          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
+        });
+    });
+
+    it('sets connected if channel resolves', () => {
+      client.set = sinon.spy();
+      client.trigger = sinon.spy();
+
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
         .then(() => {
-          assert.isTrue(client._getSocketUrl.calledOnceWith('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906'));
-          assert.isTrue(client._proxySocketEvents.calledOnce);
-          assert.isTrue(client.trigger.calledWith('connected'));
+          assert.isTrue(client.set.calledOnceWith('isConnected', true));
+          assert.isTrue(client.trigger.calledOnceWith('connected'));
+        });
+    });
 
-          // the second message causes _encryptedMessageHandler
-          // to be called
-          return new Promise((resolve, reject) => {
-            sandbox.stub(client, '_encryptedMessageHandler').callsFake(resolve);
-            client.trigger('socket:message');
+    it('rejects if already connected', () => {
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111').then(() => {
+        return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+          .then(assert.fail, err => {
+            assert.isTrue(PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED'));
           });
-        });
-    });
-
-    it('rejects if `_checkFirstMessageDataValidity` rejects', () => {
-      sandbox.stub(client, '_proxySocketEvents').callsFake(() => {
-        // The first message causes `open` to resolve, the second message
-        // causes `_encryptedMessageHandler` to be called.
-        setImmediate(() => client.trigger('socket:message', { data: {} }));
       });
-      sandbox.stub(client, '_checkFirstMessageDataValidity').callsFake(() => Promise.reject(PairingChannelClientErrors.toError('INVALID_MESSAGE')));
-      return client.open('c05d62ed4e1445089e9e2a33d148f906')
-        .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_MESSAGE'));
-        });
-    });
-
-    it('rejects if socket error before first message', () => {
-      sandbox.stub(client, '_proxySocketEvents').callsFake(() => {
-        setImmediate(() => client.trigger('socket:error'));
-      });
-
-      return client.open('c05d62ed4e1445089e9e2a33d148f906')
-        .then(assert.fail, err => {
-          assert.isTrue(PairingChannelClientErrors.is(err, 'COULD_NOT_CONNECT'));
-        });
     });
   });
 
   describe('close', () => {
-    it('rejects if no socket', () => {
+    beforeEach(() => {
+      client = new PairingChannelClient({}, {
+        importPairingChannel: mockPairingChannel
+      });
+    });
+
+    it('rejects if no channel', () => {
+      delete client.channel;
+      return client.close()
+        .then(assert.fail, err => {
+          assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
+        });
     });
 
     it('rejects if error while closing', () => {
+      const closeError = new Error('uh oh');
+      client.channel = {
+        close: sinon.spy(() => {
+          throw closeError;
+        }),
+      };
+
+      return client.close()
+        .then(assert.fail, err => {
+          assert.strictEqual(err, closeError);
+        });
     });
 
-    it('calls close on the socket, resolves when complete', () => {
+    it('calls close on the channel', () => {
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111').then(() => {
+        client.set = sinon.spy();
 
+        return client.close()
+          .then(() => {
+            assert.isTrue(client.set.calledOnceWith('isConnected', false));
+            assert.isTrue(client.channel.close.calledOnce);
+          });
+      });
     });
   });
 
   describe('send', () => {
+    beforeEach(() => {
+      client = new PairingChannelClient({}, {
+        importPairingChannel: mockPairingChannel
+      });
+    });
+
     it('rejects if no socket', () => {
+      delete client.channel;
+      return client.send('message')
+        .then(assert.fail, err => {
+          assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
+        });
+    });
+
+    it('rejects if no message', () => {
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+        .then(() => {
+          return client.send();
+        })
+        .then(assert.fail, err => {
+          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_OUTBOUND_MESSAGE'));
+        });
     });
 
     it('throws if not connected', () => {
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+        .then(() => {
+          client.set('isConnected', false);
+          return client.send('message');
+        })
+        .then(assert.fail, err => {
+          assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
+          assert.isFalse(client.channel.send.calledOnce);
+        });
     });
 
-    it('encrypts the message, sends the ciphertext to the remote', () => {
+    it('sends data over', () => {
+      const testData = {data: true};
+
+      return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906', '1111')
+        .then(() => {
+          return client.send('message', testData);
+        })
+        .then(() => {
+          assert.isFalse(client.channel.send.calledOnceWith('message', testData));
+        });
     });
   });
 });
