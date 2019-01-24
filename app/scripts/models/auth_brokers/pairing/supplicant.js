@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import OAuthRedirectBroker from '../oauth-redirect';
-import ChannelServerClient from '../../../lib/channel-server-client';
+import PairingChannelClient from '../../../lib/pairing-channel-client';
 import setRemoteMetaData from './remote-metadata';
 import SupplicantStateMachine from '../../pairing/supplicant-state-machine';
 import Url from '../../../lib/url';
@@ -18,7 +18,7 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
     const channelServerUri = config.pairingChannelServerUri;
     const { channelId, channelKey } = relier.toJSON();
     if (channelId && channelKey && channelServerUri) {
-      this.channelServerClient = new ChannelServerClient({
+      this.pairingChannelClient = new PairingChannelClient({
         channelId,
         channelKey,
         channelServerUri,
@@ -29,12 +29,12 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
 
       this.suppStateMachine = new SupplicantStateMachine({}, {
         broker: this,
-        channelServerClient: this.channelServerClient,
         notifier,
+        pairingChannelClient: this.pairingChannelClient,
         relier
       });
 
-      this.channelServerClient.open();
+      this.pairingChannelClient.open();
     }
   }
 

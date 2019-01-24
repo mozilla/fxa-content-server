@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ChannelServerClientErrors from '../../lib/channel-server-client-errors';
+import PairingChannelClientErrors from '../../lib/pairing-channel-client-errors';
 import { CompleteState, State } from './state';
 import PairingFlowStateMachine from './state-machine';
 
@@ -12,14 +12,14 @@ class SupplicantState extends State {
   constructor (attributes, options = {}) {
     super(attributes, options);
 
-    this.channelServerClient = options.channelServerClient;
-    this.listenTo(this.channelServerClient, 'close', () => this.socketClosed());
-    this.listenTo(this.channelServerClient, 'error', (error) => this.socketError(error));
+    this.pairingChannelClient = options.pairingChannelClient;
+    this.listenTo(this.pairingChannelClient, 'close', () => this.socketClosed());
+    this.listenTo(this.pairingChannelClient, 'error', (error) => this.socketError(error));
   }
 
   socketClosed () {
     this.navigate('pair/failure', {
-      error: ChannelServerClientErrors.toError('CONNECTION_CLOSED')
+      error: PairingChannelClientErrors.toError('CONNECTION_CLOSED')
     });
   }
 
@@ -34,7 +34,7 @@ class WaitForConnectionToChannelServer extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.channelServerClient, 'connected', this.gotoSendOAuthRequestWaitForAccountMetadata);
+    this.listenTo(this.pairingChannelClient, 'connected', this.gotoSendOAuthRequestWaitForAccountMetadata);
   }
 
   socketClosed () {
@@ -52,8 +52,8 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.channelServerClient.send('pair:supp:request', this.relier.getOAuthParams()).then(() => {
-      this.listenTo(this.channelServerClient, 'remote:pair:auth:metadata', this.gotoWaitForApprovals);
+    this.pairingChannelClient.send('pair:supp:request', this.relier.getOAuthParams()).then(() => {
+      this.listenTo(this.pairingChannelClient, 'remote:pair:auth:metadata', this.gotoWaitForApprovals);
     });
   }
 
@@ -84,14 +84,14 @@ class WaitForAuthorizations extends SupplicantState {
       deviceName: this.get('deviceName'),
     });
 
-    this.listenTo(this.channelServerClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
+    this.listenTo(this.pairingChannelClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
     this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
   }
 
   onAuthorityAuthorize = onAuthAuthorize.bind(this, WaitForSupplicantAuthorize);
 
   onSupplicantAuthorize () {
-    this.channelServerClient.send('pair:supp:authorize').then(() => {
+    this.pairingChannelClient.send('pair:supp:authorize').then(() => {
       this.gotoState(WaitForAuthorityAuthorize);
     });
   }
@@ -107,7 +107,7 @@ class WaitForSupplicantAuthorize extends SupplicantState {
   }
 
   onSupplicantAuthorize () {
-    this.channelServerClient.send('pair:supp:authorize').then(() => {
+    this.pairingChannelClient.send('pair:supp:authorize').then(() => {
       return this.gotoState(SendResultToRelier);
     });
 
@@ -121,7 +121,7 @@ class WaitForAuthorityAuthorize extends SupplicantState {
     super(...args);
     this.navigate('pair/supp/wait_for_auth');
 
-    this.listenTo(this.channelServerClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
+    this.listenTo(this.pairingChannelClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
   }
 
   onAuthorityAuthorize = onAuthAuthorize.bind(this, SendResultToRelier);

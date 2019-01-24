@@ -9,7 +9,7 @@ class PairingFlowStateMachine extends Model {
     super(attrs, options);
 
     this.broker = options.broker;
-    this.channelServerClient = options.channelServerClient;
+    this.pairingChannelClient = options.pairingChannelClient;
     this.notifier = options.notifier;
     this.relier = options.relier;
   }
@@ -21,8 +21,8 @@ class PairingFlowStateMachine extends Model {
 
     this.state = new StateConstructor(attrs, {
       broker: this.broker,
-      channelServerClient: this.channelServerClient,
       notifier: this.notifier,
+      pairingChannelClient: this.pairingChannelClient,
       parent: this,
       relier: this.relier,
     });

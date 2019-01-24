@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import ChannelServerClient from 'lib/channel-server-client';
+import PairingChannelClient from 'lib/pairing-channel-client';
 import sinon from 'sinon';
-import ChannelServerClientErrors from '../../../scripts/lib/channel-server-client-errors';
+import PairingChannelClientErrors from '../../../scripts/lib/pairing-channel-client-errors';
 
-describe('lib/channel-server-client', () => {
+describe('lib/pairing-channel-client', () => {
   let client;
   let sandbox;
 
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
 
-    client = new ChannelServerClient({
+    client = new PairingChannelClient({
       channelId: 'c05d62ed4e1445089e9e2a33d148f906',
       channelKey: 'channel-key',
       channelServerUri: 'wss://channel.server.url/v1/',
@@ -26,12 +26,7 @@ describe('lib/channel-server-client', () => {
   });
 
   describe('open', () => {
-    const socketMock = {
-      addEventListener() {}
-    };
-
     beforeEach(() => {
-      sandbox.stub(client, '_createSocket').callsFake(() => socketMock);
     });
 
     it('rejects if already connected', () => {
@@ -41,22 +36,21 @@ describe('lib/channel-server-client', () => {
 
       return client.open()
         .then(assert.fail, err => {
-          assert.isFalse(client._createSocket.called);
-          assert.isTrue(ChannelServerClientErrors.is(err, 'ALREADY_CONNECTED'));
+          assert.isTrue(PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED'));
         });
     });
 
     it('rejects if no channelServerUri', () => {
       return client.open(null, 'c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_CONFIGURATION'));
+          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
         });
     });
 
     it('rejects if no channelId', () => {
       return client.open('wss://channel.server.url/', null)
         .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_CONFIGURATION'));
+          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION'));
         });
     });
 
@@ -75,7 +69,6 @@ describe('lib/channel-server-client', () => {
       return client.open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906')
         .then(() => {
           assert.isTrue(client._getSocketUrl.calledOnceWith('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906'));
-          assert.isTrue(client._createSocket.calledOnceWith('wss://some.socket.url/some/path'));
           assert.isTrue(client._proxySocketEvents.calledOnce);
           assert.isTrue(client.trigger.calledWith('connected'));
 
@@ -94,10 +87,10 @@ describe('lib/channel-server-client', () => {
         // causes `_encryptedMessageHandler` to be called.
         setImmediate(() => client.trigger('socket:message', { data: {} }));
       });
-      sandbox.stub(client, '_checkFirstMessageDataValidity').callsFake(() => Promise.reject(ChannelServerClientErrors.toError('INVALID_MESSAGE')));
+      sandbox.stub(client, '_checkFirstMessageDataValidity').callsFake(() => Promise.reject(PairingChannelClientErrors.toError('INVALID_MESSAGE')));
       return client.open('c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'INVALID_MESSAGE'));
+          assert.isTrue(PairingChannelClientErrors.is(err, 'INVALID_MESSAGE'));
         });
     });
 
@@ -108,7 +101,7 @@ describe('lib/channel-server-client', () => {
 
       return client.open('c05d62ed4e1445089e9e2a33d148f906')
         .then(assert.fail, err => {
-          assert.isTrue(ChannelServerClientErrors.is(err, 'COULD_NOT_CONNECT'));
+          assert.isTrue(PairingChannelClientErrors.is(err, 'COULD_NOT_CONNECT'));
         });
     });
   });

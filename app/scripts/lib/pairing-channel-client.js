@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ChannelServerClientErrors from './channel-server-client-errors';
+import PairingChannelClientErrors from './pairing-channel-client-errors';
 import { Model } from 'backbone';
 import { pick } from 'underscore';
 import { base64urlToArrayBuffer } from './crypto/util';
@@ -17,10 +17,10 @@ import Raven from 'raven';
  *  - channelServerUri
  *
  * @export
- * @class ChannelServerClient
+ * @class PairingChannelClient
  * @extends {Model}
  */
-export default class ChannelServerClient extends Model {
+export default class PairingChannelClient extends Model {
   constructor (attrs = {}, options = {}) {
     super(attrs, options);
 
@@ -41,11 +41,11 @@ export default class ChannelServerClient extends Model {
       if (this.channel) {
         // to avoid opening a duplicate connection, say the client is connected
         // if a socket exists but isn't yet connected.
-        throw ChannelServerClientErrors.toError('ALREADY_CONNECTED');
+        throw PairingChannelClientErrors.toError('ALREADY_CONNECTED');
       }
 
       if (! channelServerUri || ! channelId) {
-        throw ChannelServerClientErrors.toError('INVALID_CONFIGURATION');
+        throw PairingChannelClientErrors.toError('INVALID_CONFIGURATION');
       }
 
       const psk = base64urlToArrayBuffer(channelKey);
@@ -74,7 +74,7 @@ export default class ChannelServerClient extends Model {
   close () {
     return new Promise((resolve, reject) => {
       if (! this.channel) {
-        return reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
+        return reject(PairingChannelClientErrors.toError('NOT_CONNECTED'));
       }
 
       this.set('isConnected', false);
@@ -91,7 +91,7 @@ export default class ChannelServerClient extends Model {
    */
   send (message, data = {}) {
     if (! this.get('isConnected') || ! this.channel) {
-      return Promise.reject(ChannelServerClientErrors.toError('NOT_CONNECTED'));
+      return Promise.reject(PairingChannelClientErrors.toError('NOT_CONNECTED'));
     }
 
     return this.channel.send({
@@ -132,7 +132,7 @@ export default class ChannelServerClient extends Model {
       const { data = {}, message} = payload;
 
       if (! message) {
-        throw ChannelServerClientErrors.toError('INVALID_MESSAGE');
+        throw PairingChannelClientErrors.toError('INVALID_MESSAGE');
       }
 
       data.remoteMetaData = pick(sender, 'city', 'country', 'region', 'ua');
@@ -153,7 +153,7 @@ export default class ChannelServerClient extends Model {
    */
   _errorHandler (event) {
     this.sentryMetrics.captureException(event.detail);
-    this.trigger('error', ChannelServerClientErrors.toError('UNEXPECTED_ERROR'));
+    this.trigger('error', PairingChannelClientErrors.toError('UNEXPECTED_ERROR'));
   }
 
   /**
