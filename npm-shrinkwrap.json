@@ -6417,7 +6417,7 @@
       }
     },
     "fxa-pairing-channel": {
-      "version": "github:mozilla/fxa-pairing-channel#705de41fab74722b726da0e838b8d1f67c782ea2",
+      "version": "github:mozilla/fxa-pairing-channel#7fa784c7cdf77e2502ef9f42235f083e96928e75",
       "from": "github:mozilla/fxa-pairing-channel#tls13-psk-mode",
       "requires": {
         "@babel/runtime": "^7.2.0",
