@@ -179,7 +179,7 @@ jobs:
                       sudo apt-get install -y python-setuptools python-dev build-essential
                       sudo easy_install pip
                       sudo pip install mozinstall
-                      mozinstall 8dc9009ad540-target.tar.bz2
+                      mozinstall 728f4d63bb13-target.tar.bz2
                       ./retry -n 1 -- npm run test-pairing-circle -- --firefoxBinary=./firefox/firefox
 
     dockerpush:
