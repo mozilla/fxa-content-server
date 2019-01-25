@@ -36,9 +36,10 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
   /**
    * The heartbeat methods below communicate the 'fxaccounts:pair_heartbeat' message.
    * See the pairing documentation for the possible formats of the heartbeat message.
+   * @param {integer} interval
    */
-  startHeartbeat () {
-    this._heartbeatInterval = setInterval(() => this.heartbeat(), PAIR_HEARTBEAT_INTERVAL);
+  startHeartbeat (interval = PAIR_HEARTBEAT_INTERVAL) {
+    this._heartbeatInterval = setInterval(() => this.heartbeat(), interval);
   }
 
   stopHeartbeat () {

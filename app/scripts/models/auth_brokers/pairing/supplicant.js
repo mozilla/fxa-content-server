@@ -35,6 +35,8 @@ export default class SupplicantBroker extends OAuthRedirectBroker {
       });
 
       this.pairingChannelClient.open();
+    } else {
+      throw new Error('Failed to initialize supplicant');
     }
   }
 
