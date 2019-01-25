@@ -58,8 +58,6 @@ code_challenge and code_challenge_method - OAuth PKCE parameters
 keys_jwk - FxA Scoped Keys key-fetching public key
 ```
 
-The Desktop device must carefully check the provided OAuth request and error out if anything seems amiss.
-
 The Desktop device sends an "account metadata" message that includes information about the account being connected to, such as:
 
 ```
@@ -117,7 +115,7 @@ Every message envelope also contains information about the sender (IP address, g
 
 Direction: Supp -> Auth
 
-Description: Sent right after connecting to the pairing channel by the supp. Contains OAuth PKCE parameters and a optionally a key encryption JWK.
+Description: Sent right after connecting to the pairing channel by the supp. Contains OAuth request parameters, including PKCE parameters and a key encryption JWK if required by the relier.
 
 ```
 {

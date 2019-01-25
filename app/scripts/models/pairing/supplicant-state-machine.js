@@ -34,15 +34,13 @@ class WaitForConnectionToChannelServer extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.pairingChannelClient, 'connected', this.gotoSendOAuthRequestWaitForAccountMetadata);
+    this.listenTo(this.pairingChannelClient, 'connected', () => {
+      this.gotoState(SendOAuthRequestWaitForAccountMetadata);
+    });
   }
 
   socketClosed () {
     // do nothing on connection closed
-  }
-
-  gotoSendOAuthRequestWaitForAccountMetadata () {
-    this.gotoState(SendOAuthRequestWaitForAccountMetadata);
   }
 }
 
@@ -85,16 +83,14 @@ class WaitForAuthorizations extends SupplicantState {
     });
 
     this.listenTo(this.pairingChannelClient, 'remote:pair:auth:authorize', this.onAuthorityAuthorize);
-    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
+    this.listenTo(this.notifier, 'pair:supp:authorize', () => {
+      this.pairingChannelClient.send('pair:supp:authorize').then(() => {
+        this.gotoState(WaitForAuthorityAuthorize);
+      });
+    });
   }
 
   onAuthorityAuthorize = onAuthAuthorize.bind(this, WaitForSupplicantAuthorize);
-
-  onSupplicantAuthorize () {
-    this.pairingChannelClient.send('pair:supp:authorize').then(() => {
-      this.gotoState(WaitForAuthorityAuthorize);
-    });
-  }
 }
 
 class WaitForSupplicantAuthorize extends SupplicantState {
@@ -103,14 +99,11 @@ class WaitForSupplicantAuthorize extends SupplicantState {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
-  }
-
-  onSupplicantAuthorize () {
-    this.pairingChannelClient.send('pair:supp:authorize').then(() => {
-      return this.gotoState(SendResultToRelier);
+    this.listenTo(this.notifier, 'pair:supp:authorize', () => {
+      this.pairingChannelClient.send('pair:supp:authorize').then(() => {
+        return this.gotoState(SendResultToRelier);
+      });
     });
-
   }
 }
 

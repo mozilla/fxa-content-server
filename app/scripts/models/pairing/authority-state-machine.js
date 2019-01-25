@@ -14,16 +14,12 @@ class WaitForAuthorizations extends State {
 
     this.navigate('pair/auth/allow');
 
-    this.listenTo(this.notifier, 'pair:supp:authorize', this.onSupplicantAuthorize);
-    this.listenTo(this.notifier, 'pair:auth:authorize', this.onAuthorityAuthorize);
-  }
-
-  onSupplicantAuthorize () {
-    this.gotoState(WaitForAuthorityAuthorize);
-  }
-
-  onAuthorityAuthorize (result) {
-    this.gotoState(WaitForSupplicantAuthorize, result);
+    this.listenTo(this.notifier, 'pair:supp:authorize', () => {
+      this.gotoState(WaitForAuthorityAuthorize);
+    });
+    this.listenTo(this.notifier, 'pair:auth:authorize', (result) => {
+      this.gotoState(WaitForSupplicantAuthorize, result);
+    });
   }
 }
 
@@ -34,11 +30,9 @@ class WaitForSupplicantAuthorize extends State {
     super(...args);
 
     this.navigate('/pair/auth/wait_for_supp');
-    this.listenTo(this.notifier, 'pair:supp:authorize', this.gotoComplete);
-  }
-
-  gotoComplete () {
-    this.gotoState(PairAuthComplete, {});
+    this.listenTo(this.notifier, 'pair:supp:authorize', () => {
+      this.gotoState(PairAuthComplete, {});
+    });
   }
 }
 
@@ -48,11 +42,9 @@ class WaitForAuthorityAuthorize extends State {
   constructor (...args) {
     super(...args);
 
-    this.listenTo(this.notifier, 'pair:auth:authorize', this.gotoComplete);
-  }
-
-  gotoComplete (result) {
-    this.gotoState(PairAuthComplete, result);
+    this.listenTo(this.notifier, 'pair:auth:authorize', (result) => {
+      this.gotoState(PairAuthComplete, result);
+    });
   }
 }
 
