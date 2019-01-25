@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-
 function normalizeUrl(url) {
   // Strip any trailing slashes.
   url = url.replace(/\/+$/, '');

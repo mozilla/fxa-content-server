@@ -1,6 +1,12 @@
 ## Pairing Flow Architecture
 
-The Desktop and Mobile devices will not communicate directly, because we cannot assume that they will be on the same network and because this is difficult to achieve from web content. Instead, they will exchange encrypted messages via websocket to a lightweight "channel server" service which can relay messages back and forth:
+To allow users to quickly connect a mobile browser to Firefox Sync, without having to type their password,
+by pairing with an authenticated Firefox profile on their PC via scanning a QR code.
+See the [Project Plan Document](https://docs.google.com/document/d/1mFf0sfEK8o1csXLeyK1x4GS9SUMIq4q8bu25LiydPew/edit#) for more information.
+
+The Desktop and Mobile devices will not communicate directly, because we cannot assume that they will be on
+the same network and because this is difficult to achieve from web content.
+Instead, they will exchange encrypted messages via websocket to a lightweight "channel server" service which can relay messages back and forth:
 
 
 ![](images/pairing-flow1.png)
@@ -23,7 +29,7 @@ It is advised to read the following section while looking at the detail diagram 
 
 To make itself available for pairing, the Desktop device opens a connection to the Channel Server using the [fxa-pairing-channel library](https://github.com/mozilla/fxa-pairing-channel). 
 Any application that learns the channel key will be able to request pairing from the Desktop device, or intercept messages exchanges during the pairing flow.
-This library uses a subset of TLS-like communication between the two devices.
+This library uses a subset the pre-shared key mode of TLS 1.3 for communication between the two devices.
 Once connected it will receive a server-allocated channel id, then the library will generate a 32-byte channel key to be used for client-side encryption of messages on the channel.
  * The channel key is what secures the pairing flow.
  * The channel id and channel key are encoded using base64url and then combined into a "pairing url". 

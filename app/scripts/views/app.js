@@ -86,7 +86,8 @@ define(function (require, exports, module) {
      * replaced.
      *
      * @param {Function} View - the View's constructor
-     * @param {Object} options - options to pass to the constructor
+     * @param {Object} [options] - options to pass to the constructor
+     * @param {boolean} [options.force] - specify if the view must be forced to render
      *
      * @returns {Promise}
      */
