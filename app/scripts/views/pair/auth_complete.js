@@ -12,7 +12,7 @@ class PairAuthCompleteView extends BaseView {
   template = Template;
 
   beforeRender() {
-    this.invokeBrokerMethod('afterPairAuthComplete');
+    return this.invokeBrokerMethod('afterPairAuthComplete');
   }
 
   setInitialContext (context) {

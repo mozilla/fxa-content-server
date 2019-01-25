@@ -6,6 +6,8 @@ import { CompleteState, State } from './state';
 import PairingFlowStateMachine from './state-machine';
 /* eslint-disable no-use-before-define */
 
+// Unlike the Supplicant, the Authority web code does not speak directly to the channel server,
+// all communication is done via the WebChannels in the browser.
 class WaitForAuthorizations extends State {
   name = 'WaitForAuthorizations';
 
@@ -14,6 +16,8 @@ class WaitForAuthorizations extends State {
 
     this.navigate('pair/auth/allow');
 
+    // We listen for both messages at the same time because the pairing process
+    // needs to be authorized on both ends to succeed.
     this.listenTo(this.notifier, 'pair:supp:authorize', () => {
       this.gotoState(WaitForAuthorityAuthorize);
     });

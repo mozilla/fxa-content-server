@@ -19,6 +19,8 @@ export default class AuthorityBroker extends OAuthAuthenticationBroker {
 
     const { notifier } = options;
 
+    // The AuthorityStateMachine is responsible for driving the next steps of the pairing process.
+    // It transitions between various pairing views.
     this.stateMachine = new AuthorityStateMachine({}, {
       broker: this,
       notifier,
