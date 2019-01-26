@@ -29,7 +29,7 @@ describe('models/auth_brokers/pairing/supplicant', function () {
     broker = new SupplicantBroker({
       config,
       notifier,
-      relier: relier,
+      relier,
     });
   });
 
@@ -50,7 +50,7 @@ describe('models/auth_brokers/pairing/supplicant', function () {
         broker = new SupplicantBroker({
           config,
           notifier,
-          relier: relier,
+          relier,
         });
       }, 'Failed to initialize supplicant');
     });

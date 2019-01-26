@@ -81,4 +81,13 @@ class AuthorityStateMachine extends PairingFlowStateMachine {
 }
 
 export default AuthorityStateMachine;
+
+export {
+  WaitForAuthorizations,
+  WaitForSupplicantAuthorize,
+  WaitForAuthorityAuthorize,
+  PairAuthComplete,
+  PairAuthFailure,
+  AuthorityStateMachine
+};
 /* eslint-enable no-use-before-define */

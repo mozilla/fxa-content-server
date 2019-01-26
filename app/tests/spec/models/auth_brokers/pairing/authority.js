@@ -35,9 +35,10 @@ describe('models/auth_brokers/pairing/authority', function () {
           ua: 'Firefox 1.0',
         };
         break;
+      case 'fxaccounts:fxa_status':
       case 'fxaccounts:pair_authorize':
-      case 'fxaccounts:pair_decline':
       case 'fxaccounts:pair_complete':
+      case 'fxaccounts:pair_decline':
       case 'fxaccounts:pair_heartbeat':
         response = {};
         break;

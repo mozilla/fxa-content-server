@@ -51,14 +51,12 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
     super(...args);
 
     this.pairingChannelClient.send('pair:supp:request', this.relier.getOAuthParams()).then(() => {
-      this.listenTo(this.pairingChannelClient, 'remote:pair:auth:metadata', this.gotoWaitForApprovals);
+      this.listenTo(this.pairingChannelClient, 'remote:pair:auth:metadata', (data) => {
+        this.broker.setRemoteMetaData(data.remoteMetaData);
+
+        this.gotoState(WaitForAuthorizations, data);
+      });
     });
-  }
-
-  gotoWaitForApprovals (data) {
-    this.broker.setRemoteMetaData(data.remoteMetaData);
-
-    this.gotoState(WaitForAuthorizations, data);
   }
 }
 
@@ -67,7 +65,6 @@ function onAuthAuthorize (NextState, result) {
     this.relier.validateApprovalData(result);
     const { code } = result;
     this.relier.set({ code });
-
     this.gotoState(NextState);
   }).catch(err => this.trigger('error', err));
 }
@@ -149,5 +146,16 @@ class SupplicantStateMachine extends PairingFlowStateMachine {
 }
 
 export default SupplicantStateMachine;
+
+export {
+  SupplicantState,
+  WaitForConnectionToChannelServer,
+  SendOAuthRequestWaitForAccountMetadata,
+  WaitForAuthorizations,
+  WaitForSupplicantAuthorize,
+  WaitForAuthorityAuthorize,
+  SendResultToRelier,
+  SupplicantStateMachine,
+};
 
 /* eslint-enable no-use-before-define */
