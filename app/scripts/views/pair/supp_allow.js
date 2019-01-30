@@ -7,7 +7,6 @@ import Cocktail from 'cocktail';
 import FormView from '../form';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
 import { preventDefaultThen } from '../base';
-import ServiceMixin from '../mixins/service-mixin';
 import Template from '../../templates/pair/supp_allow.mustache';
 
 class PairSuppAllowView extends FormView {
@@ -20,7 +19,6 @@ class PairSuppAllowView extends FormView {
   setInitialContext (context) {
     context.set(this.model.pick(
       'deviceName',
-      'displayName',
       'email',
     ));
   }
@@ -37,7 +35,6 @@ class PairSuppAllowView extends FormView {
 Cocktail.mixin(
   PairSuppAllowView,
   DeviceBeingPairedMixin(),
-  ServiceMixin,
 );
 
 export default PairSuppAllowView;

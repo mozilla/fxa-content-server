@@ -20,18 +20,8 @@ class PairAuthAllowView extends FormView {
     this.listenTo(this.broker, 'error', this.displayError);
   }
 
-  getAccount () {
-    return this.getSignedInAccount();
-  }
-
-  setInitialContext (context) {
-    context.set({
-      email: this.getAccount().get('email')
-    });
-  }
-
   submit () {
-    return this.invokeBrokerMethod('afterPairAuthAllow', this.getAccount());
+    return this.invokeBrokerMethod('afterPairAuthAllow');
   }
 
   cancel () {
