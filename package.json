@@ -63,7 +63,7 @@
     "fxa-geodb": "1.0.4",
     "fxa-js-client": "1.0.7",
     "fxa-mustache-loader": "0.0.2",
-    "fxa-pairing-channel": "github:mozilla/fxa-pairing-channel#tls13-psk-mode",
+    "fxa-pairing-channel": "github:mozilla/fxa-pairing-channel#9d7f09b81551d37c3ec06bf8c86d560772743a30",
     "fxa-shared": "1.0.15",
     "got": "6.7.1",
     "grunt": "1.0.3",
