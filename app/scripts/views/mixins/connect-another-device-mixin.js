@@ -85,6 +85,16 @@ define(function(require, exports, module) {
     },
 
     /**
+     * Replace the current page with the connect app screen.
+     *
+     * @param {Object} account
+     * @param {Boolean} showSuccessMessage
+     */
+    replaceCurrentPageWithAppsScreen (account, showSuccessMessage) {
+      this.replaceCurrentPage('connect_another_service', { account, showSuccessMessage });
+    },
+
+    /**
      * Get the country to send an sms to if `account` is eligible for SMS?
      *
      * @param {Object} account

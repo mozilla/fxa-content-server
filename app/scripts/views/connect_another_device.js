@@ -13,6 +13,7 @@ define(function (require, exports, module) {
 
   const Cocktail = require('cocktail');
   const ConnectAnotherDeviceMixin = require('./mixins/connect-another-device-mixin');
+  const ConnectAnotherServiceExperimentMixin = require('./mixins/connect-another-service-experiment-mixin');
   const ExperimentMixin = require('./mixins/experiment-mixin');
   const FlowEventsMixin = require('./mixins/flow-events-mixin');
   const FormView = require('./form');
@@ -59,6 +60,13 @@ define(function (require, exports, module) {
           if (country) {
             return this.replaceCurrentPageWithSmsScreen(account, country, this._showSuccessMessage());
           }
+
+          // Check to see if user is in the ConnectAnotherService Experiment and
+          // navigate to page.
+          if (this.isInConnectAnotherServiceExperiment()) {
+            return this.replaceCurrentPageWithAppsScreen(account, this._showSuccessMessage());
+          }
+
         });
     }
 
@@ -271,7 +279,8 @@ define(function (require, exports, module) {
     }),
     SyncAuthMixin,
     UserAgentMixin,
-    VerificationReasonMixin
+    VerificationReasonMixin,
+    ConnectAnotherServiceExperimentMixin,
   );
 
   module.exports = ConnectAnotherDeviceView;
