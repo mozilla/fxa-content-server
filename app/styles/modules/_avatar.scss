@@ -217,7 +217,7 @@
 
 .avatar-change {
   nav {
-    margin: 0 -40px -40px -40px;
+    margin: 0 -40px -20px -40px;
     padding: 25px 20px 20px;
 
     a {
@@ -246,7 +246,7 @@
       &#camera,
       &#file,
       &.remove {
-        background-position: 50% 0%;
+        background-position: 50% 5%;
 
         &:hover {
           filter: hue-rotate(3deg) saturate(1.1) brightness(.85);
