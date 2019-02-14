@@ -78,7 +78,12 @@ define(function (require, exports, module) {
     },
 
     events: {
-      'blur input.email': 'onEmailBlur'
+      'blur input.email': 'onEmailBlur',
+      'click #pair-btn': 'onPairClick',
+    },
+
+    onPairClick () {
+      this.broker.brokerPairingStart();
     },
 
     getPrefillEmail () {

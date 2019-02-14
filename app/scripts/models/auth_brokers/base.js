@@ -134,6 +134,11 @@ define(function (require, exports, module) {
       });
     },
 
+    brokerPairingStart () {
+      const channel = this._notificationChannel;
+      return channel.send(channel.COMMANDS.PAIR_PREFERENCES);
+    },
+
     /**
      * Request FXA_STATUS info from the UA.
      *

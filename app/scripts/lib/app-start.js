@@ -430,6 +430,7 @@ Start.prototype = {
   },
 
   initializeNotificationChannel () {
+    console.log('initializeNotificationChannel')
     if (! this._notificationChannel) {
       this._notificationChannel =
             new WebChannel(Constants.ACCOUNT_UPDATES_WEBCHANNEL_ID);

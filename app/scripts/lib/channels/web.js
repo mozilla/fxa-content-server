@@ -39,6 +39,7 @@ const COMMANDS = {
   /*
     SYNC_PREFERENCES: 'fxaccounts:sync_preferences', // Removed in issue #4250
     */
+  PAIR_PREFERENCES: 'fxaccounts:pair_preferences',
   VERIFIED: 'fxaccounts:verified',
 };
 
