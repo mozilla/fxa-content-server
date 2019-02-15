@@ -77,6 +77,18 @@ function Start(options = {}) {
   this._window = this.window = options.window || window;
 }
 
+function demoFeatureFlag (name) {
+  console.log('FEATURE FLAG:', name);
+  const element = document.createElement('p');
+  element.style.color = name === 'wibble' ? 'fuchsia' : 'green';
+  element.style.fontSize = '64px';
+  element.style.fontWeight = 'bold';
+  element.style.float = 'left';
+  element.style.clear = 'left';
+  element.innerText = name;
+  document.body.insertBefore(element, document.body.firstChild);
+}
+
 Start.prototype = {
   startApp () {
     // The delay is to give the functional tests time to hook up
@@ -85,6 +97,15 @@ Start.prototype = {
     return p.delay(START_DELAY_MS)
       .then(() => this.initializeDeps())
       .then(() => this.testLocalStorage())
+      .then(() => {
+        const { featureFlags } = this._config;
+        if (featureFlags.wibble) {
+          demoFeatureFlag('wibble');
+        }
+        if (featureFlags.blee) {
+          demoFeatureFlag('blee');
+        }
+      })
       .then(() => this.allResourcesReady())
       .catch((err) => this.fatalError(err));
   },
