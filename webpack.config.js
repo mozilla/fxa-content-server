@@ -5,7 +5,6 @@
 /* eslint-disable */
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const HappyPack = require('happypack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
 
@@ -116,9 +115,31 @@ const webpackConfig = {
           path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates')
         ],
-        use: {
-          loader: 'happypack/loader',
-        }
+        use: [
+          {
+            loader: 'thread-loader',
+            options: {
+              workers: 4,
+              workerParallelJobs: 50
+            }
+          },
+          {
+            loader: 'babel-loader',
+            options: {
+              cacheDirectory: true,
+              plugins: [
+                'dynamic-import-webpack',
+                '@babel/plugin-proposal-class-properties',
+                ['@babel/plugin-transform-modules-commonjs', {
+                  'allowTopLevelThis': true
+                }]
+              ],
+              presets: [[ '@babel/preset-env', {
+                'modules': false
+              }]],
+            }
+          }
+        ]
       },
       {
         test: /\.scss$/,
@@ -158,18 +179,6 @@ const webpackConfig = {
     },
   },
   plugins: ([
-    new HappyPack({
-      loaders: [{
-        path: 'babel-loader',
-        query: {
-          cacheDirectory: true,
-          presets: ['babel-preset-es2015'],
-          plugins: ['babel-plugin-syntax-dynamic-import', 'transform-class-properties']
-        }
-      }],
-      threads: 4,
-      debug: false
-    }),
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
     new webpack.IgnorePlugin(/\.md$/)
