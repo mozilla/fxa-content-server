@@ -61,6 +61,12 @@ define(function (require, exports, module) {
         });
       });
 
+      describe('invalid', () => {
+        it('if age is greater than 130, throws a `INVALID_AGE`', () => {
+          assert.isTrue(AuthErrors.is(validate($coppaEl, '131'), 'INVALID_AGE'));
+        });
+      });
+
       describe('not required', () => {
         it('does not throw if empty', () => {
           assert.isUndefined(validate($coppaEl, ''));

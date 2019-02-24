@@ -19,6 +19,11 @@ define(function (require, exports, module) {
       const isRequired = typeof this.attr('required') !== 'undefined';
       const value = this.val();
 
+      const maxValidAge = 130;
+      if (value > maxValidAge) {
+        throw AuthErrors.toError('INVALID_AGE');
+      }
+
       if (isRequired && ! isValidAge(value)) {
         throw AuthErrors.toError('AGE_REQUIRED');
       }
