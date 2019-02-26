@@ -1209,12 +1209,15 @@ const openPage = thenify(function (url, readySelector, options) {
     .setFindTimeout(config.pageLoadTimeout)
 
     .then(function () {
-      const webChannelResponses = options.webChannelResponses;
-      if (webChannelResponses) {
-        return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
-          return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
-        }, this.parent);
+      const webChannelResponses = options.webChannelResponses || {};
+      if (! webChannelResponses['fxaccounts:fxa_status']) {
+        // fxaccounts:fxa_status is expected to be returned in Firefox Desktop >= 55. Tests
+        // now default to 67.0.
+        webChannelResponses['fxaccounts:fxa_status'] = { capabilities: null, signedInUser: null };
       }
+      return Object.keys(webChannelResponses).reduce((parent, webChannelMessage) => {
+        return parent.then(respondToWebChannelMessage(webChannelMessage, webChannelResponses[webChannelMessage]));
+      }, this.parent);
     })
 
     // Wait until the `readySelector` element is found to return.
