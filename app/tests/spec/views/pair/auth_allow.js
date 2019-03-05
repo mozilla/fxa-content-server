@@ -24,6 +24,7 @@ const REMOTE_METADATA = {
 };
 
 describe('views/pair/auth_allow', () => {
+  let account;
   let broker;
   let config;
   let relier;
@@ -41,6 +42,10 @@ describe('views/pair/auth_allow', () => {
       clientId: '3c49430b43dfba77',
     });
     user = new User();
+    account = user.initAccount();
+    sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
+      return Promise.resolve({exists: false});
+    });
     notifier = new Notifier();
     broker = new AuthorityBroker({
       config,
@@ -66,6 +71,7 @@ describe('views/pair/auth_allow', () => {
       viewName: 'pairAuthAllow',
       window: windowMock
     });
+    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   }
 
   describe('render', () => {
@@ -96,6 +102,19 @@ describe('views/pair/auth_allow', () => {
             assert.isTrue(view.displayError.calledOnce);
             done();
           }, 1);
+        });
+    });
+
+    it('blocks users with TOTP', () => {
+      account.checkTotpTokenExists.restore();
+      sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
+        return Promise.resolve({exists: true});
+      });
+      sinon.spy(view, 'replaceCurrentPage');
+      return view.render()
+        .then(() => {
+          assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
+          assert.equal(view.replaceCurrentPage.args[0][1].error.message, 'Accounts with two-step authentication do not support pairing at this time');
         });
     });
   });
