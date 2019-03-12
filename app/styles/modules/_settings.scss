@@ -113,7 +113,7 @@ body.settings #main-content.card {
     z-index: 2;
 
     @include respond-to('big') {
-      margin: 0px;
+      margin: 0;
       position: absolute;
       top: 64px;
       width: 100%;

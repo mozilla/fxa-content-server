@@ -22,6 +22,7 @@ const DELAY_BEFORE_UPDATE_MODEL_MS = 1000;
 
 const PasswordWithStrengthBalloonView = FormView.extend({
   events: {
+    blur: 'hideBalloon',
     change: 'updateModelAfterDelay',
     focus: 'createBalloonIfNeeded',
     keypress: 'updateModelAfterDelay',
@@ -44,13 +45,14 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     this.updateModelAfterDelay = debounce(() => this.updateModel(), delayBeforeUpdateModelMS);
   },
 
-  createBalloonIfNeeded () {
+  createBalloonIfNeeded (ev) {
     // The balloon is created as soon as the user focuses the input element
     // and the password is missing or invalid, or as soon as the model
     // becomes invalid.
     if (this.shouldCreateBalloon()) {
       this.createBalloon();
     }
+    this.showBalloon();
   },
 
   shouldCreateBalloon () {
@@ -95,6 +97,18 @@ const PasswordWithStrengthBalloonView = FormView.extend({
           this.updateModel();
         }
       });
+  },
+
+  showBalloon () {
+    if (this.passwordHelperBalloon) {
+      this.passwordHelperBalloon.show();
+    }
+  },
+
+  hideBalloon () {
+    if (this.passwordHelperBalloon) {
+      this.passwordHelperBalloon.hide();
+    }
   },
 
   /**

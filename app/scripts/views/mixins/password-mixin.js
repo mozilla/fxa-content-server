@@ -199,12 +199,12 @@ module.exports = {
   },
 
   showPasswordHelper () {
-    this.$('.input-help:not(.password-strength-balloon)').css('opacity', '1');
+    this.$('.input-help:not(.password-strength-balloon,.password-repeat-balloon)').css('opacity', '1');
   },
 
   hidePasswordHelper () {
     // Hide all input-help classes except input-help-forgot-pw
-    this.$('.input-help:not(.input-help-forgot-pw,.password-strength-balloon)').css('opacity', '0');
+    this.$('.input-help:not(.input-help-forgot-pw,.password-strength-balloon,.password-repeat-balloon)').css('opacity', '0');
   },
 
   /**
