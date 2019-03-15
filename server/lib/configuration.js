@@ -35,28 +35,6 @@ const conf = module.exports = convict({
     doc: 'Check if the resources are under the /dist directory',
     format: Boolean
   },
-  basket: {
-    api_key: {
-      default: 'test key please change',
-      doc: 'Basket API key',
-      format: String
-    },
-    api_timeout: {
-      default: '5 seconds',
-      doc: 'Timeout for talking to the Basket API server, in ms',
-      format: Number
-    },
-    api_url: {
-      default: 'http://127.0.0.1:10140',
-      doc: 'Url for the Basket API server',
-      format: String
-    },
-    proxy_url: {
-      default: 'http://127.0.0.1:1114',
-      doc: 'Url for the Basket proxy server',
-      format: String
-    }
-  },
   cachify_prefix: {
     default: 'v',
     doc: 'The prefix for cachify hashes in URLs'
@@ -340,8 +318,18 @@ const conf = module.exports = convict({
     }
   },
   marketing_email: {
+    api_key: {
+      default: 'test key please change',
+      doc: 'Basket API key',
+      format: String
+    },
+    api_timeout: {
+      default: '5 seconds',
+      doc: 'Timeout for talking to the Basket API server, in ms',
+      format: 'duration'
+    },
     api_url: {
-      default: 'http://127.0.0.1:1114',
+      default: 'http://127.0.0.1:10140',
       doc: 'User facing URL of the Marketing Email Server',
       env: 'FXA_MARKETING_EMAIL_API_URL',
       format: 'url'
