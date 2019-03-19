@@ -22,7 +22,7 @@ const deps = process.argv.reduce((accumulator, depName, index) => {
   if (index > 1) {
     const version = dependencies[depName] || devDependencies[depName];
     if (! version) {
-      throw new Error('depName does not have an associated version');
+      throw new Error('depName does not have an associated version ' + depName);
     }
 
     if (GITHUB_DEP_URL.test(version)) {
