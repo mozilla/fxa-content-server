@@ -82,7 +82,7 @@ describe('views/ready', function () {
       FORCE_AUTH: '#fxa-force-auth-complete-header',
       PASSWORD_RESET: '#fxa-reset-password-complete-header',
       SIGN_IN: '#fxa-sign-in-complete-header',
-      SIGN_UP: '#fxa-sign-up-complete-header'
+      SIGN_UP: '#fxa-sign-up-complete-header',
     };
 
     for (var type in expectedHeaders) {

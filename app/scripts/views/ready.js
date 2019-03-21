@@ -63,6 +63,11 @@ const TEMPLATE_INFO = {
     headerId: 'fxa-sign-up-complete-header',
     headerTitle: t('Account verified'),
     readyToSyncText: t('You are now ready to use %(serviceName)s')
+  },
+  SUCCESSFUL_OAUTH: {
+    headerId: 'oauth-successfully-added-header',
+    headerTitle: t('Another device connected'),
+    readyToSyncText: t('You are now ready to use %(serviceName)s')
   }
 };
 
