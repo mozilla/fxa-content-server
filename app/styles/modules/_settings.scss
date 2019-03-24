@@ -555,6 +555,10 @@ section.modal-panel {
   &[data-name='Screenshots'] {
     background-image: url('/images/icon-service-screenshots.svg');
   }
+
+  &[data-name='Firefox Send'] {
+    background-image: url('/images/icon-service-send.svg');
+  }
 }
 
 .client-webSession {
