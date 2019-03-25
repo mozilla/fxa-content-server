@@ -80,16 +80,16 @@
     margin-bottom: 20px;
 
     .recovery-code {
-      color: $recovery-code-color;
-      border-width: 2px;
-      border-color:#e6e6e6; 
-      border-style: dotted;
-      display: inline-block;
-      padding: 8px;
-      margin-bottom: 6px;
       background-color: $recovery-code-background-color;
+      border-color: $recovery-code-border-color; 
+      border-style: dotted;
+      border-width: 2px;
+      color: $recovery-code-color;
+      display: inline-block;
       font-family: monospace;
       font-size: 1.2em;
+      margin-bottom: 6px;
+      padding: 8px;
       @include respond-to('small') {
         font-size: 1.5em;
       }
