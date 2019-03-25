@@ -18,9 +18,17 @@ define(function (require, exports, module) {
 
     beforeRender () {
       try {
+        const account = this.getSignedInAccount();
+        const uid = account.get('uid');
+
         localStorage.clear();
         sessionStorage.clear();
         document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+
+        if (uid) {
+          // if uid provided, clear the browser logged in state
+          this.user.clearSignedInAccount();
+        }
       } catch (e) {
         // if cookies are disabled, this will blow up some browsers.
       }
