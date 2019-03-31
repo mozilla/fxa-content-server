@@ -5,10 +5,7 @@
 /**
  * Interface to experiment choices.
  */
-
-'use strict';
-
-const _ = require('underscore');
+import _ from 'underscore';
 
 const experimentGroupingRules = [
   require('./communication-prefs'),
@@ -60,7 +57,7 @@ class ExperimentChoiceIndex {
 
 ExperimentChoiceIndex.EXPERIMENT_NAMES = experimentGroupingRules.map(experimentGroupingRule => experimentGroupingRule.name);
 
-module.exports = ExperimentChoiceIndex;
+export default ExperimentChoiceIndex;
 
 function isExperimentAllowed(experiment, subject) {
   // Functional tests use the forceExperiment & forceExperimentGroup query parameters

@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const chai = require('chai');
-  const ProgressIndicator = require('views/progress_indicator');
-  const sinon = require('sinon');
+  import $ from 'jquery';
+  import chai from 'chai';
+  import ProgressIndicator from 'views/progress_indicator';
+  import sinon from 'sinon';
 
   var assert = chai.assert;
   var progressIndicator;

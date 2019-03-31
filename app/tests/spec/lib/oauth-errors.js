@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const OAuthErrors = require('lib/oauth-errors');
+  import chai from 'chai';
+  import OAuthErrors from 'lib/oauth-errors';
 
   var assert = chai.assert;
 

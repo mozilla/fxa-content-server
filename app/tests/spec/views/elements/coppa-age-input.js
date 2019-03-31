@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const CoppaAgeEl = require('views/elements/coppa-age-input');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import AuthErrors from 'lib/auth-errors';
+  import CoppaAgeEl from 'views/elements/coppa-age-input';
 
   const TEMPLATE = `
     <input type="text" />

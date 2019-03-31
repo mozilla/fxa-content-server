@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const HaltBehavior = require('views/behaviors/halt');
+  import chai from 'chai';
+  import HaltBehavior from 'views/behaviors/halt';
 
   var assert = chai.assert;
 

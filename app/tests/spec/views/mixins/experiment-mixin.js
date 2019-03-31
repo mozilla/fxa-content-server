@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const Mixin = require('views/mixins/experiment-mixin');
-  const sinon = require('sinon');
-  const TestTemplate = require('templates/test_template.mustache');
-  const WindowMock = require('../../../mocks/window');
+  import { assert } from 'chai';
+  import BaseView from 'views/base';
+  import Cocktail from 'cocktail';
+  import Mixin from 'views/mixins/experiment-mixin';
+  import sinon from 'sinon';
+  import TestTemplate from 'templates/test_template.mustache';
+  import WindowMock from '../../../mocks/window';
 
   const View = BaseView.extend({
     template: TestTemplate

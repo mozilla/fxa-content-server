@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
   const t = msg => msg;
 
   const HTML_CHAR_CODE = /&(\D+|#\d+);/i;
@@ -90,7 +88,7 @@ define(function (require, exports, module) {
     return UNNAMED_VARIABLE.test(string) || UNSAFE_VARIABLE.test(string);
   }
 
-  module.exports = {
+  export default {
     hasHTML,
     hasUnsafeVariables,
     interpolate

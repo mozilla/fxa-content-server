@@ -6,9 +6,7 @@
 // saved to sessionStorage and automatically loaded from sessionStorage on startup.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
+  import _ from 'underscore';
 
   var NAMESPACE = '__fxa_session';
 
@@ -195,5 +193,5 @@ define(function (require, exports, module) {
 
 
   // session is a singleton
-  module.exports = new Session();
+  export default new Session();
 });

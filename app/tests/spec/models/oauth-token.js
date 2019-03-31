@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const OAuthToken = require('models/oauth-token');
-  const sinon = require('sinon');
+  import chai from 'chai';
+  import OAuthToken from 'models/oauth-token';
+  import sinon from 'sinon';
 
   var assert = chai.assert;
 

@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const assert = require('chai').assert;
-  const WebSession = require('models/web-session');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import WebSession from 'models/web-session';
+  import sinon from 'sinon';
 
   describe('models/web-session', () => {
     var session;

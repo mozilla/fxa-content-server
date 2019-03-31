@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const FxDesktopV3AuthenticationBroker = require('models/auth_brokers/fx-desktop-v3');
-  const sinon = require('sinon');
-  const WindowMock = require('../../../mocks/window');
+  import { assert } from 'chai';
+  import FxDesktopV3AuthenticationBroker from 'models/auth_brokers/fx-desktop-v3';
+  import sinon from 'sinon';
+  import WindowMock from '../../../mocks/window';
 
   describe('models/auth_brokers/fx-desktop-v3', () => {
     var broker;

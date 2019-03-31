@@ -17,12 +17,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Duration = require('duration');
-  const EmailResend = require('../../models/email-resend');
-  const { preventDefaultThen } = require('../base');
+  import _ from 'underscore';
+  import Duration from 'duration';
+  import EmailResend from '../../models/email-resend';
+  import { preventDefaultThen } from '../base';
   const t = msg => msg;
 
   const SHOW_RESEND_IN_MS = new Duration('5m').milliseconds();
@@ -35,7 +33,7 @@ define(function (require, exports, module) {
    *     Defaults to `Email resent`. If falsey, no message is displayed.
    * @return {Function} the mixin to be consumed by views.
    */
-  module.exports = function (options = {}) {
+  export default (options = {}) => {
     const { successMessage } = _.defaults(options, {
       successMessage: t('Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.')
     });

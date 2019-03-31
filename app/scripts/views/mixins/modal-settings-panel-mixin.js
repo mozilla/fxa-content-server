@@ -90,4 +90,4 @@ const Mixin = assign({}, ModalPanelMixin, {
   }
 });
 
-module.exports = Mixin;
+export default Mixin;

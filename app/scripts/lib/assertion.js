@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define(function (require, exports, module) {
-  'use strict';
-
-  const Duration = require('duration');
-  const P = require('./promise');
+  import Duration from 'duration';
+  import P from './promise';
 
   // The CERT_DURATION_MS is an offset from the fxa-auth-server clock, which we can reasonably assume to
   // be accurate and, more importantly, in sync with the clocks of fxa-oauth-server and other consumers
@@ -103,5 +101,5 @@ define(function (require, exports, module) {
     generate: bundle
   };
 
-  module.exports = Assertion;
+  export default Assertion;
 });

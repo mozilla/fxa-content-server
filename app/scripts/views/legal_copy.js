@@ -10,12 +10,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const BackMixin = require('./mixins/back-mixin');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const xhr = require('../lib/xhr');
+  import BackMixin from './mixins/back-mixin';
+  import BaseView from './base';
+  import Cocktail from 'cocktail';
+  import xhr from '../lib/xhr';
 
   const proto = BaseView.prototype;
   const View = BaseView.extend({
@@ -70,6 +68,6 @@ define(function (require, exports, module) {
     BackMixin
   );
 
-  module.exports = View;
+  export default View;
 });
 

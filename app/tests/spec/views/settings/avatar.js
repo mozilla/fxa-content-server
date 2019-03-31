@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const chai = require('chai');
-  const FxaClientMock = require('../../../mocks/fxa-client');
-  const Notifier = require('lib/channels/notifier');
-  const Relier = require('models/reliers/relier');
-  const sinon = require('sinon');
-  const User = require('models/user');
-  const View = require('views/settings/avatar');
+  import $ from 'jquery';
+  import chai from 'chai';
+  import FxaClientMock from '../../../mocks/fxa-client';
+  import Notifier from 'lib/channels/notifier';
+  import Relier from 'models/reliers/relier';
+  import sinon from 'sinon';
+  import User from 'models/user';
+  import View from 'views/settings/avatar';
 
   var assert = chai.assert;
 

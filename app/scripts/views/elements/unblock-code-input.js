@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
-  const textInput = require('./text-input');
-  const Vat = require('../../lib/vat');
+  import AuthErrors from '../../lib/auth-errors';
+  import textInput from './text-input';
+  import Vat from '../../lib/vat';
 
   const element = Object.create(textInput);
 
@@ -34,6 +32,6 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = element;
+  export default element;
 });
 

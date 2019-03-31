@@ -6,12 +6,10 @@
 // OAuth services but also Sync.
 
 define(function (require, exports, module) {
-  'use strict';
+  import BaseView from '../base';
+  import $ from 'jquery';
 
-  const BaseView = require('../base');
-  const $ = require('jquery');
-
-  module.exports = {
+  export default {
     afterRender () {
       this.transformLinks();
     },

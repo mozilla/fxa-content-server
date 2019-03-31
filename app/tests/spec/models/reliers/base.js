@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const BaseRelier = require('models/reliers/base');
-  const chai = require('chai');
+  import BaseRelier from 'models/reliers/base';
+  import chai from 'chai';
 
   var assert = chai.assert;
 

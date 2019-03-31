@@ -6,12 +6,10 @@
 // Modal childViews of Settings use modal-settings-panel-mixin instead.
 
 define(function (require, exports, module) {
-  'use strict';
+  import $ from 'jquery';
+  import BaseView from '../base';
 
-  const $ = require('jquery');
-  const BaseView = require('../base');
-
-  module.exports = {
+  export default {
     initialize (options) {
       this.parentView = options.parentView;
     },

@@ -3,9 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // It's a tooltip!
-
-'use strict';
-
 import $ from 'jquery';
 import _ from 'underscore';
 import BaseView from './base';
@@ -160,4 +157,4 @@ Cocktail.mixin(
   })
 );
 
-module.exports = Tooltip;
+export default Tooltip;

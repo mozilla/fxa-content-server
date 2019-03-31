@@ -10,12 +10,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Cocktail = require('cocktail');
-  const FxDesktopV2AuthenticationBroker = require('./fx-desktop-v2');
-  const UserAgentMixin = require('lib/user-agent-mixin');
+  import _ from 'underscore';
+  import Cocktail from 'cocktail';
+  import FxDesktopV2AuthenticationBroker from './fx-desktop-v2';
+  import UserAgentMixin from 'lib/user-agent-mixin';
 
   const proto = FxDesktopV2AuthenticationBroker.prototype;
 
@@ -42,6 +40,6 @@ define(function (require, exports, module) {
     UserAgentMixin
   );
 
-  module.exports = FxDesktopV3AuthenticationBroker;
+  export default FxDesktopV3AuthenticationBroker;
 });
 

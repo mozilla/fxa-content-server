@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const { assert } = require('chai');
-  const BaseExperiment = require('lib/experiments/grouping-rules/base');
-  const uuid = require('uuid');
+  import _ from 'underscore';
+  import { assert } from 'chai';
+  import BaseExperiment from 'lib/experiments/grouping-rules/base';
+  import uuid from 'uuid';
 
   describe('lib/experiments/grouping-rules/base', () => {
     let experiment;

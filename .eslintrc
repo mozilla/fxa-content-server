@@ -5,6 +5,9 @@ extends: plugin:fxa/client
 
 # Required for `import( )` webpack feature
 parser: babel-eslint
+parserOptions:
+  sourceType: "module"
+  allowImportExportEverywhere: true
 
 rules:
   brace-style: 2

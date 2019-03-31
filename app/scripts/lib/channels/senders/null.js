@@ -7,8 +7,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   function NullSender() {
     // nothing to do here.
   }
@@ -25,7 +23,7 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = NullSender;
+  export default NullSender;
 });
 
 

@@ -9,8 +9,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   function allowOnlyOneSubmit(handler) {
     return function () {
       var args = arguments;
@@ -34,5 +32,5 @@ define(function (require, exports, module) {
     };
   }
 
-  module.exports = allowOnlyOneSubmit;
+  export default allowOnlyOneSubmit;
 });

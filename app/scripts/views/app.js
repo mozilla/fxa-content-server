@@ -7,14 +7,12 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const Backbone = require('backbone');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const KeyCodes = require('../lib/key-codes');
-  const LoadingMixin = require('./mixins/loading-mixin');
+  import $ from 'jquery';
+  import Backbone from 'backbone';
+  import BaseView from './base';
+  import Cocktail from 'cocktail';
+  import KeyCodes from '../lib/key-codes';
+  import LoadingMixin from './mixins/loading-mixin';
 
   var AppView = BaseView.extend({
     initialize (options) {
@@ -206,5 +204,5 @@ define(function (require, exports, module) {
     LoadingMixin
   );
 
-  module.exports = AppView;
+  export default AppView;
 });

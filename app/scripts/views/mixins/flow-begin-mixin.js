@@ -5,11 +5,9 @@
 // Tells the server to emit the `flow.${viewName}.begin` event.
 
 define(function (require, exports, module) {
-  'use strict';
+  import FlowEventsMixin from './flow-events-mixin';
 
-  const FlowEventsMixin = require('./flow-events-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ FlowEventsMixin ],
 
     afterRender () {

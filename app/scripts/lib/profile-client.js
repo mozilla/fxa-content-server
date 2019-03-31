@@ -5,10 +5,8 @@
 // This module handles communication with the fxa-profile-server.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const ProfileErrors = require('./profile-errors');
-  const xhr = require('./xhr');
+  import ProfileErrors from './profile-errors';
+  import xhr from './xhr';
 
   function ProfileClient(options) {
     options = options || {};
@@ -67,6 +65,6 @@ define(function (require, exports, module) {
 
   ProfileClient.Errors = ProfileErrors;
 
-  module.exports = ProfileClient;
+  export default ProfileClient;
 });
 

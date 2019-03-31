@@ -5,12 +5,10 @@
 // Populates the flow model and initialises flow event handlers.
 
 define(function (require, exports, module) {
-  'use strict';
+  import $ from 'jquery';
+  import KEYS from '../../lib/key-codes';
 
-  const $ = require('jquery');
-  const KEYS = require('../../lib/key-codes');
-
-  module.exports = {
+  export default {
     afterRender () {
       this.notifier.trigger('flow.initialize');
     },

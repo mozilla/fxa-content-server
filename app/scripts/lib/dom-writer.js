@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
+  import $ from 'jquery';
 
-  const $ = require('jquery');
-
-  module.exports = {
+  export default {
     /**
      * Write content to the DOM
      *

@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
+  import _ from 'underscore';
+  import Strings from './strings';
 
-  const _ = require('underscore');
-  const Strings = require('./strings');
-
-  module.exports = {
+  export default {
     /**
      * Find an error in this.ERRORS. Searches by string, number,
      * or if searchFor contains errno, the errno.

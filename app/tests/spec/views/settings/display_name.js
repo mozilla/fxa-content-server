@@ -3,17 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const chai = require('chai');
-  const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
-  const Relier = require('models/reliers/relier');
-  const sinon = require('sinon');
-  const TestHelpers = require('../../../lib/helpers');
-  const User = require('models/user');
-  const View = require('views/settings/display_name');
+  import $ from 'jquery';
+  import chai from 'chai';
+  import Metrics from 'lib/metrics';
+  import Notifier from 'lib/channels/notifier';
+  import Relier from 'models/reliers/relier';
+  import sinon from 'sinon';
+  import TestHelpers from '../../../lib/helpers';
+  import User from 'models/user';
+  import View from 'views/settings/display_name';
 
   var assert = chai.assert;
 

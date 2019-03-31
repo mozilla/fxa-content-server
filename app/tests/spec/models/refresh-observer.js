@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
-  const RefreshObserver = require('models/refresh-observer');
-  const sinon = require('sinon');
-  const WindowMock = require('../../mocks/window');
+  import chai from 'chai';
+  import Metrics from 'lib/metrics';
+  import Notifier from 'lib/channels/notifier';
+  import RefreshObserver from 'models/refresh-observer';
+  import sinon from 'sinon';
+  import WindowMock from '../../mocks/window';
 
   var assert = chai.assert;
 

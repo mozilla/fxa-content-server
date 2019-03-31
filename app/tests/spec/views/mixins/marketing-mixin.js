@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const Backbone = require('backbone');
-  const BaseBroker = require('models/auth_brokers/base');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const sinon = require('sinon');
-  const Template = require('templates/test_template.mustache');
-  const MarketingMixin = require('views/mixins/marketing-mixin');
+  import { assert } from 'chai';
+  import Backbone from 'backbone';
+  import BaseBroker from 'models/auth_brokers/base';
+  import BaseView from 'views/base';
+  import Cocktail from 'cocktail';
+  import sinon from 'sinon';
+  import Template from 'templates/test_template.mustache';
+  import MarketingMixin from 'views/mixins/marketing-mixin';
 
   const AutoCreateView = BaseView.extend({
     template: Template

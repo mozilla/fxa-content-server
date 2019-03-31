@@ -6,14 +6,12 @@
  * Notifies the user that their sign-in confirmation email bounced.
  */
 define(function (require, exports, module) {
-  'use strict';
-
-  const BackMixin = require('./mixins/back-mixin');
-  const BaseView = require('./base');
-  const Cocktail = require('cocktail');
-  const FlowEventsMixin = require('./mixins/flow-events-mixin');
-  const Session = require('../lib/session');
-  const Template = require('templates/sign_in_bounced.mustache');
+  import BackMixin from './mixins/back-mixin';
+  import BaseView from './base';
+  import Cocktail from 'cocktail';
+  import FlowEventsMixin from './mixins/flow-events-mixin';
+  import Session from '../lib/session';
+  import Template from 'templates/sign_in_bounced.mustache';
 
   const SignInBouncedView = BaseView.extend({
     events: {
@@ -56,6 +54,6 @@ define(function (require, exports, module) {
     FlowEventsMixin
   );
 
-  module.exports = SignInBouncedView;
+  export default SignInBouncedView;
 });
 

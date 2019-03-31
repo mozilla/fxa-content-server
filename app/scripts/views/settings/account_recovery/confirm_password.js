@@ -67,5 +67,5 @@ Cocktail.mixin(
   PasswordMixin
 );
 
-module.exports = View;
+export default View;
 

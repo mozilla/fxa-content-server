@@ -7,10 +7,7 @@
  * on the "Basket" server, not the auth server. Email preferences are
  * loaded on demand, independently of account information.
  */
-
-'use strict';
-
-const { Model } = require('backbone');
+import { Model } from 'backbone';
 
 const SCOPES = 'basket profile:email';
 
@@ -108,4 +105,4 @@ const MarketingEmailPrefs = Model.extend({
   }
 });
 
-module.exports = MarketingEmailPrefs;
+export default MarketingEmailPrefs;

@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const assert = require('chai').assert;
-  const Device = require('models/device');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import Device from 'models/device';
+  import sinon from 'sinon';
 
   describe('models/device', function () {
     var device;

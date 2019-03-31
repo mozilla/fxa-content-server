@@ -8,9 +8,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
+  import AuthErrors from '../../lib/auth-errors';
 
   function notifyDelayedRequest(handler) {
     return function () {
@@ -38,5 +36,5 @@ define(function (require, exports, module) {
     };
   }
 
-  module.exports = notifyDelayedRequest;
+  export default notifyDelayedRequest;
 });

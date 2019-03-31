@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const Constants = require('lib/constants');
-  const { createRandomHexString } = require('../../../lib/helpers');
-  const Model = require('models/verification/report-sign-in');
+  import { assert } from 'chai';
+  import Constants from 'lib/constants';
+  import { createRandomHexString } from '../../../lib/helpers';
+  import Model from 'models/verification/report-sign-in';
 
   describe('models/verification/report-sign-in', () => {
     const invalidUnblockCode = createRandomHexString(Constants.UNBLOCK_CODE_LENGTH + 1);

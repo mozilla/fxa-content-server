@@ -7,10 +7,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
 
   function NullReceiver() {
     // nothing to do
@@ -23,6 +21,6 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = NullReceiver;
+  export default NullReceiver;
 });
 

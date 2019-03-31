@@ -6,8 +6,6 @@
 // It's used for testing lib/storage.
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   function NullStorage () {
     this._storage = {};
@@ -35,5 +33,5 @@ define(function (require, exports, module) {
     this._storage = {};
   };
 
-  module.exports = NullStorage;
+  export default NullStorage;
 });

@@ -8,9 +8,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const UserAgent = require('lib/user-agent');
+  import UserAgent from 'lib/user-agent';
 
   function WebChannelSender() {
     // nothing to do here.
@@ -119,5 +117,5 @@ define(function (require, exports, module) {
     }
   }
 
-  module.exports = WebChannelSender;
+  export default WebChannelSender;
 });

@@ -127,4 +127,4 @@ Cocktail.mixin(
   SignUpMixin
 );
 
-module.exports = SignUpPasswordView;
+export default SignUpPasswordView;

@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const ProfileErrors = require('lib/profile-errors');
-  const ProfileImage = require('models/profile-image');
+  import chai from 'chai';
+  import ProfileErrors from 'lib/profile-errors';
+  import ProfileImage from 'models/profile-image';
 
   var assert = chai.assert;
 

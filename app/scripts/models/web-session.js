@@ -6,12 +6,10 @@
  * Web Session information
  */
 define(function (require, exports, module) {
-  'use strict';
+  import Backbone from 'backbone';
+  import Constants from '../lib/constants';
 
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
-
-  module.exports = Backbone.Model.extend({
+  export default Backbone.Model.extend({
     defaults: {
       approximateLastAccessTime: null,
       approximateLastAccessTimeFormatted: null,

@@ -12,8 +12,6 @@
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
 (function (root, factory) {
-  'use strict';
-
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define(factory);
@@ -22,8 +20,6 @@
     root.FxaHead.Environment = factory();
   }
 }(window, function () {
-  'use strict';
-
   function Environment(win) {
     this.window = win;
   }

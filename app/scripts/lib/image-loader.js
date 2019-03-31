@@ -5,9 +5,7 @@
 // A utility for pre-loading images
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
+  import _ from 'underscore';
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme
@@ -24,7 +22,7 @@ define(function (require, exports, module) {
     });
   }
 
-  module.exports = {
+  export default {
     load: load
   };
 });

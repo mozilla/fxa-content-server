@@ -31,9 +31,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
+  import _ from 'underscore';
 
   const ONCE_PREFIX = /^once!/;
 
@@ -152,5 +150,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = NotifierMixin;
+  export default NotifierMixin;
 });

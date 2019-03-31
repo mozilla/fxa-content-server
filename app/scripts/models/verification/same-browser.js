@@ -16,10 +16,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const Storage = require('../../lib/storage');
+  import Backbone from 'backbone';
+  import Storage from '../../lib/storage';
 
   var STORAGE_KEY = 'verificationInfo';
 
@@ -104,5 +102,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = SameBrowserVerificationModel;
+  export default SameBrowserVerificationModel;
 });

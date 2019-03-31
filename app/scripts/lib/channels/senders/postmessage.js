@@ -21,8 +21,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   function PostMessageSender() {
     // nothing to do here.
   }
@@ -54,7 +52,7 @@ define(function (require, exports, module) {
     });
   }
 
-  module.exports = PostMessageSender;
+  export default PostMessageSender;
 });
 
 

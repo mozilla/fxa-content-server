@@ -11,11 +11,8 @@
  *    dataType is set. `ajax` is a low level function and does not set
  *    a default data type. See issue #1786.
  */
-
-'use strict';
-
-const $ = require('jquery');
-const _ = require('underscore');
+import $ from 'jquery';
+import _ from 'underscore';
 
 const JSON_CONTENT_TYPE = 'application/json';
 const DEFAULT_DATA_TYPE = 'json';
@@ -40,7 +37,7 @@ function shouldJSONStringifyData(options) {
   return !! (options.data && options.processData !== false && options.contentType === JSON_CONTENT_TYPE);
 }
 
-module.exports = {
+export default {
   /**
    * Low level ajax functionality, does not set a default data type.
    *

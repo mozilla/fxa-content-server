@@ -378,4 +378,4 @@ function sanitizeUntrustedPermissions(permissions) {
   return _.intersection(permissions, Constants.OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS);
 }
 
-module.exports = OAuthRelier;
+export default OAuthRelier;

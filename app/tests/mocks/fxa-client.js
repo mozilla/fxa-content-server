@@ -5,9 +5,7 @@
 // stub out the fxa-client object for testing.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const FxaClientWrapper = require('lib/fxa-client');
+  import FxaClientWrapper from 'lib/fxa-client';
 
   function FxaClientWrapperMock() {
   }
@@ -18,5 +16,5 @@ define(function (require, exports, module) {
     };
   });
 
-  module.exports = FxaClientWrapperMock;
+  export default FxaClientWrapperMock;
 });

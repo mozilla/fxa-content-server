@@ -546,4 +546,4 @@ var FormView = BaseView.extend({
   }
 });
 
-module.exports = FormView;
+export default FormView;

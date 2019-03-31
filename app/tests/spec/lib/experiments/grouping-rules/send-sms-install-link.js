@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const Account = require('models/account');
-  const CountryTelephoneInfo = require('lib/country-telephone-info');
-  const Experiment = require('lib/experiments/grouping-rules/send-sms-install-link');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import Account from 'models/account';
+  import CountryTelephoneInfo from 'lib/country-telephone-info';
+  import Experiment from 'lib/experiments/grouping-rules/send-sms-install-link';
+  import sinon from 'sinon';
 
   describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
     let account;

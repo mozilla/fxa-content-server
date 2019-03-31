@@ -11,16 +11,14 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const Storage = require('../lib/storage');
+  import Backbone from 'backbone';
+  import Storage from '../lib/storage';
 
   function isRefresh (refreshMetrics, viewName) {
     return refreshMetrics && refreshMetrics.view === viewName;
   }
 
-  module.exports = Backbone.Model.extend({
+  export default Backbone.Model.extend({
     initialize (options) {
       options = options || {};
 

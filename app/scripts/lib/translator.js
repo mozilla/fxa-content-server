@@ -8,12 +8,10 @@
 // headers.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const _ = require('underscore');
-  const Strings = require('./strings');
-  const xhr = require('./xhr');
+  import $ from 'jquery';
+  import _ from 'underscore';
+  import Strings from './strings';
+  import xhr from './xhr';
 
   /**
    * @param {Object} options - translator options
@@ -131,5 +129,5 @@ define(function (require, exports, module) {
 
   };
 
-  module.exports = Translator;
+  export default Translator;
 });

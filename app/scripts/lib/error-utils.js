@@ -7,16 +7,14 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import AuthErrors from './auth-errors';
+  import domWriter from './dom-writer';
+  import FiveHundredTemplate from 'templates/500.mustache';
+  import FourHundredTemplate from 'templates/400.mustache';
+  import Logger from './logger';
+  import OAuthErrors from './oauth-errors';
 
-  const AuthErrors = require('./auth-errors');
-  const domWriter = require('./dom-writer');
-  const FiveHundredTemplate = require('templates/500.mustache');
-  const FourHundredTemplate = require('templates/400.mustache');
-  const Logger = require('./logger');
-  const OAuthErrors = require('./oauth-errors');
-
-  module.exports = {
+  export default {
     /**
      * Get the URL of the error page to which an error should redirect.
      *

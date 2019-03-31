@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const sinon = require('sinon');
+  import sinon from 'sinon';
 
   /**
    * Create a fake set of OAuth servers through instantiation.
@@ -48,7 +46,7 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = MockOAuthServers;
+  export default MockOAuthServers;
 
 });
 

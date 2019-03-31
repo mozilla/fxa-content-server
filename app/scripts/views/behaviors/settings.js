@@ -8,9 +8,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const NavigateBehavior = require('../behaviors/navigate');
+  import NavigateBehavior from '../behaviors/navigate';
   const t = msg => msg;
 
   /**
@@ -22,7 +20,7 @@ define(function (require, exports, module) {
    *   @param {String} [options.success] - success message when redirected
    * @return {Object} promise
    */
-  module.exports = function (defaultBehavior, options = {}) {
+  export default (defaultBehavior, options = {}) => {
     const behavior = function (view, account) {
       return account.isSignedIn()
         .then((isSignedIn) => {

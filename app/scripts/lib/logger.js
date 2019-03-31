@@ -9,8 +9,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   /**
    * Constructor of log module.
    *
@@ -79,5 +77,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = Logger;
+  export default Logger;
 });

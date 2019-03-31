@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const HaltIfBrowserTransitions = require('views/behaviors/halt-if-browser-transitions');
+  import { assert } from 'chai';
+  import HaltIfBrowserTransitions from 'views/behaviors/halt-if-browser-transitions';
 
   describe('views/behaviors/halt-if-browser-transitions', function () {
     let defaultBehavior;

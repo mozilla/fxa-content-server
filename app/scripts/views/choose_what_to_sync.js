@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const $ = require('jquery');
-  const BackMixin = require('./mixins/back-mixin');
-  const Cocktail = require('cocktail');
-  const FormView = require('./form');
-  const SessionVerificationPollMixin = require('./mixins/session-verification-poll-mixin');
-  const Template = require('templates/choose_what_to_sync.mustache');
+  import _ from 'underscore';
+  import $ from 'jquery';
+  import BackMixin from './mixins/back-mixin';
+  import Cocktail from 'cocktail';
+  import FormView from './form';
+  import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+  import Template from 'templates/choose_what_to_sync.mustache';
 
   const SCREEN_CLASS = 'screen-choose-what-to-sync';
 
@@ -160,5 +158,5 @@ define(function (require, exports, module) {
     SessionVerificationPollMixin
   );
 
-  module.exports = View;
+  export default View;
 });

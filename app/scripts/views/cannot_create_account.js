@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const BaseView = require('./base');
-  const CannotCreateAccountTemplate = require('templates/cannot_create_account.mustache');
+  import BaseView from './base';
+  import CannotCreateAccountTemplate from 'templates/cannot_create_account.mustache';
 
   const CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,
@@ -18,6 +16,6 @@ define(function (require, exports, module) {
 
   });
 
-  module.exports = CannotCreateAccountView;
+  export default CannotCreateAccountView;
 });
 

@@ -5,10 +5,8 @@
 // A shell of a channel. Doesn't do anything yet, but is a useful standin.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const BaseChannel = require('lib/channels/base');
+  import _ from 'underscore';
+  import BaseChannel from 'lib/channels/base';
 
   function NullChannel() {
     // nothing to do.
@@ -16,5 +14,5 @@ define(function (require, exports, module) {
 
   _.extend(NullChannel.prototype, new BaseChannel());
 
-  module.exports = NullChannel;
+  export default NullChannel;
 });

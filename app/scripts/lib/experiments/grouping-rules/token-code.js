@@ -1,11 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-'use strict';
-
-const BaseGroupingRule = require('./base');
-const Constants = require('../../../lib/constants');
+import BaseGroupingRule from './base';
+import Constants from '../../../lib/constants';
 const GROUPS_DEFAULT = ['treatment-code'];
 
 const ROLLOUT_CLIENTS = {
@@ -35,7 +32,7 @@ const ROLLOUT_CLIENTS = {
   }
 };
 
-module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
+export default class TokenCodeGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'tokenCode';
@@ -87,4 +84,4 @@ module.exports = class TokenCodeGroupingRule extends BaseGroupingRule {
 
     return false;
   }
-};
+}

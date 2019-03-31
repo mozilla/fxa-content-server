@@ -5,8 +5,6 @@
 // module to calculate screen dimentions given a window.
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   var NOT_REPORTED_VALUE = 'none';
 
@@ -24,6 +22,6 @@ define(function (require, exports, module) {
     this.screenWidth = screen.width || NOT_REPORTED_VALUE;
   }
 
-  module.exports = ScreenInfo;
+  export default ScreenInfo;
 });
 

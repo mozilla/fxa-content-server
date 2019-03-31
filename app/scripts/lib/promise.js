@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const ES6Promise = require('es6-promise');
+  import ES6Promise from 'es6-promise';
 
   // polyfill ES6 promises on browsers that do not support them.
   ES6Promise.polyfill();
 
-  module.exports = {
+  export default {
     /**
      * Return a promise that resolves after `delayMS`.
      *

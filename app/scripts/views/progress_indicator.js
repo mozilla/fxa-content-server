@@ -17,12 +17,10 @@
 // the progress indicator is not hidden.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const Backbone = require('backbone');
-  const Cocktail = require('cocktail');
-  const TimerMixin = require('./mixins/timer-mixin');
+  import $ from 'jquery';
+  import Backbone from 'backbone';
+  import Cocktail from 'cocktail';
+  import TimerMixin from './mixins/timer-mixin';
 
   // The show and hide delays are to minimize flash.
   var SHOW_DELAY_MS = 100;
@@ -159,6 +157,6 @@ define(function (require, exports, module) {
     TimerMixin
   );
 
-  module.exports = View;
+  export default View;
 });
 

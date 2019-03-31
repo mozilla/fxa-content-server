@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const BaseView = require('views/base');
-  const Broker = require('models/auth_brokers/base');
-  const Cocktail = require('cocktail');
-  const OpenWebmailMixin = require('views/mixins/open-webmail-mixin');
-  const sinon = require('sinon');
-  const Template = require('templates/test_template.mustache');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import BaseView from 'views/base';
+  import Broker from 'models/auth_brokers/base';
+  import Cocktail from 'cocktail';
+  import OpenWebmailMixin from 'views/mixins/open-webmail-mixin';
+  import sinon from 'sinon';
+  import Template from 'templates/test_template.mustache';
 
   const EMAIL = 'testuser@gmail.com';
 

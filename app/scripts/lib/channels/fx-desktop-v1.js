@@ -7,12 +7,10 @@
 // the v1 way of communicating with the browser for Sync.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const DuplexChannel = require('lib/channels/duplex');
-  const FxDesktopV1Sender = require('lib/channels/senders/fx-desktop-v1');
-  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
+  import _ from 'underscore';
+  import DuplexChannel from 'lib/channels/duplex';
+  import FxDesktopV1Sender from 'lib/channels/senders/fx-desktop-v1';
+  import PostMessageReceiver from 'lib/channels/receivers/postmessage';
 
   function FxDesktopV1Channel() {
   }
@@ -69,7 +67,7 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxDesktopV1Channel;
+  export default FxDesktopV1Channel;
 });
 
 

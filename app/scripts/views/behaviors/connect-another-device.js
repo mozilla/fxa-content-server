@@ -11,10 +11,8 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const Cocktail = require('cocktail');
-  const ConnectAnotherDeviceMixin = require('../mixins/connect-another-device-mixin');
+  import Cocktail from 'cocktail';
+  import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
 
   /**
    * Create a ConnectAnotherDevice behavior.
@@ -23,7 +21,7 @@ define(function(require, exports, module) {
    *   for ConnectAnotherDevice
    * @returns {Function} behavior
    */
-  module.exports = function (defaultBehavior) {
+  export default (defaultBehavior) => {
     const behavior = function (view, account) {
       return Promise.resolve().then(() => {
         behavior.ensureConnectAnotherDeviceMixin(view);

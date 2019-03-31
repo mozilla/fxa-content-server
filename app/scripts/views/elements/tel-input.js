@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
-  const CountryTelephoneInfo = require('../../lib/country-telephone-info');
-  const textInput = require('./text-input');
+  import AuthErrors from '../../lib/auth-errors';
+  import CountryTelephoneInfo from '../../lib/country-telephone-info';
+  import textInput from './text-input';
 
   const DEFAULT_COUNTRY = 'US';
 
@@ -40,5 +38,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = element;
+  export default element;
 });

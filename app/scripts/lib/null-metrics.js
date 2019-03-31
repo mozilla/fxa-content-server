@@ -8,10 +8,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Metrics = require('./metrics');
+  import _ from 'underscore';
+  import Metrics from './metrics';
 
   function NullMetrics () {
     // do nothing
@@ -32,7 +30,7 @@ define(function (require, exports, module) {
     return false;
   };
 
-  module.exports = NullMetrics;
+  export default NullMetrics;
 });
 
 

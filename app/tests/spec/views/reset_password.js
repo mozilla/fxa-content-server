@@ -3,22 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const Backbone = require('backbone');
-  const Broker = require('models/auth_brokers/base');
-  const FormPrefill = require('models/form-prefill');
-  const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
-  const Relier = require('models/reliers/relier');
-  const SentryMetrics = require('lib/sentry');
-  const sinon = require('sinon');
-  const TestHelpers = require('../../lib/helpers');
-  const View = require('views/reset_password');
+  import _ from 'underscore';
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import AuthErrors from 'lib/auth-errors';
+  import Backbone from 'backbone';
+  import Broker from 'models/auth_brokers/base';
+  import FormPrefill from 'models/form-prefill';
+  import Metrics from 'lib/metrics';
+  import Notifier from 'lib/channels/notifier';
+  import Relier from 'models/reliers/relier';
+  import SentryMetrics from 'lib/sentry';
+  import sinon from 'sinon';
+  import TestHelpers from '../../lib/helpers';
+  import View from 'views/reset_password';
 
   var wrapAssertion = TestHelpers.wrapAssertion;
 

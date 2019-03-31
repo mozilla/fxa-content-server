@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
+  import _ from 'underscore';
 
   var DEFAULT_DISPLAY_LENGTH = 240;
   var DEFAULT_EXPORT_LENGTH = 480;
@@ -302,6 +300,6 @@ define(function (require, exports, module) {
     return this.canvas.toBlob(cb, type, quality);
   };
 
-  module.exports = Cropper;
+  export default Cropper;
 });
 

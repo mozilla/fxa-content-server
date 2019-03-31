@@ -3,17 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const AuthErrors = require('../../lib/auth-errors');
-  const AvatarMixin = require('../mixins/avatar-mixin');
-  const Cocktail = require('cocktail');
-  const CropperImage = require('../../models/cropper-image');
-  const FormView = require('../form');
-  const ImageLoader = require('../../lib/image-loader');
-  const ModalSettingsPanelMixin = require('../mixins/modal-settings-panel-mixin');
-  const Template = require('templates/settings/avatar_change.mustache');
+  import $ from 'jquery';
+  import AuthErrors from '../../lib/auth-errors';
+  import AvatarMixin from '../mixins/avatar-mixin';
+  import Cocktail from 'cocktail';
+  import CropperImage from '../../models/cropper-image';
+  import FormView from '../form';
+  import ImageLoader from '../../lib/image-loader';
+  import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
+  import Template from 'templates/settings/avatar_change.mustache';
 
   const proto = FormView.prototype;
   const View = FormView.extend({
@@ -145,5 +143,5 @@ define(function (require, exports, module) {
     ModalSettingsPanelMixin
   );
 
-  module.exports = View;
+  export default View;
 });

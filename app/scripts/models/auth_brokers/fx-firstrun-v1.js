@@ -8,11 +8,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
-  const HaltBehavior = require('../../views/behaviors/halt');
+  import _ from 'underscore';
+  import FxSyncWebChannelAuthenticationBroker from '../auth_brokers/fx-sync-web-channel';
+  import HaltBehavior from '../../views/behaviors/halt';
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
@@ -92,5 +90,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxFirstrunV1AuthenticationBroker;
+  export default FxFirstrunV1AuthenticationBroker;
 });

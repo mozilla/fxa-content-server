@@ -200,4 +200,4 @@ Cocktail.mixin(
   ServiceMixin
 );
 
-module.exports = View;
+export default View;

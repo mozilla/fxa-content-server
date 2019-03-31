@@ -5,11 +5,9 @@
 /**
  * Is Sentry error reporting enabled for the user?
  */
-'use strict';
+import BaseGroupingRule from './base';
 
-const BaseGroupingRule = require('./base');
-
-module.exports = class SentryGroupingRule extends BaseGroupingRule {
+export default class SentryGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'sentryEnabled';
@@ -35,4 +33,4 @@ module.exports = class SentryGroupingRule extends BaseGroupingRule {
 
     return env === 'development' ? 1.0 : 0.3;
   }
-};
+}

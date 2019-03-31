@@ -18,14 +18,12 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const Cocktail = require('cocktail');
-  const ResumeTokenMixin = require('./mixins/resume-token');
-  const UrlMixin = require('./mixins/url');
-  const Storage = require('../lib/storage');
-  const uuid = require('uuid');
+  import Backbone from 'backbone';
+  import Cocktail from 'cocktail';
+  import ResumeTokenMixin from './mixins/resume-token';
+  import UrlMixin from './mixins/url';
+  import Storage from '../lib/storage';
+  import uuid from 'uuid';
 
   var Model = Backbone.Model.extend({
     initialize (options) {
@@ -73,5 +71,5 @@ define(function (require, exports, module) {
     UrlMixin
   );
 
-  module.exports = Model;
+  export default Model;
 });

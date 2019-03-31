@@ -17,14 +17,12 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import AuthErrors from '../../lib/auth-errors';
+  import ErrorUtils from '../../lib/error-utils';
+  import ResumeToken from '../resume-token';
+  import vat from '../../lib/vat';
 
-  const AuthErrors = require('../../lib/auth-errors');
-  const ErrorUtils = require('../../lib/error-utils');
-  const ResumeToken = require('../resume-token');
-  const vat = require('../../lib/vat');
-
-  module.exports = {
+  export default {
     /**
      * Get an object of values that should be stored in a ResumeToken
      *

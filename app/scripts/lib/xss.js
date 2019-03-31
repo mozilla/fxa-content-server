@@ -5,12 +5,10 @@
 // Basic XSS protection
 
 define(function (require, exports, module) {
-  'use strict';
+  import _ from 'underscore';
+  import Constants from './constants';
 
-  const _ = require('underscore');
-  const Constants = require('./constants');
-
-  module.exports = {
+  export default {
     // only allow http or https URLs, encoding the URL.
     href (text) {
       if (! _.isString(text)) {

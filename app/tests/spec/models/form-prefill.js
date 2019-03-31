@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const FormPrefill = require('models/form-prefill');
+  import chai from 'chai';
+  import FormPrefill from 'models/form-prefill';
 
   var assert = chai.assert;
 

@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const SyncEngines = require('models/sync-engines');
-  const sinon = require('sinon');
-  const UserAgent = require('lib/user-agent');
-  const WindowMock = require('../../mocks/window');
+  import { assert } from 'chai';
+  import SyncEngines from 'models/sync-engines';
+  import sinon from 'sinon';
+  import UserAgent from 'lib/user-agent';
+  import WindowMock from '../../mocks/window';
 
   const DEFAULT_SYNC_ENGINE_IDS = [
     'tabs',

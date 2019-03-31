@@ -8,10 +8,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const BaseView = require('./base');
-  const Template = require('templates/clear_storage.mustache');
+  import BaseView from './base';
+  import Template from 'templates/clear_storage.mustache';
 
   var View = BaseView.extend({
     template: Template,
@@ -27,6 +25,6 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = View;
+  export default View;
 });
 

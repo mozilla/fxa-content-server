@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require) {
-  'use strict';
-
-  const assert = require('chai').assert;
-  const Email = require('models/email');
+  import { assert } from 'chai';
+  import Email from 'models/email';
 
   describe('models/email', function () {
     let email;

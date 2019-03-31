@@ -7,8 +7,6 @@
 // e.g. send an email.
 
 define(function (require, exports, module) {
-  'use strict';
-
   return {
     PASSWORD_CHANGE: 'password_change',
     PASSWORD_CHECK: 'password_check',

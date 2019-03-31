@@ -12,9 +12,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
+  import $ from 'jquery';
 
   function shouldConvertExternalLinksToText(broker) {
     // not all views have a broker, e.g., the CoppaAgeInput
@@ -34,7 +32,7 @@ define(function (require, exports, module) {
     }
   }
 
-  module.exports = {
+  export default {
     afterRender () {
       const $externalLinks = this.$('a[href^=http]');
       const isAboutAccounts = this.broker &&

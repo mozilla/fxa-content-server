@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const Raven = require('raven');
-  const sinon = require('sinon');
-  const WebChannelReceiver = require('lib/channels/receivers/web-channel');
-  const WindowMock = require('../../../../mocks/window');
+  import { assert } from 'chai';
+  import Raven from 'raven';
+  import sinon from 'sinon';
+  import WebChannelReceiver from 'lib/channels/receivers/web-channel';
+  import WindowMock from '../../../../mocks/window';
 
   var windowMock;
   var receiver;

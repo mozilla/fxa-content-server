@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const chai = require('chai');
-  const Cocktail = require('cocktail');
-  const ResumeToken = require('models/resume-token');
-  const ResumeTokenMixin = require('models/mixins/resume-token');
-  const sinon = require('sinon');
-  const vat = require('lib/vat');
+  import Backbone from 'backbone';
+  import chai from 'chai';
+  import Cocktail from 'cocktail';
+  import ResumeToken from 'models/resume-token';
+  import ResumeTokenMixin from 'models/mixins/resume-token';
+  import sinon from 'sinon';
+  import vat from 'lib/vat';
 
   var assert = chai.assert;
 

@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const ResumeToken = require('models/resume-token');
+  import { assert } from 'chai';
+  import ResumeToken from 'models/resume-token';
 
   var EMAIL = 'testuser@testuser.com';
   var ENTRYPOINT = 'entrypoint';

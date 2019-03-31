@@ -10,15 +10,13 @@
  * @mixin DisableFormMixin
  */
 define(function (require, exports, module) {
-  'use strict';
-
   // Settings panels have two `primary` buttons, the first is the button
   // to open/close the panel, the second to submit. Only the submit button
   // should be disabled.
   const BUTTON_SELECTOR = 'button[type=submit]';
   const DISABLED_CLASS = 'disabled';
 
-  module.exports = {
+  export default {
     afterRender () {
       this.onFormChange();
     },

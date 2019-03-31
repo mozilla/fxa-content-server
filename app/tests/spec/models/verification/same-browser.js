@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const SameBrowserVerificationModel = require('models/verification/same-browser');
-  const sinon = require('sinon');
-  const Storage = require('lib/storage');
+  import chai from 'chai';
+  import SameBrowserVerificationModel from 'models/verification/same-browser';
+  import sinon from 'sinon';
+  import Storage from 'lib/storage';
 
   var assert = chai.assert;
 

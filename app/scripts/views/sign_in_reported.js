@@ -7,12 +7,10 @@
  * a suspicious sign-in attempt.
  */
 define(function (require, exports, module) {
-  'use strict';
+  import BaseView from './base';
+  import Template from 'templates/sign_in_reported.mustache';
 
-  const BaseView = require('./base');
-  const Template = require('templates/sign_in_reported.mustache');
-
-  module.exports = BaseView.extend({
+  export default BaseView.extend({
     template: Template
   });
 });

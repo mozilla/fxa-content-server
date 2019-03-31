@@ -8,8 +8,6 @@
  * directly from FxA.
  */
 define(function (require, exports, module) {
-  'use strict';
-
   const _ = require ('underscore');
   const t = msg => msg;
 

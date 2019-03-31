@@ -5,9 +5,7 @@
 // Handle signed-in notifications.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Notifier = require('../../lib/channels/notifier');
+  import Notifier from '../../lib/channels/notifier';
 
   var Mixin = {
     notifications: {
@@ -27,5 +25,5 @@ define(function (require, exports, module) {
   Mixin.notifications[Notifier.SIGNED_IN] =
               '_navigateToSignedInView';
 
-  module.exports = Mixin;
+  export default Mixin;
 });

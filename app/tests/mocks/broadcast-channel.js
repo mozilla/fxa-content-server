@@ -6,9 +6,7 @@
 // See https://developer.mozilla.org/docs/Web/API/Broadcast_Channel_API
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const sinon = require('sinon');
+  import sinon from 'sinon';
 
   function BroadcastChannelMock (name) {
     this._name = name;
@@ -18,6 +16,6 @@ define(function (require, exports, module) {
     postMessage: sinon.spy()
   };
 
-  module.exports = BroadcastChannelMock;
+  export default BroadcastChannelMock;
 });
 

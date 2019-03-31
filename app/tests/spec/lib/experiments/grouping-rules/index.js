@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const BaseChoiceRule = require('lib/experiments/grouping-rules/base');
-  const ExperimentGroupingRules = require('lib/experiments/grouping-rules/index');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import BaseChoiceRule from 'lib/experiments/grouping-rules/base';
+  import ExperimentGroupingRules from 'lib/experiments/grouping-rules/index';
+  import sinon from 'sinon';
 
   describe('lib/experiments/grouping-rules/index', () => {
     it('EXPERIMENT_NAMES is exported', () => {

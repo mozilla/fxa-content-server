@@ -7,10 +7,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
+  import Backbone from 'backbone';
+  import Constants from '../lib/constants';
 
   var Device = Backbone.Model.extend({
     defaults: {
@@ -35,6 +33,6 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = Device;
+  export default Device;
 });
 

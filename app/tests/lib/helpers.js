@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Constants = require('lib/constants');
-  const ProfileMock = require('../mocks/profile.js');
-  const sinon = require('sinon');
+  import _ from 'underscore';
+  import Constants from 'lib/constants';
+  import ProfileMock from '../mocks/profile.js';
+  import sinon from 'sinon';
 
   function noOp () {}
 
@@ -156,7 +154,7 @@ define(function (require, exports, module) {
     return profileClientMock;
   }
 
-  module.exports = {
+  export default {
     addFxaClientSpy: addFxaClientSpy,
     createEmail: createEmail,
     createRandomHexString: createRandomHexString,

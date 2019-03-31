@@ -8,14 +8,12 @@
  * The experiment can be removed in train-113 once the numbers of people
  * reporting q3FormChanges are sufficiently low.
  */
-'use strict';
+import BaseGroupingRule from './base';
 
-const BaseGroupingRule = require('./base');
-
-module.exports = class Q3FormChanges extends BaseGroupingRule {
+export default class Q3FormChanges extends BaseGroupingRule {
   constructor () {
     super();
     this.deprecated = true;
     this.name = 'q3FormChanges';
   }
-};
+}

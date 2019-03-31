@@ -8,13 +8,11 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
-  const Cocktail = require('cocktail');
-  const UrlMixin = require('../lib/url-mixin');
-  const UserAgentMixin = require('../lib/user-agent-mixin');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
+  import Cocktail from 'cocktail';
+  import UrlMixin from '../lib/url-mixin';
+  import UserAgentMixin from '../lib/user-agent-mixin';
 
   const t = msg => msg;
 
@@ -136,5 +134,5 @@ define(function(require, exports, module) {
     UserAgentMixin
   );
 
-  module.exports = SyncEngines;
+  export default SyncEngines;
 });

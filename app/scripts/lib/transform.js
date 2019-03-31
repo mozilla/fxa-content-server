@@ -17,11 +17,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import Vat from './vat';
 
-  const Vat = require('./vat');
-
-  module.exports = {
+  export default {
     /**
      * Transform and validate `data` using `schema`.
      *

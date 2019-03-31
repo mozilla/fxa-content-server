@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const Account = require('models/account');
-  const { assert } = require('chai');
-  const SettingsBehavior = require('views/behaviors/settings');
-  const NullBehavior = require('views/behaviors/null');
-  const sinon = require('sinon');
+  import Account from 'models/account';
+  import { assert } from 'chai';
+  import SettingsBehavior from 'views/behaviors/settings';
+  import NullBehavior from 'views/behaviors/null';
+  import sinon from 'sinon';
 
   describe('views/behaviors/settings', () => {
     let settingsBehavior;

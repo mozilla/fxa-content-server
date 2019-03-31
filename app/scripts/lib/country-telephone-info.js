@@ -72,7 +72,7 @@ function ensurePrefix (prefix) {
   };
 }
 
-module.exports = {
+export default {
   // Austria
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Austria
   AT: {

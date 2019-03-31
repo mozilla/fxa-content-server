@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const NullChannel = require('lib/channels/null');
+  import NullChannel from 'lib/channels/null';
 
   var channel;
 

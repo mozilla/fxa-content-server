@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const View = require('views/sign_in_reported');
+  import { assert } from 'chai';
+  import View from 'views/sign_in_reported';
 
   describe('views/sign_in_reported', function () {
     let view;

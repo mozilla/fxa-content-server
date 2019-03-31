@@ -5,11 +5,9 @@
 // Shared implementation of `signUp` view method
 
 define(function (require, exports, module) {
-  'use strict';
+  import ResumeTokenMixin from './resume-token-mixin';
 
-  const ResumeTokenMixin = require('./resume-token-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ ResumeTokenMixin ],
 
     /*anchor tag present in both signin and signup views*/

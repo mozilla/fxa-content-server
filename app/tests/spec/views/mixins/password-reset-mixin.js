@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const assert = require('chai').assert;
-  const PasswordResetMixin = require('views/mixins/password-reset-mixin');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import PasswordResetMixin from 'views/mixins/password-reset-mixin';
+  import sinon from 'sinon';
 
   describe('views/mixins/password-reset-mixin', function () {
     describe('interface', function () {

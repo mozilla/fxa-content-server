@@ -7,9 +7,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
+  import _ from 'underscore';
 
   const NavigationBehavior = function (endpoint, options = {}) {
     const behavior = function (view, account) {
@@ -30,6 +28,6 @@ define(function (require, exports, module) {
     return behavior;
   };
 
-  module.exports = NavigationBehavior;
+  export default NavigationBehavior;
 });
 

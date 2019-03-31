@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const NullStorage = require('lib/null-storage');
+  import chai from 'chai';
+  import NullStorage from 'lib/null-storage';
 
   var assert = chai.assert;
 

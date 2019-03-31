@@ -8,10 +8,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
 
   var ResumeToken = Backbone.Model.extend({
     defaults: {
@@ -71,6 +69,6 @@ define(function (require, exports, module) {
     stringify: stringify
   });
 
-  module.exports = ResumeToken;
+  export default ResumeToken;
 });
 

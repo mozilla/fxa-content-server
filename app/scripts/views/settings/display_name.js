@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AvatarMixin = require('../mixins/avatar-mixin');
-  const Cocktail = require('cocktail');
-  const DisableFormMixin = require('../mixins/disable-form-mixin');
-  const FormView = require('../form');
-  const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
-  const Template = require('templates/settings/display_name.mustache');
+  import AvatarMixin from '../mixins/avatar-mixin';
+  import Cocktail from 'cocktail';
+  import DisableFormMixin from '../mixins/disable-form-mixin';
+  import FormView from '../form';
+  import SettingsPanelMixin from '../mixins/settings-panel-mixin';
+  import Template from 'templates/settings/display_name.mustache';
 
   const t = msg => msg;
 
@@ -67,5 +65,5 @@ define(function (require, exports, module) {
     SettingsPanelMixin,
   );
 
-  module.exports = View;
+  export default View;
 });

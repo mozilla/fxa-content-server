@@ -8,14 +8,12 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
+  import _ from 'underscore';
+  import Constants from '../../lib/constants';
+  import Url from '../../lib/url';
+  import UserAgentMixin from '../../lib/user-agent-mixin';
 
-  const _ = require('underscore');
-  const Constants = require('../../lib/constants');
-  const Url = require('../../lib/url');
-  const UserAgentMixin = require('../../lib/user-agent-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ UserAgentMixin ],
 
     /**

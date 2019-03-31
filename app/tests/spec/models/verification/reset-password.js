@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const Constants = require('lib/constants');
-  const Model = require('models/verification/reset-password');
-  const TestHelpers = require('../../../lib/helpers');
+  import chai from 'chai';
+  import Constants from 'lib/constants';
+  import Model from 'models/verification/reset-password';
+  import TestHelpers from '../../../lib/helpers';
 
   var assert = chai.assert;
 

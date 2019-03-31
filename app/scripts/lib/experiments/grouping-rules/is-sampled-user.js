@@ -5,11 +5,9 @@
 /**
  * Are metrics enabled for the user?
  */
-'use strict';
+import BaseGroupingRule from './base';
 
-const BaseGroupingRule = require('./base');
-
-module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
+export default class IsSampledUserGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'isSampledUser';
@@ -36,4 +34,4 @@ module.exports = class IsSampledUserGroupingRule extends BaseGroupingRule {
 
     return env === 'development' ? 1.0 : 0.1;
   }
-};
+}

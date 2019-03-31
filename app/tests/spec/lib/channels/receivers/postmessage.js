@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
-  const sinon = require('sinon');
-  const WindowMock = require('../../../../mocks/window');
+  import { assert } from 'chai';
+  import AuthErrors from 'lib/auth-errors';
+  import PostMessageReceiver from 'lib/channels/receivers/postmessage';
+  import sinon from 'sinon';
+  import WindowMock from '../../../../mocks/window';
 
   let windowMock;
   let receiver;

@@ -4,8 +4,6 @@
 
 // A mock for Backbone.history
 define(function (require, exports, module) {
-  'use strict';
-
 
   function History() {}
 
@@ -14,5 +12,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = History;
+  export default History;
 });

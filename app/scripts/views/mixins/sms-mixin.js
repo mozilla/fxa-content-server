@@ -9,11 +9,9 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
+  import ExperimentMixin from './experiment-mixin';
 
-  const ExperimentMixin = require('./experiment-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ ExperimentMixin ],
 
     /**

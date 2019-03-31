@@ -6,10 +6,8 @@
 // or sessionStorage.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const NullStorage = require('./null-storage');
-  const Url = require('./url');
+  import NullStorage from './null-storage';
+  import Url from './url';
 
   var NAMESPACE = '__fxa_storage';
 
@@ -152,5 +150,5 @@ define(function (require, exports, module) {
     return storage;
   };
 
-  module.exports = Storage;
+  export default Storage;
 });

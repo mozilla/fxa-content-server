@@ -9,9 +9,7 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
+  import Backbone from 'backbone';
 
   var Model = Backbone.Model.extend({
     defaults: {
@@ -30,7 +28,7 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = Model;
+  export default Model;
 });
 
 

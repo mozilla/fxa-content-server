@@ -8,13 +8,11 @@
  * It sorts items in order that is defined in FxA-89 feature description.
  */
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
-  const Constants = require('../lib/constants');
-  const Device = require('./device');
-  const OAuthApp = require('./oauth-app');
-  const WebSession = require('./web-session');
+  import Backbone from 'backbone';
+  import Constants from '../lib/constants';
+  import Device from './device';
+  import OAuthApp from './oauth-app';
+  import WebSession from './web-session';
 
   var AttachedClients = Backbone.Collection.extend({
     model: function(attrs, options) {
@@ -113,5 +111,5 @@ define(function (require, exports, module) {
 
   });
 
-  module.exports = AttachedClients;
+  export default AttachedClients;
 });

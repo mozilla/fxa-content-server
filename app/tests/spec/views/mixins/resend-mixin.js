@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const AuthErrors = require('lib/auth-errors');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const ResendMixin = require('views/mixins/resend-mixin');
-  const sinon = require('sinon');
-  const TestTemplate = require('templates/confirm.mustache');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import AuthErrors from 'lib/auth-errors';
+  import BaseView from 'views/base';
+  import Cocktail from 'cocktail';
+  import ResendMixin from 'views/mixins/resend-mixin';
+  import sinon from 'sinon';
+  import TestTemplate from 'templates/confirm.mustache';
 
   const View = BaseView.extend({
     resend: () => Promise.resolve(),

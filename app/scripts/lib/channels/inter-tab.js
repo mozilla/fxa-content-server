@@ -13,10 +13,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
 
   const BROADCAST_CHANNEL_ID = 'firefox_accounts';
 
@@ -57,5 +55,5 @@ define(function (require, exports, module) {
   };
 
   _.extend(BroadcastChannelAdapter.prototype, Backbone.Events);
-  module.exports = BroadcastChannelAdapter;
+  export default BroadcastChannelAdapter;
 });

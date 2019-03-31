@@ -8,11 +8,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Metrics = require('./metrics');
-  const Storage = require('./storage');
+  import _ from 'underscore';
+  import Metrics from './metrics';
+  import Storage from './storage';
 
   var storage = Storage.factory('localStorage');
 
@@ -40,5 +38,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = StorageMetrics;
+  export default StorageMetrics;
 });

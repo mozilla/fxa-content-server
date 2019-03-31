@@ -14,10 +14,8 @@
  * about circular dependencies.
  */
 define(function (require, exports, module) {
-  'use strict';
-
-  const Cocktail = require('cocktail-lib');
-  const _ = require('underscore');
+  import Cocktail from 'cocktail-lib';
+  import _ from 'underscore';
 
   function mixin (target, ...mixins) {
     Cocktail.mixin(target, ...getAllMixins(mixins));
@@ -52,7 +50,7 @@ define(function (require, exports, module) {
     return _.every(Object.keys(mixin), (key) => key in target);
   }
 
-  module.exports = {
+  export default {
     isMixedIn,
     mixin
   };

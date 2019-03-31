@@ -5,12 +5,10 @@
 // View mixin to get a ResumeToken model in a consistent fashion.
 
 define(function (require, exports, module) {
-  'use strict';
+  import _ from 'underscore';
+  import ResumeToken from '../../models/resume-token';
 
-  const _ = require('underscore');
-  const ResumeToken = require('../../models/resume-token');
-
-  module.exports = {
+  export default {
     /**
      * Get a ResumeToken model.
      *

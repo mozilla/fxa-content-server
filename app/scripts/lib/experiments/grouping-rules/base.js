@@ -1,12 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import md5 from 'js-md5';
 
-'use strict';
-
-const md5 = require('js-md5');
-
-module.exports = class BaseGroupingRule {
+export default class BaseGroupingRule {
   /**
    * Return a 32 bit hash of `key`
    *
@@ -76,4 +73,4 @@ module.exports = class BaseGroupingRule {
     return /.+@softvision\.(com|ro)$/.test(email) ||
            /.+@mozilla\.(com|org)$/.test(email);
   }
-};
+}

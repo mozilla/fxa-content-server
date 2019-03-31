@@ -5,13 +5,11 @@
 // A ux utility to suggest correct spelling of email domains
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const $ = require('jquery');
-  const KeyCodes = require('./key-codes');
+  import _ from 'underscore';
+  import $ from 'jquery';
+  import KeyCodes from './key-codes';
   require('mailcheck');
-  const Tooltip = require('../views/tooltip');
+  import Tooltip from '../views/tooltip';
   const t = msg => msg;
 
   const DOMAINS = [];
@@ -30,7 +28,7 @@ define(function (require, exports, module) {
    * @param {Object} target DOM input node to target with mailcheck
    * @param {Object} view View mailcheck is used with
    */
-  module.exports = function checkMailInput(target, view) {
+  function checkMailInput(target, view) {
     var element = $(target);
     if (! element.length || ! view) {
       return;
@@ -87,5 +85,7 @@ define(function (require, exports, module) {
       });
     }
     element.data('previousValue', element.val());
-  };
+  }
+
+  export default checkMailInput;
 });

@@ -8,7 +8,7 @@
  * it maps context strings to auth broker constructors.
  */
 
-const Constants = require('../../lib/constants');
+import Constants from '../../lib/constants';
 
 const AUTH_BROKERS = [
   /* eslint-disable sorting/sort-object-props */
@@ -62,7 +62,7 @@ const AUTH_BROKERS = [
   return authBrokers;
 }, {});
 
-module.exports = {
+export default {
   /**
    * Return the appropriate auth broker constructor for the given context.
    *

@@ -7,8 +7,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   var HaltBehavior = function () {
     var behavior = function (view) {
       // return a promise that never resolves to halt promise based flows.
@@ -22,6 +20,6 @@ define(function (require, exports, module) {
     return behavior;
   };
 
-  module.exports = HaltBehavior;
+  export default HaltBehavior;
 });
 

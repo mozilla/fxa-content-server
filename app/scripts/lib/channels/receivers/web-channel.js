@@ -9,12 +9,10 @@
 
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
-  const Logger = require('lib/logger');
-  const Raven = require('raven');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
+  import Logger from 'lib/logger';
+  import Raven from 'raven';
 
   function WebChannelReceiver() {
     // nothing to do
@@ -109,5 +107,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = WebChannelReceiver;
+  export default WebChannelReceiver;
 });

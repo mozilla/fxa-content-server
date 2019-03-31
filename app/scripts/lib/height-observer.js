@@ -8,10 +8,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
 
   function HeightObserver (options) {
     options = options || {};
@@ -74,6 +72,6 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = HeightObserver;
+  export default HeightObserver;
 });
 

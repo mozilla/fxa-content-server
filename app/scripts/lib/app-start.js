@@ -829,4 +829,4 @@ Cocktail.mixin(
   UserAgentMixin,
 );
 
-module.exports = Start;
+export default Start;

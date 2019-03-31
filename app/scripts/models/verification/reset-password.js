@@ -7,12 +7,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import Vat from '../../lib/vat';
+  import VerificationInfo from './base';
 
-  const Vat = require('../../lib/vat');
-  const VerificationInfo = require('./base');
-
-  module.exports = VerificationInfo.extend({
+  export default VerificationInfo.extend({
     defaults: {
       code: null,
       email: null,

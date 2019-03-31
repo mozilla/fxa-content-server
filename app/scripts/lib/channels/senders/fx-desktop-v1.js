@@ -7,8 +7,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   function FxDesktopV1Sender() {
     // nothing to do here.
   }
@@ -48,7 +46,7 @@ define(function (require, exports, module) {
     });
   }
 
-  module.exports = FxDesktopV1Sender;
+  export default FxDesktopV1Sender;
 });
 
 

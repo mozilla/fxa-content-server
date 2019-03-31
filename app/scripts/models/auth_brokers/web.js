@@ -7,13 +7,11 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const BaseBroker = require('../auth_brokers/base');
-  const { CONTENT_SERVER_CONTEXT } = require('../../lib/constants');
-  const NavigateBehavior = require('../../views/behaviors/navigate');
-  const SettingsIfSignedInBehavior = require('../../views/behaviors/settings');
+  import _ from 'underscore';
+  import BaseBroker from '../auth_brokers/base';
+  import { CONTENT_SERVER_CONTEXT } from '../../lib/constants';
+  import NavigateBehavior from '../../views/behaviors/navigate';
+  import SettingsIfSignedInBehavior from '../../views/behaviors/settings';
   const t = msg => msg;
 
   const proto = BaseBroker.prototype;
@@ -26,7 +24,7 @@ define(function (require, exports, module) {
     success: t('Password reset successfully')
   });
 
-  module.exports = BaseBroker.extend({
+  export default BaseBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       afterCompleteResetPassword: redirectToSettingsAfterResetBehavior,
       afterCompleteSignIn: new SettingsIfSignedInBehavior(proto.defaultBehaviors.afterCompleteSignIn),

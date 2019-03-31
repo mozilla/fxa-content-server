@@ -10,11 +10,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import ResumeTokenMixin from './resume-token-mixin';
 
-  const ResumeTokenMixin = require('./resume-token-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ ResumeTokenMixin ],
 
     /**

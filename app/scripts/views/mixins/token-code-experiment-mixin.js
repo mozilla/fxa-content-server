@@ -8,9 +8,7 @@
  * @mixin TokenCodeExperimentMixin
  */
 define(function (require, exports, module) {
-  'use strict';
-
-  const ExperimentMixin = require('./experiment-mixin');
+  import ExperimentMixin from './experiment-mixin';
   const EXPERIMENT_NAME = 'tokenCode';
 
   /**
@@ -18,7 +16,7 @@ define(function (require, exports, module) {
    *
    * @returns {Object} mixin
    */
-  module.exports = {
+  export default {
     dependsOn: [ExperimentMixin],
 
     beforeRender () {

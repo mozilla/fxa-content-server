@@ -189,4 +189,4 @@ Cocktail.mixin(
   SignedInNotificationMixin
 );
 
-module.exports = View;
+export default View;

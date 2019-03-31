@@ -7,8 +7,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   var NullBehavior = function () {
     var behavior = function (/*view*/) {
@@ -19,6 +17,6 @@ define(function (require, exports, module) {
     return behavior;
   };
 
-  module.exports = NullBehavior;
+  export default NullBehavior;
 });
 

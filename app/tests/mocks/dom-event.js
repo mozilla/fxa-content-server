@@ -5,8 +5,6 @@
 // mock out a DOM event
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   function DOMEventMock() {
     // nothing to do
@@ -30,6 +28,6 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = DOMEventMock;
+  export default DOMEventMock;
 });
 

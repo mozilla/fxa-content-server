@@ -3,14 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const assert = require('chai').assert;
-  const Backbone = require('backbone');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const VerificationReasons = require('lib/verification-reasons');
-  const VerificationReasonMixin = require('views/mixins/verification-reason-mixin');
+  import { assert } from 'chai';
+  import Backbone from 'backbone';
+  import BaseView from 'views/base';
+  import Cocktail from 'cocktail';
+  import VerificationReasons from 'lib/verification-reasons';
+  import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
 
   const View = BaseView.extend({});
   Cocktail.mixin(

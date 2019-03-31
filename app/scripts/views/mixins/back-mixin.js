@@ -14,12 +14,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import { preventDefaultThen } from '../base';
+  import KeyCodes from '../../lib/key-codes';
 
-  const { preventDefaultThen } = require('../base');
-  const KeyCodes = require('../../lib/key-codes');
-
-  module.exports = {
+  export default {
     initialize (options = {}) {
       this._canGoBack = !! options.canGoBack;
     },

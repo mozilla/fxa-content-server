@@ -90,4 +90,4 @@ Cocktail.mixin(
   UserCardMixin,
 );
 
-module.exports = SignInPasswordView;
+export default SignInPasswordView;

@@ -10,11 +10,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import UserAgentMixin from '../../lib/user-agent-mixin';
 
-  const UserAgentMixin = require('../../lib/user-agent-mixin');
-
-  module.exports = {
+  export default {
     dependsOn: [ UserAgentMixin ],
 
     /**

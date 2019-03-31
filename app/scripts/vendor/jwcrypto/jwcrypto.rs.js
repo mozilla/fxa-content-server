@@ -2,10 +2,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-var jwcrypto = require('./lib/jwcrypto');
+import jwcrypto from './lib/jwcrypto';
 require('./lib/algs/ds');
 require('./lib/algs/rs');
-module.exports = jwcrypto;
+export default jwcrypto;
 
 },{"./lib/algs/ds":2,"./lib/algs/rs":4,"./lib/jwcrypto":7}],2:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public

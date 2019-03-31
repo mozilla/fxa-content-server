@@ -5,8 +5,6 @@
 // stub out the router object for testing.
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   function CanvasMock() {
     // nothing to do here.
@@ -36,5 +34,5 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = CanvasMock;
+  export default CanvasMock;
 });

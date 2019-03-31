@@ -8,11 +8,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import loadingTemplate from 'templates/loading.mustache';
 
-  const loadingTemplate = require('templates/loading.mustache');
-
-  module.exports = {
+  export default {
     initialize () {
       var loadingHTML = loadingTemplate({});
       this.writeToDOM(loadingHTML);

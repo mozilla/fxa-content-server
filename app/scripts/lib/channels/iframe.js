@@ -10,12 +10,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const DuplexChannel = require('lib/channels/duplex');
-  const PostMessageReceiver = require('lib/channels/receivers/postmessage');
-  const PostMessageSender = require('lib/channels/senders/postmessage');
+  import _ from 'underscore';
+  import DuplexChannel from 'lib/channels/duplex';
+  import PostMessageReceiver from 'lib/channels/receivers/postmessage';
+  import PostMessageSender from 'lib/channels/senders/postmessage';
 
   function IFrameChannel() {
     // constructor, nothing to do.
@@ -76,6 +74,6 @@ define(function (require, exports, module) {
     return parsed;
   };
 
-  module.exports = IFrameChannel;
+  export default IFrameChannel;
 });
 

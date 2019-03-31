@@ -5,10 +5,8 @@
 // test the interpolated library
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const Strings = require('lib/strings');
+  import chai from 'chai';
+  import Strings from 'lib/strings';
 
   var assert = chai.assert;
 

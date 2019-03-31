@@ -8,12 +8,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Backbone = require('backbone');
-  const NotifierMixin = require('lib/channels/notifier-mixin');
-  const Storage = require('lib/storage');
+  import _ from 'underscore';
+  import Backbone from 'backbone';
+  import NotifierMixin from 'lib/channels/notifier-mixin';
+  import Storage from 'lib/storage';
 
   function BaseExperiment() {
     // nothing to do.
@@ -166,5 +164,5 @@ define(function (require, exports, module) {
 
   BaseExperiment.extend = Backbone.Model.extend;
 
-  module.exports = BaseExperiment;
+  export default BaseExperiment;
 });

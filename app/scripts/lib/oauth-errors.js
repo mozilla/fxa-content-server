@@ -5,13 +5,11 @@
 // provides functions to work with errors returned by the auth server.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Errors = require('./errors');
-  const Logger = require('./logger');
+  import _ from 'underscore';
+  import Errors from './errors';
+  import Logger from './logger';
   var logger = new Logger();
-  const Strings = require('./strings');
+  import Strings from './strings';
   const t = msg => msg;
 
   var UNEXPECTED_ERROR = t('Unexpected error');
@@ -142,7 +140,7 @@ define(function (require, exports, module) {
   };
   /*eslint-enable sorting/sort-object-props*/
 
-  module.exports = _.extend({}, Errors, {
+  export default _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'oauth',
 

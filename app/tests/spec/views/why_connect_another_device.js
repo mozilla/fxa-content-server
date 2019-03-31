@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const Notifier = require('lib/channels/notifier');
-  const sinon = require('sinon');
-  const View = require('views/why_connect_another_device');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import Notifier from 'lib/channels/notifier';
+  import sinon from 'sinon';
+  import View from 'views/why_connect_another_device';
 
   describe('views/why_connect_another_device', () => {
     let notifier;

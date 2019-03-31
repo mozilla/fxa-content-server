@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const NullBehavior = require('views/behaviors/null');
+  import NullBehavior from 'views/behaviors/null';
 
   describe('views/behaviors/null', function () {
     it('does nothing', function () {

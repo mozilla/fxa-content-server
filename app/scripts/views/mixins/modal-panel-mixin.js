@@ -10,12 +10,10 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import $ from 'jquery';
+  import Environment from '../../lib/environment';
 
-  const $ = require('jquery');
-  const Environment = require('../../lib/environment');
-
-  module.exports = {
+  export default {
     isModal: true,
 
     notifications: {

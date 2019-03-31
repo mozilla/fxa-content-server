@@ -9,16 +9,14 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const BaseAuthenticationBroker = require('../auth_brokers/base');
-  const ConnectAnotherDeviceBehavior = require('../../views/behaviors/connect-another-device');
-  const SyncEngines = require('../sync-engines');
+  import _ from 'underscore';
+  import BaseAuthenticationBroker from '../auth_brokers/base';
+  import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';
+  import SyncEngines from '../sync-engines';
 
   const proto = BaseAuthenticationBroker.prototype;
 
-  module.exports = BaseAuthenticationBroker.extend({
+  export default BaseAuthenticationBroker.extend({
     defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
       afterCompleteSignIn: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignIn),
       afterCompleteSignUp: new ConnectAnotherDeviceBehavior(proto.defaultBehaviors.afterCompleteSignUp),

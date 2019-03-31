@@ -8,10 +8,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const FxSyncWebChannelAuthenticationBroker = require('../auth_brokers/fx-sync-web-channel');
+  import _ from 'underscore';
+  import FxSyncWebChannelAuthenticationBroker from '../auth_brokers/fx-sync-web-channel';
 
   var proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
@@ -26,5 +24,5 @@ define(function (require, exports, module) {
     type: 'fx-fennec-v1'
   });
 
-  module.exports = FxFennecV1AuthenticationBroker;
+  export default FxFennecV1AuthenticationBroker;
 });

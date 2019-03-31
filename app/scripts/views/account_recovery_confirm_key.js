@@ -110,4 +110,4 @@ Cocktail.mixin(
   ResendMixin
 );
 
-module.exports = View;
+export default View;

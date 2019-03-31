@@ -1,11 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-'use strict';
-
 const {assert} = require('chai');
-const RecoveryKeys = require('lib/crypto/recovery-keys');
+import RecoveryKeys from 'lib/crypto/recovery-keys';
 
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
 const recoveryKey = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';

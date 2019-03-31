@@ -9,12 +9,10 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
+  import UrlMixin from './url-mixin';
+  import UserAgent from './user-agent';
 
-  const UrlMixin = require('./url-mixin');
-  const UserAgent = require('./user-agent');
-
-  module.exports = {
+  export default {
     dependsOn: [
       UrlMixin
     ],

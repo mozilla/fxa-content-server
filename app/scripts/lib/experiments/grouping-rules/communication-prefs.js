@@ -5,10 +5,7 @@
 /**
  * Decide if communication preferences are visible for the user.
  */
-
-'use strict';
-
-const BaseGroupingRule = require('./base');
+import BaseGroupingRule from './base';
 
 const AVAILABLE_LANGUAGES = [
   'de',
@@ -40,7 +37,7 @@ function arrayToRegex (array) {
   return new RegExp(`^(?:${array.join('|')})$`);
 }
 
-module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
+export default class CommunicationPrefsGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'communicationPrefsVisible';
@@ -60,4 +57,4 @@ module.exports = class CommunicationPrefsGroupingRule extends BaseGroupingRule {
 
     return areCommunicationPrefsAvailable(lang, availableLanguages);
   }
-};
+}

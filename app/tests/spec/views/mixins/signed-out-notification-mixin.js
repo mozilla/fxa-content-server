@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const BaseView = require('views/base');
-  const Cocktail = require('cocktail');
-  const Notifier = require('lib/channels/notifier');
-  const SignedOutNotificationMixin = require('views/mixins/signed-out-notification-mixin');
-  const sinon = require('sinon');
-  const WindowMock = require('../../../mocks/window');
+  import { assert } from 'chai';
+  import BaseView from 'views/base';
+  import Cocktail from 'cocktail';
+  import Notifier from 'lib/channels/notifier';
+  import SignedOutNotificationMixin from 'views/mixins/signed-out-notification-mixin';
+  import sinon from 'sinon';
+  import WindowMock from '../../../mocks/window';
 
   const View = BaseView.extend({});
   Cocktail.mixin(View, SignedOutNotificationMixin);

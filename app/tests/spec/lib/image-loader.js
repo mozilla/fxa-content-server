@@ -5,10 +5,8 @@
 // test the metrics library
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const ImageLoader = require('lib/image-loader');
+  import chai from 'chai';
+  import ImageLoader from 'lib/image-loader';
 
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';

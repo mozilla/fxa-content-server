@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const sinon = require('sinon');
-  const View = require('views/tos');
-  const WindowMock = require('../../mocks/window');
+  import chai from 'chai';
+  import sinon from 'sinon';
+  import View from 'views/tos';
+  import WindowMock from '../../mocks/window';
 
   var assert = chai.assert;
 

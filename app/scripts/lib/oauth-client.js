@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const OAuthErrors = require('./oauth-errors');
-  const xhr = require('./xhr');
+  import OAuthErrors from './oauth-errors';
+  import xhr from './xhr';
 
   const CLIENT_TOKENS_API = '/v1/client-tokens';
   const DESTROY_TOKEN = '/v1/destroy';
@@ -125,6 +123,6 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = OAuthClient;
+  export default OAuthClient;
 });
 

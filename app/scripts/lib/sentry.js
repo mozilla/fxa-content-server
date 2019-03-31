@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Logger = require('./logger');
-  const Raven = require('raven');
-  const Url = require('./url');
+  import _ from 'underscore';
+  import Logger from './logger';
+  import Raven from 'raven';
+  import Url from './url';
 
   var ALLOWED_QUERY_PARAMETERS = [
     'automatedBrowser',
@@ -238,6 +236,6 @@ define(function (require, exports, module) {
     __shouldSendCallback: shouldSendCallback
   };
 
-  module.exports = SentryMetrics;
+  export default SentryMetrics;
 });
 

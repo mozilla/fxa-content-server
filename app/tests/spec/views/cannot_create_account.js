@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Broker = require('models/auth_brokers/base');
-  const chai = require('chai');
-  const Relier = require('models/reliers/relier');
-  const sinon = require('sinon');
-  const View = require('views/cannot_create_account');
+  import Broker from 'models/auth_brokers/base';
+  import chai from 'chai';
+  import Relier from 'models/reliers/relier';
+  import sinon from 'sinon';
+  import View from 'views/cannot_create_account';
 
   var assert = chai.assert;
 

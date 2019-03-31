@@ -17,11 +17,9 @@
  */
 
 define(function(require, exports, module) {
-  'use strict';
-
-  const ExperimentMixin = require('./experiment-mixin');
-  const UserAgentMixin = require('../../lib/user-agent-mixin');
-  const VerificationReasonMixin = require('./verification-reason-mixin');
+  import ExperimentMixin from './experiment-mixin';
+  import UserAgentMixin from '../../lib/user-agent-mixin';
+  import VerificationReasonMixin from './verification-reason-mixin';
 
   const REASON_ANDROID = 'sms.ineligible.android';
   const REASON_CONTROL_GROUP = 'sms.ineligible.control_group';

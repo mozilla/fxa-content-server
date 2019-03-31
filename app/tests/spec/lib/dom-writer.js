@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const assert = require('chai').assert;
-  const domWriter = require('lib/dom-writer');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import domWriter from 'lib/dom-writer';
 
   describe('lib/dom-writer', function () {
     var content = '<div id="stage-child">stage child content</div>';

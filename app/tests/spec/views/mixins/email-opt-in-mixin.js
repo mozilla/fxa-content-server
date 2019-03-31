@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const Cocktail = require('cocktail');
-  const EmailOptInMixin = require('views/mixins/email-opt-in-mixin');
-  const sinon = require('sinon');
-  const BaseView = require('views/base');
+  import { assert } from 'chai';
+  import Cocktail from 'cocktail';
+  import EmailOptInMixin from 'views/mixins/email-opt-in-mixin';
+  import sinon from 'sinon';
+  import BaseView from 'views/base';
 
   const View = BaseView.extend({
     template: () => `

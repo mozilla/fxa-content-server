@@ -5,8 +5,6 @@
 // stub out the router object for testing.
 
 define(function (require, exports, module) {
-  'use strict';
-
 
   function Profile() {}
 
@@ -20,5 +18,5 @@ define(function (require, exports, module) {
     Profile.prototype[method] = function () { };
   });
 
-  module.exports = Profile;
+  export default Profile;
 });

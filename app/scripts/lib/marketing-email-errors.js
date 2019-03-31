@@ -5,10 +5,8 @@
 // provides functions to work with errors returned by the auth server.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Errors = require('./errors');
+  import _ from 'underscore';
+  import Errors from './errors';
   const t = msg => msg;
 
   var UNEXPECTED_ERROR = t('Unexpected error');
@@ -86,7 +84,7 @@ define(function (require, exports, module) {
   };
   /*eslint-enable sorting/sort-object-props*/
 
-  module.exports = _.extend({}, Errors, {
+  export default _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'basket-errors',
     normalizeXHRError (xhr) {

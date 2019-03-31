@@ -9,10 +9,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const VerificationReasons = require('../../lib/verification-reasons');
+  import _ from 'underscore';
+  import VerificationReasons from '../../lib/verification-reasons';
 
   function findKey(haystack, needle) {
     return _.findKey(haystack, function (value) {
@@ -20,7 +18,7 @@ define(function (require, exports, module) {
     });
   }
 
-  module.exports = {
+  export default {
     initialize (options) {
       if (! this.model.has('type')) {
         this.model.set('type', options.type || VerificationReasons.SIGN_UP);

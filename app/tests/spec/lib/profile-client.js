@@ -3,12 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const chai = require('chai');
-  const ProfileClient = require('lib/profile-client');
-  const Session = require('lib/session');
-  const sinon = require('sinon');
+  import chai from 'chai';
+  import ProfileClient from 'lib/profile-client';
+  import Session from 'lib/session';
+  import sinon from 'sinon';
 
   var PROFILE_URL = 'http://127.0.0.1:1111';
   var assert = chai.assert;

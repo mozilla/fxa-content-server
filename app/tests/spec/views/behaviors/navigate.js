@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const { assert } = require('chai');
-  const NavigateBehavior = require('views/behaviors/navigate');
-  const sinon = require('sinon');
+  import { assert } from 'chai';
+  import NavigateBehavior from 'views/behaviors/navigate';
+  import sinon from 'sinon';
 
   describe('views/behaviors/navigate', function () {
     it('navigates to the indicated view, passing in success/error options', function () {

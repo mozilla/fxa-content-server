@@ -5,14 +5,12 @@
 // test the metrics library
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const { assert } = require('chai');
-  const mailcheck = require('lib/mailcheck');
-  const p = require('lib/promise');
-  const sinon = require('sinon');
-  const Translator = require('lib/translator');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import mailcheck from 'lib/mailcheck';
+  import p from 'lib/promise';
+  import sinon from 'sinon';
+  import Translator from 'lib/translator';
 
   const BAD_EMAIL = 'something@gnail.com';
   const CORRECTED_EMAIL = 'something@gmail.com';

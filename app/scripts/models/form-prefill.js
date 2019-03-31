@@ -10,9 +10,7 @@
 // These values are not persisted across browser sessions.
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const Backbone = require('backbone');
+  import Backbone from 'backbone';
 
   var FormPrefill = Backbone.Model.extend({
     defaults: {
@@ -22,7 +20,7 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FormPrefill;
+  export default FormPrefill;
 });
 
 

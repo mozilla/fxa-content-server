@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const assert = require('chai').assert;
-  const AuthErrors = require('lib/auth-errors');
-  const Flow = require('models/flow');
-  const ResumeToken = require('models/resume-token');
-  const sinon = require('sinon');
-  const Url = require('lib/url');
-  const WindowMock = require('../../mocks/window');
+  import $ from 'jquery';
+  import { assert } from 'chai';
+  import AuthErrors from 'lib/auth-errors';
+  import Flow from 'models/flow';
+  import ResumeToken from 'models/resume-token';
+  import sinon from 'sinon';
+  import Url from 'lib/url';
+  import WindowMock from '../../mocks/window';
 
   var DEVICE_ID = '0123456789abcdef0123456789abcdef';
   var BODY_FLOW_ID = 'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103';

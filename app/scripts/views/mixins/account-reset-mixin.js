@@ -9,10 +9,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
-  const BaseView = require('../base');
+  import AuthErrors from '../../lib/auth-errors';
+  import BaseView from '../base';
   const t = msg => msg;
 
   var AccountResetMixin = {
@@ -59,6 +57,6 @@ define(function (require, exports, module) {
     }
   };
 
-  module.exports = AccountResetMixin;
+  export default AccountResetMixin;
 });
 

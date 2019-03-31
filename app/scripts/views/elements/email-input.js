@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
-  const Vat = require('../../lib/vat');
+  import AuthErrors from '../../lib/auth-errors';
+  import Vat from '../../lib/vat';
 
   return {
     match ($el) {

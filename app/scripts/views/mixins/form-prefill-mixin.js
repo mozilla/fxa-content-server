@@ -14,8 +14,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   function getKey ($el) {
     return $el.prop('name') || $el.prop('id');
   }
@@ -28,7 +26,7 @@ define(function (require, exports, module) {
            !! formPrefill.get(key);
   }
 
-  module.exports = {
+  export default {
     initialize (options = {}) {
       this.formPrefill = options.formPrefill;
 

@@ -3,17 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const $ = require('jquery');
-  const chai = require('chai');
-  const Cocktail = require('cocktail');
-  const FormView = require('views/form');
-  const Metrics = require('lib/metrics');
-  const Notifier = require('lib/channels/notifier');
-  const SettingsPanelMixin = require('views/mixins/settings-panel-mixin');
-  const sinon = require('sinon');
-  const TestTemplate = require('templates/test_template.mustache');
+  import $ from 'jquery';
+  import chai from 'chai';
+  import Cocktail from 'cocktail';
+  import FormView from 'views/form';
+  import Metrics from 'lib/metrics';
+  import Notifier from 'lib/channels/notifier';
+  import SettingsPanelMixin from 'views/mixins/settings-panel-mixin';
+  import sinon from 'sinon';
+  import TestTemplate from 'templates/test_template.mustache';
 
   var assert = chai.assert;
 

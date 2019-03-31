@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const Errors = require('./errors');
+  import _ from 'underscore';
+  import Errors from './errors';
   const t = msg => msg;
 
   const THROTTLED_ERROR_MESSAGE = t('You\'ve tried too many times. Try again later.');
@@ -64,7 +62,7 @@ define(function (require, exports, module) {
   };
   /*eslint-enable sorting/sort-object-props*/
 
-  module.exports = _.extend({}, Errors, {
+  export default _.extend({}, Errors, {
     ERRORS: ERRORS,
     NAMESPACE: 'profile'
   });

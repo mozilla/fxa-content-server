@@ -13,11 +13,9 @@
  * 6. Access in views via `this.experiments.choose('name from 3')`
  *    or `this.isInExperimentGroup('name from 3', 'group name')`.
  */
-'use strict';
+import BaseGroupingRule from './base';
 
-const BaseGroupingRule = require('./base');
-
-module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
+export default class ChangeMeGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'CHANGE_ME';
@@ -33,4 +31,4 @@ module.exports = class ChangeMeGroupingRule extends BaseGroupingRule {
     // Fill in decision logic here.
     return true;
   }
-};
+}

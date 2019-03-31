@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../lib/auth-errors');
-  const LegalCopyView = require('./legal_copy');
-  const Template = require('templates/tos.mustache');
+  import AuthErrors from '../lib/auth-errors';
+  import LegalCopyView from './legal_copy';
+  import Template from 'templates/tos.mustache';
 
   var View = LegalCopyView.extend({
     className: 'tos',
@@ -20,6 +18,6 @@ define(function (require, exports, module) {
     template: Template
   });
 
-  module.exports = View;
+  export default View;
 });
 

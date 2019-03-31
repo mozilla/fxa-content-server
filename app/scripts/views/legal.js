@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const BaseView = require('./base');
-  const Template = require('templates/legal.mustache');
+  import BaseView from './base';
+  import Template from 'templates/legal.mustache';
 
   var View = BaseView.extend({
     className: 'legal',
     template: Template
   });
 
-  module.exports = View;
+  export default View;
 });
 

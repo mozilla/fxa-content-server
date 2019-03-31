@@ -5,10 +5,8 @@
 /**
  * Should the user be part of the SMS experiment?
  */
-'use strict';
-
-const BaseGroupingRule = require('./base');
-const CountryTelephoneInfo = require('../../country-telephone-info');
+import BaseGroupingRule from './base';
+import CountryTelephoneInfo from '../../country-telephone-info';
 
 // Countries that are in the process of being rolled out
 // have a `control` group so that we can fully compare
@@ -17,7 +15,7 @@ const CountryTelephoneInfo = require('../../country-telephone-info');
 // `control` fares worse.
 const GROUPS_FOR_PARTIAL_ROLLOUT = ['control', 'signinCodes'];
 
-module.exports = class SmsGroupingRule extends BaseGroupingRule {
+export default class SmsGroupingRule extends BaseGroupingRule {
   constructor () {
     super();
     this.name = 'sendSms';
@@ -54,4 +52,4 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
 
     return choice;
   }
-};
+}

@@ -3,16 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const AuthErrors = require('../../lib/auth-errors');
-  const Cocktail = require('cocktail');
-  const FormView = require('../form');
-  const PasswordMixin = require('../mixins/password-mixin');
-  const ServiceMixin = require('../mixins/settings-panel-mixin');
-  const Session = require('../../lib/session');
-  const SettingsPanelMixin = require('../mixins/service-mixin');
-  const Template = require('templates/settings/delete_account.mustache');
+  import AuthErrors from '../../lib/auth-errors';
+  import Cocktail from 'cocktail';
+  import FormView from '../form';
+  import PasswordMixin from '../mixins/password-mixin';
+  import ServiceMixin from '../mixins/settings-panel-mixin';
+  import Session from '../../lib/session';
+  import SettingsPanelMixin from '../mixins/service-mixin';
+  import Template from 'templates/settings/delete_account.mustache';
 
   const t = msg => msg;
 
@@ -60,6 +58,6 @@ define(function (require, exports, module) {
     ServiceMixin,
   );
 
-  module.exports = View;
+  export default View;
 });
 

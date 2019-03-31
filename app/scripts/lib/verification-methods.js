@@ -9,8 +9,6 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
   return {
     EMAIL: 'email',
     EMAIL_2FA: 'email-2fa',

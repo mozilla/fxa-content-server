@@ -10,10 +10,8 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
-
-  const _ = require('underscore');
-  const FxFirstrunV1AuthenticationBroker = require('./fx-firstrun-v1');
+  import _ from 'underscore';
+  import FxFirstrunV1AuthenticationBroker from './fx-firstrun-v1';
 
   var proto = FxFirstrunV1AuthenticationBroker.prototype;
 
@@ -79,5 +77,5 @@ define(function (require, exports, module) {
     }
   });
 
-  module.exports = FxFirstrunV2AuthenticationBroker;
+  export default FxFirstrunV2AuthenticationBroker;
 });

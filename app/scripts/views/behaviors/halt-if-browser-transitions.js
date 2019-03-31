@@ -9,11 +9,9 @@
  */
 
 define(function (require, exports, module) {
-  'use strict';
+  import HaltBehavior from 'views/behaviors/halt';
 
-  const HaltBehavior = require('views/behaviors/halt');
-
-  module.exports = function (defaultBehavior) {
+  export default (defaultBehavior) => {
     const behavior = function (view) {
       if (view.broker.getCapability('browserTransitionsAfterEmailVerification')) {
         return new HaltBehavior();
