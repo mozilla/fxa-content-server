@@ -1,5 +1,8 @@
 # Firefox Accounts Content Server
 
+**This project has moved to https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server**
+
+
 [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
 [![Build Status: Circle CI](https://circleci.com/gh/mozilla/fxa-content-server.svg?style=shield)](https://circleci.com/gh/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
