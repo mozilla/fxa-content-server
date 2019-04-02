@@ -21,14 +21,31 @@ const ResumeTokenMixin = require('./mixins/resume-token');
 const UrlMixin = require('./mixins/url');
 const Storage = require('../lib/storage');
 const vat = require('../lib/vat');
+const ProfileClient = require('../lib/profile-client');
+const MarketingEmailClient = require('../lib/marketing-email-client');
+const OAuthClient = require('../lib/oauth-client');
+const InterTabChannel = require('../lib/channels/inter-tab');
+const FxaClient = require('../lib/fxa-client');
 
 var User = Backbone.Model.extend({
   initialize (options = {}) {
+    this._config = options.config;
+    this._interTabChannel = new InterTabChannel();
     this._oAuthClientId = options.oAuthClientId;
-    this._oAuthClient = options.oAuthClient;
-    this._profileClient = options.profileClient;
-    this._fxaClient = options.fxaClient;
-    this._marketingEmailClient = options.marketingEmailClient;
+    this._oAuthClient = new OAuthClient({
+      oAuthUrl: this._config.oAuthUrl
+    });
+    this._profileClient = new ProfileClient({
+      profileUrl: this._config.profileUrl
+    });
+    this._fxaClient = new FxaClient({
+      authServerUrl: this._config.authServerUrl,
+      interTabChannel: this._interTabChannel
+    });
+    this._marketingEmailClient = new MarketingEmailClient({
+      baseUrl: this._config.marketingEmailServerUrl,
+      preferencesUrl: this._config.marketingEmailPreferencesUrl
+    });
     this._metrics = options.metrics;
     this._assertion = options.assertion;
     this._notifier = options.notifier;
