@@ -83,6 +83,20 @@ button {
   }
 }
 
+.save-option-button {
+  background: none;
+  background-color: transparent;
+  color: $link-color-default;
+  display: inline-block;
+  height: 80px;
+  padding: 10px;
+  width: 0;
+}
+
+.save-option-button:hover {
+  background-color: transparent;
+}
+
 button::-moz-focus-inner {
   border: 0;
   padding: 0;
