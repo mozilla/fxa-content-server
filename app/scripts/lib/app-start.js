@@ -27,18 +27,14 @@ import Constants from './constants';
 import Environment from './environment';
 import ErrorUtils from './error-utils';
 import FormPrefill from '../models/form-prefill';
-import FxaClient from './fxa-client';
 import HeightObserver from './height-observer';
 import IframeChannel from './channels/iframe';
 import InterTabChannel from './channels/inter-tab';
-import MarketingEmailClient from './marketing-email-client';
 import Metrics from './metrics';
 import Notifier from './channels/notifier';
 import NullChannel from './channels/null';
-import OAuthClient from './oauth-client';
 import OAuthRelier from '../models/reliers/oauth';
 import p from './promise';
-import ProfileClient from './profile-client';
 import RefreshObserver from '../models/refresh-observer';
 import Relier from '../models/reliers/relier';
 import Router from './router';
@@ -108,15 +104,11 @@ Start.prototype = {
       .then(() => this.initializeInterTabChannel())
       .then(() => this.initializeExperimentGroupingRules())
       .then(() => this.initializeErrorMetrics())
-      .then(() => this.initializeOAuthClient())
       // both the metrics and router depend on the language
       // fetched from config.
       .then(() => this.initializeRelier())
       // iframe channel depends on the relier.
       .then(() => this.initializeIframeChannel())
-      // fxaClient depends on the relier and
-      // inter tab communication.
-      .then(() => this.initializeFxaClient())
       // depends on nothing
       .then(() => this.initializeNotificationChannel())
       // depends on iframeChannel and interTabChannel, web channel
@@ -125,10 +117,6 @@ Start.prototype = {
       .then(() => this.initializeMetrics())
       // assertionLibrary depends on fxaClient
       .then(() => this.initializeAssertionLibrary())
-      // profileClient depends on fxaClient and assertionLibrary
-      .then(() => this.initializeProfileClient())
-      // marketingEmailClient depends on config
-      .then(() => this.initializeMarketingEmailClient())
       // broker relies on the relier, fxaClient,
       // assertionLibrary, and metrics
       .then(() => this.initializeAuthenticationBroker())
@@ -227,25 +215,6 @@ Start.prototype = {
 
   initializeFormPrefill () {
     this._formPrefill = new FormPrefill();
-  },
-
-  initializeOAuthClient () {
-    this._oAuthClient = new OAuthClient({
-      oAuthUrl: this._config.oAuthUrl
-    });
-  },
-
-  initializeProfileClient () {
-    this._profileClient = new ProfileClient({
-      profileUrl: this._config.profileUrl
-    });
-  },
-
-  initializeMarketingEmailClient () {
-    this._marketingEmailClient = new MarketingEmailClient({
-      baseUrl: this._config.marketingEmailServerUrl,
-      preferencesUrl: this._config.marketingEmailPreferencesUrl
-    });
   },
 
   initializeRelier () {
@@ -378,15 +347,6 @@ Start.prototype = {
       });
 
       heightObserver.start();
-    }
-  },
-
-  initializeFxaClient () {
-    if (! this._fxaClient) {
-      this._fxaClient = new FxaClient({
-        authServerUrl: this._config.authServerUrl,
-        interTabChannel: this._interTabChannel
-      });
     }
   },
 
