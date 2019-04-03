@@ -12,10 +12,10 @@
 
     <nav id="avatar-options">
       <input type="file" id="imageLoader" name="imageLoader" accept="image/png, image/jpeg"/>
-      <a href="#" id="file">{{#t}}Upload{{/t}}</a>
+      <button class="save-option-button" id="file">{{#t}}Upload{{/t}}</button>
       <a href="/settings/avatar/camera" id="camera">{{#t}}Camera{{/t}}</a>
       {{^avatarDefault}}
-      <a href="#" class="remove">{{#t}}Clear{{/t}}</a>
+      <button class="remove save-option-button">{{#t}}Clear{{/t}}</a>
       {{/avatarDefault}}
     </nav>
 
