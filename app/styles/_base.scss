@@ -66,6 +66,10 @@ a {
   @include anchor-default-pseudo-classes();
 }
 
+p {
+  line-height: 23px;
+}
+
 header {
   margin-bottom: 16px;
 
