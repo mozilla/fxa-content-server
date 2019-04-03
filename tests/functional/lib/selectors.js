@@ -13,6 +13,10 @@ const  PASSWORD_BALLOON = {
   NOT_EMAIL_UNMET: '.not-email.unmet',
 };
 
+const VPASSWORD_BALLOON = {
+  BALLOON: '.password-repeat-balloon'
+};
+
 /*eslint-disable max-len*/
 module.exports = {
   '123DONE': {
@@ -304,6 +308,7 @@ module.exports = {
     SHOW_VPASSWORD: '#vpassword ~ .show-password-label',
     SUBMIT: 'button[type="submit"]',
     VPASSWORD: '#vpassword',
+    VPASSWORD_BALLOON,
   },
   SMS_LEARN_MORE: {
     HEADER: '#websites-notice'

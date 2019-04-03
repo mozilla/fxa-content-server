@@ -12,6 +12,7 @@ import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
 import PasswordMixin from './mixins/password-mixin';
 import PasswordStrengthMixin from './mixins/password-strength-mixin';
+import PasswordRepeatMixin from './mixins/password-repeat-mixin';
 import { preventDefaultThen } from './base';
 import ServiceMixin from './mixins/service-mixin';
 import SignUpMixin from './mixins/signup-mixin';
@@ -119,8 +120,12 @@ Cocktail.mixin(
   FlowEventsMixin,
   FormPrefillMixin,
   PasswordMixin,
+  PasswordRepeatMixin({
+    balloonEl: '#vpassword + .helper-balloon',
+    passwordEl: '#vpassword'
+  }),
   PasswordStrengthMixin({
-    balloonEl: '.helper-balloon',
+    balloonEl: '#password + .helper-balloon',
     passwordEl: '#password'
   }),
   ServiceMixin,
